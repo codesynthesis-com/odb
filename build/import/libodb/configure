@@ -1,0 +1,55 @@
+#! /usr/bin/env bash
+
+# file      : build/import/libodb/configure
+# author    : Boris Kolpackov <boris@codesynthesis.com>
+# copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+
+# $1           - out file
+#
+# bld_root     - build root
+# project_name - project name
+#
+
+source $bld_root/dialog.bash
+
+
+$echo
+$echo "Configuring external dependency on 'libodb' for '$project_name'."
+$echo
+
+$echo
+$echo "Would you like to configure dependency on the installed "
+$echo "version of 'libodb' as opposed to the development build?"
+$echo
+
+installed=`read_y_n y`
+
+path=
+
+if [ "$installed" = "n" ]; then
+
+$echo
+$echo "Please enter the src_root for 'libodb'."
+$echo
+
+src_root=`read_path --directory --exist`
+
+$echo
+$echo "Please enter the out_root for 'libodb'."
+$echo
+
+out_root=`read_path --directory $src_root`
+
+fi
+
+echo libodb_installed := $installed   >$1
+
+if [ "$installed" = "n" ]; then
+
+echo src_root := $src_root            >>$1
+echo scf_root := \$\(src_root\)/build >>$1
+echo out_root := $out_root            >>$1
+
+fi
