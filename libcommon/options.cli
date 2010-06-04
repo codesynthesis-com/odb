@@ -1,0 +1,58 @@
+// file      : libcommon/options.cli
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+include <string>;
+
+namespace cli
+{
+  class mysql_options
+  {
+    bool --help {"Print usage information and exit."};
+
+    std::string --user
+    {
+      "<name>",
+      "MySQL database user."
+    };
+
+    std::string --passwd
+    {
+      "<str>",
+      "MySQL database password"
+    };
+
+    std::string --db-name
+    {
+      "<name>",
+      "MySQL database name."
+    };
+
+    std::string --host
+    {
+      "<addr>",
+      "MySQL database host name or address (localhost by default)."
+    };
+
+    unsigned int --port = 0
+    {
+      "<integer>",
+      "MySQL database port number."
+    };
+
+    std::string --socket
+    {
+      "<name>",
+      "MySQL database socket name."
+    };
+
+    std::string --options-file
+    {
+      "<file>",
+      "Read additional options from <file>. Each option appearing on a separate
+       line optionally followed by space and an option value. Empty lines and
+       lines starting with \cb{#} are ignored."
+    };
+  };
+}

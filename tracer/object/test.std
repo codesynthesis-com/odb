@@ -1,0 +1,32 @@
+test 001
+begin transaction
+s 1
+insert ::object1 id 1
+s 2
+commit transaction
+s 3
+test 002
+begin transaction
+s 1
+insert ::object1 id 1
+s 2
+s 3
+delete ::object1 id 1
+commit transaction
+s 4
+test 003
+begin transaction
+s 1
+select ::object1 id 1
+s 2
+commit transaction
+s 3
+test 004
+begin transaction
+s 1
+select ::object1 id 1
+s 2
+s 3
+update ::object1 id 1
+commit transaction
+s 4
