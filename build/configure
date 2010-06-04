@@ -1,0 +1,32 @@
+#! /usr/bin/env bash
+
+# file      : build/configure
+# author    : Boris Kolpackov <boris@codesynthesis.com>
+# copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# $1  out file
+#
+# bld_root     - build root
+# project_name - project name
+#
+
+source $bld_root/dialog.bash
+
+$echo
+$echo
+$echo "configuring '$project_name'"
+$echo
+$echo
+
+$echo
+$echo "Please select the database you would like to use:"
+$echo
+$echo "(1) MySQL"
+$echo
+
+db_id=`read_option "mysql" "mysql"`
+
+echo "db_id := $db_id" >$1
+
+source $scf_root/$db_id/configure

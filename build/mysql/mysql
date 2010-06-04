@@ -1,0 +1,56 @@
+#! /usr/bin/env bash
+
+# file      : build/mysql/mysql
+# author    : Boris Kolpackov <boris@codesynthesis.com>
+# copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+#
+# MySQL driver wrapper.
+#
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    --driver)
+      driver=$2
+      shift 2
+      ;;
+    --user)
+      opt="$opt --user=$2"
+      shift 2
+      ;;
+    --passwd)
+      opt="$opt --password=$2"
+      shift 2
+      ;;
+    --db-name)
+      opt="$opt --database=$2"
+      shift 2
+      ;;
+    --host)
+      opt="$opt --host=$2"
+      shift 2
+      ;;
+    --port)
+      opt="$opt --port=$2"
+      shift 2
+      ;;
+    --socket)
+      opt="$opt --socket=$2"
+      shift 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ -z "$driver" ]; then
+  driver=mysql
+fi
+
+if [ -n "$1" ]; then
+  exec $driver $opt <$1
+else
+  exec $driver $opt
+fi
