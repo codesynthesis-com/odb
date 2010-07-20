@@ -51,7 +51,25 @@ struct type
   #pragma odb id
   int id;
 
-  #pragma odb type ("INTEGER")
+  // Test default C++ to DB type mapping.
+  //
+  bool b;
+  char c;
+  signed char sc;
+  unsigned char uc;
+  short s;
+  unsigned short us;
+  int i;
+  unsigned int ui;
+  long l;
+  unsigned long ul;
+  long long ll;
+  unsigned long long ull;
+  float f;
+  double d;
+  std::string str;
+
+  #pragma odb type ("INTEGER UNSIGNED")
   bool m1;
 };
 
