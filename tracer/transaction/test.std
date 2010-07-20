@@ -17,9 +17,3 @@ rollback transaction
 test 006
 begin transaction
 rollback transaction
-test 007
-begin transaction
-rollback transaction
-test 008
-begin transaction
-rollback transaction

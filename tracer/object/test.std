@@ -1,32 +1,108 @@
+
 test 001
-begin transaction
 s 1
-insert ::object1 id 1
-s 2
-commit transaction
-s 3
+s 2.b
+
 test 002
 begin transaction
 s 1
-insert ::object1 id 1
+insert ::object id 1
 s 2
-s 3
-delete ::object1 id 1
 commit transaction
-s 4
+s 3
+
 test 003
 begin transaction
 s 1
-select ::object1 id 1
+insert ::object id 0
+object already persistent
 s 2
-commit transaction
-s 3
+rollback transaction
+
 test 004
 begin transaction
 s 1
-select ::object1 id 1
+insert ::object id 1
+insert ::object id 2
 s 2
+delete ::object id 1
+delete ::object id 2
 s 3
-update ::object1 id 1
 commit transaction
 s 4
+
+test 005
+begin transaction
+s 1
+delete ::object id 0
+object not persistent
+s 2
+rollback transaction
+
+test 006
+begin transaction
+s 1
+select ::object id 1
+s 2
+commit transaction
+s 3
+
+test 007
+begin transaction
+s 1
+select ::object id 0
+object not persistent
+s 2
+rollback transaction
+
+test 008
+begin transaction
+s 1
+select ::object id 1
+s 2
+commit transaction
+s 3
+
+test 009
+begin transaction
+s 1
+select ::object id 0
+object not persistent
+s 2
+rollback transaction
+
+test 010
+begin transaction
+s 1
+select ::object id 1
+s 2
+update ::object id 1
+s 3
+commit transaction
+s 4
+
+test 011
+begin transaction
+s 1
+update ::object id 0
+object not persistent
+s 2
+rollback transaction
+
+test 012
+begin transaction
+s 1
+select ::object id 1
+select ::object id 0
+s 2
+commit transaction
+s 3
+
+test 013
+begin transaction
+s 1
+select ::object id 1
+select ::object id 0
+s 2
+commit transaction
+s 3

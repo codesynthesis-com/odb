@@ -3,9 +3,11 @@
 // copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <memory>
 #include <cassert>
 #include <iostream>
 
+#include <odb/exceptions.hxx>
 #include <odb/transaction.hxx>
 #include <odb/tracer/database.hxx>
 
@@ -15,18 +17,33 @@
 using namespace std;
 using namespace odb;
 
-using odb::shared_ptr;
-
 int
 main ()
 {
   tracer::database db;
 
-  // transient -> persistent in transaction
+  // database operation out of transaction
   //
-  cout << "test 001" << endl;
+  cout << "\ntest 001" << endl;
   {
-    shared_ptr<object1> o1 (new (shared) object1 (1));
+    object o1 (1);
+    try
+    {
+      cout << "s 1" << endl;
+      db.persist (o1);
+      cout << "s 2.a" << endl;
+    }
+    catch (const not_in_transaction&)
+    {
+      cout << "s 2.b" << endl;
+    }
+  }
+
+  // transient -> persistent
+  //
+  cout << "\ntest 002" << endl;
+  {
+    object o1 (1);
     transaction t (db.begin_transaction ());
     cout << "s 1" << endl;
     db.persist (o1);
@@ -35,44 +52,180 @@ main ()
     cout << "s 3" << endl;
   }
 
-  // persistent -> transient in transaction
+  // transient -> persistent (already exist)
   //
-  cout << "test 002" << endl;
+  cout << "\ntest 003" << endl;
   {
-    shared_ptr<object1> o1 (new (shared) object1 (1));
+    object o1 (0);
+    transaction t (db.begin_transaction ());
+    cout << "s 1" << endl;
+    try
+    {
+      db.persist (o1);
+    }
+    catch (const object_already_persistent&)
+    {
+      cout << "object already persistent" << endl;
+    }
+    cout << "s 2" << endl;
+  }
+
+  // persistent -> transient
+  //
+  cout << "\ntest 004" << endl;
+  {
+    object o1 (1);
+    object o2 (2);
     transaction t (db.begin_transaction ());
     cout << "s 1" << endl;
     db.persist (o1);
+    db.persist (o2);
     cout << "s 2" << endl;
     db.erase (o1);
+    db.erase<object> (2);
     cout << "s 3" << endl;
     t.commit ();
     cout << "s 4" << endl;
   }
 
-  // load in transaction
+  // persistent -> transient (not exist)
   //
-  cout << "test 003" << endl;
+  cout << "\ntest 005" << endl;
+  {
+    object o1 (0);
+    transaction t (db.begin_transaction ());
+    cout << "s 1" << endl;
+    try
+    {
+      db.erase (o1);
+    }
+    catch (const object_not_persistent&)
+    {
+      cout << "object not persistent" << endl;
+    }
+    cout << "s 2" << endl;
+  }
+
+  // load new object
+  //
+  cout << "\ntest 006" << endl;
   {
     transaction t (db.begin_transaction ());
     cout << "s 1" << endl;
-    shared_ptr<object1> o1 (db.load<object1> (1));
+    auto_ptr<object> o1 (db.load<object> (1));
     cout << "s 2" << endl;
     t.commit ();
     cout << "s 3" << endl;
   }
 
-  // persistent/clean -> persistent/dirty in transaction
+  // load new object (not exist)
   //
-  cout << "test 004" << endl;
+  cout << "\ntest 007" << endl;
   {
     transaction t (db.begin_transaction ());
     cout << "s 1" << endl;
-    shared_ptr<object1> o1 (db.load<object1> (1));
+    try
+    {
+      auto_ptr<object> o1 (db.load<object> (0));
+    }
+    catch (const object_not_persistent&)
+    {
+      cout << "object not persistent" << endl;
+    }
     cout << "s 2" << endl;
-    db.modified (o1);
+  }
+
+  // load into existing object
+  //
+  cout << "\ntest 008" << endl;
+  {
+    object o1;
+    transaction t (db.begin_transaction ());
+    cout << "s 1" << endl;
+    db.load (1, o1);
+    cout << "s 2" << endl;
+    t.commit ();
+    cout << "s 3" << endl;
+  }
+
+  // load into existing object (not exist)
+  //
+  cout << "\ntest 009" << endl;
+  {
+    object o1;
+    transaction t (db.begin_transaction ());
+    cout << "s 1" << endl;
+    try
+    {
+      db.load (0, o1);
+    }
+    catch (const object_not_persistent&)
+    {
+      cout << "object not persistent" << endl;
+    }
+    cout << "s 2" << endl;
+  }
+
+  // store
+  //
+  cout << "\ntest 010" << endl;
+  {
+    transaction t (db.begin_transaction ());
+    cout << "s 1" << endl;
+    auto_ptr<object> o1 (db.load<object> (1));
+    cout << "s 2" << endl;
+    db.store (*o1);
     cout << "s 3" << endl;
     t.commit ();
     cout << "s 4" << endl;
+  }
+
+  // store (not exist)
+  //
+  cout << "\ntest 011" << endl;
+  {
+    object o1 (0);
+    transaction t (db.begin_transaction ());
+    cout << "s 1" << endl;
+    try
+    {
+      db.store (o1);
+    }
+    catch (const object_not_persistent&)
+    {
+      cout << "object not persistent" << endl;
+    }
+    cout << "s 2" << endl;
+  }
+
+  // find new object
+  //
+  cout << "\ntest 012" << endl;
+  {
+    transaction t (db.begin_transaction ());
+    cout << "s 1" << endl;
+    auto_ptr<object> o1 (db.find<object> (1));
+    assert (o1.get () != 0);
+    auto_ptr<object> o2 (db.find<object> (0));
+    assert (o2.get () == 0);
+    cout << "s 2" << endl;
+    t.commit ();
+    cout << "s 3" << endl;
+  }
+
+  // load into existing object
+  //
+  cout << "\ntest 013" << endl;
+  {
+    object o1;
+    transaction t (db.begin_transaction ());
+    cout << "s 1" << endl;
+    bool r (db.find (1, o1));
+    assert (r);
+    r = db.find (0, o1);
+    assert (!r);
+    cout << "s 2" << endl;
+    t.commit ();
+    cout << "s 3" << endl;
   }
 }

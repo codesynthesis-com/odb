@@ -7,7 +7,6 @@
 #include <iostream>
 
 #include <odb/exceptions.hxx>
-#include <odb/session.hxx>
 #include <odb/transaction.hxx>
 #include <odb/tracer/database.hxx>
 #include <odb/tracer/transaction.hxx>
@@ -70,27 +69,9 @@ main ()
     }
   }
 
-  // Existing session via current.
-  //
-  cout << "test 006" << endl;
-  {
-    session s;
-    transaction t (db.begin_transaction ());
-    assert (&t.session () == &s);
-  }
-
-  // Existing session passed explicitly.
-  //
-  cout << "test 007" << endl;
-  {
-    session s;
-    transaction t (db.begin_transaction (s));
-    assert (&t.session () == &s);
-  }
-
   // Concrete transaction type.
   //
-  cout << "test 008" << endl;
+  cout << "test 006" << endl;
   {
     assert (sizeof (tracer::transaction) == sizeof (transaction));
 

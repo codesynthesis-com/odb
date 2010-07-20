@@ -10,35 +10,19 @@
 #include <odb/core.hxx>
 
 #pragma odb object
-struct object1
+struct object
 {
-  object1 (unsigned long id)
+  object (unsigned long id)
       : id_ (id)
   {
   }
 
-  object1 ()
+  object ()
   {
   }
 
   #pragma odb id
   unsigned long id_;
-};
-
-#pragma odb object
-struct object2
-{
-  object2 (const std::string& id)
-      : id_ (id)
-  {
-  }
-
-  object2 ()
-  {
-  }
-
-  #pragma odb id
-  std::string id_;
 };
 
 #endif // TEST_HXX
