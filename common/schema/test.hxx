@@ -49,7 +49,7 @@ struct column
 struct type
 {
   #pragma odb id
-  int id;
+  std::string id;
 
   // Test default C++ to DB type mapping.
   //
