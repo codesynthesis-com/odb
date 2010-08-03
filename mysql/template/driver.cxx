@@ -1,4 +1,4 @@
-// file      : common/template/driver.cxx
+// file      : mysql/template/driver.cxx
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
@@ -10,8 +10,8 @@
 #include <cassert>
 #include <iostream>
 
-#include <odb/database.hxx>
-#include <odb/transaction.hxx>
+#include <odb/mysql/database.hxx>
+#include <odb/mysql/transaction.hxx>
 
 #include <common.hxx>
 

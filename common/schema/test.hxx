@@ -71,6 +71,9 @@ struct type
 
   #pragma odb type ("INTEGER UNSIGNED")
   bool m1;
+
+  #pragma odb transient
+  char* m2;
 };
 
 #endif // TEST_HXX

@@ -3,6 +3,9 @@
 // copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+// Test object persistence operations.
+//
+
 #include <memory>
 #include <cassert>
 #include <iostream>

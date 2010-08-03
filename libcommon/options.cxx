@@ -429,7 +429,8 @@ namespace cli
     parse (std::vector<X>& c, bool& xs, scanner& s)
     {
       X x;
-      parser<X>::parse (x, s);
+      bool dummy;
+      parser<X>::parse (x, dummy, s);
       c.push_back (x);
       xs = true;
     }
@@ -442,7 +443,8 @@ namespace cli
     parse (std::set<X>& c, bool& xs, scanner& s)
     {
       X x;
-      parser<X>::parse (x, s);
+      bool dummy;
+      parser<X>::parse (x, dummy, s);
       c.insert (x);
       xs = true;
     }
