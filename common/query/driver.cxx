@@ -82,7 +82,14 @@ main (int argc, char* argv[])
     {
       transaction t (db->begin_transaction ());
       result<person> r (db->query<person> ());
-      print (r);
+
+      for (result<person>::iterator i (r.begin ()); i != r.end (); ++i)
+      {
+        person p;
+        i.load (p);
+        cout << p << endl;
+      }
+
       t.commit ();
     }
 
