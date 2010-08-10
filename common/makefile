@@ -8,7 +8,8 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 tests :=      \
 schema        \
 template      \
-lifecycle
+lifecycle     \
+query
 
 default   := $(out_base)/
 test      := $(out_base)/.test
