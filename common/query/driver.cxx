@@ -137,19 +137,15 @@ main (int argc, char* argv[])
       query q ("age >= " + query::_ref (age) + "AND" +
                "last_name = " + query::_ref (name));
 
-      {
-        name = "Doe";
-        age = 30;
-        result<person> r (db->query<person> (q));
-        print (r);
-      }
+      name = "Doe";
+      age = 30;
+      result<person> r (db->query<person> (q));
+      print (r);
 
-      {
-        name = "Dirt";
-        age = 31;
-        result<person> r (db->query<person> (q));
-        print (r);
-      }
+      name = "Dirt";
+      age = 31;
+      r = db->query<person> (q);
+      print (r);
 
       t.commit ();
     }
