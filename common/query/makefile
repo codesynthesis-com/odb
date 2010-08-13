@@ -34,7 +34,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen): odb_options += --database $(db_id) --generate-schema
+$(gen): odb_options += --database $(db_id) --generate-schema \
+--hxx-prologue '\\\#include "traits.hxx"'
 $(gen): cpp_options := -I$(out_base)
 $(gen): $(common.l.cpp-options)
 

@@ -7,9 +7,12 @@
 #define TEST_HXX
 
 #include <string>
+#include <memory>
 #include <iostream>
 
 #include <odb/core.hxx>
+
+typedef std::auto_ptr<std::string> string_ptr; // @@ tmp
 
 #pragma odb object
 struct person
@@ -17,8 +20,13 @@ struct person
   person (unsigned long id,
           const std::string& fn,
           const std::string& ln,
-          unsigned short age)
-      : id_ (id), first_name_ (fn), last_name_ (ln), age_ (age)
+          unsigned short age,
+          bool married)
+      : id_ (id),
+        first_name_ (fn),
+        last_name_ (ln),
+        age_ (age),
+        married_ (married)
   {
   }
 
@@ -29,15 +37,31 @@ struct person
   #pragma odb id
   unsigned long id_;
 
+  #pragma odb column ("first")
   std::string first_name_;
+
+  #pragma odb column ("middle") type ("TEXT")
+  string_ptr middle_name_;
+
+  #pragma odb column ("last")
   std::string last_name_;
+
   unsigned short age_;
+  bool married_;
 };
 
 inline std::ostream&
 operator<< (std::ostream& os, const person& p)
 {
-  return os << p.first_name_ << ' ' << p.last_name_ << ' ' << p.age_;
+  os << p.first_name_;
+
+  if (p.middle_name_.get () != 0)
+    os << ' '  << *p.middle_name_;
+
+  os << ' ' << p.last_name_ << ' ' << p.age_ <<
+    (p.married_ ? " married" : " single");
+
+  return os;
 }
 
 #endif // TEST_HXX

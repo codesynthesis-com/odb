@@ -31,7 +31,11 @@ print (result<person>& r)
     auto_ptr<person> o (*i);
     cout << *o << endl;
   }
+  cout << endl;
 }
+
+const char* names[] = { "John", "Jane", "Joe" };
+const char** names_end = names + sizeof (names)/sizeof (names[0]);
 
 int
 main (int argc, char* argv[])
@@ -40,17 +44,24 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
+    typedef odb::query<person> query;
+    typedef odb::result<person> result;
+
     //
     //
     {
-      person p1 (1, "John", "Doe", 30);
-      person p2 (2, "Jane", "Doe", 29);
-      person p3 (3, "Joe", "Dirt", 31);
+      person p1 (1, "John", "Doe", 30, true);
+      person p2 (2, "Jane", "Doe", 29, true);
+      person p3 (3, "Joe", "Dirt", 31, false);
+      p3.middle_name_.reset (new string ("Squeaky"));
+      person p4 (4, "Johansen", "Johansen", 32, false);
+      p4.middle_name_.reset (new string ("J"));
 
       transaction t (db->begin_transaction ());
       db->persist (p1);
       db->persist (p2);
       db->persist (p3);
+      db->persist (p4);
       t.commit ();
     }
 
@@ -58,8 +69,6 @@ main (int argc, char* argv[])
     //
     if (false)
     {
-      typedef odb::query<person> query;
-
       string name;
       unsigned short age;
 
@@ -67,13 +76,16 @@ main (int argc, char* argv[])
       db->query<person> ("age = " + query::_val (age));
 
       query age_q (query::_ref (age) + " = age");
-      query name_q ("first_name = " + query::_val (name));
+      query name_q ("first = " + query::_val (name));
       query q (age_q + "AND" + name_q);
 
       db->query (q);
       db->query<person> (age_q + "OR" +
                          name_q + "OR" +
                          "age < " + query::_ref (age));
+
+      query q1 (query::_val (name));
+      q1 += " = first";
     }
 
     // Select-all query.
@@ -81,9 +93,9 @@ main (int argc, char* argv[])
     cout << "test 001" << endl;
     {
       transaction t (db->begin_transaction ());
-      result<person> r (db->query<person> ());
+      result r (db->query<person> ());
 
-      for (result<person>::iterator i (r.begin ()); i != r.end (); ++i)
+      for (result::iterator i (r.begin ()); i != r.end (); ++i)
       {
         person p;
         i.load (p);
@@ -98,7 +110,7 @@ main (int argc, char* argv[])
     cout << "test 002" << endl;
     {
       transaction t (db->begin_transaction ());
-      result<person> r (db->query<person> ("ORDER BY age"));
+      result r (db->query<person> ("ORDER BY age"));
       print (r);
       t.commit ();
     }
@@ -108,12 +120,10 @@ main (int argc, char* argv[])
     cout << "test 003" << endl;
     {
       transaction t (db->begin_transaction ());
-      result<person> r (db->query<person> ("age >= 30 AND last_name = 'Doe'"));
+      result r (db->query<person> ("age >= 30 AND last = 'Doe'"));
       print (r);
       t.commit ();
     }
-
-    typedef odb::query<person> query;
 
     // Value binding.
     //
@@ -123,10 +133,10 @@ main (int argc, char* argv[])
 
       const char* name = "Doe";
 
-      result<person> r (
+      result r (
         db->query<person> (
           "age >= " + query::_ref (30) + "AND" +
-          "last_name = " + query::_val (name)));
+          "last = " + query::_val (name)));
 
       print (r);
       t.commit ();
@@ -142,11 +152,11 @@ main (int argc, char* argv[])
       unsigned short age;
 
       query q ("age >= " + query::_ref (age) + "AND" +
-               "last_name = " + query::_ref (name));
+               "last = " + query::_ref (name));
 
       name = "Doe";
       age = 30;
-      result<person> r (db->query<person> (q));
+      result r (db->query<person> (q));
       print (r);
 
       name = "Dirt";
@@ -154,6 +164,211 @@ main (int argc, char* argv[])
       r = db->query<person> (q);
       print (r);
 
+      t.commit ();
+    }
+
+    //
+    // Language-embedded queries.
+    //
+
+    // Compilation tests.
+    //
+    if (false)
+    {
+      string name;
+      unsigned short age;
+
+      // Column operators.
+      //
+      query q1 (query::married);
+      db->query<person> (query::married);
+      db->query<person> (query::married == true);
+
+      //db->query<person> (query::age);
+
+      db->query<person> (query::age == 30);
+      db->query<person> (query::age == age);
+      db->query<person> (query::age == query::_val (30));
+      db->query<person> (query::age == query::_val (age));
+      db->query<person> (query::age == query::_ref (age));
+      //db->query<person> (query::age == "123");
+      //db->query<person> ("123" == query::age);
+      //db->query<person> (query::age == query::_val ("123"));
+      //db->query<person> (query::age == query::_ref (name));
+      db->query<person> (query::last_name == "Doe");
+      db->query<person> (query::last_name == name);
+      db->query<person> (query::last_name == query::_val ("Doe"));
+      db->query<person> (query::last_name == query::_val (name));
+      db->query<person> (query::last_name == query::_ref (name));
+      //db->query<person> (query::last_name == 30);
+      //db->query<person> (query::last_name == query::_val (30));
+      //db->query<person> (query::last_name == query::_ref (age));
+
+      db->query<person> (query::last_name.is_null ());
+      db->query<person> (query::last_name.is_not_null ());
+
+      db->query<person> (query::first_name == query::last_name);
+
+      db->query<person> (query::first_name.in ("John", "Jane"));
+      db->query<person> (query::first_name.in_range (names, names_end));
+
+      // Query operators.
+      //
+      db->query<person> (query::age == 30 && query::last_name == "Doe");
+      db->query<person> (query::age == 30 || query::last_name == "Doe");
+      db->query<person> (!(query::age == 30 || query::last_name == "Doe"));
+      db->query<person> ((query::last_name == "Doe") + "ORDER BY age");
+    }
+
+    // Test is_null/is_not_null.
+    //
+    cout << "test 006" << endl;
+    {
+      transaction t (db->begin_transaction ());
+      result r (db->query<person> (query::middle_name.is_null ()));
+      print (r);
+      r = db->query<person> (query::middle_name.is_not_null ());
+      print (r);
+      t.commit ();
+    }
+
+    // Test boolean columns.
+    //
+    cout << "test 007" << endl;
+    {
+      transaction t (db->begin_transaction ());
+      result r (db->query<person> (query::married));
+      print (r);
+      r = db->query<person> (!query::married);
+      print (r);
+      t.commit ();
+    }
+
+    // Test implicit by-value, explicit by-value, and by-reference.
+    //
+    cout << "test 008" << endl;
+    {
+      string name ("Dirt");
+
+      transaction t (db->begin_transaction ());
+      result r (db->query<person> (query::last_name == "Doe"));
+      print (r);
+      r = db->query<person> (query::last_name == query::_val (name));
+      print (r);
+      query q (query::last_name == query::_ref (name));
+      name = "Doe";
+      r = db->query<person> (q);
+      print (r);
+      t.commit ();
+    }
+
+    // Test column operators (==, !=, <, >, <=, >=).
+    //
+    cout << "test 009" << endl;
+    {
+      transaction t (db->begin_transaction ());
+
+      // ==
+      //
+      result r (db->query<person> (query::last_name == "Doe"));
+      print (r);
+
+      // !=
+      //
+      r = db->query<person> (query::last_name != "Doe");
+      print (r);
+
+      // <
+      //
+      r = db->query<person> (query::age < 31);
+      print (r);
+
+      // >
+      //
+      r = db->query<person> (query::age > 30);
+      print (r);
+
+      // <=
+      //
+      r = db->query<person> (query::age <= 30);
+      print (r);
+
+      // >=
+      //
+      r = db->query<person> (query::age >= 31);
+      print (r);
+
+      t.commit ();
+    }
+
+    // Test query operators (&&, ||, (), !, +).
+    //
+    cout << "test 010" << endl;
+    {
+      transaction t (db->begin_transaction ());
+
+      // &&
+      //
+      result r (db->query<person> (
+                  query::last_name == "Doe" && query::age == 29));
+      print (r);
+
+      // ||
+      //
+      r = db->query<person> (query::last_name == "Doe" || query::age == 31);
+      print (r);
+
+      // ()
+      //
+      r = db->query<person> (
+        (query::last_name != "Doe" || query::age == 29) && query::married);
+      print (r);
+
+      // !=
+      //
+      r = db->query<person> (!(query::last_name == "Doe"));
+      print (r);
+
+      // +
+      //
+      r = db->query<person> ((query::last_name == "Doe") + "ORDER BY age");
+      print (r);
+
+      t.commit ();
+    }
+
+    // Test in/in_range.
+    //
+    cout << "test 011" << endl;
+    {
+      transaction t (db->begin_transaction ());
+
+      result r (db->query<person> (query::first_name.in ("John", "Jane")));
+      print (r);
+
+      r = db->query<person> (query::first_name.in_range (names, names_end));
+      print (r);
+
+      t.commit ();
+    }
+
+    // Test column-to-column comparison.
+    //
+    cout << "test 012" << endl;
+    {
+      transaction t (db->begin_transaction ());
+      result r (db->query<person> (query::first_name == query::last_name));
+      print (r);
+      t.commit ();
+    }
+
+    // Test value_traits::type != value_traits::value_type.
+    //
+    cout << "test 013" << endl;
+    {
+      transaction t (db->begin_transaction ());
+      result r (db->query<person> (query::middle_name == "Squeaky"));
+      print (r);
       t.commit ();
     }
   }
