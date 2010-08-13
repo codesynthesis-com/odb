@@ -20,6 +20,7 @@ namespace odb
     class value_traits<date_time>
     {
     public:
+      typedef date_time type;
       typedef date_time value_type;
 
       static void
@@ -58,10 +59,11 @@ namespace odb
     class value_traits< ::buffer >
     {
     public:
+      typedef ::buffer type;
       typedef ::buffer value_type;
 
       static void
-      set_value (value_type& v, const char* s, std::size_t n, bool is_null)
+      set_value (type& v, const char* s, std::size_t n, bool is_null)
       {
         if (!is_null)
           v.assign (s, n);
@@ -74,7 +76,7 @@ namespace odb
                  std::size_t c,
                  std::size_t& n,
                  bool& is_null,
-                 const value_type& v)
+                 const type& v)
       {
         is_null = false;
         n = v.size ();
@@ -90,7 +92,7 @@ namespace odb
       set_image (odb::buffer& b,
                  std::size_t& n,
                  bool& is_null,
-                 const value_type& v)
+                 const type& v)
       {
         is_null = false;
         n = v.size ();
@@ -107,12 +109,13 @@ namespace odb
     class value_traits<bitfield>
     {
     public:
+      typedef bitfield type;
       typedef bitfield value_type;
 
       static void
       set_value (bitfield& v,
                  const unsigned char* s,
-                 std::size_t n,
+                 std::size_t,
                  bool is_null)
       {
         if (!is_null)
@@ -123,7 +126,7 @@ namespace odb
 
       static void
       set_image (unsigned char* s,
-                 std::size_t c,
+                 std::size_t,
                  std::size_t& n,
                  bool& is_null,
                  bitfield v)
@@ -131,6 +134,7 @@ namespace odb
         is_null = false;
         n = 1;
         std::memcpy (s, &v, 1);
+        s[0] &= 0x0F; // Clear unused bits -- MySQL is sensitive about that.
       }
     };
 
@@ -138,6 +142,7 @@ namespace odb
     class value_traits<set>
     {
     public:
+      typedef set type;
       typedef set value_type;
 
       static void
@@ -169,7 +174,7 @@ namespace odb
       set_image (odb::buffer& buf,
                  std::size_t& n,
                  bool& is_null,
-                 const value_type& v)
+                 const set& v)
       {
         is_null = false;
         n = 0;
@@ -194,7 +199,8 @@ namespace odb
     class value_traits<std::auto_ptr<std::string> >
     {
     public:
-      typedef std::auto_ptr<std::string> value_type;
+      typedef std::auto_ptr<std::string> type;
+      typedef std::string value_type;
 
       static void
       set_value (std::auto_ptr<std::string>& v,
