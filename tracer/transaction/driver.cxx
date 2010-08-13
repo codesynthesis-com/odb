@@ -80,5 +80,6 @@ main ()
 
     tracer::transaction t (db.begin_transaction ());
     tracer::transaction& r (tracer::transaction::current ());
+    assert (&t == &r);
   }
 }
