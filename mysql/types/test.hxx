@@ -328,7 +328,7 @@ struct object
       bit_ == y.bit_ &&
       enum_ == y.enum_ &&
       set_ == y.set_ &&
-      null_.get () == 0 && y.null_.get () == 0 || *null_ == *y.null_;
+      ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);
   }
 };
 
