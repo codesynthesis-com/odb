@@ -41,7 +41,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen): odb_options += --database $(db_id) --generate-schema \
---cxx-prologue '\\\#include "traits.hxx"'
+--generate-query --cxx-prologue '\\\#include "traits.hxx"'
 $(gen): cpp_options := -I$(out_base)
 $(gen): $(common.l.cpp-options)
 
