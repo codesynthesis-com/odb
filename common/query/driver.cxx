@@ -111,7 +111,19 @@ main (int argc, char* argv[])
     {
       transaction t (db->begin_transaction ());
       result r (db->query<person> ("ORDER BY age"));
-      print (r);
+
+      for (result::iterator i (r.begin ()); i != r.end (); ++i)
+      {
+        cout << i->first_name_;
+
+        if (i->middle_name_.get () != 0)
+          cout << ' '  << *i->middle_name_;
+
+        cout << ' ' << i->last_name_ << ' ' << i->age_ <<
+          (i->married_ ? " married" : " single") << endl;
+      }
+      cout << endl;
+
       t.commit ();
     }
 
