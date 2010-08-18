@@ -14,7 +14,7 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <odb/shared-ptr.hxx>
+#include <odb/details/shared-ptr.hxx>
 #include <odb/details/thread.hxx>
 
 #include <common.hxx>
@@ -25,8 +25,9 @@
 using namespace std;
 using namespace odb;
 
-using odb::shared_ptr;
-using odb::details::thread;
+using details::shared;
+using details::shared_ptr;
+using details::thread;
 
 const size_t thread_count = 32;
 const size_t iteration_count = 100;
