@@ -21,8 +21,6 @@
 using namespace std;
 using namespace odb;
 
-using odb::shared_ptr;
-
 void
 print (result<person>& r)
 {

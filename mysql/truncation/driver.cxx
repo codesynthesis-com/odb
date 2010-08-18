@@ -21,8 +21,6 @@
 using namespace std;
 using namespace odb;
 
-using odb::shared_ptr;
-
 int
 main (int argc, char* argv[])
 {
