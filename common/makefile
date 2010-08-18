@@ -11,6 +11,8 @@ template      \
 lifecycle     \
 query
 
+tests += threads
+
 default   := $(out_base)/
 test      := $(out_base)/.test
 clean     := $(out_base)/.clean
