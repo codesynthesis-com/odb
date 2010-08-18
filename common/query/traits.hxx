@@ -33,7 +33,7 @@ namespace odb
       }
 
       static void
-      set_image (odb::buffer& b,
+      set_image (details::buffer& b,
                  std::size_t& n,
                  bool& is_null,
                  const std::auto_ptr<std::string>& v)

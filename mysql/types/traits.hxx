@@ -56,14 +56,14 @@ namespace odb
     };
 
     template <>
-    class value_traits< ::buffer >
+    class value_traits<buffer>
     {
     public:
-      typedef ::buffer type;
-      typedef ::buffer value_type;
+      typedef buffer type;
+      typedef buffer value_type;
 
       static void
-      set_value (type& v, const char* s, std::size_t n, bool is_null)
+      set_value (buffer& v, const char* s, std::size_t n, bool is_null)
       {
         if (!is_null)
           v.assign (s, n);
@@ -76,7 +76,7 @@ namespace odb
                  std::size_t c,
                  std::size_t& n,
                  bool& is_null,
-                 const type& v)
+                 const buffer& v)
       {
         is_null = false;
         n = v.size ();
@@ -89,10 +89,10 @@ namespace odb
       }
 
       static void
-      set_image (odb::buffer& b,
+      set_image (details::buffer& b,
                  std::size_t& n,
                  bool& is_null,
-                 const type& v)
+                 const buffer& v)
       {
         is_null = false;
         n = v.size ();
@@ -171,7 +171,7 @@ namespace odb
       }
 
       static void
-      set_image (odb::buffer& buf,
+      set_image (details::buffer& buf,
                  std::size_t& n,
                  bool& is_null,
                  const set& v)
@@ -212,7 +212,7 @@ namespace odb
       }
 
       static void
-      set_image (odb::buffer& b,
+      set_image (details::buffer& b,
                  std::size_t& n,
                  bool& is_null,
                  const std::auto_ptr<std::string>& v)

@@ -53,11 +53,11 @@ main (int argc, char* argv[])
     o.year_ = 2010;
 
     string short_str (128, 's');
-    ::buffer short_buf (short_str.c_str (), short_str.size ());
+    buffer short_buf (short_str.c_str (), short_str.size ());
     string medium_str (250, 'm');
-    ::buffer medium_buf (medium_str.c_str (), medium_str.size ());
+    buffer medium_buf (medium_str.c_str (), medium_str.size ());
     string long_str (2040, 'l');
-    ::buffer long_buf (long_str.c_str (), long_str.size ());
+    buffer long_buf (long_str.c_str (), long_str.size ());
 
     o.char_ = short_str;
     o.binary_ = short_buf;
