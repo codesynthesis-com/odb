@@ -12,8 +12,6 @@
 
 #include <odb/core.hxx>
 
-typedef std::auto_ptr<std::string> string_ptr; // @@ tmp
-
 #pragma odb object
 struct person
 {
@@ -40,6 +38,7 @@ struct person
   #pragma odb column ("first")
   std::string first_name_;
 
+  typedef std::auto_ptr<std::string> string_ptr; // @@ tmp
   #pragma odb column ("middle") type ("TEXT")
   string_ptr middle_name_;
 
