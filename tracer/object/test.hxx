@@ -6,7 +6,6 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <iostream>
 #include <odb/core.hxx>
 
 #pragma odb object
