@@ -7,7 +7,8 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
 tests :=      \
 object        \
-transaction
+transaction   \
+types
 
 default   := $(out_base)/
 test      := $(out_base)/.test
