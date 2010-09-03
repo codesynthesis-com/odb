@@ -7,7 +7,8 @@
 #define TRAITS_HXX
 
 #include <string>
-#include <memory>
+#include <memory>  // std::auto_ptr
+#include <cstring> // std::memcpy
 
 #include <odb/mysql/traits.hxx>
 
