@@ -1,0 +1,31 @@
+#! /bin/sh
+
+# file      : tester.in
+# author    : Boris Kolpackov <boris@codesynthesis.com>
+# copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+#
+# Run an ODB test. The test driver is in the current directory. The
+# data files, if any, are in $srcdir.
+#
+
+if test -f test.sql; then
+  $top_builddir/db-driver test.sql
+
+  if test $? -ne 0; then
+    exit 1
+  fi
+fi
+
+if test -f "$srcdir/test.std"; then
+  ./driver --options-file "$top_builddir/db.options" >test.out
+
+  if test $? -ne 0; then
+    exit 1
+  fi
+
+  @DIFF@ @DIFFFLAGS@ "$srcdir/test.std" test.out
+else
+  ./driver --options-file "$top_builddir/db.options"
+fi

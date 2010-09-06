@@ -14,6 +14,7 @@ common.l             := $(out_root)/libcommon/common.l
 common.l.cpp-options := $(out_root)/libcommon/common.l.cpp-options
 
 driver  := $(out_base)/driver
+dist    := $(out_base)/.dist
 test    := $(out_base)/.test
 clean   := $(out_base)/.clean
 
@@ -34,8 +35,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen): odb_options += --database $(db_id) --generate-schema \
---generate-query --hxx-prologue '\\\#include "traits.hxx"'
+$(gen) $(dist): export odb_options += --database $(db_id) --generate-schema \
+--generate-query --hxx-prologue '\#include "traits.hxx"'
 $(gen): cpp_options := -I$(out_base)
 $(gen): $(common.l.cpp-options)
 
@@ -44,6 +45,15 @@ $(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
 # Alias for default target.
 #
 $(out_base)/: $(driver)
+
+# Dist
+#
+$(dist): data_dist := $(cxx_tun) $(odb_hdr) traits.hxx test.std
+$(dist): export extra_headers := traits.hxx
+$(dist): db_id := @database@
+$(dist):
+	$(call dist-data,$(data_dist))
+	$(call meta-automake,$(src_root)/common/template/Makefile.am)
 
 # Test.
 #
@@ -73,6 +83,9 @@ endif
 
 # How to.
 #
+$(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/automake.make)
+
 $(call include,$(odb_rules))
 $(call include,$(bld_root)/cxx/cxx-d.make)
 $(call include,$(bld_root)/cxx/cxx-o.make)

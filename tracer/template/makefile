@@ -1,4 +1,4 @@
-# file      : tracer/object/makefile
+# file      : tracer/template/makefile
 # author    : Boris Kolpackov <boris@codesynthesis.com>
 # copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
@@ -55,7 +55,7 @@ $(out_base)/: $(driver)
 $(dist): data_dist := $(cxx_tun) $(odb_hdr) test.std
 $(dist):
 	$(call dist-data,$(data_dist))
-	$(call meta-automake,$(src_root)/tracer/template/Makefile.am)
+	$(call meta-automake)
 
 # Test.
 #

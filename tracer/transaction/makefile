@@ -10,6 +10,7 @@ cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
 driver  := $(out_base)/driver
+dist    := $(out_base)/.dist
 test    := $(out_base)/.test
 clean   := $(out_base)/.clean
 
@@ -34,6 +35,13 @@ $(call include-dep,$(cxx_od))
 # Alias for default target.
 #
 $(out_base)/: $(driver)
+
+# Dist
+#
+$(dist): data_dist := $(cxx_tun) test.std
+$(dist):
+	$(call dist-data,$(data_dist))
+	$(call meta-automake,$(src_root)/tracer/template/Makefile.am)
 
 # Test.
 #
@@ -60,6 +68,9 @@ endif
 
 # How to.
 #
+$(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/automake.make)
+
 $(call include,$(bld_root)/cxx/cxx-d.make)
 $(call include,$(bld_root)/cxx/cxx-o.make)
 $(call include,$(bld_root)/cxx/o-e.make)

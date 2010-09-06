@@ -39,7 +39,7 @@ $echo
 $echo "Please enter the MySQL database host."
 $echo
 
-host=`read_value "localhost"`
+host=`read_value ""`
 
 $echo
 $echo "Please enter the MySQL database port."

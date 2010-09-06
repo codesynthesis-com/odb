@@ -1,0 +1,15 @@
+/* file      : libcommon/config.h.in
+ * author    : Boris Kolpackov <boris@codesynthesis.com>
+ * copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
+ * license   : GNU GPL v2; see accompanying LICENSE file
+ */
+
+/* This file is automatically processed by configure. */
+
+#ifndef LIBCOMMON_CONFIG_H
+#define LIBCOMMON_CONFIG_H
+
+#undef DB_ID_MYSQL
+#undef LIBCOMMON_STATIC_LIB
+
+#endif /* LIBCOMMON_CONFIG_H */

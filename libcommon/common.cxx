@@ -6,6 +6,10 @@
 #include <cstdlib> // std::exit
 #include <iostream>
 
+#ifndef _MSC_VER
+#  include <config.h>
+#endif
+
 #ifdef DB_ID_MYSQL
 #  include <odb/mysql/database.hxx>
 #endif

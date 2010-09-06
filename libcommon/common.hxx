@@ -10,7 +10,9 @@
 
 #include <odb/database.hxx>
 
-std::auto_ptr<odb::database>
+#include <export.hxx>
+
+LIBCOMMON_EXPORT std::auto_ptr<odb::database>
 create_database (int argc, char* argv[]);
 
 #endif // LIBCOMMON_COMMON_HXX

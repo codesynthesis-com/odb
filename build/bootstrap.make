@@ -32,15 +32,25 @@ $(call include,$(bld_root)/cxx/configuration.make)
 #
 .PHONY: $(out_base)/       \
         $(out_base)/.test  \
+        $(out_base)/.dist  \
         $(out_base)/.clean
 
 ifdef %interactive%
 
-.PHONY: test clean
+.PHONY: test dist clean
 
-test: $(out_base)/.test
+test:  $(out_base)/.test
+dist:  $(out_base)/.dist
 clean: $(out_base)/.clean
 
+endif
+
+# Make sure the distribution prefix is set if the goal is dist.
+#
+ifneq ($(filter $(MAKECMDGOALS),dist),)
+ifeq ($(dist_prefix),)
+$(error dist_prefix is not set)
+endif
 endif
 
 # If we don't have dependency auto-generation then we need to manually
