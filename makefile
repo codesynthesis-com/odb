@@ -19,7 +19,7 @@ clean   := $(out_base)/.clean
 
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
-$(dist): data_dist := GPLv2 LICENSE README version
+$(dist): data_dist := GPLv2 LICENSE README version tester.bat
 $(dist): exec_dist := bootstrap tester.in
 $(dist): export extra_dist := $(data_dist) $(exec_dist)
 $(dist): export version = $(shell cat $(src_root)/version)

@@ -2,8 +2,8 @@
 // compiler for C++.
 //
 
-#ifndef LIBCOMMON_OPTIONS_HXX
-#define LIBCOMMON_OPTIONS_HXX
+#ifndef LIBCOMMON_COMMON_OPTIONS_HXX
+#define LIBCOMMON_COMMON_OPTIONS_HXX
 
 #include <deque>
 #include <iosfwd>
@@ -393,4 +393,4 @@ namespace cli
 
 #include "options.ixx"
 
-#endif // LIBCOMMON_OPTIONS_HXX
+#endif // LIBCOMMON_COMMON_OPTIONS_HXX

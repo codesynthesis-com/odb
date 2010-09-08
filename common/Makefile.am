@@ -8,3 +8,5 @@ SUBDIRS = __path__(dirs)
 if ODB_TESTS_THREADS
 SUBDIRS += __path__(thread_dirs)
 endif
+
+EXTRA_DIST = __file__(extra_dist)

@@ -24,15 +24,24 @@ clean     := $(out_base)/.clean
 
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(build_tests)))
 
+name := $(notdir $(src_base))
+$(dist): name := $(name)
 $(dist): export dirs := $(tests)
 $(dist): export thread_dirs := $(thread_tests)
+$(dist): export extra_dist := $(call vc9slns,$(name)) $(call vc10slns,$(name))
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call meta-automake)
+	$(call meta-vc9slns,$(name))
+	$(call meta-vc10slns,$(name))
+	$(call meta-vctest,$(name)-mysql-vc10.sln,test.bat)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(build_tests)))
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(all_tests)))
 
-$(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc9sln.make)
+$(call include,$(bld_root)/meta/vc10sln.make)
+$(call include,$(bld_root)/meta/vctest.make)
+$(call include,$(bld_root)/meta/automake.make)
 
 ifneq ($(filter $(MAKECMDGOALS),dist clean),)
 $(foreach t,$(all_tests),$(call import,$(src_base)/$t/makefile))

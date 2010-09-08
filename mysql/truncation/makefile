@@ -10,19 +10,13 @@ odb_hdr := test.hxx
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
-common.l             := $(out_root)/libcommon/common.l
-common.l.cpp-options := $(out_root)/libcommon/common.l.cpp-options
+common.l             := $(out_root)/libcommon/common/common.l
+common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
 
 driver  := $(out_base)/driver
 dist    := $(out_base)/.dist
 test    := $(out_base)/.test
 clean   := $(out_base)/.clean
-
-ifdef db_id
-ifneq ($(db_id),mysql)
-$(error trying to build a MySQL-specific test with $(db_id))
-endif
-endif
 
 # Import.
 #
@@ -53,10 +47,17 @@ $(out_base)/: $(driver)
 
 # Dist
 #
-$(dist): data_dist := $(cxx_tun) $(odb_hdr) test.std
+$(dist): sources := $(cxx_tun)
+$(dist): headers := $(odb_hdr)
+$(dist): data_dist := test.std
+$(dist): export name := $(notdir $(src_base))
+$(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
+$(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters
 $(dist):
-	$(call dist-data,$(data_dist))
-	$(call meta-automake,$(src_root)/mysql/template/Makefile.am)
+	$(call dist-data,$(sources) $(headers) $(data_dist))
+	$(call meta-automake,../template/Makefile.am)
+	$(call meta-vc9proj,../template/template-vc9.vcproj,$(name)-vc9.vcproj)
+	$(call meta-vc10proj,../template/template-vc10.vcxproj,$(name)-vc10.vcxproj)
 
 # Test.
 #
@@ -87,6 +88,8 @@ endif
 # How to.
 #
 $(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc9proj.make)
+$(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(call include,$(odb_rules))

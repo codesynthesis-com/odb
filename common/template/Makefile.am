@@ -3,13 +3,15 @@
 # copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
+EXTRA_DIST = __file__(extra_dist)
+
 noinst_PROGRAMS = driver
 driver_SOURCES = driver.cxx __path__(extra_sources) __path__(extra_headers)
-driver_LDADD = $(top_builddir)/libcommon/libcommon.la
+driver_LDADD = $(top_builddir)/libcommon/common/libcommon.la
 driver_CPPFLAGS = -I'$(top_builddir)/libcommon' -I'$(top_srcdir)/libcommon'
 
 TESTS=$(top_builddir)/tester
-TESTS_ENVIRONMENT=top_builddir=$(top_builddir);
+TESTS_ENVIRONMENT=top_builddir=$(top_builddir); export top_builddir;
 
 # ODB compilation.
 #

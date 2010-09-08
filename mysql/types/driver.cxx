@@ -13,7 +13,7 @@
 #include <odb/mysql/database.hxx>
 #include <odb/mysql/transaction.hxx>
 
-#include <common.hxx>
+#include <common/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
@@ -42,7 +42,7 @@ main (int argc, char* argv[])
     o.long_long_ = -123456;
     o.ulong_long_ = 123456;
 
-    o.float_ = 1.123;
+    o.float_ = 1.123F;
     o.double_ = 1.123;
     o.decimal_ = "123.456";
 

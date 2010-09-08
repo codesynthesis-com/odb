@@ -17,7 +17,7 @@
 #include <odb/details/shared-ptr.hxx>
 #include <odb/details/thread.hxx>
 
-#include <common.hxx>
+#include <common/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"

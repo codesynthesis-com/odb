@@ -13,7 +13,7 @@
 #include <odb/mysql/database.hxx>
 #include <odb/mysql/transaction.hxx>
 
-#include <common.hxx>
+#include <common/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"

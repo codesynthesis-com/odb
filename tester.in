@@ -26,6 +26,9 @@ if test -f "$srcdir/test.std"; then
   fi
 
   @DIFF@ @DIFFFLAGS@ "$srcdir/test.std" test.out
+  r=$?
+  rm -f test.out
+  exit $r
 else
   ./driver --options-file "$top_builddir/db.options"
 fi

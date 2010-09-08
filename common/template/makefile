@@ -10,8 +10,8 @@ odb_hdr := test.hxx
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
-common.l             := $(out_root)/libcommon/common.l
-common.l.cpp-options := $(out_root)/libcommon/common.l.cpp-options
+common.l             := $(out_root)/libcommon/common/common.l
+common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
 
 driver  := $(out_base)/driver
 dist    := $(out_base)/.dist
@@ -47,11 +47,20 @@ $(out_base)/: $(driver)
 
 # Dist
 #
-$(dist): data_dist := $(cxx_tun) $(odb_hdr) test.std
+name := $(notdir $(src_base))
+
 $(dist): db_id := @database@
+$(dist): sources := $(cxx_tun)
+$(dist): headers := $(odb_hdr)
+$(dist): data_dist := test.std
+$(dist): export name := $(name)
+$(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \
+$(call vc10projs,$(name))
 $(dist):
-	$(call dist-data,$(data_dist))
-	$(call meta-automake)
+	$(call dist-data,$(sources) $(headers) $(data_dist))
+	$(call meta-automake,../template/Makefile.am)
+	$(call meta-vc9projs,../template/template,$(name))
+	$(call meta-vc10projs,../template/template,$(name))
 
 # Test.
 #
@@ -82,6 +91,8 @@ endif
 # How to.
 #
 $(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc9proj.make)
+$(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(call include,$(odb_rules))

@@ -61,7 +61,7 @@ STATIC_LIB([LIBCOMMON_STATIC_LIB], [Static library interface.])
 
 # Output.
 #
-AC_CONFIG_HEADERS([config.h libcommon/config.h])
+AC_CONFIG_HEADERS([config.h libcommon/common/config.h])
 AC_CONFIG_FILES([__path__(config_files)])
 AC_CONFIG_COMMANDS([tester-mode], [chmod +x tester])
 AC_OUTPUT
