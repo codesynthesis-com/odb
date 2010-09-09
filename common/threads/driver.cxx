@@ -25,10 +25,6 @@
 using namespace std;
 using namespace odb;
 
-using details::shared;
-using details::shared_ptr;
-using details::thread;
-
 const size_t thread_count = 32;
 const size_t iteration_count = 100;
 
@@ -121,17 +117,17 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    vector<shared_ptr<thread> > threads;
-    vector<shared_ptr<task> > tasks;
+    vector<details::shared_ptr<details::thread> > threads;
+    vector<details::shared_ptr<task> > tasks;
 
     for (size_t i (0); i < thread_count; ++i)
     {
-      shared_ptr<task> t (new (shared) task (*db, i));
+      details::shared_ptr<task> t (new (details::shared) task (*db, i));
       tasks.push_back (t);
 
       threads.push_back (
-        shared_ptr<thread> (
-          new (shared) thread (&task::execute, t.get ())));
+        details::shared_ptr<details::thread> (
+          new (details::shared) details::thread (&task::execute, t.get ())));
     }
 
     for (size_t i (0); i < thread_count; ++i)
