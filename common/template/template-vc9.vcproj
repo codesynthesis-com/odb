@@ -43,6 +43,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\libcommon"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
@@ -118,6 +119,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\libcommon"
@@ -195,6 +197,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\libcommon"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
@@ -271,6 +274,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\libcommon"
