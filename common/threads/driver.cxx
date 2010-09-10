@@ -25,12 +25,12 @@
 using namespace std;
 using namespace odb;
 
-const size_t thread_count = 32;
-const size_t iteration_count = 100;
+const unsigned long thread_count = 32;
+const unsigned long iteration_count = 100;
 
 struct task
 {
-  task (database& db, size_t n)
+  task (database& db, unsigned long n)
       : db_ (db), n_ (n)
   {
   }
@@ -40,7 +40,7 @@ struct task
   {
     try
     {
-      for (size_t i (0); i < iteration_count; ++i)
+      for (unsigned long i (0); i < iteration_count; ++i)
       {
         unsigned long id ((n_ * iteration_count + i) * 3);
 
@@ -106,7 +106,7 @@ struct task
   }
 
   database& db_;
-  size_t n_;
+  unsigned long n_;
 };
 
 
@@ -120,7 +120,7 @@ main (int argc, char* argv[])
     vector<details::shared_ptr<details::thread> > threads;
     vector<details::shared_ptr<task> > tasks;
 
-    for (size_t i (0); i < thread_count; ++i)
+    for (unsigned long i (0); i < thread_count; ++i)
     {
       details::shared_ptr<task> t (new (details::shared) task (*db, i));
       tasks.push_back (t);
@@ -130,7 +130,7 @@ main (int argc, char* argv[])
           new (details::shared) details::thread (&task::execute, t.get ())));
     }
 
-    for (size_t i (0); i < thread_count; ++i)
+    for (unsigned long i (0); i < thread_count; ++i)
       threads[i]->join ();
   }
   catch (const odb::exception& e)
