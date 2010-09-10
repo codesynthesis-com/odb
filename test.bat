@@ -4,45 +4,64 @@ rem author    : Boris Kolpackov <boris@codesynthesis.com>
 rem copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
 rem license   : GNU GPL v2; see accompanying LICENSE file
 
+rem
+rem test.bat database
+rem
+rem Run tests built with VC++.
+rem
+
 setlocal
 
-set "tests=__path__(dirs)"
-set "confs=__path__(configurations)"
-set "topdir=__path__(topdir)\.."
+set "failed="
+
+if "_%1_" == "__" (
+  echo no database specified
+  goto usage
+)
+
 
 goto start
 
+rem
+rem %1 - directory
+rem %2 - database
+rem
 :run_test
+  echo.
+  echo testing %1
+  echo.
   cd %1
-
-  if exist %2\driver.exe (
-    echo %1\%2
-    call %topdir%\tester.bat tracer %2
-    if errorlevel 1 (
-      set "failed=%failed% %1\%2"
-    )
-  )
-
+  call test.bat %2
+  if errorlevel 1 set "failed=%failed% %1"
   cd ..
 goto :eof
 
 :start
 
-for %%t in (%tests%) do (
-  for %%c in (%confs%) do (
-    call :run_test %%t %%c
-  )
+for %%d in (tracer common %1) do (
+  call :run_test %%d %1
 )
 
 if not "_%failed%_" == "__" goto error
 
+echo.
 echo ALL TESTS PASSED
+echo.
 goto end
 
+:usage
+echo.
+echo usage: test.bat database
+echo.
+
 :error
-for %%t in (%failed%) do echo FAILED: %%t
+if not "_%failed%_" == "__" (
+  echo.
+  for %%t in (%failed%) do echo FAILED: %%t
+  echo.
+)
+endlocal
 exit /b 1
-goto end
 
 :end
 endlocal

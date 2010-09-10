@@ -19,12 +19,12 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(tests)))
 
 $(dist): name := $(notdir $(src_base))
 $(dist): export dirs := $(tests)
-$(dist): export extra_dist := $(name)-vc9.sln $(name)-vc10.sln tests.bat
+$(dist): export extra_dist := $(name)-vc9.sln $(name)-vc10.sln test.bat
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(tests)))
 	$(call meta-automake)
 	$(call meta-vc9sln,$(name)-vc9.sln)
 	$(call meta-vc10sln,$(name)-vc10.sln)
-	$(call meta-vctest,$(name)-vc10.sln,$(src_root)/test.bat)
+	$(call meta-vctest,$(name)-vc10.sln,test.bat)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(tests)))
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(tests)))
