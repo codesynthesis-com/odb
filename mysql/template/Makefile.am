@@ -17,7 +17,8 @@ m4_ifelse(__value__(odb_options),,,
 
 # ODB compilation.
 #
-driver_SOURCES += test.hxx test-odb.cxx
+driver_SOURCES += test.hxx
+nodist_driver_SOURCES = test-odb.cxx
 BUILT_SOURCES = test-odb.hxx
 CLEANFILES = test-odb.hxx test-odb.ixx test-odb.cxx
 

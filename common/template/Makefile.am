@@ -15,7 +15,8 @@ TESTS_ENVIRONMENT=top_builddir=$(top_builddir); export top_builddir;
 
 # ODB compilation.
 #
-driver_SOURCES += test.hxx test-odb.cxx
+driver_SOURCES += test.hxx
+nodist_driver_SOURCES = test-odb.cxx
 BUILT_SOURCES = test-odb.hxx
 CLEANFILES = test-odb.hxx test-odb.ixx test-odb.cxx
 
