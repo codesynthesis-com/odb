@@ -12,6 +12,7 @@
 
 #ifdef DB_ID_MYSQL
 #  include <odb/mysql/database.hxx>
+#  include <odb/mysql/connection-factory.hxx>
 #endif
 
 #include <common/common.hxx>
@@ -21,7 +22,7 @@ using namespace std;
 using namespace odb;
 
 auto_ptr<database>
-create_database (int argc, char* argv[])
+create_database (int argc, char* argv[], size_t max_connections)
 {
 #ifdef DB_ID_MYSQL
   cli::argv_file_scanner scan (argc, argv, "--options-file");
@@ -35,6 +36,11 @@ create_database (int argc, char* argv[])
     exit (0);
   }
 
+  auto_ptr<mysql::connection_factory> f;
+
+  if (max_connections != 0)
+    f.reset (new mysql::connection_pool_factory (max_connections));
+
   return auto_ptr<database> (
     new mysql::database (
       ops.user (),
@@ -42,7 +48,9 @@ create_database (int argc, char* argv[])
       ops.db_name (),
       ops.host (),
       ops.port (),
-      ops.socket_specified () ? &ops.socket () : 0));
+      ops.socket_specified () ? &ops.socket () : 0,
+      0,
+      f));
 #else
   return auto_ptr<database> (0);
 #endif

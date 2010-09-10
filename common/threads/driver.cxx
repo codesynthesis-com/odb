@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <memory>   // std::auto_ptr
+#include <cstddef>  // std::size_t
 #include <cassert>
 #include <iostream>
 
@@ -109,35 +110,54 @@ struct task
   unsigned long n_;
 };
 
+void
+test (int argc, char* argv[], size_t max_connections)
+{
+  auto_ptr<database> db (create_database (argc, argv, max_connections));
+
+  vector<details::shared_ptr<details::thread> > threads;
+  vector<details::shared_ptr<task> > tasks;
+
+  for (unsigned long i (0); i < thread_count; ++i)
+  {
+    details::shared_ptr<task> t (new (details::shared) task (*db, i));
+    tasks.push_back (t);
+
+    threads.push_back (
+      details::shared_ptr<details::thread> (
+        new (details::shared) details::thread (&task::execute, t.get ())));
+  }
+
+  for (unsigned long i (0); i < thread_count; ++i)
+    threads[i]->join ();
+
+  {
+    typedef odb::result<object> result;
+
+    transaction t (db->begin_transaction ());
+    result r (db->query<object> ());
+    r.cache ();
+
+    for (result::iterator i (r.begin ()); i != r.end (); ++i)
+      db->erase<object> (i->id_);
+
+    t.commit ();
+  }
+}
 
 int
 main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
-
-    vector<details::shared_ptr<details::thread> > threads;
-    vector<details::shared_ptr<task> > tasks;
-
-    for (unsigned long i (0); i < thread_count; ++i)
-    {
-      details::shared_ptr<task> t (new (details::shared) task (*db, i));
-      tasks.push_back (t);
-
-      threads.push_back (
-        details::shared_ptr<details::thread> (
-          new (details::shared) details::thread (&task::execute, t.get ())));
-    }
-
-    for (unsigned long i (0); i < thread_count; ++i)
-      threads[i]->join ();
+    test (argc, argv, 0);
+    test (argc, argv, thread_count - 1);
+    test (argc, argv, thread_count / 2);
+    test (argc, argv, thread_count / 4);
   }
   catch (const odb::exception& e)
   {
     cerr << e.what () << endl;
     return 1;
   }
-
-  // pthread_exit (0);
 }
