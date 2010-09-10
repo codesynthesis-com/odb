@@ -64,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb-tracer-d.lib;odb-d.lib"
+				AdditionalDependencies="odb-tracer-d.lib odb-d.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -139,7 +139,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb-tracer.lib;odb.lib"
+				AdditionalDependencies="odb-tracer.lib odb.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -216,7 +216,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb-tracer-d.lib;odb-d.lib"
+				AdditionalDependencies="odb-tracer-d.lib odb-d.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -292,7 +292,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb-tracer.lib;odb.lib"
+				AdditionalDependencies="odb-tracer.lib odb.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"

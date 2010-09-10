@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\libcommon\lib\common-d.lib;odb-mysql-d.lib;odb-d.lib"
+				AdditionalDependencies="..\..\libcommon\lib\common-d.lib odb-mysql-d.lib odb-d.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -141,7 +141,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\libcommon\lib\common.lib;odb-mysql.lib;odb.lib"
+				AdditionalDependencies="..\..\libcommon\lib\common.lib odb-mysql.lib odb.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -219,7 +219,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\libcommon\lib64\common-d.lib;odb-mysql-d.lib;odb-d.lib"
+				AdditionalDependencies="..\..\libcommon\lib64\common-d.lib odb-mysql-d.lib odb-d.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -296,7 +296,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\libcommon\lib64\common.lib;odb-mysql.lib;odb.lib"
+				AdditionalDependencies="..\..\libcommon\lib64\common.lib odb-mysql.lib odb.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
