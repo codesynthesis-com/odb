@@ -97,7 +97,8 @@ $(dist): $(gen)
 $(clean): $(common.l).o.clean        \
   $(common.l.cpp-options).clean      \
   $(addsuffix .cxx.clean,$(cxx_obj)) \
-  $(addsuffix .cxx.clean,$(cxx_od))
+  $(addsuffix .cxx.clean,$(cxx_od))  \
+  $(addprefix $(out_base)/,$(cli_tun:.cli=.cxx.cli.clean))
 	$(call message,rm $$1,rm -f $$1,$(out_base)/config.h)
 
 # Generated .gitignore.
@@ -105,7 +106,7 @@ $(clean): $(common.l).o.clean        \
 ifeq ($(out_base),$(src_base))
 $(common.l): | $(out_base)/.gitignore
 
-$(out_base)/.gitignore: files := config.h
+$(out_base)/.gitignore: files := config.h $(genf)
 $(clean): $(out_base)/.gitignore.clean
 
 $(call include,$(bld_root)/git/gitignore.make)
