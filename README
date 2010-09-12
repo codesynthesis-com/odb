@@ -1,0 +1,18 @@
+ODB is an object-relational mapping (ORM) system for C++.
+
+@@
+
+For more information see:
+
+http://www.codesynthesis.com/products/odb/
+
+This package contains the ODB test suite.
+
+See the NEWS file for the user-visible changes from the previous release.
+
+See the LICENSE file for distribution conditions.
+
+See the INSTALL file for prerequisites and installation instructions.
+
+Send questions, bug reports, or any other feedback to the 
+odb-users@codesynthesis.com mailing list.
