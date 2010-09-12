@@ -79,15 +79,20 @@ $(out_base)/: $(common.l)
 
 # Dist.
 #
-$(dist): export sources := $(cxx_tun) $(cli_tun:.cli=.cxx)
-$(dist): export headers = $(subst $(src_base)/,,$(shell find $(src_base) \
+$(dist): sources_dist := $(cxx_tun)
+$(dist): export sources := $(sources_dist) $(cli_tun:.cli=.cxx)
+$(dist): headers_dist = $(subst $(src_base)/,,$(shell find $(src_base) \
 -name '*.hxx' -o -name '*.ixx' -o -name '*.txx'))
-$(dist): data_dist := $(cli_tun)
+$(dist): gen_headers := $(cli_tun:.cli=.hxx) $(cli_tun:.cli=.ixx)
+$(dist): export headers = $(headers_dist) $(gen_headers)
+$(dist): gen_dist := $(gen)
+$(dist): data_dist := $(cli_tun) config.h.in
 $(dist): export extra_dist := $(data_dist) $(call vc9projs,libcommon) \
 $(call vc10projs,libcommon)
 
 $(dist): $(gen)
-	$(call dist-data,$(sources) $(headers) $(data_dist) config.h.in)
+	$(call dist-data,$(sources_dist) $(headers_dist) $(data_dist))
+	$(call dist-data,$(gen_dist))
 	$(call meta-automake)
 	$(call meta-vc9projs,libcommon)
 	$(call meta-vc10projs,libcommon)
