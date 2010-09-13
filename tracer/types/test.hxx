@@ -15,19 +15,19 @@ typedef int num_t;
 
 typedef num_t num_type;
 
-#pragma odb object
+#pragma db object
 struct object1
 {
   typedef int int_type;
 
-  #pragma odb id
+  #pragma db id
   int_type id_;
 };
 
-#pragma odb object
+#pragma db object
 struct object2
 {
-  #pragma odb id
+  #pragma db id
   num_type num_;
 };
 

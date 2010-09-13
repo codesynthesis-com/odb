@@ -154,10 +154,12 @@ operator== (bitfield x, bitfield y)
     x.d == y.d;
 }
 
+#pragma db value(bitfield) type ("BIT(4) NOT NULL")
+
 typedef std::set<std::string> set;
 typedef std::auto_ptr<std::string> string_ptr;
 
-#pragma odb object
+#pragma db object
 struct object
 {
   object (unsigned long id)
@@ -169,124 +171,124 @@ struct object
   {
   }
 
-  #pragma odb id
+  #pragma db id
   unsigned long id_;
 
   // Integral types.
   //
-  #pragma odb type ("BOOL NOT NULL")
+  #pragma db type ("BOOL NOT NULL")
   bool bool_;
 
-  #pragma odb type ("TINYINT NOT NULL")
+  #pragma db type ("TINYINT NOT NULL")
   signed char schar_;
 
-  #pragma odb type ("TINYINT UNSIGNED NOT NULL")
+  #pragma db type ("TINYINT UNSIGNED NOT NULL")
   unsigned char uchar_;
 
-  #pragma odb type ("SMALLINT NOT NULL")
+  #pragma db type ("SMALLINT NOT NULL")
   short short_;
 
-  #pragma odb type ("SMALLINT UNSIGNED NOT NULL")
+  #pragma db type ("SMALLINT UNSIGNED NOT NULL")
   unsigned short ushort_;
 
-  #pragma odb type ("MEDIUMINT NOT NULL")
+  #pragma db type ("MEDIUMINT NOT NULL")
   int mint_;
 
-  #pragma odb type ("MEDIUMINT UNSIGNED NOT NULL")
+  #pragma db type ("MEDIUMINT UNSIGNED NOT NULL")
   unsigned int umint_;
 
-  #pragma odb type ("INT NOT NULL")
+  #pragma db type ("INT NOT NULL")
   int int_;
 
-  #pragma odb type ("INT UNSIGNED NOT NULL")
+  #pragma db type ("INT UNSIGNED NOT NULL")
   unsigned int uint_;
 
-  #pragma odb type ("BIGINT NOT NULL")
+  #pragma db type ("BIGINT NOT NULL")
   long long long_long_;
 
-  #pragma odb type ("BIGINT UNSIGNED NOT NULL")
+  #pragma db type ("BIGINT UNSIGNED NOT NULL")
   unsigned long long ulong_long_;
 
   // Float types.
   //
-  #pragma odb type ("FLOAT NOT NULL")
+  #pragma db type ("FLOAT NOT NULL")
   float float_;
 
-  #pragma odb type ("DOUBLE NOT NULL")
+  #pragma db type ("DOUBLE NOT NULL")
   double double_;
 
-  #pragma odb type ("DECIMAL(6,3) NOT NULL")
+  #pragma db type ("DECIMAL(6,3) NOT NULL")
   std::string decimal_;
 
   // Data-time types.
   //
-  #pragma odb type ("DATE NOT NULL")
+  #pragma db type ("DATE NOT NULL")
   date_time date_;
 
-  #pragma odb type ("TIME NOT NULL")
+  #pragma db type ("TIME NOT NULL")
   date_time time_;
 
-  #pragma odb type ("DATETIME NOT NULL")
+  #pragma db type ("DATETIME NOT NULL")
   date_time date_time_;
 
-  #pragma odb type ("TIMESTAMP NOT NULL")
+  #pragma db type ("TIMESTAMP NOT NULL")
   date_time timestamp_;
 
-  #pragma odb type ("YEAR NOT NULL")
+  #pragma db type ("YEAR NOT NULL")
   short year_;
 
   // String and binary types.
   //
-  #pragma odb type ("CHAR(128) NOT NULL")
+  #pragma db type ("CHAR(128) NOT NULL")
   std::string char_;
 
-  #pragma odb type ("BINARY(128) NOT NULL")
+  #pragma db type ("BINARY(128) NOT NULL")
   buffer binary_;
 
-  #pragma odb type ("VARCHAR(256) NOT NULL")
+  #pragma db type ("VARCHAR(256) NOT NULL")
   std::string varchar_;
 
-  #pragma odb type ("VARBINARY(256) NOT NULL")
+  #pragma db type ("VARBINARY(256) NOT NULL")
   buffer varbinary_;
 
-  #pragma odb type ("TINYTEXT NOT NULL")
+  #pragma db type ("TINYTEXT NOT NULL")
   std::string tinytext_;
 
-  #pragma odb type ("TINYBLOB NOT NULL")
+  #pragma db type ("TINYBLOB NOT NULL")
   buffer tinyblob_;
 
-  #pragma odb type ("TEXT NOT NULL")
+  #pragma db type ("TEXT NOT NULL")
   std::string text_;
 
-  #pragma odb type ("BLOB NOT NULL")
+  #pragma db type ("BLOB NOT NULL")
   buffer blob_;
 
-  #pragma odb type ("MEDIUMTEXT NOT NULL")
+  #pragma db type ("MEDIUMTEXT NOT NULL")
   std::string mediumtext_;
 
-  #pragma odb type ("MEDIUMBLOB NOT NULL")
+  #pragma db type ("MEDIUMBLOB NOT NULL")
   buffer mediumblob_;
 
-  #pragma odb type ("LONGTEXT NOT NULL")
+  #pragma db type ("LONGTEXT NOT NULL")
   std::string longtext_;
 
-  #pragma odb type ("LONGBLOB NOT NULL")
+  #pragma db type ("LONGBLOB NOT NULL")
   buffer longblob_;
 
   // Other types.
   //
-  #pragma odb type ("BIT(4) NOT NULL")
+  // #pragma db type ("BIT(4) NOT NULL") - assigned by #pragma db value
   bitfield bit_;
 
-  #pragma odb type ("ENUM('red', 'green', 'blue') NOT NULL")
+  #pragma db type ("ENUM('red', 'green', 'blue') NOT NULL")
   std::string enum_;
 
-  #pragma odb type ("SET('red', 'green', 'blue') NOT NULL")
+  #pragma db type ("SET('red', 'green', 'blue') NOT NULL")
   set set_;
 
   // Test NULL value.
   //
-  #pragma odb type ("TEXT")
+  #pragma db type ("TEXT")
   string_ptr null_;
 
   bool

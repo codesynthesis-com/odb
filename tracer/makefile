@@ -8,6 +8,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 tests :=      \
 template      \
 object        \
+pragma        \
 transaction   \
 types
 

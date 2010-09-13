@@ -12,7 +12,7 @@
 
 #include <odb/core.hxx>
 
-#pragma odb object
+#pragma db object
 struct person
 {
   person (unsigned long id,
@@ -32,17 +32,17 @@ struct person
   {
   }
 
-  #pragma odb id
+  #pragma db id
   unsigned long id_;
 
-  #pragma odb column ("first")
+  #pragma db column ("first")
   std::string first_name_;
 
   typedef std::auto_ptr<std::string> string_ptr; // @@ tmp
-  #pragma odb column ("middle") type ("TEXT")
+  #pragma db column ("middle") type ("TEXT")
   string_ptr middle_name_;
 
-  #pragma odb column ("last")
+  #pragma db column ("last")
   std::string last_name_;
 
   unsigned short age_;

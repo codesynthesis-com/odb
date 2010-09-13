@@ -10,7 +10,7 @@
 
 #include <odb/core.hxx>
 
-#pragma odb object
+#pragma db object
 struct object
 {
   object (unsigned long id, const std::string& str)
@@ -22,7 +22,7 @@ struct object
   {
   }
 
-  #pragma odb id
+  #pragma db id
   unsigned long id_;
 
   std::string str_;

@@ -11,29 +11,29 @@
 
 // Table names.
 //
-#pragma odb object table ("TABLE_EXPLICIT")
+#pragma db object table ("TABLE_EXPLICIT")
 struct table_explicit
 {
-  #pragma odb id
+  #pragma db id
   unsigned long id_;
 };
 
-#pragma odb object
+#pragma db object
 struct table_implicit
 {
-  #pragma odb id
+  #pragma db id
   unsigned long id_;
 };
 
 // Column names.
 //
-#pragma odb object
+#pragma db object
 struct column
 {
-  #pragma odb id
+  #pragma db id
   int m1;
 
-  #pragma odb column ("foo")
+  #pragma db column ("foo")
   int m2;
 
   int m_m3;
@@ -45,10 +45,10 @@ struct column
 
 // Column types.
 //
-#pragma odb object
+#pragma db object
 struct type
 {
-  #pragma odb id
+  #pragma db id
   std::string id;
 
   // Test default C++ to DB type mapping.
@@ -69,10 +69,10 @@ struct type
   double d;
   std::string str;
 
-  #pragma odb type ("INTEGER UNSIGNED")
+  #pragma db type ("INTEGER UNSIGNED")
   bool m1;
 
-  #pragma odb transient
+  #pragma db transient
   char* m2;
 };
 
