@@ -60,10 +60,10 @@ drv=$dcf_root/db-driver
 echo "--user '$user'"      >$opt
 
 if [ "$passwd" != "NULL" ]; then
-echo "--passwd '$passwd'" >>$opt
+echo "--password '$passwd'" >>$opt
 fi
 
-echo "--db-name '$db'"    >>$opt
+echo "--database '$db'"    >>$opt
 echo "--host '$host'"     >>$opt
 echo "--port $port"         >>$opt
 

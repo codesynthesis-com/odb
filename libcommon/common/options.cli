@@ -17,13 +17,13 @@ namespace cli
       "MySQL database user."
     };
 
-    std::string --passwd
+    std::string --password
     {
       "<str>",
       "MySQL database password"
     };
 
-    std::string --db-name
+    std::string --database
     {
       "<name>",
       "MySQL database name."

@@ -213,12 +213,12 @@ AC_CONFIG_COMMANDS([db.options],
    fi
 
    if test x$mysql_password_set = xyes; then
-     echo "--passwd '$mysql_password'" >>db.options
+     echo "--password '$mysql_password'" >>db.options
      echo 'opt="$opt --password='"$mysql_password"'"' >>db-driver
    fi
 
    if test x$mysql_db_set = xyes; then
-     echo "--db-name '$mysql_db'" >>db.options
+     echo "--database '$mysql_db'" >>db.options
      echo 'opt="$opt --database='"$mysql_db"'"' >>db-driver
    fi
 

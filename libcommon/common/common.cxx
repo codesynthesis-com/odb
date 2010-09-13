@@ -44,8 +44,8 @@ create_database (int argc, char* argv[], size_t max_connections)
   return auto_ptr<database> (
     new mysql::database (
       ops.user (),
-      ops.passwd_specified () ? &ops.passwd () : 0,
-      ops.db_name (),
+      ops.password_specified () ? &ops.password () : 0,
+      ops.database (),
       ops.host (),
       ops.port (),
       ops.socket_specified () ? &ops.socket () : 0,

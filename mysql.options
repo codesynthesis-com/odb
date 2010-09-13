@@ -1,9 +1,10 @@
 # Sample MySQL options file used to run the tests. Adjust to
 # match your MySQL setup.
 #
---user 'odb_test'
---db-name 'odb_test'
-# --password ''
-# --host ''
-# --port 0
-# --socket ''
+
+--user odb_test
+--database odb_test
+# --password
+# --host
+# --port
+# --socket

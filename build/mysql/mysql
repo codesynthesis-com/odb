@@ -19,11 +19,11 @@ while [ $# -gt 0 ]; do
       opt="$opt --user=$2"
       shift 2
       ;;
-    --passwd)
+    --password)
       opt="$opt --password=$2"
       shift 2
       ;;
-    --db-name)
+    --database)
       opt="$opt --database=$2"
       shift 2
       ;;
