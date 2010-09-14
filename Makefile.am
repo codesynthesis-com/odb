@@ -5,7 +5,7 @@
 
 SUBDIRS = libcommon tracer common
 
-if DB_ID_MYSQL
+if DATABASE_MYSQL
 SUBDIRS += mysql
 endif
 

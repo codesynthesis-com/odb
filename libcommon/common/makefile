@@ -49,7 +49,7 @@ $(out_base)/config.h: $(dcf_root)/configuration-dynamic.make
 	@echo '#define LIBCOMMON_COMMON_CONFIG_H'                       >>$@
 	@echo ''                                                        >>$@
 ifeq ($(db_id),mysql)
-	@echo '#define DB_ID_MYSQL 1'                                   >>$@
+	@echo '#define DATABASE_MYSQL 1'                                >>$@
 endif
 	@echo ''                                                        >>$@
 	@echo '#endif // LIBCOMMON_COMMON_CONFIG_H'                     >>$@

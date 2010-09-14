@@ -21,7 +21,7 @@ AC_ARG_WITH(
        ;;
      mysql)
        database=mysql
-       AC_DEFINE([DB_ID_MYSQL], [1], [Using MySQL.])
+       AC_DEFINE([DATABASE_MYSQL], [1], [Using MySQL.])
        ;;
      *)
        AC_MSG_RESULT([])
@@ -36,6 +36,6 @@ AC_ARG_WITH(
 AC_MSG_RESULT([$database])
 AC_SUBST([database])
 
-AM_CONDITIONAL([DB_ID_MYSQL], [test x$database = xmysql])
+AM_CONDITIONAL([DATABASE_MYSQL], [test x$database = xmysql])
 
 ])dnl

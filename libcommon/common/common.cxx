@@ -10,7 +10,7 @@
 #  include <common/config.h>
 #endif
 
-#if defined(DB_ID_MYSQL)
+#if defined(DATABASE_MYSQL)
 #  include <odb/mysql/database.hxx>
 #  include <odb/mysql/connection-factory.hxx>
 #else
@@ -30,14 +30,14 @@ create_database (int& argc, char* argv[], size_t max_connections)
     cerr << "Usage: " << argv[0] << " [options]" << endl
          << "Options:" << endl;
 
-#if defined(DB_ID_MYSQL)
+#if defined(DATABASE_MYSQL)
     mysql::database::print_usage (cerr);
 #endif
 
     exit (0);
   }
 
-#if defined(DB_ID_MYSQL)
+#if defined(DATABASE_MYSQL)
   auto_ptr<mysql::connection_factory> f;
 
   if (max_connections != 0)
