@@ -18,6 +18,8 @@ if test -f test.sql; then
   fi
 fi
 
+echo ./driver --options-file "$top_builddir/db.options"
+
 if test -f "$srcdir/test.std"; then
   ./driver --options-file "$top_builddir/db.options" >test.out
 
