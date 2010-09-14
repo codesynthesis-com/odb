@@ -1,7 +1,7 @@
 # file      : build/import/odb/hxx-cxx.make
 # author    : Boris Kolpackov <boris@codesynthesis.com>
 # copyright : Copyright (c) 2009-2010 Code Synthesis Tools CC
-# license   : GNU GPL v2; see accompanying LICENSE file
+# license   : GNU GPL v3; see accompanying LICENSE file
 
 # Here we are operating in the importing project's space, not in odb's.
 #
@@ -50,6 +50,10 @@ $(call expand-cpp-options,$^) $(cxx_pp_extra_options) $(odb_options) \
 endif
 
 .PHONY: $(out_base)/%-odb.cxx.hxx.clean
+
+$(out_base)/%-odb.cxx.hxx.clean: cxx_s_suffix := $(cxx_s_suffix)
+$(out_base)/%-odb.cxx.hxx.clean: cxx_h_suffix := $(cxx_h_suffix)
+$(out_base)/%-odb.cxx.hxx.clean: cxx_i_suffix := $(cxx_i_suffix)
 
 $(out_base)/%-odb.cxx.hxx.clean:
 	$(call message,rm $$1,rm -f $$1,$(@:.cxx.hxx.clean=.$(cxx_s_suffix)))
