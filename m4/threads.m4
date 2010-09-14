@@ -5,6 +5,8 @@ dnl license   : GNU GPL v2; see accompanying LICENSE file
 dnl
 AC_DEFUN([THREADS],[
 
+threads_thread_keyword=no
+
 AC_ARG_ENABLE(
   [threads],
   AS_HELP_STRING([--disable-threads], [disable threads (enabled by default)]),
@@ -30,6 +32,24 @@ if test x$threads = xcheck; then
         threads=posix
         LIBS="$LIBS $PTHREAD_LIBS"
         CXXFLAGS="$CXXFLAGS $PTHREAD_CXXFLAGS"
+
+        # Check if we can use the __thread keyword.
+        #
+        AC_MSG_CHECKING([for __thread keyword])
+
+        CXX_LIBTOOL_LINK_IFELSE(
+          AC_LANG_SOURCE([[
+            __thread int tls_var;
+
+            int
+            main ()
+            {
+              tls_var = 0;
+            }
+          ]]),
+          [threads_thread_keyword=yes])
+
+        AC_MSG_RESULT([$threads_thread_keyword])
       fi
       ;;
   esac
