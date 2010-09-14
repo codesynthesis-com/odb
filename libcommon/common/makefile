@@ -5,12 +5,9 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-# Options file.
-#
-cli_tun := options.cli
 cxx_tun := common.cxx
 
-cxx_obj   := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(cli_tun:.cli=.o))
+cxx_obj   := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o))
 cxx_od    := $(cxx_obj:.o=.o.d)
 
 common.l             := $(out_base)/common.l
@@ -22,10 +19,6 @@ clean   := $(out_base)/.clean
 
 # Import.
 #
-$(call import,\
-  $(scf_root)/import/cli/stub.make,\
-  cli: cli,cli-rules: cli_rules)
-
 $(call import,\
   $(scf_root)/import/libodb/stub.make,\
   l: odb.l,cpp-options: odb.l.cpp-options)
@@ -48,18 +41,6 @@ $(cxx_obj) $(cxx_od): $(common.l.cpp-options) $(out_base)/config.h
 $(common.l.cpp-options): value := -I$(out_root)/libcommon -I$(src_root)/libcommon
 $(common.l.cpp-options): $(odb_db.l.cpp-options) $(odb.l.cpp-options)
 
-genf := $(cli_tun:.cli=.hxx) $(cli_tun:.cli=.ixx) $(cli_tun:.cli=.cxx)
-gen  := $(addprefix $(out_base)/,$(genf))
-
-$(gen): $(cli)
-$(gen): cli := $(cli)
-$(gen): cli_options +=   \
---generate-specifier     \
---generate-file-scanner  \
---guard-prefix LIBCOMMON_COMMON
-
-$(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
-
 $(out_base)/config.h: $(dcf_root)/configuration-dynamic.make
 	@echo '// file      : libcommon/config.h'                        >$@
 	@echo '// author    : automatically generated'                  >>$@
@@ -73,26 +54,23 @@ endif
 	@echo ''                                                        >>$@
 	@echo '#endif // LIBCOMMON_COMMON_CONFIG_H'                     >>$@
 
+$(call include-dep,$(cxx_od),$(cxx_obj),$(out_base)/config.h)
+
 # Convenience alias for default target.
 #
 $(out_base)/: $(common.l)
 
 # Dist.
 #
-$(dist): sources_dist := $(cxx_tun)
-$(dist): export sources := $(sources_dist) $(cli_tun:.cli=.cxx)
-$(dist): headers_dist = $(subst $(src_base)/,,$(shell find $(src_base) \
+$(dist): export sources := $(cxx_tun)
+$(dist): export headers = $(subst $(src_base)/,,$(shell find $(src_base) \
 -name '*.hxx' -o -name '*.ixx' -o -name '*.txx'))
-$(dist): gen_headers := $(cli_tun:.cli=.hxx) $(cli_tun:.cli=.ixx)
-$(dist): export headers = $(sort $(headers_dist) $(gen_headers))
-$(dist): gen_dist := $(gen)
-$(dist): data_dist := $(cli_tun) config.h.in
+$(dist): data_dist := config.h.in
 $(dist): export extra_dist := $(data_dist) $(call vc9projs,libcommon) \
 $(call vc10projs,libcommon)
 
-$(dist): $(gen)
-	$(call dist-data,$(sources_dist) $(headers_dist) $(data_dist))
-	$(call dist-data,$(gen_dist))
+$(dist):
+	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake)
 	$(call meta-vc9projs,libcommon)
 	$(call meta-vc10projs,libcommon)
@@ -103,7 +81,6 @@ $(clean): $(common.l).o.clean        \
   $(common.l.cpp-options).clean      \
   $(addsuffix .cxx.clean,$(cxx_obj)) \
   $(addsuffix .cxx.clean,$(cxx_od))  \
-  $(addprefix $(out_base)/,$(cli_tun:.cli=.cxx.cli.clean))
 	$(call message,rm $$1,rm -f $$1,$(out_base)/config.h)
 
 # Generated .gitignore.
@@ -111,7 +88,7 @@ $(clean): $(common.l).o.clean        \
 ifeq ($(out_base),$(src_base))
 $(common.l): | $(out_base)/.gitignore
 
-$(out_base)/.gitignore: files := config.h $(genf)
+$(out_base)/.gitignore: files := config.h
 $(clean): $(out_base)/.gitignore.clean
 
 $(call include,$(bld_root)/git/gitignore.make)
@@ -124,7 +101,6 @@ $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
-$(call include,$(cli_rules))
 $(call include,$(bld_root)/cxx/cxx-d.make)
 $(call include,$(bld_root)/cxx/cxx-o.make)
 $(call include,$(bld_root)/cxx/o-l.make)

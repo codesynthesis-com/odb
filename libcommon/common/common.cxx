@@ -10,58 +10,39 @@
 #  include <common/config.h>
 #endif
 
-#ifdef DB_ID_MYSQL
+#if defined(DB_ID_MYSQL)
 #  include <odb/mysql/database.hxx>
 #  include <odb/mysql/connection-factory.hxx>
+#else
+#  error unknown database
 #endif
 
 #include <common/common.hxx>
-#include <common/options.hxx>
 
 using namespace std;
 using namespace odb;
 
 auto_ptr<database>
-create_database (int argc, char* argv[], size_t max_connections)
+create_database (int& argc, char* argv[], size_t max_connections)
 {
-  try
+  if (argc > 1 && argv[1] == string ("--help"))
   {
-#ifdef DB_ID_MYSQL
-    cli::argv_file_scanner scan (argc, argv, "--options-file");
-    cli::mysql_options ops (scan);
+    cerr << "Usage: " << argv[0] << " [options]" << endl
+         << "Options:" << endl;
 
-    if (ops.help ())
-    {
-      cerr << "Usage: " << argv[0] << " [options]" << endl
-           << "Options:" << endl;
-      cli::mysql_options::print_usage (cerr);
-      exit (0);
-    }
-
-    auto_ptr<mysql::connection_factory> f;
-
-    if (max_connections != 0)
-      f.reset (new mysql::connection_pool_factory (max_connections));
-
-    return auto_ptr<database> (
-      new mysql::database (
-        ops.user (),
-        ops.password_specified () ? &ops.password () : 0,
-        ops.database (),
-        ops.host (),
-        ops.port (),
-        ops.socket_specified () ? &ops.socket () : 0,
-        0,
-        f));
-#else
-    return auto_ptr<database> (0);
+#if defined(DB_ID_MYSQL)
+    mysql::database::print_usage (cerr);
 #endif
-  }
-  catch (const cli::exception& e)
-  {
-    cerr << e.what () << endl;
-    exit (1);
+
+    exit (0);
   }
 
-  return auto_ptr<database> (0);
+#if defined(DB_ID_MYSQL)
+  auto_ptr<mysql::connection_factory> f;
+
+  if (max_connections != 0)
+    f.reset (new mysql::connection_pool_factory (max_connections));
+
+  return auto_ptr<database> (new mysql::database (argc, argv, false, 0, f));
+#endif
 }

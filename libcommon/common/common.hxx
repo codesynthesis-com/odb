@@ -14,6 +14,6 @@
 #include <common/export.hxx>
 
 LIBCOMMON_EXPORT std::auto_ptr<odb::database>
-create_database (int argc, char* argv[], std::size_t max_connections = 0);
+create_database (int& argc, char* argv[], std::size_t max_connections = 0);
 
 #endif // LIBCOMMON_COMMON_COMMON_HXX
