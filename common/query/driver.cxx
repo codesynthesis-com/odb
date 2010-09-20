@@ -26,7 +26,7 @@ print (result<person>& r)
 {
   for (result<person>::iterator i (r.begin ()); i != r.end (); ++i)
   {
-    auto_ptr<person> o (*i);
+    auto_ptr<person> o (i.load ());
     cout << *o << endl;
   }
   cout << endl;
@@ -112,7 +112,9 @@ main (int argc, char* argv[])
 
       for (result::iterator i (r.begin ()); i != r.end (); ++i)
       {
-        cout << i->first_name_;
+        person& p (*i);
+
+        cout << p.first_name_;
 
         if (i->middle_name_.get () != 0)
           cout << ' '  << *i->middle_name_;
