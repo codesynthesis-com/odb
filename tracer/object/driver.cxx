@@ -169,7 +169,7 @@ main ()
     cout << "s 2" << endl;
   }
 
-  // store
+  // update
   //
   cout << "\ntest 010" << endl;
   {
@@ -177,13 +177,13 @@ main ()
     cout << "s 1" << endl;
     auto_ptr<object> o1 (db.load<object> (1));
     cout << "s 2" << endl;
-    db.store (*o1);
+    db.update (*o1);
     cout << "s 3" << endl;
     t.commit ();
     cout << "s 4" << endl;
   }
 
-  // store (not exist)
+  // update (not exist)
   //
   cout << "\ntest 011" << endl;
   {
@@ -192,7 +192,7 @@ main ()
     cout << "s 1" << endl;
     try
     {
-      db.store (o1);
+      db.update (o1);
     }
     catch (const object_not_persistent&)
     {

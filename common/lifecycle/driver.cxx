@@ -76,7 +76,7 @@ main (int argc, char* argv[])
       transaction t (db->begin_transaction ());
       auto_ptr<object> o (db->load<object> (1));
       o->str_ = "value 2";
-      db->store (*o);
+      db->update (*o);
       t.commit ();
     }
 

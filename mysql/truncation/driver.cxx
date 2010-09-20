@@ -84,7 +84,7 @@ main (int argc, char* argv[])
         o.str_ = longer_str;
 
         transaction t (db->begin_transaction ());
-        db->store (o);
+        db->update (o);
         t.commit ();
       }
 
@@ -138,14 +138,14 @@ main (int argc, char* argv[])
 
         // This forces buffer growth in the middle of result iteration.
         //
-        db->store (o);
+        db->update (o);
 
         ++i;
         assert (i->str_ == "test string");
 
         o.id_ = i->id_;
         o.str_ = longer_str;
-        db->store (o);
+        db->update (o);
 
         ++i;
         assert (i->str_ == "test string");

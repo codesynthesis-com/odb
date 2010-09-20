@@ -80,7 +80,7 @@ $(dist):
 $(clean): $(common.l).o.clean        \
   $(common.l.cpp-options).clean      \
   $(addsuffix .cxx.clean,$(cxx_obj)) \
-  $(addsuffix .cxx.clean,$(cxx_od))  \
+  $(addsuffix .cxx.clean,$(cxx_od))
 	$(call message,rm $$1,rm -f $$1,$(out_base)/config.h)
 
 # Generated .gitignore.

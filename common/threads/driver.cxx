@@ -62,7 +62,7 @@ struct task
           auto_ptr<object> o (db_.load<object> (id));
           assert (o->str_ == "frist object");
           o->str_ = "another value";
-          db_.store (*o);
+          db_.update (*o);
           t.commit ();
         }
 
