@@ -131,7 +131,6 @@ main (int argc, char* argv[])
         transaction t (db->begin_transaction ());
 
         result r (db->query<object1> (query::id >= 20));
-        r.cache ();
         result::iterator i (r.begin ());
 
         o.id_ = i->id_;

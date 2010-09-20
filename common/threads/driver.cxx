@@ -71,7 +71,7 @@ struct task
           typedef odb::result<object> result;
 
           transaction t (db_.begin_transaction ());
-          result r (db_.query<object> (query::str == "another value"));
+          result r (db_.query<object> (query::str == "another value", false));
 
           bool found (false);
           for (result::iterator i (r.begin ()); i != r.end (); ++i)
@@ -136,7 +136,6 @@ test (int argc, char* argv[], size_t max_connections)
 
     transaction t (db->begin_transaction ());
     result r (db->query<object> ());
-    r.cache ();
 
     for (result::iterator i (r.begin ()); i != r.end (); ++i)
       db->erase<object> (i->id_);
