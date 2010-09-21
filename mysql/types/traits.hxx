@@ -17,11 +17,12 @@ namespace odb
   namespace mysql
   {
     template <>
-    class value_traits<date_time>
+    class value_traits<date_time, MYSQL_TIME>
     {
     public:
-      typedef date_time type;
       typedef date_time value_type;
+      typedef date_time query_type;
+      typedef MYSQL_TIME image_type;
 
       static void
       set_value (date_time& v, const MYSQL_TIME& i, bool is_null)
@@ -56,36 +57,23 @@ namespace odb
     };
 
     template <>
-    class value_traits<buffer>
+    class value_traits<buffer, details::buffer>
     {
     public:
-      typedef buffer type;
       typedef buffer value_type;
+      typedef buffer query_type;
+      typedef details::buffer image_type;
 
       static void
-      set_value (buffer& v, const char* s, std::size_t n, bool is_null)
+      set_value (buffer& v,
+                 const details::buffer& b,
+                 std::size_t n,
+                 bool is_null)
       {
         if (!is_null)
-          v.assign (s, n);
+          v.assign (b.data (), n);
         else
           v.assign (0, 0);
-      }
-
-      static void
-      set_image (char* s,
-                 std::size_t c,
-                 std::size_t& n,
-                 bool& is_null,
-                 const buffer& v)
-      {
-        is_null = false;
-        n = v.size ();
-
-        if (n > c)
-          n = c;
-
-        if (n != 0)
-          std::memcpy (s, v.data (), n);
       }
 
       static void
@@ -106,11 +94,12 @@ namespace odb
     };
 
     template <>
-    class value_traits<bitfield>
+    class value_traits<bitfield, unsigned char*>
     {
     public:
-      typedef bitfield type;
       typedef bitfield value_type;
+      typedef bitfield query_type;
+      typedef unsigned char* image_type;
 
       static void
       set_value (bitfield& v,
@@ -139,19 +128,24 @@ namespace odb
     };
 
     template <>
-    class value_traits<set>
+    class value_traits<set, details::buffer>
     {
     public:
-      typedef set type;
       typedef set value_type;
+      typedef set query_type;
+      typedef details::buffer image_type;
 
       static void
-      set_value (set& v, const char* s, std::size_t n, bool is_null)
+      set_value (set& v,
+                 const details::buffer& b,
+                 std::size_t n,
+                 bool is_null)
       {
         v.clear ();
 
         if (!is_null)
         {
+          const char* s (b.data ());
           const char* e (s + n);
 
           while (s < e)
@@ -196,19 +190,20 @@ namespace odb
     };
 
     template <>
-    class value_traits<std::auto_ptr<std::string> >
+    class value_traits<std::auto_ptr<std::string>, details::buffer>
     {
     public:
-      typedef std::auto_ptr<std::string> type;
-      typedef std::string value_type;
+      typedef std::auto_ptr<std::string> value_type;
+      typedef std::string query_type;
+      typedef details::buffer image_type;
 
       static void
       set_value (std::auto_ptr<std::string>& v,
-                 const char* s,
+                 const details::buffer& b,
                  std::size_t n,
                  bool is_null)
       {
-        v.reset (is_null ? 0 : new std::string (s, n));
+        v.reset (is_null ? 0 : new std::string (b.data (), n));
       }
 
       static void

@@ -17,20 +17,20 @@ namespace odb
   namespace mysql
   {
     template <>
-    class value_traits<std::auto_ptr<std::string> >
+    class value_traits<std::auto_ptr<std::string>, details::buffer>
     {
     public:
-      typedef std::auto_ptr<std::string> type;
-      typedef std::string value_type;
-      static const image_id_type image_id = id_string;
+      typedef std::auto_ptr<std::string> value_type;
+      typedef std::string query_type;
+      typedef details::buffer image_type;
 
       static void
       set_value (std::auto_ptr<std::string>& v,
-                 const char* s,
+                 const details::buffer& b,
                  std::size_t n,
                  bool is_null)
       {
-        v.reset (is_null ? 0 : new std::string (s, n));
+        v.reset (is_null ? 0 : new std::string (b.data (), n));
       }
 
       static void
