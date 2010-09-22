@@ -17,7 +17,7 @@ namespace odb
   namespace mysql
   {
     template <>
-    class value_traits<std::auto_ptr<std::string>, details::buffer>
+    class value_traits<std::auto_ptr<std::string>, details::buffer, id_string>
     {
     public:
       typedef std::auto_ptr<std::string> value_type;

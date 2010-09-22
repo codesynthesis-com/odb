@@ -16,8 +16,8 @@ namespace odb
 {
   namespace mysql
   {
-    template <>
-    class value_traits<date_time, MYSQL_TIME>
+    template <database_type_id ID>
+    class value_traits<date_time, MYSQL_TIME, ID>
     {
     public:
       typedef date_time value_type;
@@ -57,7 +57,7 @@ namespace odb
     };
 
     template <>
-    class value_traits<buffer, details::buffer>
+    class value_traits<buffer, details::buffer, id_blob>
     {
     public:
       typedef buffer value_type;
@@ -94,7 +94,7 @@ namespace odb
     };
 
     template <>
-    class value_traits<bitfield, unsigned char*>
+    class value_traits<bitfield, unsigned char*, id_bit>
     {
     public:
       typedef bitfield value_type;
@@ -128,7 +128,7 @@ namespace odb
     };
 
     template <>
-    class value_traits<set, details::buffer>
+    class value_traits<set, details::buffer, id_set>
     {
     public:
       typedef set value_type;
@@ -190,7 +190,7 @@ namespace odb
     };
 
     template <>
-    class value_traits<std::auto_ptr<std::string>, details::buffer>
+    class value_traits<std::auto_ptr<std::string>, details::buffer, id_string>
     {
     public:
       typedef std::auto_ptr<std::string> value_type;
