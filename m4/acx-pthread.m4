@@ -128,8 +128,15 @@ case "${host_cpu}-${host_os}" in
         # who knows whether they'll stub that too in a future libc.)  So,
         # we'll just look for -pthreads and -lpthread first:
 
-        acx_pthread_flags="-pthreads pthread -mt -pthread $acx_pthread_flags"
+        # CS: Move -mt to the front of the list; Sun CC will use -mt,
+        # gcc will use -pthreads.
+        #
+        acx_pthread_flags="-mt -pthreads pthread -pthread $acx_pthread_flags"
         ;;
+
+	*-darwin*)
+	acx_pthread_flags="-pthread $acx_pthread_flags"
+	;;
 esac
 
 if test x"$acx_pthread_ok" = xno; then
