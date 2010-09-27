@@ -133,10 +133,6 @@ case "${host_cpu}-${host_os}" in
         #
         acx_pthread_flags="-mt -pthreads pthread -pthread $acx_pthread_flags"
         ;;
-
-	*-darwin*)
-	acx_pthread_flags="-pthread $acx_pthread_flags"
-	;;
 esac
 
 if test x"$acx_pthread_ok" = xno; then
