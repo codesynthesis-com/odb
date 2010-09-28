@@ -101,7 +101,7 @@ VC++ Directories.
 
 There are two ways to build the tests with Visual Studio. After unpacking
 the source code archive, you can manually open three solution files located
-in the tracer\, common\, and <database>\ directories in theodb-tests package
+in the tracer\, common\, and <database>\ directories in the odb-tests package
 directory (referred to as odb-tests\ from now on). In the tracer\ directory
 the solution file is named tracer-vc<N>.sln. In the common\ directory it
 is named common-<database>-vc<N>.sln. And in the <database>\ directory it
