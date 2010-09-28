@@ -1,5 +1,5 @@
-In this document we use <database> as the name of the database system you
-would like to use. Valid values for <database> are:
+In this document we use <database> to refer to the name of the database
+system you would like to use. Valid values for <database> are:
 
   'mysql' - The MySQL database system
 
@@ -28,7 +28,7 @@ To see the available configuration options run configure with --help:
 
 ./configure --help
 
-The required --database option specify the database system you would
+The required --database option specifies the database system you would
 like to use.
 
 The configure script expects the directory where the ODB compiler
@@ -68,8 +68,7 @@ that should be used when running the tests. Run configure with
 --help to see the available options for your database.
 
 As another example, the following configure command uses the specified
-C++ compiler and compiles with optimization and without the debug 
-information:
+C++ compiler and compiles with optimization and without debug information:
 
 ./configure CXX=g++-4.5 CXXFLAGS=-O3
 
@@ -77,8 +76,8 @@ Once configuration is complete, run make to build the tests:
 
 make
 
-Once the build completes successfully you can run the tests using the check
-target:
+Once the build is completed successfully you can run the tests using
+the check target:
 
 make check
 
@@ -110,9 +109,9 @@ that you are using. Once each solution is open, select the desired build
 configuration (Debug or Release) and platform (Win32 or x64) and build the
 solution.
 
-Alternatively, you can use the build.bat batch file located in the
-odb-tests\ directory to build all solutions, in all configurations and for
-all platforms automatically. The build.bat file has the following command
+Alternatively, you can use the build.bat batch file located in the odb-tests\
+directory to build all the solutions, for all the configurations and for all
+the platforms automatically. The build.bat file has the following command
 line interface:
 
 build.bat <database> <N> [/Build|/Clean|/Rebuild] 
@@ -120,14 +119,14 @@ build.bat <database> <N> [/Build|/Clean|/Rebuild]
 Where <N> is the version of Visual Studio that you are using. If no action
 is specified, the default is /Build.
 
-Once the build completes successfully, you can run all the tests using the
-test.bat batch file located in the odb-tests\ directory.
+Once the build is completeed successfully, you can run all the tests using
+the test.bat batch file located in the odb-tests\ directory.
 
 Before you can run test.bat, you may need to adjust the database system
 parameters, such as the login name, password, and database name, that
-should be used when running the tests. To do this edit the 
+should be used when running the tests. To do this, edit the 
 <database>.options and <database>-driver.bat files located in the
-odb-tests\ directory. Once this is done you can run the tests by
+odb-tests\ directory. Once this is, done you can run the tests by
 executing the following command from the command prompt:
 
 test.bat <database>
