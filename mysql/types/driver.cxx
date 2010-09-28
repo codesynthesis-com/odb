@@ -83,7 +83,7 @@ main (int argc, char* argv[])
     o.set_.insert ("blue");
 
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       db->persist (o);
       t.commit ();
     }
@@ -91,7 +91,7 @@ main (int argc, char* argv[])
     //
     //
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       auto_ptr<object> o1 (db->load<object> (1));
       t.commit ();
 

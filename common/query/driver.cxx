@@ -55,7 +55,7 @@ main (int argc, char* argv[])
       person p4 (4, "Johansen", "Johansen", 32, false);
       p4.middle_name_.reset (new string ("J"));
 
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       db->persist (p1);
       db->persist (p2);
       db->persist (p3);
@@ -90,7 +90,7 @@ main (int argc, char* argv[])
     //
     cout << "test 001" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       result r (db->query<person> ());
 
       for (result::iterator i (r.begin ()); i != r.end (); ++i)
@@ -107,7 +107,7 @@ main (int argc, char* argv[])
     //
     cout << "test 002" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       result r (db->query<person> ("ORDER BY age"));
 
       for (result::iterator i (r.begin ()); i != r.end (); ++i)
@@ -131,7 +131,7 @@ main (int argc, char* argv[])
     //
     cout << "test 003" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       result r (db->query<person> ("age >= 30 AND last = 'Doe'"));
       print (r);
       t.commit ();
@@ -141,7 +141,7 @@ main (int argc, char* argv[])
     //
     cout << "test 004" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
 
       const char* name = "Doe";
 
@@ -158,7 +158,7 @@ main (int argc, char* argv[])
     //
     cout << "test 005" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
 
       string name;
       unsigned short age;
@@ -236,7 +236,7 @@ main (int argc, char* argv[])
     //
     cout << "test 006" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       result r (db->query<person> (query::middle_name.is_null ()));
       print (r);
       r = db->query<person> (query::middle_name.is_not_null ());
@@ -248,7 +248,7 @@ main (int argc, char* argv[])
     //
     cout << "test 007" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       result r (db->query<person> (query::married));
       print (r);
       r = db->query<person> (!query::married);
@@ -262,7 +262,7 @@ main (int argc, char* argv[])
     {
       string name ("Dirt");
 
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       result r (db->query<person> (query::last_name == "Doe"));
       print (r);
       r = db->query<person> (query::last_name == query::_val (name));
@@ -278,7 +278,7 @@ main (int argc, char* argv[])
     //
     cout << "test 009" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
 
       // ==
       //
@@ -317,7 +317,7 @@ main (int argc, char* argv[])
     //
     cout << "test 010" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
 
       // &&
       //
@@ -353,7 +353,7 @@ main (int argc, char* argv[])
     //
     cout << "test 011" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
 
       result r (db->query<person> (query::first_name.in ("John", "Jane")));
       print (r);
@@ -368,7 +368,7 @@ main (int argc, char* argv[])
     //
     cout << "test 012" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       result r (db->query<person> (query::first_name == query::last_name));
       print (r);
       t.commit ();
@@ -378,7 +378,7 @@ main (int argc, char* argv[])
     //
     cout << "test 013" << endl;
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       result r (db->query<person> (query::middle_name == "Squeaky"));
       print (r);
       t.commit ();

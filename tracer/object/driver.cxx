@@ -47,7 +47,7 @@ main ()
   cout << "\ntest 002" << endl;
   {
     object o1 (1);
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     db.persist (o1);
     cout << "s 2" << endl;
@@ -60,7 +60,7 @@ main ()
   cout << "\ntest 003" << endl;
   {
     object o1 (0);
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     try
     {
@@ -79,7 +79,7 @@ main ()
   {
     object o1 (1);
     object o2 (2);
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     db.persist (o1);
     db.persist (o2);
@@ -96,7 +96,7 @@ main ()
   cout << "\ntest 005" << endl;
   {
     object o1 (0);
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     try
     {
@@ -113,7 +113,7 @@ main ()
   //
   cout << "\ntest 006" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     auto_ptr<object> o1 (db.load<object> (1));
     cout << "s 2" << endl;
@@ -125,7 +125,7 @@ main ()
   //
   cout << "\ntest 007" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     try
     {
@@ -143,7 +143,7 @@ main ()
   cout << "\ntest 008" << endl;
   {
     object o1;
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     db.load (1, o1);
     cout << "s 2" << endl;
@@ -156,7 +156,7 @@ main ()
   cout << "\ntest 009" << endl;
   {
     object o1;
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     try
     {
@@ -173,7 +173,7 @@ main ()
   //
   cout << "\ntest 010" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     auto_ptr<object> o1 (db.load<object> (1));
     cout << "s 2" << endl;
@@ -188,7 +188,7 @@ main ()
   cout << "\ntest 011" << endl;
   {
     object o1 (0);
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     try
     {
@@ -205,7 +205,7 @@ main ()
   //
   cout << "\ntest 012" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     auto_ptr<object> o1 (db.find<object> (1));
     assert (o1.get () != 0);
@@ -221,7 +221,7 @@ main ()
   cout << "\ntest 013" << endl;
   {
     object o1;
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     cout << "s 1" << endl;
     bool r (db.find (1, o1));
     assert (r);

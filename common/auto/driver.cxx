@@ -34,7 +34,7 @@ main (int argc, char* argv[])
       object o2 ("two");
       object o3 ("three");
 
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       db->persist (o1);
       db->persist (o2);
       db->persist (o3);
@@ -50,7 +50,7 @@ main (int argc, char* argv[])
     }
 
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       auto_ptr<object> o1 (db->load<object> (id1));
       auto_ptr<object> o2 (db->load<object> (id2));
       auto_ptr<object> o3 (db->load<object> (id3));

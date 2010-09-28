@@ -50,7 +50,7 @@ struct task
           object o2 (id + 1, "second object");
           object o3 (id + 2, "third object");
 
-          transaction t (db_.begin_transaction ());
+          transaction t (db_.begin ());
           db_.persist (o1);
           db_.persist (o2);
           db_.persist (o3);
@@ -58,7 +58,7 @@ struct task
         }
 
         {
-          transaction t (db_.begin_transaction ());
+          transaction t (db_.begin ());
           auto_ptr<object> o (db_.load<object> (id));
           assert (o->str_ == "frist object");
           o->str_ = "another value";
@@ -70,7 +70,7 @@ struct task
           typedef odb::query<object> query;
           typedef odb::result<object> result;
 
-          transaction t (db_.begin_transaction ());
+          transaction t (db_.begin ());
           result r (db_.query<object> (query::str == "another value", false));
 
           bool found (false);
@@ -87,7 +87,7 @@ struct task
         }
 
         {
-          transaction t (db_.begin_transaction ());
+          transaction t (db_.begin ());
           db_.erase<object> (id);
           t.commit ();
         }
@@ -134,7 +134,7 @@ test (int argc, char* argv[], size_t max_connections)
   {
     typedef odb::result<object> result;
 
-    transaction t (db->begin_transaction ());
+    transaction t (db->begin ());
     result r (db->query<object> ());
 
     for (result::iterator i (r.begin ()); i != r.end (); ++i)

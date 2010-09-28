@@ -29,7 +29,7 @@ main ()
   //
   cout << "test 001" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     t.commit ();
   }
 }

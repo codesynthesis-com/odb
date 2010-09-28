@@ -28,7 +28,7 @@ main ()
   //
   cout << "test 001" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     assert (&t.database () == &db);
     assert (transaction::has_current ());
     assert (&transaction::current () == &t);
@@ -38,7 +38,7 @@ main ()
   //
   cout << "test 002" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     t.commit ();
   }
 
@@ -46,7 +46,7 @@ main ()
   //
   cout << "test 003" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     t.rollback ();
   }
 
@@ -54,17 +54,17 @@ main ()
   //
   cout << "test 004" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
   }
 
   // Nested transaction.
   //
   cout << "test 005" << endl;
   {
-    transaction t (db.begin_transaction ());
+    transaction t (db.begin ());
     try
     {
-      transaction n (db.begin_transaction ());
+      transaction n (db.begin ());
     }
     catch (const already_in_transaction&)
     {
@@ -78,7 +78,7 @@ main ()
   {
     assert (sizeof (tracer::transaction) == sizeof (transaction));
 
-    tracer::transaction t (db.begin_transaction ());
+    tracer::transaction t (db.begin ());
     tracer::transaction& r (tracer::transaction::current ());
     assert (&t == &r);
   }

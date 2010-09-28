@@ -43,7 +43,7 @@ main (int argc, char* argv[])
         object1 o (1);
         o.str_ = "test string";
 
-        transaction t (db->begin_transaction ());
+        transaction t (db->begin ());
         db->persist (o);
         db->load (1, o);
         t.commit ();
@@ -53,7 +53,7 @@ main (int argc, char* argv[])
         object2 o (2);
         o.str_ = "test string";
 
-        transaction t (db->begin_transaction ());
+        transaction t (db->begin ());
         db->persist (o);
         db->load (2, o);
         t.commit ();
@@ -65,13 +65,13 @@ main (int argc, char* argv[])
         object1 o (3);
         o.str_ = long_str;
 
-        transaction t (db->begin_transaction ());
+        transaction t (db->begin ());
         db->persist (o);
         t.commit ();
       }
 
       {
-        transaction t (db->begin_transaction ());
+        transaction t (db->begin ());
         auto_ptr<object2> o (db->load<object2> (3));
         assert (o->str_ == long_str);
         t.commit ();
@@ -83,13 +83,13 @@ main (int argc, char* argv[])
         object1 o (3);
         o.str_ = longer_str;
 
-        transaction t (db->begin_transaction ());
+        transaction t (db->begin ());
         db->update (o);
         t.commit ();
       }
 
       {
-        transaction t (db->begin_transaction ());
+        transaction t (db->begin ());
         auto_ptr<object2> o (db->load<object2> (3));
         assert (o->str_ == longer_str);
         t.commit ();
@@ -111,7 +111,7 @@ main (int argc, char* argv[])
         object1 o (20);
         o.str_ = "test string";
 
-        transaction t (db->begin_transaction ());
+        transaction t (db->begin ());
         db->persist (o);
         o.id_++;
         db->persist (o);
@@ -128,7 +128,7 @@ main (int argc, char* argv[])
       {
         object1 o;
 
-        transaction t (db->begin_transaction ());
+        transaction t (db->begin ());
 
         result r (db->query<object1> (query::id >= 20));
         result::iterator i (r.begin ());

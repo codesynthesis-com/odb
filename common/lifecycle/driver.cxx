@@ -32,7 +32,7 @@ main (int argc, char* argv[])
     //
     try
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       auto_ptr<object> o (db->load<object> (1));
       assert (false);
       t.commit ();
@@ -47,13 +47,13 @@ main (int argc, char* argv[])
       object o (1);
       o.str_ = "value 1";
 
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       db->persist (o);
       t.commit ();
 
       try
       {
-        transaction t (db->begin_transaction ());
+        transaction t (db->begin ());
         db->persist (o);
         assert (false);
         t.commit ();
@@ -64,7 +64,7 @@ main (int argc, char* argv[])
     }
 
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       auto_ptr<object> o (db->load<object> (1));
       assert (o->str_ == "value 1");
       t.commit ();
@@ -73,7 +73,7 @@ main (int argc, char* argv[])
     // modified
     //
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       auto_ptr<object> o (db->load<object> (1));
       o->str_ = "value 2";
       db->update (*o);
@@ -81,7 +81,7 @@ main (int argc, char* argv[])
     }
 
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       auto_ptr<object> o (db->load<object> (1));
       assert (o->str_ == "value 2");
       t.commit ();
@@ -90,7 +90,7 @@ main (int argc, char* argv[])
     // transient
     //
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       auto_ptr<object> o (db->load<object> (1));
       db->erase (*o);
       t.commit ();
@@ -98,7 +98,7 @@ main (int argc, char* argv[])
 
     try
     {
-      transaction t (db->begin_transaction ());
+      transaction t (db->begin ());
       auto_ptr<object> o (db->load<object> (1));
       assert (false);
       t.commit ();
