@@ -108,9 +108,14 @@ namespace odb
                  bool is_null)
       {
         if (!is_null)
-          std::memcpy (&v, s, 1);
+        {
+          v.a = *s & 1;
+          v.b = (*s >> 1) & 1;
+          v.c = (*s >> 2) & 1;
+          v.d = (*s >> 3) & 1;
+        }
         else
-          std::memset (&v, 0, sizeof (bitfield));
+          v.a = v.b = v.c = v.d = 0;
       }
 
       static void
@@ -122,8 +127,7 @@ namespace odb
       {
         is_null = false;
         n = 1;
-        std::memcpy (s, &v, 1);
-        s[0] &= 0x0F; // Clear unused bits -- MySQL is sensitive about that.
+        *s = v.a | (v.b << 1) | (v.c << 2) | (v.d << 3);
       }
     };
 

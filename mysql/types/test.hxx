@@ -38,7 +38,7 @@ struct date_time
   }
 
   bool
-  operator== (const date_time& y)
+  operator== (const date_time& y) const
   {
     return
       negative == y.negative &&
@@ -126,7 +126,7 @@ struct buffer
   }
 
   bool
-  operator== (const buffer& y)
+  operator== (const buffer& y) const
   {
     return size_ == y.size_ && std::memcmp (data_, y.data_, size_) == 0;
   }
@@ -292,7 +292,7 @@ struct object
   string_ptr null_;
 
   bool
-  operator== (const object& y)
+  operator== (const object& y) const
   {
     return
       id_ == y.id_ &&
