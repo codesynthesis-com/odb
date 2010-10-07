@@ -7,6 +7,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
 tests :=      \
 auto          \
+ctor          \
 schema        \
 template      \
 lifecycle     \
