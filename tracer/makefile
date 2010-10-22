@@ -8,6 +8,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 tests :=      \
 template      \
 object        \
+include       \
 pragma        \
 transaction   \
 types
@@ -20,7 +21,7 @@ clean     := $(out_base)/.clean
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(tests)))
 
 $(dist): name := $(notdir $(src_base))
-$(dist): export dirs := $(tests)
+$(dist): export dirs := $(filter-out include,$(tests))
 $(dist): export extra_dist := $(name)-vc9.sln $(name)-vc10.sln test.bat
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(tests)))
 	$(call meta-automake)
