@@ -10,7 +10,7 @@
 
 #pragma db value(bool) type ("INT")
 
-struct x {};
+struct x {int i;};
 #pragma db value (x)
 
 namespace N
