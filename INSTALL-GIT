@@ -1,0 +1,72 @@
+The following instructions describe how to work with the source code that was
+checked out from the git repository.
+
+The major difference between using a released source code package and source
+code from the repository is that the former does not contain autotools-based
+makefiles or Visual Studio project files. Instead, it contains templates for
+these files as well as its own, custom build system. This build system is 
+used for development as well as to automatically generate the autotools and
+Visual Studio files. 
+
+This file describes how to use this build system to build the package as well
+as to create a release-ready source distribution which contains the autotools
+build system and Visual Studio project files.
+
+
+Prerequisites
+=============
+
+Besides the prerequisites listed in the INSTALL file, you will need the
+following additional packages:
+
+  - GNU bash >= 2.0.0   http://www.gnu.org/software/bash/
+  - GNU make >= 3.81    http://www.gnu.org/software/make/
+  - build    >= 0.3.8   http://www.codesynthesis.com/projects/build/  
+
+If you are planning to create the source code distributions, then you will
+also need the following packages:
+
+  - GNU m4   >= 1.4.0   http://www.gnu.org/software/m4/
+  - GNU sed  >= 4.0.0   http://www.gnu.org/software/sed/
+  - tofrodos >= 1.7.0   http://www.thefreecountry.com/tofrodos/
+
+Any reasonably up to date GNU/Linux installation would normally have all of
+the above packages already present, except for build and maybe tofrodos.
+
+
+Configuring and Building
+========================
+
+To build the source code simply run make in the root directory of the package.
+The first time you run make, the build process will also configure the
+package by asking you several questions. On the subsequent runs, make will 
+only rebuild what has changed.
+
+To run the automated test suite (if any), run 'make test'. To clean the object
+files, executables, etc., run 'make clean'. To de-configure the package (that
+is, to remove configuration files in addition to objects, executables, etc.),
+run 'make disfigure'.
+
+
+Creating Distribution
+=====================
+
+To create the source code distribution, use the dist make target as well as
+the dist_prefix variable to specify the directory where the distribution files
+should be placed. For example:
+
+make dist dist_prefix=/tmp/package-1.1.0
+
+Once the distribution files are ready, change to the distribution directory
+and run the bootstrap script to bootstrap the autotools build system, for
+example:
+
+cd /tmp/package-1.1.0
+./bootsrap
+
+To create the source code archives, use the autotools build system. First
+configuring the package (see the INSTALL file for more information on this
+step) and then use the dist target to make the archives, for example:
+
+./configure
+make dist
