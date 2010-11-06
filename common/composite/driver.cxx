@@ -28,85 +28,97 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    person p (1);
-    p.name_.first = "Joe";
-    p.name_.last = "Dirt";
-    p.name_.title = "Mr";
-    p.name_.alias.first = "Anthony";
-    p.name_.alias.last = "Clean";
-    p.name_.nick = "Squeaky";
-    p.name_.flags.nick = true;
-    p.name_.flags.alias = false;
-    p.age_ = 32;
-
-    //
-    //
+    for (unsigned short i (0); i < 2; ++i)
     {
-      transaction t (db->begin ());
-      db->persist (p);
-      t.commit ();
-    }
+      person p (1);
+      p.name_.first = "Joe";
+      p.name_.last = "Dirt";
+      p.name_.title = "Mr";
+      p.name_.alias.first = "Anthony";
+      p.name_.alias.last = "Clean";
+      p.name_.nick = "Squeaky";
+      p.name_.flags.nick = true;
+      p.name_.flags.alias = false;
+      p.age_ = 32;
 
-    //
-    //
-    {
-      transaction t (db->begin ());
-      auto_ptr<person> p1 (db->load<person> (1));
-      t.commit ();
+      // persist
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (p);
+        t.commit ();
+      }
 
-      assert (p == *p1);
-    }
+      // load & check
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<person> p1 (db->load<person> (1));
+        t.commit ();
 
-    p.name_.title = "Mrs";
-    p.name_.alias.first = "Anthonia";
-    p.name_.flags.nick = false;
-    p.name_.flags.alias = true;
+        assert (p == *p1);
+      }
 
-    //
-    //
-    {
-      transaction t (db->begin ());
-      db->update (p);
-      t.commit ();
-    }
+      p.name_.title = "Mrs";
+      p.name_.alias.first = "Anthonia";
+      p.name_.flags.nick = false;
+      p.name_.flags.alias = true;
 
-    //
-    //
-    {
-      transaction t (db->begin ());
-      auto_ptr<person> p1 (db->load<person> (1));
-      t.commit ();
+      // update
+      //
+      {
+        transaction t (db->begin ());
+        db->update (p);
+        t.commit ();
+      }
 
-      assert (p == *p1);
-    }
+      // load & check
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<person> p1 (db->load<person> (1));
+        t.commit ();
 
-    typedef odb::query<person> query;
-    typedef odb::result<person> result;
+        assert (p == *p1);
+      }
 
-    //
-    //
-    {
-      transaction t (db->begin ());
+      typedef odb::query<person> query;
+      typedef odb::result<person> result;
 
-      result r (db->query<person> (query::name::first == "Joe"));
+      // query
+      //
+      {
+        transaction t (db->begin ());
 
-      assert (r.size () == 1);
-      assert (*r.begin () == p);
+        result r (db->query<person> (query::name::first == "Joe"));
 
-      t.commit ();
-    }
+        assert (r.size () == 1);
+        assert (*r.begin () == p);
 
-    //
-    //
-    {
-      transaction t (db->begin ());
+        t.commit ();
+      }
 
-      result r (db->query<person> (query::name::flags::alias));
+      // query
+      //
+      {
+        transaction t (db->begin ());
 
-      assert (r.size () == 1);
-      assert (*r.begin () == p);
+        result r (db->query<person> (query::name::flags::alias));
 
-      t.commit ();
+        assert (r.size () == 1);
+        assert (*r.begin () == p);
+
+        t.commit ();
+      }
+
+      // erase
+      //
+      if (i == 0)
+      {
+        transaction t (db->begin ());
+        db->erase<person> (1);
+        t.commit ();
+      }
     }
   }
   catch (const odb::exception& e)
