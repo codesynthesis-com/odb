@@ -145,8 +145,4 @@ operator== (const object& x, const object& y)
     x.str == y.str;
 }
 
-//@@ tmp
-
-#include <odb/container-traits.hxx>
-
 #endif // TEST_HXX
