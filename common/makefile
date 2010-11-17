@@ -10,10 +10,11 @@ auto          \
 composite     \
 container     \
 ctor          \
-schema        \
-template      \
 lifecycle     \
-query
+query         \
+relationship  \
+schema        \
+template
 
 thread_tests := threads
 
