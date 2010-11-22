@@ -11,6 +11,7 @@ composite     \
 const         \
 container     \
 ctor          \
+inverse       \
 lifecycle     \
 query         \
 relationship  \
