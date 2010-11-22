@@ -58,29 +58,29 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      db->persist (*a.o1);
-      db->persist (*a.o2);
+      db->persist (a.o1);
+      db->persist (a.o2);
 #ifdef HAVE_TR1_MEMORY
-      db->persist (*a.o3);
+      db->persist (a.o3);
 
-      db->persist (*a.c.o3);
+      db->persist (a.c.o3);
 
       for (comp_vec::iterator i (a.cv.begin ()); i != a.cv.end (); ++i)
         if (i->o3)
-          db->persist (*i->o3);
+          db->persist (i->o3);
 #endif
 
       for (obj1_vec::iterator i (a.v1.begin ()); i != a.v1.end (); ++i)
         if (*i)
-          db->persist (**i);
+          db->persist (*i);
 
       for (obj1_set::iterator i (a.s1.begin ()); i != a.s1.end (); ++i)
         if (*i)
-          db->persist (**i);
+          db->persist (*i);
 
       for (obj1_map::iterator i (a.m1.begin ()); i != a.m1.end (); ++i)
         if (i->second)
-          db->persist (*i->second);
+          db->persist (i->second);
 
       db->persist (a);
       t.commit ();
