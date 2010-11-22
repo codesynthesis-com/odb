@@ -77,7 +77,7 @@ main (int argc, char* argv[])
       query name_q ("first = " + query::_val (name));
       query q (age_q + "AND" + name_q);
 
-      db->query (q);
+      db->query<person> (q);
       db->query<person> (age_q + "OR" +
                          name_q + "OR" +
                          "age < " + query::_ref (age));
