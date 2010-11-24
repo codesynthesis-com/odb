@@ -10,7 +10,6 @@
 #include <set>
 #include <list>
 #include <vector>
-
 #include <string>
 
 #include <odb/core.hxx>
@@ -96,6 +95,9 @@ struct object
   #pragma db value_column("")
   comp_vector cv;
 
+  #pragma db unordered
+  num_vector uv;
+
   // list
   //
   #pragma db transient
@@ -120,6 +122,17 @@ struct object
 inline bool
 operator== (const object& x, const object& y)
 {
+  if (x.uv.size () != y.uv.size ())
+    return false;
+
+  int xs (0), ys (0);
+
+  for (num_vector::size_type i (0); i < x.uv.size (); ++i)
+  {
+    xs += x.uv[i];
+    ys += y.uv[i];
+  }
+
   return
     x.id_ == y.id_ &&
     x.num == y.num &&
@@ -130,6 +143,7 @@ operator== (const object& x, const object& y)
     x.nv == y.nv &&
     x.sv == y.sv &&
     x.cv == y.cv &&
+    xs == ys &&
 
     x.sl == y.sl &&
 

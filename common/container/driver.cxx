@@ -57,6 +57,9 @@ main (int argc, char* argv[])
       med.cv.push_back (comp (123, "aaa"));
       med.cv.push_back (comp (234, "bbbb"));
 
+      med.uv.push_back (123);
+      med.uv.push_back (234);
+
       // list
       //
       med.sl.push_back ("aaa");
@@ -107,6 +110,10 @@ main (int argc, char* argv[])
       full.cv.push_back (comp (1234, "aaaa"));
       full.cv.push_back (comp (2345, "bbbbb"));
       full.cv.push_back (comp (3456, "cccccc"));
+
+      full.uv.push_back (1234);
+      full.uv.push_back (2345);
+      full.uv.push_back (3456);
 
       // list
       //
@@ -179,6 +186,7 @@ main (int argc, char* argv[])
       empty.nv.push_back (12);
       empty.sv.push_back ("aa");
       empty.cv.push_back (comp (12, "aa"));
+      empty.uv.push_back (12);
       empty.sl.push_back ("aa");
       empty.ns.insert (12);
       empty.ss.insert ("aa");
@@ -198,6 +206,7 @@ main (int argc, char* argv[])
       med.nv.clear ();
       med.sv.clear ();
       med.cv.clear ();
+      med.uv.clear ();
 
       med.sl.clear ();
 
@@ -228,6 +237,9 @@ main (int argc, char* argv[])
       full.cv.back ().num++;
       full.cv.back ().str += "c";
       full.cv.push_back (comp (4567, "ddddddd"));
+
+      full.uv.back ()++;
+      full.uv.push_back (4567);
 
       // list
       //
