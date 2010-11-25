@@ -161,6 +161,47 @@ main (int argc, char* argv[])
         delete *x4_2->o1.begin ();
       }
 
+      // query
+      //
+      {
+        // one(i)-to-one
+        //
+        typedef odb::query<obj2> query;
+        typedef odb::result<obj2> result;
+
+        session s;
+        transaction t (db->begin ());
+
+        result r (db->query<obj2> (query::o1::id == "obj1 1"));
+        assert (r.size () == 1);
+        assert (r.begin ()->id == o2->id);
+        assert (r.begin ()->o1->id == o1_1->id);
+
+        t.commit ();
+      }
+
+      {
+        // one(i)-to-many
+        //
+        typedef odb::query<obj3> query;
+        typedef odb::result<obj3> result;
+
+        session s;
+        transaction t (db->begin ());
+
+        result r (db->query<obj3> (query::o1::id == "obj1 1"));
+
+        assert (r.size () == 2);
+
+        for (result::iterator i (r.begin ()); i != r.end (); ++i)
+        {
+          assert (i->id == o3_1->id || i->id == o3_2->id);
+          assert (i->o1->id == o1_1->id);
+        }
+
+        t.commit ();
+      }
+
       delete o1_1;
       delete o1_2;
     }

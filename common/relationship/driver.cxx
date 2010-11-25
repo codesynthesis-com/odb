@@ -96,6 +96,21 @@ main (int argc, char* argv[])
       assert (*a1 == a);
     }
 
+    // query
+    //
+    typedef odb::query<aggr> query;
+    typedef odb::result<aggr> result;
+
+    {
+      transaction t (db->begin ());
+
+      result r (db->query<aggr> (query::o1::str == "obj1"));
+      assert (r.size () == 1);
+      assert (r.begin ()->o1->id == a.o1->id);
+
+      t.commit ();
+    }
+
     // test NULL pointer
     //
     delete a.o1;
