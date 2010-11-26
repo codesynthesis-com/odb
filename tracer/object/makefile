@@ -67,7 +67,9 @@ $(dist):
 # Test.
 #
 $(test): $(driver) $(src_base)/test.std
-	$(call message,test $<,$< | diff -u $(src_base)/test.std -)
+	$(call message,test $<,$< >$(out_base)/test.out)
+	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)
+	$(call message,,rm -f $(out_base)/test.out)
 
 # Clean.
 #
@@ -76,6 +78,7 @@ $(clean):                            \
   $(addsuffix .cxx.clean,$(cxx_obj)) \
   $(addsuffix .cxx.clean,$(cxx_od))  \
   $(addprefix $(out_base)/,$(odb_hdr:.hxx=-odb.cxx.hxx.clean))
+	$(call message,,rm -f $(out_base)/test.out)
 
 # Generated .gitignore.
 #

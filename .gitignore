@@ -7,6 +7,10 @@
 *.l
 *.l.cpp-options
 
+# Test output
+#
+*.out
+
 # Generated documentation.
 #
 *.pdf

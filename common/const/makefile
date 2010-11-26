@@ -68,7 +68,9 @@ $(dist):
 $(test): $(driver) $(src_base)/test.std
 	$(call message,sql $$1,$(dcf_root)/db-driver $$1, $(src_base)/test.sql)
 	$(call message,test $<,$< --options-file $(dcf_root)/db.options \
-| diff -u $(src_base)/test.std -)
+>$(out_base)/test.out)
+	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)
+	$(call message,,rm -f $(out_base)/test.out)
 
 # Clean.
 #
@@ -77,6 +79,7 @@ $(clean):                            \
   $(addsuffix .cxx.clean,$(cxx_obj)) \
   $(addsuffix .cxx.clean,$(cxx_od))  \
   $(addprefix $(out_base)/,$(odb_hdr:.hxx=-odb.cxx.hxx.clean))
+	$(call message,,rm -f $(out_base)/test.out)
 
 # Generated .gitignore.
 #
