@@ -383,6 +383,24 @@ main (int argc, char* argv[])
       print (r);
       t.commit ();
     }
+
+    // Test that loading of the same object type during iteration does
+    // not invalidate the result.
+    //
+    cout << "test 014" << endl;
+    {
+      transaction t (db->begin ());
+      result r (db->query<person> (query::last_name == "Doe"));
+
+      assert (r.size () == 2);
+
+      result::iterator i (r.begin ());
+      i++;
+      auto_ptr<person> joe (db->load<person> (3));
+      assert (i->last_name_ == "Doe");
+
+      t.commit ();
+    }
   }
   catch (const odb::exception& e)
   {
