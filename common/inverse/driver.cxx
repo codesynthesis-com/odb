@@ -218,8 +218,6 @@ main (int argc, char* argv[])
       tr1_obj4_ptr o4 (new tr1_obj4);
       tr1_obj5_ptr o5_1 (new tr1_obj5);
       tr1_obj5_ptr o5_2 (new tr1_obj5);
-      tr1_obj5_ptr o5_3 (new tr1_obj5);
-      tr1_obj5_ptr o5_4 (new tr1_obj5);
 
       o1_1->id = "obj1 1";
       o1_1->o2 = o2;
@@ -232,9 +230,8 @@ main (int argc, char* argv[])
       o1_2->id = "obj1 2";
       o1_2->o2 = tr1_obj2_ptr ();
       o1_2->o3.clear ();
-      //@@o1_2->o4 = o4;
-      o1_2->o5.push_back (o5_3);
-      o1_2->o5.push_back (o5_4);
+      o1_2->o4 = o4;
+      o1_2->o5.push_back (o5_1);
 
       o2->str = "obj2";
       o2->o1 = o1_1;
@@ -247,19 +244,14 @@ main (int argc, char* argv[])
 
       o4->str = "obj4";
       o4->o1.push_back (o1_1);
-      //@@o4->o1.push_back (o1_2);
+      o4->o1.push_back (o1_2);
 
       o5_1->str = "obj5 1";
       o5_1->o1.push_back (o1_1);
+      o5_1->o1.push_back (o1_2);
 
       o5_2->str = "obj5 2";
       o5_2->o1.push_back (o1_1);
-
-      o5_3->str = "obj5 3";
-      o5_3->o1.push_back (o1_2);
-
-      o5_4->str = "obj5 4";
-      o5_4->o1.push_back (o1_2);
 
       // persist
       //
@@ -270,8 +262,6 @@ main (int argc, char* argv[])
         //
         db->persist (o5_1);
         db->persist (o5_2);
-        db->persist (o5_3);
-        db->persist (o5_4);
         db->persist (o4);
         db->persist (o3_1);
         db->persist (o3_2);
@@ -293,8 +283,6 @@ main (int argc, char* argv[])
         tr1_obj4_ptr x4 (db->load<tr1_obj4> (o4->id));
         tr1_obj5_ptr x5_1 (db->load<tr1_obj5> (o5_1->id));
         tr1_obj5_ptr x5_2 (db->load<tr1_obj5> (o5_2->id));
-        //@@ tr1_obj5_ptr x5_3 (db->load<tr1_obj5> (o5_3->id));
-        //@@ tr1_obj5_ptr x5_4 (db->load<tr1_obj5> (o5_4->id));
         t.commit ();
 
         assert (x2->str == o2->str);
@@ -308,15 +296,26 @@ main (int argc, char* argv[])
         assert (x3_1->o1.lock ()->o3[0] == x3_1);
         assert (x3_1->o1.lock ()->o3[1] == x3_2);
 
-        assert (x4->str == o4->str);
-        /*
-          @@
-        tr1_obj1_ptr t1 (x4->o1[0].lock ()), t2 (x4->o1[1].lock ());
-        assert (t1->id == o1_1->id || t2->id == o1_1->id);
-        assert (t1->id == o1_2->id || t2->id == o1_2->id);
-        */
+        {
+          assert (x4->str == o4->str);
 
-        //@@ TODO: obj5 test
+          tr1_obj1_ptr t1 (x4->o1[0].lock ()), t2 (x4->o1[1].lock ());
+
+          assert (t1->id == o1_1->id || t2->id == o1_1->id);
+          assert (t1->id == o1_2->id || t2->id == o1_2->id);
+        }
+
+        {
+          assert (x5_1->str == o5_1->str);
+          assert (x5_2->str == o5_2->str);
+
+          tr1_obj1_ptr t1 (x5_1->o1[0].lock ()), t2 (x5_1->o1[1].lock ()),
+            t3 (x5_2->o1[0].lock ());
+
+          assert (t1->id == o1_1->id || t2->id == o1_1->id);
+          assert (t1->id == o1_2->id || t2->id == o1_2->id);
+          assert (t3->id == o1_1->id);
+        }
       }
     }
 #endif
