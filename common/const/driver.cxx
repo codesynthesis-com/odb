@@ -33,15 +33,15 @@ main (int argc, char* argv[])
     aggr ca_ (2); // o1 and o2 are NULL
     const aggr& ca (ca_);
 
-    obj1_ptr o1 (new obj1 (1));
-    obj1_ptr co1_ (new obj1 (2));
-    obj1_cptr co1 (co1_);
+    obj1* o1 (new obj1 (1));
+    obj1* co1_ (new obj1 (2));
+    const obj1* co1 (co1_);
     a.o1 = co1;
 
-    obj2_ptr o2 (new obj2 (1));
+    auto_ptr<obj2> o2 (new obj2 (1));
     obj2* co2_ (new obj2 (2));
     a.o2.reset (co2_);
-    obj2_cptr& co2 (a.o2);
+    auto_ptr<const obj2>& co2 (a.o2);
 
     // persist via references
     //
@@ -129,7 +129,7 @@ main (int argc, char* argv[])
       {
         // i->f (); // error
         i->cf ();
-        obj1_cptr p (i.load ());
+        const obj1* p (i.load ());
         obj1 o (0);
         i.load (o);
         assert (p->id == o.id);
@@ -144,7 +144,7 @@ main (int argc, char* argv[])
       {
         // i->f (); // error
         i->cf ();
-        obj2_cptr p (i.load ());
+        auto_ptr<const obj2> p (i.load ());
         obj2 o (0);
         i.load (o);
         assert (p->id == o.id);

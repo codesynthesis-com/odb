@@ -17,10 +17,7 @@
 
 // Naked pointer.
 //
-struct obj1;
-typedef obj1* obj1_ptr;
-
-#pragma db object pointer(obj1_ptr)
+#pragma db object pointer(obj1*)
 struct obj1
 {
   obj1 () {}
@@ -28,7 +25,6 @@ struct obj1
 
   #pragma db id
   std::string id;
-
   std::string str;
 };
 
@@ -40,7 +36,7 @@ operator== (const obj1& x, const obj1& y)
 
 // vector
 //
-typedef std::vector<obj1_ptr> obj1_vec;
+typedef std::vector<obj1*> obj1_vec;
 
 inline bool
 operator== (const obj1_vec& x, const obj1_vec& y)
@@ -57,16 +53,16 @@ operator== (const obj1_vec& x, const obj1_vec& y)
 
 // set
 //
-struct obj1_ptr_cmp
+struct obj1_cmp
 {
   bool
-  operator() (obj1_ptr x, obj1_ptr y) const
+  operator() (obj1* x, obj1* y) const
   {
     return (!x || !y) ? x < y : x->id < y->id;
   }
 };
 
-typedef std::set<obj1_ptr, obj1_ptr_cmp> obj1_set;
+typedef std::set<obj1*, obj1_cmp> obj1_set;
 
 inline bool
 operator== (const obj1_set& x, const obj1_set& y)
@@ -81,7 +77,8 @@ operator== (const obj1_set& x, const obj1_set& y)
     if (j == y.end ())
       return false;
 
-    obj1_ptr x (*i), y (*j);
+    obj1* x (*i);
+    obj1* y (*j);
 
     if (!(x ? (y && *x == *y) : !y))
       return false;
@@ -92,7 +89,7 @@ operator== (const obj1_set& x, const obj1_set& y)
 
 // map
 //
-typedef std::map<int, obj1_ptr> obj1_map;
+typedef std::map<int, obj1*> obj1_map;
 
 inline bool
 operator== (const obj1_map& x, const obj1_map& y)
@@ -107,7 +104,8 @@ operator== (const obj1_map& x, const obj1_map& y)
     if (j == y.end ())
       return false;
 
-    obj1_ptr x (i->second), y (j->second);
+    obj1* x (i->second);
+    obj1* y (j->second);
 
     if (!(x ? (y && *x == *y) : !y))
       return false;
@@ -118,10 +116,7 @@ operator== (const obj1_map& x, const obj1_map& y)
 
 // auto_ptr
 //
-struct obj2;
-typedef std::auto_ptr<obj2> obj2_ptr;
-
-#pragma db object pointer(obj2_ptr)
+#pragma db object pointer(std::auto_ptr<obj2>)
 struct obj2
 {
   obj2 () {}
@@ -210,8 +205,8 @@ struct aggr
   #pragma db id auto
   unsigned long id;
 
-  obj1_ptr o1;
-  obj2_ptr o2;
+  obj1* o1;
+  std::auto_ptr<obj2> o2;
 #ifdef HAVE_TR1_MEMORY
   obj3_ptr o3;
   comp c;

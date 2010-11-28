@@ -41,16 +41,13 @@ typedef std::list<std::string> str_list;
 
 typedef std::vector<int> num_vector;
 typedef std::vector<std::string> str_vector;
-typedef std::vector<comp> comp_vector;
 
 typedef std::set<int> num_set;
 typedef std::set<std::string> str_set;
-typedef std::set<comp> comp_set;
 
 typedef std::map<int, std::string> num_str_map;
 typedef std::map<std::string, int> str_num_map;
 typedef std::map<int, comp> num_comp_map;
-typedef std::map<comp, std::string> comp_str_map;
 
 #pragma db value
 struct cont_comp1
@@ -93,7 +90,7 @@ struct object
   str_vector sv;
 
   #pragma db value_column("")
-  comp_vector cv;
+  std::vector<comp> cv;
 
   #pragma db unordered
   num_vector uv;
@@ -107,14 +104,14 @@ struct object
   //
   num_set ns;
   str_set ss;
-  comp_set cs;
+  std::set<comp> cs;
 
   // map
   //
   num_str_map nsm;
   str_num_map snm;
   num_comp_map ncm;
-  comp_str_map csm;
+  std::map<comp, std::string> csm;
 
   std::string str;
 };

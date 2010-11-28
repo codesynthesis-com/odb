@@ -38,9 +38,8 @@ struct person
   #pragma db column ("first")
   std::string first_name_;
 
-  typedef std::auto_ptr<std::string> string_ptr; // @@ tmp
   #pragma db column ("middle") type ("TEXT")
-  string_ptr middle_name_;
+  std::auto_ptr<std::string> middle_name_;
 
   #pragma db column ("last")
   std::string last_name_;

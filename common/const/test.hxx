@@ -9,16 +9,7 @@
 #include <memory>
 #include <odb/core.hxx>
 
-struct obj1;
-struct obj2;
-
-typedef obj1* obj1_ptr;
-typedef const obj1* obj1_cptr;
-
-typedef std::auto_ptr<obj2> obj2_ptr;
-typedef std::auto_ptr<const obj2> obj2_cptr;
-
-#pragma db object pointer (obj1_ptr)
+#pragma db object pointer (obj1*)
 struct obj1
 {
   obj1 () {}
@@ -31,7 +22,7 @@ struct obj1
   void cf () const {}
 };
 
-#pragma db object pointer (obj2_ptr)
+#pragma db object pointer (std::auto_ptr<obj2>)
 struct obj2
 {
   obj2 () {}
@@ -54,8 +45,8 @@ struct aggr
   #pragma db id
   int id;
 
-  obj1_cptr o1;
-  obj2_cptr o2;
+  const obj1* o1;
+  std::auto_ptr<const obj2> o2;
 };
 
 #endif // TEST_HXX
