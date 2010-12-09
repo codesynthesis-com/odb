@@ -12,6 +12,7 @@ const         \
 container     \
 ctor          \
 inverse       \
+lazy-ptr      \
 lifecycle     \
 query         \
 relationship  \

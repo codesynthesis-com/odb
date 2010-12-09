@@ -1,4 +1,4 @@
-// file      : common/inverse/tr1-memory.hxx
+// file      : common/lazy-ptr/tr1-memory.hxx
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // copyright : not copyrighted - public domain
 
