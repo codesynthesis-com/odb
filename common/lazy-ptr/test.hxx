@@ -19,7 +19,7 @@
 #include <odb/tr1/lazy-ptr.hxx>
 #endif
 
-// Naked pointer.
+// Raw pointer.
 //
 using odb::lazy_ptr;
 class obj1;

@@ -42,7 +42,7 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    // Naked.
+    // Raw.
     //
     {
       typedef cont1 cont;

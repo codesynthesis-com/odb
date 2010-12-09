@@ -29,7 +29,7 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    // Naked pointer version.
+    // Raw pointer version.
     //
     {
       obj1_ptr o1_1 (new obj1);

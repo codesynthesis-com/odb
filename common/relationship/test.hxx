@@ -15,7 +15,7 @@
 
 #include <odb/core.hxx>
 
-// Naked pointer.
+// Raw pointer.
 //
 #pragma db object pointer(obj1*)
 struct obj1
