@@ -109,7 +109,7 @@ namespace tr1
 
   class obj;
 
-  #pragma db object pointer(std::tr1::shared_ptr<cont>) // @@ tmp std::tr1::
+  #pragma db object pointer(shared_ptr<cont>)
   class cont
   {
   public:
@@ -125,7 +125,7 @@ namespace tr1
     obj_list o;
   };
 
-  #pragma db object pointer(std::tr1::shared_ptr<obj>) // @@ tmp std::tr1::
+  #pragma db object pointer(shared_ptr<obj>)
   class obj
   {
   public:
