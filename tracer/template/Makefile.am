@@ -7,6 +7,7 @@ EXTRA_DIST = __file__(extra_dist)
 
 noinst_PROGRAMS = driver
 driver_SOURCES = driver.cxx __path__(extra_sources) __path__(extra_headers)
+AM_CPPFLAGS = -I'$(top_builddir)/libcommon' -I'$(top_srcdir)/libcommon'
 
 TESTS=$(top_builddir)/tester
 TESTS_ENVIRONMENT=top_builddir=$(top_builddir); export top_builddir;
@@ -22,7 +23,8 @@ CLEANFILES = test-odb.hxx test-odb.ixx test-odb.cxx
 
 ODB = @ODB@
 ODBFLAGS = @ODBFLAGS@
+ODBCPPFLAGS = @ODBCPPFLAGS@
 
 test-odb.hxx: test.hxx
-	$(ODB) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) __value__(odb_options) $<
+	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) __value__(odb_options) $<
 )

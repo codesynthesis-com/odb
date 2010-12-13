@@ -22,6 +22,7 @@ CLEANFILES = test-odb.hxx test-odb.ixx test-odb.cxx
 
 ODB = @ODB@
 ODBFLAGS = @ODBFLAGS@
+ODBCPPFLAGS = @ODBCPPFLAGS@
 
 test-odb.hxx: test.hxx
-	$(ODB) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options) $<
+	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options) $<

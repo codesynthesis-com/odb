@@ -6,14 +6,19 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
+#include <common/config.hxx> // HAVE_TR1_MEMORY
+
 #include <set>
 #include <map>
 #include <vector>
 #include <string>
 #include <memory>
-#include "tr1-memory.hxx"
 
 #include <odb/core.hxx>
+
+#ifdef HAVE_TR1_MEMORY
+#  include <odb/tr1/memory.hxx>
+#endif
 
 // Raw pointer.
 //

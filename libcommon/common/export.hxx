@@ -6,9 +6,7 @@
 #ifndef LIBCOMMON_COMMON_EXPORT_HXX
 #define LIBCOMMON_COMMON_EXPORT_HXX
 
-#ifndef _MSC_VER
-#  include <common/config.h>
-#endif
+#include <common/config.hxx>
 
 #ifdef LIBCOMMON_STATIC_LIB
 #  define LIBCOMMON_EXPORT

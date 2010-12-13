@@ -42,8 +42,9 @@ $(common.l.cpp-options): value := -I$(out_root)/libcommon -I$(src_root)/libcommo
 $(common.l.cpp-options): $(odb_db.l.cpp-options) $(odb.l.cpp-options)
 
 $(out_base)/config.h: $(dcf_root)/configuration-dynamic.make
-	@echo '// file      : libcommon/config.h'                        >$@
-	@echo '// author    : automatically generated'                  >>$@
+	@echo '/* file      : libcommon/common/config.h'                 >$@
+	@echo ' * author    : automatically generated'                  >>$@
+	@echo ' */'                                                     >>$@
 	@echo ''                                                        >>$@
 	@echo '#ifndef LIBCOMMON_COMMON_CONFIG_H'                       >>$@
 	@echo '#define LIBCOMMON_COMMON_CONFIG_H'                       >>$@
@@ -51,8 +52,9 @@ $(out_base)/config.h: $(dcf_root)/configuration-dynamic.make
 ifeq ($(db_id),mysql)
 	@echo '#define DATABASE_MYSQL 1'                                >>$@
 endif
+	@echo '#define HAVE_TR1_MEMORY 1'                               >>$@
 	@echo ''                                                        >>$@
-	@echo '#endif // LIBCOMMON_COMMON_CONFIG_H'                     >>$@
+	@echo '#endif /* LIBCOMMON_COMMON_CONFIG_H */'                  >>$@
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(out_base)/config.h)
 
