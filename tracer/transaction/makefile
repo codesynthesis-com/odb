@@ -44,7 +44,7 @@ $(dist): export name := $(notdir $(src_base))
 $(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
 $(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters
 $(dist):
-	$(call dist-data,$(sources) $(headers) $(data_dist))
+	$(call dist-data,$(sources) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
 	$(call meta-vc9proj,../template/template-vc9.vcproj,$(name)-vc9.vcproj)
 	$(call meta-vc10proj,../template/template-vc10.vcxproj,$(name)-vc10.vcxproj)
