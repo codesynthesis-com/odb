@@ -67,7 +67,7 @@ $(out_base)/: $(common.l)
 $(dist): export sources := $(cxx_tun)
 $(dist): export headers = $(subst $(src_base)/,,$(shell find $(src_base) \
 -name '*.hxx' -o -name '*.ixx' -o -name '*.txx'))
-$(dist): data_dist := config.h.in
+$(dist): data_dist := config.h.in config-vc.h
 $(dist): export extra_dist := $(data_dist) $(call vc9projs,libcommon) \
 $(call vc10projs,libcommon)
 
