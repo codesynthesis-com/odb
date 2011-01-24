@@ -18,7 +18,7 @@ struct name
 };
 
 #pragma db value
-struct title
+struct name_title
 {
   std::string title;
 };
@@ -31,7 +31,7 @@ struct name_flags
 };
 
 #pragma db value
-struct name_ex: name, title
+struct name_ex: name, name_title
 {
   name alias;
   std::string nick;
