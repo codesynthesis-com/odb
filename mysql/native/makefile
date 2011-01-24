@@ -55,7 +55,7 @@ $(test): $(driver) $(src_base)/test.std
 $(clean):                            \
   $(driver).o.clean                  \
   $(addsuffix .cxx.clean,$(cxx_obj)) \
-  $(addsuffix .cxx.clean,$(cxx_od))  \
+  $(addsuffix .cxx.clean,$(cxx_od))
 	$(call message,,rm -f $(out_base)/test.out)
 
 # Generated .gitignore.
