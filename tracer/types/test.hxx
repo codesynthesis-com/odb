@@ -6,6 +6,8 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
+#include <iosfwd>
+
 #ifdef ODB_COMPILER
 typedef int int_t;
 typedef short num_t;
@@ -29,6 +31,39 @@ struct object2
 {
   #pragma db id
   num_type num_;
+};
+
+// Template-id with "inner" name (compilation test).
+//
+template <typename X>
+struct num_wrap
+{
+#ifdef ODB_COMPILER
+  typedef num_wrap this_type;
+#endif
+
+  X v_;
+};
+
+template <typename X>
+std::ostream&
+operator<< (std::ostream& os, const num_wrap<X>& x)
+{
+  return os << x.v_;
+}
+
+template <typename X>
+bool
+operator== (const num_wrap<X>& x, const num_wrap<X>& y)
+{
+  return x.v_ == y.v_;
+}
+
+#pragma db object
+struct object3
+{
+  #pragma db id
+  num_wrap<int> num_;
 };
 
 #endif // TEST_HXX
