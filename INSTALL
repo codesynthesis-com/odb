@@ -45,7 +45,7 @@ option to specify the build directory, for example:
 
 ./configure --with-odb=/tmp/odb
 
-The configure script also expects the libodb , libodb-tracer, and 
+The configure script also expects the libodb, libodb-tracer, and
 libodb-<database> headers and libraries to be installed in a directory
 where the C++ compiler and linker will search for them by default
 (normally /usr and /usr/local). If these libraries are installed in
