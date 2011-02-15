@@ -21,7 +21,7 @@ following additional packages:
 
   - GNU bash >= 2.0.0   http://www.gnu.org/software/bash/
   - GNU make >= 3.81    http://www.gnu.org/software/make/
-  - build    >= 0.3.8   http://www.codesynthesis.com/projects/build/  
+  - build    >= latest  http://www.codesynthesis.com/projects/build/
 
 If you are planning to create the source code distributions, then you will
 also need the following packages:
