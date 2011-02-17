@@ -9,8 +9,8 @@ setlocal
 set "tests=__path__(dirs)"
 set "confs=__path__(configurations)"
 set "plats=__path__(platforms)"
-set "topdir=__path__(topdir)\.."
-set "PATH=__path__(topdir)\libcommon\bin64;__path__(topdir)\libcommon\bin;%PATH%"
+set "curdir=%CD%"
+set "topdir=%curdir%\.."
 set "failed="
 
 goto start
@@ -37,7 +37,7 @@ rem
     )
   )
 
-  cd ..
+  cd %curdir%
 goto :eof
 
 :start

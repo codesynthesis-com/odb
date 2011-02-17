@@ -13,6 +13,7 @@ rem
 setlocal
 
 set "failed="
+set "curdir=%CD%"
 
 if "_%1_" == "__" (
   echo no database specified
@@ -33,12 +34,12 @@ rem
   cd %1
   call test.bat %2
   if errorlevel 1 set "failed=%failed% %1"
-  cd ..
+  cd %curdir%
 goto :eof
 
 :start
 
-for %%d in (tracer common %1) do (
+for %%d in (tracer common %1 boost\common boost\%1) do (
   call :run_test %%d %1
 )
 

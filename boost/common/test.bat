@@ -1,16 +1,16 @@
 @echo off
-rem file      : common/test.bat
+rem file      : boost/common/test.bat
 rem author    : Boris Kolpackov <boris@codesynthesis.com>
 rem copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 rem license   : GNU GPL v2; see accompanying LICENSE file
 
 setlocal
 
-set "tests=__path__(dirs) __path__(thread_dirs)"
+set "tests=__path__(dirs)"
 set "confs=__path__(configurations)"
 set "plats=__path__(platforms)"
 set "curdir=%CD%"
-set "topdir=%curdir%\.."
+set "topdir=%curdir%\..\.."
 set "failed="
 
 if "_%1_" == "__" (

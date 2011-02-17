@@ -39,6 +39,21 @@ LIBODB_TRACER([], [AC_MSG_ERROR([libodb-tracer is not found; consider using --wi
 #
 TR1_MEMORY
 
+# Check for boost.
+#
+odb_tests_boost=yes
+LIBBOOST([], [odb_tests_boost=no])
+LIBBOOST_SYSTEM
+LIBBOOST_SMART_PTR([], [odb_tests_boost=no])
+LIBBOOST_UNORDERED([], [odb_tests_boost=no])
+LIBBOOST_DATE_TIME([], [odb_tests_boost=no])
+
+# Check for libodb-boost.
+#
+LIBODB_BOOST([], [odb_tests_boost=no])
+
+AM_CONDITIONAL([ODB_TESTS_BOOST], [test x$odb_tests_boost != xno])
+
 # Check which database we are using.
 #
 DATABASE
