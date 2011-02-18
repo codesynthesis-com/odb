@@ -24,7 +24,8 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb;
+using namespace odb::core;
+namespace details = odb::details;
 
 const unsigned long thread_count = 32;
 const unsigned long iteration_count = 100;

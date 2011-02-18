@@ -18,12 +18,12 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb;
+using namespace odb::core;
 
 int
 main ()
 {
-  tracer::database db;
+  odb::tracer::database db;
 
   // database operation out of transaction
   //

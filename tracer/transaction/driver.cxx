@@ -15,7 +15,8 @@
 #include <odb/tracer/transaction.hxx>
 
 using namespace std;
-using namespace odb;
+using namespace odb::core;
+namespace tracer = odb::tracer;
 
 int
 main ()

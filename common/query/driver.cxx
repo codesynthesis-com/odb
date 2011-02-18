@@ -19,7 +19,7 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb;
+using namespace odb::core;
 
 void
 print (result<person>& r)

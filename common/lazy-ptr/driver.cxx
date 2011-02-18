@@ -19,7 +19,7 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb;
+using namespace odb::core;
 
 auto_ptr<obj2>
 create (unsigned int id)

@@ -18,9 +18,12 @@
 #include <common/common.hxx>
 
 using namespace std;
-using namespace odb;
 
-auto_ptr<database>
+#if defined(DATABASE_MYSQL)
+using namespace odb::mysql;
+#endif
+
+auto_ptr<odb::database>
 create_database (int& argc, char* argv[], size_t max_connections)
 {
   if (argc > 1 && argv[1] == string ("--help"))
@@ -28,19 +31,16 @@ create_database (int& argc, char* argv[], size_t max_connections)
     cerr << "Usage: " << argv[0] << " [options]" << endl
          << "Options:" << endl;
 
-#if defined(DATABASE_MYSQL)
-    mysql::database::print_usage (cerr);
-#endif
-
+    database::print_usage (cerr);
     exit (0);
   }
 
 #if defined(DATABASE_MYSQL)
-  auto_ptr<mysql::connection_factory> f;
+  auto_ptr<connection_factory> f;
 
   if (max_connections != 0)
-    f.reset (new mysql::connection_pool_factory (max_connections));
+    f.reset (new connection_pool_factory (max_connections));
 
-  return auto_ptr<database> (new mysql::database (argc, argv, false, 0, f));
+  return auto_ptr<odb::database> (new database (argc, argv, false, 0, f));
 #endif
 }
