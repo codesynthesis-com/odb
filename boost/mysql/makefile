@@ -6,6 +6,7 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 tests :=      \
+date-time     \
 template
 
 default   := $(out_base)/
