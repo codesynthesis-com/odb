@@ -31,7 +31,7 @@ clean     := $(out_base)/.clean
 
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(build_tests)))
 
-name := $(notdir $(src_base))
+name := common
 $(dist): name := $(name)
 $(dist): export dirs := $(tests)
 $(dist): export thread_dirs := $(thread_tests)

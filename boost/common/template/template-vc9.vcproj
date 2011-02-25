@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\libcommon"
+				AdditionalIncludeDirectories="$(SolutionDir)\..\..\libcommon"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;HAVE_CONFIG_VC_H"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\libcommon\lib\common-d.lib odb-__value__(database)-d.lib odb-boost-d.lib odb-d.lib"
+				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib\common-d.lib odb-__value__(database)-d.lib odb-boost-d.lib odb-d.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -122,7 +122,7 @@
 				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\libcommon"
+				AdditionalIncludeDirectories="$(SolutionDir)\..\..\libcommon"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;HAVE_CONFIG_VC_H"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -141,7 +141,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\libcommon\lib\common.lib odb-__value__(database).lib odb-boost.lib odb.lib"
+				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib\common.lib odb-__value__(database).lib odb-boost.lib odb.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -199,7 +199,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\libcommon"
+				AdditionalIncludeDirectories="$(SolutionDir)\..\..\libcommon"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;HAVE_CONFIG_VC_H"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -219,7 +219,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\libcommon\lib64\common-d.lib odb-__value__(database)-d.lib odb-boost-d.lib odb-d.lib"
+				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib64\common-d.lib odb-__value__(database)-d.lib odb-boost-d.lib odb-d.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -277,7 +277,7 @@
 				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\libcommon"
+				AdditionalIncludeDirectories="$(SolutionDir)\..\..\libcommon"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;HAVE_CONFIG_VC_H"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -296,7 +296,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\..\..\libcommon\lib64\common.lib odb-__value__(database).lib odb-boost.lib odb.lib"
+				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib64\common.lib odb-__value__(database).lib odb-boost.lib odb.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -348,7 +348,7 @@ __source_entries__(extra_sources)
 __file_entry_custom_build__(
 test.hxx,
 odb test.hxx,
-odb.exe __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options), @database@, __value__(database)) -DHAVE_CONFIG_VC_H -I..\..\..\libcommon)) test.hxx,
+odb.exe __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options), @database@, __value__(database)) -DHAVE_CONFIG_VC_H -I$(SolutionDir)\..\..\libcommon)) test.hxx,
 test-odb.hxx;test-odb.ixx;test-odb.cxx)
 __file_entry__(test-odb.hxx)
 __file_entry__(test-odb.ixx)

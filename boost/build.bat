@@ -59,14 +59,14 @@ goto :eof
 for %%d in (%1) do (
   for %%c in (%confs%) do (
       for %%p in (%plats%) do (
-        call :run_build %%d/%%d-vc%vcver%.sln %%c %%p
+        call :run_build %%d/boost-%%d-vc%vcver%.sln %%c %%p
     )
   )
 )
 
 for %%c in (%confs%) do (
   for %%p in (%plats%) do (
-    call :run_build common/common-%1-vc%vcver%.sln %%c %%p
+    call :run_build common/boost-common-%1-vc%vcver%.sln %%c %%p
   )
 )
 

@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\libcommon"
+				AdditionalIncludeDirectories="$(SolutionDir)\..\libcommon"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;HAVE_CONFIG_VC_H"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -122,7 +122,7 @@
 				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\libcommon"
+				AdditionalIncludeDirectories="$(SolutionDir)\..\libcommon"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;HAVE_CONFIG_VC_H"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -199,7 +199,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\libcommon"
+				AdditionalIncludeDirectories="$(SolutionDir)\..\libcommon"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;HAVE_CONFIG_VC_H"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -277,7 +277,7 @@
 				AdditionalOptions="/wd4068 /wd4355 /wd4800 /wd4290"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\libcommon"
+				AdditionalIncludeDirectories="$(SolutionDir)\..\libcommon"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;HAVE_CONFIG_VC_H"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -349,7 +349,7 @@ m4_ifelse(__value__(odb_options),,,
 __file_entry_custom_build__(
 test.hxx,
 odb test.hxx,
-odb.exe __xml__(__shell_quotes__(__value__(odb_options) -DHAVE_CONFIG_VC_H -I..\..\libcommon)) test.hxx,
+odb.exe __xml__(__shell_quotes__(__value__(odb_options) -DHAVE_CONFIG_VC_H -I$(SolutionDir)\..\libcommon)) test.hxx,
 test-odb.hxx;test-odb.ixx;test-odb.cxx)
 __file_entry__(test-odb.hxx)
 __file_entry__(test-odb.ixx))

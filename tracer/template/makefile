@@ -55,7 +55,7 @@ $(out_base)/: $(driver)
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std
-$(dist): export name := $(notdir $(src_base))
+$(dist): export name := $(subst /,-,$(subst $(src_root)/tracer/,,$(src_base)))
 $(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
 $(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters
 $(dist):

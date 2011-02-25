@@ -18,7 +18,7 @@ clean     := $(out_base)/.clean
 
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(tests)))
 
-$(dist): name := $(notdir $(src_base))
+$(dist): name := mysql
 $(dist): export dirs := $(tests)
 $(dist): export extra_dist := $(name)-vc9.sln $(name)-vc10.sln test.bat
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(tests)))
