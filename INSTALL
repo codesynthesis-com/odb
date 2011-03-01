@@ -122,10 +122,14 @@ and odb-tests\boost\ directories to build all the solutions, for all the
 configurations and for all the platforms automatically. The build.bat file
 has the following command line interface:
 
-build.bat <database> <N> [/Build|/Clean|/Rebuild]
+build.bat <database> <N> <conf> <plat> [/Build|/Clean|/Rebuild]
 
-Where <N> is the version of Visual Studio that you are using. If no action
-is specified, the default is /Build.
+Where <N> is the version of Visual Studio that you are using, <conf> is the
+desired configuration (e.g., Debug or Release), and <plat> is the desired
+platform (e.g., Win32 or x64). For <conf> and <plat> arguments you can specify
+several configurations or platforms. You can also use the 'all' value to build
+all configurations and/or all platforms. If no action is specified, the
+default is /Build.
 
 Once the build is completed successfully, you can run all the tests using
 the test.bat batch file located in the odb-tests\ directory.
