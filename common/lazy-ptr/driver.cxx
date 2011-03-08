@@ -119,11 +119,11 @@ main (int argc, char* argv[])
 
         // Load.
         //
-        cont* lc (o->c.load ());
-        obj* lo (c->o[0].load ());
+        cont* cl (o->c.load ());
+        obj* ol (c->o[0].load ());
 
-        assert (lc == c.get ());
-        assert (lo == o);
+        assert (cl == c.get ());
+        assert (ol == o);
 
         // Test unload/reload.
         //
@@ -191,11 +191,11 @@ main (int argc, char* argv[])
 
         // Load.
         //
-        cont* lc (o->c.load ());
-        const auto_ptr<obj>& lo (c->o.load ());
+        cont* cl (o->c.load ());
+        const auto_ptr<obj>& ol (c->o.load ());
 
-        assert (lc == c.get ());
-        assert (lo.get () == o);
+        assert (cl == c.get ());
+        assert (ol.get () == o);
 
         t.commit ();
       }
@@ -295,11 +295,11 @@ main (int argc, char* argv[])
 
         // Load.
         //
-        shared_ptr<cont> lc (o->c.load ());
-        shared_ptr<obj> lo (c->o[0].load ());
+        shared_ptr<cont> cl (o->c.load ());
+        shared_ptr<obj> ol (c->o[0].load ());
 
-        assert (lc == c);
-        assert (lo == o);
+        assert (cl == c);
+        assert (ol == o);
 
         t.commit ();
       }
@@ -321,11 +321,11 @@ main (int argc, char* argv[])
         // Reload.
         //
         assert (!c->o[1].loaded ());
-        shared_ptr<obj> lo (c->o[1].load ());
+        shared_ptr<obj> ol (c->o[1].load ());
         assert (c->o[1].loaded ());
-        lo.reset ();
+        ol.reset ();
         assert (!c->o[1].loaded ());
-        lo = c->o[1].load ();
+        ol = c->o[1].load ();
         assert (c->o[1].loaded ());
 
         t.commit ();
