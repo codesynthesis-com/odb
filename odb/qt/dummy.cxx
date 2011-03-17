@@ -1,3 +1,8 @@
+#include <QString>
 #include <odb/qt/exception.hxx>
 
-void dummy () {}
+QString dummy ()
+{
+  QString s ("Hello, Qt!");
+  return s;
+}

@@ -1,0 +1,73 @@
+#! /usr/bin/env bash
+
+# file      : build/import/libqt/configure
+# author    : Boris Kolpackov <boris@codesynthesis.com>
+# copyright : Copyright (c) 2005-2011 Boris Kolpackov
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+
+# $1           - out config file
+#
+# bld_root     - build root
+# project_name - project name
+#
+
+source $bld_root/dialog.bash
+
+
+$echo
+$echo "Configuring external dependency on 'Qt libraries' for '$project_name'."
+$echo
+
+$echo
+$echo "Would you like to configure dependency on the installed version"
+$echo "of 'Qt libraries' as opposed to the development build?"
+$echo
+
+installed=`read_y_n y`
+
+if [ "$installed" = "n" ]; then
+
+  $echo
+  $echo "Please enter the 'Qt' root directory."
+  $echo
+
+  root=`read_path --directory --exist`
+
+  $echo
+  $echo "Please select the library type you would like to use:"
+  $echo
+  $echo "(1) archive"
+  $echo "(2) shared object"
+  $echo
+
+  type=`read_option "archive shared" "shared"`
+
+else
+  if pkg-config --exists QtCore; then
+
+    core_cppflags=`pkg-config --cflags QtCore`
+    core_libs=`pkg-config --libs QtCore`
+
+  else
+    $echo
+    $echo "Unable to discover installed 'Qt libraries' using pkg-config."
+    $echo "Assuming the C++ compiler will find them automatically."
+    $echo
+
+    core_cppflags=
+    core_libs=-lQtCore
+
+  fi
+fi
+
+
+echo libqt_installed := $installed   >$1
+
+if [ "$installed" = "n" ]; then
+  echo libqt_root    := $root    >>$1
+  echo libqt_type    := $type    >>$1
+else
+  echo libqt_core_cppflags := $core_cppflags >>$1
+  echo libqt_core_libs     := $core_libs     >>$1
+fi

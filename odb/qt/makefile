@@ -24,11 +24,17 @@ $(call import,\
   $(scf_root)/import/libodb/stub.make,\
   l: odb.l,cpp-options: odb.l.cpp-options)
 
+$(call import,\
+  $(scf_root)/import/libqt/core/stub.make,\
+  l: qt_core.l,\
+  cpp-options: qt_core.l.cpp-options,\
+  cpp-options-inline: qt_core_cpp_options)
+
 # Build.
 #
-$(odb_qt.l): $(cxx_obj) $(odb.l)
-$(odb_qt.l.cpp-options): value := -I$(out_root) -I$(src_root)
-$(odb_qt.l.cpp-options): $(odb.l.cpp-options)
+$(odb_qt.l): $(cxx_obj) $(odb.l) $(qt_core.l)
+$(odb_qt.l.cpp-options): value := -I$(out_root) -I$(src_root) $(qt_core_cpp_options)
+$(odb_qt.l.cpp-options): $(odb.l.cpp-options) $(qt_core.l.cpp-options)
 
 $(cxx_obj) $(cxx_od): $(odb_qt.l.cpp-options) $(out_base)/details/config.h
 
