@@ -1,0 +1,21 @@
+# Compiler/linker output.
+#
+*.o
+*.o.d
+*.so
+*.a
+*.l
+*.l.cpp-options
+
+# Generated documentation.
+#
+*.pdf
+*.ps
+
+# Generated build system files.
+#
+*-dynamic.make
+
+# Generated .gitignore files.
+#
+.gitignore
