@@ -13,7 +13,7 @@ ifdef libodb_mysql_installed
 
 ifeq ($(libodb_mysql_installed),y)
 
-$(call export,l: -lodb-mysql -lodb -lmysqlclient,cpp-options: )
+$(call export,l: -lodb-mysql -lodb -lmysqlclient_r,cpp-options: )
 
 else
 
