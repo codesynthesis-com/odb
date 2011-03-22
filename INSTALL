@@ -1,0 +1,101 @@
+Prerequisites
+=============
+
+  - libodb           http://www.codesynthesis.com/products/odb/
+  - Qt               http://qt.nokia.com
+
+
+Building on UNIX
+================
+
+The following build instructions are for the Linux/UNIX/Mac OS X
+operating systems as well as for Cygwin and MinGW on Windows.
+
+The standard autotools-based build system is used on these platforms.
+After unpacking the source code archive, change to the libodb-qt
+package directory (referred to as libodb-qt/ from now on) and run
+the configure script:
+
+./configure
+
+To see the available configuration options run configure with --help:
+
+./configure --help
+
+The configure script expects the libodb and qt headers and libraries
+to be installed in a directory where the C++ compiler and linker will
+search for them by default (normally /usr and /usr/local). If these
+libraries are installed in other directories, you can use the CPPFLAGS
+and LDFLAGS configure variables to specify their locations, for example:
+
+./configure CPPFLAGS=-I/opt/libodb/include LDFLAGS=-L/opt/libodb/lib
+
+If these libraries are not installed and you would like to use their
+build directories instead, you can use the --with-libodb, and
+--with-qt configure options to specify their locations, for example:
+
+./configure --with-qt=/tmp/qt
+
+For the qt build directory the configure script expects to find the
+qt libraries in the lib/ subdirectory.
+
+As another example, the following configure command only builds shared
+libraries, uses the specified C++ compiler, and compiles with optimization
+and without debug information:
+
+./configure --disable-static CXX=g++-4.5 CXXFLAGS=-O3
+
+Once configuration is complete, run make to build libodb-qt:
+
+make
+
+Once the build is completed successfully, you can install the libodb-qt
+headers and libraries using the install target (you may need to do this
+step as root depending on the installation directory):
+
+make install
+
+
+Building on Windows
+===================
+
+The following build instructions are for Windows using Microsoft Visual
+Studio. If you would like to build libodb-qt with GCC either using
+Cygwin or MinGW, refer to the "Building on UNIX" section above.
+
+The standard Visual Studio project and solution files are used on this
+platform. The provided project files expect the libodb and qt header
+and import library directories to be in the VC++ Directories Include and
+Library search lists. For libodb, see the INSTALL file in the package
+directory for more information on how to setup the VC++ Directories. For
+qt, refer to the qt documentation.
+
+To build libodb-qt, unpack the source code archive and open the
+libodb-qt-vc<N>.sln file located in the libodb-qt package
+directory (referred to as libodb-qt\ from now on). Here <N> is the
+version of Visual Studio that you are using. Once the solution is open,
+select the desired build configuration (Debug or Release) and platform
+(Win32 or x64) and build the solution.
+
+The resulting 32-bit DLLs and import libraries are placed into the
+libodb-qt\bin\ and libodb-qt\lib\ directories, respectively.
+Similarly, the 64-bit DLLs and import libraries are placed into
+libodb-qt\bin64\ and libodb-qt\lib64\. The Release versions of
+the import libraries are named odb-qt.lib and the Debug versions
+are named odb-qt-d.lib.
+
+To configure Visual Studio to automatically locate the libodb-qt
+headers, DLLs, and import libraries, add the following paths to your
+VC++ Directories:
+
+Win32:
+
+  Include:    ...\libodb-qt
+  Library:    ...\libodb-qt\lib
+  Executable: ...\libodb-qt\bin
+
+x64:
+
+  Include:    ...\libodb-qt
+  Library:    ...\libodb-qt\lib64
+  Executable: ...\libodb-qt\bin64

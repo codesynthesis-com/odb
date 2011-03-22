@@ -1,0 +1,13 @@
+# file      : odb/qt/version.options
+# author    : Constantin Michael <constantin@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# Make sure the options files as seen by the ODB compiler and header
+# files as seen by the C++ compiler are from the same profile version.
+#
+--hxx-prologue '#include <odb/qt/version.hxx>'
+
+--hxx-prologue '#if LIBODB_QT_VERSION != 1020000 // 1.2.0'
+--hxx-prologue '#  error ODB and C++ compilers see different libodb-qt versions'
+--hxx-prologue '#endif'

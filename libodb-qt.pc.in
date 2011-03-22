@@ -1,0 +1,16 @@
+# file      : libodb-qt.pc.in
+# author    : Constantin Michael <constantin@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libodb-qt
+Description: Object-relational mapping (ORM) system for C++, Qt profile library
+URL: http://www.codesynthesis.com/products/odb/
+Version: @VERSION@
+Libs: -L${libdir} -lodb-qt
+Cflags: -I${includedir}
