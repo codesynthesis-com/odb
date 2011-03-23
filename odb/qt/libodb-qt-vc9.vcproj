@@ -342,14 +342,14 @@
 		<Filter
 			Name="Source Files"
 			Filter="cxx"
-			UniqueIdentifier="{6B3BAA4B-02AC-4F12-9B68-96AC57615DBF}"
+			UniqueIdentifier="{AFD9E322-5566-11E0-8F24-00E0812AE2E8}"
 			>
 __source_entries__(sources)
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hxx;ixx;txx"
-			UniqueIdentifier="{944A9555-3A83-43F4-B49F-CAF8A88FEB29}"
+			UniqueIdentifier="{D6E8BABA-5566-11E0-AAED-00E0812AE2E8}"
 			>
 __file_entries__(headers)
 		</Filter>
