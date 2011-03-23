@@ -10,16 +10,17 @@
 
 #include <cstddef> // std::size_t
 
-#include <odb/mysql/traits.hxx>
-#include <odb/details/buffer.hxx>
-
 #include <QString>
+
+#include <odb/details/buffer.hxx>
+#include <odb/mysql/traits.hxx>
+#include <odb/qt/details/export.hxx>
 
 namespace odb
 {
   namespace mysql
   {
-    class LIBODB_MYSQL_EXPORT qstring_value_traits
+    class LIBODB_QT_EXPORT qstring_value_traits
     {
     public:
       typedef QString value_type;
@@ -33,7 +34,7 @@ namespace odb
                  bool is_null)
       {
         if (!is_null)
-          v = QString::fromLocal8Bit (b.data (), n);
+          v = QString::fromUtf8 (b.data (), n);
         else
           v.clear ();
       }
@@ -46,37 +47,37 @@ namespace odb
       {
         is_null = false;
 
-        const std::string& s (v.toStdString ());
-        n = s.size ();
+        const QByteArray& a (v.toUtf8 ());
+        n = a.size ();
 
         if (n > b.capacity ())
           b.capacity (n);
 
         if (n != 0)
-          memcpy (b.data (), s.data (), n);
+          memcpy (b.data (), a.data (), n);
       }
     };
 
     template <>
-    struct LIBODB_MYSQL_EXPORT default_value_traits<
+    struct LIBODB_QT_EXPORT default_value_traits<
       QString, details::buffer, id_string>: qstring_value_traits
     {
     };
 
     template <>
-    struct LIBODB_MYSQL_EXPORT default_value_traits<
+    struct LIBODB_QT_EXPORT default_value_traits<
       QString, details::buffer, id_decimal>: qstring_value_traits
     {
     };
 
     template <>
-    struct LIBODB_MYSQL_EXPORT default_value_traits<
+    struct LIBODB_QT_EXPORT default_value_traits<
       QString, details::buffer, id_enum>: qstring_value_traits
     {
     };
 
     template <>
-    struct LIBODB_MYSQL_EXPORT default_value_traits<
+    struct LIBODB_QT_EXPORT default_value_traits<
       QString, details::buffer, id_set>: qstring_value_traits
     {
     };
