@@ -30,7 +30,7 @@ THREADS
 
 # Check for Qt.
 #
-#LIBQT([],[AC_MSG_ERROR([Qt is not found; consider using CPPFLAGS/LDFLAGS or --with-qt=DIR to specify its location])])
+LIBQTCORE([],[AC_MSG_ERROR([QtCore is not found; consider using CPPFLAGS/LDFLAGS to specify its location])])
 
 # Check for libodb.
 #
