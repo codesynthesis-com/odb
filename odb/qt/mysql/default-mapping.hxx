@@ -10,6 +10,6 @@
 
 // Map QString to MySQL TEXT by default.
 //
-#pragma db value(QString) type("TEXT")
+#pragma db value(QString) type("VARCHAR(56) NOT NULL")
 
 #endif // ODB_QT_MYSQL_DEFAULT_MAPPING_HXX
