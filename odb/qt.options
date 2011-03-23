@@ -4,3 +4,6 @@
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 --profile qt/version
+
+--odb-epilogue '#include <odb/qt/mysql/default-mapping.hxx>'
+--hxx-prologue '#include <odb/qt/mysql/qstring-traits.hxx>'
