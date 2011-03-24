@@ -8,19 +8,19 @@
 
 #include <odb/pre.hxx>
 
+#include <cstring> // std::memcpy
 #include <cstddef> // std::size_t
 
 #include <QString>
 
 #include <odb/details/buffer.hxx>
 #include <odb/mysql/traits.hxx>
-#include <odb/qt/details/export.hxx>
 
 namespace odb
 {
   namespace mysql
   {
-    class LIBODB_QT_EXPORT qstring_value_traits
+    class qstring_value_traits
     {
     public:
       typedef QString value_type;
@@ -54,30 +54,30 @@ namespace odb
           b.capacity (n);
 
         if (n != 0)
-          memcpy (b.data (), a.data (), n);
+          std::memcpy (b.data (), a.data (), n);
       }
     };
 
     template <>
-    struct LIBODB_QT_EXPORT default_value_traits<
+    struct default_value_traits<
       QString, details::buffer, id_string>: qstring_value_traits
     {
     };
 
     template <>
-    struct LIBODB_QT_EXPORT default_value_traits<
+    struct default_value_traits<
       QString, details::buffer, id_decimal>: qstring_value_traits
     {
     };
 
     template <>
-    struct LIBODB_QT_EXPORT default_value_traits<
+    struct default_value_traits<
       QString, details::buffer, id_enum>: qstring_value_traits
     {
     };
 
     template <>
-    struct LIBODB_QT_EXPORT default_value_traits<
+    struct default_value_traits<
       QString, details::buffer, id_set>: qstring_value_traits
     {
     };
