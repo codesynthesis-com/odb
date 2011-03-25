@@ -41,16 +41,16 @@ namespace odb
       static void
       set_image (MYSQL_TIME& i, bool& is_null, const QDateTime& v)
       {
-        if (v.is_null ())
+        if (v.isNull ())
           is_null = true;
         else
         {
           is_null = false;
 
           const QDate& d (v.date ());
-          i.year = d.year;
-          i.month = d.month;
-          i.day = d.day;
+          i.year = d.year ();
+          i.month = d.month ();
+          i.day = d.day ();
 
           const QTime& t (v.time ());
           i.hour = t.hour ();
@@ -60,6 +60,7 @@ namespace odb
       }
     };
 
+    template <>
     class default_value_traits<QDateTime, MYSQL_TIME, id_timestamp>
     {
     public:
@@ -77,23 +78,23 @@ namespace odb
         else
         {
           v.setDate (QDate (i.year, i.month, i.day));
-          v.setDate (QTime (i.hour, i.minute, i.second));
+          v.setTime (QTime (i.hour, i.minute, i.second));
         }
       }
 
       static void
       set_image (MYSQL_TIME& i, bool& is_null, const QDateTime& v)
       {
-        if (v.is_null ())
+        if (v.isNull ())
           is_null = true;
         else
         {
           is_null = false;
 
           const QDate& d (v.date ());
-          i.year = d.year;
-          i.month = d.month;
-          i.day = d.day;
+          i.year = d.year ();
+          i.month = d.month ();
+          i.day = d.day ();
 
           const QTime& t (v.time ());
           i.hour = t.hour ();

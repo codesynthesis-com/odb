@@ -7,3 +7,6 @@
 
 --odb-epilogue '#include <odb/qt/mysql/default-mapping.hxx>'
 --hxx-prologue '#include <odb/qt/mysql/qstring-traits.hxx>'
+--hxx-prologue '#include <odb/qt/mysql/qdate-traits.hxx>'
+--hxx-prologue '#include <odb/qt/mysql/qtime-traits.hxx>'
+--hxx-prologue '#include <odb/qt/mysql/qdatetime-traits.hxx>'
