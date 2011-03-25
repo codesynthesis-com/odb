@@ -1,4 +1,4 @@
-// file      : qt/mysql/test.hxx
+// file      : qt/mysql/template/test.hxx
 // author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
@@ -6,21 +6,22 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <QString>
+#include <odb/core.hxx>
 
 #pragma db object
-struct person
+struct object
 {
-  bool
-  operator== (const person& x) const
+  object (unsigned long id)
+      : id_ (id)
   {
-    return id == x.id && name == x.name;
   }
 
-  #pragma db id auto
-  unsigned long id;
+  object ()
+  {
+  }
 
-  QString name;
+  #pragma db id
+  unsigned long id_;
 };
 
 #endif // TEST_HXX

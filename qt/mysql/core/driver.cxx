@@ -1,4 +1,4 @@
-// file      : qt/mysql/driver.cxx
+// file      : qt/mysql/core/driver.cxx
 // author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
@@ -28,14 +28,15 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    person p;
-    p.name = "John Doe";
+    person p1;
+    p1.name = "Constantin Michael";
+    p1.date_of_birth.setDate (1979, 03, 07);
 
     // Persist.
     //
     {
       transaction t (db->begin ());
-      db->persist (p);
+      db->persist (p1);
       t.commit ();
     }
 
@@ -43,10 +44,10 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      person* pl = db->load<person> (p.id);
+      person* pl = db->load<person> (p1.name);
       t.commit ();
 
-      assert (*pl == p);
+      assert (*pl == p1);
     }
   }
   catch (const odb::exception& e)

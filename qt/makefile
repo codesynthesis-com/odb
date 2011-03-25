@@ -5,30 +5,33 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
-tests := mysql
+all_dirs := mysql
+dirs :=
 
-default   := $(out_base)/
-dist      := $(out_base)/.dist
-test      := $(out_base)/.test
-clean     := $(out_base)/.clean
+ifeq ($(db_id),mysql)
+dirs += mysql
+endif
 
-$(default): $(addprefix $(out_base)/,$(addsuffix /,$(tests)))
+default := $(out_base)/
+dist    := $(out_base)/.dist
+test    := $(out_base)/.test
+clean   := $(out_base)/.clean
 
-$(dist): name := qt
-$(dist): export dirs := $(tests)
-$(dist): export extra_dist := $(name)-vc9.sln $(name)-vc10.sln test.bat
-$(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(tests)))
+$(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
+
+$(dist): export extra_dist := build.bat
+$(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_dirs)))
 	$(call meta-automake)
-	$(call meta-vc9sln,$(name)-vc9.sln)
-	$(call meta-vc10sln,$(name)-vc10.sln)
-	$(call meta-vctest,$(name)-vc10.sln,test.bat)
 
-$(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(tests)))
-$(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(tests)))
+$(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(dirs)))
+$(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(all_dirs)))
 
-$(call include,$(bld_root)/meta/vc9sln.make)
-$(call include,$(bld_root)/meta/vc10sln.make)
+$(call include,$(bld_root)/dist.make)
 $(call include,$(bld_root)/meta/vctest.make)
 $(call include,$(bld_root)/meta/automake.make)
 
-$(foreach t,$(tests),$(call import,$(src_base)/$t/makefile))
+ifneq ($(filter $(MAKECMDGOALS),dist clean),)
+$(foreach d,$(all_dirs),$(call import,$(src_base)/$d/makefile))
+else
+$(foreach d,$(dirs),$(call import,$(src_base)/$d/makefile))
+endif
