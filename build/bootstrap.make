@@ -47,8 +47,10 @@ endif
 
 # Database schema creation.
 #
+ifeq ($(filter $(db_id),sqlite),)
 $(out_base)/.test: schema = \
 $(call message,sql $$1,$(dcf_root)/db-driver $$1,$(out_base)/test.sql)
+endif
 
 # Dist setup.
 #
@@ -60,7 +62,7 @@ ifeq ($(dist_prefix),)
 $(error dist_prefix is not set)
 endif
 
-databases := mysql
+databases := mysql sqlite
 $(dist): databases := $(databases)
 
 # $1 project template without the -vcN.vc[x]proj suffix.

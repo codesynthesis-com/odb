@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+# file      : build/sqlite/configure
+# author    : Boris Kolpackov <boris@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+#
+# dcf_root - dynamic configuration root
+#
+
+$echo
+$echo "Please enter the SQLite database file name. Note that it WILL"
+$echo "BE MODIFIED by the tests. If you do not specify a name, then a"
+$echo "temporary on-disk database will be created. You can also specify"
+$echo "':memory:' as a file name to use a temporary in-memory database."
+$echo
+
+db=`read_value`
+
+opt=$dcf_root/db.options
+
+echo "--database '$db'" >$opt

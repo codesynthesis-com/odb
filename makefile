@@ -31,7 +31,7 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_dirs)))
 	$(call dist-dir,m4)
 	$(call meta-vctest,tracer/tracer-vc10.sln,build.bat)
 	$(call meta-automake)
-	$(call meta-autoconf)	
+	$(call meta-autoconf)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(dirs)))
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(all_dirs)))

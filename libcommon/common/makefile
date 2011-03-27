@@ -52,6 +52,9 @@ $(out_base)/config.h: $(dcf_root)/configuration-dynamic.make
 ifeq ($(db_id),mysql)
 	@echo '#define DATABASE_MYSQL 1'                                >>$@
 endif
+ifeq ($(db_id),sqlite)
+	@echo '#define DATABASE_SQLITE 1'                               >>$@
+endif
 	@echo '#define HAVE_TR1_MEMORY 1'                               >>$@
 	@echo ''                                                        >>$@
 	@echo '#endif /* LIBCOMMON_COMMON_CONFIG_H */'                  >>$@
