@@ -35,7 +35,7 @@ $(call import,\
 # Build.
 #
 $(driver): $(cxx_obj) $(odb_boost.l) $(common.l)
-$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base)
+$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options) $(odb_boost.l.cpp-options) \
 $(boost.l.cpp-options)
 
@@ -46,7 +46,7 @@ $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) \
 --profile boost/smart-ptr --generate-schema
-$(gen): cpp_options := -I$(out_base)
+$(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_boost.l.cpp-options) \
 $(boost.l.cpp-options)
 
@@ -76,7 +76,7 @@ $(dist):
 # Test.
 #
 $(test): $(driver) $(src_base)/test.std
-	$(call message,sql $$1,$(dcf_root)/db-driver $$1, $(src_base)/test.sql)
+	$(call schema)
 	$(call message,test $<,$< --options-file $(dcf_root)/db.options \
 >$(out_base)/test.out)
 	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)

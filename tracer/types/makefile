@@ -32,7 +32,7 @@ $(call import,\
 # Build.
 #
 $(driver): $(cxx_obj) $(odb_tracer.l) $(odb.l)
-$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base)
+$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(odb_tracer.l.cpp-options) $(odb.l.cpp-options)
 
 genf := $(addprefix $(odb_hdr:.hxx=-odb),.hxx .ixx .cxx)
@@ -41,7 +41,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database tracer
-$(gen): cpp_options := -I$(out_base)
+$(gen): cpp_options := -I$(src_base)
 $(gen): $(odb_tracer.l.cpp-options) $(odb.l.cpp-options)
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(gen))

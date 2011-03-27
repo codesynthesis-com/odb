@@ -20,7 +20,7 @@ clean   := $(out_base)/.clean
 # Build.
 #
 $(driver): $(cxx_obj) $(common.l)
-$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base)
+$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
 $(call include-dep,$(cxx_od))
