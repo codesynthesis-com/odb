@@ -9,10 +9,10 @@
 #include <set>
 #include <string>
 #include <memory>  // std::auto_ptr
-#include <cstddef> // std::size_t
-#include <cstring> // std::{memcmp,memcpy}
 
 #include <odb/core.hxx>
+
+#include <common/buffer.hxx>
 
 struct date_time
 {
@@ -57,83 +57,6 @@ struct date_time
   unsigned int hour;
   unsigned int minute;
   unsigned int second;
-};
-
-struct buffer
-{
-  ~buffer ()
-  {
-    delete[] data_;
-  }
-
-  buffer ()
-      : data_ (0), size_ (0)
-  {
-  }
-
-  buffer (const void* data, std::size_t size)
-      : data_ (0), size_ (size)
-  {
-    data_ = new char[size_];
-    std::memcpy (data_, data, size_);
-  }
-
-  buffer (const buffer& y)
-      : data_ (0), size_ (0)
-  {
-    assign (y.data_, y.size_);
-  }
-
-  buffer&
-  operator= (const buffer& y)
-  {
-    if (this != &y)
-      assign (y.data_, y.size_);
-
-    return *this;
-  }
-
-  void
-  assign (const void* data, std::size_t size)
-  {
-    if (size_ < size)
-    {
-      char* p (new char[size]);
-      delete[] data_;
-      data_ = p;
-    }
-
-    std::memcpy (data_, data, size);
-    size_ = size;
-  }
-
-  char*
-  data ()
-  {
-    return data_;
-  }
-
-  const char*
-  data () const
-  {
-    return data_;
-  }
-
-  std::size_t
-  size () const
-  {
-    return size_;
-  }
-
-  bool
-  operator== (const buffer& y) const
-  {
-    return size_ == y.size_ && std::memcmp (data_, y.data_, size_) == 0;
-  }
-
-private:
-  char* data_;
-  std::size_t size_;
 };
 
 struct bitfield

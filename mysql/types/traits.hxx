@@ -10,7 +10,7 @@
 
 #include <odb/mysql/traits.hxx>
 
-#include "test.hxx" // date_time, buffer
+#include "test.hxx" // date_time, buffer, string_ptr
 
 namespace odb
 {

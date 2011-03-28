@@ -10,7 +10,7 @@
 
 #include <odb/sqlite/traits.hxx>
 
-#include "test.hxx" // buffer
+#include "test.hxx" // buffer, string_ptr
 
 namespace odb
 {
