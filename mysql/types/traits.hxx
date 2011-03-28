@@ -10,7 +10,7 @@
 
 #include <odb/mysql/traits.hxx>
 
-#include "test.hxx" // date_time
+#include "test.hxx" // date_time, buffer
 
 namespace odb
 {
@@ -194,15 +194,15 @@ namespace odb
     };
 
     template <>
-    class value_traits<std::auto_ptr<std::string>, details::buffer, id_string>
+    class value_traits<string_ptr, details::buffer, id_string>
     {
     public:
-      typedef std::auto_ptr<std::string> value_type;
+      typedef string_ptr value_type;
       typedef std::string query_type;
       typedef details::buffer image_type;
 
       static void
-      set_value (std::auto_ptr<std::string>& v,
+      set_value (string_ptr& v,
                  const details::buffer& b,
                  std::size_t n,
                  bool is_null)
@@ -214,7 +214,7 @@ namespace odb
       set_image (details::buffer& b,
                  std::size_t& n,
                  bool& is_null,
-                 const std::auto_ptr<std::string>& v)
+                 const string_ptr& v)
       {
         is_null = v.get () == 0;
 
