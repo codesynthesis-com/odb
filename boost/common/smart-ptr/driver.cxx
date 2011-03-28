@@ -10,8 +10,8 @@
 #include <cassert>
 #include <iostream>
 
-#include <odb/mysql/database.hxx>
-#include <odb/mysql/transaction.hxx>
+#include <odb/database.hxx>
+#include <odb/transaction.hxx>
 
 #include <common/common.hxx>
 
