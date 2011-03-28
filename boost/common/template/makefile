@@ -44,8 +44,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database $(db_id) --profile boost \
---generate-schema
+$(gen) $(dist): export odb_options += --database $(db_id) \
+--profile boost/version --generate-schema # CHANGE boost/version
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_boost.l.cpp-options) \
 $(boost.l.cpp-options)
