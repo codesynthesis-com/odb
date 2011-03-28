@@ -23,7 +23,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_database (argc, argv, false));
 
     // Create the database schema.
     //

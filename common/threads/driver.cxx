@@ -114,7 +114,7 @@ struct task
 void
 test (int argc, char* argv[], size_t max_connections)
 {
-  auto_ptr<database> db (create_database (argc, argv, max_connections));
+  auto_ptr<database> db (create_database (argc, argv, true, max_connections));
 
   vector<details::shared_ptr<details::thread> > threads;
   vector<details::shared_ptr<task> > tasks;

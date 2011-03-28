@@ -16,7 +16,10 @@
 #include <common/export.hxx>
 
 LIBCOMMON_EXPORT std::auto_ptr<odb::database>
-create_database (int& argc, char* argv[], std::size_t max_connections = 0);
+create_database (int& argc,
+                 char* argv[],
+                 bool create_schema = true,
+                 std::size_t max_connections = 0);
 
 // This function returns an accurate result only if the result iterator
 // hasn't been advanced.

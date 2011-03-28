@@ -34,7 +34,14 @@ namespace sqlite = odb::sqlite;
 #endif
 
 auto_ptr<database>
-create_database (int& argc, char* argv[], size_t max_connections)
+create_database (int& argc,
+                 char* argv[],
+#if defined(DATABASE_SQLITE)
+                 bool schema,
+#else
+                 bool,
+#endif
+                 size_t max_connections)
 {
   if (argc > 1 && argv[1] == string ("--help"))
   {
@@ -71,6 +78,7 @@ create_database (int& argc, char* argv[], size_t max_connections)
 
   // Create the database schema.
   //
+  if (schema)
   {
     transaction t (db->begin ());
     schema_catalog::create_schema (*db);
