@@ -122,8 +122,7 @@ main (int argc, char* argv[])
     {
       transaction t (db->begin ());
       result1 r1 (db->query<const obj1> (query1::id < 3));
-
-      assert (r1.size () == 2);
+      size_t n1 (0);
 
       for (result1::iterator i (r1.begin ()); i != r1.end (); ++i)
       {
@@ -134,11 +133,13 @@ main (int argc, char* argv[])
         i.load (o);
         assert (p->id == o.id);
         delete p;
+        n1++;
       }
 
-      result2 r2 (db->query<const obj2> (query2::id < 3));
+      assert (n1 == 2);
 
-      assert (r2.size () == 2);
+      result2 r2 (db->query<const obj2> (query2::id < 3));
+      size_t n2 (0);
 
       for (result2::iterator i (r2.begin ()); i != r2.end (); ++i)
       {
@@ -148,7 +149,10 @@ main (int argc, char* argv[])
         obj2 o (0);
         i.load (o);
         assert (p->id == o.id);
+        n2++;
       }
+
+      assert (n2 == 2);
 
       t.commit ();
     }

@@ -92,8 +92,9 @@ main (int argc, char* argv[])
 
         result r (db->query<person> (query::name::first == "Joe"));
 
-        assert (r.size () == 1);
+        assert (!r.empty ());
         assert (*r.begin () == p);
+        assert (size (r) == 1);
 
         t.commit ();
       }
@@ -105,8 +106,9 @@ main (int argc, char* argv[])
 
         result r (db->query<person> (query::name::flags::alias));
 
-        assert (r.size () == 1);
+        assert (!r.empty ());
         assert (*r.begin () == p);
+        assert (size (r) == 1);
 
         t.commit ();
       }

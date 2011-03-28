@@ -392,10 +392,10 @@ main (int argc, char* argv[])
       transaction t (db->begin ());
       result r (db->query<person> (query::last_name == "Doe"));
 
-      assert (r.size () == 2);
-
       result::iterator i (r.begin ());
-      i++;
+      assert (i != r.end ());
+      ++i;
+      assert (i != r.end ());
       auto_ptr<person> joe (db->load<person> (3));
       assert (i->last_name_ == "Doe");
 

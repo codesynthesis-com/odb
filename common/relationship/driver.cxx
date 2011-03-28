@@ -105,8 +105,9 @@ main (int argc, char* argv[])
       transaction t (db->begin ());
 
       result r (db->query<aggr> (query::o1::str == "obj1"));
-      assert (r.size () == 1);
+      assert (!r.empty ());
       assert (r.begin ()->o1->id == a.o1->id);
+      assert (size (r) == 1);
 
       t.commit ();
     }

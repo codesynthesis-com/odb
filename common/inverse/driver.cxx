@@ -173,9 +173,10 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
 
         result r (db->query<obj2> (query::o1::id == "obj1 1"));
-        assert (r.size () == 1);
+        assert (!r.empty ());
         assert (r.begin ()->id == o2->id);
         assert (r.begin ()->o1->id == o1_1->id);
+        assert (size (r) == 1);
 
         t.commit ();
       }
@@ -190,14 +191,16 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
 
         result r (db->query<obj3> (query::o1::id == "obj1 1"));
-
-        assert (r.size () == 2);
+        size_t n (0);
 
         for (result::iterator i (r.begin ()); i != r.end (); ++i)
         {
           assert (i->id == o3_1->id || i->id == o3_2->id);
           assert (i->o1->id == o1_1->id);
+          n++;
         }
+
+        assert (n == 2);
 
         t.commit ();
       }

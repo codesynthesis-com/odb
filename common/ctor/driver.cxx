@@ -58,16 +58,15 @@ main (int argc, char* argv[])
 
       result r (db->query<person> (query::age < 30));
 
-      assert (r.size () == 1);
+      assert (!r.empty ());
 
-      for (result::iterator i (r.begin ()); i != r.end (); ++i)
-      {
-        i.load (p);
+      result::iterator i (r.begin ());
+      i.load (p);
+      assert (p.first_ == "Jane");
+      assert (p.last_ == "Doe");
+      assert (p.age_ == 29);
 
-        assert (p.first_ == "Jane");
-        assert (p.last_ == "Doe");
-        assert (p.age_ == 29);
-      }
+      assert (size (r) == 1);
 
       t.commit ();
     }

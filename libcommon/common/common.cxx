@@ -8,6 +8,8 @@
 
 #include <common/config.hxx>
 
+#include <odb/database.hxx>
+
 #if defined(DATABASE_MYSQL)
 #  include <odb/mysql/database.hxx>
 #  include <odb/mysql/connection-factory.hxx>
