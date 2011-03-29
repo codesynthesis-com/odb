@@ -18,7 +18,12 @@
 #include <odb/details/shared-ptr.hxx>
 #include <odb/details/thread.hxx>
 
+#include <common/config.hxx> // DATABASE_SQLITE
 #include <common/common.hxx>
+
+#ifdef DATABASE_SQLITE
+#  include <odb/sqlite/database.hxx>
+#endif
 
 #include "test.hxx"
 #include "test-odb.hxx"
@@ -28,7 +33,8 @@ using namespace odb::core;
 namespace details = odb::details;
 
 const unsigned long thread_count = 32;
-const unsigned long iteration_count = 100;
+const unsigned long iteration_count = 50;
+const unsigned long sub_iteration_count = 20;
 
 struct task
 {
@@ -47,7 +53,7 @@ struct task
         unsigned long id ((n_ * iteration_count + i) * 3);
 
         {
-          object o1 (id, "frist object");
+          object o1 (id, "first object");
           object o2 (id + 1, "second object");
           object o3 (id + 2, "third object");
 
@@ -58,15 +64,37 @@ struct task
           t.commit ();
         }
 
+        // The following transaction may lead to a deadlock in some database
+        // implementations (read to write lock upgrade).
+        //
+        while (true)
         {
-          transaction t (db_.begin ());
-          auto_ptr<object> o (db_.load<object> (id));
-          assert (o->str_ == "frist object");
-          o->str_ = "another value";
-          db_.update (*o);
-          t.commit ();
+          try
+          {
+#ifndef DATABASE_SQLITE
+            transaction t (db_.begin ());
+#else
+            // SQLite has a peculiar table locking mode (shared cache)
+            // which can lead to any of the transactions in this test
+            // deadlocking even though they shouldn't from the user's
+            // perspective. One way to work around this problem is to
+            // start a "write" transaction as such right away.
+            //
+            transaction t (
+              static_cast<odb::sqlite::database&> (db_).begin_immediate ());
+#endif
+
+            auto_ptr<object> o (db_.load<object> (id));
+            assert (o->str_ == "first object");
+            o->str_ = "another value";
+            db_.update (*o);
+            t.commit ();
+            break;
+          }
+          catch (deadlock const&) {}
         }
 
+        for (unsigned long j (0); j < sub_iteration_count; ++j)
         {
           typedef odb::query<object> query;
           typedef odb::result<object> result;
