@@ -9,6 +9,10 @@ if ODB_TESTS_BOOST
 SUBDIRS += boost
 endif
 
+if ODB_TESTS_QT
+SUBDIRS += qt
+endif
+
 if DATABASE_MYSQL
 SUBDIRS += mysql
 endif
