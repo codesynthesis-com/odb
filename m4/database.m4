@@ -13,7 +13,7 @@ AC_MSG_CHECKING([for database to use])
 AC_ARG_WITH(
   [database],
   [AC_HELP_STRING([--with-database=db],
-                  [database to use for tests; valid values are: 'mysql'])],
+                  [database to use for tests; valid values are: 'mysql', 'sqlite'])],
   [case $withval in
      no | yes)
        AC_MSG_RESULT([])
@@ -22,6 +22,10 @@ AC_ARG_WITH(
      mysql)
        database=mysql
        AC_DEFINE([DATABASE_MYSQL], [1], [Using MySQL.])
+       ;;
+     sqlite)
+       database=sqlite
+       AC_DEFINE([DATABASE_SQLITE], [1], [Using SQLite.])
        ;;
      *)
        AC_MSG_RESULT([])
@@ -37,5 +41,6 @@ AC_MSG_RESULT([$database])
 AC_SUBST([database])
 
 AM_CONDITIONAL([DATABASE_MYSQL], [test x$database = xmysql])
+AM_CONDITIONAL([DATABASE_SQLITE], [test x$database = xsqlite])
 
 ])dnl

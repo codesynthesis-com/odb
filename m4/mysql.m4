@@ -202,7 +202,7 @@ fi
 
 # Create options file.
 #
-AC_CONFIG_COMMANDS([db.options],
+AC_CONFIG_COMMANDS([mysql.options],
  [
    rm -f db.options
    echo '#! /bin/sh' >db-driver

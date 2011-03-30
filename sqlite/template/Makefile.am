@@ -9,6 +9,7 @@ noinst_PROGRAMS = driver
 driver_SOURCES = driver.cxx __path__(extra_sources) __path__(extra_headers)
 LDADD = $(top_builddir)/libcommon/common/libcommon.la
 AM_CPPFLAGS = -I'$(top_builddir)/libcommon' -I'$(top_srcdir)/libcommon'
+AM_CPPFLAGS += -I'$(builddir)' -I'$(srcdir)'
 
 TESTS=$(top_builddir)/tester
 TESTS_ENVIRONMENT=top_builddir=$(top_builddir); export top_builddir;

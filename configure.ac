@@ -63,6 +63,10 @@ case $database in
     LIBODB_MYSQL([], [AC_MSG_ERROR([libodb-mysql is not found; consider using --with-libodb-mysql=DIR])])
     MYSQL
     ;;
+  sqlite)
+    LIBODB_SQLITE([], [AC_MSG_ERROR([libodb-sqlite is not found; consider using --with-libodb-sqlite=DIR])])
+    SQLITE
+    ;;
 esac
 
 # Check for the ODB compiler.

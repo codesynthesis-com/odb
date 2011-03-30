@@ -53,7 +53,7 @@ name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
 $(dist): db_id := @database@
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
-$(dist): export extra_headers := traits.hxx
+$(dist): export extra_headers := traits.hxx $(databases:%=traits-%.hxx)
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
 $(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \

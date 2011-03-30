@@ -13,5 +13,9 @@ if DATABASE_MYSQL
 SUBDIRS += mysql
 endif
 
+if DATABASE_SQLITE
+SUBDIRS += sqlite
+endif
+
 EXTRA_DIST = __file__(extra_dist)
 ACLOCAL_AMFLAGS = -I m4
