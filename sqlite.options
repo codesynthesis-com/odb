@@ -1,0 +1,5 @@
+# Sample SQLite options file used to run the tests. Adjust to
+# match your SQLite setup.
+#
+
+--database C:\Temp\odb_test.db
