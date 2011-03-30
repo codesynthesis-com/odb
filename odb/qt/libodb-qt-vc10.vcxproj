@@ -93,7 +93,7 @@
       <DisableSpecificWarnings>4355;4800;4290;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>odb-d.lib;qt-core-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odb-d.lib;QtCored4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(TargetPath)</OutputFile>
@@ -111,7 +111,7 @@
       <DisableSpecificWarnings>4355;4800;4290;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>odb-d.lib;qt-core-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odb-d.lib;QtCored4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(TargetPath)</OutputFile>
@@ -131,7 +131,7 @@
       <DisableSpecificWarnings>4355;4800;4290;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>odb.lib;qt-core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odb.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -153,7 +153,7 @@
       <DisableSpecificWarnings>4355;4800;4290;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>odb.lib;qt-core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odb.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>

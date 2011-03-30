@@ -1,8 +1,14 @@
-#include <QString>
+#include <odb/qt/dummy.hxx>
 #include <odb/qt/exception.hxx>
 
-QString dummy ()
+namespace odb
 {
-  QString s ("Hello, Qt!");
-  return s;
+  namespace qt
+  {
+    QString dummy ()
+    {
+      QString s ("Hello, Qt!");
+      return s;
+    }
+  }
 }
