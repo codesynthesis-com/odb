@@ -1,7 +1,8 @@
 In this document we use <database> to refer to the name of the database
 system you would like to use. Valid values for <database> are:
 
-  'mysql' - The MySQL database system
+  'mysql'  - The MySQL database system
+  'sqlite' - The SQLite database system
 
 Prerequisites
 =============
