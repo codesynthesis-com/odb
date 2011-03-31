@@ -5,7 +5,7 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-cxx := dummy.cxx
+cxx := date-time/exceptions.cxx
 
 cxx_tun := $(cxx)
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o))

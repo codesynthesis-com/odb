@@ -1,10 +1,10 @@
-// file      : odb/qt/mysql/qstring-traits.hxx
+// file      : odb/qt/basic/mysql/qstring-traits.hxx
 // author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#ifndef ODB_QT_MYSQL_QSTRING_TRAITS_HXX
-#define ODB_QT_MYSQL_QSTRING_TRAITS_HXX
+#ifndef ODB_QT_BASIC_MYSQL_QSTRING_TRAITS_HXX
+#define ODB_QT_BASIC_MYSQL_QSTRING_TRAITS_HXX
 
 #include <odb/pre.hxx>
 
@@ -33,10 +33,10 @@ namespace odb
                  std::size_t n,
                  bool is_null)
       {
-        if (!is_null)
-          v = QString::fromUtf8 (b.data (), n);
+        if (is_null)
+          v = QString ();
         else
-          v.clear ();
+          v = QString::fromUtf8 (b.data (), static_cast<int> (n));
       }
 
       static void
@@ -48,13 +48,12 @@ namespace odb
         is_null = false;
 
         const QByteArray& a (v.toUtf8 ());
-        n = a.size ();
+        n = static_cast<std::size_t> (a.size ());
 
         if (n > b.capacity ())
           b.capacity (n);
 
-        if (n != 0)
-          std::memcpy (b.data (), a.data (), n);
+        std::memcpy (b.data (), a.data (), n);
       }
     };
 
@@ -92,4 +91,4 @@ namespace odb
 
 #include <odb/post.hxx>
 
-#endif // ODB_QT_MYSQL_QSTRING_TRAITS_HXX
+#endif // ODB_QT_BASIC_MYSQL_QSTRING_TRAITS_HXX

@@ -6,7 +6,7 @@ For more information see:
 
 http://www.codesynthesis.com/products/odb/
 
-This package contains the Boost Qt profile library. The Qt profile provides
+This package contains the Qt profile library. The Qt profile provides
 support for persisting Qt smart pointers, containers, and value types with
 the ODB system.
 
