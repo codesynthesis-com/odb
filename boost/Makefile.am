@@ -10,8 +10,7 @@ SUBDIRS += mysql
 endif
 
 if DATABASE_SQLITE
-# @@ enable
-#SUBDIRS += sqlite
+SUBDIRS += sqlite
 endif
 
 EXTRA_DIST = __file__(extra_dist)
