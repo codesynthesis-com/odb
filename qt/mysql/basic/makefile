@@ -1,4 +1,4 @@
-# file      : qt/mysql/core/makefile
+# file      : qt/mysql/date-time/makefile
 # author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
@@ -26,27 +26,29 @@ $(call import,\
 
 $(call import,\
   $(scf_root)/import/libodb-qt/stub.make,\
-  l: odb_qt.l,cpp-options: odb_qt.l.cpp-options)
+  l:odb_qt.l,cpp-options: odb_qt.l.cpp-options)
 
 $(call import,\
   $(scf_root)/import/libqt/core/stub.make,\
-  l: qt_core.l)
+  l: qt_core.l,cpp-options: qt_core.l.cpp-options)
 
 # Build.
 #
 $(driver): $(cxx_obj) $(odb_qt.l) $(common.l) $(qt_core.l)
-$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base)
-$(cxx_obj) $(cxx_od): $(common.l.cpp-options) $(odb_qt.l.cpp-options)
+$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
+$(cxx_obj) $(cxx_od): $(common.l.cpp-options) $(odb_qt.l.cpp-options) \
+$(qt_core.l.cpp-options)
 
 genf := $(addprefix $(odb_hdr:.hxx=-odb),.hxx .ixx .cxx) $(odb_hdr:.hxx=.sql)
 gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database mysql --profile qt \
+$(gen) $(dist): export odb_options += --database mysql --profile qt/basic \
 --generate-schema
-$(gen): cpp_options := -I$(out_base)
-$(gen): $(common.l.cpp-options) $(odb_qt.l.cpp-options)
+$(gen): cpp_options := -I$(src_base)
+$(gen): $(common.l.cpp-options) $(odb_qt.l.cpp-options) \
+$(qt_core.l.cpp-options)
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
 
@@ -71,7 +73,7 @@ $(dist):
 # Test.
 #
 $(test): $(driver) $(src_base)/test.std
-	$(call message,sql $$1,$(dcf_root)/db-driver $$1, $(src_base)/test.sql)
+	$(call schema)
 	$(call message,test $<,$< --options-file $(dcf_root)/db.options \
 >$(out_base)/test.out)
 	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)
