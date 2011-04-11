@@ -5,11 +5,13 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
-all_dirs := mysql
+all_dirs := mysql sqlite
 dirs :=
 
 ifeq ($(db_id),mysql)
 dirs += mysql
+else ifeq ($(db_id), sqlite)
+dirs += sqlite
 endif
 
 default := $(out_base)/
