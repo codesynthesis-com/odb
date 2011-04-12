@@ -21,10 +21,11 @@ struct object
     return
       id == x.id &&
       date == x.date &&
-      julian_day == x.julian_day &&
+      unix_day == x.unix_day &&
       time == x.time &&
       seconds == x.seconds &&
-      date_time == x.date_time;
+      date_time == x.date_time &&
+      unix_time == x.unix_time;
   }
 
   bool
@@ -32,10 +33,11 @@ struct object
   {
     return
       date.isNull () &&
-      julian_day.isNull () &&
+      unix_day.isNull () &&
       time.isNull () &&
       seconds.isNull () &&
-      date_time.isNull ();
+      date_time.isNull () &&
+      unix_time.isNull ();
   }
 
   #pragma db id auto
@@ -44,7 +46,7 @@ struct object
   QDate date;
 
   #pragma db type ("INTEGER")
-  QDate julian_day;
+  QDate unix_day;
 
   QTime time;
 
@@ -52,6 +54,9 @@ struct object
   QTime seconds;
 
   QDateTime date_time;
+
+  #pragma db type ("INTEGER")
+  QDateTime unix_time;
 };
 
 #endif // TEST_HXX

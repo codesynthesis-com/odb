@@ -40,7 +40,7 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    // Load.dob
+    // Load.
     //
     {
       transaction t (db->begin ());
