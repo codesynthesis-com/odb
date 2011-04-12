@@ -1,0 +1,16 @@
+# file      : odb/qt/smart-ptr.options
+# author    : Constantin Michael <constantin@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile qt/version
+
+# Make QSharedPointer the default object pointer.
+#
+--hxx-prologue '#include <QSharedPointer>'
+--default-pointer QSharedPointer
+
+# Include pointer traits.
+#
+--odb-epilogue '#include <odb/qt/smart-ptr/pointer-traits.hxx>'
+--hxx-prologue '#include <odb/qt/smart-ptr/pointer-traits.hxx>'

@@ -5,3 +5,4 @@
 
 --profile qt/basic
 --profile qt/date-time
+--profile qt/smart-ptr
