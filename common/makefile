@@ -11,6 +11,7 @@ composite     \
 const         \
 container     \
 ctor          \
+enum          \
 inverse       \
 lazy-ptr      \
 lifecycle     \

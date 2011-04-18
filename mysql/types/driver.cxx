@@ -77,7 +77,8 @@ main (int argc, char* argv[])
     o.bit_.c = 0;
     o.bit_.d = 1;
 
-    o.enum_ = "green";
+    o.enum_ = green;
+    o.enum_str_ = "green";
     o.set_.insert ("green");
     o.set_.insert ("red");
     o.set_.insert ("blue");

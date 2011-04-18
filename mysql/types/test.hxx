@@ -82,6 +82,8 @@ operator== (bitfield x, bitfield y)
 typedef std::set<std::string> set;
 typedef std::auto_ptr<std::string> string_ptr;
 
+enum color {red, green, blue};
+
 #pragma db object
 struct object
 {
@@ -203,10 +205,14 @@ struct object
   // #pragma db type ("BIT(4) NOT NULL") - assigned by #pragma db value
   bitfield bit_;
 
-  #pragma db type ("ENUM('red', 'green', 'blue') NOT NULL")
-  std::string enum_;
+  // Test ENUM representations (integer and string).
+  //
+  color enum_;
 
-  #pragma db type ("SET('red', 'green', 'blue') NOT NULL")
+  #pragma db type ("ENUM ('red', 'green', 'blue') NOT NULL")
+  std::string enum_str_;
+
+  #pragma db type ("SET ('red', 'green', 'blue') NOT NULL")
   set set_;
 
   // Test NULL value.
@@ -252,6 +258,7 @@ struct object
       longblob_ == y.longblob_ &&
       bit_ == y.bit_ &&
       enum_ == y.enum_ &&
+      enum_str_ == y.enum_str_ &&
       set_ == y.set_ &&
       ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);
   }
