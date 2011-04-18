@@ -6,7 +6,7 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
 all_dirs := mysql sqlite
-dirs :=
+dirs := common
 
 ifeq ($(db_id),mysql)
 dirs += mysql
