@@ -17,7 +17,7 @@ namespace odb
   namespace sqlite
   {
     template <>
-    class value_traits<buffer, details::buffer, id_blob>
+    class value_traits<buffer, id_blob>
     {
     public:
       typedef buffer value_type;
@@ -54,7 +54,7 @@ namespace odb
     };
 
     template <>
-    class value_traits<string_ptr, details::buffer, id_text>
+    class value_traits<string_ptr, id_text>
     {
     public:
       typedef string_ptr value_type;

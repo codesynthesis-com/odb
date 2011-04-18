@@ -17,7 +17,7 @@ namespace odb
   namespace sqlite
   {
     template <>
-    class value_traits<std::auto_ptr<std::string>, details::buffer, id_text>
+    class value_traits<std::auto_ptr<std::string>, id_text>
     {
     public:
       typedef std::auto_ptr<std::string> value_type;
