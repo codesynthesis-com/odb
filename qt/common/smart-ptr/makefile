@@ -35,7 +35,7 @@ $(call import,\
 # Build.
 #
 $(driver): $(cxx_obj) $(odb_qt.l) $(common.l) $(qt_core.l)
-$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
+$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base) -DQWEAKPOINTER_ENABLE_ARROW
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options) $(odb_qt.l.cpp-options) \
 $(qt_core.l.cpp-options)
 
