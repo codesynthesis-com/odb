@@ -14,7 +14,7 @@
 //
 #pragma db value(QString) type("TEXT")
 
-// Map QByteArray to SQLite TEXT by default. Allow NULL values by default as
+// Map QByteArray to SQLite BLOB by default. Allow NULL values by default as
 // QByteArray provides a null representation.
 //
 #pragma db value(QByteArray) type("BLOB")

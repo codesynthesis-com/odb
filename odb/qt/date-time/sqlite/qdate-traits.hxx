@@ -93,7 +93,7 @@ namespace odb
         {
           QDateTime dt;
           dt.setTimeSpec (Qt::UTC);
-          dt.setTime_t(static_cast<uint> (i));
+          dt.setTime_t (static_cast<uint> (i));
 
           v = dt.date ();
         }

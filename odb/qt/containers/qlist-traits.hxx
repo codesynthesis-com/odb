@@ -1,0 +1,73 @@
+// file      : odb/qt/containers/qlist-traits.hxx
+// author    : Constantin Michael <constantin@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+#ifndef ODB_QT_CONTAINER_QLIST_TRAITS_HXX
+#define ODB_QT_CONTAINER_QLIST_TRAITS_HXX
+
+#include <odb/pre.hxx>
+
+#include <QList>
+
+#include <odb/container-traits.hxx>
+
+namespace odb
+{
+  template <typename T>
+  class access::container_traits<QList<T> >
+  {
+  public:
+    static const container_kind kind = ck_ordered;
+
+    typedef QList<T> container_type;
+
+    typedef T value_type;
+    typedef typename container_type::size_type index_type;
+
+    typedef ordered_functions<index_type, value_type> functions;
+
+  public:
+    static void
+    persist (const container_type& c, const functions& f)
+    {
+      // Index based access is just as fast as iterator based access for
+      // QList.
+      //
+      for (index_type i (0), n (c.size ()); i < n; ++i)
+        f.insert_one (i, c[i]);
+    }
+
+    static void
+    load (container_type& c, bool more, const functions& f)
+    {
+      c.clear ();
+
+      while (more)
+      {
+        index_type dummy;
+        c.append (value_type ());
+        more = f.load_all (dummy, c.back ());
+      }
+    }
+
+    static void
+    update (const container_type& c, const functions& f)
+    {
+      f.delete_all ();
+
+      for (index_type i (0), n (c.size ()); i < n; ++i)
+        f.insert_one (i, c[i]);
+    }
+
+    static void
+    erase (const functions& f)
+    {
+      f.delete_all ();
+    }
+  };
+}
+
+#include <odb/post.hxx>
+
+#endif // ODB_QT_CONTAINER_QLIST_TRAITS_HXX
