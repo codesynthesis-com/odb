@@ -23,7 +23,7 @@
 using namespace std;
 using namespace odb::core;
 
-// Force generation of code for all QLazySharedPointer and QLazyWeakPointer
+// Force instantiation of all QLazySharedPointer and QLazyWeakPointer
 // class template members.
 //
 template class QLazySharedPointer<cont>;
