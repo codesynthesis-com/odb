@@ -91,39 +91,6 @@ main (int argc, char* argv[])
       assert (*ol2 == o2);
     }
 
-    // Test different time zones are handled correctly by
-    // QDateTime traits UNIX time implementation.
-    //
-    object o3, o4, o5;
-    {
-      // o3 is set to ct local time. o4 is set to ct UTC. o5
-      // is set to o3's equivalent UTC time.
-      //
-      o3.unix_time = ct_no_ms;
-
-      o4.unix_time = ct_no_ms;
-      o4.unix_time.setTimeSpec (Qt::UTC);
-
-      o5.unix_time = ct_no_ms.toTimeSpec (Qt::UTC);
-
-      transaction t (db->begin ());
-      db->persist (o3);
-      db->persist (o4);
-      db->persist (o5);
-      t.commit ();
-    }
-
-    {
-      transaction t (db->begin ());
-      auto_ptr<object> ol3 (db->load<object> (o3.id));
-      auto_ptr<object> ol4 (db->load<object> (o4.id));
-      auto_ptr<object> ol5 (db->load<object> (o5.id));
-      t.commit ();
-
-      assert (ol3->unix_time != ol4->unix_time);
-      assert (ol3->unix_time == ol5->unix_time);
-    }
-
     // Test out of range values for QDateTime traits UNIX time
     // implementation.
     //
