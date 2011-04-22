@@ -24,6 +24,12 @@ struct name_title
 };
 
 #pragma db value
+struct name_title_ex: name_title
+{
+  // Test value types without data members.
+};
+
+#pragma db value
 struct name_flags
 {
   bool nick;
@@ -31,7 +37,7 @@ struct name_flags
 };
 
 #pragma db value
-struct name_ex: name, name_title
+struct name_ex: name, name_title_ex
 {
   name alias;
   std::string nick;
