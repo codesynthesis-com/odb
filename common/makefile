@@ -12,6 +12,7 @@ const         \
 container     \
 ctor          \
 enum          \
+inheritance   \
 inverse       \
 lazy-ptr      \
 lifecycle     \

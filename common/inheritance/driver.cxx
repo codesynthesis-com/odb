@@ -1,0 +1,136 @@
+// file      : common/inheritance/driver.cxx
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+// Test object inheritance.
+//
+
+#include <memory>   // std::auto_ptr
+#include <cassert>
+#include <iostream>
+
+#include <odb/database.hxx>
+#include <odb/transaction.hxx>
+
+#include <common/common.hxx>
+
+#include "test.hxx"
+#include "test-odb.hxx"
+
+using namespace std;
+using namespace odb::core;
+
+int
+main (int argc, char* argv[])
+{
+  try
+  {
+    auto_ptr<database> db (create_database (argc, argv));
+
+    base b;
+    b.comp_.num = 10;
+    b.comp_.str = "comp bbb";
+    b.comp_.nums.push_back (101);
+    b.comp_.nums.push_back (102);
+    b.num_ = 0;
+    b.str_ = "bbb";
+    b.strs_.push_back ("bbb one");
+    b.strs_.push_back ("bbb two");
+
+    object1 o1;
+    o1.comp_.num = 11;
+    o1.comp_.str = "comp o1o1o1";
+    o1.comp_.nums.push_back (111);
+    o1.comp_.nums.push_back (112);
+    static_cast<base&> (o1).num_ = 1;
+    o1.num1_ = 21;
+    o1.str_ = "base o1o1o1";
+    o1.strs_.push_back ("base o1o1o1 one");
+    o1.strs_.push_back ("base o1o1o1 two");
+
+    object2 o2;
+    o2.comp_.num = 12;
+    o2.comp_.str = "comp o2o2o2";
+    o2.comp_.nums.push_back (121);
+    o2.comp_.nums.push_back (122);
+    o2.num_ = 2;
+    static_cast<base&> (o2).str_ = "base o2o2o2";
+    o2.str_ = "o2o2o2";
+    o2.strs_.push_back ("base o2o2o2 one");
+    o2.strs_.push_back ("base o2o2o2 two");
+
+    reference r;
+    r.o1_ = &o1;
+
+    // persist
+    //
+    {
+      transaction t (db->begin ());
+      db->persist (b);
+      db->persist (o1);
+      db->persist (o2);
+      db->persist (r);
+      t.commit ();
+    }
+
+    // load & check
+    //
+    {
+      transaction t (db->begin ());
+      auto_ptr<base> lb (db->load<base> (b.id_));
+      auto_ptr<object1> lo1 (db->load<object1> (o1.id_));
+      auto_ptr<object2> lo2 (db->load<object2> (o2.id_));
+      auto_ptr<reference> lr (db->load<reference> (r.id_));
+      t.commit ();
+
+      assert (b == *lb);
+      assert (o1 == *lo1);
+      assert (o2 == *lo2);
+      assert (lr->o1_->id_ == r.o1_->id_);
+
+      delete lr->o1_;
+    }
+
+    // query
+    //
+    {
+      typedef odb::query<base> b_query;
+      typedef odb::result<base> b_result;
+
+      typedef odb::query<object1> o1_query;
+      typedef odb::result<object1> o1_result;
+
+      typedef odb::query<object2> o2_query;
+      typedef odb::result<object2> o2_result;
+
+      typedef odb::query<reference> r_query;
+      typedef odb::result<reference> r_result;
+
+      transaction t (db->begin ());
+
+      assert (!db->query<base> (b_query::comp::num == 10).empty ());
+      assert (!db->query<object1> (o1_query::num1 == 21).empty ());
+      assert (!db->query<object2> (o2_query::num == 2).empty ());
+
+      // Query condition with hidden members.
+      //
+      assert (!db->query<object2> (b_query::str == "base o2o2o2").empty ());
+
+      // Query condition with referenced composite member in base class.
+      //
+      {
+        r_result r (db->query<reference> (r_query::o1::comp::num == 11));
+        assert (!r.empty ());
+        delete r.begin ()->o1_;
+      }
+
+      t.commit ();
+    }
+  }
+  catch (const odb::exception& e)
+  {
+    cerr << e.what () << endl;
+    return 1;
+  }
+}
