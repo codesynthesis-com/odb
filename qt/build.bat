@@ -81,7 +81,7 @@ for %%d in (%1) do (
   )
 )
 
-for %%c in (%confs%) do
+for %%c in (%confs%) do (
   for %%p in (%plats%) do (
     call :run_build common/qt-common-%1-vc%vcver%.sln %%c %%p
   )
