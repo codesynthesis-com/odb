@@ -61,6 +61,12 @@ namespace odb
         }
       }
     };
+
+    template <>
+    class default_type_traits<QByteArray>
+    {
+      static const database_type_id db_type_id = id_blob;
+    };
   }
 }
 
