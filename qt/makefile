@@ -10,7 +10,7 @@ dirs := common
 
 ifeq ($(db_id),mysql)
 dirs += mysql
-else ifeq ($(db_id), sqlite)
+else ifeq ($(db_id),sqlite)
 dirs += sqlite
 endif
 
@@ -23,7 +23,7 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): export extra_dist := build.bat
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_dirs)))
-	$(call meta-vctest,mysql/qt-mysql-vc10.sln,build.bat)
+	$(call meta-vctest,common/qt-common-mysql-vc10.sln,build.bat)
 	$(call meta-automake)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(dirs)))
