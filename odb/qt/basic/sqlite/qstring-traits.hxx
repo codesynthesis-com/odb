@@ -21,7 +21,7 @@ namespace odb
   namespace sqlite
   {
     template <>
-    struct default_value_traits <QString, details::buffer, id_text>
+    struct default_value_traits <QString, id_text>
     {
     public:
       typedef QString value_type;

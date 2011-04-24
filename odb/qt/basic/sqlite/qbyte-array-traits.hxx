@@ -21,7 +21,7 @@ namespace odb
   namespace sqlite
   {
     template <>
-    class default_value_traits<QByteArray, details::buffer, id_blob>
+    class default_value_traits<QByteArray, id_blob>
     {
     public:
       typedef QByteArray value_type;

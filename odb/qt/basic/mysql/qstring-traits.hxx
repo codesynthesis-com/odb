@@ -58,26 +58,22 @@ namespace odb
     };
 
     template <>
-    struct default_value_traits<
-      QString, details::buffer, id_string>: qstring_value_traits
+    struct default_value_traits<QString, id_string>: qstring_value_traits
     {
     };
 
     template <>
-    struct default_value_traits<
-      QString, details::buffer, id_decimal>: qstring_value_traits
+    struct default_value_traits<QString, id_decimal>: qstring_value_traits
     {
     };
 
     template <>
-    struct default_value_traits<
-      QString, details::buffer, id_enum>: qstring_value_traits
+    struct default_value_traits<QString, id_enum>: qstring_value_traits
     {
     };
 
     template <>
-    struct default_value_traits<
-      QString, details::buffer, id_set>: qstring_value_traits
+    struct default_value_traits<QString, id_set>: qstring_value_traits
     {
     };
 

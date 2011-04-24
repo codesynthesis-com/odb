@@ -18,7 +18,7 @@ namespace odb
   namespace mysql
   {
     template <>
-    class default_value_traits<QDate, MYSQL_TIME, id_date>
+    class default_value_traits<QDate, id_date>
     {
     public:
       typedef QDate value_type;

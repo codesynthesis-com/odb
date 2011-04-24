@@ -17,7 +17,7 @@ namespace odb
   namespace mysql
   {
     template <>
-    class default_value_traits<QTime, MYSQL_TIME, id_time>
+    class default_value_traits<QTime, id_time>
     {
     public:
       typedef QTime value_type;

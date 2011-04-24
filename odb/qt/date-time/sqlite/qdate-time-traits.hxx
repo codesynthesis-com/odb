@@ -23,7 +23,7 @@ namespace odb
   namespace sqlite
   {
     template <>
-    class default_value_traits<QDateTime, details::buffer, id_text>
+    class default_value_traits<QDateTime, id_text>
     {
     public:
       typedef QDateTime value_type;
@@ -74,7 +74,7 @@ namespace odb
     // The integer value represents UNIX time.
     //
     template <>
-    class default_value_traits<QDateTime, long long, id_integer>
+    class default_value_traits<QDateTime, id_integer>
     {
     public:
       typedef QDateTime value_type;
