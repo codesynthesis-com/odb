@@ -36,6 +36,11 @@ LIBQTCORE([],[AC_MSG_ERROR([QtCore is not found; consider using CPPFLAGS/LDFLAGS
 #
 LIBODB([], [AC_MSG_ERROR([libodb is not found; consider using --with-libodb=DIR])])
 
+# Define LIBODB_QT_STATIC_LIB if we are build static library on certain
+# platforms.
+#
+STATIC_LIB([LIBODB_QT_STATIC_LIB], [Static library interface.])
+
 # Allow the user to specify the pkgconfig directory.
 #
 PKGCONFIG

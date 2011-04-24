@@ -12,5 +12,5 @@ nobase_nodist_odbqtinclude_HEADERS = details/config.h
 
 EXTRA_DIST = __file__(extra_dist)
 
-AM_CPPFLAGS= -I'$(top_builddir)' -I'$(top_srcdir)'
+AM_CPPFLAGS= -I'$(top_builddir)' -I'$(top_srcdir)' -DLIBODB_QT_DYNAMIC_LIB
 AM_LDFLAGS = -release __value__(interface_version) -no-undefined
