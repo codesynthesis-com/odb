@@ -39,7 +39,7 @@ goto :eof
 
 :start
 
-for %%d in (tracer common %1 boost\common boost\%1 qt\%1) do (
+for %%d in (tracer common %1 boost\common boost\%1 qt\common qt\%1) do (
   call :run_test %%d %1
 )
 
