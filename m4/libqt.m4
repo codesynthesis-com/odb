@@ -13,11 +13,10 @@ AC_PATH_PROG([pkg_config],[pkg-config])
 
 AC_MSG_CHECKING([for QtCore])
 
-# First check for QtCore using default CPPFLAGS/LDFLAGS.
+# First check for QtCore using default CPPFLAGS/LDFLAGS/LIBS. This
+# test allows the user to override the QtCore library name (e.g.,
+# QtCored4) via the LIBS variable.
 #
-save_LIBS="$LIBS"
-LIBS="-lQtCore $LIBS"
-
 CXX_LIBTOOL_LINK_IFELSE(
 AC_LANG_SOURCE([[
 #include <string>
@@ -35,11 +34,68 @@ main ()
 libqt_found=yes
 ])
 
+# Then check for QtCore using default CPPFLAGS/LDFLAGS.
+#
+if test x"$libqt_found" = xno; then
+
+  save_LIBS="$LIBS"
+  LIBS="-lQtCore $LIBS"
+
+  CXX_LIBTOOL_LINK_IFELSE(
+AC_LANG_SOURCE([[
+#include <string>
+#include <QString>
+
+int
+main ()
+{
+  QString qs ("test");
+  std::string ss (qs.toStdString ());
+  return ss.size () != 0;
+}
+]]),
+[
+libqt_found=yes
+])
+
+  if test x"$libqt_found" = xno; then
+    LIBS="$save_LIBS"
+  fi
+fi
+
+# If QtCore is not found, try its versioned variant, QtCore4.
+#
+if test x"$libqt_found" = xno; then
+
+  save_LIBS="$LIBS"
+  LIBS="-lQtCore4 $LIBS"
+
+  CXX_LIBTOOL_LINK_IFELSE(
+AC_LANG_SOURCE([[
+#include <string>
+#include <QString>
+
+int
+main ()
+{
+  QString qs ("test");
+  std::string ss (qs.toStdString ());
+  return ss.size () != 0;
+}
+]]),
+[
+libqt_found=yes
+])
+
+  if test x"$libqt_found" = xno; then
+    LIBS="$save_LIBS"
+  fi
+fi
+
 # If default CPPFLAGS/LDFLAGS didn't work, try to discover
 # them using pkg-config.
 #
 if test x"$libqt_found" = xno; then
-  LIBS="$save_LIBS"
 
   if test x"$pkg_config" != x; then
     if $pkg_config --exists QtCore; then
