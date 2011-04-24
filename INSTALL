@@ -22,22 +22,23 @@ To see the available configuration options run configure with --help:
 
 ./configure --help
 
-The configure script expects the libodb and qt headers and libraries
-to be installed in a directory where the C++ compiler and linker will
-search for them by default (normally /usr and /usr/local). If these
-libraries are installed in other directories, you can use the CPPFLAGS
-and LDFLAGS configure variables to specify their locations, for example:
+The configure script expects the libodb headers and libraries to be
+installed in a directory where the C++ compiler and linker will search
+for them by default (normally /usr and /usr/local). For Qt, the configure
+script uses the pkg-config utility to discover the locations of the Qt
+headers and libraries.
+
+If the above methods to locate libodb and Qt are not usable for your
+setup, you can use the CPPFLAGS and LDFLAGS configure variables to
+specify their locations, for example:
 
 ./configure CPPFLAGS=-I/opt/libodb/include LDFLAGS=-L/opt/libodb/lib
 
-If these libraries are not installed and you would like to use their
-build directories instead, you can use the --with-libodb, and
---with-qt configure options to specify their locations, for example:
+If libodb is not installed and you would like to use its build directory
+instead, you can use the --with-libodb configure options to specify its
+location, for example:
 
-./configure --with-qt=/tmp/qt
-
-For the qt build directory the configure script expects to find the
-qt libraries in the lib/ subdirectory.
+./configure --with-libodb=/tmp/libodb
 
 As another example, the following configure command only builds shared
 libraries, uses the specified C++ compiler, and compiles with optimization
@@ -64,29 +65,28 @@ Studio. If you would like to build libodb-qt with GCC either using
 Cygwin or MinGW, refer to the "Building on UNIX" section above.
 
 The standard Visual Studio project and solution files are used on this
-platform. The provided project files expect the libodb and qt header
+platform. The provided project files expect the libodb and Qt header
 and import library directories to be in the VC++ Directories Include and
 Library search lists. For libodb, see the INSTALL file in the package
 directory for more information on how to setup the VC++ Directories. For
-qt, refer to the qt documentation.
+Qt, refer to the Qt documentation.
 
 To build libodb-qt, unpack the source code archive and open the
-libodb-qt-vc<N>.sln file located in the libodb-qt package
-directory (referred to as libodb-qt\ from now on). Here <N> is the
-version of Visual Studio that you are using. Once the solution is open,
-select the desired build configuration (Debug or Release) and platform
-(Win32 or x64) and build the solution.
+libodb-qt-vc<N>.sln file located in the libodb-qt package directory
+(referred to as libodb-qt\ from now on). Here <N> is the version of
+Visual Studio that you are using. Once the solution is open, select the
+desired build configuration (Debug or Release) and platform (Win32 or
+x64) and build the solution.
 
 The resulting 32-bit DLLs and import libraries are placed into the
-libodb-qt\bin\ and libodb-qt\lib\ directories, respectively.
-Similarly, the 64-bit DLLs and import libraries are placed into
-libodb-qt\bin64\ and libodb-qt\lib64\. The Release versions of
-the import libraries are named odb-qt.lib and the Debug versions
-are named odb-qt-d.lib.
+libodb-qt\bin\ and libodb-qt\lib\ directories, respectively. Similarly,
+the 64-bit DLLs and import libraries are placed into libodb-qt\bin64\ and
+libodb-qt\lib64\. The Release versions of the import libraries are named
+odb-qt.lib and the Debug versions are named odb-qt-d.lib.
 
-To configure Visual Studio to automatically locate the libodb-qt
-headers, DLLs, and import libraries, add the following paths to your
-VC++ Directories:
+To configure Visual Studio to automatically locate the libodb-qt headers,
+DLLs, and import libraries, add the following paths to your VC++
+Directories:
 
 Win32:
 
