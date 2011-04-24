@@ -7,12 +7,17 @@ system you would like to use. Valid values for <database> are:
 Prerequisites
 =============
 
+Required:
   - odb                     http://www.codesynthesis.com/products/odb/
   - libodb                  http://www.codesynthesis.com/products/odb/
   - libodb-tracer           http://www.codesynthesis.com/products/odb/
   - libodb-<database>       http://www.codesynthesis.com/products/odb/
-  - libodb-boost (optional) http://www.codesynthesis.com/products/odb/
-  - boost (optional)        http://www.boost.org
+
+Optional:
+  - libodb-boost            http://www.codesynthesis.com/products/odb/
+  - Boost                   http://www.boost.org
+  - libodb-qt               http://www.codesynthesis.com/products/odb/
+  - Qt                      http://qt.nokia.com
 
 Building on UNIX
 ================
@@ -48,9 +53,8 @@ option to specify the build directory, for example:
 
 ./configure --with-odb=/tmp/odb
 
-The configure script also expects the libodb, libodb-tracer,
-libodb-<database>, and, if you would like to build the boost profile tests,
-libodb-boost and boost headers and libraries to be installed in a directory
+The configure script also expects the libodb, libodb-tracer, and
+libodb-<database> headers and libraries to be installed in a directory
 where the C++ compiler and linker will search for them by default (normally
 /usr and /usr/local). If these libraries are installed in other directories,
 you can use the CPPFLAGS and LDFLAGS configure variables to specify their
@@ -60,13 +64,18 @@ locations, for example:
 
 If these libraries are not installed and you would like to use their
 build directories instead, you can use the --with-libodb,
---with-libodb-tracer, --with-libodb-<database>, --with-libodb-boost, and
---with-boost configure options to specify their locations, for example:
+--with-libodb-tracer, and --with-libodb-<database> configure options
+to specify their locations, for example:
 
 ./configure --with-libodb=/tmp/libodb
 
-For the boost build directory the configure script expects to find the
-boost libraries in the stage/lib/ subdirectory.
+If you would also like to build the boost profile tests, then the
+configure script should be able to find headers and libraries for
+libodb-boost and Boost. Similarly, if you would like to build the qt
+profile tests, then the configure script should be able to find headers
+and libraries for libodb-qt and Qt. The same mechanisms as described
+above can be used to specify locations of these libraries if they
+cannot be discovered automatically.
 
 For each <database> value the configure script has a set of options in
 the form --with-<database>-* that allow you to specify various database
@@ -100,28 +109,37 @@ The standard Visual Studio project and solution files are used on this
 platform. The provided project files expect the directory where the ODB
 compiler binary is installed to be in the executable search path (the
 PATH environment variable). They also expect the libodb, libodb-tracer,
-libodb-<database>, and, if you would like to build the boost profile tests,
-libodb-boost and boost header and import library directories to be in the
+and libodb-<database> header and import library directories to be in the
 VC++ Directories Include and Library search lists. See the INSTALL files
 in the ODB library packages for more information on how to setup their
-VC++ Directories. For boost, refer to the boost documentation.
+VC++ Directories.
+
+If you would also like to build the boost profile tests, then the header and
+import library directories for libodb-boost and Boost must be in the VC++
+Directories Include and Library search lists. Similarly, if you would like
+to build the qt profile tests, then the header and import library
+directories for libodb-qt and Qt must be in the VC++ Directories Include
+and Library search lists. See the INSTALL files in the ODB library packages
+for more information on how to setup their VC++ Directories. For Boost and
+Qt, refer to their documentation.
 
 There are two ways to build the tests with Visual Studio. After unpacking
 the source code archive, you can manually open solution files located in
-the tracer\, common\, <database>\, boost\common\, and boost\<database>\
-directories in the odb-tests package directory (referred to as odb-tests\
-from now on). In the tracer\ directory the solution file is named
-tracer-vc<N>.sln. In the common\ and boost\common\ directories they are
-named common-<database>-vc<N>.sln. And in the <database>\ and boost\<database>\
-directories they are named <database>-vc<N>.sln. Here <N> is the version of
-Visual Studio that you are using. Once each solution is open, select the
-desired build configuration (Debug or Release) and platform (Win32 or x64)
-and build the solution.
+the tracer\, common\, <database>\, boost\common\, boost\<database>\,
+qt\common\, and qt\<database>\ directories in the odb-tests package
+directory (referred to as odb-tests\ from now on). In the tracer\ directory
+the solution file is named tracer-vc<N>.sln. In the common\, boost\common\,
+and qt\common\ directories they are named common-<database>-vc<N>.sln. And
+in the <database>\, boost\<database>\, and qt\<database> directories they
+are named <database>-vc<N>.sln. Here <N> is the version of Visual Studio
+that you are using. Once each solution is open, select the desired build
+configuration (Debug or Release) and platform (Win32 or x64) and build the
+solution.
 
-Alternatively, you can use the build.bat batch files located in the odb-tests\
-and odb-tests\boost\ directories to build all the solutions, for all the
-configurations and for all the platforms automatically. The build.bat file
-has the following command line interface:
+Alternatively, you can use the build.bat batch files located in the
+odb-tests\, odb-tests\boost\, and odb-tests\qt\ directories to build all
+the solutions, for all the configurations and for all the platforms
+automatically. The build.bat file has the following command line interface:
 
 build.bat <database> <N> <conf> <plat> [/Build|/Clean|/Rebuild]
 
