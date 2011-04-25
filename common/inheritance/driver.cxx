@@ -64,8 +64,32 @@ main (int argc, char* argv[])
     o2.strs_.push_back ("base o2o2o2 one");
     o2.strs_.push_back ("base o2o2o2 two");
 
+    object3 o3;
+    o3.comp_.bools.push_back (false);
+    o3.comp_.bools.push_back (false);
+    o3.comp_.num = 13;
+    o3.comp_.str = "comp o3o3o3";
+    o3.comp_.nums.push_back (131);
+    o3.comp_.nums.push_back (132);
+    o3.num_ = 3;
+    o3.str_ = "base o3o3o3";
+    o3.strs_.push_back ("base o3o3o3 one");
+    o3.strs_.push_back ("base o3o3o3 two");
+
     reference r;
     r.o1_ = &o1;
+
+    empty e;
+    e.comp_.bools.push_back (true);
+    e.comp_.bools.push_back (true);
+    e.comp_.num = 14;
+    e.comp_.str = "comp eee";
+    e.comp_.nums.push_back (141);
+    e.comp_.nums.push_back (142);
+    e.num_ = 4;
+    e.str_ = "base eee";
+    e.strs_.push_back ("base eee one");
+    e.strs_.push_back ("base eee two");
 
     // persist
     //
@@ -74,7 +98,9 @@ main (int argc, char* argv[])
       db->persist (b);
       db->persist (o1);
       db->persist (o2);
+      db->persist (o3);
       db->persist (r);
+      db->persist (e);
       t.commit ();
     }
 
@@ -85,13 +111,17 @@ main (int argc, char* argv[])
       auto_ptr<base> lb (db->load<base> (b.id_));
       auto_ptr<object1> lo1 (db->load<object1> (o1.id_));
       auto_ptr<object2> lo2 (db->load<object2> (o2.id_));
+      auto_ptr<object3> lo3 (db->load<object3> (o3.id_));
+      auto_ptr<empty> le (db->load<empty> (e.id_));
       auto_ptr<reference> lr (db->load<reference> (r.id_));
       t.commit ();
 
       assert (b == *lb);
       assert (o1 == *lo1);
       assert (o2 == *lo2);
+      assert (o3 == *lo3);
       assert (lr->o1_->id_ == r.o1_->id_);
+      assert (e == *le);
 
       delete lr->o1_;
     }
