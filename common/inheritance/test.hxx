@@ -12,7 +12,19 @@
 #include <odb/core.hxx>
 
 #pragma db value
-struct comp
+struct comp_base
+{
+  std::vector<unsigned char> bools;
+
+  bool
+  operator== (const comp_base& y) const
+  {
+    return bools == y.bools;
+  }
+};
+
+#pragma db value
+struct comp: comp_base
 {
   unsigned int num;
   std::string str;
@@ -22,7 +34,11 @@ struct comp
   bool
   operator== (const comp& y) const
   {
-    return num == y.num && str == y.str && nums == y.nums;
+    return
+      static_cast<const comp_base&> (*this) == y &&
+      num == y.num &&
+      str == y.str &&
+      nums == y.nums;
   }
 };
 

@@ -29,6 +29,7 @@ main (int argc, char* argv[])
     auto_ptr<database> db (create_database (argc, argv));
 
     base b;
+    b.comp_.bools.push_back (true);
     b.comp_.num = 10;
     b.comp_.str = "comp bbb";
     b.comp_.nums.push_back (101);
@@ -39,6 +40,7 @@ main (int argc, char* argv[])
     b.strs_.push_back ("bbb two");
 
     object1 o1;
+    o1.comp_.bools.push_back (false);
     o1.comp_.num = 11;
     o1.comp_.str = "comp o1o1o1";
     o1.comp_.nums.push_back (111);
@@ -50,6 +52,8 @@ main (int argc, char* argv[])
     o1.strs_.push_back ("base o1o1o1 two");
 
     object2 o2;
+    o2.comp_.bools.push_back (true);
+    o2.comp_.bools.push_back (false);
     o2.comp_.num = 12;
     o2.comp_.str = "comp o2o2o2";
     o2.comp_.nums.push_back (121);
