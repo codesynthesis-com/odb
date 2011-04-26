@@ -18,9 +18,8 @@ namespace odb
   namespace mysql
   {
     template <>
-    class default_value_traits<QDate, id_date>
+    struct default_value_traits<QDate, id_date>
     {
-    public:
       typedef QDate value_type;
       typedef QDate query_type;
       typedef MYSQL_TIME image_type;
@@ -58,7 +57,7 @@ namespace odb
     };
 
     template <>
-    class default_type_traits<QDate>
+    struct default_type_traits<QDate>
     {
       static const database_type_id db_type_id = id_date;
     };

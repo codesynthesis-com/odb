@@ -21,9 +21,8 @@ namespace odb
   namespace sqlite
   {
     template <>
-    class default_value_traits<QByteArray, id_blob>
+    struct default_value_traits<QByteArray, id_blob>
     {
-    public:
       typedef QByteArray value_type;
       typedef QByteArray query_type;
       typedef details::buffer image_type;
@@ -62,7 +61,7 @@ namespace odb
     };
 
     template <>
-    class default_type_traits<QByteArray>
+    struct default_type_traits<QByteArray>
     {
       static const database_type_id db_type_id = id_blob;
     };
