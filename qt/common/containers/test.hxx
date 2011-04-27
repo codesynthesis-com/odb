@@ -6,15 +6,15 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <QString>
-#include <QVector>
-#include <QList>
-#include <QLinkedList>
-#include <QSet>
-#include <QMap>
-#include <QMultiMap>
-#include <QHash>
-#include <QMultiHash>
+#include <QtCore/QString>
+#include <QtCore/QVector>
+#include <QtCore/QList>
+#include <QtCore/QLinkedList>
+#include <QtCore/QSet>
+#include <QtCore/QMap>
+#include <QtCore/QMultiMap>
+#include <QtCore/QHash>
+#include <QtCore/QMultiHash>
 
 #include <odb/core.hxx>
 

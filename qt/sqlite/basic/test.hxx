@@ -6,8 +6,8 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <QString>
-#include <QByteArray>
+#include <QtCore/QString>
+#include <QtCore/QByteArray>
 
 #pragma db object
 struct object

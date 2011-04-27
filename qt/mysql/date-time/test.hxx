@@ -8,7 +8,7 @@
 
 #include <vector>
 
-#include <QDateTime>
+#include <QtCore/QDateTime>
 
 #include <odb/core.hxx>
 

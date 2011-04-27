@@ -10,7 +10,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <QSharedPointer>
+#include <QtCore/QSharedPointer>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>

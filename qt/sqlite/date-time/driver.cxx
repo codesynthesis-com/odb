@@ -10,7 +10,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <QDateTime>
+#include <QtCore/QDateTime>
 
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>

@@ -10,7 +10,7 @@
 #include <cassert>
 #include <iostream>
 
-#include <QDateTime>
+#include <QtCore/QDateTime>
 
 #include <odb/mysql/database.hxx>
 #include <odb/mysql/transaction.hxx>
