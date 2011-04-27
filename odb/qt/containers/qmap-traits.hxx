@@ -8,8 +8,8 @@
 
 #include <odb/pre.hxx>
 
-#include <QMap>
-#include <QMultiMap>
+#include <QtCore/QMap>
+#include <QtCore/QMultiMap>
 
 #include <odb/container-traits.hxx>
 

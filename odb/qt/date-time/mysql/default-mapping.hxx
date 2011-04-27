@@ -6,9 +6,9 @@
 #ifndef ODB_QT_DATE_TIME_MYSQL_DEFAULT_MAPPING_HXX
 #define ODB_QT_DATE_TIME_MYSQL_DEFAULT_MAPPING_HXX
 
-#include <QDate>
-#include <QTime>
-#include <QDateTime>
+#include <QtCore/QDate>
+#include <QtCore/QTime>
+#include <QtCore/QDateTime>
 
 // Map QDate to MySQL DATE by default. QDate provides a null
 // representation so allow NULL values by default.

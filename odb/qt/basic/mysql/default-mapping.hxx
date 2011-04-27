@@ -6,8 +6,8 @@
 #ifndef ODB_QT_BASIC_MYSQL_DEFAULT_MAPPING_HXX
 #define ODB_QT_BASIC_MYSQL_DEFAULT_MAPPING_HXX
 
-#include <QString>
-#include <QByteArray>
+#include <QtCore/QString>
+#include <QtCore/QByteArray>
 
 // By default, map QString to MySQL TEXT for non-id and to VARCHAR(256) for
 // id members. MySQL cannot have primary keys of the TEXT type.

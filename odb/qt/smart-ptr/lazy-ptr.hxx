@@ -8,9 +8,9 @@
 
 #include <odb/pre.hxx>
 
-#include <QSharedPointer>
-#include <QWeakPointer>
-#include <QGlobalStatic>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QWeakPointer>
+#include <QtCore/QGlobalStatic>
 
 #include <odb/forward.hxx> // odb::database
 #include <odb/traits.hxx>

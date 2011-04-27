@@ -12,7 +12,7 @@
 #include <cstddef>  // std::size_t
 #include <cstring>  // std::memcpy
 
-#include <QDate>
+#include <QtCore/QDate>
 
 #include <odb/details/buffer.hxx>
 #include <odb/sqlite/traits.hxx>

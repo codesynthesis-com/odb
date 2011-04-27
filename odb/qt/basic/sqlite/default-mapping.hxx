@@ -6,8 +6,8 @@
 #ifndef ODB_QT_BASIC_SQLITE_DEFAULT_MAPPING_HXX
 #define ODB_QT_BASIC_SQLITE_DEFAULT_MAPPING_HXX
 
-#include <QString>
-#include <QByteArray>
+#include <QtCore/QString>
+#include <QtCore/QByteArray>
 
 // Map QString to SQLite TEXT by default. Allow NULL values by default as
 // QString provides a null representation.

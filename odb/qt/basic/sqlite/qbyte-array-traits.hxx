@@ -11,7 +11,7 @@
 #include <cstring> // std::memcpy
 #include <cstddef> // std::size_t
 
-#include <QByteArray>
+#include <QtCore/QByteArray>
 
 #include <odb/details/buffer.hxx>
 #include <odb/sqlite/traits.hxx>

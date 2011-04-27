@@ -8,8 +8,8 @@
 
 #include <odb/pre.hxx>
 
-#include <QSharedPointer>
-#include <QWeakPointer>
+#include <QtCore/QSharedPointer>
+#include <QtCore/QWeakPointer>
 
 #include <odb/pointer-traits.hxx>
 

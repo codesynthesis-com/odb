@@ -8,7 +8,7 @@
 
 #include <odb/pre.hxx>
 
-#include <QSet>
+#include <QtCore/QSet>
 
 #include <odb/container-traits.hxx>
 

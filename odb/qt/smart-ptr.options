@@ -7,7 +7,7 @@
 
 # Make QSharedPointer the default object pointer.
 #
---hxx-prologue '#include <QSharedPointer>'
+--hxx-prologue '#include <QtCore/QSharedPointer>'
 --default-pointer QSharedPointer
 
 # Include pointer traits.

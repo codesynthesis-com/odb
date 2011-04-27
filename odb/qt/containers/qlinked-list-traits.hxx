@@ -8,7 +8,7 @@
 
 #include <odb/pre.hxx>
 
-#include <QLinkedList>
+#include <QtCore/QLinkedList>
 
 #include <odb/container-traits.hxx>
 

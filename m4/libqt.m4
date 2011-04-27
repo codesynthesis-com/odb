@@ -20,7 +20,7 @@ AC_MSG_CHECKING([for QtCore])
 CXX_LIBTOOL_LINK_IFELSE(
 AC_LANG_SOURCE([[
 #include <string>
-#include <QString>
+#include <QtCore/QString>
 
 int
 main ()
@@ -44,7 +44,7 @@ if test x"$libqt_found" = xno; then
   CXX_LIBTOOL_LINK_IFELSE(
 AC_LANG_SOURCE([[
 #include <string>
-#include <QString>
+#include <QtCore/QString>
 
 int
 main ()
@@ -63,6 +63,39 @@ libqt_found=yes
   fi
 fi
 
+# Try framework in case we are on Mac OS X.
+#
+if test x"$libqt_found" = xno; then
+
+  save_CPPFLAGS="$CPPFLAGS"
+  save_LIBS="$LIBS"
+
+  CPPFLAGS="$CPPFLAGS -framework QtCore"
+  LIBS="-framework QtCore $LIBS"
+
+  CXX_LIBTOOL_LINK_IFELSE(
+AC_LANG_SOURCE([[
+#include <string>
+#include <QtCore/QString>
+
+int
+main ()
+{
+  QString qs ("test");
+  std::string ss (qs.toStdString ());
+  return ss.size () != 0;
+}
+]]),
+[
+libqt_found=yes
+])
+
+  if test x"$libqt_found" = xno; then
+    CPPFLAGS="$save_CPPFLAGS"
+    LIBS="$save_LIBS"
+  fi
+fi
+
 # If QtCore is not found, try its versioned variant, QtCore4.
 #
 if test x"$libqt_found" = xno; then
@@ -73,7 +106,7 @@ if test x"$libqt_found" = xno; then
   CXX_LIBTOOL_LINK_IFELSE(
 AC_LANG_SOURCE([[
 #include <string>
-#include <QString>
+#include <QtCore/QString>
 
 int
 main ()
@@ -111,7 +144,7 @@ if test x"$libqt_found" = xno; then
       CXX_LIBTOOL_LINK_IFELSE(
 AC_LANG_SOURCE([[
 #include <string>
-#include <QString>
+#include <QtCore/QString>
 
 int
 main ()

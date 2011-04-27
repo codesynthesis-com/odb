@@ -8,7 +8,7 @@
 
 #include <odb/pre.hxx>
 
-#include <QDateTime>
+#include <QtCore/QDateTime>
 
 #include <odb/mysql/traits.hxx>
 

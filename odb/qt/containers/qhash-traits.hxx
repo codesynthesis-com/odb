@@ -8,8 +8,8 @@
 
 #include <odb/pre.hxx>
 
-#include <QHash>
-#include <QMultiHash>
+#include <QtCore/QHash>
+#include <QtCore/QMultiHash>
 
 #include <odb/container-traits.hxx>
 

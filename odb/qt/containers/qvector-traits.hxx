@@ -8,7 +8,7 @@
 
 #include <odb/pre.hxx>
 
-#include <QVector>
+#include <QtCore/QVector>
 
 #include <odb/container-traits.hxx>
 
