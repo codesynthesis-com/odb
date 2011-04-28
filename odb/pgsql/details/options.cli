@@ -1,0 +1,54 @@
+// file      : odb/pgsql/details/options.cli
+// author    : Constantin Michael <constantin@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+include <string>;
+
+namespace odb
+{
+  namespace pgsql
+  {
+    namespace details
+    {
+      class options
+      {
+        std::string --user
+        {
+          "<name>",
+          "PostgreSQL database user."
+        };
+
+        std::string --password
+        {
+          "<str>",
+          "PostgreSQL database password"
+        };
+
+        std::string --dbname
+        {
+          "<name>",
+          "PostgreSQL database name."
+        };
+
+        std::string --host
+        {
+          "<addr>",
+          "Name of the PostgreSQL host to connect to (localhost by default)."
+        };
+
+        std::string --hostaddr
+        {
+          "<addr>",
+          "Numeric IP address of host to connect to in dotted-decimal format."
+        };
+
+        unsigned int --port = 0
+        {
+          "<integer>",
+          "PostgreSQL database port number."
+        };
+      };
+    }
+  }
+}
