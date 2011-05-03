@@ -1,12 +1,14 @@
 # file      : odb/pgsql/makefile
 # author    : Boris Kolpackov <boris@codesynthesis.com>
+# author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-cxx :=                   \
-dummy.cxx
+cxx :=                  \
+database.cxx		\
+exceptions.cxx
 
 cli_tun := details/options.cli
 cxx_tun := $(cxx)
@@ -28,7 +30,7 @@ $(call import,\
 
 $(call import,\
   $(scf_root)/import/libodb/stub.make,\
-  l: odb.l,cpp-options:	 odb.l.cpp-options)
+  l: odb.l,cpp-options: odb.l.cpp-options)
 
 $(call import,\
   $(scf_root)/import/libpq/stub.make,\

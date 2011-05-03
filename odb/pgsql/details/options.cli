@@ -13,7 +13,7 @@ namespace odb
     {
       class options
       {
-        std::string --user
+        std::string --user | --username
         {
           "<name>",
           "PostgreSQL database user."
@@ -22,10 +22,10 @@ namespace odb
         std::string --password
         {
           "<str>",
-          "PostgreSQL database password"
+          "PostgreSQL database password."
         };
 
-        std::string --dbname
+        std::string --database | --dbname
         {
           "<name>",
           "PostgreSQL database name."
@@ -33,21 +33,24 @@ namespace odb
 
         std::string --host
         {
-          "<addr>",
-          "Name of the PostgreSQL host to connect to (localhost by default)."
+          "<str>",
+	  "PostgreSQL database host name or address (localhost by default)."
         };
 
-        std::string --hostaddr
+        std::string --port
         {
-          "<addr>",
-          "Numeric IP address of host to connect to in dotted-decimal format."
+          "<str>",
+          "PostgreSQL database port number or socket file name extension for
+           Unix-domain connections."
         };
 
-        unsigned int --port = 0
-        {
-          "<integer>",
-          "PostgreSQL database port number."
-        };
+	std::string --options-file
+	{
+	  "<file>"
+          "Read additional options from <file>. Each option appearing on a
+           separate line optionally followed by space and an option value.
+           Empty lines and lines starting with \cb{#} are ignored."
+	};
       };
     }
   }
