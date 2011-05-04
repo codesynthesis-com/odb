@@ -16,6 +16,11 @@ ifeq ($(db_id),sqlite)
 dirs += sqlite
 endif
 
+ifeq ($(db_id),pgsql)
+alldirs := pgsql
+dirs := pgsql
+endif
+
 default := $(out_base)/
 dist    := $(out_base)/.dist
 test    := $(out_base)/.test

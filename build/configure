@@ -24,9 +24,10 @@ $echo "Please select the database you would like to use:"
 $echo
 $echo "(1) MySQL"
 $echo "(2) SQLite"
+$echo "(3) PostgresSQL"
 $echo
 
-db_id=`read_option "mysql sqlite"`
+db_id=`read_option "mysql sqlite pgsql"`
 
 echo "db_id := $db_id" >$1
 

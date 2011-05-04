@@ -1,0 +1,88 @@
+# file      : pgsql/template/makefile
+# author    : Constantin Michael <constantin@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
+
+cxx_tun := driver.cxx
+cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o))
+cxx_od  := $(cxx_obj:.o=.o.d)
+
+driver  := $(out_base)/driver
+dist    := $(out_base)/.dist
+test    := $(out_base)/.test
+clean   := $(out_base)/.clean
+
+# Import.
+#
+$(call import,\
+  $(scf_root)/import/odb/stub.make,\
+  odb: odb,odb-rules: odb_rules)
+
+# Build.
+#
+$(driver): $(cxx_obj)
+$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
+$(cxx_obj) $(cxx_od):
+
+$(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
+
+# Alias for default target.
+#
+$(out_base)/: $(driver)
+
+# Dist
+#
+$(dist): sources := $(cxx_tun)
+$(dist): headers := $(odb_hdr)
+$(dist): data_dist := test.std
+$(dist): export name := $(subst /,-,$(subst $(src_root)/pgsql/,,$(src_base)))
+$(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
+$(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters
+$(dist):
+	$(call dist-data,$(sources) $(headers) $(data_dist))
+	$(call meta-automake,../template/Makefile.am)
+	$(call meta-vc9proj,../template/template-vc9.vcproj,$(name)-vc9.vcproj)
+	$(call meta-vc10proj,../template/template-vc10.vcxproj,$(name)-vc10.vcxproj)
+
+# Test.
+#
+$(test): $(driver) $(src_base)/test.std
+	$(call schema)
+	$(call message,test $<,$< --options-file $(dcf_root)/db.options \
+>$(out_base)/test.out)
+	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)
+	$(call message,,rm -f $(out_base)/test.out)
+
+# Clean.
+#
+$(clean):                            \
+  $(driver).o.clean                  \
+  $(addsuffix .cxx.clean,$(cxx_obj)) \
+  $(addsuffix .cxx.clean,$(cxx_od))  \
+  $(addprefix $(out_base)/,$(odb_hdr:.hxx=-odb.cxx.hxx.clean))
+	$(call message,,rm -f $(out_base)/test.out)
+
+# Generated .gitignore.
+#
+ifeq ($(out_base),$(src_base))
+$(driver): | $(out_base)/.gitignore
+
+$(out_base)/.gitignore: files := driver $(genf)
+$(clean): $(out_base)/.gitignore.clean
+
+$(call include,$(bld_root)/git/gitignore.make)
+endif
+
+# How to.
+#
+$(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc9proj.make)
+$(call include,$(bld_root)/meta/vc10proj.make)
+$(call include,$(bld_root)/meta/automake.make)
+
+$(call include,$(odb_rules))
+$(call include,$(bld_root)/cxx/cxx-d.make)
+$(call include,$(bld_root)/cxx/cxx-o.make)
+$(call include,$(bld_root)/cxx/o-e.make)
