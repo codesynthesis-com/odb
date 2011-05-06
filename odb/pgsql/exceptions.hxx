@@ -20,6 +20,36 @@ namespace odb
 {
   namespace pgsql
   {
+    struct LIBODB_PGSQL_EXPORT database_exception: odb::database_exception
+    {
+      database_exception (const std::string& message);
+
+      database_exception (const std::string& sqlstate,
+                          const std::string& message);
+
+      ~database_exception () throw ();
+
+      const std::string&
+      message () const
+      {
+        return message_;
+      }
+
+      const std::string&
+      sqlstate () const
+      {
+        return sqlstate_;
+      }
+
+      virtual const char*
+      what () const throw ();
+
+    private:
+      std::string sqlstate_;
+      std::string message_;
+      std::string what_;
+    };
+
     struct LIBODB_PGSQL_EXPORT cli_exception: odb::exception
     {
       cli_exception (const std::string& what);

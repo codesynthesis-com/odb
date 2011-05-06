@@ -8,7 +8,8 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 cxx :=                  \
 database.cxx		\
-exceptions.cxx
+error.cxx		\
+exceptions.cxx		
 
 cli_tun := details/options.cli
 cxx_tun := $(cxx)
