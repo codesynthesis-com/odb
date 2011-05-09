@@ -7,6 +7,8 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 cxx :=                  \
+connection.cxx		\
+connection-factory.cxx	\
 database.cxx		\
 error.cxx		\
 exceptions.cxx		

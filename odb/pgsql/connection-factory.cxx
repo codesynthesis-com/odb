@@ -1,0 +1,163 @@
+// file      : odb/pgsql/connection-factory.cxx
+// author    : Constantin Michael <constantin@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+#include <odb/pgsql/connection-factory.hxx>
+#include <odb/pgsql/exceptions.hxx>
+
+#include <odb/details/lock.hxx>
+
+using namespace std;
+
+namespace odb
+{
+  using namespace details;
+
+  namespace pgsql
+  {
+    //
+    // connection_factory
+    //
+
+    connection_factory::
+    ~connection_factory ()
+    {
+    }
+
+    //
+    // new_connection_factory
+    //
+
+    shared_ptr<connection> new_connection_factory::
+    connect ()
+    {
+      return shared_ptr<connection> (new (shared) connection (*db_));
+    }
+
+    void new_connection_factory::
+    database (database_type& db)
+    {
+      db_ = &db;
+    }
+
+    //
+    // connection_pool_factory
+    //
+
+    connection_pool_factory::
+    ~connection_pool_factory ()
+    {
+      // Wait for all the connections currently in use to return to
+      // the pool.
+      //
+      lock l (mutex_);
+      while (in_use_ != 0)
+      {
+        waiters_++;
+        cond_.wait ();
+        waiters_--;
+      }
+    }
+
+    shared_ptr<connection> connection_pool_factory::
+    connect ()
+    {
+      lock l (mutex_);
+
+      while (true)
+      {
+        // See if we have a spare connection.
+        //
+        if (connections_.size () != 0)
+        {
+          shared_ptr<pooled_connection> c (connections_.back ());
+          connections_.pop_back ();
+
+          c->pool_ = this;
+          in_use_++;
+          return c;
+        }
+
+        // See if we can create a new one.
+        //
+        if (max_ == 0 || in_use_ < max_)
+        {
+          shared_ptr<pooled_connection> c (
+            new (shared) pooled_connection (*db_, this));
+          in_use_++;
+          return c;
+        }
+
+        // Wait until someone releases a connection.
+        //
+        waiters_++;
+        cond_.wait ();
+        waiters_--;
+      }
+    }
+
+    void connection_pool_factory::
+    database (database_type& db)
+    {
+      db_ = &db;
+
+      if (min_ > 0)
+      {
+        connections_.reserve (min_);
+
+        for (size_t i (0); i < min_; ++i)
+        {
+          connections_.push_back (
+            shared_ptr<pooled_connection> (
+              new (shared) pooled_connection (*db_, 0)));
+        }
+      }
+    }
+
+    bool connection_pool_factory::
+    release (pooled_connection* c)
+    {
+      c->pool_ = 0;
+
+      lock l (mutex_);
+
+      // Determine if we need to keep or free this connection.
+      //
+      bool keep (waiters_ != 0 ||
+                 min_ == 0 ||
+                 (connections_.size () + in_use_ <= min_));
+
+      in_use_--;
+
+      if (keep)
+        connections_.push_back (
+          shared_ptr<pooled_connection> (inc_ref (c)));
+
+      if (waiters_ != 0)
+        cond_.signal ();
+
+      return !keep;
+    }
+
+    //
+    // connection_pool_factory::pooled_connection
+    //
+
+    connection_pool_factory::pooled_connection::
+    pooled_connection (database_type& db, connection_pool_factory* pool)
+        : connection (db), pool_ (pool)
+    {
+      callback_.arg = this;
+      callback_.zero_counter = &zero_counter;
+      shared_base::callback_ = &callback_;
+    }
+
+    bool connection_pool_factory::pooled_connection::
+    zero_counter (void* arg)
+    {
+      pooled_connection* c (static_cast<pooled_connection*> (arg));
+      return c->pool_ ? c->pool_->release (c) : true;
+    }
+  }
+}

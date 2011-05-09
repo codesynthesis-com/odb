@@ -47,8 +47,8 @@ namespace odb
     //
 
     cli_exception::
-    cli_exception (const string& w)
-        : what_ (w)
+    cli_exception (const string& what)
+        : what_ (what)
     {
     }
 
