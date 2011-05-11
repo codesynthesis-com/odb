@@ -11,7 +11,9 @@ connection.cxx		\
 connection-factory.cxx	\
 database.cxx		\
 error.cxx		\
-exceptions.cxx		
+exceptions.cxx		\
+transaction.cxx		\
+transaction-impl.cxx
 
 cli_tun := details/options.cli
 cxx_tun := $(cxx)
