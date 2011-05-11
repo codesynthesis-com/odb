@@ -14,9 +14,13 @@
 
 #include <odb/database.hxx>
 
+#include <odb/details/shared-ptr.hxx>
+
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
+#include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/connection-factory.hxx>
+#include <odb/pgsql/transaction-impl.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -86,10 +90,8 @@ namespace odb
       // execute (const char* statement, std::size_t length);
 
     public:
-      // @@ Implement on completion of supporting code.
-      //
-      // virtual transaction_impl*
-      // begin ();
+      virtual transaction_impl*
+      begin ();
 
     public:
       details::shared_ptr<connection_type>

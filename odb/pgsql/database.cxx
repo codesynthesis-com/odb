@@ -8,6 +8,7 @@
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/exceptions.hxx>
 #include <odb/pgsql/connection-factory.hxx>
+#include <odb/pgsql/transaction.hxx>
 
 #include <odb/pgsql/details/options.hxx>
 
@@ -214,11 +215,13 @@ namespace odb
     // {
     // }
 
-    // @@ Implement on completion of supporting code.
-    //
-    // transaction_impl* database::
-    // begin ()
-    // {
-    // }
+    transaction_impl* database::
+    begin ()
+    {
+      if (transaction::has_current ())
+        throw already_in_transaction ();
+
+      return new transaction_impl (*this);
+    }
   }
 }
