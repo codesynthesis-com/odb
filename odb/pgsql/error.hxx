@@ -21,10 +21,20 @@ namespace odb
     class connection;
 
     LIBODB_PGSQL_EXPORT void
-    translate_error (connection&);
+    translate_connection_error (connection&);
 
+    // Translate an error condition involving a PGresult*. If r is null, it is
+    // assumed that the error was caused due to a bad connection or a memory
+    // allocation error. All remaining parameters except c are ignored.  If r
+    // is non-null, the error is translated using the provided result status,
+    // s. Error descriptions are obtained using r. If clear_result is true,
+    // the resources associated with r are released via PQclear().
+    //
     LIBODB_PGSQL_EXPORT void
-    translate_error (connection& c, PGresult* r);
+    translate_result_error (connection& c,
+                            PGresult* r = 0,
+                            ExecStatusType s = PGRES_EMPTY_QUERY,
+                            bool clear_result = true);
   }
 }
 
