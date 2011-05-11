@@ -23,6 +23,13 @@ namespace odb
     LIBODB_PGSQL_EXPORT void
     translate_connection_error (connection&);
 
+    // Return true if the PGresult is in an error state. If both s and r are
+    // non-null, the pointed to value will be populated with the result status.
+    // Otherwise, s is ignored.
+    //
+    LIBODB_PGSQL_EXPORT bool
+    is_good_result (PGresult* r, ExecStatusType* s = 0);
+
     // Translate an error condition involving a PGresult*. If r is null, it is
     // assumed that the error was caused due to a bad connection or a memory
     // allocation error. All remaining parameters except c are ignored.  If r

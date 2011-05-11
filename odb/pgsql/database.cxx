@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include <odb/pgsql/database.hxx>
+#include <odb/pgsql/error.hxx>
 #include <odb/pgsql/exceptions.hxx>
 #include <odb/pgsql/connection-factory.hxx>
 #include <odb/pgsql/transaction.hxx>
@@ -208,12 +209,33 @@ namespace odb
     {
     }
 
-    // @@ Implement on completion of supporting code.
-    //
-    // unsigned long long database::
-    // execute (const char* s, std::size_t n)
-    // {
-    // }
+    unsigned long long database::
+    execute (const char* s, std::size_t)
+    {
+      if (!transaction::has_current ())
+        throw not_in_transaction ();
+
+      connection_type& c (transaction::current ().connection ());
+
+      PGresult* r = PQexec (c.handle (), s);
+
+      ExecStatusType status;
+      unsigned long long count (0);
+
+      if (!r)
+        translate_result_error (c);
+      else if (!is_good_result (r, &status))
+        translate_result_error (c, r, status);
+      else if (status == PGRES_TUPLES_OK)
+         count = static_cast<unsigned long long> (PQntuples (r));
+      else
+      {
+        istringstream ss (PQcmdTuples (r));
+        ss >> count;
+      }
+
+      return count;
+    }
 
     transaction_impl* database::
     begin ()

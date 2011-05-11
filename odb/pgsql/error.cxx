@@ -74,6 +74,25 @@ namespace odb
       };
     }
 
+    bool
+    is_good_result (PGresult* r, ExecStatusType* s)
+    {
+      if (r != 0)
+      {
+        ExecStatusType status (PQresultStatus (r));
+
+        if (s != 0)
+          *s = status;
+
+        return
+          *s != PGRES_BAD_RESPONSE &&
+          *s != PGRES_NONFATAL_ERROR &&
+          *s != PGRES_FATAL_ERROR;
+      }
+
+      return false;
+    }
+
     void
     translate_result_error (connection& c,
                             PGresult* r,
@@ -84,8 +103,8 @@ namespace odb
         translate_result_error_ (c);
       else
       {
-        const char* ss = PQresultErrorField (r, PG_DIAG_SQLSTATE);
-        const char* m = PQresultErrorMessage (r);
+        const char* ss (PQresultErrorField (r, PG_DIAG_SQLSTATE));
+        const char* m (PQresultErrorMessage (r));
 
         if (clear_result)
           PQclear (r);

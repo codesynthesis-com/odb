@@ -83,11 +83,9 @@ namespace odb
       print_usage (std::ostream&);
 
     public:
-      // @@ Implement on completion of supporting code.
-      //
-      // using odb::database::execute;
-      // virtual unsigned long long
-      // execute (const char* statement, std::size_t length);
+      using odb::database::execute;
+      virtual unsigned long long
+      execute (const char* statement, std::size_t length);
 
     public:
       virtual transaction_impl*
