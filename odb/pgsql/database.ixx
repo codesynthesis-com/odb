@@ -7,12 +7,10 @@ namespace odb
 {
   namespace pgsql
   {
-    // @@ Implement on completion of supporting code.
-    //
-    // inline details::shared_ptr<database::connection_type> database::
-    // connection ()
-    // {
-    //   return factory_->connect ();
-    // }
+    inline details::shared_ptr<database::connection_type> database::
+    connection ()
+    {
+      return factory_->connect ();
+    }
   }
 }

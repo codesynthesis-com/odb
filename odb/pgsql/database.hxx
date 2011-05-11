@@ -16,6 +16,7 @@
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
+#include <odb/pgsql/connection-factory.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -25,6 +26,9 @@ namespace odb
   {
     class LIBODB_PGSQL_EXPORT database: public odb::database
     {
+    public:
+      typedef pgsql::connection connection_type;
+
     public:
       database (const std::string& db,
                 const std::string& user,
@@ -88,10 +92,8 @@ namespace odb
       // begin ();
 
     public:
-      // @@ Implement on completion of supporting code.
-      //
-      // details::shared_ptr<connection_type>
-      // connection ();
+      details::shared_ptr<connection_type>
+      connection ();
 
     public:
       virtual

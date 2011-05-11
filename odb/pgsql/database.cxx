@@ -7,6 +7,7 @@
 
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/exceptions.hxx>
+#include <odb/pgsql/connection-factory.hxx>
 
 #include <odb/pgsql/details/options.hxx>
 
@@ -57,12 +58,10 @@ namespace odb
 
       conninfo_ = ss.str ();
 
-      // @@ Uncomment once factory has been implemented.
-      //
-      // if (factory_.get () == 0)
-      //   factory_.reset (new connection_pool_factory ());
+      if (factory_.get () == 0)
+        factory_.reset (new connection_pool_factory ());
 
-      // factory_->database (*this);
+      factory_->database (*this);
     }
 
     database::
@@ -107,12 +106,10 @@ namespace odb
 
       conninfo_ = ss.str ();
 
-      // @@ Uncomment once factory has been implemented.
-      //
-      // if (factory_.get () == 0)
-      //   factory_.reset (new connection_pool_factory ());
+      if (factory_.get () == 0)
+        factory_.reset (new connection_pool_factory ());
 
-      // factory_->database (*this);
+      factory_->database (*this);
     }
 
     database::
@@ -120,12 +117,10 @@ namespace odb
               auto_ptr<connection_factory> factory)
         : port_ (0), conninfo_ (conninfo), factory_ (factory)
     {
-      // @@ Uncomment once factory has been implemented.
-      //
-      // if (factory_.get () == 0)
-      //   factory_.reset (new connection_pool_factory ());
+      if (factory_.get () == 0)
+        factory_.reset (new connection_pool_factory ());
 
-      // factory_->database (*this);
+      factory_->database (*this);
     }
 
     database::
@@ -195,12 +190,10 @@ namespace odb
         throw cli_exception (oss.str ());
       }
 
-      // @@ Uncomment once factory has been implemented.
-      //
-      // if (factory_.get () == 0)
-      //   factory_.reset (new connection_pool_factory ());
+      if (factory_.get () == 0)
+        factory_.reset (new connection_pool_factory ());
 
-      // factory_->database (*this);
+      factory_->database (*this);
     }
 
     void database::
