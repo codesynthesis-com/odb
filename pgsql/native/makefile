@@ -9,6 +9,9 @@ cxx_tun := driver.cxx
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
+common.l  	     := $(out_root)/libcommon/common/common.l
+common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
+
 driver  := $(out_base)/driver
 dist    := $(out_base)/.dist
 test    := $(out_base)/.test
@@ -22,9 +25,9 @@ $(call import,\
 
 # Build.
 #
-$(driver): $(cxx_obj) $(odb_pgsql.l)
+$(driver): $(cxx_obj) $(odb_pgsql.l) $(common.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
-$(cxx_obj) $(cxx_od): $(odb_pgsql.l.cpp-options)
+$(cxx_obj) $(cxx_od): $(odb_pgsql.l.cpp-options) $(common.l.cpp-options)
 
 $(call include-dep,$(cxx_od))
 
