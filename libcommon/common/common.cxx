@@ -18,6 +18,9 @@
 #  include <odb/schema-catalog.hxx>
 #  include <odb/sqlite/database.hxx>
 #  include <odb/sqlite/connection-factory.hxx>
+#elif defined(DATABASE_PGSQL)
+#  include <odb/pgsql/database.hxx>
+#  include <odb/pgsql/connection-factory.hxx>
 #else
 #  error unknown database
 #endif
@@ -31,6 +34,8 @@ using namespace odb::core;
 namespace mysql = odb::mysql;
 #elif defined(DATABASE_SQLITE)
 namespace sqlite = odb::sqlite;
+#elif defined(DATABASE_PGSQL)
+namespace pgsql = odb::pgsql;
 #endif
 
 auto_ptr<database>
@@ -52,6 +57,8 @@ create_database (int& argc,
     mysql::database::print_usage (cerr);
 #elif defined(DATABASE_SQLITE)
     sqlite::database::print_usage (cerr);
+#elif defined(DATABASE_PGSQL)
+    pgsql::database::print_usage (cerr);
 #endif
 
     exit (0);
@@ -84,6 +91,13 @@ create_database (int& argc,
     schema_catalog::create_schema (*db);
     t.commit ();
   }
+#elif defined(DATABASE_PGSQL)
+  auto_ptr<pgsql::connection_factory> f;
+
+  if (max_connections != 0)
+    f.reset (new pgsql::connection_pool_factory (max_connections));
+
+  db.reset (new pgsql::database (argc, argv, false, "", f));
 #endif
 
   return db;
