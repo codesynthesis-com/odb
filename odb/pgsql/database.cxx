@@ -4,12 +4,14 @@
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #include <sstream>
+#include <cstdlib> // std::atol
 
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/error.hxx>
 #include <odb/pgsql/exceptions.hxx>
 #include <odb/pgsql/connection-factory.hxx>
 #include <odb/pgsql/transaction.hxx>
+#include <odb/pgsql/result-ptr.hxx>
 
 #include <odb/pgsql/details/options.hxx>
 
@@ -217,21 +219,23 @@ namespace odb
 
       connection_type& c (transaction::current ().connection ());
 
-      PGresult* r = PQexec (c.handle (), s);
+      result_ptr r (PQexec (c.handle (), s));
+      PGresult* h (r.get ());
 
-      ExecStatusType status;
       unsigned long long count (0);
 
-      if (!r)
-        translate_result_error (c);
-      else if (!is_good_result (r, &status))
-        translate_result_error (c, r, status);
-      else if (status == PGRES_TUPLES_OK)
-         count = static_cast<unsigned long long> (PQntuples (r));
+      if (!is_good_result (h))
+        translate_error (c, h);
+      else if (PGRES_TUPLES_OK == PQresultStatus (h))
+        count = static_cast<unsigned long long> (PQntuples (h));
       else
       {
-        istringstream ss (PQcmdTuples (r));
-        ss >> count;
+        const char* s (PQcmdTuples (h));
+
+        if (s[0] != '\0' && s[1] == '\0')
+          count = static_cast<unsigned long long> (s[0] - '0');
+        else
+          count = static_cast<unsigned long long> (atol (s));
       }
 
       return count;

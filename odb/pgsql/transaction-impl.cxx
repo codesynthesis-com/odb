@@ -12,6 +12,7 @@
 #include <odb/pgsql/error.hxx>
 #include <odb/pgsql/exceptions.hxx>
 #include <odb/pgsql/transaction-impl.hxx>
+#include <odb/pgsql/result-ptr.hxx>
 
 namespace odb
 {
@@ -21,15 +22,11 @@ namespace odb
     transaction_impl (database_type& db)
         : odb::transaction_impl (db), connection_ (db.connection ())
     {
-      PGresult* r (PQexec (connection_->handle (), "begin"));
+      result_ptr r (PQexec (connection_->handle (), "begin"));
+      PGresult* h (r.get ());
 
-      if (!r)
-        translate_result_error (*connection_);
-
-      ExecStatusType s (PQresultStatus (r));
-
-      if (PGRES_COMMAND_OK != s)
-        translate_result_error (*connection_, r, s);
+      if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
+        translate_error (*connection_, h);
     }
 
     transaction_impl::
@@ -40,41 +37,21 @@ namespace odb
     void transaction_impl::
     commit ()
     {
-      // connection_->clear ();
+      result_ptr r (PQexec (connection_->handle (), "commit"));
+      PGresult* h (r.get ());
 
-      PGresult* r (PQexec (connection_->handle (), "commit"));
-
-      if (!r)
-        translate_result_error (*connection_);
-
-      ExecStatusType s (PQresultStatus (r));
-
-      if (PGRES_COMMAND_OK != s)
-        translate_result_error (*connection_, r, s);
-
-      // Release the connection.
-      //
-      // connection_.reset ();
+      if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
+        translate_error (*connection_, h);
     }
 
     void transaction_impl::
     rollback ()
     {
-      // connection_->clear ();
+      result_ptr r (PQexec (connection_->handle (), "rollback"));
+      PGresult* h (r.get ());
 
-      PGresult* r (PQexec (connection_->handle (), "rollback"));
-
-      if (!r)
-        translate_result_error (*connection_);
-
-      ExecStatusType s (PQresultStatus (r));
-
-      if (PGRES_COMMAND_OK != s)
-        translate_result_error (*connection_, r, s);
-
-      // Release the connection.
-      //
-      //connection_.reset ();
+      if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
+        translate_error (*connection_, h);
     }
   }
 }

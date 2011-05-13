@@ -17,7 +17,7 @@ namespace odb
   namespace pgsql
   {
     void
-    translate_connection_error (connection& c)
+    translate_error (connection& c)
     {
       PGconn* h (c.handle ());
 
@@ -30,14 +30,20 @@ namespace odb
     }
 
     void
-    translate_result_error_ (connection& c,
-                             ExecStatusType status = PGRES_EMPTY_QUERY,
-                             const char* sqlstate = 0,
-                             const char* error_message = 0)
+    translate_error (connection& c,
+                     PGresult* r)
     {
-      PGconn* h (c.handle ());
+      if (!r)
+      {
+        if (CONNECTION_BAD == PQstatus (c.handle ()))
+          throw connection_lost ();
+        else
+          throw bad_alloc ();
+      }
 
-      switch (status)
+      const char* error_message (PQresultErrorMessage (r));
+
+      switch (PQresultStatus (r))
       {
       case PGRES_BAD_RESPONSE:
         {
@@ -49,67 +55,25 @@ namespace odb
 
       case PGRES_FATAL_ERROR:
         {
-          assert (sqlstate);
+          const char* ss (PQresultErrorField (r, PG_DIAG_SQLSTATE));
+
+          assert (ss);
           assert (error_message);
 
           // Deadlock detected.
           //
-          if (std::string ("40P01") == sqlstate)
+          if (std::string ("40P01") == ss)
             throw deadlock ();
 
-          else if (CONNECTION_BAD == PQstatus (h))
+          else if (CONNECTION_BAD == PQstatus (c.handle ()))
             throw connection_lost ();
 
           else
-            throw database_exception (sqlstate, error_message);
+            throw database_exception (ss, error_message);
         }
-
       default:
-        {
-          if (CONNECTION_BAD == PQstatus (h))
-            throw connection_lost ();
-          else
-            throw bad_alloc ();
-        }
-      };
-    }
-
-    bool
-    is_good_result (PGresult* r, ExecStatusType* s)
-    {
-      if (r != 0)
-      {
-        ExecStatusType status (PQresultStatus (r));
-
-        if (s != 0)
-          *s = status;
-
-        return
-          *s != PGRES_BAD_RESPONSE &&
-          *s != PGRES_NONFATAL_ERROR &&
-          *s != PGRES_FATAL_ERROR;
-      }
-
-      return false;
-    }
-
-    void
-    translate_result_error (connection& c,
-                            PGresult* r,
-                            ExecStatusType s,
-                            bool clear_result)
-    {
-      if (!r)
-        translate_result_error_ (c);
-      else
-      {
-        const char* ss (PQresultErrorField (r, PG_DIAG_SQLSTATE));
-        const char* m (PQresultErrorMessage (r));
-
-        if (clear_result)
-          PQclear (r);
-
-        translate_result_error_ (c, s, ss, m);
+        assert (0);
+        break;
       }
     }
   }
