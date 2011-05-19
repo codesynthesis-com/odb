@@ -79,6 +79,35 @@ namespace odb
       Oid oid_;
     };
 
+    class LIBODB_PGSQL_EXPORT update_statement: public statement
+    {
+    public:
+      virtual
+      ~update_statement ();
+
+      // Asssumes that cond.values, cond.lengths, and cond.formats are
+      // suffixes of data.values, data.lengths, and data.formats
+      // respectively.
+      //
+      update_statement (connection& conn,
+                        const std::string& name,
+                        const std::string& stmt,
+                        const Oid* types,
+                        std::size_t n,
+                        native_binding& cond,
+                        native_binding& data);
+      void
+      execute ();
+
+    private:
+      update_statement (const update_statement&);
+      update_statement& operator= (const update_statement&);
+
+    private:
+      native_binding& cond_;
+      native_binding& data_;
+    };
+
     class LIBODB_PGSQL_EXPORT delete_statement: public statement
     {
     public:

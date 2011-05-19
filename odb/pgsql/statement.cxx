@@ -128,6 +128,50 @@ namespace odb
       return static_cast<unsigned long long> (oid_);
     }
 
+    //
+    // update_statement
+    //
+
+    update_statement::
+    ~update_statement ()
+    {
+    }
+
+    update_statement::
+    update_statement (connection& conn,
+                      const string& name,
+                      const string& stmt,
+                      const Oid* types,
+                      size_t n,
+                      native_binding& cond,
+                      native_binding& data)
+        : statement (conn, name, stmt, types, n),
+          cond_ (cond),
+          data_ (data)
+    {
+    }
+
+    void update_statement::
+    execute ()
+    {
+      result_ptr r (PQexecPrepared (conn_.handle (),
+                                    name_.c_str (),
+                                    cond_.count,
+                                    cond_.values,
+                                    cond_.lengths,
+                                    cond_.formats,
+                                    1));
+
+      PGresult* h (r.get ());
+
+      if (!is_good_result (h))
+        translate_error (conn_, h);
+
+      const char* s (PQcmdTuples (h));
+
+      if (s[0] == '0')
+        throw object_not_persistent ();
+    }
 
     //
     // delete_statement
