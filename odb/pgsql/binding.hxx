@@ -27,13 +27,14 @@ namespace odb
                       const int* l,
                       const int* f,
                       std::size_t n)
-        : values (v), lengths (l), formats (f), count (n)
+        : values (v), lengths (l), formats (f), version (0), count (n)
       {
       }
 
       const char* const* values;
       const int* lengths;
       const int* formats;
+      std::size_t version;
       std::size_t count;
 
     private:
