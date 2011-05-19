@@ -37,15 +37,11 @@ namespace odb
                  const std::string& name,
                  const std::string& stmt,
                  const Oid* types,
-                 std::size_t n);
+                 std::size_t types_count);
 
     protected:
       connection& conn_;
       std::string name_;
-
-    private:
-      void
-      release ();
     };
 
     class LIBODB_PGSQL_EXPORT insert_statement: public statement
@@ -58,7 +54,7 @@ namespace odb
                         const std::string& name,
                         const std::string& stmt,
                         const Oid* types,
-                        std::size_t n,
+                        std::size_t types_count,
                         native_binding& data);
 
       // Return true if successful and false if the row is a duplicate.
@@ -93,7 +89,7 @@ namespace odb
                         const std::string& name,
                         const std::string& stmt,
                         const Oid* types,
-                        std::size_t n,
+                        std::size_t types_count,
                         native_binding& cond,
                         native_binding& data);
       void
@@ -118,7 +114,7 @@ namespace odb
                         const std::string& name,
                         const std::string& stmt,
                         const Oid* types,
-                        std::size_t n,
+                        std::size_t types_count,
                         native_binding& cond);
 
       unsigned long long

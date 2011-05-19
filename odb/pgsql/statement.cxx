@@ -6,6 +6,8 @@
 #include <cstdlib> // std::atol
 #include <cassert>
 
+#include <odb/exceptions.hxx> // object_not_persistent
+
 #include <odb/pgsql/statement.hxx>
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/transaction.hxx>
@@ -27,7 +29,9 @@ namespace odb
     {
       try
       {
-        release ();
+        string s ("deallocate ");
+        s += name_;
+        PQexec (conn_.handle (), s.c_str ());
       }
       catch (...)
       {
@@ -39,32 +43,18 @@ namespace odb
                const string& name,
                const string& stmt,
                const Oid* types,
-               size_t n)
+               size_t types_count)
         : conn_ (conn),
           name_ (name)
     {
       result_ptr r (PQprepare (conn_.handle (),
                                name_.c_str (),
                                stmt.c_str (),
-                               n,
+                               static_cast<int> (types_count),
                                types));
 
       if (!is_good_result (r.get ()))
         translate_error (conn_, r.get ());
-    }
-
-    void statement::
-    release ()
-    {
-      if (!name_.empty ())
-      {
-        string s ("deallocate ");
-        s += name_;
-
-        transaction t (conn_.database ().begin ());
-        conn_.database ().execute (s.c_str ());
-        t.commit ();
-      }
     }
 
     //
@@ -81,9 +71,9 @@ namespace odb
                       const string& name,
                       const string& stmt,
                       const Oid* types,
-                      size_t n,
+                      size_t types_count,
                       native_binding& data)
-        : statement (conn, name, stmt, types, n),
+        : statement (conn, name, stmt, types, types_count),
           data_ (data)
     {
     }
@@ -142,10 +132,10 @@ namespace odb
                       const string& name,
                       const string& stmt,
                       const Oid* types,
-                      size_t n,
+                      size_t types_count,
                       native_binding& cond,
                       native_binding& data)
-        : statement (conn, name, stmt, types, n),
+        : statement (conn, name, stmt, types, types_count),
           cond_ (cond),
           data_ (data)
     {
@@ -167,9 +157,10 @@ namespace odb
       if (!is_good_result (h))
         translate_error (conn_, h);
 
-      const char* s (PQcmdTuples (h));
-
-      if (s[0] == '0')
+      // PQcmdTuples returns a string representing the number of matching
+      // rows found. "0" indicates no match.
+      //
+      if (PQcmdTuples (h)[0] == '0')
         throw object_not_persistent ();
     }
 
@@ -187,9 +178,9 @@ namespace odb
                       const string& name,
                       const string& stmt,
                       const Oid* types,
-                      size_t n,
+                      size_t types_count,
                       native_binding& cond)
-        : statement (conn, name, stmt, types, n),
+        : statement (conn, name, stmt, types, types_count),
           cond_ (cond)
     {
     }
@@ -209,7 +200,7 @@ namespace odb
       if (!is_good_result (h))
         translate_error (conn_, h);
 
-      const char* s = PQcmdTuples (h);
+      const char* s (PQcmdTuples (h));
       unsigned long long count;
 
       if (s[0] != '\0' && s[1] == '\0')
