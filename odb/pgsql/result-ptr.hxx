@@ -21,22 +21,35 @@ namespace odb
     class LIBODB_PGSQL_EXPORT result_ptr
     {
     public:
-      result_ptr (PGresult* r)
+      result_ptr (PGresult* r = 0)
           : r_ (r)
       {
       }
 
       ~result_ptr ()
       {
-        if (r_)
+        if (r_ != 0)
           PQclear (r_);
       }
 
       PGresult*
-      get ()
+      get () const
       {
         return r_;
       }
+
+      void
+      reset (PGresult* r = 0)
+      {
+        if (r_ != 0)
+          PQclear (r_);
+
+        r_ = r;
+      }
+
+    private:
+      result_ptr (const result_ptr&);
+      result_ptr& operator= (const result_ptr&);
 
     private:
       PGresult* r_;
