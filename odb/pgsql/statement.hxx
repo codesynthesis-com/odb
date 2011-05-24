@@ -17,6 +17,7 @@
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
+#include <odb/pgsql/result-ptr.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -32,6 +33,12 @@ namespace odb
       virtual
       ~statement () = 0;
 
+      // @@ Check section 30.5 of manual for description of
+      // how to cancel queries in progress.
+      //
+      // virtual void
+      // cancel ();
+
     protected:
       statement (connection&,
                  const std::string& name,
@@ -40,8 +47,85 @@ namespace odb
                  std::size_t types_count);
 
     protected:
+      // Adapt an ODB binding to a native PostgreSQL parameter binding.
+      //
+      static void
+      bind_param (native_binding&,
+                  const bind*,
+                  std::size_t count);
+
+      // Populate an ODB binding given a PostgreSQL result. If the truncated
+      // argument is true, then only truncated columns are extracted. Return
+      // true if all the data was extracted successfully and false if one or
+      // more columns were truncated.
+      //
+      static bool
+      bind_result (bind*,
+                   std::size_t count,
+                   PGresult*,
+                   std::size_t row,
+                   bool truncated = false);
+
+    protected:
       connection& conn_;
       std::string name_;
+    };
+
+    class LIBODB_PGSQL_EXPORT select_statement: public statement
+    {
+    public:
+      virtual
+      ~select_statement ();
+
+      select_statement (connection& conn,
+                        const std::string& name,
+                        const std::string& stmt,
+                        const Oid* types,
+                        std::size_t types_count,
+                        binding& cond,
+                        native_binding& native_cond,
+                        binding& data);
+
+      // Common select interface expected by the generated code.
+      //
+    public:
+      enum result
+      {
+        success,
+        no_data,
+        truncated
+      };
+
+      void
+      execute ();
+
+      // Load next row columns into bound buffers.
+      //
+      result
+      fetch ();
+
+      // Reload truncated columns into bound buffers.
+      //
+      void
+      refetch ();
+
+      // Free the result set.
+      //
+      void
+      free_result ();
+
+    private:
+      select_statement (const select_statement&);
+      select_statement& operator= (const select_statement&);
+
+    private:
+      binding& cond_;
+      native_binding& native_cond_;
+
+      binding& data_;
+
+      result_ptr result_;
+      std::size_t current_row_;
     };
 
     class LIBODB_PGSQL_EXPORT insert_statement: public statement
@@ -55,7 +139,8 @@ namespace odb
                         const std::string& stmt,
                         const Oid* types,
                         std::size_t types_count,
-                        native_binding& data);
+                        binding& data,
+                        native_binding& native_data);
 
       // Return true if successful and false if the row is a duplicate.
       // All other errors are reported by throwing exceptions.
@@ -71,7 +156,9 @@ namespace odb
       insert_statement& operator= (const insert_statement&);
 
     private:
-      native_binding& data_;
+      binding& data_;
+      native_binding& native_data_;
+
       Oid oid_;
     };
 
@@ -90,8 +177,11 @@ namespace odb
                         const std::string& stmt,
                         const Oid* types,
                         std::size_t types_count,
-                        native_binding& cond,
-                        native_binding& data);
+                        binding& cond,
+                        native_binding& native_cond,
+                        binding& data,
+                        native_binding& native_data);
+
       void
       execute ();
 
@@ -100,8 +190,11 @@ namespace odb
       update_statement& operator= (const update_statement&);
 
     private:
-      native_binding& cond_;
-      native_binding& data_;
+      binding& cond_;
+      native_binding& native_cond_;
+
+      binding& data_;
+      native_binding& native_data_;
     };
 
     class LIBODB_PGSQL_EXPORT delete_statement: public statement
@@ -115,7 +208,8 @@ namespace odb
                         const std::string& stmt,
                         const Oid* types,
                         std::size_t types_count,
-                        native_binding& cond);
+                        binding& cond,
+                        native_binding& native_cond);
 
       unsigned long long
       execute ();
@@ -125,7 +219,8 @@ namespace odb
       delete_statement& operator= (const delete_statement&);
 
     private:
-      native_binding& cond_;
+      binding& cond_;
+      native_binding& native_cond_;
     };
   }
 }
