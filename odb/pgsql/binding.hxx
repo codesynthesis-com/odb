@@ -23,19 +23,19 @@ namespace odb
     {
     public:
 
-      native_binding (const char* const* v,
-                      const int* l,
-                      const int* f,
+      native_binding (char** v,
+                      int* l,
+                      int* f,
                       std::size_t n)
-        : values (v), lengths (l), formats (f), version (0), count (n)
+        : values (v), lengths (l), formats (f), count (n), version (0)
       {
       }
 
-      const char* const* values;
-      const int* lengths;
-      const int* formats;
-      std::size_t version;
+      char** values;
+      int* lengths;
+      int* formats;
       std::size_t count;
+      std::size_t version;
 
     private:
       native_binding (const native_binding&);
