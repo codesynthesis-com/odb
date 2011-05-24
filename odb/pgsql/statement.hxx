@@ -149,7 +149,10 @@ namespace odb
       execute ();
 
       unsigned long long
-      id ();
+      id ()
+      {
+        return id_;
+      }
 
     private:
       insert_statement (const insert_statement&);
@@ -159,7 +162,7 @@ namespace odb
       binding& data_;
       native_binding& native_data_;
 
-      Oid oid_;
+      unsigned long long id_;
     };
 
     class LIBODB_PGSQL_EXPORT update_statement: public statement

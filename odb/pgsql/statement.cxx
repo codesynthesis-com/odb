@@ -342,18 +342,24 @@ namespace odb
         translate_error (conn_, h1);
       }
 
-      oid_ = PQoidValue (h);
+      result_ptr r2 (PQexec (conn_.handle (), "select lastval ()"));
+      PGresult* h2 (r2.get ());
+
+      if (!is_good_result (h2))
+        translate_error (conn_, h2);
+
+      const char* s (PQgetvalue (h2, 0, 0));
+
+      // @@ Check types for bigserial.
+      //
+      if (s[0] != '\0' && s[1] == '\0')
+        id_ = static_cast<unsigned long long> (s[0] - '0');
+      else
+        id_ = static_cast<unsigned long long> (atol (s));
+
+      assert (id_ != 0);
 
       return true;
-    }
-
-    unsigned long long insert_statement::
-    id ()
-    {
-      // @@ Need to check what InvalidOid evaluates to.
-      // Is this function signature required?
-      //
-      return static_cast<unsigned long long> (oid_);
     }
 
     //
