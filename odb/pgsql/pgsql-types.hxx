@@ -23,7 +23,24 @@ namespace odb
     //
     struct bind
     {
-      Oid type;
+      // @@ Initial set of buffer types to support numeric,
+      // text, and binary data types.
+      enum buffer_type
+      {
+        smallint, // Buffer is short; size, capacity, truncated are unused.
+        integer,  // Buffer is int; size, capacity, truncated are unused.
+        bigint,   // Buffer is long long; size, capacity, truncated are unused.
+        real,     // Buffer is float; size, capacity, truncated are unused.
+        dbl,      // Buffer is double; size, capacity, truncated are unused.
+
+        // @@ Do we require different buffer types for each of these?
+        //
+        numeric,  // Buffer is a char array.
+        text,     // Buffer is a char array.
+        bytea     // Buffer is a char array.
+      };
+
+      buffer_type type;
       void* buffer;
       std::size_t* size;
       std::size_t capacity;
