@@ -5,6 +5,7 @@
 
 #include <cstdlib> // std::atol
 #include <cassert>
+#include <sstream> // istringstream
 
 #include <odb/exceptions.hxx> // object_not_persistent
 
@@ -57,32 +58,42 @@ namespace odb
     }
 
     void statement::
-    bind_param (native_binding& n, const bind* p, size_t c)
+    bind_param (native_binding& n, const binding& b)
     {
-      assert (n.count == c);
+      assert (n.count == b.count);
 
-      for (size_t i (0); i < c; ++i)
+      if (n.version != b.version)
       {
-        const bind& b (p[i]);
-
-        if (b.is_null != 0 && *b.is_null)
+        for (size_t i (0); i < n.count; ++i)
         {
-          n.values[i] = 0;
-          continue;
+          const bind& current_bind (b.bind[i]);
+
+          if (current_bind.is_null != 0 && *current_bind.is_null)
+          {
+            n.values[i] = 0;
+            continue;
+          }
+
+          n.values[i] = reinterpret_cast<char*> (current_bind.buffer);
+
+          // Use text format for numeric/decimal types and binary format
+          // for all others.
+          //
+          if (current_bind.type == bind::numeric)
+            n.formats[i] = 0;
+          else
+          {
+            n.formats[i] = 1;
+            n.lengths[i] = static_cast<int> (*current_bind.size);
+          }
         }
 
-        n.values[i] = reinterpret_cast<char*> (b.buffer);
-
-        // Use text format for numeric/decimal types and binary format
-        // for all others.
-        //
-        if (b.type == bind::numeric)
-          n.formats[i] = 0;
-        else
-        {
-          n.formats[i] = 1;
-          n.lengths[i] = static_cast<int> (*b.size);
-        }
+        n.version = b.version;
+      }
+      else
+      {
+        for (size_t i (0); i < n.count; ++i)
+          n.lengths[i] = static_cast<int> (*b.bind[i].size);
       }
     }
 
@@ -143,7 +154,7 @@ namespace odb
             buffer_len = 4;
             break;
           }
-        case bind::dbl:
+        case bind::double_:
           {
             buffer_len = 8;
             break;
@@ -208,18 +219,7 @@ namespace odb
     execute ()
     {
       result_.reset ();
-
-      if (cond_.version != native_cond_.version)
-      {
-        bind_param (native_cond_, cond_.bind, cond_.count);
-
-        native_cond_.version = cond_.version;
-      }
-      else
-      {
-        for (size_t i (0); i < cond_.count; ++i)
-          native_cond_.lengths[i] = static_cast<int> (*cond_.bind[i].size);
-      }
+      bind_param (native_cond_, cond_);
 
       result_.reset (PQexecPrepared (conn_.handle (),
                                      name_.c_str (),
@@ -307,17 +307,7 @@ namespace odb
     bool insert_statement::
     execute ()
     {
-      if (data_.version != native_data_.version)
-      {
-        bind_param (native_data_, data_.bind, data_.count);
-
-        native_data_.version = data_.version;
-      }
-      else
-      {
-        for (size_t i (0); i < data_.count; ++i)
-          native_data_.lengths[i] = static_cast<int> (*data_.bind[i].size);
-      }
+      bind_param (native_data_, data_);
 
       result_ptr r1 (PQexecPrepared (conn_.handle (),
                                      name_.c_str (),
@@ -350,12 +340,16 @@ namespace odb
 
       const char* s (PQgetvalue (h2, 0, 0));
 
-      // @@ Check types for bigserial.
-      //
       if (s[0] != '\0' && s[1] == '\0')
         id_ = static_cast<unsigned long long> (s[0] - '0');
       else
-        id_ = static_cast<unsigned long long> (atol (s));
+      {
+        // @@ Using stringstream conversion for now. See if we can optimize
+        // this (atoll possibly, even though it is not standard).
+        //
+        istringstream ss (s);
+        ss >> id_;
+      }
 
       assert (id_ != 0);
 
@@ -392,23 +386,12 @@ namespace odb
     void update_statement::
     execute ()
     {
-      if (cond_.version != native_cond_.version ||
-          data_.version != native_data_.version)
-      {
-        // We assume that cond_.bind is a suffix of data_.bind.
-        //
-        bind_param (native_data_, data_.bind, data_.count);
-
-        native_cond_.version = cond_.version;
-        native_data_.version = data_.version;
-      }
-      else
-      {
-        // We assume that cond_.bind is a suffix of data_.bind.
-        //
-        for (size_t i (0); i < data_.count; ++i)
-          native_data_.lengths[i] = static_cast<int> (*data_.bind[i].size);
-      }
+      // We assume that the values, lengths, and formats members of
+      // native_cond_ are suffixes of the corresponding members of
+      // native_data_.
+      //
+      bind_param (native_data_, data_);
+      bind_param (native_cond_, cond_);
 
       result_ptr r (PQexecPrepared (conn_.handle (),
                                     name_.c_str (),
@@ -456,17 +439,7 @@ namespace odb
     unsigned long long delete_statement::
     execute ()
     {
-      if (cond_.version != native_cond_.version)
-      {
-        bind_param (native_cond_, cond_.bind, cond_.count);
-
-        native_cond_.version = cond_.version;
-      }
-      else
-      {
-        for (size_t i (0); i < cond_.count; ++i)
-          native_cond_.lengths[i] = static_cast<int> (*cond_.bind[i].size);
-      }
+      bind_param (native_cond_, cond_);
 
       result_ptr r (PQexecPrepared (conn_.handle (),
                                     name_.c_str (),
@@ -486,7 +459,13 @@ namespace odb
       if (s[0] != '\0' && s[1] == '\0')
         count = static_cast<unsigned long long> (s[0] - '0');
       else
-        count = static_cast<unsigned long long> (atol (s));
+      {
+        // @@ Using stringstream conversion for now. See if we can optimize
+        // this (atoll possibly, even though it is not standard).
+        //
+        istringstream ss (s);
+        ss >> count;
+      }
 
       return count;
     }

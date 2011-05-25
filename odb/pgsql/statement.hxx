@@ -51,8 +51,7 @@ namespace odb
       //
       static void
       bind_param (native_binding&,
-                  const bind*,
-                  std::size_t count);
+                  const binding&);
 
       // Populate an ODB binding given a PostgreSQL result. If the truncated
       // argument is true, then only truncated columns are extracted. Return
