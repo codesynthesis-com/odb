@@ -13,6 +13,7 @@
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/transaction.hxx>
 #include <odb/pgsql/error.hxx>
+#include <odb/pgsql/endian-traits.hxx>
 
 using namespace std;
 
@@ -128,35 +129,46 @@ namespace odb
             continue;
         }
 
-        // @@ Revise this.
-        //
-        size_t buffer_len;
-
         switch (b.type)
         {
         case bind::smallint:
           {
-            buffer_len = 2;
+            *static_cast<short*> (b.buffer) = endian_traits::ntoh (
+              *reinterpret_cast<short*> (
+                PQgetvalue (result, static_cast<int> (row), i)));
+
             break;
           }
         case bind::integer:
           {
-            buffer_len = 4;
+            *static_cast<int*> (b.buffer) = endian_traits::ntoh (
+              *reinterpret_cast<int*> (
+                PQgetvalue (result, static_cast<int> (row), i)));
+
             break;
           }
         case bind::bigint:
           {
-            buffer_len = 8;
+            *static_cast<long long*> (b.buffer) =
+              endian_traits::ntoh (*reinterpret_cast<long long*> (
+                  PQgetvalue (result, static_cast<int> (row), i)));
+
             break;
           }
         case bind::real:
           {
-            buffer_len = 4;
+            *static_cast<float*> (b.buffer) = endian_traits::ntoh (
+              *reinterpret_cast<float*> (
+                PQgetvalue (result, static_cast<int> (row), i)));
+
             break;
           }
         case bind::double_:
           {
-            buffer_len = 8;
+            *static_cast<double*> (b.buffer) = endian_traits::ntoh (
+              *reinterpret_cast<double*> (
+                PQgetvalue (result, static_cast<int> (row), i)));
+
             break;
           }
         case bind::numeric:
@@ -164,10 +176,8 @@ namespace odb
         case bind::bytea:
         default:
           {
-            buffer_len = static_cast<size_t> (
+            *b.size = static_cast<size_t> (
               PQgetlength (result, static_cast<int> (row), i));
-
-            *b.size = buffer_len;
 
              if (b.capacity < *b.size)
              {
@@ -178,13 +188,13 @@ namespace odb
                continue;
              }
 
+             memcpy (b.buffer,
+                     PQgetvalue (result, static_cast<int> (row), i),
+                     *b.size);
+
              break;
           }
         };
-
-        memcpy (b.buffer,
-                PQgetvalue (result, static_cast<int> (row), i),
-                buffer_len);
       }
 
       return r;
