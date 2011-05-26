@@ -9,21 +9,24 @@ namespace odb
 {
   namespace pgsql
   {
-    namespace
+    namespace details
     {
-      endian_traits::endian
-      infer_host_endian ()
+      namespace
       {
-        short s (1);
-        char* c (reinterpret_cast<char*> (&s));
+        endian_traits::endian
+        infer_host_endian ()
+        {
+          short s (1);
+          char* c (reinterpret_cast<char*> (&s));
 
-        return *c == 0 ?
-          endian_traits::big_endian :
-          endian_traits::little_endian;
+          return *c == 0 ?
+            endian_traits::big :
+            endian_traits::little;
+        }
       }
-    }
 
-    const endian_traits::endian endian_traits::host_endian (
-      infer_host_endian ());
+      const endian_traits::endian endian_traits::host_endian (
+        infer_host_endian ());
+    }
   }
 }
