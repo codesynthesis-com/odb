@@ -21,10 +21,18 @@ namespace odb
         : object_statements_base (conn),
           container_statement_cache_ (conn),
           in_image_binding_ (in_image_bind_, object_traits::in_column_count),
-          in_image_native_binding_ (in_image_values_, in_image_lengths_, in_image_formats_, object_traits::in_column_count)
-          out_image_binding_ (out_image_bind_, object_traits::out_column_count),
-          id_image_binding_ (in_image_bind_ + object_traits::in_column_count, 1),
-          id_image_native_binding_ (in_image_values_ + object_traits::in_column_count, in_image_lengths_ + object_traits::in_column_count, in_image_formats_ + object_traits::in_column_count, 1)
+          in_image_native_binding_ (in_image_values_,
+                                    in_image_lengths_,
+                                    in_image_formats_,
+                                    object_traits::in_column_count)
+          out_image_binding_ (out_image_bind_,
+                              object_traits::out_column_count),
+          id_image_binding_ (in_image_bind_ + object_traits::in_column_count,
+                             1),
+          id_image_native_binding_ (
+            in_image_values_ + object_traits::in_column_count,
+            in_image_lengths_ + object_traits::in_column_count,
+            in_image_formats_ + object_traits::in_column_count, 1)
     {
       image_.version = 0;
       in_image_version_ = 0;
