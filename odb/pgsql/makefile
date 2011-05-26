@@ -10,6 +10,7 @@ cxx :=                  \
 connection.cxx		\
 connection-factory.cxx	\
 database.cxx		\
+endian-traits.cxx	\
 error.cxx		\
 exceptions.cxx		\
 statement.cxx		\
