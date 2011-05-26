@@ -10,10 +10,6 @@
 
 #include <cstddef>  // std::size_t
 
-#include <libpq-fe.h> // Oid
-
-#include <odb/pgsql/pgsql-oid.hxx>
-
 namespace odb
 {
   namespace pgsql
