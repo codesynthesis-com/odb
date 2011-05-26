@@ -124,6 +124,7 @@ namespace odb
       binding& data_;
 
       result_ptr result_;
+      std::size_t row_count_;
       std::size_t current_row_;
     };
 

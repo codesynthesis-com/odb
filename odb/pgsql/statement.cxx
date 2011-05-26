@@ -21,6 +21,8 @@ namespace odb
 {
   namespace pgsql
   {
+    using namespace details;
+
     //
     // statement
     //
@@ -63,38 +65,28 @@ namespace odb
     {
       assert (n.count == b.count);
 
-      if (n.version != b.version)
+      for (size_t i (0); i < n.count; ++i)
       {
-        for (size_t i (0); i < n.count; ++i)
+        const bind& current_bind (b.bind[i]);
+
+        if (current_bind.is_null != 0 && *current_bind.is_null)
         {
-          const bind& current_bind (b.bind[i]);
-
-          if (current_bind.is_null != 0 && *current_bind.is_null)
-          {
-            n.values[i] = 0;
-            continue;
-          }
-
-          n.values[i] = reinterpret_cast<char*> (current_bind.buffer);
-
-          // Use text format for numeric/decimal types and binary format
-          // for all others.
-          //
-          if (current_bind.type == bind::numeric)
-            n.formats[i] = 0;
-          else
-          {
-            n.formats[i] = 1;
-            n.lengths[i] = static_cast<int> (*current_bind.size);
-          }
+          n.values[i] = 0;
+          continue;
         }
 
-        n.version = b.version;
-      }
-      else
-      {
-        for (size_t i (0); i < n.count; ++i)
-          n.lengths[i] = static_cast<int> (*b.bind[i].size);
+        n.values[i] = reinterpret_cast<char*> (current_bind.buffer);
+
+        // Use text format for numeric/decimal types and binary format
+        // for all others.
+        //
+        if (current_bind.type == bind::numeric)
+          n.formats[i] = 0;
+        else
+        {
+          n.formats[i] = 1;
+          n.lengths[i] = static_cast<int> (*current_bind.size);
+        }
       }
     }
 
@@ -129,45 +121,42 @@ namespace odb
             continue;
         }
 
+        const char* s (PQgetvalue (result, static_cast<int> (row), i));
+
         switch (b.type)
         {
         case bind::smallint:
           {
             *static_cast<short*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<short*> (
-                PQgetvalue (result, static_cast<int> (row), i)));
+              *reinterpret_cast<const short*> (s));
 
             break;
           }
         case bind::integer:
           {
             *static_cast<int*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<int*> (
-                PQgetvalue (result, static_cast<int> (row), i)));
+              *reinterpret_cast<const int*> (s));
 
             break;
           }
         case bind::bigint:
           {
             *static_cast<long long*> (b.buffer) =
-              endian_traits::ntoh (*reinterpret_cast<long long*> (
-                  PQgetvalue (result, static_cast<int> (row), i)));
+              endian_traits::ntoh (*reinterpret_cast<const long long*> (s));
 
             break;
           }
         case bind::real:
           {
             *static_cast<float*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<float*> (
-                PQgetvalue (result, static_cast<int> (row), i)));
+              *reinterpret_cast<const float*> (s));
 
             break;
           }
         case bind::double_:
           {
             *static_cast<double*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<double*> (
-                PQgetvalue (result, static_cast<int> (row), i)));
+              *reinterpret_cast<const double*> (s));
 
             break;
           }
@@ -188,13 +177,11 @@ namespace odb
                continue;
              }
 
-             memcpy (b.buffer,
-                     PQgetvalue (result, static_cast<int> (row), i),
-                     *b.size);
+             memcpy (b.buffer, s, *b.size);
 
              break;
           }
-        };
+        }
       }
 
       return r;
@@ -221,7 +208,10 @@ namespace odb
         : statement (conn, name, stmt, types, types_count),
           cond_ (cond),
           native_cond_ (native_cond),
-          data_ (data)
+          data_ (data),
+          row_count_ (0),
+          current_row_ (0)
+
     {
     }
 
@@ -244,28 +234,21 @@ namespace odb
       if (!is_good_result (h))
         translate_error (conn_, h);
 
-      // Clear the result if it is empty so that fetch () and refetch ()
-      // behave correctly.
-      //
-      else if (PQntuples (h) <= 0)
-        result_.reset ();
-
+      row_count_ = static_cast<size_t> (PQntuples (h));
       current_row_ = 0;
     }
 
     select_statement::result select_statement::
     fetch ()
     {
-      PGresult* h (result_.get ());
-
-      if (h == 0)
+      if (current_row_ >= row_count_)
         return no_data;
+
+      PGresult* h (result_.get ());
 
       if (bind_result (data_.bind, data_.count, h, current_row_))
       {
-        if (PQntuples (h) <= static_cast<int> (++current_row_))
-          result_.reset ();
-
+        ++current_row_;
         return success;
       }
 
@@ -275,7 +258,7 @@ namespace odb
     void select_statement::
     refetch ()
     {
-      assert (result_.get () != 0);
+      assert (current_row_ < row_count_);
 
       if (!bind_result (data_.bind,
                         data_.count,
@@ -342,26 +325,16 @@ namespace odb
         translate_error (conn_, h1);
       }
 
-      result_ptr r2 (PQexec (conn_.handle (), "select lastval ()"));
+      result_ptr r2 (PQexecParams (conn_.handle (),
+                                   "select lastval ()",
+                                   0, 0, 0, 0, 0, 1));
       PGresult* h2 (r2.get ());
 
       if (!is_good_result (h2))
         translate_error (conn_, h2);
 
-      const char* s (PQgetvalue (h2, 0, 0));
-
-      if (s[0] != '\0' && s[1] == '\0')
-        id_ = static_cast<unsigned long long> (s[0] - '0');
-      else
-      {
-        // @@ Using stringstream conversion for now. See if we can optimize
-        // this (atoll possibly, even though it is not standard).
-        //
-        istringstream ss (s);
-        ss >> id_;
-      }
-
-      assert (id_ != 0);
+      id_ = endian_traits::ntoh (*reinterpret_cast<long long*> (
+                                   PQgetvalue (h2, 0, 0)));
 
       return true;
     }
@@ -405,7 +378,7 @@ namespace odb
 
       result_ptr r (PQexecPrepared (conn_.handle (),
                                     name_.c_str (),
-                                    native_data_.count,
+                                    native_data_.count + native_cond_.count,
                                     native_data_.values,
                                     native_data_.lengths,
                                     native_data_.formats,
