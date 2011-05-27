@@ -32,7 +32,7 @@ namespace odb
     class LIBODB_PGSQL_EXPORT connection: public details::shared_base
     {
     public:
-      // typedef pgsql::statement_cache statement_cache_type;
+      typedef pgsql::statement_cache statement_cache_type;
       typedef pgsql::database database_type;
 
       virtual
@@ -53,65 +53,22 @@ namespace odb
         return handle_;
       }
 
-      // statement_cache_type&
-      // statement_cache ()
-      // {
-      //   return *statement_cache_;
-      // }
-
-    public:
-      // statement*
-      // active ()
-      // {
-      //   return active_;
-      // }
-
-      // void
-      // active (statement* s)
-      // {
-      //   active_ = s;
-
-      //   if (s == 0 && stmt_handles_.size () > 0)
-      //     free_stmt_handles ();
-      // }
-
-      // // Cancel and clear the active statement, if any.
-      // //
-      // void
-      // clear ()
-      // {
-      //   if (active_ != 0)
-      //     clear_ ();
-      // }
-
-    public:
-      // MYSQL_STMT*
-      // alloc_stmt_handle ();
-
-      // void
-      // free_stmt_handle (MYSQL_STMT*);
+      statement_cache_type&
+      statement_cache ()
+      {
+        return *statement_cache_;
+      }
 
     private:
       connection (const connection&);
       connection& operator= (const connection&);
 
     private:
-      // void
-      // free_stmt_handles ();
-
-      // void
-      // clear_ ();
-
-    private:
       database_type& db_;
 
       PGconn* handle_;
 
-      // statement* active_;
-      // std::auto_ptr<statement_cache_type> statement_cache_;
-
-      // typedef std::vector<MYSQL_STMT*> stmt_handles;
-      // stmt_handles stmt_handles_;
+      std::auto_ptr<statement_cache_type> statement_cache_;
     };
   }
 }
