@@ -45,7 +45,7 @@ namespace odb
     statement (connection& conn,
                const string& name,
                const string& stmt,
-               const Oid* types,
+               const oid* types,
                size_t types_count)
         : conn_ (conn),
           name_ (name)
@@ -54,7 +54,7 @@ namespace odb
                                name_.c_str (),
                                stmt.c_str (),
                                static_cast<int> (types_count),
-                               types));
+                               reinterpret_cast<const Oid*> (types)));
 
       if (!is_good_result (r.get ()))
         translate_error (conn_, r.get ());
@@ -200,7 +200,7 @@ namespace odb
     select_statement (connection& conn,
                       const std::string& name,
                       const std::string& stmt,
-                      const Oid* types,
+                      const oid* types,
                       std::size_t types_count,
                       binding& cond,
                       native_binding& native_cond,
@@ -287,7 +287,7 @@ namespace odb
     insert_statement (connection& conn,
                       const string& name,
                       const string& stmt,
-                      const Oid* types,
+                      const oid* types,
                       size_t types_count,
                       binding& data,
                       native_binding& native_data)
@@ -352,7 +352,7 @@ namespace odb
     update_statement (connection& conn,
                       const string& name,
                       const string& stmt,
-                      const Oid* types,
+                      const oid* types,
                       size_t types_count,
                       binding& cond,
                       native_binding& native_cond,
@@ -409,7 +409,7 @@ namespace odb
     delete_statement (connection& conn,
                       const string& name,
                       const string& stmt,
-                      const Oid* types,
+                      const oid* types,
                       size_t types_count,
                       binding& cond,
                       native_binding& native_cond)

@@ -18,6 +18,7 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
 #include <odb/pgsql/result-ptr.hxx>
+#include <odb/pgsql/pgsql-oid.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -43,7 +44,7 @@ namespace odb
       statement (connection&,
                  const std::string& name,
                  const std::string& stmt,
-                 const Oid* types,
+                 const oid* types,
                  std::size_t types_count);
 
     protected:
@@ -79,7 +80,7 @@ namespace odb
       select_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
-                        const Oid* types,
+                        const oid* types,
                         std::size_t types_count,
                         binding& cond,
                         native_binding& native_cond,
@@ -137,7 +138,7 @@ namespace odb
       insert_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
-                        const Oid* types,
+                        const oid* types,
                         std::size_t types_count,
                         binding& data,
                         native_binding& native_data);
@@ -178,7 +179,7 @@ namespace odb
       update_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
-                        const Oid* types,
+                        const oid* types,
                         std::size_t types_count,
                         binding& cond,
                         native_binding& native_cond,
@@ -209,7 +210,7 @@ namespace odb
       delete_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
-                        const Oid* types,
+                        const oid* types,
                         std::size_t types_count,
                         binding& cond,
                         native_binding& native_cond);
