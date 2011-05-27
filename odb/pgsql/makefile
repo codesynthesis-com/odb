@@ -6,15 +6,16 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-cxx :=                  \
-connection.cxx		\
-connection-factory.cxx	\
-database.cxx		\
-endian-traits.cxx	\
-error.cxx		\
-exceptions.cxx		\
-statement.cxx		\
-transaction.cxx		\
+cxx :=                 \
+connection.cxx         \
+connection-factory.cxx \
+database.cxx           \
+endian-traits.cxx      \
+error.cxx              \
+exceptions.cxx         \
+object-statements.cxx  \
+statement.cxx          \
+transaction.cxx        \
 transaction-impl.cxx
 
 cli_tun := details/options.cli
