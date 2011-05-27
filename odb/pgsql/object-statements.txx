@@ -24,7 +24,7 @@ namespace odb
           in_image_native_binding_ (in_image_values_,
                                     in_image_lengths_,
                                     in_image_formats_,
-                                    object_traits::in_column_count)
+                                    object_traits::in_column_count),
           out_image_binding_ (out_image_bind_,
                               object_traits::out_column_count),
           id_image_binding_ (in_image_bind_ + object_traits::in_column_count,
@@ -44,9 +44,6 @@ namespace odb
       std::memset (in_image_bind_, 0, sizeof (in_image_bind_));
       std::memset (out_image_bind_, 0, sizeof (out_image_bind_));
       std::memset (out_image_truncated_, 0, sizeof (out_image_truncated_));
-
-      // @@ Is it necessary to zero native array contents?
-      //
 
       for (std::size_t i (0); i < object_traits::out_column_count; ++i)
         out_image_bind_[i].truncated = out_image_truncated_ + i;

@@ -1,4 +1,4 @@
-// file      : odb/sqlite/object-statements.hxx
+// file      : odb/pgsql/object-statements.hxx
 // author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
@@ -252,15 +252,15 @@ namespace odb
           persist_.reset (
             new (details::shared) persist_statement_type (
               conn_,
-              // @@ name,
+              object_traits::persist_statement_name,
               object_traits::persist_statement,
               object_traits::persist_statement_types,
               object_traits::persist_statement_count,
               in_image_binding_,
-              in_image_native_binding));
+              in_image_native_binding_));
+        }
 
-          persist_->cached (true);
-        }        return *persist_;
+        return *persist_;
       }
 
       find_statement_type&
@@ -271,15 +271,13 @@ namespace odb
           find_.reset (
             new (details::shared) find_statement_type (
               conn_,
-              // @@ name,
+              object_traits::find_statement_name,
               object_traits::find_statement,
               object_traits::find_statement_types,
               object_traits::find_statement_count,
               id_image_binding_,
               id_image_native_binding_,
               out_image_binding_));
-
-          find_->cached (true);
         }
 
         return *find_;
@@ -293,16 +291,14 @@ namespace odb
           update_.reset (
             new (details::shared) update_statement_type (
               conn_,
-              // @@ name,
+              object_traits::update_statement_name,
               object_traits::update_statement,
               object_traits::update_statement_types,
               object_traits::update_statement_count,
               id_image_binding_,
-              id_image_native_binding,
-              in_image_binding_
-              in_image_native_binding));
-
-          update_->cached (true);
+              id_image_native_binding_,
+              in_image_binding_,
+              in_image_native_binding_));
         }
 
         return *update_;
@@ -316,14 +312,12 @@ namespace odb
           erase_.reset (
             new (details::shared) erase_statement_type (
               conn_,
-              // @@ name,
+              object_traits::erase_statement_name,
               object_traits::erase_statement,
               object_traits::erase_statement_types,
               object_traits::erase_statment_count,
-              id_image_binding_
+              id_image_binding_,
               id_image_native_binding_));
-
-          erase_->cached (true);
         }
 
         return *erase_;
