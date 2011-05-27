@@ -3,7 +3,7 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// OIDs extracted from PostgreSQL 8.4.8 source, file:
+// Generated file of OIDs extracted from the PostgreSQL 8.4.8 source file
 // src/include/catalog/pg_type.h
 //
 
@@ -18,10 +18,9 @@ namespace odb
 {
   namespace pgsql
   {
+
     enum oid
     {
-      // OIDS 1 - 99
-      //
       bool_oid = 16,
       bytea_oid = 17,
       char_oid = 18,
@@ -38,33 +37,16 @@ namespace odb
       cid_oid = 29,
       oidvector_oid = 30,
 
-      // hand-built rowtype entries for bootstrapped catalogs:
-      //
       pg_type_oid = 71,
       pg_attribute_oid = 75,
       pg_proc_oid = 81,
       pg_class_oid = 83,
 
-      // OIDS 100 - 199
-      //
       xml_oid = 142,
       _xml_oid = 143,
 
-      // OIDS 200 - 299
-      //
       smgr_oid = 210,
 
-      // OIDS 300 - 399
-      //
-
-      // OIDS 400 - 499
-      //
-
-      // OIDS 500 - 599
-      //
-
-      // OIDS 600 - 699
-      //
       point_oid = 600,
       lseg_oid = 601,
       path_oid = 602,
@@ -73,8 +55,6 @@ namespace odb
       line_oid = 628,
       _line_oid = 629,
 
-      // OIDS 700 - 799
-      //
       float4_oid = 700,
       float8_oid = 701,
       abstime_oid = 702,
@@ -86,17 +66,10 @@ namespace odb
       money_oid = 790,
       _money_oid = 791,
 
-      // OIDS 800 - 899
-      //
       macaddr_oid = 829,
       inet_oid = 869,
       cidr_oid = 650,
 
-      // OIDS 900 - 999
-      //
-
-      // OIDS 1000 - 1099
-      //
       _bool_oid = 1000,
       _bytea_oid = 1001,
       _char_oid = 1002,
@@ -139,8 +112,6 @@ namespace odb
       date_oid = 1082,
       time_oid = 1083,
 
-      // OIDS 1100 - 1199
-      //
       timestamp_oid = 1114,
       _timestamp_oid = 1115,
       _date_oid = 1182,
@@ -150,29 +121,18 @@ namespace odb
       interval_oid = 1186,
       _interval_oid = 1187,
 
-      // OIDS 1200 - 1299
-      //
       _numeric_oid = 1231,
       timetz_oid = 1266,
       _timetz_oid = 1270,
 
-      // OIDS 1500 - 1599
-      //
       bit_oid = 1560,
       _bit_oid = 1561,
       varbit_oid = 1562,
       _varbit_oid = 1563,
 
-      // OIDS 1600 - 1699
-      //
-
-      // OIDS 1700 - 1799
-      //
       numeric_oid = 1700,
       refcursor_oid = 1790,
 
-      // OIDS 2200 - 2299
-      //
       _refcursor_oid = 2201,
       regprocedure_oid = 2202,
       regoper_oid = 2203,
@@ -185,14 +145,9 @@ namespace odb
       _regclass_oid = 2210,
       _regtype_oid = 2211,
 
-      // uuid
-      //
       uuid_oid = 2950,
       _uuid_oid = 2951,
 
-
-      // text search
-      //
       tsvector_oid = 3614,
       gtsvector_oid = 3642,
       tsquery_oid = 3615,
@@ -206,8 +161,6 @@ namespace odb
       txid_snapshot_oid = 2970,
       _txid_snapshot_oid = 2949,
 
-      // pseudo-types
-      //
       record_oid = 2249,
       _record_oid = 2287,
       cstring_oid = 2275,
