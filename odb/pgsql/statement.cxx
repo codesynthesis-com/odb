@@ -13,7 +13,7 @@
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/transaction.hxx>
 #include <odb/pgsql/error.hxx>
-#include <odb/pgsql/endian-traits.hxx>
+#include <odb/pgsql/details/endian-traits.hxx>
 
 using namespace std;
 

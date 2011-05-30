@@ -6,17 +6,17 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-cxx :=                 \
-connection.cxx         \
-connection-factory.cxx \
-database.cxx           \
-endian-traits.cxx      \
-error.cxx              \
-exceptions.cxx         \
-object-statements.cxx  \
-statement.cxx          \
-transaction.cxx        \
-transaction-impl.cxx
+cxx :=                    \
+connection.cxx            \
+connection-factory.cxx    \
+database.cxx              \
+error.cxx                 \
+exceptions.cxx            \
+object-statements.cxx     \
+statement.cxx             \
+transaction.cxx           \
+transaction-impl.cxx      \
+details/endian-traits.cxx \
 
 cli_tun := details/options.cli
 cxx_tun := $(cxx)

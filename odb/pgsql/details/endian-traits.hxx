@@ -1,10 +1,10 @@
-// file      : odb/pgsql/endian-traits.hxx
+// file      : odb/pgsql/details/endian-traits.hxx
 // author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#ifndef ODB_PGSQL_ENDIAN_TRAITS_HXX
-#define ODB_PGSQL_ENDIAN_TRAITS_HXX
+#ifndef ODB_PGSQL_DETAILS_ENDIAN_TRAITS_HXX
+#define ODB_PGSQL_DETAILS_ENDIAN_TRAITS_HXX
 
 #include <cstddef> // std::size_t
 #include <algorithm> // std::reverse
@@ -135,4 +135,4 @@ namespace odb
   }
 }
 
-#endif // ODB_PGSQL_ENDIAN_TRAITS_HXX
+#endif // ODB_PGSQL_DETAILS_ENDIAN_TRAITS_HXX
