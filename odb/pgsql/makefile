@@ -14,6 +14,7 @@ error.cxx                 \
 exceptions.cxx            \
 object-statements.cxx     \
 statement.cxx             \
+traits.cxx                \
 transaction.cxx           \
 transaction-impl.cxx      \
 details/endian-traits.cxx \
