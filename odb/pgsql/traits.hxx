@@ -30,13 +30,23 @@ namespace odb
       id_smallint,
       id_integer,
       id_bigint,
+
       id_numeric,
+
       id_real,
       id_double,
-      id_serial,
-      id_bigserial,
 
-      id_string
+      id_date,
+      id_time,
+      id_timestamp,
+
+      id_string,
+      id_bytea,
+      id_bit,
+      id_varbit,
+      id_enum,
+
+      id_uuid
     };
 
     //
@@ -45,6 +55,9 @@ namespace odb
 
     template <database_type_id>
     struct image_traits;
+
+    template <>
+    struct image_traits<id_boolean> {typedef bool image_type;};
 
     template <>
     struct image_traits<id_smallint> {typedef short image_type;};
@@ -63,6 +76,26 @@ namespace odb
 
     template <>
     struct image_traits<id_double> {typedef double image_type;};
+
+    template <>
+    struct image_traits<id_string> {typedef details::buffer image_type;};
+
+    template <>
+    struct image_traits<id_bytea> {typedef details::buffer image_type;};
+
+    template <>
+    struct image_traits<id_bit> {typedef unsigned char* image_type;};
+
+    template <>
+    struct image_traits<id_varbit> {typedef details::ubuffer image_type;};
+
+    template <>
+    struct image_traits<id_enum> {typedef details::buffer image_type;};
+
+    // @@ UUID image is a 16-byte sequence.
+    //
+    template <>
+    struct image_traits<id_uuid> {typedef unsigned char* image_type;};
 
     //
     // value_traits
@@ -140,6 +173,12 @@ namespace odb
     {
     };
 
+    template <>
+    struct LIBODB_PGSQL_EXPORT default_value_traits<std::string, id_enum>:
+      string_value_traits
+    {
+    };
+
     // const char* specialization
     //
     // Specialization for const char* which only supports initialization
@@ -168,6 +207,12 @@ namespace odb
 
     template <>
     struct LIBODB_PGSQL_EXPORT default_value_traits<const char*, id_string>:
+      c_string_value_traits
+    {
+    };
+
+    template <>
+    struct LIBODB_PGSQL_EXPORT default_value_traits<const char*, id_enum>:
       c_string_value_traits
     {
     };
@@ -246,15 +291,13 @@ namespace odb
       static const database_type_id db_type_id = id_bigint;
     };
 
-    // @@ No representation for an unsigned 64 bit value.
-    // Should we force a compile time error with a message
-    // or just truncate?
+    // @@ Type stored as a signed 8-byte integer in the database.
     //
-    // template <>
-    // struct default_type_traits<unsigned long long>
-    // {
-    //   static const database_type_id db_type_id = id_ulonglong;
-    // };
+    template <>
+    struct default_type_traits<unsigned long long>
+    {
+      static const database_type_id db_type_id = id_bigint;
+    };
 
     // Float types.
     //
