@@ -27,7 +27,7 @@ namespace odb
                       int* l,
                       int* f,
                       std::size_t n)
-        : values (v), lengths (l), formats (f), count (n), version (0)
+        : values (v), lengths (l), formats (f), count (n)
       {
       }
 
@@ -35,7 +35,6 @@ namespace odb
       int* lengths;
       int* formats;
       std::size_t count;
-      std::size_t version;
 
     private:
       native_binding (const native_binding&);
