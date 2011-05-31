@@ -45,7 +45,7 @@ namespace odb
     statement (connection& conn,
                const string& name,
                const string& stmt,
-               const oid* types,
+               const Oid* types,
                size_t types_count)
         : conn_ (conn),
           name_ (name)
@@ -54,7 +54,7 @@ namespace odb
                                name_.c_str (),
                                stmt.c_str (),
                                static_cast<int> (types_count),
-                               reinterpret_cast<const Oid*> (types)));
+                               types));
 
       if (!is_good_result (r.get ()))
         translate_error (conn_, r.get ());
@@ -98,6 +98,7 @@ namespace odb
                  bool truncated)
     {
       bool r (true);
+      int int_row (static_cast<int> (row));
 
       assert (static_cast<size_t> (PQnfields (result)) == count);
 
@@ -115,48 +116,48 @@ namespace odb
         //
         if (!truncated)
         {
-          *b.is_null = PQgetisnull (result, static_cast<int> (row), i) == 1;
+          *b.is_null = PQgetisnull (result, int_row, i) == 1;
 
           if (*b.is_null)
             continue;
         }
 
-        const char* s (PQgetvalue (result, static_cast<int> (row), i));
+        const char* v (PQgetvalue (result, int_row, i));
 
         switch (b.type)
         {
         case bind::smallint:
           {
             *static_cast<short*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<const short*> (s));
+              *reinterpret_cast<const short*> (v));
 
             break;
           }
         case bind::integer:
           {
             *static_cast<int*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<const int*> (s));
+              *reinterpret_cast<const int*> (v));
 
             break;
           }
         case bind::bigint:
           {
             *static_cast<long long*> (b.buffer) =
-              endian_traits::ntoh (*reinterpret_cast<const long long*> (s));
+              endian_traits::ntoh (*reinterpret_cast<const long long*> (v));
 
             break;
           }
         case bind::real:
           {
             *static_cast<float*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<const float*> (s));
+              *reinterpret_cast<const float*> (v));
 
             break;
           }
         case bind::double_:
           {
             *static_cast<double*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<const double*> (s));
+              *reinterpret_cast<const double*> (v));
 
             break;
           }
@@ -166,7 +167,7 @@ namespace odb
         default:
           {
             *b.size = static_cast<size_t> (
-              PQgetlength (result, static_cast<int> (row), i));
+              PQgetlength (result, int_row, i));
 
              if (b.capacity < *b.size)
              {
@@ -177,7 +178,7 @@ namespace odb
                continue;
              }
 
-             memcpy (b.buffer, s, *b.size);
+             memcpy (b.buffer, v, *b.size);
 
              break;
           }
@@ -200,7 +201,7 @@ namespace odb
     select_statement (connection& conn,
                       const std::string& name,
                       const std::string& stmt,
-                      const oid* types,
+                      const Oid* types,
                       std::size_t types_count,
                       binding& cond,
                       native_binding& native_cond,
@@ -263,7 +264,7 @@ namespace odb
       if (!bind_result (data_.bind,
                         data_.count,
                         result_.get (),
-                        current_row_,
+                        current_row_++,
                         true))
         assert (false);
     }
@@ -287,7 +288,7 @@ namespace odb
     insert_statement (connection& conn,
                       const string& name,
                       const string& stmt,
-                      const oid* types,
+                      const Oid* types,
                       size_t types_count,
                       binding& data,
                       native_binding& native_data)
@@ -333,7 +334,7 @@ namespace odb
       if (!is_good_result (h2))
         translate_error (conn_, h2);
 
-      id_ = endian_traits::ntoh (*reinterpret_cast<long long*> (
+      id_ = endian_traits::ntoh (*reinterpret_cast<unsigned long long*> (
                                    PQgetvalue (h2, 0, 0)));
 
       return true;
@@ -352,7 +353,7 @@ namespace odb
     update_statement (connection& conn,
                       const string& name,
                       const string& stmt,
-                      const oid* types,
+                      const Oid* types,
                       size_t types_count,
                       binding& cond,
                       native_binding& native_cond,
@@ -409,7 +410,7 @@ namespace odb
     delete_statement (connection& conn,
                       const string& name,
                       const string& stmt,
-                      const oid* types,
+                      const Oid* types,
                       size_t types_count,
                       binding& cond,
                       native_binding& native_cond)

@@ -18,7 +18,6 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
 #include <odb/pgsql/result-ptr.hxx>
-#include <odb/pgsql/pgsql-oid.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -34,17 +33,11 @@ namespace odb
       virtual
       ~statement () = 0;
 
-      // @@ Check section 30.5 of manual for description of
-      // how to cancel queries in progress.
-      //
-      // virtual void
-      // cancel ();
-
     protected:
       statement (connection&,
                  const std::string& name,
                  const std::string& stmt,
-                 const oid* types,
+                 const Oid* types,
                  std::size_t types_count);
 
     protected:
@@ -80,7 +73,7 @@ namespace odb
       select_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
-                        const oid* types,
+                        const Oid* types,
                         std::size_t types_count,
                         binding& cond,
                         native_binding& native_cond,
@@ -138,7 +131,7 @@ namespace odb
       insert_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
-                        const oid* types,
+                        const Oid* types,
                         std::size_t types_count,
                         binding& data,
                         native_binding& native_data);
@@ -179,7 +172,7 @@ namespace odb
       update_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
-                        const oid* types,
+                        const Oid* types,
                         std::size_t types_count,
                         binding& cond,
                         native_binding& native_cond,
@@ -210,7 +203,7 @@ namespace odb
       delete_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
-                        const oid* types,
+                        const Oid* types,
                         std::size_t types_count,
                         binding& cond,
                         native_binding& native_cond);
