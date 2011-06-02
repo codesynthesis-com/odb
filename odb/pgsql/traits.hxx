@@ -97,6 +97,19 @@ namespace odb
     template <>
     struct image_traits<id_uuid> {typedef unsigned char* image_type;};
 
+    // @@ Date/time binary support in PostgreSQL is sketchy and in some
+    // cases depends on server compile time constants. Using strings
+    // to avoid this.
+    //
+    template <>
+    struct image_traits<id_date> {typedef details::buffer image_type;};
+
+    template <>
+    struct image_traits<id_time> {typedef details::buffer image_type;};
+
+    template <>
+    struct image_traits<id_timestamp> {typedef details::buffer image_type;};
+
     //
     // value_traits
     //
@@ -225,7 +238,7 @@ namespace odb
     struct default_type_traits;
 
     template <typename T>
-    class type_traits: public default_type_traits<T>
+     class type_traits: public default_type_traits<T>
     {
     };
 
