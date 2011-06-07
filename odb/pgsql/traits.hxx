@@ -44,7 +44,6 @@ namespace odb
       id_bytea,
       id_bit,
       id_varbit,
-      id_enum,
 
       id_uuid
     };
@@ -89,10 +88,7 @@ namespace odb
     template <>
     struct image_traits<id_varbit> {typedef details::ubuffer image_type;};
 
-    template <>
-    struct image_traits<id_enum> {typedef details::buffer image_type;};
-
-    // @@ UUID image is a 16-byte sequence.
+    // UUID image is a 16-byte sequence.
     //
     template <>
     struct image_traits<id_uuid> {typedef unsigned char* image_type;};
@@ -186,12 +182,6 @@ namespace odb
     {
     };
 
-    template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<std::string, id_enum>:
-      string_value_traits
-    {
-    };
-
     // const char* specialization
     //
     // Specialization for const char* which only supports initialization
@@ -224,12 +214,6 @@ namespace odb
     {
     };
 
-    template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<const char*, id_enum>:
-      c_string_value_traits
-    {
-    };
-
     //
     // type_traits
     //
@@ -238,7 +222,7 @@ namespace odb
     struct default_type_traits;
 
     template <typename T>
-     class type_traits: public default_type_traits<T>
+    class type_traits: public default_type_traits<T>
     {
     };
 
