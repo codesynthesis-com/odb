@@ -166,8 +166,7 @@ namespace odb
         case bind::bytea:
         default:
           {
-            *b.size = static_cast<size_t> (
-              PQgetlength (result, int_row, i));
+            *b.size = static_cast<size_t> (PQgetlength (result, int_row, i));
 
              if (b.capacity < *b.size)
              {
