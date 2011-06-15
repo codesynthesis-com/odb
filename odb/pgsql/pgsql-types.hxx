@@ -21,6 +21,7 @@ namespace odb
     {
       enum buffer_type
       {
+        boolean,  // Buffer is a bool; size, capacity, truncated are unused.
         smallint, // Buffer is short; size, capacity, truncated are unused.
         integer,  // Buffer is int; size, capacity, truncated are unused.
         bigint,   // Buffer is long long; size, capacity, truncated are unused.
@@ -28,7 +29,11 @@ namespace odb
         double_,  // Buffer is double; size, capacity, truncated are unused.
         numeric,  // Buffer is a char array.
         text,     // Buffer is a char array.
-        bytea     // Buffer is a char array.
+        bytea,    // Buffer is a char array.
+        bit,      // Buffer is a char array.
+        varbit,   // Buffer is a char array.
+        uuid      // Buffer is a 16-byte char array; size capacity, truncated
+                  // are unused.
       };
 
       buffer_type type;
