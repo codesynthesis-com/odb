@@ -166,7 +166,7 @@ namespace odb
       native_binding&
       data_image_native_binding ()
       {
-        return date_image_native_binding_;
+        return data_image_native_binding_;
       }
 
       //
@@ -205,7 +205,7 @@ namespace odb
               select_all_types_,
               select_all_count_,
               cond_image_binding_,
-              cont_image_native_binding_,
+              cond_image_native_binding_,
               data_image_binding_));
         }
 
@@ -258,17 +258,17 @@ namespace odb
 
       const char* insert_one_name_;
       const char* insert_one_text_;
-      const oid* insert_one_types_;
+      const Oid* insert_one_types_;
       std::size_t insert_one_count_;
 
       const char* select_all_name_;
       const char* select_all_text_;
-      const oid* select_all_types_;
+      const Oid* select_all_types_;
       std::size_t select_all_count_;
 
       const char* delete_all_name_;
       const char* delete_all_text_;
-      const oid* delete_all_types_;
+      const Oid* delete_all_types_;
       std::size_t delete_all_count_;
 
       details::shared_ptr<insert_statement_type> insert_one_;
