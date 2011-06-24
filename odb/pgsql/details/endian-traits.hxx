@@ -11,10 +11,20 @@
 
 namespace odb
 {
+  // @@ Revise this.
+  //
+  namespace details
+  {
+  }
+
   namespace pgsql
   {
     namespace details
     {
+      // @@ Revise this.
+      //
+      using namespace odb::details;
+
       template <typename T, std::size_t S = sizeof (T)>
       struct swap_endian;
 
