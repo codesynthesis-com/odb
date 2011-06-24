@@ -347,7 +347,8 @@ namespace odb
                       native_binding& native_data)
         : statement (conn, name, stmt, types, types_count),
           data_ (data),
-          native_data_ (native_data)
+          native_data_ (native_data),
+          id_cached_ (false)
     {
     }
 
@@ -356,41 +357,49 @@ namespace odb
     {
       bind_param (native_data_, data_);
 
-      result_ptr r1 (PQexecPrepared (conn_.handle (),
-                                     name_.c_str (),
-                                     native_data_.count,
-                                     native_data_.values,
-                                     native_data_.lengths,
-                                     native_data_.formats,
-                                     1));
-      PGresult* h1 (r1.get ());
+      result_ptr r (PQexecPrepared (conn_.handle (),
+                                    name_.c_str (),
+                                    native_data_.count,
+                                    native_data_.values,
+                                    native_data_.lengths,
+                                    native_data_.formats,
+                                    1));
+      PGresult* h (r.get ());
       ExecStatusType stat;
 
-      if (!is_good_result (h1, &stat))
+      if (!is_good_result (h, &stat))
       {
         if (PGRES_FATAL_ERROR == stat)
         {
-          string s (PQresultErrorField (h1, PG_DIAG_SQLSTATE));
+          string s (PQresultErrorField (h, PG_DIAG_SQLSTATE));
 
           if (s == "23505")
             return false;
         }
 
-        translate_error (conn_, h1);
+        translate_error (conn_, h);
       }
 
-      result_ptr r2 (PQexecParams (conn_.handle (),
-                                   "select lastval ()",
-                                   0, 0, 0, 0, 0, 1));
-      PGresult* h2 (r2.get ());
+      id_cached_ = false;
+      return true;
+    }
 
-      if (!is_good_result (h2))
-        translate_error (conn_, h2);
+    unsigned long long insert_statement::
+    id ()
+    {
+      result_ptr r (PQexecParams (conn_.handle (),
+                                  "select lastval ()",
+                                  0, 0, 0, 0, 0, 1));
+      PGresult* h (r.get ());
+
+      if (!is_good_result (h))
+        translate_error (conn_, h);
 
       id_ = endian_traits::ntoh (*reinterpret_cast<unsigned long long*> (
-                                   PQgetvalue (h2, 0, 0)));
+                                   PQgetvalue (h, 0, 0)));
+      id_cached_ = true;
 
-      return true;
+      return id_;
     }
 
     //

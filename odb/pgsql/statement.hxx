@@ -143,10 +143,7 @@ namespace odb
       execute ();
 
       unsigned long long
-      id ()
-      {
-        return id_;
-      }
+      id ();
 
     private:
       insert_statement (const insert_statement&);
@@ -156,6 +153,7 @@ namespace odb
       binding& data_;
       native_binding& native_data_;
 
+      bool id_cached_;
       unsigned long long id_;
     };
 
