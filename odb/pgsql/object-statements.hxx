@@ -255,7 +255,7 @@ namespace odb
               object_traits::persist_statement_name,
               object_traits::persist_statement,
               object_traits::persist_statement_types,
-              object_traits::persist_statement_count,
+              object_traits::in_column_count,
               in_image_binding_,
               in_image_native_binding_));
         }
@@ -274,7 +274,7 @@ namespace odb
               object_traits::find_statement_name,
               object_traits::find_statement,
               object_traits::find_statement_types,
-              object_traits::find_statement_count,
+              1,
               id_image_binding_,
               id_image_native_binding_,
               out_image_binding_));
@@ -294,7 +294,7 @@ namespace odb
               object_traits::update_statement_name,
               object_traits::update_statement,
               object_traits::update_statement_types,
-              object_traits::update_statement_count,
+              object_traits::in_column_count + 1,
               id_image_binding_,
               id_image_native_binding_,
               in_image_binding_,
@@ -315,7 +315,7 @@ namespace odb
               object_traits::erase_statement_name,
               object_traits::erase_statement,
               object_traits::erase_statement_types,
-              object_traits::erase_statment_count,
+              1,
               id_image_binding_,
               id_image_native_binding_));
         }
