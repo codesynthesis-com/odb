@@ -182,36 +182,36 @@ namespace odb
         {
         case bind::smallint:
           {
-            *static_cast<short*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<const short*> (v));
+            *static_cast<short*> (b.buffer) =
+              *reinterpret_cast<const short*> (v);
 
             break;
           }
         case bind::integer:
           {
-            *static_cast<int*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<const int*> (v));
+            *static_cast<int*> (b.buffer) =
+              *reinterpret_cast<const int*> (v);
 
             break;
           }
         case bind::bigint:
           {
             *static_cast<long long*> (b.buffer) =
-              endian_traits::ntoh (*reinterpret_cast<const long long*> (v));
+              *reinterpret_cast<const long long*> (v);
 
             break;
           }
         case bind::real:
           {
-            *static_cast<float*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<const float*> (v));
+            *static_cast<float*> (b.buffer) =
+              *reinterpret_cast<const float*> (v);
 
             break;
           }
         case bind::double_:
           {
-            *static_cast<double*> (b.buffer) = endian_traits::ntoh (
-              *reinterpret_cast<const double*> (v));
+            *static_cast<double*> (b.buffer) =
+              *reinterpret_cast<const double*> (v);
 
             break;
           }

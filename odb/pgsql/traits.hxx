@@ -19,6 +19,7 @@
 #include <odb/pgsql/pgsql-types.hxx>
 
 #include <odb/pgsql/details/export.hxx>
+#include <odb/pgsql/details/endian-traits.hxx>
 
 namespace odb
 {
@@ -129,7 +130,7 @@ namespace odb
       set_value (T& v, const image_type& i, bool is_null)
       {
         if (!is_null)
-          v = T (i);
+          v = T (details::endian_traits::ntoh (i));
         else
           v = T ();
       }
@@ -138,7 +139,7 @@ namespace odb
       set_image (image_type& i, bool& is_null, T v)
       {
         is_null = false;
-        i = image_type (v);
+        i = image_type (details::endian_traits::hton (v));
       }
     };
 
