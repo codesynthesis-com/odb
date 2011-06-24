@@ -85,7 +85,61 @@ namespace odb
         else
         {
           n.formats[i] = 1;
-          n.lengths[i] = static_cast<int> (*current_bind.size);
+
+          size_t l;
+
+          switch (current_bind.type)
+          {
+          case bind::boolean:
+            {
+              l = sizeof (bool);
+              break;
+            }
+          case bind::smallint:
+            {
+              l = sizeof (short);
+              break;
+            }
+          case bind::integer:
+            {
+              l = sizeof (int);
+              break;
+            }
+          case bind::bigint:
+            {
+              l = sizeof (long long);
+              break;
+            }
+          case bind::real:
+            {
+              l = sizeof (float);
+              break;
+            }
+          case bind::double_:
+            {
+              l = sizeof (double);
+              break;
+            }
+          case bind::uuid:
+            {
+              // UUID is a 16-byte sequence.
+              //
+              l = 16;
+              break;
+            }
+          case bind::text:
+          case bind::bytea:
+          case bind::bit:
+          case bind::varbit:
+            {
+              l = *current_bind.size;
+              break;
+            }
+          case bind::numeric:
+            assert (false);
+          }
+
+          n.lengths[i] = static_cast<int> (l);
         }
       }
     }
