@@ -18,7 +18,7 @@ namespace odb
 {
   namespace pgsql
   {
-    enum oid
+    enum
     {
       bool_oid = 16,
       int2_oid = 21,
