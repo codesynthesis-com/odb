@@ -10,6 +10,8 @@
 
 #include <cstddef>  // std::size_t
 
+typedef unsigned int Oid;
+
 namespace odb
 {
   namespace pgsql
