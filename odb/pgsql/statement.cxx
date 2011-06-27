@@ -355,6 +355,8 @@ namespace odb
     bool insert_statement::
     execute ()
     {
+      id_cached_ = false;
+
       bind_param (native_data_, data_);
 
       result_ptr r (PQexecPrepared (conn_.handle (),
@@ -380,13 +382,15 @@ namespace odb
         translate_error (conn_, h);
       }
 
-      id_cached_ = false;
       return true;
     }
 
     unsigned long long insert_statement::
     id ()
     {
+      if (id_cached_)
+        return id_;
+
       result_ptr r (PQexecParams (conn_.handle (),
                                   "select lastval ()",
                                   0, 0, 0, 0, 0, 1));
