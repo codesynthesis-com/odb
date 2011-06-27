@@ -29,6 +29,16 @@ namespace odb
       struct swap_endian;
 
       template <typename T>
+      struct swap_endian<T, 1>
+      {
+        static T
+        swap (T x)
+        {
+          return x;
+        }
+      };
+
+      template <typename T>
       struct swap_endian<T, 2>
       {
         static T
