@@ -70,20 +70,20 @@ namespace odb
       for (std::size_t i (0); i < traits::data_column_count; ++i)
         data_image_bind_array_[i].truncated = data_image_truncated_array_ + i;
 
-      this->insert_one_name = traits::insert_one_name;
+      this->insert_one_name_ = traits::insert_one_name;
       this->insert_one_text_ = traits::insert_one_statement;
       this->insert_one_types_ = traits::insert_one_types;
-      this->insert_one_count_ = traits::insert_one_count;
+      this->insert_one_count_ = traits::data_column_count;
 
-      this->select_all_name = traits::select_all_name;
+      this->select_all_name_ = traits::select_all_name;
       this->select_all_text_ = traits::select_all_statement;
       this->select_all_types_ = traits::select_all_types;
-      this->select_all_count_ = traits::select_all_count;
+      this->select_all_count_ = traits::cond_column_count;
 
       this->delete_all_name_ = traits::delete_all_name;
       this->delete_all_text_ = traits::delete_all_statement;
       this->delete_all_types_ = traits::delete_all_types;
-      this->delete_all_count_ = traits::delete_all_count;
+      this->delete_all_count_ = traits::cond_column_count;
     }
   }
 }

@@ -294,12 +294,12 @@ namespace odb
 
     private:
       bind cond_image_bind_array_[traits::cond_column_count];
-      const char* cond_image_values_[traits::cond_column_count];
+      char* cond_image_values_[traits::cond_column_count];
       int cond_image_lengths_[traits::cond_column_count];
       int cond_image_formats_[traits::cond_column_count];
 
       bind data_image_bind_array_[traits::data_column_count];
-      const char* data_image_values_[traits::data_column_count];
+      char* data_image_values_[traits::data_column_count];
       int data_image_lengths_[traits::data_column_count];
       int data_image_formats_[traits::data_column_count];
 
