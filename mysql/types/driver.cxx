@@ -43,6 +43,7 @@ main (int argc, char* argv[])
     o.ulong_long_ = 123456;
 
     o.float_ = 1.123F;
+    o.float8_ = 1.123;
     o.double_ = 1.123;
     o.decimal_ = "123.456";
 

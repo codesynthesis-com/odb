@@ -139,6 +139,9 @@ struct object
   #pragma db type ("FLOAT NOT NULL")
   float float_;
 
+  #pragma db type ("FLOAT(32) NOT NULL")
+  double float8_;
+
   #pragma db type ("DOUBLE NOT NULL")
   double double_;
 
@@ -237,6 +240,7 @@ struct object
       long_long_ == y.long_long_ &&
       ulong_long_ == y.ulong_long_ &&
       float_ == y.float_ &&
+      float8_ == y.float8_ &&
       double_ == y.double_ &&
       decimal_ == y.decimal_ &&
       date_ == y.date_ &&
