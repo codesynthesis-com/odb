@@ -28,7 +28,7 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    // transient
+    // Transient.
     //
     try
     {
@@ -41,7 +41,7 @@ main (int argc, char* argv[])
     {
     }
 
-    // persistent
+    // Persistent.
     //
     {
       object o (1);
@@ -70,7 +70,7 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    // modified
+    // Modified.
     //
     {
       transaction t (db->begin ());
@@ -87,7 +87,16 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    // transient
+    // Update of unmodified object.
+    //
+    {
+      transaction t (db->begin ());
+      auto_ptr<object> o (db->load<object> (1));
+      db->update (*o);
+      t.commit ();
+    }
+
+    // Transient.
     //
     {
       transaction t (db->begin ());
