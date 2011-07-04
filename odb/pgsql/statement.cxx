@@ -191,6 +191,11 @@ namespace odb
 
         switch (b.type)
         {
+        case bind::boolean:
+          {
+            *static_cast<bool*> (b.buffer) =
+              reinterpret_cast<const bool*> (v);
+          }
         case bind::smallint:
           {
             *static_cast<short*> (b.buffer) =
@@ -229,7 +234,8 @@ namespace odb
         case bind::numeric:
         case bind::text:
         case bind::bytea:
-        default:
+        case bind::bit:
+        case bind::varbit:
           {
             *b.size = static_cast<size_t> (PQgetlength (result, int_row, i));
 
@@ -245,6 +251,11 @@ namespace odb
              memcpy (b.buffer, v, *b.size);
 
              break;
+          }
+        case bind::uuid:
+          {
+            memcpy (b.buffer, v, 16);
+            break;
           }
         }
       }
