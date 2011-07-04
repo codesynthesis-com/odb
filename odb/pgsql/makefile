@@ -17,7 +17,8 @@ statement.cxx             \
 traits.cxx                \
 transaction.cxx           \
 transaction-impl.cxx      \
-details/endian-traits.cxx \
+query.cxx                 \
+details/endian-traits.cxx
 
 cli_tun := details/options.cli
 cxx_tun := $(cxx)
