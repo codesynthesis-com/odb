@@ -33,6 +33,9 @@ namespace odb
       virtual
       ~statement () = 0;
 
+      void
+      deallocate ();
+
     protected:
       statement (connection&,
                  const std::string& name,
@@ -62,6 +65,9 @@ namespace odb
     protected:
       connection& conn_;
       std::string name_;
+
+    private:
+      bool deallocated_;
     };
 
     class LIBODB_PGSQL_EXPORT select_statement: public statement
@@ -91,6 +97,17 @@ namespace odb
 
       void
       execute ();
+
+      void
+      cache () const
+      {
+      }
+
+      std::size_t
+      result_size () const
+      {
+        return row_count_;
+      }
 
       // Load next row columns into bound buffers.
       //

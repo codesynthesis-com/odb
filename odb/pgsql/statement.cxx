@@ -32,13 +32,23 @@ namespace odb
     {
       try
       {
-        string s ("deallocate ");
-        s += name_;
-        PQexec (conn_.handle (), s.c_str ());
+        deallocate ();
       }
       catch (...)
       {
       }
+    }
+
+    void statement::
+    deallocate ()
+    {
+      if (deallocated_)
+        return;
+
+      string s ("deallocate ");
+      s += name_;
+      PQexec (conn_.handle (), s.c_str ());
+      deallocated_ = true;
     }
 
     statement::
@@ -48,7 +58,8 @@ namespace odb
                const Oid* types,
                size_t types_count)
         : conn_ (conn),
-          name_ (name)
+          name_ (name),
+          deallocated_ (false)
     {
       result_ptr r (PQprepare (conn_.handle (),
                                name_.c_str (),
@@ -326,6 +337,8 @@ namespace odb
     free_result ()
     {
       result_.reset ();
+      row_count_ = 0;
+      current_row_ = 0;
     }
 
     //
