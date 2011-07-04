@@ -139,7 +139,7 @@ namespace odb
       set_image (image_type& i, bool& is_null, T v)
       {
         is_null = false;
-        i = image_type (details::endian_traits::hton (v));
+        i = details::endian_traits::hton (image_type (v));
       }
     };
 
