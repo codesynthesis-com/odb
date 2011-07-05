@@ -22,8 +22,7 @@ namespace odb
                  object_statements<object_type>& sts)
         : odb::result_impl<T> (sts.connection ().database ()),
           statement_ (st),
-          statements_ (sts),
-          count_ (0)
+          statements_ (sts)
     {
     }
 
@@ -75,11 +74,7 @@ namespace odb
     {
       this->current (pointer_type ());
 
-      // Increment the position and postpone the actual row fetching
-      // until later. This way if the same object is loaded in between
-      // iteration, the image won't be messed up.
-      //
-      if (++count_ > statement_->result_size ())
+      if (!statement_->next ())
         this->end_ = true;
     }
 
@@ -100,7 +95,7 @@ namespace odb
         b.version++;
       }
 
-      select_statement::result r (statement_->fetch ());
+      select_statement::result r (statement_->load ());
 
       if (r == select_statement::truncated)
       {
@@ -113,7 +108,7 @@ namespace odb
           object_traits::bind (b.bind, im, true);
           statements_.out_image_version (im.version);
           b.version++;
-          statement_->refetch ();
+          statement_->reload ();
         }
       }
     }
