@@ -282,7 +282,25 @@ namespace odb
                       native_binding& native_cond,
                       binding& data)
         : statement (conn, name, stmt, types, types_count),
-          cond_ (cond),
+          cond_ (&cond),
+          native_cond_ (native_cond),
+          data_ (data),
+          row_count_ (0),
+          current_row_ (0)
+
+    {
+    }
+
+    select_statement::
+    select_statement (connection& conn,
+                      const std::string& name,
+                      const std::string& stmt,
+                      const Oid* types,
+                      std::size_t types_count,
+                      native_binding& native_cond,
+                      binding& data)
+        : statement (conn, name, stmt, types, types_count),
+          cond_ (0),
           native_cond_ (native_cond),
           data_ (data),
           row_count_ (0),
@@ -295,7 +313,9 @@ namespace odb
     execute ()
     {
       result_.reset ();
-      bind_param (native_cond_, cond_);
+
+      if (cond_ != 0)
+        bind_param (native_cond_, *cond_);
 
       result_.reset (PQexecPrepared (conn_.handle (),
                                      name_.c_str (),
@@ -314,42 +334,48 @@ namespace odb
       current_row_ = 0;
     }
 
-    select_statement::result select_statement::
-    fetch ()
-    {
-      if (current_row_ >= row_count_)
-        return no_data;
-
-      PGresult* h (result_.get ());
-
-      if (bind_result (data_.bind, data_.count, h, current_row_))
-      {
-        ++current_row_;
-        return success;
-      }
-
-      return truncated;
-    }
-
-    void select_statement::
-    refetch ()
-    {
-      assert (current_row_ < row_count_);
-
-      if (!bind_result (data_.bind,
-                        data_.count,
-                        result_.get (),
-                        current_row_++,
-                        true))
-        assert (false);
-    }
-
     void select_statement::
     free_result ()
     {
       result_.reset ();
       row_count_ = 0;
       current_row_ = 0;
+    }
+
+    bool select_statement::
+    next ()
+    {
+      if (current_row_ <= row_count_)
+        ++current_row_;
+
+      return current_row_ <= row_count_;
+    }
+
+    select_statement::result select_statement::
+    load ()
+    {
+      if (current_row_ > row_count_)
+        return no_data;
+
+      PGresult* h (result_.get ());
+
+      assert (current_row_ > 0);
+      return bind_result (data_.bind, data_.count, h, current_row_ - 1) ?
+        success : truncated;
+    }
+
+    void select_statement::
+    reload ()
+    {
+      assert (current_row_ > 0);
+      assert (current_row_ <= row_count_);
+
+      if (!bind_result (data_.bind,
+                        data_.count,
+                        result_.get (),
+                        current_row_ - 1,
+                        true))
+        assert (false);
     }
 
     //

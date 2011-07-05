@@ -36,14 +36,6 @@ namespace odb
       void
       deallocate ();
 
-    protected:
-      statement (connection&,
-                 const std::string& name,
-                 const std::string& stmt,
-                 const Oid* types,
-                 std::size_t types_count);
-
-    protected:
       // Adapt an ODB binding to a native PostgreSQL parameter binding.
       //
       static void
@@ -61,6 +53,13 @@ namespace odb
                    PGresult*,
                    std::size_t row,
                    bool truncated = false);
+
+    protected:
+      statement (connection&,
+                 const std::string& name,
+                 const std::string& stmt,
+                 const Oid* types,
+                 std::size_t types_count);
 
     protected:
       connection& conn_;
@@ -82,6 +81,14 @@ namespace odb
                         const Oid* types,
                         std::size_t types_count,
                         binding& cond,
+                        native_binding& native_cond,
+                        binding& data);
+
+      select_statement (connection& conn,
+                        const std::string& name,
+                        const std::string& stmt,
+                        const Oid* types,
+                        std::size_t types_count,
                         native_binding& native_cond,
                         binding& data);
 
@@ -112,24 +119,47 @@ namespace odb
       // Load next row columns into bound buffers.
       //
       result
-      fetch ();
+      fetch ()
+      {
+        return next () ? load () : no_data;
+      }
 
       // Reload truncated columns into bound buffers.
       //
       void
-      refetch ();
+      refetch ()
+      {
+        reload ();
+      }
 
       // Free the result set.
       //
       void
       free_result ();
 
+      // Finer grained control of PostgreSQL-specific interface that
+      // splits fetch() into next() and load().
+      //
+    public:
+      // Return false if there is no more rows. You should call next()
+      // until it returns false or, alternatively, call free_result ().
+      // Otherwise the statement will remain unfinished.
+      //
+      bool
+      next ();
+
+      result
+      load ();
+
+      void
+      reload ();
+
     private:
       select_statement (const select_statement&);
       select_statement& operator= (const select_statement&);
 
     private:
-      binding& cond_;
+      binding* cond_;
       native_binding& native_cond_;
 
       binding& data_;
