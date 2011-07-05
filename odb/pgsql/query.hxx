@@ -1527,6 +1527,10 @@ namespace odb
       {
         bool dummy;
         std::size_t size, cap (buffer_.capacity ());
+
+        // NOTE: Using a fixed size bit type in queries requires
+        // alternative image buffer type support.
+        //
         value_traits<T, id_bit>::set_image (buffer_, size, dummy, v);
         size_ = size;
 

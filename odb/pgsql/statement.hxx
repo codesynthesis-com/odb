@@ -39,8 +39,7 @@ namespace odb
       // Adapt an ODB binding to a native PostgreSQL parameter binding.
       //
       static void
-      bind_param (native_binding&,
-                  const binding&);
+      bind_param (native_binding&, const binding&);
 
       // Populate an ODB binding given a PostgreSQL result. If the truncated
       // argument is true, then only truncated columns are extracted. Return
@@ -141,10 +140,6 @@ namespace odb
       // splits fetch() into next() and load().
       //
     public:
-      // Return false if there is no more rows. You should call next()
-      // until it returns false or, alternatively, call free_result ().
-      // Otherwise the statement will remain unfinished.
-      //
       bool
       next ();
 

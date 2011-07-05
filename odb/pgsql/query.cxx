@@ -149,7 +149,7 @@ namespace odb
 
       // Copy any remaining characters in q.clause_.
       //
-      if (cur_pos < q.clause_.length ())
+      if (cur_pos < q.clause_.size ())
       {
         size_t n (clause_.size ());
 
@@ -159,7 +159,7 @@ namespace odb
         clause_.append (q.clause_, cur_pos, string::npos);
       }
 
-      size_t n = bind_.size ();
+      size_t n (bind_.size ());
 
       parameters_.insert (
         parameters_.end (), q.parameters_.begin (), q.parameters_.end ());
@@ -212,13 +212,13 @@ namespace odb
         clause_ += ' ';
 
       parameter_offset o;
-      o.first = clause_.length ();
+      o.first = clause_.size ();
 
       ostringstream ss;
       ss << parameters_.size () + 1;
       clause_ += '$' + ss.str ();
 
-      o.second = clause_.length ();
+      o.second = clause_.size ();
       parameter_offsets_.push_back (o);
 
       parameters_.push_back (p);
