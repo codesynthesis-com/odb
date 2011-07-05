@@ -257,7 +257,7 @@ namespace odb
       if (n == 0)
         return native_binding_;
 
-      bool inc_ver (false);
+      bool ref (false), inc_ver (false);
       binding& r (binding_);
       bind* b (&bind_[0]);
 
@@ -267,6 +267,8 @@ namespace odb
 
         if (p.reference ())
         {
+          ref = true;
+
           if (p.init ())
           {
             p.bind (b + i);
@@ -275,10 +277,14 @@ namespace odb
         }
       }
 
-      if (inc_ver)
-        r.version++;
+      if (ref)
+      {
+        statement::bind_param (native_binding_, binding_);
 
-      statement::bind_param (native_binding_, binding_);
+        if (inc_ver)
+          r.version++;
+      }
+
       return native_binding_;
     }
 
