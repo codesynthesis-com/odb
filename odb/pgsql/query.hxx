@@ -126,14 +126,8 @@ namespace odb
       std::string
       clause () const;
 
-      binding&
-      parameters_binding () const;
-
       native_binding&
-      native_parameters_binding () const
-      {
-        return native_binding_;
-      }
+      parameters_binding () const;
 
       const unsigned int*
       parameter_types () const
@@ -212,6 +206,9 @@ namespace odb
 
       std::string clause_;
       parameters_type parameters_;
+
+      typedef std::pair<std::size_t, std::size_t> parameter_offset;
+      std::vector<parameter_offset> parameter_offsets_;
 
       mutable std::vector<bind> bind_;
       mutable binding binding_;
@@ -1501,47 +1498,45 @@ namespace odb
       std::size_t size_;
     };
 
-    // @@ BIT
+    // BIT
     //
-    // template <typename T>
-    // struct query_param_impl<T, id_bit>: query_param
-    // {
-    //   query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
-    //   query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
+    template <typename T>
+    struct query_param_impl<T, id_bit>: query_param
+    {
+      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
-    //   virtual bool
-    //   init ()
-    //   {
-    //     init (*static_cast<const T*> (value_));
-    //     return false;
-    //   }
+      virtual bool
+      init ()
+      {
+        return init (*static_cast<const T*> (value_));
+      }
 
-    //   virtual void
-    //   bind (pgsql::bind* b)
-    //   {
-    //     b->type = bind::bit;
-    //     b->buffer = buffer_;
-    //     b->capacity = sizeof (buffer_);
-    //     b->size = &size_;
-    //   }
+      virtual void
+      bind (pgsql::bind* b)
+      {
+        b->type = bind::bit;
+        b->buffer = buffer_.data ();
+        b->capacity = buffer_.capacity ();
+        b->size = &size_;
+      }
 
-    // private:
-    //   void
-    //   init (const T& v)
-    //   {
-    //     bool dummy;
-    //     std::size_t size;
-    //     value_traits<T, id_bit>::set_image (
-    //       buffer_, sizeof (buffer_), size, dummy, v);
-    //     size_ = static_cast<unsigned long> (size);
-    //   }
+    private:
+      bool
+      init (const T& v)
+      {
+        bool dummy;
+        std::size_t size, cap (buffer_.capacity ());
+        value_traits<T, id_bit>::set_image (buffer_, size, dummy, v);
+        size_ = size;
 
-    // private:
-    //   // Max 64 bit.
-    //   //
-    //   unsigned char buffer_[8];
-    //   unsigned long size_;
-    // };
+        return cap != buffer_.capacity ();
+      }
+
+    private:
+      details::ubuffer buffer_;
+      std::size_t size_;
+    };
 
     // VARBIT
     //
@@ -1584,7 +1579,7 @@ namespace odb
       }
 
     private:
-      details::buffer buffer_;
+      details::ubuffer buffer_;
       std::size_t size_;
     };
 

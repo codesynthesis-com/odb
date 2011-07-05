@@ -9,6 +9,7 @@
 #include <sstream>
 
 #include <odb/pgsql/query.hxx>
+#include <odb/pgsql/statement.hxx>
 
 using namespace std;
 
@@ -27,6 +28,7 @@ namespace odb
     query (const query& q)
         : clause_ (q.clause_),
           parameters_ (q.parameters_),
+          parameter_offsets_ (q.parameter_offsets_),
           bind_ (q.bind_),
           binding_ (0, 0),
           values_ (q.values_),
@@ -56,6 +58,8 @@ namespace odb
         assert (lengths_.size () == n);
         assert (formats_.size () == n);
         assert (types_.size () == n);
+
+        statement::bind_param (native_binding_, binding_);
       }
     }
 
@@ -66,6 +70,7 @@ namespace odb
       {
         clause_ = q.clause_;
         parameters_ = q.parameters_;
+        parameter_offsets_ = q.parameter_offsets_;
         bind_ = q.bind_;
 
         size_t n (bind_.size ());
@@ -92,6 +97,8 @@ namespace odb
           native_binding_.values = &values_[0];
           native_binding_.lengths = &lengths_[0];
           native_binding_.formats = &formats_[0];
+
+          statement::bind_param (native_binding_, binding_);
         }
       }
 
@@ -101,33 +108,58 @@ namespace odb
     query& query::
     operator+= (const query& q)
     {
-      size_t n (clause_.size ());
+      size_t cur_pos (0);
 
-      if (n != 0 && clause_[n - 1] != ' ' &&
-          !q.clause_.empty () && q.clause_[0] != ' ')
-        clause_ += ' ';
-
-      clause_ += q.clause_;
-
-      // Reset parameter indexes.
+      // Append the argument clause to the clause of this instance.
       //
-      bool unquoted (true);
-      for (std::size_t i (0), e (clause_.size ()), p(1); i < e; ++i)
+      for (size_t i (0),
+             p (parameters_.size () + 1),
+             e (q.parameter_offsets_.size ());
+           i < e;
+           ++i, ++p)
       {
-        // $'s are legal in identifiers in PostgreSQL.
-        //
-        if (clause_[i] == '"')
-          unquoted = !unquoted;
+        size_t n (clause_.size ());
 
-        if (unquoted && clause_[i] == '$')
-        {
-          ostringstream ss;
-          ss << p++;
-          clause_[++i] = ss.str()[0];
-        }
+        if (n != 0 && clause_[n - 1] != ' ' && q.clause_[cur_pos] != ' ')
+          clause_ += ' ';
+
+        parameter_offset o (q.parameter_offsets_[i]);
+
+        // Append all characters up to the start of the current
+        // parameter specifier, including the '$'.
+        //
+        clause_.append (q.clause_, cur_pos, o.first - cur_pos + 1);
+
+        // Advance current position in source clause to 1 element past
+        // the current parameter specifier.
+        //
+        cur_pos = o.second;
+
+        // Insert the correct parameter number and update the parameter
+        // offset to describe its offset in the new clause.
+        //
+        o.first = clause_.size () - 1;
+        ostringstream os;
+        os << p;
+        clause_.append (os.str ());
+        o.second = clause_.size ();
+
+        parameter_offsets_.push_back (o);
       }
 
-      n = bind_.size ();
+      // Copy any remaining characters in q.clause_.
+      //
+      if (cur_pos < q.clause_.length ())
+      {
+        size_t n (clause_.size ());
+
+        if (n != 0 && clause_[n - 1] != ' ' && q.clause_[cur_pos] != ' ')
+          clause_ += ' ';
+
+        clause_.append (q.clause_, cur_pos, string::npos);
+      }
+
+      size_t n = bind_.size ();
 
       parameters_.insert (
         parameters_.end (), q.parameters_.begin (), q.parameters_.end ());
@@ -164,6 +196,8 @@ namespace odb
         native_binding_.lengths = &lengths_[0];
         native_binding_.formats = &formats_[0];
         native_binding_.count = n;
+
+        statement::bind_param (native_binding_, binding_);
       }
 
       return *this;
@@ -177,10 +211,15 @@ namespace odb
       if (n != 0 && clause_[n - 1] != ' ')
         clause_ += ' ';
 
+      parameter_offset o;
+      o.first = clause_.length ();
+
       ostringstream ss;
       ss << parameters_.size () + 1;
-
       clause_ += '$' + ss.str ();
+
+      o.second = clause_.length ();
+      parameter_offsets_.push_back (o);
 
       parameters_.push_back (p);
       bind_.push_back (bind ());
@@ -199,25 +238,27 @@ namespace odb
       native_binding_.lengths = &lengths_[0];
       native_binding_.formats = &formats_[0];
 
-      types_.push_back (p->oid ());
-
       // native_binding_.count should always equal binding_.count.
       // At this point, we know that we have added one element to
       // each array, so there is no need to check.
       //
       native_binding_.count = binding_.count;
+
+      types_.push_back (p->oid ());
+
+      statement::bind_param (native_binding_, binding_);
     }
 
-    binding& query::
+    native_binding& query::
     parameters_binding () const
     {
       size_t n (parameters_.size ());
-      binding& r (binding_);
 
       if (n == 0)
-        return r;
+        return native_binding_;
 
       bool inc_ver (false);
+      binding& r (binding_);
       bind* b (&bind_[0]);
 
       for (size_t i (0); i < n; ++i)
@@ -237,7 +278,8 @@ namespace odb
       if (inc_ver)
         r.version++;
 
-      return r;
+      statement::bind_param (native_binding_, binding_);
+      return native_binding_;
     }
 
     std::string query::
