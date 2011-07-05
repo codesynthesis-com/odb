@@ -147,6 +147,8 @@ main (int argc, char* argv[])
       {
         transaction t (db->begin ());
         auto_ptr<object> o1 (db->load<object> (1));
+        delete o1->pobj->pobj;
+        delete o1->pobj;
         t.commit ();
       }
     }
