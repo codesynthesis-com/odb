@@ -395,6 +395,28 @@ namespace odb
 
       typedef std::vector<delayed_load> delayed_loads;
       delayed_loads delayed_;
+
+      // Delayed vectors swap guard. See the load_delayed_() function for
+      // details.
+      //
+      struct swap_guard
+      {
+        swap_guard (object_statements& os, delayed_loads& dl)
+            : os_ (os), dl_ (dl)
+        {
+          dl_.swap (os_.delayed_);
+        }
+
+        ~swap_guard ()
+        {
+          os_.clear_delayed ();
+          dl_.swap (os_.delayed_);
+        }
+
+      private:
+        object_statements& os_;
+        delayed_loads& dl_;
+      };
     };
   }
 }

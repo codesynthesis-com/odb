@@ -7,6 +7,7 @@
 #include <cstring> // std::memset
 
 #include <odb/session.hxx>
+#include <odb/callback.hxx>
 #include <odb/exceptions.hxx>
 
 #include <odb/pgsql/connection.hxx>
@@ -53,22 +54,34 @@ namespace odb
     void object_statements<T>::
     load_delayed_ ()
     {
-      // We should be careful here: the delayed vector can change
-      // from under us as a result of a recursive load.
-      //
       database& db (connection ().database ());
 
-      while (!delayed_.empty ())
+      delayed_loads dls;
+      swap_guard sg (*this, dls);
+
+      while (!dls.empty ())
       {
-        delayed_load l (delayed_.back ());
+        delayed_load l (dls.back ());
         typename object_cache_traits::insert_guard g (l.pos);
-        delayed_.pop_back ();
+        dls.pop_back ();
 
         if (!object_traits::find_ (*this, l.id))
           throw object_not_persistent ();
 
+        object_traits::callback (db, *l.obj, callback_event::pre_load);
+
+        // Our calls to init/load below can result in additional delayed
+        // loads being added to the delayed_ vector. We need to process
+        // those before we call the post callback.
+        //
         object_traits::init (*l.obj, image (), db);
         object_traits::load_ (*this, *l.obj); // Load containers, etc.
+
+        if (!delayed_.empty ())
+          load_delayed_ ();
+
+        object_traits::callback (db, *l.obj, callback_event::post_load);
+
         g.release ();
       }
     }

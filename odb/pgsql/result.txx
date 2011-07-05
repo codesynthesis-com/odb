@@ -3,6 +3,7 @@
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <odb/callback.hxx>
 #include <odb/exceptions.hxx>
 
 namespace odb
@@ -37,8 +38,11 @@ namespace odb
       assert (!statements_.locked ());
       typename object_statements<object_type>::auto_lock l (statements_);
 
+      odb::database& db (this->database ());
+      object_traits::callback (db, obj, callback_event::pre_load);
+
       typename object_traits::image_type& i (statements_.image ());
-      object_traits::init (obj, i, this->database ());
+      object_traits::init (obj, i, db);
 
       // Initialize the id image and binding and load the rest of the object
       // (containers, etc).
@@ -55,8 +59,9 @@ namespace odb
       }
 
       object_traits::load_ (statements_, obj);
-
       statements_.load_delayed ();
+      object_traits::callback (db, obj, callback_event::post_load);
+
       l.unlock ();
     }
 
