@@ -69,7 +69,7 @@ struct type
   double d;
   std::string str;
 
-  #pragma db type ("INTEGER UNSIGNED")
+  #pragma db type ("INTEGER")
   bool m1;
 
   #pragma db transient
