@@ -41,6 +41,10 @@ if [ -z "$driver" ]; then
   driver=psql
 fi
 
+opt="--quiet $opt"
+
+export PGOPTIONS=--client-min-messages=warning
+
 if [ -n "$1" ]; then
   exec $driver $opt <$1
 else
