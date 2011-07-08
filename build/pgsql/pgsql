@@ -19,10 +19,6 @@ while [ $# -gt 0 ]; do
       opt="$opt --user=$2"
       shift 2
       ;;
-    --password)
-      opt="$opt --password=$2"
-      shift 2
-      ;;
     --dbname)
       opt="$opt --dbname=$2"
       shift 2
