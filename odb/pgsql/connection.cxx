@@ -40,6 +40,10 @@ namespace odb
     connection::
     ~connection ()
     {
+      // Deallocate prepared statements before we close the connection.
+      //
+      statement_cache_.reset ();
+
       PQfinish (handle_);
     }
   }
