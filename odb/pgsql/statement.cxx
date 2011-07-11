@@ -47,7 +47,8 @@ namespace odb
 
       string s ("deallocate ");
       s += name_;
-      PQexec (conn_.handle (), s.c_str ());
+
+      result_ptr r (PQexec (conn_.handle (), s.c_str ()));
       deallocated_ = true;
     }
 
