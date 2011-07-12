@@ -21,8 +21,6 @@ namespace odb
   {
     namespace details
     {
-      // @@ Revise this.
-      //
       using namespace odb::details;
 
       template <typename T, std::size_t S = sizeof (T)>
@@ -136,7 +134,6 @@ namespace odb
         static const endian host_endian;
 
       public:
-
         template <typename T>
         static T
         hton (T x)
