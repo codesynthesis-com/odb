@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# file      : build/mysql/pgsql
+# file      : build/pgsql/pgsql
 # author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
@@ -19,7 +19,7 @@ while [ $# -gt 0 ]; do
       opt="$opt --user=$2"
       shift 2
       ;;
-    --dbname)
+    --database)
       opt="$opt --dbname=$2"
       shift 2
       ;;
