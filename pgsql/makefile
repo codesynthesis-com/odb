@@ -7,7 +7,9 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
 tests :=      \
 template      \
-native
+native        \
+truncation    \
+types
 
 default   := $(out_base)/
 dist      := $(out_base)/.dist
