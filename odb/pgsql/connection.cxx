@@ -18,6 +18,14 @@ namespace odb
 {
   namespace pgsql
   {
+    namespace
+    {
+      void
+      nop_process_notice (void*, const char*)
+      {
+      }
+    }
+
     connection::
     connection (database_type& db)
         : db_ (db),
@@ -35,6 +43,8 @@ namespace odb
 
         throw database_exception (m);
       }
+
+      PQsetNoticeProcessor (handle_, &nop_process_notice, 0);
     }
 
     connection::
