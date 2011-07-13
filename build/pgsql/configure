@@ -32,9 +32,8 @@ db=`read_value "odb_test"`
 
 $echo
 $echo "Please enter the PostgreSQL database host. Leaving this field"
-$echo "results in connecting to a Unix-domain socket using the server's"
-$echo "default location, usually /tmp. Machines without Unix-domain"
-$echo "sockets will connect to localhost."
+$echo "blank results in using Unix-domain socket. Machines without"
+$echo "Unix-domain sockets will connect to localhost."
 
 host=`read_value ""`
 
@@ -49,9 +48,9 @@ opt=$dcf_root/db.options
 drv=$dcf_root/db-driver
 
 echo "--user '$user'"        >$opt
-echo "--dbname '$db'"       >>$opt
+echo "--database '$db'"     >>$opt
 echo "--host '$host'"       >>$opt
-echo "--port $port"         >>$opt
+echo "--port '$port'"       >>$opt
 
 echo "#!/bin/sh"                                              >$drv
 echo "opt=\`cat $opt\`"                                      >>$drv
