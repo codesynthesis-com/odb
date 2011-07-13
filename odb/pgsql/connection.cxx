@@ -44,7 +44,15 @@ namespace odb
         throw database_exception (m);
       }
 
+      // Suppress server notifications to stdout.
+      //
       PQsetNoticeProcessor (handle_, &nop_process_notice, 0);
+
+      // Establish whether date/time values are represented as
+      // 8-byte integers.
+      //
+      integer_datetimes_ =
+        *PQparameterStatus (handle_, "integer_datetimes") == '1';
     }
 
     connection::

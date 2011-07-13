@@ -59,14 +59,20 @@ namespace odb
         return *statement_cache_;
       }
 
+      bool
+      integer_datetimes () const
+      {
+        return integer_datetimes_;
+      }
+
     private:
       connection (const connection&);
       connection& operator= (const connection&);
 
     private:
       database_type& db_;
-
       PGconn* handle_;
+      bool integer_datetimes_;
 
       std::auto_ptr<statement_cache_type> statement_cache_;
     };
