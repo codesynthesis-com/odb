@@ -1306,107 +1306,125 @@ namespace odb
     //   unsigned long size_;
     // };
 
-    // @@ DATE
+    // DATE
     //
-    // template <typename T>
-    // struct query_param_impl<T, id_date>: query_param
-    // {
-    //   query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
-    //   query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
+    template <typename T>
+    struct query_param_impl<T, id_date>: query_param
+    {
+      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
-    //   virtual bool
-    //   init ()
-    //   {
-    //     init (*static_cast<const T*> (value_));
-    //     return false;
-    //   }
+      virtual bool
+      init ()
+      {
+        init (*static_cast<const T*> (value_));
+        return false;
+      }
 
-    //   virtual void
-    //   bind (MYSQL_BIND* b)
-    //   {
-    //     b->buffer_type = MYSQL_TYPE_DATE;
-    //     b->buffer = &image_;
-    //   }
+      virtual void
+      bind (pgsql::bind* b)
+      {
+        b->type = bind::date;
+        b->buffer = &image_;
+      }
 
-    // private:
-    //   void
-    //   init (const T& v)
-    //   {
-    //     bool dummy;
-    //     value_traits<T, id_date>::set_image (image_, dummy, v);
-    //   }
+      virtual unsigned int
+      oid () const
+      {
+        return date_oid;
+      }
 
-    // private:
-    //   MYSQL_TIME image_;
-    // };
+    private:
+      void
+      init (const T& v)
+      {
+        bool dummy;
+        value_traits<T, id_date>::set_image (image_, dummy, v);
+      }
 
-    // @@ TIME
+    private:
+      int image_;
+    };
+
+    // TIME
     //
-    // template <typename T>
-    // struct query_param_impl<T, id_time>: query_param
-    // {
-    //   query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
-    //   query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
+    template <typename T>
+    struct query_param_impl<T, id_time>: query_param
+    {
+      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
-    //   virtual bool
-    //   init ()
-    //   {
-    //     init (*static_cast<const T*> (value_));
-    //     return false;
-    //   }
+      virtual bool
+      init ()
+      {
+        init (*static_cast<const T*> (value_));
+        return false;
+      }
 
-    //   virtual void
-    //   bind (MYSQL_BIND* b)
-    //   {
-    //     b->buffer_type = MYSQL_TYPE_TIME;
-    //     b->buffer = &image_;
-    //   }
+      virtual void
+      bind (pgsql::bind* b)
+      {
+        b->type = bind::time;
+        b->buffer = &image_;
+      }
 
-    // private:
-    //   void
-    //   init (const T& v)
-    //   {
-    //     bool dummy;
-    //     value_traits<T, id_time>::set_image (image_, dummy, v);
-    //   }
+      virtual unsigned int
+      oid () const
+      {
+        return time_oid;
+      }
 
-    // private:
-    //   MYSQL_TIME image_;
-    // };
+    private:
+      void
+      init (const T& v)
+      {
+        bool dummy;
+        value_traits<T, id_time>::set_image (image_, dummy, v);
+      }
 
-    // @@ TIMESTAMP
+    private:
+      long long image_;
+    };
+
+    // TIMESTAMP
     //
-    // template <typename T>
-    // struct query_param_impl<T, id_timestamp>: query_param
-    // {
-    //   query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
-    //   query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
+    template <typename T>
+    struct query_param_impl<T, id_timestamp>: query_param
+    {
+      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
-    //   virtual bool
-    //   init ()
-    //   {
-    //     init (*static_cast<const T*> (value_));
-    //     return false;
-    //   }
+      virtual bool
+      init ()
+      {
+        init (*static_cast<const T*> (value_));
+        return false;
+      }
 
-    //   virtual void
-    //   bind (MYSQL_BIND* b)
-    //   {
-    //     b->buffer_type = MYSQL_TYPE_TIMESTAMP;
-    //     b->buffer = &image_;
-    //   }
+      virtual void
+      bind (pgsql::bind* b)
+      {
+        b->type = bind::timestamp;
+        b->buffer = &image_;
+      }
 
-    // private:
-    //   void
-    //   init (const T& v)
-    //   {
-    //     bool dummy;
-    //     value_traits<T, id_timestamp>::set_image (image_, dummy, v);
-    //   }
+      virtual unsigned int
+      oid () const
+      {
+        return timestamp_oid;
+      }
 
-    // private:
-    //   MYSQL_TIME image_;
-    // };
+    private:
+      void
+      init (const T& v)
+      {
+        bool dummy;
+        value_traits<T, id_timestamp>::set_image (image_, dummy, v);
+      }
+
+    private:
+      long long image_;
+    };
 
     // STRING
     //

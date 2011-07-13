@@ -89,7 +89,7 @@ namespace odb
 
         n.values[i] = reinterpret_cast<char*> (current_bind.buffer);
 
-        // Use text format for numeric/decimal types and binary format
+        // Use text format for numeric types and binary format
         // for all others.
         //
         if (current_bind.type == bind::numeric)
@@ -130,6 +130,17 @@ namespace odb
           case bind::double_:
             {
               l = sizeof (double);
+              break;
+            }
+          case bind::date:
+            {
+              l = sizeof (int);
+              break;
+            }
+          case bind::time:
+          case bind::timestamp:
+            {
+              l = sizeof (long long);
               break;
             }
           case bind::uuid:
@@ -195,7 +206,9 @@ namespace odb
         case bind::boolean:
           {
             *static_cast<bool*> (b.buffer) =
-              reinterpret_cast<const bool*> (v);
+              *reinterpret_cast<const bool*> (v);
+
+            break;
           }
         case bind::smallint:
           {
@@ -206,8 +219,7 @@ namespace odb
           }
         case bind::integer:
           {
-            *static_cast<int*> (b.buffer) =
-              *reinterpret_cast<const int*> (v);
+            *static_cast<int*> (b.buffer) = *reinterpret_cast<const int*> (v);
 
             break;
           }
@@ -229,6 +241,20 @@ namespace odb
           {
             *static_cast<double*> (b.buffer) =
               *reinterpret_cast<const double*> (v);
+
+            break;
+          }
+        case bind::date:
+          {
+            *static_cast<int*> (b.buffer) = *reinterpret_cast<const int*> (v);
+
+            break;
+          }
+        case bind::time:
+        case bind::timestamp:
+          {
+            *static_cast<long long*> (b.buffer) =
+              *reinterpret_cast<const long long*> (v);
 
             break;
           }
@@ -256,6 +282,7 @@ namespace odb
         case bind::uuid:
           {
             memcpy (b.buffer, v, 16);
+
             break;
           }
         }

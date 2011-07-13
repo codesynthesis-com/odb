@@ -30,6 +30,9 @@ namespace odb
         real,     // Buffer is float; size, capacity, truncated are unused.
         double_,  // Buffer is double; size, capacity, truncated are unused.
         numeric,  // Buffer is a char array.
+        date,     // Buffer is int; size, capacity, truncated are unused.
+        time,     // Buffer is long long; size, capacity, truncated are unused.
+        timestamp,// Buffer is long long; size, capacity, truncated are unused.
         text,     // Buffer is a char array.
         bytea,    // Buffer is a char array.
         bit,      // Buffer is a char array.
