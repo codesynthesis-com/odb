@@ -18,12 +18,9 @@ namespace odb
 {
   namespace pgsql
   {
-    namespace
+    static void
+    nop_process_notice (void*, const char*)
     {
-      void
-      nop_process_notice (void*, const char*)
-      {
-      }
     }
 
     connection::
