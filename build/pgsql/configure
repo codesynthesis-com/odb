@@ -31,7 +31,9 @@ $echo
 db=`read_value "odb_test"`
 
 $echo
-$echo "Please enter the PostgreSQL database host."
+$echo "Please enter the PostgreSQL database host. Leaving this field"
+$echo "blank results in using Unix-domain sockets. Machines without"
+$echo "Unix-domain sockets will connect to localhost."
 $echo
 
 host=`read_value ""`
@@ -49,11 +51,11 @@ drv=$dcf_root/db-driver
 echo "--user '$user'"    >$opt
 echo "--database '$db'" >>$opt
 
-if [ -n "$host"]; then
+if [ -n "$host" ]; then
 echo "--host '$host'"   >>$opt
 fi
 
-if [ -n "$port"]; then
+if [ -n "$port" ]; then
 echo "--port '$port'"   >>$opt
 fi
 
