@@ -10,6 +10,7 @@
 #include <string>
 #include <memory>  // std::auto_ptr
 #include <cstring> // std::memcmp
+#include <cstddef> // std::size_t
 
 #include <odb/core.hxx>
 
@@ -31,6 +32,42 @@ operator== (bitfield x, bitfield y)
     x.b == y.b &&
     x.c == y.c &&
     x.d == y.d;
+}
+
+struct varbit
+{
+  std::size_t size;
+  ubuffer ubuffer_;
+
+  bool
+  compare (const varbit& x) const
+  {
+    if (size != x.size)
+      return false;
+
+    std::size_t byte_len = size / 8;
+
+    if (std::memcmp (ubuffer_.data (), x.ubuffer_.data (), byte_len != 0))
+      return false;
+
+    std::size_t trailing_bits = size % 8;
+
+    if (trailing_bits != 0)
+    {
+      unsigned char mask (0xFFU << (8 - trailing_bits));
+
+      return (ubuffer_.data ()[byte_len] & mask) ==
+        (x.ubuffer_.data ()[byte_len] & mask);
+    }
+
+    return true;
+  }
+};
+
+inline bool
+operator== (const varbit& x, const varbit& y)
+{
+  return x.compare (y);
 }
 
 #pragma db value(bitfield) type ("BIT(4) NOT NULL")
@@ -108,7 +145,7 @@ struct object
   buffer bytea_;
 
   #pragma db type ("VARBIT(1024) NOT NULL")
-  buffer varbit_;
+  varbit varbit_;
 
   // #pragma db type ("BIT(4) NOT NULL") - assigned by #pragma db value
   bitfield bit_;

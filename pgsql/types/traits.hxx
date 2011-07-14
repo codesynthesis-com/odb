@@ -6,12 +6,13 @@
 #ifndef TRAITS_HXX
 #define TRAITS_HXX
 
+#include <cassert>
 #include <cstring> // std::memcpy, std::memset
 
 #include <odb/pgsql/traits.hxx>
 #include <odb/pgsql/details/endian-traits.hxx>
 
-#include "test.hxx" // date_time, buffer, string_ptr
+#include "test.hxx" // varbit, buffer, ubuffer, string_ptr
 
 namespace odb
 {
@@ -96,45 +97,65 @@ namespace odb
       }
     };
 
+    // The first 4 bytes of the image is a signed int specifying the
+    // number of significant bits contained by the VARBIT. The following
+    // bytes contain the VARBIT data.
+    //
     template <>
-    class value_traits<buffer, id_varbit>
+    class value_traits<varbit, id_varbit>
     {
     public:
-      typedef buffer value_type;
-      typedef buffer query_type;
+      typedef varbit value_type;
+      typedef varbit query_type;
       typedef details::ubuffer image_type;
 
       static void
-      set_value (buffer& v,
+      set_value (varbit& v,
                  const details::ubuffer& b,
                  std::size_t n,
                  bool is_null)
       {
         if (!is_null)
-          v.assign (b.data () + 4, n - 4);
+        {
+          v.size = static_cast<std::size_t> (
+            details::endian_traits::ntoh (
+              *reinterpret_cast<const int*> (b.data ())));
+
+          std::size_t byte_len =  v.size / 8 + v.size % 8 > 0 ? 1 : 0;
+          assert (n >= byte_len + 4);
+
+          v.ubuffer_.assign (b.data () + 4, byte_len);
+        }
+
         else
-          v.assign (0, 0);
+        {
+          v.size = 0;
+          v.ubuffer_.assign (0, 0);
+        }
       }
 
       static void
       set_image (details::ubuffer& b,
                  std::size_t& n,
                  bool& is_null,
-                 const buffer& v)
+                 const varbit& v)
       {
         is_null = false;
-        n = v.size () + 4;
+        n = 4 + v.size / 8 + (v.size % 8 > 0 ? 1 : 0);
 
         if (n > b.capacity ())
           b.capacity (n);
 
-        int bit_len = static_cast<int> (v.size () * 8);
+        // PostgreSQL requires all trailing bits of a varbit image
+        // be zero.
+        //
+        std::memset (b.data (), 0, b.capacity ());
 
         *reinterpret_cast<int*> (b.data ()) =
-          details::endian_traits::hton (bit_len);
+          details::endian_traits::hton (static_cast<int> (v.size));
 
-        if (bit_len != 0)
-          std::memcpy (b.data () + 4, v.data (), v.size ());
+        if (v.size != 0)
+          std::memcpy (b.data () + 4, v.ubuffer_.data (), n - 4);
       }
     };
 

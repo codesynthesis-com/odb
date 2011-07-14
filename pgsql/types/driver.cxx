@@ -47,15 +47,17 @@ main (int argc, char* argv[])
     string short_str (128, 's');
     string medium_str (250, 'm');
     string long_str (2040, 'l');
-    buffer long_buf (long_str.c_str (), long_str.size ());
-
-    unsigned char varbit_buf[8] = {1, 2, 1, 2, 1, 1, 1, 1};
 
     o.char_ = short_str;
     o.varchar_ = medium_str;
     o.text_ = long_str;
+
+    buffer long_buf (long_str.c_str (), long_str.size ());
     o.bytea_ = long_buf;
-    o.varbit_ = buffer (varbit_buf, 8);
+
+    unsigned char varbit_buf[8] = {1, 3, 1, 3, 1, 3, 1, 3};
+    o.varbit_.size = 52;
+    o.varbit_.ubuffer_ = ubuffer (varbit_buf, 8);
 
     o.bit_.a = 0;
     o.bit_.b = 1;
