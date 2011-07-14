@@ -55,6 +55,10 @@ namespace odb
       }
     };
 
+    // The first 4 bytes of the image is a signed int specifying the
+    // number of significant bits contained by the BIT. The following
+    // bytes contain the bit data.
+    //
     template <>
     class value_traits<bitfield, id_bit>
     {
@@ -71,7 +75,11 @@ namespace odb
       {
         if (!is_null)
         {
-          unsigned char const* d = i + 4;
+          assert (
+            details::endian_traits::ntoh (
+              *reinterpret_cast<const int*> (i)) == 4);
+
+          const unsigned char* d (i + 4);
 
           v.a = *d >> 4 & 1;
           v.b = (*d >> 5) & 1;
@@ -146,8 +154,8 @@ namespace odb
         if (n > b.capacity ())
           b.capacity (n);
 
-        // PostgreSQL requires all trailing bits of a varbit image
-        // be zero.
+        // PostgreSQL requires all trailing bits of a VARBIT image
+        // to be zero.
         //
         std::memset (b.data (), 0, b.capacity ());
 
