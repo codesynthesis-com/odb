@@ -13,6 +13,7 @@
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/transaction.hxx>
 #include <odb/pgsql/error.hxx>
+
 #include <odb/pgsql/details/endian-traits.hxx>
 
 using namespace std;
@@ -88,82 +89,72 @@ namespace odb
         }
 
         n.values[i] = reinterpret_cast<char*> (current_bind.buffer);
+        n.formats[i] = 1;
 
-        // Use text format for numeric types and binary format
-        // for all others.
-        //
-        if (current_bind.type == bind::numeric)
-          n.formats[i] = 0;
-        else
+        size_t l;
+
+        switch (current_bind.type)
         {
-          n.formats[i] = 1;
-
-          size_t l;
-
-          switch (current_bind.type)
+        case bind::boolean:
           {
-          case bind::boolean:
-            {
-              l = sizeof (bool);
-              break;
-            }
-          case bind::smallint:
-            {
-              l = sizeof (short);
-              break;
-            }
-          case bind::integer:
-            {
-              l = sizeof (int);
-              break;
-            }
-          case bind::bigint:
-            {
-              l = sizeof (long long);
-              break;
-            }
-          case bind::real:
-            {
-              l = sizeof (float);
-              break;
-            }
-          case bind::double_:
-            {
-              l = sizeof (double);
-              break;
-            }
-          case bind::date:
-            {
-              l = sizeof (int);
-              break;
-            }
-          case bind::time:
-          case bind::timestamp:
-            {
-              l = sizeof (long long);
-              break;
-            }
-          case bind::uuid:
-            {
-              // UUID is a 16-byte sequence.
-              //
-              l = 16;
-              break;
-            }
-          case bind::text:
-          case bind::bytea:
-          case bind::bit:
-          case bind::varbit:
-            {
-              l = *current_bind.size;
-              break;
-            }
-          case bind::numeric:
-            assert (false);
+            l = sizeof (bool);
+            break;
           }
-
-          n.lengths[i] = static_cast<int> (l);
+        case bind::smallint:
+          {
+            l = sizeof (short);
+            break;
+          }
+        case bind::integer:
+          {
+            l = sizeof (int);
+            break;
+          }
+        case bind::bigint:
+          {
+            l = sizeof (long long);
+            break;
+          }
+        case bind::real:
+          {
+            l = sizeof (float);
+            break;
+          }
+        case bind::double_:
+          {
+            l = sizeof (double);
+            break;
+          }
+        case bind::date:
+          {
+            l = sizeof (int);
+            break;
+          }
+        case bind::time:
+        case bind::timestamp:
+          {
+            l = sizeof (long long);
+            break;
+          }
+        case bind::numeric:
+        case bind::text:
+        case bind::bytea:
+        case bind::bit:
+        case bind::varbit:
+          {
+            l = *current_bind.size;
+            break;
+          }
+        case bind::uuid:
+          {
+            // UUID is a 16-byte sequence.
+            //
+            l = 16;
+            break;
+          }
         }
+
+        n.lengths[i] = static_cast<int> (l);
       }
     }
 

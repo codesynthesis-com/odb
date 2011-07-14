@@ -1267,44 +1267,50 @@ namespace odb
       double image_;
     };
 
-    // @@ NUMERIC
+    // NUMERIC
     //
-    // template <typename T>
-    // struct query_param_impl<T, id_numeric>: query_param
-    // {
-    //   query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
-    //   query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
+    template <typename T>
+    struct query_param_impl<T, id_numeric>: query_param
+    {
+      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
-    //   virtual bool
-    //   init ()
-    //   {
-    //     return init (*static_cast<const T*> (value_));
-    //   }
+      virtual bool
+      init ()
+      {
+        return init (*static_cast<const T*> (value_));
+      }
 
-    //   virtual void
-    //   bind (pgsql::bind* b)
-    //   {
-    //     b->type = bind::numeric;
-    //     b->buffer = buffer_.data ();
-    //     b->buffer_length = static_cast<unsigned long> (buffer_.capacity ());
-    //     b->length = &size_;
-    //   }
+      virtual void
+      bind (pgsql::bind* b)
+      {
+        b->type = bind::numeric;
+        b->buffer = buffer_.data ();
+        b->capacity = buffer_.capacity ();
+        b->size = &size_;
+      }
 
-    // private:
-    //   bool
-    //   init (const T& v)
-    //   {
-    //     bool dummy;
-    //     std::size_t size, cap (buffer_.capacity ());
-    //     value_traits<T, id_decimal>::set_image (buffer_, size, dummy, v);
-    //     size_ = static_cast<unsigned long> (size);
-    //     return cap != buffer_.capacity ();
-    //   }
+      virtual unsigned int
+      oid () const
+      {
+        return numeric_oid;
+      }
 
-    // private:
-    //   details::buffer buffer_;
-    //   unsigned long size_;
-    // };
+    private:
+      bool
+      init (const T& v)
+      {
+        bool dummy;
+        std::size_t size, cap (buffer_.capacity ());
+        value_traits<T, id_numeric>::set_image (buffer_, size, dummy, v);
+        size_ = size;
+        return cap != buffer_.capacity ();
+      }
+
+    private:
+      details::buffer buffer_;
+      std::size_t size_;
+    };
 
     // DATE
     //
