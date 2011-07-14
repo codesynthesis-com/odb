@@ -3,7 +3,8 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <new>    // std::bad_alloc
+#include <new>     // std::bad_alloc
+#include <cstring> // std::strcmp
 #include <string>
 
 #include <odb/pgsql/database.hxx>
@@ -48,8 +49,9 @@ namespace odb
       // Establish whether date/time values are represented as
       // 8-byte integers.
       //
-      integer_datetimes_ =
-        *PQparameterStatus (handle_, "integer_datetimes") == '1';
+      if (strcmp (PQparameterStatus (handle_, "integer_datetimes"), "on") != 0)
+        throw database_exception ("unsupported binary format for PostgreSQL "
+                                  "date-time SQL types");
     }
 
     connection::
