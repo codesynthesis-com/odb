@@ -17,17 +17,11 @@ dist    := $(out_base)/.dist
 test    := $(out_base)/.test
 clean   := $(out_base)/.clean
 
-# Import 
-#
-$(call import,\
-  $(scf_root)/import/libodb-pgsql/stub.make,\
-  l: odb_pgsql.l,cpp-options: odb_pgsql.l.cpp-options)
-
 # Build.
 #
-$(driver): $(cxx_obj) $(odb_pgsql.l) $(common.l)
+$(driver): $(cxx_obj) $(common.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
-$(cxx_obj) $(cxx_od): $(odb_pgsql.l.cpp-options) $(common.l.cpp-options)
+$(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
 $(call include-dep,$(cxx_od))
 

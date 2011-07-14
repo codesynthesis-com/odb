@@ -24,15 +24,11 @@ $(call import,\
   $(scf_root)/import/odb/stub.make,\
   odb: odb,odb-rules: odb_rules)
 
-$(call import,\
-  $(scf_root)/import/libodb-pgsql/stub.make,\
-  l: odb_pgsql.l,cpp-options: odb_pgsql.l.cpp-options)
-
 # Build.
 #
-$(driver): $(cxx_obj) $(odb_pgsql.l) $(common.l)
+$(driver): $(cxx_obj) $(common.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
-$(cxx_obj) $(cxx_od): $(odb_pgsql.l.cpp-options) $(common.l.cpp-options)
+$(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
 genf := $(addprefix $(odb_hdr:.hxx=-odb),.hxx .ixx .cxx) $(odb_hdr:.hxx=.sql)
 gen  := $(addprefix $(out_base)/,$(genf))
