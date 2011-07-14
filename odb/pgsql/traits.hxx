@@ -252,7 +252,7 @@ namespace odb
     template <>
     struct default_type_traits<unsigned short>
     {
-      static const database_type_id db_type_id = id_integer;
+      static const database_type_id db_type_id = id_smallint;
     };
 
     template <>
@@ -264,7 +264,7 @@ namespace odb
     template <>
     struct default_type_traits<unsigned int>
     {
-      static const database_type_id db_type_id = id_bigint;
+      static const database_type_id db_type_id = id_integer;
     };
 
     template <>
