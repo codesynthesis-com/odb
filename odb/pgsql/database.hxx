@@ -34,18 +34,18 @@ namespace odb
       typedef pgsql::connection connection_type;
 
     public:
-      database (const std::string& db,
-                const std::string& user,
+      database (const std::string& user,
                 const std::string& password,
+                const std::string& db,
                 const std::string& host = "",
                 unsigned int port = 0,
                 const std::string& extra_conninfo = "",
                 std::auto_ptr<connection_factory> factory =
                   std::auto_ptr<connection_factory> (0));
 
-      database (const std::string& db,
-                const std::string& user,
+      database (const std::string& user,
                 const std::string& password,
+                const std::string& db,
                 const std::string& host = "",
                 const std::string& socket_ext = "",
                 const std::string& extra_conninfo = "",
@@ -101,18 +101,6 @@ namespace odb
 
     public:
       const std::string&
-      host () const
-      {
-        return host_;
-      }
-
-      const std::string&
-      db () const
-      {
-        return db_;
-      }
-
-      const std::string&
       user () const
       {
         return user_;
@@ -122,6 +110,18 @@ namespace odb
       password () const
       {
         return password_;
+      }
+
+      const std::string&
+      db () const
+      {
+        return db_;
+      }
+
+      const std::string&
+      host () const
+      {
+        return host_;
       }
 
       unsigned int
