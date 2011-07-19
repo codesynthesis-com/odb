@@ -12,11 +12,11 @@
 // Map QString to SQLite TEXT by default. Allow NULL values by default as
 // QString provides a null representation.
 //
-#pragma db value(QString) type("TEXT")
+#pragma db value(QString) type("TEXT") null
 
 // Map QByteArray to SQLite BLOB by default. Allow NULL values by default as
 // QByteArray provides a null representation.
 //
-#pragma db value(QByteArray) type("BLOB")
+#pragma db value(QByteArray) type("BLOB") null
 
 #endif // ODB_QT_BASIC_SQLITE_DEFAULT_MAPPING_HXX

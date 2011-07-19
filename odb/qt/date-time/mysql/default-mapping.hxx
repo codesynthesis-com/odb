@@ -13,16 +13,16 @@
 // Map QDate to MySQL DATE by default. QDate provides a null
 // representation so allow NULL values by default.
 //
-#pragma db value(QDate) type("DATE")
+#pragma db value(QDate) type("DATE") null
 
 // Map QTime to MySQL TIME by default. QTime provides a null
 // representation so allow NULL values by default.
 //
-#pragma db value(QTime) type("TIME")
+#pragma db value(QTime) type("TIME") null
 
 // Map QDateTime to MySQL DATETIME by default. QDateTime provides a null
 // representation so allow NULL values by default.
 //
-#pragma db value(QDateTime) type("DATETIME")
+#pragma db value(QDateTime) type("DATETIME") null
 
 #endif // ODB_QT_DATE_TIME_MYSQL_DEFAULT_MAPPING_HXX
