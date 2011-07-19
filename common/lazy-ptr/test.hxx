@@ -38,7 +38,7 @@ public:
 
   typedef std::vector<lazy_ptr<obj1> > obj_list;
 
-  #pragma db not_null
+  #pragma db value_not_null
   obj_list o;
 };
 
@@ -122,7 +122,7 @@ namespace tr1
 
     typedef std::vector<lazy_weak_ptr<obj> > obj_list;
 
-    #pragma db inverse(c) not_null
+    #pragma db inverse(c) value_not_null
     obj_list o;
   };
 

@@ -31,24 +31,24 @@ struct object
   #pragma db id
   unsigned long id_;
 
-  #pragma db type ("BOOL NOT NULL")
+  #pragma db type ("BOOL")
   bool bool_;
 
-  #pragma db type ("INTEGER NOT NULL")
+  #pragma db type ("INTEGER")
   int integer_;
 
-  #pragma db type ("REAL NOT NULL")
+  #pragma db type ("REAL")
   double real_;
 
-  #pragma db type ("TEXT NOT NULL")
+  #pragma db type ("TEXT")
   std::string text_;
 
-  #pragma db type ("BLOB NOT NULL")
+  #pragma db type ("BLOB")
   buffer blob_;
 
   // Test NULL value.
   //
-  #pragma db type ("TEXT")
+  #pragma db type ("TEXT") null
   string_ptr null_;
 
   bool

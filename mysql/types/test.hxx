@@ -77,7 +77,7 @@ operator== (bitfield x, bitfield y)
     x.d == y.d;
 }
 
-#pragma db value(bitfield) type ("BIT(4) NOT NULL")
+#pragma db value(bitfield) type ("BIT(4)")
 
 typedef std::set<std::string> set;
 typedef std::auto_ptr<std::string> string_ptr;
@@ -101,126 +101,126 @@ struct object
 
   // Integral types.
   //
-  #pragma db type ("BOOL NOT NULL")
+  #pragma db type ("BOOL")
   bool bool_;
 
-  #pragma db type ("TINYINT NOT NULL")
+  #pragma db type ("TINYINT")
   signed char schar_;
 
-  #pragma db type ("TINYINT UNSIGNED NOT NULL")
+  #pragma db type ("TINYINT UNSIGNED")
   unsigned char uchar_;
 
-  #pragma db type ("SMALLINT NOT NULL")
+  #pragma db type ("SMALLINT")
   short short_;
 
-  #pragma db type ("SMALLINT UNSIGNED NOT NULL")
+  #pragma db type ("SMALLINT UNSIGNED")
   unsigned short ushort_;
 
-  #pragma db type ("MEDIUMINT NOT NULL")
+  #pragma db type ("MEDIUMINT")
   int mint_;
 
-  #pragma db type ("MEDIUMINT UNSIGNED NOT NULL")
+  #pragma db type ("MEDIUMINT UNSIGNED")
   unsigned int umint_;
 
-  #pragma db type ("INT NOT NULL")
+  #pragma db type ("INT")
   int int_;
 
-  #pragma db type ("INT UNSIGNED NOT NULL")
+  #pragma db type ("INT UNSIGNED")
   unsigned int uint_;
 
-  #pragma db type ("BIGINT NOT NULL")
+  #pragma db type ("BIGINT")
   long long long_long_;
 
-  #pragma db type ("BIGINT UNSIGNED NOT NULL")
+  #pragma db type ("BIGINT UNSIGNED")
   unsigned long long ulong_long_;
 
   // Float types.
   //
-  #pragma db type ("FLOAT NOT NULL")
+  #pragma db type ("FLOAT")
   float float_;
 
-  #pragma db type ("FLOAT(32) NOT NULL")
+  #pragma db type ("FLOAT(32)")
   double float8_;
 
-  #pragma db type ("DOUBLE NOT NULL")
+  #pragma db type ("DOUBLE")
   double double_;
 
-  #pragma db type ("DECIMAL(6,3) NOT NULL")
+  #pragma db type ("DECIMAL(6,3)")
   std::string decimal_;
 
   // Data-time types.
   //
-  #pragma db type ("DATE NOT NULL")
+  #pragma db type ("DATE")
   date_time date_;
 
-  #pragma db type ("TIME NOT NULL")
+  #pragma db type ("TIME")
   date_time time_;
 
-  #pragma db type ("DATETIME NOT NULL")
+  #pragma db type ("DATETIME")
   date_time date_time_;
 
-  #pragma db type ("TIMESTAMP NOT NULL")
+  #pragma db type ("TIMESTAMP")
   date_time timestamp_;
 
-  #pragma db type ("YEAR NOT NULL")
+  #pragma db type ("YEAR")
   short year_;
 
   // String and binary types.
   //
-  #pragma db type ("CHAR(128) NOT NULL")
+  #pragma db type ("CHAR(128)")
   std::string char_;
 
-  #pragma db type ("BINARY(128) NOT NULL")
+  #pragma db type ("BINARY(128)")
   buffer binary_;
 
-  #pragma db type ("VARCHAR(256) NOT NULL")
+  #pragma db type ("VARCHAR(256)")
   std::string varchar_;
 
-  #pragma db type ("VARBINARY(256) NOT NULL")
+  #pragma db type ("VARBINARY(256)")
   buffer varbinary_;
 
-  #pragma db type ("TINYTEXT NOT NULL")
+  #pragma db type ("TINYTEXT")
   std::string tinytext_;
 
-  #pragma db type ("TINYBLOB NOT NULL")
+  #pragma db type ("TINYBLOB")
   buffer tinyblob_;
 
-  #pragma db type ("TEXT NOT NULL")
+  #pragma db type ("TEXT")
   std::string text_;
 
-  #pragma db type ("BLOB NOT NULL")
+  #pragma db type ("BLOB")
   buffer blob_;
 
-  #pragma db type ("MEDIUMTEXT NOT NULL")
+  #pragma db type ("MEDIUMTEXT")
   std::string mediumtext_;
 
-  #pragma db type ("MEDIUMBLOB NOT NULL")
+  #pragma db type ("MEDIUMBLOB")
   buffer mediumblob_;
 
-  #pragma db type ("LONGTEXT NOT NULL")
+  #pragma db type ("LONGTEXT")
   std::string longtext_;
 
-  #pragma db type ("LONGBLOB NOT NULL")
+  #pragma db type ("LONGBLOB")
   buffer longblob_;
 
   // Other types.
   //
-  // #pragma db type ("BIT(4) NOT NULL") - assigned by #pragma db value
+  // #pragma db type ("BIT(4)") - assigned by #pragma db value
   bitfield bit_;
 
   // Test ENUM representations (integer and string).
   //
   color enum_;
 
-  #pragma db type ("ENUM ('red', 'green', 'blue') NOT NULL")
+  #pragma db type ("ENUM ('red', 'green', 'blue')")
   std::string enum_str_;
 
-  #pragma db type ("SET ('red', 'green', 'blue') NOT NULL")
+  #pragma db type ("SET ('red', 'green', 'blue')")
   set set_;
 
   // Test NULL value.
   //
-  #pragma db type ("TEXT")
+  #pragma db type ("TEXT") null
   string_ptr null_;
 
   bool

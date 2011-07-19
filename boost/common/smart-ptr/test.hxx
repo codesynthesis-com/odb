@@ -33,7 +33,7 @@ struct cont
 
   typedef std::vector<lazy_weak_ptr<obj> > obj_list;
 
-  #pragma db inverse(c) not_null
+  #pragma db inverse(c) value_not_null
   obj_list o;
 };
 

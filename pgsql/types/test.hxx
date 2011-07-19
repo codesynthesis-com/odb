@@ -70,7 +70,7 @@ operator== (const varbit& x, const varbit& y)
   return x.compare (y);
 }
 
-#pragma db value(bitfield) type ("BIT(4) NOT NULL")
+#pragma db value(bitfield) type ("BIT(4)")
 
 typedef std::auto_ptr<std::string> string_ptr;
 
@@ -93,66 +93,66 @@ struct object
 
   // Integral types.
   //
-  #pragma db type ("BOOL NOT NULL")
+  #pragma db type ("BOOL")
   bool bool_;
 
-  #pragma db type ("SMALLINT NOT NULL")
+  #pragma db type ("SMALLINT")
   short short_;
 
-  #pragma db type ("INT NOT NULL")
+  #pragma db type ("INT")
   int int_;
 
-  #pragma db type ("BIGINT NOT NULL")
+  #pragma db type ("BIGINT")
   long long long_long_;
 
   // Float types.
   //
-  #pragma db type ("REAL NOT NULL")
+  #pragma db type ("REAL")
   float float_;
 
-  #pragma db type ("FLOAT(32) NOT NULL")
+  #pragma db type ("FLOAT(32)")
   double float8_;
 
-  #pragma db type ("DOUBLE PRECISION NOT NULL")
+  #pragma db type ("DOUBLE PRECISION")
   double double_;
 
-  // #pragma db type ("NUMERIC(6,3) NOT NULL")
+  // #pragma db type ("NUMERIC(6,3)")
   // std::string numeric_;
 
   // Data-time types.
   //
-  #pragma db type ("DATE NOT NULL")
+  #pragma db type ("DATE")
   int date_;
 
-  #pragma db type ("TIME NOT NULL")
+  #pragma db type ("TIME")
   long long time_;
 
-  #pragma db type ("TIMESTAMP NOT NULL")
+  #pragma db type ("TIMESTAMP")
   long long timestamp_;
 
   // String and binary types.
   //
-  #pragma db type ("CHAR(128) NOT NULL")
+  #pragma db type ("CHAR(128)")
   std::string char_;
 
-  #pragma db type ("VARCHAR(256) NOT NULL")
+  #pragma db type ("VARCHAR(256)")
   std::string varchar_;
 
-  #pragma db type ("TEXT NOT NULL")
+  #pragma db type ("TEXT")
   std::string text_;
 
-  #pragma db type ("BYTEA NOT NULL")
+  #pragma db type ("BYTEA")
   buffer bytea_;
 
-  #pragma db type ("VARBIT(1024) NOT NULL")
+  #pragma db type ("VARBIT(1024)")
   varbit varbit_;
 
-  // #pragma db type ("BIT(4) NOT NULL") - assigned by #pragma db value
+  // #pragma db type ("BIT(4)") - assigned by #pragma db value
   bitfield bit_;
 
   // Other types.
   //
-  #pragma db type ("UUID NOT NULL")
+  #pragma db type ("UUID")
   unsigned char uuid_[16];
 
   // Test ENUM representation.
@@ -161,7 +161,7 @@ struct object
 
   // Test NULL value.
   //
-  #pragma db type ("TEXT")
+  #pragma db type ("TEXT") null
   string_ptr null_;
 
   bool

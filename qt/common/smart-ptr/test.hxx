@@ -30,7 +30,7 @@ struct cont
 
   typedef std::vector<QLazyWeakPointer<obj> > obj_list;
 
-  #pragma db inverse(c) not_null
+  #pragma db inverse(c) value_not_null
   obj_list o;
 };
 

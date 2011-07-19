@@ -42,11 +42,11 @@ struct object
   QDate date;
   QDateTime date_time;
 
-  // Specify NULL explicitly to suppress auto-initialization and
-  // auto-update characteristics of TIMESTAMP datatype, and to allow
-  // NULL values.
+  // Make timestamp NULL-able to suppress the auto-initialization and
+  // auto-update characteristics of the TIMESTAMP datatype, and to
+  // allow NULL values.
   //
-  #pragma db type("TIMESTAMP NULL")
+  #pragma db type("TIMESTAMP") null
   QDateTime timestamp;
 
   QTime time;

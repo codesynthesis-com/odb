@@ -37,11 +37,11 @@ struct object
   std::vector<boost::gregorian::date> dates;
   std::vector<boost::posix_time::ptime> times;
 
-  // Specify NULL explicitly to suppress auto-initialization and
-  // auto-update characteristics of TIMESTAMP datatype, and to allow
-  // NULL values.
+  // Make timestamp NULL-able to suppress the auto-initialization and
+  // auto-update characteristics of the TIMESTAMP datatype, and to
+  // allow NULL values.
   //
-  #pragma db value_type ("TIMESTAMP NULL")
+  #pragma db value_type ("TIMESTAMP") value_null
   std::vector<boost::posix_time::ptime> timestamps;
 
   std::vector<boost::posix_time::time_duration> durations;

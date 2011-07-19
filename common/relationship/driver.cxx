@@ -46,8 +46,9 @@ main (int argc, char* argv[])
     a.v1.push_back (0);
     a.v1.push_back (new obj1 ("v1 2", "v1 2"));
 
+    // Set cannot contain NULL pointers.
+    //
     a.s1.insert (new obj1 ("s1 0", "s1 0"));
-    a.s1.insert (static_cast<obj1*> (0)); // VC 10
     a.s1.insert (new obj1 ("s1 2", "s1 2"));
 
     a.m1[0] = new obj1 ("m1 0", "m1 0");
@@ -112,7 +113,7 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    // test NULL pointer
+    // Test NULL pointer.
     //
     delete a.o1;
     a.o1 = 0;
