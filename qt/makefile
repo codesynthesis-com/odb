@@ -12,6 +12,8 @@ ifeq ($(db_id),mysql)
 dirs += mysql
 else ifeq ($(db_id),sqlite)
 dirs += sqlite
+else ifeq ($(db_id),pgsql)
+dirs += pgsql
 endif
 
 default := $(out_base)/

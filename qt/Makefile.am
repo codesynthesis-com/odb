@@ -13,4 +13,8 @@ if DATABASE_SQLITE
 SUBDIRS += sqlite
 endif
 
+if DATABASE_PGSQL
+SUBDIRS += pgsql
+endif
+
 EXTRA_DIST = __file__(extra_dist)
