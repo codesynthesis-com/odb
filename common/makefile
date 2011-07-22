@@ -12,6 +12,7 @@ composite     \
 const         \
 container     \
 ctor          \
+default       \
 enum          \
 inheritance   \
 inverse       \
