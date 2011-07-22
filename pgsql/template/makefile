@@ -6,7 +6,7 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 cxx_tun := driver.cxx
-odb_hdr :=
+odb_hdr := test.hxx
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
