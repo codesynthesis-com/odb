@@ -46,15 +46,20 @@ namespace odb
                  bool& is_null,
                  const QString& v)
       {
-        is_null = false;
+        if (v.isNull ())
+          is_null = true;
+        else
+        {
+          is_null = false;
 
-        const QByteArray& a (v.toUtf8 ());
-        n = static_cast<std::size_t> (a.size ());
+          const QByteArray& a (v.toUtf8 ());
+          n = static_cast<std::size_t> (a.size ());
 
-        if (n > b.capacity ())
-          b.capacity (n);
+          if (n > b.capacity ())
+            b.capacity (n);
 
-        std::memcpy (b.data (), a.data (), n);
+          std::memcpy (b.data (), a.data (), n);
+        }
       }
     };
 
