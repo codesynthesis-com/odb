@@ -41,7 +41,7 @@ fi
 AC_MSG_CHECKING([for pgsql database user])
 AC_ARG_WITH(
   [pgsql-user],
-  [AC_HELP_STRING([--with-pgsql-user=login], [PostgreSQL database user (odb_test by default)])],
+  [AC_HELP_STRING([--with-pgsql-user=login], [PostgreSQL database user (odb_test by default). The user must be able to login without specifying a password.])],
   [case $withval in
      yes)
        pgsql_user=odb_test
@@ -97,7 +97,7 @@ fi
 AC_MSG_CHECKING([for pgsql database host])
 AC_ARG_WITH(
   [pgsql-host],
-  [AC_HELP_STRING([--with-pgsql-host=host], [PostgreSQL database host (standard PostgreSQL host by default)])],
+  [AC_HELP_STRING([--with-pgsql-host=host], [PostgreSQL database host (localhost by default)])],
   [case $withval in
      yes)
        pgsql_host=

@@ -2,6 +2,8 @@
 # match your PostgreSQL setup.
 #
 
+# This use must be able to login without specifying a password.
+#
 --user odb_test
 --database odb_test
 # --host
