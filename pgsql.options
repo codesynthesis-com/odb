@@ -1,0 +1,8 @@
+# Sample PostgreSQL options file used to run the tests. Adjust to
+# match your PostgreSQL setup.
+#
+
+--user odb_test
+--database odb_test
+# --host
+# --port
