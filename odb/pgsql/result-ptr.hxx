@@ -14,6 +14,12 @@
 
 #include <odb/pgsql/details/export.hxx>
 
+//
+// Note: do not include this header into public headers (i.e., those
+// that may be included, directly or indirectly, by user code) because
+// it includes libpq-fe.h
+//
+
 namespace odb
 {
   namespace pgsql
@@ -45,6 +51,14 @@ namespace odb
           PQclear (r_);
 
         r_ = r;
+      }
+
+      PGresult*
+      release ()
+      {
+        PGresult* r (r_);
+        r_ = 0;
+        return r;
       }
 
     private:

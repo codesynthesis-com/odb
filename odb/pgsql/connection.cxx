@@ -7,6 +7,8 @@
 #include <cstring> // std::strcmp
 #include <string>
 
+#include <libpq-fe.h>
+
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/error.hxx>

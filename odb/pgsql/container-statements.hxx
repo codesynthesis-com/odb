@@ -16,6 +16,7 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
 #include <odb/pgsql/statement.hxx>
+#include <odb/pgsql/pgsql-fwd.hxx> // Oid
 #include <odb/pgsql/pgsql-oid.hxx>
 #include <odb/pgsql/details/export.hxx>
 

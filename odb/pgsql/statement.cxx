@@ -7,11 +7,14 @@
 #include <cassert>
 #include <sstream> // istringstream
 
+#include <libpq-fe.h>
+
 #include <odb/exceptions.hxx> // object_not_persistent
 
 #include <odb/pgsql/statement.hxx>
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/transaction.hxx>
+#include <odb/pgsql/result-ptr.hxx>
 #include <odb/pgsql/error.hxx>
 
 #include <odb/pgsql/details/endian-traits.hxx>
@@ -290,6 +293,8 @@ namespace odb
     select_statement::
     ~select_statement ()
     {
+      if (result_ != 0)
+        PQclear (result_);
     }
 
     select_statement::
@@ -305,6 +310,7 @@ namespace odb
           cond_ (&cond),
           native_cond_ (native_cond),
           data_ (data),
+          result_ (0),
           row_count_ (0),
           current_row_ (0)
 
@@ -323,6 +329,7 @@ namespace odb
           cond_ (0),
           native_cond_ (native_cond),
           data_ (data),
+          result_ (0),
           row_count_ (0),
           current_row_ (0)
 
@@ -332,32 +339,45 @@ namespace odb
     void select_statement::
     execute ()
     {
-      result_.reset ();
+      if (result_ != 0)
+      {
+        PQclear (result_);
+        result_ = 0;
+      }
 
       if (cond_ != 0)
         bind_param (native_cond_, *cond_);
 
-      result_.reset (PQexecPrepared (conn_.handle (),
-                                     name_.c_str (),
-                                     native_cond_.count,
-                                     native_cond_.values,
-                                     native_cond_.lengths,
-                                     native_cond_.formats,
-                                     1));
+      // Use temporary result_ptr to guarantee exception safety.
+      //
+      result_ptr r (PQexecPrepared (conn_.handle (),
+                                    name_.c_str (),
+                                    native_cond_.count,
+                                    native_cond_.values,
+                                    native_cond_.lengths,
+                                    native_cond_.formats,
+                                    1));
 
-      PGresult* h (result_.get ());
+      PGresult* h (r.get ());
 
       if (!is_good_result (h))
         translate_error (conn_, h);
 
       row_count_ = static_cast<size_t> (PQntuples (h));
       current_row_ = 0;
+
+      result_ = r.release ();
     }
 
     void select_statement::
     free_result ()
     {
-      result_.reset ();
+      if (result_ != 0)
+      {
+        PQclear (result_);
+        result_ = 0;
+      }
+
       row_count_ = 0;
       current_row_ = 0;
     }
@@ -377,11 +397,10 @@ namespace odb
       if (current_row_ > row_count_)
         return no_data;
 
-      PGresult* h (result_.get ());
-
       assert (current_row_ > 0);
-      return bind_result (data_.bind, data_.count, h, current_row_ - 1) ?
-        success : truncated;
+      return bind_result (data_.bind, data_.count, result_, current_row_ - 1)
+        ? success
+        : truncated;
     }
 
     void select_statement::
@@ -392,7 +411,7 @@ namespace odb
 
       if (!bind_result (data_.bind,
                         data_.count,
-                        result_.get (),
+                        result_,
                         current_row_ - 1,
                         true))
         assert (false);

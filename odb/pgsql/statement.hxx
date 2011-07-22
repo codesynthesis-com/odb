@@ -11,13 +11,11 @@
 #include <string>
 #include <cstddef>  // std::size_t
 
-#include <libpq-fe.h>
-
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
-#include <odb/pgsql/result-ptr.hxx>
+#include <odb/pgsql/pgsql-fwd.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -159,7 +157,7 @@ namespace odb
 
       binding& data_;
 
-      result_ptr result_;
+      PGresult* result_;
       std::size_t row_count_;
       std::size_t current_row_;
     };

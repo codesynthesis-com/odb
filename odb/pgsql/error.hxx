@@ -11,7 +11,6 @@
 #include <libpq-fe.h>
 
 #include <odb/pgsql/version.hxx>
-
 #include <odb/pgsql/details/export.hxx>
 
 namespace odb
@@ -28,8 +27,7 @@ namespace odb
     // allocation error.
     //
     LIBODB_PGSQL_EXPORT void
-    translate_error (connection& c,
-                     PGresult* r);
+    translate_error (connection& c, PGresult* r);
 
     // Return true if the PGresult is in an error state. If both s and r are
     // non-null, the pointed to value will be populated with the result status.

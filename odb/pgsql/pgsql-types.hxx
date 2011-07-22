@@ -10,7 +10,7 @@
 
 #include <cstddef>  // std::size_t
 
-typedef unsigned int Oid;
+#include <odb/pgsql/pgsql-fwd.hxx> // Oid
 
 namespace odb
 {

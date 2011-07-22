@@ -11,14 +11,13 @@
 #include <vector>
 #include <memory> // std::auto_ptr
 
-#include <libpq-fe.h>
-
 #include <odb/forward.hxx>
 
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
+#include <odb/pgsql/pgsql-fwd.hxx> // PGconn
 
 #include <odb/pgsql/details/export.hxx>
 
