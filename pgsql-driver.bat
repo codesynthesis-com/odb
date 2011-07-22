@@ -15,7 +15,7 @@ setlocal
 
 set "options=%PGSQL_OPTIONS%"
 
-rem This user must be able to login without specifying a password
+rem This user must be able to login without specifying a password.
 rem
 set "options=%options% --user=odb_test"
 
