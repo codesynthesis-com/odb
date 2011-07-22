@@ -30,7 +30,7 @@ AC_ARG_WITH(
 $pgsql_client --version 2>/dev/null 1>&2
 
 if test x"$?" = x0; then
-  AC_MSG_RESULT([$psql_client])
+  AC_MSG_RESULT([$pgsql_client])
 else
   AC_MSG_RESULT([no])
   AC_MSG_ERROR([pgsql client is not found; consider using --with-pgsql-client=PATH])
