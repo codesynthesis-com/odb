@@ -78,6 +78,10 @@ case $database in
     LIBODB_SQLITE([], [AC_MSG_ERROR([libodb-sqlite is not found; consider using --with-libodb-sqlite=DIR])])
     SQLITE
     ;;
+  pgsql)
+    LIBODB_PGSQL([], [AC_MSG_ERROR([libodb-pgsql is not found; consider using --with-libodb-pgsql=DIR])])
+    PGSQL
+    ;;
 esac
 
 # Check for the ODB compiler.

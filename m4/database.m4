@@ -27,6 +27,10 @@ AC_ARG_WITH(
        database=sqlite
        AC_DEFINE([DATABASE_SQLITE], [1], [Using SQLite.])
        ;;
+     pgsql)
+       database=pgsql
+       AC_DEFINE([DATABASE_PGSQL], [1], [Using PostgreSQL.])
+       ;;
      *)
        AC_MSG_RESULT([])
        AC_MSG_ERROR([unknown database $withval])
@@ -42,5 +46,6 @@ AC_SUBST([database])
 
 AM_CONDITIONAL([DATABASE_MYSQL], [test x$database = xmysql])
 AM_CONDITIONAL([DATABASE_SQLITE], [test x$database = xsqlite])
+AM_CONDITIONAL([DATABASE_PGSQL], [test x$database = xpgsql])
 
 ])dnl
