@@ -210,12 +210,17 @@ struct object
 
   // Test ENUM representations (integer and string).
   //
-  color enum_;
+  color enum_def_;
 
-  #pragma db type ("ENUM ('red', 'green', 'blue')")
+  // Map to a custom MySQL ENUM type.
+  //
+  #pragma db type ("ENUM('R', 'G', 'B')")
+  color enum_cst_;
+
+  #pragma db type ("ENUM('red', 'green', 'blue')")
   std::string enum_str_;
 
-  #pragma db type ("SET ('red', 'green', 'blue')")
+  #pragma db type ("SET('red', 'green', 'blue')")
   set set_;
 
   // Test NULL value.
@@ -261,7 +266,8 @@ struct object
       longtext_ == y.longtext_ &&
       longblob_ == y.longblob_ &&
       bit_ == y.bit_ &&
-      enum_ == y.enum_ &&
+      enum_def_ == y.enum_def_ &&
+      enum_cst_ == y.enum_cst_ &&
       enum_str_ == y.enum_str_ &&
       set_ == y.set_ &&
       ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);
