@@ -51,6 +51,8 @@ namespace odb
 
     struct LIBODB_PGSQL_EXPORT query_param: details::shared_base
     {
+      typedef pgsql::bind bind_type;
+
       virtual
       ~query_param ();
 
@@ -64,7 +66,7 @@ namespace odb
       init () = 0;
 
       virtual void
-      bind (bind*) = 0;
+      bind (bind_type*) = 0;
 
       virtual unsigned int
       oid () const = 0;
@@ -1043,7 +1045,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::boolean;
         b->buffer = &image_;
@@ -1083,7 +1085,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::smallint;
         b->buffer = &image_;
@@ -1123,7 +1125,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::integer;
         b->buffer = &image_;
@@ -1163,7 +1165,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::bigint;
         b->buffer = &image_;
@@ -1203,7 +1205,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::real;
         b->buffer = &image_;
@@ -1243,7 +1245,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::double_;
         b->buffer = &image_;
@@ -1282,7 +1284,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::numeric;
         b->buffer = buffer_.data ();
@@ -1328,7 +1330,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::date;
         b->buffer = &image_;
@@ -1368,7 +1370,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::time;
         b->buffer = &image_;
@@ -1408,7 +1410,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::timestamp;
         b->buffer = &image_;
@@ -1447,7 +1449,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::text;
         b->buffer = buffer_.data ();
@@ -1492,7 +1494,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::bytea;
         b->buffer = buffer_.data ();
@@ -1537,7 +1539,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::bit;
         b->buffer = buffer_.data ();
@@ -1581,7 +1583,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::varbit;
         b->buffer = buffer_.data ();
@@ -1627,7 +1629,7 @@ namespace odb
       }
 
       virtual void
-      bind (pgsql::bind* b)
+      bind (bind_type* b)
       {
         b->type = bind::uuid;
         b->buffer = buffer_;
