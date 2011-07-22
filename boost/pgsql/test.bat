@@ -31,7 +31,7 @@ rem
 
   if exist %dir%\driver.exe (
     echo %1\%3\%2
-    call %topdir%\tester.bat sqlite %2 %3
+    call %topdir%\tester.bat pgsql %2 %3
     if errorlevel 1 (
       set "failed=%failed% %1\%3\%2"
     )
