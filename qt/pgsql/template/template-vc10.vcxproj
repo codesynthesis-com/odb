@@ -93,7 +93,7 @@
       <DisableSpecificWarnings>4068;4355;4800;4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib\common-d.lib;odb-sqlite-d.lib;odb-qt-d.lib;odb-d.lib;QtCored4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib\common-d.lib;odb-pgsql-d.lib;odb-qt-d.lib;odb-d.lib;QtCored4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -109,7 +109,7 @@
       <DisableSpecificWarnings>4068;4355;4800;4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib64\common-d.lib;odb-sqlite-d.lib;odb-qt-d.lib;odb-d.lib;QtCored4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib64\common-d.lib;odb-pgsql-d.lib;odb-qt-d.lib;odb-d.lib;QtCored4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -127,7 +127,7 @@
       <DisableSpecificWarnings>4068;4355;4800;4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib\common.lib;odb-sqlite.lib;odb-qt.lib;odb.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib\common.lib;odb-pgsql.lib;odb-qt.lib;odb.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -147,7 +147,7 @@
       <DisableSpecificWarnings>4068;4355;4800;4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib64\common.lib;odb-sqlite.lib;odb-qt.lib;odb.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib64\common.lib;odb-pgsql.lib;odb-qt.lib;odb.lib;QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
