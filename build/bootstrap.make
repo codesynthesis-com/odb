@@ -62,7 +62,7 @@ ifeq ($(dist_prefix),)
 $(error dist_prefix is not set)
 endif
 
-databases := mysql sqlite
+databases := mysql sqlite pgsql
 $(dist): databases := $(databases)
 
 # $1 project template without the -vcN.vc[x]proj suffix.
