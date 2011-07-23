@@ -173,7 +173,7 @@ AC_CONFIG_COMMANDS([pgsql.options],
      echo 'opt="$opt --port='"$pgsql_port"'"' >>db-driver
    fi
 
-   echo 'opt=$opt --quiet' >>db-driver
+   echo 'opt="$opt --quiet"' >>db-driver
    echo 'export PGOPTIONS=--client-min-messages=warning' >>db-driver
 
    echo 'if test x$[]1 != x; then' >>db-driver
