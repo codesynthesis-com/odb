@@ -46,7 +46,7 @@
 				AdditionalOptions="/wd4355 /wd4800 /wd4290 /wd4267"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBODB_PGSQL_DYNAMIC_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb-d.lib libpqdll.lib"
+				AdditionalDependencies="odb-d.lib libpq.lib"
 				OutputFile="$(OutDir)\bin\odb-pgsql-d-__value__(interface_version)-vc9.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -124,7 +124,7 @@
 				AdditionalOptions="/wd4355 /wd4800 /wd4290 /wd4267"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBODB_PGSQL_DYNAMIC_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -144,7 +144,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb-d.lib libpqdll.lib"
+				AdditionalDependencies="odb-d.lib libpq.lib"
 				OutputFile="$(OutDir)\bin64\odb-pgsql-d-__value__(interface_version)-vc9.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -203,7 +203,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBODB_PGSQL_DYNAMIC_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -222,7 +222,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb.lib libpqdll.lib"
+				AdditionalDependencies="odb.lib libpq.lib"
 				OutputFile="$(OutDir)\bin\odb-pgsql-__value__(interface_version)-vc9.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -284,7 +284,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\.."
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBODB_PGSQL_DYNAMIC_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -303,7 +303,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb.lib libpqdll.lib"
+				AdditionalDependencies="odb.lib libpq.lib"
 				OutputFile="$(OutDir)\bin64\odb-pgsql-__value__(interface_version)-vc9.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
