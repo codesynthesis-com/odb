@@ -28,7 +28,8 @@ clean   := $(out_base)/.clean
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): data_dist := GPLv2 LICENSE README INSTALL version test.bat \
-tester.bat mysql-driver.bat mysql.options
+tester.bat mysql-driver.bat mysql.options sqlite-driver.bat \
+sqlite.options pgsql-driver.bat pgsql.options
 $(dist): exec_dist := bootstrap tester.in
 $(dist): export extra_dist := $(data_dist) $(exec_dist) build.bat
 $(dist): export version = $(shell cat $(src_root)/version)
