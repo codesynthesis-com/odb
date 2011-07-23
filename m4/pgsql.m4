@@ -159,8 +159,8 @@ AC_CONFIG_COMMANDS([pgsql.options],
    fi
 
    if test x$pgsql_db_set = xyes; then
-     echo "--database '$pgsql_db'" >>db.options
-     echo 'opt="$opt --database='"$pgsql_db"'"' >>db-driver
+     echo "--dbname '$pgsql_db'" >>db.options
+     echo 'opt="$opt --dbname='"$pgsql_db"'"' >>db-driver
    fi
 
    if test x$pgsql_host_set = xyes; then

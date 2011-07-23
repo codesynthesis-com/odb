@@ -19,7 +19,7 @@ rem This user must be able to login without specifying a password.
 rem
 set "options=%options% --user=odb_test"
 
-set "options=%options% --database=odb_test"
+set "options=%options% --dbname=odb_test"
 rem set "options=%options% --host="
 rem set "options=%options% --post="
 set "options=%options% --quiet"
