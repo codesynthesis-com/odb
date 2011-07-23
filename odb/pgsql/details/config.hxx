@@ -8,7 +8,8 @@
 
 // no pre
 
-#if defined(ODB_COMPILER)
+#ifdef _MSC_VER
+#elif defined(ODB_COMPILER)
 #  error libodb-pgsql header included in odb-compiled header
 #else
 #  include <odb/pgsql/details/config.h>
