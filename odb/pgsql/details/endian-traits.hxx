@@ -9,6 +9,8 @@
 #include <cstddef> // std::size_t
 #include <algorithm> // std::reverse
 
+#include <odb/pgsql/details/export.hxx>
+
 namespace odb
 {
   // @@ Revise this.
@@ -121,7 +123,7 @@ namespace odb
         }
       };
 
-      class endian_traits
+      class LIBODB_PGSQL_EXPORT endian_traits
       {
       public:
         enum endian
