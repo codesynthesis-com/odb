@@ -21,7 +21,7 @@ set "options=%options% --user=odb_test"
 
 set "options=%options% --dbname=odb_test"
 rem set "options=%options% --host="
-rem set "options=%options% --post="
+rem set "options=%options% --port="
 set "options=%options% --quiet"
 set "PGOPTIONS=--client-min-messages=warning"
 
