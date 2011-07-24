@@ -47,7 +47,7 @@ struct varbit
 
     std::size_t byte_len = size / 8;
 
-    if (std::memcmp (ubuffer_.data (), x.ubuffer_.data (), byte_len != 0))
+    if (std::memcmp (ubuffer_.data (), x.ubuffer_.data (), byte_len) != 0)
       return false;
 
     std::size_t trailing_bits = size % 8;
@@ -116,9 +116,6 @@ struct object
   #pragma db type ("DOUBLE PRECISION")
   double double_;
 
-  // #pragma db type ("NUMERIC(6,3)")
-  // std::string numeric_;
-
   // Data-time types.
   //
   #pragma db type ("DATE")
@@ -176,7 +173,6 @@ struct object
       float_ == y.float_ &&
       float8_ == y.float8_ &&
       double_ == y.double_ &&
-      // numeric__ == y.numeric_ &&
       date_ == y.date_ &&
       time_ == y.time_ &&
       timestamp_ == y.timestamp_ &&

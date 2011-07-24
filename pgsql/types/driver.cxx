@@ -38,7 +38,6 @@ main (int argc, char* argv[])
     o.float_ = 1.123F;
     o.float8_ = 1.123;
     o.double_ = 1.123;
-    // o.numeric_ = "123.456";
 
     o.date_ = 4015;
     o.time_ = 48180000000;
