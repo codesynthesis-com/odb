@@ -49,6 +49,8 @@ namespace odb
           is_null = true;
         else
         {
+          is_null = false;
+
           const QByteArray& a (v.toUtf8 ());
           n = static_cast<std::size_t> (a.size ());
 
