@@ -87,11 +87,11 @@ namespace odb
         const bind& current_bind (b.bind[i]);
 
         n.formats[i] = 1;
-        n.lengths[i] = 0;
 
         if (current_bind.is_null != 0 && *current_bind.is_null)
         {
           n.values[i] = 0;
+          n.lengths[i] = 0;
           continue;
         }
 
