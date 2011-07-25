@@ -18,7 +18,7 @@ set "options=%options% --user=odb_test"
 set "options=%options% --database=odb_test"
 rem set "options=%options% --password="
 rem set "options=%options% --host="
-rem set "options=%options% --post="
+rem set "options=%options% --port="
 rem set "options=%options% --socket="
 
 set "mysql=%MYSQL_CLIENT%"
