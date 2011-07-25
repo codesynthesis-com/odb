@@ -17,15 +17,15 @@
 
 using namespace std;
 
+extern "C" void
+odb_pgsql_process_notice (void*, const char*)
+{
+}
+
 namespace odb
 {
   namespace pgsql
   {
-    static void
-    nop_process_notice (void*, const char*)
-    {
-    }
-
     connection::
     connection (database_type& db)
         : db_ (db),
@@ -46,7 +46,7 @@ namespace odb
 
       // Suppress server notifications to stdout.
       //
-      PQsetNoticeProcessor (handle_, &nop_process_notice, 0);
+      PQsetNoticeProcessor (handle_, &odb_pgsql_process_notice, 0);
 
       // Establish whether date/time values are represented as
       // 8-byte integers.

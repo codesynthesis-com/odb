@@ -97,7 +97,7 @@ namespace odb
 
         n.values[i] = reinterpret_cast<char*> (current_bind.buffer);
 
-        size_t l;
+        size_t l (0);
 
         switch (current_bind.type)
         {
@@ -458,7 +458,7 @@ namespace odb
                                     native_data_.formats,
                                     1));
       PGresult* h (r.get ());
-      ExecStatusType stat;
+      ExecStatusType stat (PGRES_FATAL_ERROR);
 
       if (!is_good_result (h, &stat))
       {
