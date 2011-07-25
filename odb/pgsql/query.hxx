@@ -1303,7 +1303,7 @@ namespace odb
       init (const T& v)
       {
         bool dummy;
-        std::size_t size, cap (buffer_.capacity ());
+        std::size_t size (0), cap (buffer_.capacity ());
         value_traits<T, id_numeric>::set_image (buffer_, size, dummy, v);
         size_ = size;
         return cap != buffer_.capacity ();
@@ -1468,7 +1468,7 @@ namespace odb
       init (const T& v)
       {
         bool dummy;
-        std::size_t size, cap (buffer_.capacity ());
+        std::size_t size (0), cap (buffer_.capacity ());
         value_traits<T, id_string>::set_image (buffer_, size, dummy, v);
         size_ = size;
         return cap != buffer_.capacity ();
@@ -1513,7 +1513,7 @@ namespace odb
       init (const T& v)
       {
         bool dummy;
-        std::size_t size, cap (buffer_.capacity ());
+        std::size_t size (0), cap (buffer_.capacity ());
         value_traits<T, id_bytea>::set_image (buffer_, size, dummy, v);
         size_ = size;
         return cap != buffer_.capacity ();
@@ -1552,7 +1552,7 @@ namespace odb
       init (const T& v)
       {
         bool dummy;
-        std::size_t size, cap (buffer_.capacity ());
+        std::size_t size (0), cap (buffer_.capacity ());
 
         // NOTE: Using a fixed size bit type in queries requires
         // alternative image buffer type support.
@@ -1602,7 +1602,7 @@ namespace odb
       init (const T& v)
       {
         bool dummy;
-        std::size_t size, cap (buffer_.capacity ());
+        std::size_t size (0), cap (buffer_.capacity ());
         value_traits<T, id_varbit>::set_image (buffer_, size, dummy, v);
         size_ = size;
         return cap != buffer_.capacity ();
