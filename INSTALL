@@ -11,7 +11,7 @@ Building on UNIX
 The following build instructions are for the Linux/UNIX/Mac OS X
 operating systems as well as for Cygwin and MinGW on Windows.
 
-The standard autotools-based build system is used on these platforms. 
+The standard autotools-based build system is used on these platforms.
 After unpacking the source code archive, change to the libodb-pgsql
 package directory (referred to as libodb-pgsql/ from now on) and run
 the configure script:
@@ -24,7 +24,7 @@ To see the available configuration options run configure with --help:
 
 The configure script expects the libodb and libpq headers and
 libraries to be installed in a directory where the C++ compiler
-and linker will search for them by default (normally /usr and 
+and linker will search for them by default (normally /usr and
 /usr/local). If these libraries are installed in other directories,
 you can use the CPPFLAGS and LDFLAGS configure variables to specify
 their locations, for example:
@@ -69,8 +69,8 @@ the package directory for more information on how to setup the VC++
 Directories.
 
 For libpq, add the include\ directory inside the PostgreSQL package
-to the Include search list and the lib\opt\ directory to the Library
-search list. (@@)
+to the Include search list and the lib\ directory to the Library
+search list.
 
 To build libodb-pgsql, unpack the source code archive and open the
 libodb-pgsql-vc<N>.sln file located in the libodb-pgsql package
@@ -79,7 +79,7 @@ version of Visual Studio that you are using. Once the solution is open,
 select the desired build configuration (Debug or Release) and platform
 (Win32 or x64) and build the solution.
 
-The resulting 32-bit DLLs and import libraries are placed into the 
+The resulting 32-bit DLLs and import libraries are placed into the
 libodb-pgsql\bin\ and libodb-pgsql\lib\ directories, respectively.
 Similarly, the 64-bit DLLs and import libraries are placed into
 libodb-pgsql\bin64\ and libodb-pgsql\lib64\. The Release versions of
@@ -94,10 +94,10 @@ Win32:
 
   Include:    ...\libodb-pgsql
   Library:    ...\libodb-pgsql\lib
-  Executable: ...\libodb-pgsql\bin    
+  Executable: ...\libodb-pgsql\bin
 
 x64:
 
   Include:    ...\libodb-pgsql
   Library:    ...\libodb-pgsql\lib64
-  Executable: ...\libodb-pgsql\bin64    
+  Executable: ...\libodb-pgsql\bin64
