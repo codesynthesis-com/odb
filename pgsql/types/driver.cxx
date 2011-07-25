@@ -40,8 +40,8 @@ main (int argc, char* argv[])
     o.double_ = 1.123;
 
     o.date_ = 4015;
-    o.time_ = 48180000000;
-    o.timestamp_ = 346896000;
+    o.time_ = 48180000000LL;
+    o.timestamp_ = 346896000LL;
 
     string short_str (128, 's');
     string medium_str (250, 'm');
