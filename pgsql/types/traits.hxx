@@ -129,7 +129,7 @@ namespace odb
             details::endian_traits::ntoh (
               *reinterpret_cast<const int*> (b.data ())));
 
-          std::size_t byte_len =  v.size / 8 + (v.size % 8 > 0 ? 1 : 0);
+          std::size_t byte_len (v.size / 8 + (v.size % 8 > 0 ? 1 : 0));
           assert (n >= byte_len + 4);
 
           v.ubuffer_.assign (b.data () + 4, byte_len);
