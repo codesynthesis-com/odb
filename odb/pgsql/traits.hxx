@@ -285,8 +285,6 @@ namespace odb
       static const database_type_id db_type_id = id_bigint;
     };
 
-    // @@ Type stored as a signed 8-byte integer in the database.
-    //
     template <>
     struct default_type_traits<unsigned long long>
     {
