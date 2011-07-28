@@ -8,11 +8,10 @@
 
 #include <set>
 #include <string>
+#include <vector>
 #include <memory>  // std::auto_ptr
 
 #include <odb/core.hxx>
-
-#include <common/buffer.hxx>
 
 typedef std::auto_ptr<std::string> string_ptr;
 
@@ -44,7 +43,7 @@ struct object
   std::string text_;
 
   #pragma db type ("BLOB")
-  buffer blob_;
+  std::vector<char> blob_;
 
   // Test NULL value.
   //

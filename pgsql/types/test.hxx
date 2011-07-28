@@ -8,6 +8,7 @@
 
 #include <set>
 #include <string>
+#include <vector>
 #include <memory>  // std::auto_ptr
 #include <cstring> // std::memcmp
 #include <cstddef> // std::size_t
@@ -139,7 +140,7 @@ struct object
   std::string text_;
 
   #pragma db type ("BYTEA")
-  buffer bytea_;
+  std::vector<char> bytea_;
 
   #pragma db type ("VARBIT(1024)")
   varbit varbit_;

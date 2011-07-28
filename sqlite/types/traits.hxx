@@ -10,49 +10,12 @@
 
 #include <odb/sqlite/traits.hxx>
 
-#include "test.hxx" // buffer, string_ptr
+#include "test.hxx" // string_ptr
 
 namespace odb
 {
   namespace sqlite
   {
-    template <>
-    class value_traits<buffer, id_blob>
-    {
-    public:
-      typedef buffer value_type;
-      typedef buffer query_type;
-      typedef details::buffer image_type;
-
-      static void
-      set_value (buffer& v,
-                 const details::buffer& b,
-                 std::size_t n,
-                 bool is_null)
-      {
-        if (!is_null)
-          v.assign (b.data (), n);
-        else
-          v.assign (0, 0);
-      }
-
-      static void
-      set_image (details::buffer& b,
-                 std::size_t& n,
-                 bool& is_null,
-                 const buffer& v)
-      {
-        is_null = false;
-        n = v.size ();
-
-        if (n > b.capacity ())
-          b.capacity (n);
-
-        if (n != 0)
-          std::memcpy (b.data (), v.data (), n);
-      }
-    };
-
     template <>
     class value_traits<string_ptr, id_text>
     {

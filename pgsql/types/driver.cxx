@@ -51,8 +51,7 @@ main (int argc, char* argv[])
     o.varchar_ = medium_str;
     o.text_ = long_str;
 
-    buffer long_buf (long_str.c_str (), long_str.size ());
-    o.bytea_ = long_buf;
+    o.bytea_.assign (long_str.c_str (), long_str.c_str () + long_str.size ());
 
     unsigned char varbit_buf[8] = {1, 3, 1, 3, 1, 3, 1, 3};
     o.varbit_.size = 52;

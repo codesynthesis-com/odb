@@ -54,24 +54,25 @@ main (int argc, char* argv[])
     o.year_ = 2010;
 
     string short_str (128, 's');
-    buffer short_buf (short_str.c_str (), short_str.size ());
     string medium_str (250, 'm');
-    buffer medium_buf (medium_str.c_str (), medium_str.size ());
     string long_str (2040, 'l');
-    buffer long_buf (long_str.c_str (), long_str.size ());
+
+    const char* sb (short_str.c_str ()), *se (sb + short_str.size ());
+    const char* mb (medium_str.c_str ()), *me (mb + medium_str.size ());
+    const char* lb (long_str.c_str ()), *le (lb + long_str.size ());
 
     o.char_ = short_str;
-    o.binary_ = short_buf;
+    o.binary_.assign (sb, se);
     o.varchar_ = medium_str;
-    o.varbinary_ = medium_buf;
+    o.varbinary_.assign (mb, me);
     o.tinytext_ = short_str;
-    o.tinyblob_ = short_buf;
+    o.tinyblob_.assign (sb, se);
     o.text_ = long_str;
-    o.blob_ = long_buf;
+    o.blob_.assign (lb, le);
     o.mediumtext_ = long_str;
-    o.mediumblob_ = long_buf;
+    o.mediumblob_.assign (lb, le);
     o.longtext_ = long_str;
-    o.longblob_ = long_buf;
+    o.longblob_.assign (lb, le);
 
     o.bit_.a = 1;
     o.bit_.b = 0;

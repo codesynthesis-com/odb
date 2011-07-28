@@ -13,6 +13,7 @@
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>
 
+#include <common/buffer.hxx>
 #include <common/common.hxx>
 
 #include "test.hxx"
@@ -35,10 +36,9 @@ main (int argc, char* argv[])
     o.real_ = 1.123;
 
     string long_str (2040, 'l');
-    buffer long_buf (long_str.c_str (), long_str.size ());
 
     o.text_ = long_str;
-    o.blob_ = long_buf;
+    o.blob_.assign (long_str.c_str (), long_str.c_str () + long_str.size ());
 
     {
       transaction t (db->begin ());

@@ -8,11 +8,12 @@
 
 #include <set>
 #include <string>
+#include <vector>
 #include <memory>  // std::auto_ptr
 
 #include <odb/core.hxx>
 
-#include <common/buffer.hxx>
+typedef std::vector<char> buffer;
 
 struct date_time
 {

@@ -12,49 +12,12 @@
 #include <odb/pgsql/traits.hxx>
 #include <odb/pgsql/details/endian-traits.hxx>
 
-#include "test.hxx" // varbit, buffer, ubuffer, string_ptr
+#include "test.hxx" // varbit, ubuffer, string_ptr
 
 namespace odb
 {
   namespace pgsql
   {
-    template <>
-    class value_traits<buffer, id_bytea>
-    {
-    public:
-      typedef buffer value_type;
-      typedef buffer query_type;
-      typedef details::buffer image_type;
-
-      static void
-      set_value (buffer& v,
-                 const details::buffer& b,
-                 std::size_t n,
-                 bool is_null)
-      {
-        if (!is_null)
-          v.assign (b.data (), n);
-        else
-          v.assign (0, 0);
-      }
-
-      static void
-      set_image (details::buffer& b,
-                 std::size_t& n,
-                 bool& is_null,
-                 const buffer& v)
-      {
-        is_null = false;
-        n = v.size ();
-
-        if (n > b.capacity ())
-          b.capacity (n);
-
-        if (n != 0)
-          std::memcpy (b.data (), v.data (), n);
-      }
-    };
-
     // The first 4 bytes of the image is a signed int specifying the
     // number of significant bits contained by the BIT. The following
     // bytes contain the bit data.
