@@ -54,5 +54,27 @@ namespace odb
       if (n != 0)
         memcpy (b.data (), v, n);
     }
+
+    //
+    // default_value_traits<vector<char>, id_bytea>
+    //
+
+    void default_value_traits<vector<char>, id_bytea>::
+    set_image (details::buffer& b,
+               size_t& n,
+               bool& is_null,
+               const value_type& v)
+    {
+      is_null = false;
+      n = v.size ();
+
+      if (n > b.capacity ())
+        b.capacity (n);
+
+      // std::vector::data() may not be available in older compilers.
+      //
+      if (n != 0)
+        memcpy (b.data (), &v[0], n);
+    }
   }
 }
