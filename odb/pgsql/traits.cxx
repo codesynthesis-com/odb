@@ -74,7 +74,7 @@ namespace odb
       // std::vector::data() may not be available in older compilers.
       //
       if (n != 0)
-        memcpy (b.data (), &v[0], n);
+        memcpy (b.data (), &v.front (), n);
     }
   }
 }
