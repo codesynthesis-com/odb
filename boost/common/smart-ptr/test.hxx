@@ -6,13 +6,17 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
+#include <string>
 #include <vector>
+
+#include <boost/shared_ptr.hpp>
 
 #include <odb/core.hxx>
 #include <odb/boost/smart-ptr/lazy-ptr.hxx>
 
 struct obj;
 
+using boost::shared_ptr;
 using odb::boost::lazy_shared_ptr;
 using odb::boost::lazy_weak_ptr;
 
@@ -54,6 +58,27 @@ struct obj
 
   #pragma db not_null
   lazy_shared_ptr<cont> c;
+};
+
+// Test shared_ptr as a value wrapper.
+//
+#pragma db object
+struct obj2
+{
+  obj2 ()
+  {
+  }
+
+  obj2 (unsigned long id)
+      : id (id)
+  {
+  }
+
+  #pragma db id
+  unsigned long id;
+
+  #pragma db null
+  shared_ptr<std::string> str;
 };
 
 #endif // TEST_HXX

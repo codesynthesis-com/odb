@@ -6,9 +6,10 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 tests :=      \
-unordered     \
+optional      \
 smart-ptr     \
-template
+template      \
+unordered
 
 all_tests := $(tests)
 build_tests := $(tests)

@@ -169,6 +169,31 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
+
+    //
+    // Test shared_ptr as a value wrapper.
+    //
+
+    {
+      obj2 o1 (1);
+      obj2 o2 (2);
+      o2.str.reset (new string ("abc"));
+
+      transaction t (db->begin ());
+      db->persist (o1);
+      db->persist (o2);
+      t.commit ();
+    }
+
+    {
+      transaction t (db->begin ());
+      shared_ptr<obj2> o1 (db->load<obj2> (1));
+      shared_ptr<obj2> o2 (db->load<obj2> (2));
+      t.commit ();
+
+      assert (!o1->str);
+      assert (o2->str && *o2->str == "abc");
+    }
   }
   catch (const odb::exception& e)
   {
