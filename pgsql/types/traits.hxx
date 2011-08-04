@@ -140,7 +140,7 @@ namespace odb
 
       static void
       set_value (unsigned char v[16],
-                 unsigned char const* i,
+                 const unsigned char* i,
                  bool is_null)
       {
         if (!is_null)
@@ -150,7 +150,7 @@ namespace odb
       }
 
       static void
-      set_image (unsigned char* i, bool& is_null, unsigned char const v[16])
+      set_image (unsigned char* i, bool& is_null, const unsigned char v[16])
       {
         is_null = false;
         std::memcpy (i, v, 16);
