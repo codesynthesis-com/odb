@@ -14,3 +14,8 @@
 #
 --odb-epilogue '#include <odb/qt/smart-ptr/pointer-traits.hxx>'
 --hxx-prologue '#include <odb/qt/smart-ptr/pointer-traits.hxx>'
+
+# Include wrapper traits.
+#
+--odb-epilogue '#include <odb/qt/smart-ptr/wrapper-traits.hxx>'
+--hxx-prologue '#include <odb/qt/smart-ptr/wrapper-traits.hxx>'
