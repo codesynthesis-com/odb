@@ -8,6 +8,8 @@
 
 #include <vector>
 
+#include <QtCore/QSharedPointer>
+
 #include <odb/core.hxx>
 #include <odb/qt/lazy-ptr.hxx>
 
@@ -51,6 +53,27 @@ struct obj
 
   #pragma db not_null
   QLazySharedPointer<cont> c;
+};
+
+// Test QSharedPointer as a value wrapper.
+//
+#pragma db object
+struct obj2
+{
+  obj2 ()
+  {
+  }
+
+  obj2 (unsigned long id)
+      : id (id)
+  {
+  }
+
+  #pragma db id
+  unsigned long id;
+
+  #pragma db null
+  QSharedPointer<unsigned long> num;
 };
 
 #endif // TEST_HXX

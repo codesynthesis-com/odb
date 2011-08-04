@@ -212,6 +212,31 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
+
+    //
+    // Test QSharedPointer as a value wrapper.
+    //
+
+    {
+      obj2 o1 (1);
+      obj2 o2 (2);
+      o2.num = QSharedPointer<unsigned long> (new unsigned long (123));
+
+      transaction t (db->begin ());
+      db->persist (o1);
+      db->persist (o2);
+      t.commit ();
+    }
+
+    {
+      transaction t (db->begin ());
+      QSharedPointer<obj2> o1 (db->load<obj2> (1));
+      QSharedPointer<obj2> o2 (db->load<obj2> (2));
+      t.commit ();
+
+      assert (!o1->num);
+      assert (o2->num && *o2->num == 123);
+    }
   }
   catch (const odb::exception& e)
   {
