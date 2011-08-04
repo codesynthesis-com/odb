@@ -21,7 +21,8 @@ lifecycle     \
 query         \
 relationship  \
 schema        \
-template
+template      \
+wrapper
 
 thread_tests := threads
 

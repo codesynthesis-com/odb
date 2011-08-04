@@ -1,4 +1,4 @@
-# file      : mysql/types/makefile
+# file      : common/wrapper/makefile
 # author    : Boris Kolpackov <boris@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
@@ -35,9 +35,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database mysql --generate-schema \
---generate-query --hxx-prologue '\#include "traits.hxx"'
-
+$(gen) $(dist): export odb_options += --database $(db_id) --generate-schema
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
@@ -49,18 +47,20 @@ $(out_base)/: $(driver)
 
 # Dist
 #
+name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
+
+$(dist): db_id := @database@
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
-$(dist): export extra_headers := traits.hxx
 $(dist): data_dist := test.std
-$(dist): export name := $(subst /,-,$(subst $(src_root)/mysql/,,$(src_base)))
-$(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
-$(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters
+$(dist): export name := $(name)
+$(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \
+$(call vc10projs,$(name))
 $(dist):
-	$(call dist-data,$(sources) $(headers) $(extra_headers) $(data_dist))
+	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
-	$(call meta-vc9proj,../template/template-vc9.vcproj,$(name)-vc9.vcproj)
-	$(call meta-vc10proj,../template/template-vc10.vcxproj,$(name)-vc10.vcxproj)
+	$(call meta-vc9projs,../template/template,$(name))
+	$(call meta-vc10projs,../template/template,$(name))
 
 # Test.
 #
