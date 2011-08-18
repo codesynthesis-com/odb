@@ -34,9 +34,17 @@ const char* events[] =
 };
 
 void object::
-db_callback (callback_event e, database&)
+db_callback (callback_event e, database& db)
 {
   cout << "  " << events[e] << " " << id_ << endl;
+
+  // Test custom recursive loading.
+  //
+  if (e == callback_event::post_load && ref != 0)
+  {
+    robj = db.load<object> (ref);
+    cout << "    " << id_ << ' ' << ref << ' ' << robj->id_ << endl;
+  }
 }
 
 void object::
@@ -132,23 +140,36 @@ main (int argc, char* argv[])
       {
         object o1 (1, 1);
         object o2 (2, 2);
-        object o3 (3, 2);
+        object o3 (3, 3);
+        object o4 (4, 4);
 
         o1.pobj = &o2;
+        o1.ref = 4;
+
         o2.pobj = &o3;
+        o2.ref = 4;
 
         transaction t (db->begin ());
         db->persist (o1);
         db->persist (o2);
         db->persist (o3);
+        db->persist (o4);
         t.commit ();
       }
 
       {
         transaction t (db->begin ());
         auto_ptr<object> o1 (db->load<object> (1));
-        delete o1->pobj->pobj;
-        delete o1->pobj;
+        object* o2 (o1->pobj);
+
+        cout << o1->id_ << ' ' << o1->ref << ' ' << o1->robj->id_ << endl;
+        cout << o2->id_ << ' ' << o2->ref << ' ' << o2->robj->id_ << endl;
+
+        delete o1->robj;
+        delete o2->robj;
+
+        delete o2->pobj;
+        delete o2;
         t.commit ();
       }
     }

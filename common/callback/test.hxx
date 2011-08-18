@@ -12,8 +12,15 @@
 #pragma db object callback(db_callback)
 struct object
 {
-  object (unsigned long id, unsigned long d): id_ (id), data (d), pobj (0) {}
-  object (): id_ (0) {};
+  object (unsigned long id, unsigned long d)
+      : id_ (id), data (d), pobj (0), robj (0), ref (0)
+  {
+  }
+
+  object ()
+      : id_ (0), pobj (0), robj (0)
+  {
+  }
 
   #pragma db id
   unsigned long id_;
@@ -21,6 +28,12 @@ struct object
   unsigned long data;
 
   object* pobj;
+
+  // Test custom recursive loading.
+  //
+  #pragma db transient
+  object* robj;
+  unsigned long ref; // Unless 0, reference to another object.
 
   void
   db_callback (odb::callback_event, odb::database&);
