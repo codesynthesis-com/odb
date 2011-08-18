@@ -8,6 +8,22 @@ namespace odb
   namespace pgsql
   {
     //
+    // auto_unlock
+    //
+    inline object_statements_base::auto_unlock::
+    auto_unlock (object_statements_base& s)
+        : s_ (s)
+    {
+      s_.unlock ();
+    }
+
+    inline object_statements_base::auto_unlock::
+    ~auto_unlock ()
+    {
+      s_.lock ();
+    }
+
+    //
     // auto_lock
     //
     template <typename T>

@@ -60,9 +60,8 @@ namespace odb
 
       object_traits::load_ (statements_, obj);
       statements_.load_delayed ();
-      object_traits::callback (db, obj, callback_event::post_load);
-
       l.unlock ();
+      object_traits::callback (db, obj, callback_event::post_load);
     }
 
     template <typename T>

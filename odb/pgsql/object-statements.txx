@@ -80,7 +80,18 @@ namespace odb
         if (!delayed_.empty ())
           load_delayed_ ();
 
-        object_traits::callback (db, *l.obj, callback_event::post_load);
+        // Temporarily unlock the statement for the post_load call so that
+        // it can load objects of this type recursively. This is safe to do
+        // because we have completely loaded the current object. Also the
+        // delayed_ list is clear before the unlock and should be clear on
+        // re-lock (since a callback can only call public API functions
+        // which will make sure all the delayed loads are processed before
+        // returning).
+        //
+        {
+          auto_unlock u (*this);
+          object_traits::callback (db, *l.obj, callback_event::post_load);
+        }
 
         g.release ();
       }

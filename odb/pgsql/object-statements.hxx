@@ -74,6 +74,22 @@ namespace odb
       {
       }
 
+      struct auto_unlock
+      {
+        // Unlocks the statement on construction and re-locks it on
+        // destruction.
+        //
+        auto_unlock (object_statements_base&);
+        ~auto_unlock ();
+
+      private:
+        auto_unlock (const auto_unlock&);
+        auto_unlock& operator= (const auto_unlock&);
+
+      private:
+        object_statements_base& s_;
+      };
+
     protected:
       connection_type& conn_;
       bool locked_;
