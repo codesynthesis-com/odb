@@ -13,12 +13,14 @@ namespace odb
     template <database_type_id ID>
     query::
     query (const query_column<bool, ID>& c)
-        : clause_ (c.name ()), binding_ (0, 0), native_binding_ (0, 0, 0, 0)
+        : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
     {
+      clause_.push_back (clause_part (clause_part::column, c.name ()));
+
       // Cannot use IS TRUE here since database type can be a non-
       // integral type.
       //
-      clause_ += " = ";
+      clause_.push_back (clause_part (clause_part::native, "="));
       append<bool, ID> (val_bind<bool> (true));
     }
 
@@ -28,7 +30,7 @@ namespace odb
     query query_column<T, ID>::
     in (const T& v1, const T& v2) const
     {
-      query q (name_);
+      query q (name_, query::clause_part::column);
       q += "IN (";
       q.append<T, ID> (val_bind<T> (v1));
       q += ",";
@@ -41,7 +43,7 @@ namespace odb
     query query_column<T, ID>::
     in (const T& v1, const T& v2, const T& v3) const
     {
-      query q (name_);
+      query q (name_, query::clause_part::column);
       q += "IN (";
       q.append<T, ID> (val_bind<T> (v1));
       q += ",";
@@ -56,7 +58,7 @@ namespace odb
     query query_column<T, ID>::
     in (const T& v1, const T& v2, const T& v3, const T& v4) const
     {
-      query q (name_);
+      query q (name_, query::clause_part::column);
       q += "IN (";
       q.append<T, ID> (val_bind<T> (v1));
       q += ",";
@@ -73,7 +75,7 @@ namespace odb
     query query_column<T, ID>::
     in (const T& v1, const T& v2, const T& v3, const T& v4, const T& v5) const
     {
-      query q (name_);
+      query q (name_, query::clause_part::column);
       q += "IN (";
       q.append<T, ID> (val_bind<T> (v1));
       q += ",";
@@ -93,7 +95,7 @@ namespace odb
     query query_column<T, ID>::
     in_range (I begin, I end) const
     {
-      query q (name_);
+      query q (name_, query::clause_part::column);
       q += "IN (";
 
       for (I i (begin); i != end; ++i)
