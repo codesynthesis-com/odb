@@ -24,13 +24,13 @@ namespace odb
     class LIBODB_PGSQL_EXPORT transaction_impl: public odb::transaction_impl
     {
     protected:
-      friend class database;
+      friend class connection;
       friend class transaction;
 
       typedef pgsql::database database_type;
       typedef pgsql::connection connection_type;
 
-      transaction_impl (database_type&);
+      transaction_impl (connection_ptr);
 
       virtual
       ~transaction_impl ();
@@ -45,7 +45,7 @@ namespace odb
       connection ();
 
     private:
-      details::shared_ptr<connection_type> connection_;
+      connection_ptr connection_;
     };
   }
 }

@@ -7,10 +7,20 @@ namespace odb
 {
   namespace pgsql
   {
-    inline details::shared_ptr<database::connection_type> database::
+    inline connection_ptr database::
     connection ()
     {
-      return factory_->connect ();
+      // Go through the virtual connection_() function instead of
+      // directly to allow overriding.
+      //
+      return connection_ptr (
+        static_cast<pgsql::connection*> (connection_ ()));
+    }
+
+    inline transaction_impl* database::
+    begin ()
+    {
+      return connection ()->begin ();
     }
   }
 }

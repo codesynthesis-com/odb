@@ -29,10 +29,10 @@ namespace odb
     // new_connection_factory
     //
 
-    shared_ptr<connection> new_connection_factory::
+    connection_ptr new_connection_factory::
     connect ()
     {
-      return shared_ptr<connection> (new (shared) connection (*db_));
+      return connection_ptr (new (shared) connection (*db_));
     }
 
     void new_connection_factory::
@@ -60,7 +60,7 @@ namespace odb
       }
     }
 
-    shared_ptr<connection> connection_pool_factory::
+    connection_ptr connection_pool_factory::
     connect ()
     {
       lock l (mutex_);

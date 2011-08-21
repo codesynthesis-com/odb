@@ -4,14 +4,11 @@
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #include <sstream>
-#include <cstdlib> // std::atol
 
 #include <odb/pgsql/database.hxx>
-#include <odb/pgsql/error.hxx>
 #include <odb/pgsql/exceptions.hxx>
+#include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/connection-factory.hxx>
-#include <odb/pgsql/transaction.hxx>
-#include <odb/pgsql/result-ptr.hxx>
 
 #include <odb/pgsql/details/options.hxx>
 
@@ -211,43 +208,11 @@ namespace odb
     {
     }
 
-    unsigned long long database::
-    execute (const char* s, std::size_t)
+    odb::connection* database::
+    connection_ ()
     {
-      if (!transaction::has_current ())
-        throw not_in_transaction ();
-
-      connection_type& c (transaction::current ().connection ());
-
-      result_ptr r (PQexec (c.handle (), s));
-      PGresult* h (r.get ());
-
-      unsigned long long count (0);
-
-      if (!is_good_result (h))
-        translate_error (c, h);
-      else if (PGRES_TUPLES_OK == PQresultStatus (h))
-        count = static_cast<unsigned long long> (PQntuples (h));
-      else
-      {
-        const char* s (PQcmdTuples (h));
-
-        if (s[0] != '\0' && s[1] == '\0')
-          count = static_cast<unsigned long long> (s[0] - '0');
-        else
-          count = static_cast<unsigned long long> (atol (s));
-      }
-
-      return count;
-    }
-
-    transaction_impl* database::
-    begin ()
-    {
-      if (transaction::has_current ())
-        throw already_in_transaction ();
-
-      return new transaction_impl (*this);
+      connection_ptr c (factory_->connect ());
+      return c.release ();
     }
   }
 }

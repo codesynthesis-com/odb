@@ -20,7 +20,6 @@
 #include <odb/pgsql/forward.hxx>
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/connection-factory.hxx>
-#include <odb/pgsql/transaction-impl.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -28,11 +27,10 @@ namespace odb
 {
   namespace pgsql
   {
+    class transaction_impl;
+
     class LIBODB_PGSQL_EXPORT database: public odb::database
     {
-    public:
-      typedef pgsql::connection connection_type;
-
     public:
       database (const std::string& user,
                 const std::string& password,
@@ -82,22 +80,23 @@ namespace odb
       static void
       print_usage (std::ostream&);
 
+      // Transactions.
+      //
     public:
-      using odb::database::execute;
-      virtual unsigned long long
-      execute (const char* statement, std::size_t length);
-
-    public:
-      virtual transaction_impl*
+      transaction_impl*
       begin ();
 
     public:
-      details::shared_ptr<connection_type>
+      connection_ptr
       connection ();
 
     public:
       virtual
       ~database ();
+
+    protected:
+      virtual odb::connection*
+      connection_ ();
 
     public:
       const std::string&

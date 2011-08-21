@@ -4,16 +4,19 @@
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #include <new>     // std::bad_alloc
-#include <cstring> // std::strcmp
 #include <string>
+#include <cstring> // std::strcmp
+#include <cstdlib> // std::atol
 
 #include <libpq-fe.h>
 
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/connection.hxx>
+#include <odb/pgsql/transaction.hxx>
 #include <odb/pgsql/error.hxx>
 #include <odb/pgsql/exceptions.hxx>
 #include <odb/pgsql/statement-cache.hxx>
+#include <odb/pgsql/result-ptr.hxx>
 
 using namespace std;
 
@@ -28,7 +31,8 @@ namespace odb
   {
     connection::
     connection (database_type& db)
-        : db_ (db),
+        : odb::connection (db),
+          db_ (db),
           handle_ (0),
           statement_cache_ (new statement_cache_type (*this))
     {
@@ -64,6 +68,44 @@ namespace odb
       statement_cache_.reset ();
 
       PQfinish (handle_);
+    }
+
+    transaction_impl* connection::
+    begin ()
+    {
+      if (transaction::has_current ())
+        throw already_in_transaction ();
+
+      return new transaction_impl (connection_ptr (inc_ref (this)));
+    }
+
+    unsigned long long connection::
+    execute (const char* s, std::size_t n)
+    {
+      // The string may not be '\0'-terminated.
+      //
+      string str (s, n);
+
+      result_ptr r (PQexec (handle_, str.c_str ()));
+      PGresult* h (r.get ());
+
+      unsigned long long count (0);
+
+      if (!is_good_result (h))
+        translate_error (*this, h);
+      else if (PGRES_TUPLES_OK == PQresultStatus (h))
+        count = static_cast<unsigned long long> (PQntuples (h));
+      else
+      {
+        const char* s (PQcmdTuples (h));
+
+        if (s[0] != '\0' && s[1] == '\0')
+          count = static_cast<unsigned long long> (s[0] - '0');
+        else
+          count = static_cast<unsigned long long> (atol (s));
+      }
+
+      return count;
     }
   }
 }

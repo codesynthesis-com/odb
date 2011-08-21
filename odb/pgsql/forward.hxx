@@ -8,12 +8,15 @@
 
 #include <odb/pre.hxx>
 
+#include <odb/forward.hxx>
+
 namespace odb
 {
   namespace pgsql
   {
     class database;
     class connection;
+    typedef details::shared_ptr<connection> connection_ptr;
     class connection_factory;
     class transaction;
     class query;
@@ -28,6 +31,15 @@ namespace odb
 
     template <typename T>
     class container_statements;
+  }
+
+  namespace details
+  {
+    template <>
+    struct counter_type<pgsql::connection>
+    {
+      typedef shared_base counter;
+    };
   }
 }
 

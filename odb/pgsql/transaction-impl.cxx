@@ -19,8 +19,8 @@ namespace odb
   namespace pgsql
   {
     transaction_impl::
-    transaction_impl (database_type& db)
-        : odb::transaction_impl (db), connection_ (db.connection ())
+    transaction_impl (connection_ptr c)
+        : odb::transaction_impl (c->database (), *c), connection_ (c)
     {
       result_ptr r (PQexec (connection_->handle (), "begin"));
       PGresult* h (r.get ());

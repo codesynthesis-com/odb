@@ -12,11 +12,13 @@
 #include <memory> // std::auto_ptr
 
 #include <odb/forward.hxx>
+#include <odb/connection.hxx>
 
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
+#include <odb/pgsql/transaction-impl.hxx>
 #include <odb/pgsql/pgsql-fwd.hxx> // PGconn
 
 #include <odb/pgsql/details/export.hxx>
@@ -28,7 +30,10 @@ namespace odb
     class statement;
     class statement_cache;
 
-    class LIBODB_PGSQL_EXPORT connection: public details::shared_base
+    class connection;
+    typedef details::shared_ptr<connection> connection_ptr;
+
+    class LIBODB_PGSQL_EXPORT connection: public odb::connection
     {
     public:
       typedef pgsql::statement_cache statement_cache_type;
@@ -44,6 +49,22 @@ namespace odb
       {
         return db_;
       }
+
+    public:
+      virtual transaction_impl*
+      begin ();
+
+      transaction_impl*
+      begin_immediate ();
+
+      transaction_impl*
+      begin_exclusive ();
+
+    public:
+      using odb::connection::execute;
+
+      virtual unsigned long long
+      execute (const char* statement, std::size_t length);
 
     public:
       PGconn*
