@@ -14,6 +14,7 @@ container     \
 ctor          \
 default       \
 enum          \
+erase-query   \
 inheritance   \
 inverse       \
 lazy-ptr      \

@@ -1,0 +1,31 @@
+// file      : common/erase-query/test.hxx
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+#ifndef TEST_HXX
+#define TEST_HXX
+
+#include <vector>
+
+#include <odb/core.hxx>
+
+#pragma db object
+struct object
+{
+  object (unsigned long id)
+      : id_ (id)
+  {
+  }
+
+  object ()
+  {
+  }
+
+  #pragma db id
+  unsigned long id_;
+
+  std::vector<int> v;
+};
+
+#endif // TEST_HXX
