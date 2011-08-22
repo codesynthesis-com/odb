@@ -14,6 +14,7 @@
 #  include <odb/mysql/database.hxx>
 #  include <odb/mysql/connection-factory.hxx>
 #elif defined(DATABASE_SQLITE)
+#  include <odb/connection.hxx>
 #  include <odb/transaction.hxx>
 #  include <odb/schema-catalog.hxx>
 #  include <odb/sqlite/database.hxx>
@@ -81,15 +82,23 @@ create_database (int& argc,
 
   db.reset (
     new sqlite::database (
-      argc, argv, false, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, f));
+      argc, argv, false, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, true, f));
 
-  // Create the database schema.
+  // Create the database schema. Due to bugs in SQLite foreign key
+  // support for DDL statements, we need to temporarily disable
+  // foreign keys.
   //
   if (schema)
   {
-    transaction t (db->begin ());
+    connection_ptr c (db->connection ());
+
+    c->execute ("PRAGMA foreign_keys=OFF");
+
+    transaction t (c->begin ());
     schema_catalog::create_schema (*db);
     t.commit ();
+
+    c->execute ("PRAGMA foreign_keys=ON");
   }
 #elif defined(DATABASE_PGSQL)
   auto_ptr<pgsql::connection_factory> f;
