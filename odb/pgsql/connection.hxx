@@ -54,12 +54,6 @@ namespace odb
       virtual transaction_impl*
       begin ();
 
-      transaction_impl*
-      begin_immediate ();
-
-      transaction_impl*
-      begin_exclusive ();
-
     public:
       using odb::connection::execute;
 
