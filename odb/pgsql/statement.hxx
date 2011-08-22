@@ -246,6 +246,13 @@ namespace odb
                         binding& cond,
                         native_binding& native_cond);
 
+      delete_statement (connection& conn,
+                        const std::string& name,
+                        const std::string& stmt,
+                        const Oid* types,
+                        std::size_t types_count,
+                        native_binding& native_cond);
+
       unsigned long long
       execute ();
 
@@ -254,7 +261,7 @@ namespace odb
       delete_statement& operator= (const delete_statement&);
 
     private:
-      binding& cond_;
+      binding* cond_;
       native_binding& native_cond_;
     };
   }

@@ -572,7 +572,20 @@ namespace odb
                       binding& cond,
                       native_binding& native_cond)
         : statement (conn, name, stmt, types, types_count),
-          cond_ (cond),
+          cond_ (&cond),
+          native_cond_ (native_cond)
+    {
+    }
+
+    delete_statement::
+    delete_statement (connection& conn,
+                      const string& name,
+                      const string& stmt,
+                      const Oid* types,
+                      size_t types_count,
+                      native_binding& native_cond)
+        : statement (conn, name, stmt, types, types_count),
+          cond_ (0),
           native_cond_ (native_cond)
     {
     }
@@ -580,7 +593,8 @@ namespace odb
     unsigned long long delete_statement::
     execute ()
     {
-      bind_param (native_cond_, cond_);
+      if (cond_ != 0)
+        bind_param (native_cond_, *cond_);
 
       result_ptr r (PQexecPrepared (conn_.handle (),
                                     name_.c_str (),
