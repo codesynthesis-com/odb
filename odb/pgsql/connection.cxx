@@ -73,9 +73,6 @@ namespace odb
     transaction_impl* connection::
     begin ()
     {
-      if (transaction::has_current ())
-        throw already_in_transaction ();
-
       return new transaction_impl (connection_ptr (inc_ref (this)));
     }
 

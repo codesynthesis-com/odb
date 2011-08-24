@@ -16,11 +16,5 @@ namespace odb
       return connection_ptr (
         static_cast<pgsql::connection*> (connection_ ()));
     }
-
-    inline transaction_impl* database::
-    begin ()
-    {
-      return connection ()->begin ();
-    }
   }
 }

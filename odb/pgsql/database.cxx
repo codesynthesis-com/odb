@@ -208,6 +208,12 @@ namespace odb
     {
     }
 
+    transaction_impl* database::
+    begin ()
+    {
+      return new transaction_impl (*this);
+    }
+
     odb::connection* database::
     connection_ ()
     {

@@ -83,7 +83,7 @@ namespace odb
       // Transactions.
       //
     public:
-      transaction_impl*
+      virtual transaction_impl*
       begin ();
 
     public:

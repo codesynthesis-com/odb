@@ -19,19 +19,38 @@ namespace odb
   namespace pgsql
   {
     transaction_impl::
+    transaction_impl (database_type& db)
+        : odb::transaction_impl (db)
+    {
+    }
+
+    transaction_impl::
     transaction_impl (connection_ptr c)
         : odb::transaction_impl (c->database (), *c), connection_ (c)
     {
-      result_ptr r (PQexec (connection_->handle (), "begin"));
-      PGresult* h (r.get ());
-
-      if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
-        translate_error (*connection_, h);
     }
 
     transaction_impl::
     ~transaction_impl ()
     {
+    }
+
+    void transaction_impl::
+    start ()
+    {
+      // Grab a connection if we don't already have one.
+      //
+      if (connection_ == 0)
+      {
+        connection_ = static_cast<database_type&> (database_).connection ();
+        odb::transaction_impl::connection_ = connection_.get ();
+      }
+
+      result_ptr r (PQexec (connection_->handle (), "begin"));
+      PGresult* h (r.get ());
+
+      if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
+        translate_error (*connection_, h);
     }
 
     void transaction_impl::

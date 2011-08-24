@@ -37,5 +37,11 @@ namespace odb
     {
       return implementation ().connection ();
     }
+
+    inline void transaction::
+    current (transaction& t)
+    {
+      odb::transaction::current (t);
+    }
   }
 }
