@@ -93,7 +93,8 @@ main (int argc, char* argv[])
       typedef odb::result<object> result;
 
       transaction t (db->begin ());
-      result r (db->query<object> ((query::id < 3) + "ORDER BY object.id"));
+      result r (db->query<object> (
+                  (query::id < 3) + "ORDER BY common_callback_object.id"));
 
       for (result::iterator i (r.begin ()); i != r.end (); ++i)
       {

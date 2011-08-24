@@ -40,7 +40,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database sqlite --profile qt \
---generate-schema
+--generate-schema --table-prefix qt_sqlite_template_ #@@ CHANGE THIS
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_qt.l.cpp-options)
 

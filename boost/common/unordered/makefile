@@ -45,7 +45,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) \
---profile boost/unordered --generate-schema
+--profile boost/unordered --generate-schema \
+--table-prefix boost_common_unordered_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_boost.l.cpp-options) \
 $(boost.l.cpp-options)

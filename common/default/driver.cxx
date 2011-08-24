@@ -33,7 +33,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      db->execute ("INSERT INTO object (obj_id) VALUES (1)");
+      db->execute ("INSERT INTO common_default_object (obj_id) VALUES (1)");
       t.commit ();
     }
 

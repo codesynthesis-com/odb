@@ -1,4 +1,4 @@
-# file      : qt/pgsql/date-time/makefile
+# file      : qt/pgsql/basic/makefile
 # author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
@@ -45,7 +45,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database pgsql --profile qt/basic \
---generate-schema
+--generate-schema --table-prefix qt_pgsql_basic_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_qt.l.cpp-options) \
 $(qt_core.l.cpp-options)

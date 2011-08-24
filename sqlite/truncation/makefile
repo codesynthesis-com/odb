@@ -36,7 +36,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database sqlite --generate-query \
---generate-schema
+--generate-schema --table-prefix sqlitex_truncation_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 

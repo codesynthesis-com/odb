@@ -29,8 +29,8 @@ main (int argc, char* argv[])
     {
       transaction t (db->begin ());
 
-      db->execute ("DROP TABLE IF EXISTS test");
-      db->execute ("CREATE TABLE test (n INT PRIMARY KEY)");
+      db->execute ("DROP TABLE IF EXISTS pgsql_native_test");
+      db->execute ("CREATE TABLE pgsql_native_test (n INT PRIMARY KEY)");
 
       t.commit ();
     }
@@ -40,8 +40,11 @@ main (int argc, char* argv[])
     {
       transaction t (db->begin ());
 
-      assert (db->execute ("INSERT INTO test (n) VALUES (1)") == 1);
-      assert (db->execute ("INSERT INTO test (n) VALUES (2)") == 1);
+      assert (
+        db->execute ("INSERT INTO pgsql_native_test (n) VALUES (1)") == 1);
+
+      assert (
+        db->execute ("INSERT INTO pgsql_native_test (n) VALUES (2)") == 1);
 
       t.commit ();
     }
@@ -51,8 +54,11 @@ main (int argc, char* argv[])
     {
       transaction t (db->begin ());
 
-      assert (db->execute ("SELECT n FROM test WHERE n < 3") == 2);
-      assert (db->execute ("SELECT n FROM test WHERE n > 3") == 0);
+      assert (
+        db->execute ("SELECT n FROM pgsql_native_test WHERE n < 3") == 2);
+
+      assert (
+        db->execute ("SELECT n FROM pgsql_native_test WHERE n > 3") == 0);
 
       t.commit ();
     }
