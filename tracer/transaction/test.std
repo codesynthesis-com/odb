@@ -1,5 +1,7 @@
 test 001
 begin transaction
+begin transaction
+rollback transaction
 rollback transaction
 test 002
 begin transaction

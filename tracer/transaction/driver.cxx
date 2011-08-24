@@ -33,6 +33,12 @@ main ()
     assert (&t.database () == &db);
     assert (transaction::has_current ());
     assert (&transaction::current () == &t);
+    transaction::reset_current ();
+    assert (!transaction::has_current ());
+    transaction t2 (db.begin (), false);
+    assert (!transaction::has_current ());
+    transaction::current (t2);
+    assert (&transaction::current () == &t2);
   }
 
   // Commit.
