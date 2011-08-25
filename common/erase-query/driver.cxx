@@ -63,7 +63,8 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      assert (db->erase_query<object> ("id < 3") == 2);
+      assert (db->erase_query<object> (
+                "common_erase_query_object.id < 3") == 2);
       db->erase_query<object> ();
       t.commit ();
     }
@@ -78,6 +79,38 @@ main (int argc, char* argv[])
       db->erase_query<object> ();
       t.commit ();
     }
+
+    // Test predicates involving object pointers (DELETE JOIN).
+    //
+    /*
+    {
+      object o11 (1);
+      object o12 (2);
+      object o13 (3);
+      object2 o2;
+
+      o11.o2 = &o2;
+      o2.num = 123;
+
+      o12.o1 = &o13;
+      o13.num = 123;
+
+      transaction t (db->begin ());
+      db->persist (o2);
+      db->persist (o13);
+      db->persist (o12);
+      db->persist (o11);
+      t.commit ();
+    }
+
+    {
+      transaction t (db->begin ());
+      assert (db->erase_query<object> (query::o1::num == 123) == 1);
+      assert (db->erase_query<object> (query::o2::num == 123) == 1);
+      db->erase_query<object> ();
+      t.commit ();
+    }
+    */
 
     // Make sure container data is deleted.
     //

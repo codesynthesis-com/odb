@@ -10,15 +10,18 @@
 
 #include <odb/core.hxx>
 
+struct object2;
+
 #pragma db object
 struct object
 {
   object (unsigned long id)
-      : id_ (id)
+      : id_ (id), o1 (0), o2 (0)
   {
   }
 
   object ()
+      : o1 (0), o2 (0)
   {
   }
 
@@ -26,6 +29,20 @@ struct object
   unsigned long id_;
 
   std::vector<int> v;
+
+  int num;
+
+  object* o1;
+  object2* o2;
+};
+
+#pragma db object
+struct object2
+{
+  #pragma db id auto
+  unsigned long id_;
+
+  int num;
 };
 
 #endif // TEST_HXX
