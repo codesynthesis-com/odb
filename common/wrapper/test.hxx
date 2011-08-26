@@ -21,6 +21,10 @@
 
 using odb::nullable;
 
+//
+// Simple values.
+//
+
 typedef nullable<std::string> nullable_string;
 
 #ifdef HAVE_TR1_MEMORY
@@ -33,7 +37,7 @@ struct object
   #pragma db id auto
   unsigned long id_;
 
-  std::auto_ptr<unsigned long> num;
+  std::auto_ptr<int> num;
 
   #pragma db null
   std::auto_ptr<std::string> str;
@@ -48,6 +52,74 @@ struct object
   #pragma db value_null
   std::vector<tr1_nullable_string> tr1_strs;
 #endif
+};
+
+//
+// Composite values.
+//
+
+#pragma db value
+struct comp1
+{
+  comp1 () {}
+  comp1 (const std::string& s, int n): str (s), num (n) {}
+
+  std::string str;
+  int num;
+};
+
+inline bool
+operator== (const comp1& x, const comp1 y)
+{
+  return x.str == y.str && x.num == y.num;
+}
+
+
+#pragma db value
+struct comp2
+{
+  comp2 () {}
+  comp2 (const std::string& s, int n): str (s), num (n) {}
+
+  std::string str;
+  int num;
+
+  std::vector<std::string> strs;
+};
+
+inline bool
+operator== (const comp2& x, const comp2 y)
+{
+  return x.str == y.str && x.num == y.num && x.strs == y.strs;
+}
+
+#pragma db object
+struct comp_object
+{
+  #pragma db id auto
+  unsigned long id_;
+
+  std::auto_ptr<comp1> c1;           // Wrapped comp value.
+  std::vector<nullable<comp1> > vc1; // Container of wrapped comp values.
+  std::auto_ptr<comp2> c2;           // Container inside wrapped comp value.
+};
+
+// This one is just a compilation test to cover more convolute cases.
+//
+#pragma db value
+struct comp3: comp2
+{
+  std::auto_ptr<comp1> c1;
+  std::vector<nullable<comp1> > vc1;
+};
+
+#pragma db object
+struct comp_object2
+{
+  #pragma db id auto
+  unsigned long id_;
+
+  std::auto_ptr<comp3> c3;
 };
 
 #endif // TEST_HXX

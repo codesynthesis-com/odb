@@ -29,11 +29,15 @@ main (int argc, char* argv[])
     auto_ptr<database> db (create_database (argc, argv));
 
     //
+    // Simple values.
+    //
+
+    //
     //
     unsigned long id;
     {
       object o;
-      o.num.reset (new unsigned long (123));
+      o.num.reset (new int (123));
       o.nstrs.push_back (nullable_string ());
       o.nstrs.push_back (nullable_string ("123"));
 #ifdef HAVE_TR1_MEMORY
@@ -63,6 +67,39 @@ main (int argc, char* argv[])
       assert (!o->tr1_strs[0]);
       assert (*o->tr1_strs[1] == "123");
 #endif
+    }
+
+    //
+    // Composite values.
+    //
+    {
+      comp_object co;
+
+      co.c1.reset (new comp1 ("123", 123));
+      co.vc1.push_back (comp1 ("1", 1));
+      co.vc1.push_back (comp1 ("2", 2));
+      co.vc1.push_back (comp1 ("3", 3));
+
+      co.c2.reset (new comp2 ("123", 123));
+      co.c2->strs.push_back ("1");
+      co.c2->strs.push_back ("2");
+      co.c2->strs.push_back ("3");
+
+      {
+        transaction t (db->begin ());
+        id = db->persist (co);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<comp_object> o (db->load<comp_object> (id));
+        t.commit ();
+
+        assert (*o->c1 == *co.c1);
+        assert (o->vc1 == co.vc1);
+        assert (*o->c2 == *co.c2);
+      }
     }
   }
   catch (const odb::exception& e)
