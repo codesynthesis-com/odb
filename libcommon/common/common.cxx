@@ -73,7 +73,7 @@ create_database (int& argc,
   if (max_connections != 0)
     f.reset (new mysql::connection_pool_factory (max_connections));
 
-  db.reset (new mysql::database (argc, argv, false, 0, f));
+  db.reset (new mysql::database (argc, argv, false, "", 0, f));
 #elif defined(DATABASE_SQLITE)
   auto_ptr<sqlite::connection_factory> f;
 
