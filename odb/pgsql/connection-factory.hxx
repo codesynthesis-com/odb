@@ -105,13 +105,12 @@ namespace odb
       connection_pool_factory (const connection_pool_factory&);
       connection_pool_factory& operator= (const connection_pool_factory&);
 
-    private:
+    protected:
       class pooled_connection: public connection
       {
       public:
-        // NULL pool value indicates that the connection is not in use.
-        //
-        pooled_connection (database_type&, connection_pool_factory*);
+        pooled_connection (database_type&);
+        pooled_connection (database_type&, PGconn*);
 
       private:
         static bool
@@ -121,19 +120,30 @@ namespace odb
         friend class connection_pool_factory;
 
         shared_base::refcount_callback callback_;
+
+        // NULL pool value indicates that the connection is not in use.
+        //
         connection_pool_factory* pool_;
       };
 
       friend class pooled_connection;
-      typedef std::vector<details::shared_ptr<pooled_connection> > connections;
 
-    private:
+      typedef details::shared_ptr<pooled_connection> pooled_connection_ptr;
+      typedef std::vector<pooled_connection_ptr> connections;
+
+      // This function is called whenever the pool needs to create a new
+      // connection.
+      //
+      virtual pooled_connection_ptr
+      create ();
+
+    protected:
       // Return true if the connection should be deleted, false otherwise.
       //
       bool
       release (pooled_connection*);
 
-    private:
+    protected:
       const std::size_t max_;
       const std::size_t min_;
 
