@@ -43,6 +43,7 @@ namespace odb
       ~connection ();
 
       connection (database_type&);
+      connection (database_type&, PGconn* handle);
 
       database_type&
       database ()
@@ -76,6 +77,10 @@ namespace odb
     private:
       connection (const connection&);
       connection& operator= (const connection&);
+
+    private:
+      void
+      init ();
 
     private:
       database_type& db_;

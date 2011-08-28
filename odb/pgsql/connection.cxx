@@ -31,10 +31,7 @@ namespace odb
   {
     connection::
     connection (database_type& db)
-        : odb::connection (db),
-          db_ (db),
-          handle_ (0),
-          statement_cache_ (new statement_cache_type (*this))
+        : odb::connection (db), db_ (db)
     {
       handle_ = PQconnectdb (db.conninfo ().c_str ());
 
@@ -48,16 +45,33 @@ namespace odb
         throw database_exception (m);
       }
 
-      // Suppress server notifications to stdout.
-      //
-      PQsetNoticeProcessor (handle_, &odb_pgsql_process_notice, 0);
+      init ();
+    }
 
+    connection::
+    connection (database_type& db, PGconn* handle)
+        : odb::connection (db), db_ (db), handle_ (handle)
+    {
+      init ();
+    }
+
+    void connection::
+    init ()
+    {
       // Establish whether date/time values are represented as
       // 8-byte integers.
       //
       if (strcmp (PQparameterStatus (handle_, "integer_datetimes"), "on") != 0)
         throw database_exception ("unsupported binary format for PostgreSQL "
                                   "date-time SQL types");
+
+      // Suppress server notifications to stdout.
+      //
+      PQsetNoticeProcessor (handle_, &odb_pgsql_process_notice, 0);
+
+      // Create statement cache.
+      //
+      statement_cache_.reset (new statement_cache_type (*this));
     }
 
     connection::
