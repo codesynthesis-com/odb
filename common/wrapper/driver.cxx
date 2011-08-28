@@ -31,9 +31,6 @@ main (int argc, char* argv[])
     //
     // Simple values.
     //
-
-    //
-    //
     unsigned long id;
     {
       object o;
@@ -50,8 +47,6 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    //
-    //
     {
       transaction t (db->begin ());
       auto_ptr<object> o (db->load<object> (id));
@@ -99,6 +94,39 @@ main (int argc, char* argv[])
         assert (*o->c1 == *co.c1);
         assert (o->vc1 == co.vc1);
         assert (*o->c2 == *co.c2);
+      }
+    }
+
+    //
+    // Containers.
+    //
+    {
+      cont_object co;
+
+      co.vi.reset (new vector<int>);
+      co.vi->push_back (1);
+      co.vi->push_back (2);
+      co.vi->push_back (3);
+
+      co.c.num = 123;
+      co.c.strs.reset (new vector<string>);
+      co.c.strs->push_back ("1");
+      co.c.strs->push_back ("2");
+      co.c.strs->push_back ("3");
+
+      {
+        transaction t (db->begin ());
+        id = db->persist (co);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<cont_object> o (db->load<cont_object> (id));
+        t.commit ();
+
+        assert (*o->vi == *co.vi);
+        assert (o->c == co.c);
       }
     }
   }

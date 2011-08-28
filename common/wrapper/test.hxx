@@ -69,7 +69,7 @@ struct comp1
 };
 
 inline bool
-operator== (const comp1& x, const comp1 y)
+operator== (const comp1& x, const comp1& y)
 {
   return x.str == y.str && x.num == y.num;
 }
@@ -88,7 +88,7 @@ struct comp2
 };
 
 inline bool
-operator== (const comp2& x, const comp2 y)
+operator== (const comp2& x, const comp2& y)
 {
   return x.str == y.str && x.num == y.num && x.strs == y.strs;
 }
@@ -120,6 +120,33 @@ struct comp_object2
   unsigned long id_;
 
   std::auto_ptr<comp3> c3;
+};
+
+//
+// Containers.
+//
+
+#pragma db value
+struct cont_comp
+{
+  int num;
+  std::auto_ptr<std::vector<std::string> > strs;
+};
+
+inline bool
+operator== (const cont_comp& x, const cont_comp& y)
+{
+  return x.num == y.num && *x.strs == *y.strs;
+}
+
+#pragma db object
+struct cont_object
+{
+  #pragma db id auto
+  unsigned long id_;
+
+  std::auto_ptr<std::vector<int> > vi; // Wrapped container.
+  cont_comp c;                         // Wrapped container in comp value.
 };
 
 #endif // TEST_HXX
