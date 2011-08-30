@@ -84,7 +84,11 @@ namespace odb
       init ();
 
     private:
+      // Needed to break the circular connection-database dependency
+      // (odb::connection has the odb::database member).
+      //
       database_type& db_;
+
       auto_handle<PGconn> handle_;
 
       // Keep statement_cache_ after handle_ so that it is destroyed before
