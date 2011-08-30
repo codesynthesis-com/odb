@@ -16,7 +16,6 @@
 #include <odb/pgsql/error.hxx>
 #include <odb/pgsql/exceptions.hxx>
 #include <odb/pgsql/statement-cache.hxx>
-#include <odb/pgsql/result-ptr.hxx>
 
 using namespace std;
 
@@ -33,17 +32,12 @@ namespace odb
     connection (database_type& db)
         : odb::connection (db), db_ (db)
     {
-      handle_ = PQconnectdb (db.conninfo ().c_str ());
+      handle_.reset (PQconnectdb (db.conninfo ().c_str ()));
 
       if (handle_ == 0)
         throw bad_alloc ();
       else if (PQstatus (handle_) == CONNECTION_BAD)
-      {
-        std::string m (PQerrorMessage (handle_));
-        PQfinish (handle_);
-
-        throw database_exception (m);
-      }
+        throw database_exception (PQerrorMessage (handle_));
 
       init ();
     }
@@ -77,11 +71,6 @@ namespace odb
     connection::
     ~connection ()
     {
-      // Deallocate prepared statements before we close the connection.
-      //
-      statement_cache_.reset ();
-
-      PQfinish (handle_);
     }
 
     transaction_impl* connection::
@@ -97,8 +86,7 @@ namespace odb
       //
       string str (s, n);
 
-      result_ptr r (PQexec (handle_, str.c_str ()));
-      PGresult* h (r.get ());
+      auto_handle<PGresult> h (PQexec (handle_, str.c_str ()));
 
       unsigned long long count (0);
 

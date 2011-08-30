@@ -15,7 +15,8 @@
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
-#include <odb/pgsql/pgsql-fwd.hxx>
+#include <odb/pgsql/pgsql-fwd.hxx> // PGresult
+#include <odb/pgsql/auto-handle.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -157,7 +158,7 @@ namespace odb
 
       binding& data_;
 
-      PGresult* result_;
+      auto_handle<PGresult> result_;
       std::size_t row_count_;
       std::size_t current_row_;
     };

@@ -19,6 +19,7 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
 #include <odb/pgsql/transaction-impl.hxx>
+#include <odb/pgsql/auto-handle.hxx>
 #include <odb/pgsql/pgsql-fwd.hxx> // PGconn
 
 #include <odb/pgsql/details/export.hxx>
@@ -84,8 +85,11 @@ namespace odb
 
     private:
       database_type& db_;
-      PGconn* handle_;
+      auto_handle<PGconn> handle_;
 
+      // Keep statement_cache_ after handle_ so that it is destroyed before
+      // the connection is closed.
+      //
       std::auto_ptr<statement_cache_type> statement_cache_;
     };
   }

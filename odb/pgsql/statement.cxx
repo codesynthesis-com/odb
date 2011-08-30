@@ -14,7 +14,7 @@
 #include <odb/pgsql/statement.hxx>
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/transaction.hxx>
-#include <odb/pgsql/result-ptr.hxx>
+#include <odb/pgsql/auto-handle.hxx>
 #include <odb/pgsql/error.hxx>
 
 #include <odb/pgsql/details/endian-traits.hxx>
@@ -53,7 +53,7 @@ namespace odb
       s += name_;
       s += "\"";
 
-      result_ptr r (PQexec (conn_.handle (), s.c_str ()));
+      auto_handle<PGresult> h (PQexec (conn_.handle (), s.c_str ()));
       deallocated_ = true;
     }
 
@@ -67,14 +67,20 @@ namespace odb
           name_ (name),
           deallocated_ (false)
     {
-      result_ptr r (PQprepare (conn_.handle (),
-                               name_.c_str (),
-                               stmt.c_str (),
-                               static_cast<int> (types_count),
-                               types));
+      auto_handle<PGresult> h (
+        PQprepare (conn_.handle (),
+                   name_.c_str (),
+                   stmt.c_str (),
+                   static_cast<int> (types_count),
+                   types));
 
-      if (!is_good_result (r.get ()))
-        translate_error (conn_, r.get ());
+      if (!is_good_result (h))
+        translate_error (conn_, h);
+
+      //
+      // If any code after this line throws, the statement will be leaked
+      // (on the server) since deallocate() won't be called for it.
+      //
     }
 
     void statement::
@@ -295,8 +301,6 @@ namespace odb
     select_statement::
     ~select_statement ()
     {
-      if (result_ != 0)
-        PQclear (result_);
     }
 
     select_statement::
@@ -312,10 +316,8 @@ namespace odb
           cond_ (&cond),
           native_cond_ (native_cond),
           data_ (data),
-          result_ (0),
           row_count_ (0),
           current_row_ (0)
-
     {
     }
 
@@ -331,55 +333,39 @@ namespace odb
           cond_ (0),
           native_cond_ (native_cond),
           data_ (data),
-          result_ (0),
           row_count_ (0),
           current_row_ (0)
-
     {
     }
 
     void select_statement::
     execute ()
     {
-      if (result_ != 0)
-      {
-        PQclear (result_);
-        result_ = 0;
-      }
+      result_.reset ();
 
       if (cond_ != 0)
         bind_param (native_cond_, *cond_);
 
-      // Use temporary result_ptr to guarantee exception safety.
-      //
-      result_ptr r (PQexecPrepared (conn_.handle (),
-                                    name_.c_str (),
-                                    native_cond_.count,
-                                    native_cond_.values,
-                                    native_cond_.lengths,
-                                    native_cond_.formats,
-                                    1));
+      result_.reset (
+        PQexecPrepared (conn_.handle (),
+                        name_.c_str (),
+                        native_cond_.count,
+                        native_cond_.values,
+                        native_cond_.lengths,
+                        native_cond_.formats,
+                        1));
 
-      PGresult* h (r.get ());
+      if (!is_good_result (result_))
+        translate_error (conn_, result_);
 
-      if (!is_good_result (h))
-        translate_error (conn_, h);
-
-      row_count_ = static_cast<size_t> (PQntuples (h));
+      row_count_ = static_cast<size_t> (PQntuples (result_));
       current_row_ = 0;
-
-      result_ = r.release ();
     }
 
     void select_statement::
     free_result ()
     {
-      if (result_ != 0)
-      {
-        PQclear (result_);
-        result_ = 0;
-      }
-
+      result_.reset ();
       row_count_ = 0;
       current_row_ = 0;
     }
@@ -450,14 +436,15 @@ namespace odb
 
       bind_param (native_data_, data_);
 
-      result_ptr r (PQexecPrepared (conn_.handle (),
-                                    name_.c_str (),
-                                    native_data_.count,
-                                    native_data_.values,
-                                    native_data_.lengths,
-                                    native_data_.formats,
-                                    1));
-      PGresult* h (r.get ());
+      auto_handle<PGresult> h (
+        PQexecPrepared (conn_.handle (),
+                        name_.c_str (),
+                        native_data_.count,
+                        native_data_.values,
+                        native_data_.lengths,
+                        native_data_.formats,
+                        1));
+
       ExecStatusType stat (PGRES_FATAL_ERROR);
 
       if (!is_good_result (h, &stat))
@@ -482,10 +469,8 @@ namespace odb
       if (id_cached_)
         return id_;
 
-      result_ptr r (PQexecParams (conn_.handle (),
-                                  "select lastval ()",
-                                  0, 0, 0, 0, 0, 1));
-      PGresult* h (r.get ());
+      auto_handle<PGresult> h (
+        PQexecParams (conn_.handle (), "select lastval ()", 0, 0, 0, 0, 0, 1));
 
       if (!is_good_result (h))
         translate_error (conn_, h);
@@ -534,15 +519,14 @@ namespace odb
       bind_param (native_data_, data_);
       bind_param (native_cond_, cond_);
 
-      result_ptr r (PQexecPrepared (conn_.handle (),
-                                    name_.c_str (),
-                                    native_data_.count + native_cond_.count,
-                                    native_data_.values,
-                                    native_data_.lengths,
-                                    native_data_.formats,
-                                    1));
-
-      PGresult* h (r.get ());
+      auto_handle<PGresult> h (
+        PQexecPrepared (conn_.handle (),
+                        name_.c_str (),
+                        native_data_.count + native_cond_.count,
+                        native_data_.values,
+                        native_data_.lengths,
+                        native_data_.formats,
+                        1));
 
       if (!is_good_result (h))
         translate_error (conn_, h);
@@ -596,14 +580,14 @@ namespace odb
       if (cond_ != 0)
         bind_param (native_cond_, *cond_);
 
-      result_ptr r (PQexecPrepared (conn_.handle (),
-                                    name_.c_str (),
-                                    native_cond_.count,
-                                    native_cond_.values,
-                                    native_cond_.lengths,
-                                    native_cond_.formats,
-                                    1));
-      PGresult* h (r.get ());
+      auto_handle<PGresult> h (
+        PQexecPrepared (conn_.handle (),
+                        name_.c_str (),
+                        native_cond_.count,
+                        native_cond_.values,
+                        native_cond_.lengths,
+                        native_cond_.formats,
+                        1));
 
       if (!is_good_result (h))
         translate_error (conn_, h);

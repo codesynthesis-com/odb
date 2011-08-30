@@ -12,7 +12,7 @@
 #include <odb/pgsql/error.hxx>
 #include <odb/pgsql/exceptions.hxx>
 #include <odb/pgsql/transaction-impl.hxx>
-#include <odb/pgsql/result-ptr.hxx>
+#include <odb/pgsql/auto-handle.hxx>
 
 namespace odb
 {
@@ -46,8 +46,7 @@ namespace odb
         odb::transaction_impl::connection_ = connection_.get ();
       }
 
-      result_ptr r (PQexec (connection_->handle (), "begin"));
-      PGresult* h (r.get ());
+      auto_handle<PGresult> h (PQexec (connection_->handle (), "begin"));
 
       if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
         translate_error (*connection_, h);
@@ -56,8 +55,7 @@ namespace odb
     void transaction_impl::
     commit ()
     {
-      result_ptr r (PQexec (connection_->handle (), "commit"));
-      PGresult* h (r.get ());
+      auto_handle<PGresult> h (PQexec (connection_->handle (), "commit"));
 
       if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
         translate_error (*connection_, h);
@@ -66,8 +64,7 @@ namespace odb
     void transaction_impl::
     rollback ()
     {
-      result_ptr r (PQexec (connection_->handle (), "rollback"));
-      PGresult* h (r.get ());
+      auto_handle<PGresult> h (PQexec (connection_->handle (), "rollback"));
 
       if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
         translate_error (*connection_, h);
