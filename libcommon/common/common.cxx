@@ -22,6 +22,9 @@
 #elif defined(DATABASE_PGSQL)
 #  include <odb/pgsql/database.hxx>
 #  include <odb/pgsql/connection-factory.hxx>
+#elif defined(DATABASE_ORACLE)
+#  include <odb/oracle/database.hxx>
+#  include <odb/oracle/connection-factory.hxx>
 #else
 #  error unknown database
 #endif
@@ -37,6 +40,8 @@ namespace mysql = odb::mysql;
 namespace sqlite = odb::sqlite;
 #elif defined(DATABASE_PGSQL)
 namespace pgsql = odb::pgsql;
+#elif defined(DATABASE_ORACLE)
+namespace oracle = odb::oracle;
 #endif
 
 auto_ptr<database>
@@ -60,6 +65,8 @@ create_database (int& argc,
     sqlite::database::print_usage (cerr);
 #elif defined(DATABASE_PGSQL)
     pgsql::database::print_usage (cerr);
+#elif defined(DATABASE_ORAClE)
+    oracle::database::print_usage (cerr);
 #endif
 
     exit (0);
@@ -107,6 +114,13 @@ create_database (int& argc,
     f.reset (new pgsql::connection_pool_factory (max_connections));
 
   db.reset (new pgsql::database (argc, argv, false, "", f));
+#elif defined(DATABASE_ORACLE)
+  auto_ptr<oracle::connection_factory> f;
+
+  if (max_connections != 0)
+    f.reset (new oracle::connection_pool_factory (max_connections));
+
+  db.reset (new oracle::database (argc, argv, false, 0, f));
 #endif
 
   return db;

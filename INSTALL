@@ -4,6 +4,7 @@ system you would like to use. Valid values for <database> are:
   'mysql'  - The MySQL database system
   'sqlite' - The SQLite database system
   'pgsql'  - The PostgreSQL database system
+  'oracle' - The Oracle database system
 
 Prerequisites
 =============

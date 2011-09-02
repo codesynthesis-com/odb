@@ -5,7 +5,7 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))build/bootstrap.make
 
-all_dirs := libcommon common tracer mysql sqlite pgsql boost qt
+all_dirs := libcommon common tracer mysql sqlite pgsql oracle boost qt
 dirs := common tracer boost qt
 
 ifeq ($(db_id),mysql)
@@ -18,6 +18,13 @@ endif
 
 ifeq ($(db_id),pgsql)
 dirs += pgsql
+endif
+
+# @@ Remove overrides when Oracle implementation is complete.
+#
+ifeq ($(db_id),oracle)
+all_dirs := libcommon oracle
+dirs := libcommon oracle
 endif
 
 default := $(out_base)/

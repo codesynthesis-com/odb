@@ -58,6 +58,9 @@ endif
 ifeq ($(db_id),pgsql)
 	@echo '#define DATABASE_PGSQL 1'                                >>$@
 endif
+ifeq ($(db_id),oracle)
+	@echo '#define DATABASE_ORACLE 1'                               >>$@
+endif
 	@echo '#define HAVE_TR1_MEMORY 1'                               >>$@
 	@echo ''                                                        >>$@
 	@echo '#endif /* LIBCOMMON_COMMON_CONFIG_H */'                  >>$@

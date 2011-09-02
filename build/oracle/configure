@@ -1,0 +1,75 @@
+#! /usr/bin/env bash
+
+# file      : build/oracle/configure
+# author    : Constantin Michael <constantin@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+#
+# dcf_root - dynamic configuration root
+#
+
+$echo
+$echo "Please enter the Oracle client program path."
+$echo
+
+driver=`read_path --command sqlplus`
+
+$echo
+$echo "Please enter the Oracle database user."
+$echo
+
+user=`read_value "odb_test"`
+
+$echo
+$echo "Please enter the Oracle database password."
+$echo
+
+passwd=`read_value ""`
+
+$echo
+$echo "Please enter the Oracle listener host."
+$echo
+
+host=`read_value ""`
+
+$echo
+$echo "Please enter the Oracle listener port."
+$echo
+
+port=`read_value ""`
+
+$echo
+$echo "Please enter the Oracle service to use. Note that the associated"
+$echo "database WILL BE MODIFIED."
+$echo
+
+service=`read_value ""`
+
+opt=$dcf_root/db.options
+drv=$dcf_root/db-driver
+
+if [ -n "$user" ]; then
+echo "--user '$user'"        >$opt
+fi
+
+if [ -n "$passwd" ]; then
+echo "--password '$passwd'" >>$opt
+fi
+
+if [ -n "$service" ]; then
+echo "--service '$service'" >>$opt
+fi
+
+if [ -n "$host" ]; then
+echo "--host '$host'"       >>$opt
+fi
+
+if [ -n "$port" ]; then
+echo "--port '$port'"       >>$opt
+fi
+
+echo "#!/bin/sh"                                                >$drv
+echo "opt=\`cat $opt\`"                                        >>$drv
+echo "eval $scf_root/oracle/oracle --driver $driver \$opt \$*" >>$drv
+chmod 755 $drv

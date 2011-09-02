@@ -1,0 +1,73 @@
+#! /usr/bin/env bash
+
+# file      : build/oracle/oracle
+# author    : Constantin Michael <constantin@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+#
+# Oracle driver wrapper.
+#
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    --driver)
+      driver=$2
+      shift 2
+      ;;
+    --user)
+      user="$2"
+      shift 2
+      ;;
+    --password)
+      passwd="$2"
+      shift 2
+      ;;
+    --service)
+      service="$2"
+      shift 2
+      ;;
+    --host)
+      host="$2"
+      shift 2
+      ;;
+    --port)
+      port="$2"
+      shift 2
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ -z "$driver" ]; then
+  driver=sqlplus
+fi
+
+opt="-L"
+conn=$user
+
+if [ -n "$passwd" ]; then
+  conn="$conn/$passwd"
+fi
+
+if [ -n "$host" ]; then
+  conn="$conn@//$host"
+
+  if [ -n "$port" ]; then
+    conn="$conn:$port"
+  fi
+
+  if [ -n "$service" ]; then
+    conn="$conn/$service"
+  fi
+elif [ -n "$service" ]; then
+  conn="$conn@$service"
+fi
+
+if [ -n "$1" ]; then
+  exec $driver $opt $conn <$1
+else
+  exec $driver $opt $conn
+fi
