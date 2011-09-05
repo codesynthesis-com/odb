@@ -48,11 +48,11 @@ if [ "$installed" = "n" ]; then
 
 else
 
-  pq_libs=-lpq
+  libpq_libs=-lpq
 
   if pg_config --version > /dev/null 2>&1; then
 
-    pq_cppflags=-I`pg_config --includedir`
+    libpq_cppflags=-I`pg_config --includedir`
 
   else
     $echo
@@ -60,7 +60,7 @@ else
     $echo "Assuming the C++ compiler will find them automatically."
     $echo
 
-    pq_cppflags=
+    libpq_cppflags=
 
   fi
 
@@ -75,7 +75,7 @@ if [ "$installed" = "n" ]; then
 
 else
 
-  echo pq_cppflags := $pq_cppflags >>$1
-  echo pq_libs     := $pq_libs     >>$1
+  echo libpq_cppflags := $libpq_cppflags >>$1
+  echo libpq_libs     := $libpq_libs     >>$1
 
 fi

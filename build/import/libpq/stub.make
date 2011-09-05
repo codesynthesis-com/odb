@@ -14,9 +14,9 @@ ifdef libpq_installed
 ifeq ($(libpq_installed),y)
 
 $(call export,\
-  l: $(pq_libs),\
+  l: $(libpq_libs),\
   cpp-options: ,\
-  cpp-options-inline: $(pq_cppflags))
+  cpp-options-inline: $(libpq_cppflags))
 
 else
 
