@@ -1,0 +1,14 @@
+/* file      : odb/oracle/details/config.h.in
+ * author    : Constantin Michael <constantin@codesynthesis.com>
+ * copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+ * license   : ODB NCUEL; see accompanying LICENSE file
+ */
+
+/* This file is automatically processed by configure. */
+
+#ifndef ODB_ORACLE_DETAILS_CONFIG_H
+#define ODB_ORACLE_DETAILS_CONFIG_H
+
+#undef LIBODB_ORACLE_STATIC_LIB
+
+#endif /* ODB_ORACLE_DETAILS_CONFIG_H */

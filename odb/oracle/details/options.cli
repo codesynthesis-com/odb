@@ -1,0 +1,62 @@
+// file      : odb/oracle/details/options.cli
+// author    : Constantin Michael <constantin@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : ODB NCUEL; see accompanying LICENSE file
+
+include <string>;
+
+namespace odb
+{
+  namespace oracle
+  {
+    namespace details
+    {
+      class options
+      {
+        std::string --user
+        {
+          "<name>",
+          "Oracle database user."
+        };
+
+        std::string --password
+        {
+          "<str>",
+          "Oracle database password."
+        };
+
+        std::string --database
+        {
+          "<connect-id>",
+          "Oracle connect identifier."
+        };
+
+        std::string --service
+        {
+          "<name>",
+          "Oracle service name."
+        };
+
+        std::string --host
+        {
+          "<str>",
+          "Oracle database host name or address (localhost by default)."
+        };
+
+        unsigned int --port
+        {
+          "<str>",
+          "Oracle database port number."
+        };
+
+        std::string --options-file
+        {
+          "<file>"
+          "Read additional options from <file>. Each option appearing on a
+           separate line optionally followed by space and an option value.
+           Empty lines and lines starting with \cb{#} are ignored."
+        };
+      };
+    }
+  }
+}

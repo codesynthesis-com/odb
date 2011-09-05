@@ -1,0 +1,27 @@
+#! /usr/bin/env bash
+
+# file      : build/import/liboci/configure
+# author    : Constantin Michael <constantin@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+
+# $1           - out config file
+#
+# bld_root     - build root
+# project_name - project name
+#
+
+source $bld_root/dialog.bash
+
+$echo
+$echo "Configuring external dependency on 'OCI library' for '$project_name'."
+$echo
+
+$echo
+$echo "Please enter the 'Oracle' home directory."
+$echo
+
+liboci_root=`read_path --directory --exist $ORACLE_HOME`
+
+echo liboci_root := $liboci_root  >$1
