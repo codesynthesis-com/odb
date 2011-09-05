@@ -23,6 +23,7 @@ query         \
 relationship  \
 schema        \
 template      \
+view          \
 wrapper
 
 thread_tests := threads
