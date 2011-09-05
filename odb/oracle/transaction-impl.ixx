@@ -1,0 +1,16 @@
+// file      : odb/oracle/transaction-impl.ixx
+// author    : Constantin Michael <constantin@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : ODB NCUEL; see accompanying LICENSE file
+
+namespace odb
+{
+  namespace oracle
+  {
+    inline transaction_impl::connection_type& transaction_impl::
+    connection ()
+    {
+      return *connection_;
+    }
+  }
+}

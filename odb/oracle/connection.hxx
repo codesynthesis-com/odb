@@ -1,0 +1,105 @@
+// file      : odb/oracle/connection.hxx
+// author    : Constantin Michael <constantin@codesynthesis.com>
+// copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
+// license   : ODB NCUEL; see accompanying LICENSE file
+
+#ifndef ODB_ORACLE_CONNECTION_HXX
+#define ODB_ORACLE_CONNECTION_HXX
+
+#include <odb/pre.hxx>
+
+#include <vector>
+#include <memory> // std::auto_ptr
+
+#include <odb/forward.hxx>
+#include <odb/connection.hxx>
+
+#include <odb/details/shared-ptr.hxx>
+
+#include <odb/oracle/version.hxx>
+#include <odb/oracle/forward.hxx>
+#include <odb/oracle/transaction-impl.hxx>
+#include <odb/oracle/auto-handle.hxx>
+#include <odb/oracle/oracle-fwd.hxx>
+
+#include <odb/oracle/details/export.hxx>
+
+namespace odb
+{
+  namespace oracle
+  {
+    class statement;
+    class statement_cache;
+
+    class connection;
+    typedef details::shared_ptr<connection> connection_ptr;
+
+    class LIBODB_ORACLE_EXPORT connection: public odb::connection
+    {
+    public:
+      typedef oracle::statement_cache statement_cache_type;
+      typedef oracle::database database_type;
+
+      virtual
+      ~connection ();
+
+      connection (database_type&);
+      connection (database_type&, OCISvcCtx* handle);
+
+      database_type&
+      database ()
+      {
+        return db_;
+      }
+
+    public:
+      virtual transaction_impl*
+      begin ();
+
+    public:
+      using odb::connection::execute;
+
+      virtual unsigned long long
+      execute (const char* statement, std::size_t length);
+
+    public:
+      OCISvcCtx*
+      handle ()
+      {
+        return handle_;
+      }
+
+      OCIError*
+      error_handle ()
+      {
+        return error_;
+      }
+
+      // statement_cache_type&
+      // statement_cache ()
+      // {
+      //   return *statement_cache_;
+      // }
+
+    private:
+      connection (const connection&);
+      connection& operator= (const connection&);
+
+    private:
+      database_type& db_;
+
+      // It is important that the error_ member is declared before the
+      // handle_ member as handle_ depends on error_ during destruction.
+      //
+      auto_handle<OCIError> error_;
+
+      auto_handle<OCISvcCtx> handle_;
+
+      // std::auto_ptr<statement_cache_type> statement_cache_;
+    };
+  }
+}
+
+#include <odb/post.hxx>
+
+#endif // ODB_ORACLE_CONNECTION_HXX
