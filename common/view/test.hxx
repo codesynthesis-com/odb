@@ -94,7 +94,6 @@ struct view3
 {
   std::string last;
   std::size_t count;
-  unsigned short age;
 };
 
 // JOIN view.
