@@ -30,6 +30,9 @@ namespace odb
     class object_statements;
 
     template <typename T>
+    class view_statements;
+
+    template <typename T>
     class container_statements;
   }
 

@@ -21,6 +21,7 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
 #include <odb/pgsql/statement.hxx>
+#include <odb/pgsql/statements-base.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -28,20 +29,9 @@ namespace odb
 {
   namespace pgsql
   {
-    class connection;
-
-    class LIBODB_PGSQL_EXPORT object_statements_base:
-      public details::shared_base
+    class LIBODB_PGSQL_EXPORT object_statements_base: public statements_base
     {
     public:
-      typedef pgsql::connection connection_type;
-
-      connection_type&
-      connection ()
-      {
-        return conn_;
-      }
-
       // Locking.
       //
       void
@@ -70,7 +60,7 @@ namespace odb
 
     protected:
       object_statements_base (connection_type& conn)
-        : conn_ (conn), locked_ (false)
+        : statements_base (conn), locked_ (false)
       {
       }
 
@@ -91,7 +81,6 @@ namespace odb
       };
 
     protected:
-      connection_type& conn_;
       bool locked_;
     };
 
@@ -152,9 +141,11 @@ namespace odb
         bool locked_;
       };
 
-      //
-      //
+    public:
       object_statements (connection_type&);
+
+      virtual
+      ~object_statements ();
 
       // Delayed loading.
       //

@@ -15,6 +15,7 @@ error.cxx                 \
 exceptions.cxx            \
 object-statements.cxx     \
 statement.cxx             \
+statements-base.cxx       \
 traits.cxx                \
 transaction.cxx           \
 transaction-impl.cxx      \

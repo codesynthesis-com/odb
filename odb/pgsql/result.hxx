@@ -8,70 +8,28 @@
 
 #include <odb/pre.hxx>
 
-#include <cstddef> // std::size_t
-
+#include <odb/traits.hxx>
 #include <odb/result.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
-#include <odb/pgsql/forward.hxx> // query, query_params
-#include <odb/pgsql/statement.hxx>
-
-#include <odb/pgsql/details/export.hxx>
+#include <odb/pgsql/forward.hxx>
 
 namespace odb
 {
   namespace pgsql
   {
-    template <typename T>
-    class result_impl: public odb::result_impl<T>
-    {
-    public:
-      typedef typename odb::result_impl<T>::pointer_type pointer_type;
-      typedef typename odb::result_impl<T>::pointer_traits pointer_traits;
-
-      typedef typename odb::result_impl<T>::object_type object_type;
-      typedef typename odb::result_impl<T>::id_type id_type;
-      typedef typename odb::result_impl<T>::object_traits object_traits;
-
-
-      virtual
-      ~result_impl ();
-
-      result_impl (const query&,
-                   details::shared_ptr<select_statement>,
-                   object_statements<object_type>&);
-
-      virtual void
-      load (object_type&);
-
-      virtual id_type
-      load_id ();
-
-      virtual void
-      next ();
-
-      virtual void
-      cache ();
-
-      virtual std::size_t
-      size ();
-
-      using odb::result_impl<T>::current;
-
-    private:
-      void
-      load_image ();
-
-    private:
-      details::shared_ptr<select_statement> statement_;
-      object_statements<object_type>& statements_;
-    };
+    template <typename T, class_kind kind>
+    class result_impl;
   }
 }
-
-#include <odb/pgsql/result.txx>
 
 #include <odb/post.hxx>
 
 #endif // ODB_PGSQL_RESULT_HXX
+
+// Include result specializations so that the user code only needs
+// to include this header.
+//
+
+#include <odb/pgsql/object-result.hxx>
+#include <odb/pgsql/view-result.hxx>

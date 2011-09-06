@@ -1,34 +1,35 @@
-// file      : odb/pgsql/result.txx
+// file      : odb/pgsql/object-result.txx
 // author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #include <odb/callback.hxx>
-#include <odb/exceptions.hxx>
+
+#include <odb/pgsql/object-statements.hxx>
 
 namespace odb
 {
   namespace pgsql
   {
     template <typename T>
-    result_impl<T>::
+    result_impl<T, class_object>::
     ~result_impl ()
     {
     }
 
     template <typename T>
-    result_impl<T>::
+    result_impl<T, class_object>::
     result_impl (const query&,
-                 details::shared_ptr<select_statement> st,
-                 object_statements<object_type>& sts)
-        : odb::result_impl<T> (sts.connection ().database ()),
-          statement_ (st),
-          statements_ (sts)
+                 details::shared_ptr<select_statement> statement,
+                 object_statements<object_type>& statements)
+        : base_type (statements.connection ().database ()),
+          statement_ (statement),
+          statements_ (statements)
     {
     }
 
     template <typename T>
-    void result_impl<T>::
+    void result_impl<T, class_object>::
     load (object_type& obj)
     {
       load_image ();
@@ -65,7 +66,8 @@ namespace odb
     }
 
     template <typename T>
-    typename result_impl<T>::id_type result_impl<T>::
+    typename result_impl<T, class_object>::id_type
+    result_impl<T, class_object>::
     load_id ()
     {
       load_image ();
@@ -73,7 +75,7 @@ namespace odb
     }
 
     template <typename T>
-    void result_impl<T>::
+    void result_impl<T, class_object>::
     next ()
     {
       this->current (pointer_type ());
@@ -83,7 +85,7 @@ namespace odb
     }
 
     template <typename T>
-    void result_impl<T>::
+    void result_impl<T, class_object>::
     load_image ()
     {
       // The image can grow between calls to load() as a result of other
@@ -118,13 +120,13 @@ namespace odb
     }
 
     template <typename T>
-    void result_impl<T>::
+    void result_impl<T, class_object>::
     cache ()
     {
     }
 
     template <typename T>
-    std::size_t result_impl<T>::
+    std::size_t result_impl<T, class_object>::
     size ()
     {
       return statement_->result_size ();

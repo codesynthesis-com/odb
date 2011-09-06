@@ -13,11 +13,13 @@
 
 #include <odb/forward.hxx>
 
-#include <odb/pgsql/version.hxx>
-#include <odb/pgsql/object-statements.hxx>
-
 #include <odb/details/shared-ptr.hxx>
 #include <odb/details/type-info.hxx>
+
+#include <odb/pgsql/version.hxx>
+#include <odb/pgsql/statements-base.hxx>
+#include <odb/pgsql/object-statements.hxx>
+#include <odb/pgsql/view-statements.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -37,7 +39,7 @@ namespace odb
 
       template <typename T>
       object_statements<T>&
-      find ()
+      find_object ()
       {
         map::iterator i (map_.find (&typeid (T)));
 
@@ -51,9 +53,25 @@ namespace odb
         return *p;
       }
 
+      template <typename T>
+      view_statements<T>&
+      find_view ()
+      {
+        map::iterator i (map_.find (&typeid (T)));
+
+        if (i != map_.end ())
+          return static_cast<view_statements<T>&> (*i->second);
+
+        details::shared_ptr<view_statements<T> > p (
+          new (details::shared) view_statements<T> (conn_));
+
+        map_.insert (map::value_type (&typeid (T), p));
+        return *p;
+      }
+
     private:
       typedef std::map<const std::type_info*,
-                       details::shared_ptr<object_statements_base>,
+                       details::shared_ptr<statements_base>,
                        details::type_info_comparator> map;
 
       connection& conn_;

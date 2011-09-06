@@ -1674,7 +1674,7 @@ namespace odb
 namespace odb
 {
   template <typename T>
-  class query<T, pgsql::query>: public object_traits<T>::query_type
+  class query<T, pgsql::query>: public query_selector<T>::type
   {
   public:
     // We don't define any typedefs here since they may clash with
@@ -1687,40 +1687,40 @@ namespace odb
 
     explicit
     query (const std::string& q)
-        : object_traits<T>::query_type (q)
+        : query_selector<T>::type (q)
     {
     }
 
     template <typename T2>
     explicit
     query (pgsql::val_bind<T2> v)
-        : object_traits<T>::query_type (pgsql::query (v))
+        : query_selector<T>::type (pgsql::query (v))
     {
     }
 
     template <typename T2>
     explicit
     query (pgsql::ref_bind<T2> r)
-        : object_traits<T>::query_type (pgsql::query (r))
+        : query_selector<T>::type (pgsql::query (r))
     {
     }
 
     query (const pgsql::query& q)
-        : object_traits<T>::query_type (q)
+        : query_selector<T>::type (q)
     {
     }
 
     template <pgsql::database_type_id ID>
     query (const pgsql::query_column<bool, ID>& qc)
-        : object_traits<T>::query_type (qc)
+        : query_selector<T>::type (qc)
     {
     }
 
     std::string
     clause () const
     {
-      return object_traits<T>::query_type::clause (
-        object_traits<T>::table_name);
+      return query_selector<T>::type::clause (
+        query_selector<T>::table_name ());
     }
   };
 }
