@@ -314,7 +314,7 @@ namespace odb
                       binding& data)
         : statement (conn, name, stmt, types, types_count),
           cond_ (&cond),
-          native_cond_ (native_cond),
+          native_cond_ (&native_cond),
           data_ (data),
           row_count_ (0),
           current_row_ (0)
@@ -331,7 +331,21 @@ namespace odb
                       binding& data)
         : statement (conn, name, stmt, types, types_count),
           cond_ (0),
-          native_cond_ (native_cond),
+          native_cond_ (&native_cond),
+          data_ (data),
+          row_count_ (0),
+          current_row_ (0)
+    {
+    }
+
+    select_statement::
+    select_statement (connection& conn,
+                      const std::string& name,
+                      const std::string& stmt,
+                      binding& data)
+        : statement (conn, name, stmt, 0, 0),
+          cond_ (0),
+          native_cond_ (0),
           data_ (data),
           row_count_ (0),
           current_row_ (0)
@@ -344,15 +358,17 @@ namespace odb
       result_.reset ();
 
       if (cond_ != 0)
-        bind_param (native_cond_, *cond_);
+        bind_param (*native_cond_, *cond_);
+
+      bool in (native_cond_ != 0);
 
       result_.reset (
         PQexecPrepared (conn_.handle (),
                         name_.c_str (),
-                        native_cond_.count,
-                        native_cond_.values,
-                        native_cond_.lengths,
-                        native_cond_.formats,
+                        in ? native_cond_->count : 0,
+                        in ? native_cond_->values : 0,
+                        in ? native_cond_->lengths : 0,
+                        in ? native_cond_->formats : 0,
                         1));
 
       if (!is_good_result (result_))

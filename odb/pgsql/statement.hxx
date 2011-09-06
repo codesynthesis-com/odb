@@ -90,6 +90,11 @@ namespace odb
                         native_binding& native_cond,
                         binding& data);
 
+      select_statement (connection& conn,
+                        const std::string& name,
+                        const std::string& stmt,
+                        binding& data);
+
       // Common select interface expected by the generated code.
       //
     public:
@@ -154,7 +159,7 @@ namespace odb
 
     private:
       binding* cond_;
-      native_binding& native_cond_;
+      native_binding* native_cond_;
 
       binding& data_;
 
