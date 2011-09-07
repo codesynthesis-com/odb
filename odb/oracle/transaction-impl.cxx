@@ -45,14 +45,14 @@ namespace odb
         odb::transaction_impl::connection_ = connection_.get ();
       }
 
-      OCISvcCtx* svc (connnection_->handle ());
+      OCISvcCtx* h (connection_->handle ());
       OCIError* err (connection_->error_handle ());
 
       // Allocate a transaction handle if there is none associated with
       // the connection.
       //
       OCITrans* t (0);
-      sword s (OCIAttrGet (svc,
+      sword s (OCIAttrGet (h,
                            OCI_HTYPE_SVCCTX,
                            reinterpret_cast<void*> (&t),
                            0,
@@ -76,7 +76,7 @@ namespace odb
 
         auto_t.reset (t);
 
-        s = OCIAttrSet (svc,
+        s = OCIAttrSet (h,
                         OCI_HTYPE_SVCCTX,
                         reinterpret_cast<void*> (t),
                         0,
@@ -92,7 +92,7 @@ namespace odb
       // We never use OCITransDetach so the timeout parameter is
       // of no consequence.
       //
-      s = OCITransStart (svc,
+      s = OCITransStart (h,
                          err,
                          0,
                          OCI_TRANS_NEW);
@@ -109,7 +109,7 @@ namespace odb
                                OCI_DEFAULT));
 
       if (s == OCI_ERROR || s == OCI_INVALID_HANDLE)
-        translate_error (err_, s);
+        translate_error (connection_->error_handle (), s);
     }
 
     void transaction_impl::
@@ -120,7 +120,7 @@ namespace odb
                                  OCI_DEFAULT));
 
       if (s == OCI_ERROR || s == OCI_INVALID_HANDLE)
-        translate_error (err_, s);
+        translate_error (connection_->error_handle (), s);
     }
   }
 }
