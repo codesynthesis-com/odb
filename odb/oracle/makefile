@@ -13,6 +13,7 @@ connection-factory.cxx   \
 database.cxx             \
 error.cxx                \
 exceptions.cxx           \
+statement.cxx            \
 transaction.cxx          \
 transaction-impl.cxx
 
