@@ -25,11 +25,12 @@ namespace odb
     statement (connection& conn, const string& s)
         : conn_ (conn)
     {
+      OCIError* err (conn_.error_handle ());
       OCIStmt* handle (0);
 
       sword r (OCIStmtPrepare2 (conn_.handle (),
                                 &handle,
-                                conn_.error_handle (),
+                                err,
                                 reinterpret_cast<const text*> (s.c_str ()),
                                 static_cast<ub4> (s.size ()),
                                 0,
@@ -38,7 +39,7 @@ namespace odb
                                 OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_.error_handle (), r);
+        translate_error (err, r);
 
       stmt_.reset (handle, OCI_STRLS_CACHE_DELETE, err);
     }
@@ -264,11 +265,12 @@ namespace odb
 
       if (returning)
       {
+        OCIError* err (conn_.error_handle ());
         OCIBind* h (0);
 
         sword r (OCIBindByPos (stmt_,
                                &h,
-                               conn_.error_handle (),
+                               err,
                                data.count,
                                0,
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
@@ -286,23 +288,28 @@ namespace odb
                                OCI_DATA_AT_EXEC));
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (conn_.error_handle (), r);
+          translate_error (err, r);
 
         r = OCIBindDynamic (h,
-                            conn_.error_handle (),
+                            err,
                             reinterpret_cast<void*> (&id_bind_),
                             &returning_in_cb,
                             reinterpret_cast<void*> (&id_bind_),
                             &returning_out_cb);
+
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (err, r);
       }
     }
 
     bool insert_statement::
     execute ()
     {
+      OCIError* err (conn_.error_handle ());
+
       sword r (OCIStmtExecute (conn_.handle (),
                                stmt_,
-                               conn_.error_handle (),
+                               err,
                                1,
                                0,
                                0,
@@ -310,7 +317,7 @@ namespace odb
                                OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_.error_handle (), r);
+        translate_error (err, r);
 
       ub4 row_count (0);
       r = OCIAttrGet (stmt_,
@@ -318,10 +325,10 @@ namespace odb
                       &row_count,
                       0,
                       OCI_ATTR_ROW_COUNT,
-                      conn_.error_handle ());
+                      err);
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_.error_handle (), r);
+        translate_error (err, r);
 
       // The value of the OCI_ATTR_ROW_COUNT attribute associated with an
       // INSERT statment represents the number of rows inserted.
@@ -363,9 +370,11 @@ namespace odb
     void update_statement::
     execute ()
     {
+      OCIError* err (conn_.error_handle ());
+
       sword r (OCIStmtExecute (conn_.handle (),
                                stmt_,
-                               conn_.error_handle (),
+                               err,
                                1,
                                0,
                                0,
@@ -373,7 +382,7 @@ namespace odb
                                OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_.error_handle (), r);
+        translate_error (err, r);
 
       ub4 row_count (0);
       r = OCIAttrGet (stmt_,
@@ -381,10 +390,10 @@ namespace odb
                       &row_count,
                       0,
                       OCI_ATTR_ROW_COUNT,
-                      conn_.error_handle ());
+                      err);
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_.error_handle (), r);
+        translate_error (err, r);
 
       // The value of the OCI_ATTR_ROW_COUNT attribute associated with an
       // UPDATE statment represents the number of matching rows found. Zero
@@ -415,9 +424,11 @@ namespace odb
     unsigned long long delete_statement::
     execute ()
     {
+      OCIError* err (conn_.error_handle ());
+
       sword r (OCIStmtExecute (conn_.handle (),
                                stmt_,
-                               conn_.error_handle (),
+                               err,
                                1,
                                0,
                                0,
@@ -425,7 +436,7 @@ namespace odb
                                OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_.error_handle (), r);
+        translate_error (err, r);
 
       ub4 row_count (0);
       r = OCIAttrGet (stmt_,
@@ -433,10 +444,10 @@ namespace odb
                       &row_count,
                       0,
                       OCI_ATTR_ROW_COUNT,
-                      conn_.error_handle ());
+                      err);
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_.error_handle (), r);
+        translate_error (err, r);
 
       return static_cast<unsigned long long> (row_count);
     }
