@@ -238,11 +238,11 @@ namespace odb
       bind& b (*reinterpret_cast<bind*> (context));
 
 #ifdef ODB_ORACLE_USE_64_BIT_ID
-      *buffer = &b.id.long_long_;
-      **len = sizeof (b.id.long_long_);
+      *buffer = &b.id.value_64;
+      **len = sizeof (unsigned long long);
 #else
-      *buffer = &b.id.int_;
-      **len = sizeof (b.id.int_);
+      *buffer = &b.id.value_32;
+      **len = sizeof (unsigned int);
 #endif
 
       *ind = reinterpret_cast<void*> (&b.ind);
@@ -335,9 +335,9 @@ namespace odb
     id ()
     {
 #ifdef ODB_ORACLE_USE_64_BIT_ID
-      return id_bind_.id.long_long_;
+      return id_bind_.id.value_64;
 #else
-      return id_bind_.id.int_;
+      return id_bind_.id.value_32;
 #endif
     }
 

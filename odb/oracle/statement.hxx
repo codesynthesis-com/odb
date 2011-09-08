@@ -126,8 +126,8 @@ namespace odb
       {
         union
         {
-          unsigned int int_;
-          unsigned long long long_long_;
+          unsigned int value_32;
+          unsigned long long value_64;
         } id;
 
         sb2 ind;
