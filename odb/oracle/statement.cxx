@@ -48,7 +48,7 @@ namespace odb
     }
 
     void statement::
-    bind_param (bind* b, size_t c)
+    bind_param (bind* b, size_t c, size_t o)
     {
       for (size_t i (0); i < c; ++i)
       {
@@ -57,7 +57,7 @@ namespace odb
         sword r (OCIBindByPos (stmt_,
                                &h,
                                conn_.error_handle (),
-                               i,
+                               o + i,
                                b[i].buffer,
                                b[i].capacity,
                                b[i].type,
@@ -120,7 +120,7 @@ namespace odb
           end_ (false),
           rows_ (0)
     {
-      bind_param (cond.bind, cond.count);
+      bind_param (cond.bind, cond.count, 0);
       bind_result (data.bind, data.count);
     }
 
@@ -263,7 +263,7 @@ namespace odb
                       bool returning)
         : statement (conn, s)
     {
-      bind_param (data.bind, data.count);
+      bind_param (data.bind, data.count, 0);
 
       if (returning)
       {
@@ -357,7 +357,8 @@ namespace odb
                       binding& data)
         : statement (conn, s)
     {
-      bind_param (data.bind, cond.count + data.count);
+      bind_param (data.bind, data.count, 0);
+      bind_param (cond.bind, cond.count, data.count);
     }
 
     void update_statement::
@@ -409,7 +410,7 @@ namespace odb
                       binding& cond)
         : statement (conn, s)
     {
-      bind_param (cond.bind, cond.count);
+      bind_param (cond.bind, cond.count, 0);
     }
 
     unsigned long long delete_statement::

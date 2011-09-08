@@ -41,7 +41,7 @@ namespace odb
       // due to lost OCIBind resources.
       //
       void
-      bind_param (bind*, std::size_t count);
+      bind_param (bind*, std::size_t count, std::size_t offset);
 
       // Bind input parameters to this statement. This function must
       // only be called once. Multiple calls to it will result in memory leaks
@@ -143,8 +143,6 @@ namespace odb
       virtual
       ~update_statement ();
 
-      // Asssumes that cond.bind is a suffix of data.bind.
-      //
       update_statement (connection& conn,
                         const std::string& statement,
                         binding& cond,
