@@ -208,7 +208,7 @@ namespace odb
     {
       typedef insert_statement::id_bind_type bind;
 
-      bind& b (*reinterpret_cast<bind*> (context));
+      bind& b (*static_cast<bind*> (context));
       b.ind = -1;
 
       *buffer = 0;
@@ -232,7 +232,7 @@ namespace odb
     {
       typedef insert_statement::id_bind_type bind;
 
-      bind& b (*reinterpret_cast<bind*> (context));
+      bind& b (*static_cast<bind*> (context));
 
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
   || OCI_MAJOR_VERSION > 11
@@ -243,7 +243,7 @@ namespace odb
       **len = sizeof (unsigned int);
 #endif
 
-      *ind = reinterpret_cast<void*> (&b.ind);
+      *ind = &b.ind;
       *rcode = 0;
 
       return OCI_CONTINUE;
@@ -292,9 +292,9 @@ namespace odb
 
         r = OCIBindDynamic (h,
                             err,
-                            reinterpret_cast<void*> (&id_bind_),
+                            &id_bind_,
                             &returning_in,
-                            reinterpret_cast<void*> (&id_bind_),
+                            &id_bind_,
                             &returning_out);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
