@@ -17,11 +17,10 @@ namespace odb
   {
     struct bind
     {
-      ub2 type;          // The type stored in the memory pointed to by buffer
-                         // This must be an external OCI type identifier
-                         // of the form SQLT_XXX.
+      ub2 type;          // The type stored by buffer. This must be an
+                         // external OCI type identifier of the form SQLT_XXX.
       void* buffer;
-      ub2* size;         // The number of bytes of data contained by buffer.
+      ub2* size;         // The number of bytes in buffer.
       sb4 capacity;      // The maximum number of bytes that can be stored in
                          // buffer.
       sb2* indicator;    // Pointer to an OCI indicator variable.
