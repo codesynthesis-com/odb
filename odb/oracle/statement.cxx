@@ -114,7 +114,7 @@ namespace odb
                       binding& cond,
                       binding& data)
         : statement (conn, s),
-          end_ (false),
+          done_ (false),
           rows_ (0)
     {
       bind_param (cond.bind, cond.count, 0);
@@ -124,7 +124,7 @@ namespace odb
     void select_statement::
     execute ()
     {
-      if (!end_)
+      if (!done_)
         free_result ();
 
       // @@ Retrieve a single row into the already bound output buffers
@@ -144,52 +144,45 @@ namespace odb
         translate_error (conn_.error_handle (), r);
     }
 
-    select_statement::result select_statement::
-    fetch ()
-    {
-      sword r (OCIStmtFetch2 (stmt_,
-                              conn_.error_handle (),
-                              1,
-                              OCI_FETCH_NEXT,
-                              0,
-                              OCI_DEFAULT));
-
-      switch (r)
-      {
-      case OCI_SUCCESS:
-        {
-          ++rows_;
-          return success;
-        }
-      case OCI_NO_DATA:
-        {
-          end_ = true;
-          return no_data;
-        }
-      default:
-        {
-          translate_error (conn_.error_handle (), r);
-          return no_data; // Never reached.
-        }
-      }
-    }
-
-
     void select_statement::
     free_result ()
     {
-      end_ = true;
-      rows_ = 0;
+      if (!done_)
+      {
+        sword r (OCIStmtFetch2 (stmt_,
+                                conn_.error_handle (),
+                                0,
+                                OCI_FETCH_NEXT,
+                                0,
+                                OCI_DEFAULT));
 
-      sword r (OCIStmtFetch2 (stmt_,
-                              conn_.error_handle (),
-                              0,
-                              OCI_FETCH_NEXT,
-                              0,
-                              OCI_DEFAULT));
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (conn_.error_handle (), r);
 
-      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_.error_handle (), r);
+        done_ = true;
+      }
+
+    }
+
+    bool select_statement::
+    next ()
+    {
+      if (!done_)
+      {
+        sword r (OCIStmtFetch2 (stmt_,
+                                conn_.error_handle (),
+                                1,
+                                OCI_FETCH_NEXT,
+                                0,
+                                OCI_DEFAULT));
+
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (conn_.error_handle (), r);
+        else if (r == OCI_NO_DATA)
+          done_ = true;
+      }
+
+      return !done_;
     }
 
     //

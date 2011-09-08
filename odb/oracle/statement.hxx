@@ -74,26 +74,55 @@ namespace odb
       void
       execute ();
 
-      // Number of rows already fetched.
-      //
-      std::size_t
-      fetched () const
+      result
+      fetch ()
       {
-        return rows_;
+        return next () ? load () : no_data;
       }
 
-      result
-      fetch ();
+      // Never need to deal with truncation, so this is a dummy function.
+      //
+      void
+      refetch ()
+      {
+      }
 
       void
       free_result ();
+
+      // More fine-grained Oracle-specific interface that splits fetch() into
+      // next() and load().
+      //
+    public:
+      // Return false if there is no more rows. You should call next() until it
+      // returns false or, alternatively, call free_result (). Otherwise, the
+      // statement will remain unfinished.
+      //
+      bool
+      next ();
+
+      result
+      load ()
+      {
+        if (done_)
+          return no_data;
+
+        return success;
+      }
+
+      // Never need to deal with truncation, so this is a dummy function.
+      //
+      void
+      reload ()
+      {
+      }
 
     private:
       select_statement (const select_statement&);
       select_statement& operator= (const select_statement&);
 
     private:
-      bool end_;
+      bool done_;
       std::size_t rows_;
     };
 
