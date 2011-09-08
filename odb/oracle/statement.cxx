@@ -5,10 +5,6 @@
 
 #include <oci.h>
 
-#if OCI_MAJOR_VERSION >= 11 && OCI_MINOR_VERSION >= 2
-#  define ODB_ORACLE_USE_64_BIT_ID
-#endif
-
 #include <odb/exceptions.hxx> // object_not_persistent
 
 #include <odb/oracle/statement.hxx>
@@ -237,7 +233,8 @@ namespace odb
 
       bind& b (*reinterpret_cast<bind*> (context));
 
-#ifdef ODB_ORACLE_USE_64_BIT_ID
+#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
+  || OCI_MAJOR_VERSION > 11
       *buffer = &b.id.value_64;
       **len = sizeof (unsigned long long);
 #else
@@ -274,7 +271,8 @@ namespace odb
                                conn_.error_handle (),
                                data.count,
                                0,
-#ifdef ODB_ORACLE_USE_64_BIT_ID
+#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
+  || OCI_MAJOR_VERSION > 11
                                sizeof (unsigned long long),
 #else
                                sizeof (unsigned int),
@@ -334,7 +332,8 @@ namespace odb
     unsigned long long insert_statement::
     id ()
     {
-#ifdef ODB_ORACLE_USE_64_BIT_ID
+#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
+  || OCI_MAJOR_VERSION > 11
       return id_bind_.id.value_64;
 #else
       return id_bind_.id.value_32;
