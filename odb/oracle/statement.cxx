@@ -40,7 +40,7 @@ namespace odb
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
         translate_error (conn_.error_handle (), r);
 
-      stmt_.reset (handle, OCI_DEFAULT, conn_.error_handle ());
+      stmt_.reset (handle, OCI_STRLS_CACHE_DELETE, err);
     }
 
     void statement::
