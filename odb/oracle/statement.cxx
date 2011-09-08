@@ -197,14 +197,14 @@ namespace odb
     //
 
     static sb4
-    returning_in_cb (void* context,
-                     OCIBind*,            // bind
-                     ub4,                 // iter
-                     ub4,                 // index
-                     void** buffer,
-                     ub4* len,
-                     ub1* piece,
-                     void** indicator)
+    returning_in (void* context,
+                  OCIBind*,            // bind
+                  ub4,                 // iter
+                  ub4,                 // index
+                  void** buffer,
+                  ub4* len,
+                  ub1* piece,
+                  void** indicator)
     {
       typedef insert_statement::id_bind_type bind;
 
@@ -220,15 +220,15 @@ namespace odb
     }
 
     static sb4
-    returning_out_cb (void* context,
-                      OCIBind*,           // bind
-                      ub4,                // iter
-                      ub4,                // index
-                      void** buffer,
-                      ub4** len,
-                      ub1*,               // piece
-                      void** ind,
-                      ub2** rcode)
+    returning_out (void* context,
+                   OCIBind*,           // bind
+                   ub4,                // iter
+                   ub4,                // index
+                   void** buffer,
+                   ub4** len,
+                   ub1*,               // piece
+                   void** ind,
+                   ub2** rcode)
     {
       typedef insert_statement::id_bind_type bind;
 
@@ -293,9 +293,9 @@ namespace odb
         r = OCIBindDynamic (h,
                             err,
                             reinterpret_cast<void*> (&id_bind_),
-                            &returning_in_cb,
+                            &returning_in,
                             reinterpret_cast<void*> (&id_bind_),
-                            &returning_out_cb);
+                            &returning_out);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
