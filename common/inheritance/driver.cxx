@@ -149,7 +149,8 @@ main (int argc, char* argv[])
 
       // Query condition with hidden members.
       //
-      assert (!db->query<object2> (b_query::str == "base o2o2o2").empty ());
+      assert (
+        !db->query<object2> (o2_query::base::str == "base o2o2o2").empty ());
 
       // Query condition with referenced composite member in base class.
       //
