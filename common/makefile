@@ -5,25 +5,26 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
-tests :=      \
-auto          \
-callback      \
-composite     \
-const         \
-container     \
-ctor          \
-default       \
-enum          \
-erase-query   \
-inheritance   \
-inverse       \
-lazy-ptr      \
-lifecycle     \
-query         \
-relationship  \
-schema        \
-template      \
-view          \
+tests :=            \
+auto                \
+callback            \
+composite           \
+const               \
+container           \
+ctor                \
+default             \
+enum                \
+erase-query         \
+inheritance         \
+inverse             \
+lazy-ptr            \
+lifecycle           \
+query               \
+relationship        \
+relationship-query  \
+schema              \
+template            \
+view                \
 wrapper
 
 thread_tests := threads
