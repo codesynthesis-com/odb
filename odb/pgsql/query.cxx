@@ -153,11 +153,9 @@ namespace odb
     }
 
     void query::
-    append (const string& q, clause_part::kind_type k)
+    append (const string& q)
     {
-      if (k == clause_part::native &&
-          !clause_.empty () &&
-          clause_.back ().kind == clause_part::native)
+      if (!clause_.empty () && clause_.back ().kind == clause_part::native)
       {
         string& s (clause_.back ().part);
 
@@ -174,7 +172,19 @@ namespace odb
         s += q;
       }
       else
-        clause_.push_back (clause_part (k, q));
+        clause_.push_back (clause_part (clause_part::native, q));
+    }
+
+    void query::
+    append (const char* table, const char* column)
+    {
+      string s ("\"");
+      s += table;
+      s += "\".\"";
+      s += column;
+      s += '"';
+
+      clause_.push_back (clause_part (clause_part::column, s));
     }
 
     void query::
@@ -250,7 +260,7 @@ namespace odb
     }
 
     string query::
-    clause (string const& table) const
+    clause () const
     {
       string r;
       size_t param (1);
@@ -266,9 +276,6 @@ namespace odb
           {
             if (last != ' ' && last != '(')
               r += ' ';
-
-            if (i->part[0] == '.')
-              r += table;
 
             r += i->part;
             break;
