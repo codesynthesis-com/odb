@@ -60,26 +60,26 @@ struct obj2
   #pragma db id auto
   int id;
 
-  std::string str;
-
   // one-to-one
   //
   #pragma db inverse(o2)
   obj1_ptr o1;
+
+  std::string str;
 };
 
 #pragma db object
 struct obj3
 {
-  #pragma db id auto
-  int id;
-
   std::string str;
 
   // one(i)-to-many
   //
   #pragma db inverse (o3)
   obj1_ptr o1;
+
+  #pragma db id auto
+  int id;
 };
 
 #pragma db object
