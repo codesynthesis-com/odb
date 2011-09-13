@@ -3,6 +3,8 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <cassert>
+
 #include <oci.h>
 
 #include <odb/exceptions.hxx> // object_not_persistent
@@ -17,6 +19,76 @@ namespace odb
 {
   namespace oracle
   {
+    static sb4
+    param_callback_proxy (void* context,
+                          OCIBind*,
+                          ub4,            // iteration
+                          ub4,            // index
+                          void** buffer,
+                          ub4* len,
+                          ub1* piece,
+                          void** indicator)
+    {
+      bind& b (*static_cast<bind*> (context));
+
+      bool last (false), null (false);
+
+      if (!(*b.param_callback) (&b.callback_context,
+                                buffer,
+                                len,
+                                &null,
+                                &last,
+                                b.buffer,
+                                b.capacity))
+        return OCI_ROWCBK_DONE;
+
+
+      *b.indicator = null ? -1 : 0;
+      *indicator = &b.indicator;
+
+      if (null)
+        *piece = OCI_ONE_PIECE;
+      else if (b.first_piece)
+      {
+        b.first_piece = false;
+        *piece = last ? OCI_ONE_PIECE : OCI_FIRST_PIECE;
+      }
+      else if (last)
+        *piece = OCI_LAST_PIECE;
+      else
+        *piece = OCI_NEXT_PIECE;
+
+      return OCI_CONTINUE;
+    }
+
+    static sb4
+    result_callback_proxy (void* context,
+                           OCIDefine*,
+                           ub4,                // iteration
+                           void** buffer,
+                           ub4** len,
+                           ub1* piece,
+                           void** indicator,
+                           ub2**)              // return_code)
+    {
+      bind& b (*static_cast<bind*> (context));
+
+      if (*piece == OCI_NEXT_PIECE)
+        if (!(*b.result_callback) (&b.callback_context,
+                                   &b.buffer,
+                                   *reinterpret_cast<ub4*> (b.size),
+                                   false,
+                                   false))
+          return OCI_ROWCBK_DONE;
+
+      *buffer = b.buffer;
+      *len = reinterpret_cast<ub4*> (b.size);
+      **len = static_cast<ub4> (b.capacity);
+      *indicator = &b.indicator;
+
+      return OCI_CONTINUE;
+    }
+
     //
     // statement
     //
@@ -47,50 +119,94 @@ namespace odb
     void statement::
     bind_param (bind* b, size_t c, size_t o)
     {
-      for (size_t i (0); i < c; ++i)
+      OCIError* err (conn_.error_handle ());
+
+      // The parameter position in OCIBindByPos is specified as a 1-based
+      // index. Convert 'o' to a 1-based offset.
+      //
+      ++o;
+
+      for (size_t e (o + c); o < e; ++c, ++b)
       {
         OCIBind* h (0);
 
         sword r (OCIBindByPos (stmt_,
                                &h,
-                               conn_.error_handle (),
-                               o + i,
-                               b[i].buffer,
-                               b[i].capacity,
-                               b[i].type,
-                               b[i].indicator,
-                               b[i].size,
+                               err,
+                               o,
+                               b->buffer,
+                               b->capacity,
+                               b->type,
+                               b->indicator,
+                               b->size,
                                0,
                                0,
                                0,
-                               OCI_DEFAULT));
+                               b->param_callback != 0 ?
+                               OCI_DATA_AT_EXEC : OCI_DEFAULT));
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (conn_.error_handle (), r);
+          translate_error (err, r);
+
+        if (b->param_callback != 0)
+        {
+          r = OCIBindDynamic (h, err, b, &param_callback_proxy, 0, 0);
+
+          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+            translate_error (err, r);
+        }
       }
     }
 
     void statement::
     bind_result (bind* b, size_t c)
     {
-      for (size_t i (0); i < c; ++i)
+      OCIError* err (conn_.error_handle ());
+
+      // The parameter position in OCIDefineByPos is specified as a 1-based
+      // index.
+      //
+      for (size_t i (1); i <= c; ++i, ++b)
       {
         OCIDefine* h (0);
 
         sword r (OCIDefineByPos (stmt_,
                                  &h,
-                                 conn_.error_handle (),
+                                 err,
                                  i,
-                                 b[i].buffer,
-                                 b[i].capacity,
-                                 b[i].type,
-                                 b[i].indicator,
-                                 b[i].size,
+                                 b->buffer,
+                                 b->capacity,
+                                 b->type,
+                                 b->indicator,
+                                 b->size,
                                  0,
-                                 OCI_DEFAULT));
+                                 b->result_callback != 0 ?
+                                 OCI_DYNAMIC_FETCH : OCI_DEFAULT));
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (conn_.error_handle (), r);
+          translate_error (err, r);
+
+        if (b->result_callback != 0)
+        {
+          r = OCIDefineDynamic (h, err, b, &result_callback_proxy);
+
+          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+            translate_error (err, r);
+        }
+      }
+    }
+
+    void statement::
+    finalize_result (bind* b, std::size_t c)
+    {
+      for (size_t i (0); i < c; ++i)
+      {
+        if (b[i].result_callback != 0)
+          (*b[i].result_callback) (&b[i].callback_context,
+                                   b[i].buffer,
+                                   *reinterpret_cast<ub4*> (b[i].size),
+                                   *b[i].indicator == -1,
+                                   true);
       }
     }
 
@@ -114,6 +230,7 @@ namespace odb
                       binding& cond,
                       binding& data)
         : statement (conn, s),
+          data_ (data),
           done_ (false)
     {
       bind_param (cond.bind, cond.count, 0);
@@ -128,7 +245,8 @@ namespace odb
 
       // @@ Retrieve a single row into the already bound output buffers
       // as an optimization? This will avoid multiple server round-trips
-      // in the case of a single object load.
+      // in the case of a single object load. Remember to invoke
+      // finalize_result on a successful prefetch.
       //
       sword r (OCIStmtExecute (conn_.handle (),
                                stmt_,
@@ -178,6 +296,8 @@ namespace odb
           translate_error (conn_.error_handle (), r);
         else if (r == OCI_NO_DATA)
           done_ = true;
+        else
+          finalize_result (data_.bind, data_.count);
       }
 
       return done_ ? no_data : success;

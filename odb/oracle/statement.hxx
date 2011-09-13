@@ -50,6 +50,11 @@ namespace odb
       void
       bind_result (bind*, std::size_t count);
 
+      // Finalize the result by invoking the user provided callbacks for the
+      // final time.
+      //
+      void finalize_result (bind*, std::size_t count);
+
     protected:
       connection& conn_;
       auto_handle<OCIStmt> stmt_;
@@ -85,6 +90,7 @@ namespace odb
       select_statement& operator= (const select_statement&);
 
     private:
+      binding& data_;
       bool done_;
     };
 
