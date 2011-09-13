@@ -114,8 +114,7 @@ namespace odb
                       binding& cond,
                       binding& data)
         : statement (conn, s),
-          done_ (false),
-          rows_ (0)
+          done_ (false)
     {
       bind_param (cond.bind, cond.count, 0);
       bind_result (data.bind, data.count);
@@ -161,11 +160,10 @@ namespace odb
 
         done_ = true;
       }
-
     }
 
-    bool select_statement::
-    next ()
+    select_statement::result select_statement::
+    fetch ()
     {
       if (!done_)
       {
@@ -182,7 +180,7 @@ namespace odb
           done_ = true;
       }
 
-      return !done_;
+      return done_ ? no_data : success;
     }
 
     //
@@ -202,12 +200,12 @@ namespace odb
       typedef insert_statement::id_bind_type bind;
 
       bind& b (*static_cast<bind*> (context));
-      b.ind = -1;
+      b.indicator = -1;
 
       *buffer = 0;
       *len = 0;
       *piece = OCI_ONE_PIECE;
-      *reinterpret_cast<sb2**> (indicator) = &b.ind;
+      *reinterpret_cast<sb2**> (indicator) = &b.indicator;
 
       return OCI_CONTINUE;
     }
@@ -220,7 +218,7 @@ namespace odb
                    void** buffer,
                    ub4** len,
                    ub1*,               // piece
-                   void** ind,
+                   void** indicator,
                    ub2** rcode)
     {
       typedef insert_statement::id_bind_type bind;
@@ -229,14 +227,14 @@ namespace odb
 
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
   || OCI_MAJOR_VERSION > 11
-      *buffer = &b.id.value_64;
+      *buffer = &b.id.value64;
       **len = sizeof (unsigned long long);
 #else
-      *buffer = &b.id.value_32;
+      *buffer = &b.id.value32;
       **len = sizeof (unsigned int);
 #endif
 
-      *ind = &b.ind;
+      *indicator = &b.indicator;
       *rcode = 0;
 
       return OCI_CONTINUE;
@@ -334,9 +332,9 @@ namespace odb
     {
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
   || OCI_MAJOR_VERSION > 11
-      return id_bind_.id.value_64;
+      return id_bind_.id.value64;
 #else
-      return id_bind_.id.value_32;
+      return id_bind_.id.value32;
 #endif
     }
 

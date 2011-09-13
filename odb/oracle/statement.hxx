@@ -75,47 +75,10 @@ namespace odb
       execute ();
 
       result
-      fetch ()
-      {
-        return next () ? load () : no_data;
-      }
-
-      // Never need to deal with truncation, so this is a dummy function.
-      //
-      void
-      refetch ()
-      {
-      }
+      fetch ();
 
       void
       free_result ();
-
-      // More fine-grained Oracle-specific interface that splits fetch() into
-      // next() and load().
-      //
-    public:
-      // Return false if there is no more rows. You should call next() until it
-      // returns false or, alternatively, call free_result (). Otherwise, the
-      // statement will remain unfinished.
-      //
-      bool
-      next ();
-
-      result
-      load ()
-      {
-        if (done_)
-          return no_data;
-
-        return success;
-      }
-
-      // Never need to deal with truncation, so this is a dummy function.
-      //
-      void
-      reload ()
-      {
-      }
 
     private:
       select_statement (const select_statement&);
@@ -123,7 +86,6 @@ namespace odb
 
     private:
       bool done_;
-      std::size_t rows_;
     };
 
     class LIBODB_ORACLE_EXPORT insert_statement: public statement
@@ -152,20 +114,19 @@ namespace odb
 
       // Only OCI versions 11.2 and greater support conversion of the internal
       // Oracle type NUMBER to an external 64-bit integer type. If we detect
-      // version 11.2 or greater, we leverage this feature and provide an
-      // unsigned long long image. Otherwise, we revert to using a 32-bit
-      // unsigned integer.
+      // version 11.2 or greater we provide an unsigned long long image.
+      // Otherwise, we revert to using a 32-bit unsigned integer.
       //
     public:
       struct id_bind_type
       {
         union
         {
-          unsigned int value_32;
-          unsigned long long value_64;
+          unsigned int value32;
+          unsigned long long value64;
         } id;
 
-        sb2 ind;
+        sb2 indicator;
       };
 
     private:
