@@ -12,6 +12,7 @@
 #include <odb/oracle/statement.hxx>
 #include <odb/oracle/connection.hxx>
 #include <odb/oracle/error.hxx>
+#include <odb/oracle/auto-descriptor.hxx>
 
 using namespace std;
 
@@ -22,8 +23,8 @@ namespace odb
     static sb4
     param_callback_proxy (void* context,
                           OCIBind*,
-                          ub4,            // iteration
-                          ub4,            // index
+                          ub4,               // iteration
+                          ub4,               // index
                           void** buffer,
                           ub4* len,
                           ub1* piece,
@@ -31,61 +32,44 @@ namespace odb
     {
       bind& b (*static_cast<bind*> (context));
 
-      bool last (false), null (false);
-
-      if (!(*b.param_callback) (&b.callback_context,
-                                buffer,
-                                len,
-                                &null,
-                                &last,
-                                b.buffer,
-                                b.capacity))
-        return OCI_ROWCBK_DONE;
-
-
-      *b.indicator = null ? -1 : 0;
-      *indicator = &b.indicator;
-
-      if (null)
-        *piece = OCI_ONE_PIECE;
-      else if (b.first_piece)
+      if (b.indicator != -1)
       {
-        b.first_piece = false;
-        *piece = last ? OCI_ONE_PIECE : OCI_FIRST_PIECE;
+        bool last (false);
+        if (!(*b.param_callback) (&b.callback_context,
+                                  buffer,
+                                  len,
+                                  &last,
+                                  b.buffer,
+                                  b.capacity))
+          return OCI_ERROR;
+
+        if (b.first_piece)
+        {
+          b.first_piece = false;
+          *piece = last ? OCI_ONE_PIECE : OCI_FIRST_PIECE;
+        }
+        else if (last)
+          *piece = OCI_LAST_PIECE;
+        else
+          *piece = OCI_NEXT_PIECE;
       }
-      else if (last)
-        *piece = OCI_LAST_PIECE;
       else
-        *piece = OCI_NEXT_PIECE;
+        *piece = OCI_ONE_PIECE;
+
+      *indicator = &b.indicator;
 
       return OCI_CONTINUE;
     }
 
     static sb4
-    result_callback_proxy (void* context,
-                           OCIDefine*,
-                           ub4,                // iteration
-                           void** buffer,
-                           ub4** len,
-                           ub1* piece,
-                           void** indicator,
-                           ub2**)              // return_code)
+    lob_result_callback_proxy (void* context,
+                               const void* buffer,
+                               ub8 len,
+                               ub1 piece,
+                               void** new_buffer,
+                               ub8* new_len)
     {
       bind& b (*static_cast<bind*> (context));
-
-      if (*piece == OCI_NEXT_PIECE)
-        if (!(*b.result_callback) (&b.callback_context,
-                                   &b.buffer,
-                                   *reinterpret_cast<ub4*> (b.size),
-                                   false,
-                                   false))
-          return OCI_ROWCBK_DONE;
-
-      *buffer = b.buffer;
-      *len = reinterpret_cast<ub4*> (b.size);
-      **len = static_cast<ub4> (b.capacity);
-      *indicator = &b.indicator;
-
       return OCI_CONTINUE;
     }
 
@@ -128,6 +112,10 @@ namespace odb
 
       for (size_t e (o + c); o < e; ++c, ++b)
       {
+        bool callback ((b->type == SQLT_BLOB ||
+                        b->type == SQLT_CLOB ||
+                        b->type == SQLT_NCLOB) && b->param_callback != 0);
+
         OCIBind* h (0);
 
         sword r (OCIBindByPos (stmt_,
@@ -142,13 +130,12 @@ namespace odb
                                0,
                                0,
                                0,
-                               b->param_callback != 0 ?
-                               OCI_DATA_AT_EXEC : OCI_DEFAULT));
+                               callback ? OCI_DATA_AT_EXEC : OCI_DEFAULT));
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
 
-        if (b->param_callback != 0)
+        if (callback)
         {
           r = OCIBindDynamic (h, err, b, &param_callback_proxy, 0, 0);
 
@@ -168,45 +155,60 @@ namespace odb
       //
       for (size_t i (1); i <= c; ++i, ++b)
       {
-        OCIDefine* h (0);
-
-        sword r (OCIDefineByPos (stmt_,
-                                 &h,
-                                 err,
-                                 i,
-                                 b->buffer,
-                                 b->capacity,
-                                 b->type,
-                                 b->indicator,
-                                 b->size,
-                                 0,
-                                 b->result_callback != 0 ?
-                                 OCI_DYNAMIC_FETCH : OCI_DEFAULT));
-
-        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (err, r);
-
-        if (b->result_callback != 0)
+        if (b->type == SQLT_BLOB ||
+            b->type == SQLT_CLOB ||
+            b->type == SQLT_NCLOB)
         {
-          r = OCIDefineDynamic (h, err, b, &result_callback_proxy);
+          auto_descriptor<OCILobLocator> locator;
+          {
+            sword r (OCIDescriptorAlloc (conn_.db ().environment (),
+                                         &b->buffer,
+                                         OCI_DTYPE_LOB,
+                                         0,
+                                         0));
+
+            if (r != OCI_SUCCESS)
+              throw bad_alloc ();
+
+            locator.reset (static_cast<OCILobLocator*> (b->buffer));
+          }
+
+          OCIDefine* h (0);
+          sword r (OCIDefineByPos (stmt_,
+                                   &h,
+                                   err,
+                                   i,
+                                   &locator,
+                                   sizeof (OCILobLocator*),
+                                   b->type,
+                                   b->indicator,
+                                   0,
+                                   0,
+                                   OCI_DEFAULT));
+
+          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+            translate_error (err, r);
+
+          locator.reset ();
+        }
+        else
+        {
+          OCIDefine* h (0);
+          sword r (OCIDefineByPos (stmt_,
+                                   &h,
+                                   err,
+                                   i,
+                                   b->buffer,
+                                   b->capacity,
+                                   b->type,
+                                   b->indicator,
+                                   b->size,
+                                   0,
+                                   OCI_DEFAULT));
 
           if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
             translate_error (err, r);
         }
-      }
-    }
-
-    void statement::
-    finalize_result (bind* b, std::size_t c)
-    {
-      for (size_t i (0); i < c; ++i)
-      {
-        if (b[i].result_callback != 0)
-          (*b[i].result_callback) (&b[i].callback_context,
-                                   b[i].buffer,
-                                   *reinterpret_cast<ub4*> (b[i].size),
-                                   *b[i].indicator == -1,
-                                   true);
       }
     }
 
@@ -228,7 +230,8 @@ namespace odb
     select_statement (connection& conn,
                       const string& s,
                       binding& cond,
-                      binding& data)
+                      binding& data,
+                      std::size_t lob_prefetch_len)
         : statement (conn, s),
           data_ (data),
           done_ (false)
@@ -245,8 +248,8 @@ namespace odb
 
       // @@ Retrieve a single row into the already bound output buffers
       // as an optimization? This will avoid multiple server round-trips
-      // in the case of a single object load. Remember to invoke
-      // finalize_result on a successful prefetch.
+      // in the case of a single object load. Keep in mind the implications
+      // on LOB prefetch.
       //
       sword r (OCIStmtExecute (conn_.handle (),
                                stmt_,
@@ -259,25 +262,6 @@ namespace odb
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
         translate_error (conn_.error_handle (), r);
-    }
-
-    void select_statement::
-    free_result ()
-    {
-      if (!done_)
-      {
-        sword r (OCIStmtFetch2 (stmt_,
-                                conn_.error_handle (),
-                                0,
-                                OCI_FETCH_NEXT,
-                                0,
-                                OCI_DEFAULT));
-
-        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (conn_.error_handle (), r);
-
-        done_ = true;
-      }
     }
 
     select_statement::result select_statement::
@@ -301,6 +285,69 @@ namespace odb
       }
 
       return done_ ? no_data : success;
+    }
+
+    void select_statement::
+    free_result ()
+    {
+      if (!done_)
+      {
+        sword r (OCIStmtFetch2 (stmt_,
+                                conn_.error_handle (),
+                                0,
+                                OCI_FETCH_NEXT,
+                                0,
+                                OCI_DEFAULT));
+
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (conn_.error_handle (), r);
+
+        done_ = true;
+      }
+    }
+
+    void select_statement::
+    stream_result_lobs ()
+    {
+      OCIError* err (conn_.error_handle());
+
+      for (size_t i (0); i < data_.count; ++i)
+      {
+        if ((data_.bind[i].type == SQLT_BLOB ||
+             data_.bind[i].type == SQLT_CLOB ||
+             data_.bind[i].type == SQLT_NCLOB) &&
+            data_.bind[i].indicator != -1)
+        {
+          OCILobLocator* locator (
+            reinterpret_cast<OCILobLocator> (data_.bind[i].buffer));
+
+          ub8 length (0);
+          sword r (OCILobGetLength2(conn_.handle (),
+                                    err,
+                                    locator,
+                                    &length));
+
+          if (s == OCI_ERROR || s == OCI_INVALID_HANDLE)
+            translate_error (conn_.error_handle (), r);
+
+          sword r (OCILobRead2 (conn_.handle (),
+                                conn_.error_handle (),
+                                err,
+                                &length,
+                                0,
+                                1,  // offset - first position is 1.
+                                0,
+                                0,
+                                OCI_FIRST_PIECE,
+                                &data_.bind[i],
+                                &lob_result_callback_proxy,
+                                0,
+                                SQLCS_IMPLICIT));
+
+          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+            translate_error (conn_.error_handle (), r);
+        }
+      }
     }
 
     //
