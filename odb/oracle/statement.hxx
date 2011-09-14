@@ -48,7 +48,9 @@ namespace odb
       // lost OCIDefine resources.
       //
       void
-      bind_result (bind*, std::size_t count);
+        bind_result (bind*,
+                     std::size_t count,
+                     std::size_t lob_prefetch_len = 0);
 
     protected:
       connection& conn_;
