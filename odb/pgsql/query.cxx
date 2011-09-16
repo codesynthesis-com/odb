@@ -259,6 +259,47 @@ namespace odb
       return native_binding_;
     }
 
+    const char* query::
+    clause_prefix () const
+    {
+      if (!clause_.empty ())
+      {
+        const clause_part& p (clause_.front ());
+
+        if (p.kind == clause_part::native)
+        {
+          const string& s (p.part);
+          string::size_type n;
+
+          // It is easier to compare to upper and lower-case versions
+          // rather than getting involved with the portable case-
+          // insensitive string comparison mess.
+          //
+          if (s.compare (0, (n = 5), "WHERE") == 0 ||
+              s.compare (0, (n = 5), "where") == 0 ||
+              s.compare (0, (n = 6), "SELECT") == 0 ||
+              s.compare (0, (n = 6), "select") == 0 ||
+              s.compare (0, (n = 8), "ORDER BY") == 0 ||
+              s.compare (0, (n = 8), "order by") == 0 ||
+              s.compare (0, (n = 8), "GROUP BY") == 0 ||
+              s.compare (0, (n = 8), "group by") == 0 ||
+              s.compare (0, (n = 6), "HAVING") == 0 ||
+              s.compare (0, (n = 6), "having") == 0)
+          {
+            // It either has to be an exact match, or there should be
+            // a whitespace following the keyword.
+            //
+            if (s.size () == n || s[n] == ' ' || s[n] =='\t')
+              return "";
+          }
+        }
+
+        return "WHERE ";
+      }
+
+      return "";
+    }
+
     string query::
     clause () const
     {
@@ -309,14 +350,7 @@ namespace odb
         }
       }
 
-      if (r.empty () ||
-          r.compare (0, 6, "WHERE ") == 0 ||
-          r.compare (0, 9, "ORDER BY ") == 0 ||
-          r.compare (0, 9, "GROUP BY ") == 0 ||
-          r.compare (0, 7, "HAVING ") == 0)
-        return r;
-      else
-        return "WHERE " + r;
+      return clause_prefix () + r;
     }
   }
 }
