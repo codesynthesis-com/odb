@@ -21,6 +21,148 @@
 using namespace std;
 using namespace odb::core;
 
+template <typename V>
+void
+view1_check (odb::result<V>& r)
+{
+  typedef odb::result<V> result;
+
+  typename result::iterator i (r.begin ());
+
+  assert (i != r.end ());
+  assert (i->first == "Jane" && i->last == "Doe" && i->age == 29);
+
+  assert (++i != r.end ());
+  V v;
+  i.load (v);
+  assert (v.first == "John" && v.last == "Doe" && v.age == 30);
+
+  assert (++i == r.end ());
+}
+
+template <typename V>
+void
+view2_test (const auto_ptr<database>& db)
+{
+  typedef odb::query<V> query;
+  typedef odb::result<V> result;
+  typedef typename result::iterator iterator;
+
+  transaction t (db->begin ());
+
+  {
+    result r (db->query<V> ());
+    iterator i (r.begin ());
+    assert (i != r.end ());
+    assert (i->count == 4);
+  }
+
+  {
+    result r (db->query<V> ("age < 31"));
+    iterator i (r.begin ());
+    assert (i != r.end ());
+    assert (i->count == 2);
+  }
+
+  {
+    result r (db->query<V> (query::age < 31));
+    iterator i (r.begin ());
+    assert (i != r.end ());
+    assert (i->count == 2);
+  }
+
+  t.commit ();
+}
+
+template <typename V>
+void
+view4_test (const auto_ptr<database>& db)
+{
+  typedef odb::query<V> query;
+  typedef odb::result<V> result;
+  typedef typename result::iterator iterator;
+
+  transaction t (db->begin ());
+
+  {
+    result r (db->query<V> ("age > 30 ORDER BY age"));
+
+    iterator i (r.begin ());
+
+    assert (i != r.end ());
+    assert (i->first_name == "Joe" && i->last_name == "Dirt" &&
+            i->name == "United States");
+
+    assert (++i != r.end ());
+    assert (i->first_name == "Johan" && i->last_name == "Johansen" &&
+            i->name == "Sweden");
+
+    assert (++i == r.end ());
+  }
+
+  {
+    result r (db->query<V> (
+                (query::person::age > 30) + "ORDER BY age"));
+
+    iterator i (r.begin ());
+
+    assert (i != r.end ());
+    assert (i->first_name == "Joe" && i->last_name == "Dirt" &&
+            i->name == "United States");
+
+    assert (++i != r.end ());
+    assert (i->first_name == "Johan" && i->last_name == "Johansen" &&
+            i->name == "Sweden");
+
+    assert (++i == r.end ());
+  }
+
+  {
+    result r (db->query<V> (query::residence::code == "US"));
+
+    iterator i (r.begin ());
+
+    assert (i != r.end ());
+    assert (i->first_name == "Joe" && i->last_name == "Dirt" &&
+            i->name == "United States");
+
+    assert (++i == r.end ());
+  }
+
+  t.commit ();
+}
+
+template <typename V>
+void
+view6_test (const auto_ptr<database>& db)
+{
+  typedef odb::query<V> query;
+  typedef odb::result<V> result;
+  typedef typename result::iterator iterator;
+
+  transaction t (db->begin ());
+
+  {
+    result r (
+      db->query<V> (
+        query::employer::name == "Simple Tech, Inc"));
+
+    iterator i (r.begin ());
+
+    assert (i != r.end ());
+    assert (i->first_name == "John" && i->last_name == "Doe" &&
+            i->employer == "Simple Tech, Inc");
+
+    assert (++i != r.end ());
+    assert (i->first_name == "Joe" && i->last_name == "Dirt" &&
+            i->employer == "Simple Tech, Inc");
+
+    assert (++i == r.end ());
+  }
+
+  t.commit ();
+}
+
 int
 main (int argc, char* argv[])
 {
@@ -31,15 +173,32 @@ main (int argc, char* argv[])
     //
     //
     {
-      country* ca (new country ("CA", "Canada"));
-      country* za (new country ("ZA", "South Africa"));
-      country* us (new country ("US", "United States"));
-      country* se (new country ("SE", "Sweden"));
+      country ca ("CA", "Canada");
+      country za ("ZA", "South Africa");
+      country us ("US", "United States");
+      country se ("SE", "Sweden");
 
-      person p1 (1, "John", "Doe", 30, ca);
-      person p2 (2, "Jane", "Doe", 29, za);
-      person p3 (3, "Joe", "Dirt", 31,  us);
-      person p4 (4, "Johansen", "Johansen", 32, se);
+      person p1 (1, "John", "Doe", 30, male, measures (60, 160), &ca, &ca);
+      person p2 (2, "Jane", "Doe", 29, female, measures (70, 170), &za, &us);
+      person p3 (3, "Joe", "Dirt", 31, male, measures (80, 180), &us, &za);
+      person p4 (4, "Johan", "Johansen", 32, male, measures (90, 190), &se,
+                 &se);
+
+      p2.husband = &p1;
+
+      employer st ("Simple Tech, Inc");
+      employer ct ("Complex Tech, Inc");
+
+      p2.previous_employer = st.name;
+      p3.previous_employer = ct.name;
+
+      st.employees.push_back (&p1);
+      st.employees.push_back (&p3);
+      st.head_count = 2;
+
+      ct.employees.push_back (&p2);
+      ct.employees.push_back (&p4);
+      ct.head_count = 2;
 
       transaction t (db->begin ());
       db->persist (ca);
@@ -51,6 +210,9 @@ main (int argc, char* argv[])
       db->persist (p2);
       db->persist (p3);
       db->persist (p4);
+
+      db->persist (st);
+      db->persist (ct);
       t.commit ();
     }
 
@@ -75,16 +237,76 @@ main (int argc, char* argv[])
 
         {
           result r (db->query<view1> ("age < 31 ORDER BY age"));
+          view1_check (r);
+        }
+
+        t.commit ();
+      }
+    }
+
+    // view1a
+    //
+    {
+      typedef odb::query<view1a> query;
+      typedef odb::result<view1a> result;
+
+      {
+        transaction t (db->begin ());
+
+        result r (db->query<view1a> ());
+        view1_check (r);
+
+        t.commit ();
+      }
+    }
+
+    // view1b
+    //
+    {
+      typedef odb::query<view1b> query;
+      typedef odb::result<view1b> result;
+
+      {
+        {
+          transaction t (db->begin ());
+
+          result r (db->query<view1b> (query (true)));
+          view1_check (r);
+
+          t.commit ();
+        }
+
+        {
+          transaction t (db->begin ());
+
+          result r (db->query<view1b> ("first = " + query::_val ("Jane")));
           result::iterator i (r.begin ());
 
           assert (i != r.end ());
-          assert (i->first == "Jane" && i->last == "Doe" && i->age == 29);
+          assert (i->first == "Jane" && i->last == "Doe");
+          assert (++i == r.end ());
 
-          assert (++i != r.end ());
-          view1 v;
-          i.load (v);
-          assert (v.first == "John" && v.last == "Doe" && v.age == 30);
+          t.commit ();
         }
+      }
+    }
+
+    // view1c
+    //
+    {
+      typedef odb::query<view1c> query;
+      typedef odb::result<view1c> result;
+
+      {
+        transaction t (db->begin ());
+
+        result r (
+          db->query<view1c> (
+            "SELECT first, last, age "
+            "FROM common_view_person "
+            "WHERE age < 31 ORDER BY age"));
+
+        view1_check (r);
 
         t.commit ();
       }
@@ -92,30 +314,10 @@ main (int argc, char* argv[])
 
     // view2
     //
-    {
-      typedef odb::query<view2> query;
-      typedef odb::result<view2> result;
-
-      {
-        transaction t (db->begin ());
-
-        {
-          result r (db->query<view2> ());
-          result::iterator i (r.begin ());
-          assert (i != r.end ());
-          assert (i->count == 4);
-        }
-
-        {
-          result r (db->query<view2> ("age < 31"));
-          result::iterator i (r.begin ());
-          assert (i != r.end ());
-          assert (i->count == 2);
-        }
-
-        t.commit ();
-      }
-    }
+    view2_test<view2> (db);
+    view2_test<view2a> (db);
+    view2_test<view2b> (db);
+    view2_test<view2c> (db);
 
     // view3
     //
@@ -132,10 +334,10 @@ main (int argc, char* argv[])
           size_t count (0);
           for (result::iterator i (r.begin ()); i != r.end (); ++i)
           {
-            if (i->last == "Doe")
+            if (i->last_name == "Doe")
               assert (i->count == 2);
-            else if (i->last == "Dirt" ||
-                     i->last == "Johansen")
+            else if (i->last_name == "Dirt" ||
+                     i->last_name == "Johansen")
               assert (i->count == 1);
             else
               assert (false);
@@ -150,27 +352,202 @@ main (int argc, char* argv[])
       }
     }
 
-    // view4
+    // view3a
     //
     {
-      typedef odb::query<view4> query;
-      typedef odb::result<view4> result;
+      typedef odb::query<view3a> query;
+      typedef odb::result<view3a> result;
 
       {
         transaction t (db->begin ());
 
         {
-          result r (db->query<view4> ("age > 30 ORDER BY age"));
+          result r (db->query<view3a> (query::last_name == "Doe"));
+          result::iterator i (r.begin ());
+
+          assert (i != r.end ());
+          assert (i->last_name == "Doe" && i->count == 2);
+          assert (++i == r.end ());
+        }
+
+        t.commit ();
+      }
+    }
+
+    // view4
+    //
+    view4_test<view4> (db);
+    view4_test<view4a> (db);
+
+    // view5
+    //
+    {
+      typedef odb::query<view5> query;
+      typedef odb::result<view5> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          result r (
+            db->query<view5> (
+              query::residence::name == query::nationality::name));
 
           result::iterator i (r.begin ());
 
           assert (i != r.end ());
-          assert (i->first == "Joe" && i->last == "Dirt" &&
-                  i->location == "United States");
+          assert (i->first_name == "John" && i->last_name == "Doe" &&
+                  i->rname == "Canada" && i->rname == "Canada");
 
           assert (++i != r.end ());
-          assert (i->first == "Johansen" && i->last == "Johansen" &&
-                  i->location == "Sweden");
+          assert (i->first_name == "Johan" && i->last_name == "Johansen" &&
+                  i->rname == "Sweden" && i->rname == "Sweden");
+
+          assert (++i == r.end ());
+        }
+
+        t.commit ();
+      }
+    }
+
+    // view6
+    //
+    view6_test<view6> (db);
+    view6_test<view6a> (db);
+    view6_test<view6b> (db);
+
+    // view7
+    //
+    {
+      typedef odb::query<view7> query;
+      typedef odb::result<view7> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          result r (db->query<view7> (query::person::last_name == "Doe"));
+
+          result::iterator i (r.begin ());
+
+          assert (i != r.end ());
+          assert (i->first_name == "Jane" && i->last_name == "Doe" &&
+                  !i->head_count.null () && *i->head_count == 2);
+
+          assert (++i != r.end ());
+          assert (i->first_name == "John" && i->last_name == "Doe" &&
+                  i->head_count.null ());
+
+          assert (++i == r.end ());
+        }
+
+        t.commit ();
+      }
+    }
+
+    // view8
+    //
+    {
+      typedef odb::query<view8> query;
+      typedef odb::result<view8> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          result r (db->query<view8> ());
+
+          result::iterator i (r.begin ());
+
+          assert (i != r.end ());
+          assert (i->wife_name == "Jane" && i->husb_name == "John");
+          assert (++i == r.end ());
+        }
+
+        t.commit ();
+      }
+    }
+
+    // view9
+    //
+    {
+      typedef odb::query<view9> query;
+      typedef odb::result<view9> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          // Test case-insensitive clause prefix detection.
+          //
+          result r (db->query<view9> ("where" + (query::gender == female)));
+
+          result::iterator i (r.begin ());
+
+          assert (i != r.end ());
+          assert (i->first_name == "Jane" && i->last_name == "Doe" &&
+                  i->gender == female);
+          assert (++i == r.end ());
+        }
+
+        t.commit ();
+      }
+    }
+
+    // view10
+    //
+    {
+      typedef odb::query<view10> query;
+      typedef odb::result<view10> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          result r (db->query<view10> (
+                      query::measures::weight > 60 &&
+                      query::measures::hight < 190));
+
+          result::iterator i (r.begin ());
+
+          assert (i != r.end ());
+          assert (i->last_name == "Doe" &&
+                  i->measures.weight == 70 && i->measures.hight == 170);
+
+          assert (++i != r.end ());
+          assert (i->last_name == "Dirt" &&
+                  i->measures.weight == 80 && i->measures.hight == 180);
+
+          assert (++i == r.end ());
+        }
+
+        t.commit ();
+      }
+    }
+
+    // view11
+    //
+    {
+      typedef odb::query<view11> query;
+      typedef odb::result<view11> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          result r (db->query<view11> (
+                      query::measures::weight > 60 &&
+                      query::measures::hight < 190));
+
+          result::iterator i (r.begin ());
+
+          assert (i != r.end ());
+          assert (i->last_name == "Doe" && i->hight == 170);
+
+          assert (++i != r.end ());
+          assert (i->last_name == "Dirt" && i->hight == 180);
+
+          assert (++i == r.end ());
         }
 
         t.commit ();
