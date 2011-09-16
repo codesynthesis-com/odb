@@ -326,11 +326,22 @@ namespace odb
                       const string& s,
                       binding& cond,
                       binding& data,
-                      std::size_t lob_prefetch_size)
+                      size_t lob_prefetch_size)
         : statement (conn, s),
           done_ (false)
     {
       bind_param (cond.bind, cond.count, 0);
+      bind_result (data.bind, data.count, lob_prefetch_size);
+    }
+
+    select_statement::
+    select_statement (connection& conn,
+                      const string& s,
+                      binding& data,
+                      size_t lob_prefetch_size)
+        : statement (conn, s),
+          done_ (false)
+    {
       bind_result (data.bind, data.count, lob_prefetch_size);
     }
 

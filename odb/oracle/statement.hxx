@@ -76,6 +76,12 @@ namespace odb
                         binding& cond,
                         binding& data,
                         std::size_t lob_prefetch_size = 0);
+
+      select_statement (connection& conn,
+                        const std::string& statement,
+                        binding& data,
+                        std::size_t lob_prefetch_size = 0);
+
       enum result
       {
         success,
