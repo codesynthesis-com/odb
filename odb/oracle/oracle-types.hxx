@@ -15,6 +15,41 @@ namespace odb
 {
   namespace oracle
   {
+    enum chunk_position
+    {
+      one_chunk,
+      first_chunk,
+      next_chunk,
+      last_chunk
+    };
+
+    // Callback function signature used to specify LOB parameters that are
+    // passed to the database. If false is returned from the callback,
+    // statement execution is aborted.
+    //
+    typedef bool (*param_callback_type) (
+      void* context,         // [in] The user context.
+      ub4* position_context, // [in] A positional context. A callback is free
+                             // to use this to track positional information.
+      void** buffer,         // [out] On return, a pointer to a buffer
+                             // containing parameter data.
+      ub4* size,             // [out] The parameter data size in bytes.
+      chunk_position*,       // [out] The position of the chunk of data in
+                             // buffer.
+      void* temp_buffer,     // [in] A temporary buffer that may be used if
+                             // required. The buffer argument should specify
+                             // this buffer on return if it is used.
+      ub4 capacity);         // [in] The temporary buffer length in bytes.
+
+    // Callback function signature used to specify LOB values returned from
+    // the database. If false is returned, database_exception is thrown.
+    //
+    typedef bool (*result_callback_type) (
+      void* context,   // [in] The user context.
+      void* buffer,    // [in] A buffer containing the result data.
+      ub4 size,        // [in] The result data length in bytes.
+      chunk_position); // [in] The position of this chunk.
+
     struct bind
     {
       ub2 type;       // The type stored by buffer. This must be an external
@@ -22,45 +57,12 @@ namespace odb
       void* buffer;   // Data buffer pointer.
       ub2* size;      // The number of bytes in buffer. When parameter
                       // callbacks are in use, this is interpreted as a ub4*
-                      // indicating the current position. When 'type'
-                      // specifies a LOB type, this is interpreted as an
+                      // indicating the current position. When result
+                      // callbacks are in use, this is interpreted as an
                       // OCILobLocator*.
       ub4 capacity;   // The maximum number of bytes that can be stored in
                       // buffer.
       sb2* indicator; // Pointer to an OCI indicator variable.
-
-      enum piece
-      {
-        whole,
-        first,
-        next,
-        last
-      };
-
-      // Callback function signature used to specify LOB parameters that are
-      // passed to the database.
-      //
-      typedef bool (*param_callback_type) (
-        void* context,     // [in/out] The user context.
-        void** buffer,     // [out] On return, a pointer to a buffer containing
-                           // parameter data.
-        ub4* size,         // [out] The parameter data length in bytes.
-        ub4* position,     // [in/out] A position context. This value remains
-                           // unchanged between callback invocations.
-        piece*,            // [out] The piece type for this segment of data.
-        void* temp_buffer, // [in] A temporary buffer that may be used if
-                           // required. The 'buffer' parameter should specify
-                           // this buffer on return if it is used.
-        ub4 capacity);     // [in] The temporary buffer length in bytes.
-
-      // Callback function signature used to specify LOB values returned from
-      // the database.
-      //
-      typedef bool (*result_callback_type) (
-        void* context, // [in/out] The user context.
-        void* buffer,  // [in] A buffer containing the result data.
-        ub4 size,      // [in] The result data length in bytes.
-        piece);        // [in] The piece type for this segment of data.
 
       union
       {
@@ -68,7 +70,7 @@ namespace odb
         result_callback_type result;
       } callback;
 
-      // This pointer is provided to the user through the 'context' parameter
+      // This pointer is provided to the user through the context argument
       // in both parameter and result callback functions.
       //
       void* callback_context;

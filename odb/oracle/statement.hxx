@@ -48,13 +48,21 @@ namespace odb
       // lost OCIDefine resources.
       //
       void
-        bind_result (bind*,
-                     std::size_t count,
-                     std::size_t lob_prefetch_len = 0);
+      bind_result (bind*,
+                   std::size_t count,
+                   std::size_t lob_prefetch_size = 0);
+
+      // Stream the result LOBs, calling user callbacks where necessary.
+      //
+      void
+      stream_result_lobs ();
 
     protected:
       connection& conn_;
       auto_handle<OCIStmt> stmt_;
+
+      bind* result_binds_;
+      std::size_t count_;
     };
 
     class LIBODB_ORACLE_EXPORT select_statement: public statement
@@ -67,7 +75,7 @@ namespace odb
                         const std::string& statement,
                         binding& cond,
                         binding& data,
-                        std::size_t lob_prefetch_len = 0);
+                        std::size_t lob_prefetch_size = 0);
       enum result
       {
         success,
@@ -83,17 +91,11 @@ namespace odb
       void
       free_result ();
 
-      // Stream the result lobs, invoking user callbacks where necessary.
-      //
-      void
-      stream_result_lobs ();
-
     private:
       select_statement (const select_statement&);
       select_statement& operator= (const select_statement&);
 
     private:
-      binding& data_;
       bool done_;
     };
 
