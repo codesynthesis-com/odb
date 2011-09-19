@@ -33,8 +33,6 @@ namespace odb
       typedef typename view_traits::pointer_type pointer_type;
       typedef typename view_traits::image_type image_type;
 
-      typedef oracle::select_statement query_statement_type;
-
     public:
       view_statements (connection_type&);
 
@@ -73,19 +71,6 @@ namespace odb
         return image_indicator_;
       }
 
-      query_statement_type&
-      query_statement ()
-      {
-        if (query_ == 0)
-          query_.reset (
-            new (details::shared) query_statement_type (
-              conn_,
-              view_traits::query_statement,
-              image_binding_));
-
-        return *query_;
-      }
-
     private:
       view_statements (const view_statements&);
       view_statements& operator= (const view_statements&);
@@ -96,8 +81,6 @@ namespace odb
       binding image_binding_;
       bind image_bind_[view_traits::column_count];
       sb2 image_indicator_[view_traits::column_count];
-
-      details::shared_ptr<query_statement_type> query_;
     };
   }
 }
