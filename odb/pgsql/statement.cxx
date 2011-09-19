@@ -180,6 +180,11 @@ namespace odb
       bool r (true);
       int int_row (static_cast<int> (row));
 
+      // Make sure that the number of columns in the result returned by
+      // the database matches the number that we expect. A common cause
+      // of this assertion is a native view with a number of data members
+      // not matching the number of columns in the SELECT-list.
+      //
       assert (static_cast<size_t> (PQnfields (result)) == count);
 
       for (int i (0); i < static_cast<int> (count); ++i)
