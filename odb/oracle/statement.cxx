@@ -35,7 +35,7 @@ namespace odb
     {
       bind& b (*static_cast<bind*> (context));
 
-      // Only call callback if the parameter is not NULL.
+      // Only call the callback if the parameter is not NULL.
       //
       if (*b.indicator != -1)
       {
@@ -156,9 +156,6 @@ namespace odb
 
       OCIError* err (conn_.error_handle ());
 
-      result_binds_ = b;
-      count_ = c;
-
       for (size_t i (1); i <= c; ++i, ++b)
       {
         if (b->type == SQLT_BLOB || b->type == SQLT_CLOB)
@@ -233,27 +230,33 @@ namespace odb
     }
 
     void statement::
-    stream_result_lobs ()
+    stream_result (bind* b, size_t c)
     {
       OCIError* err (conn_.error_handle());
 
-      for (size_t i (0); i < count_; ++i)
+      for (size_t i (0); i < c; ++i, ++b)
       {
-        bind& b (result_binds_[i]);
-
         // Only stream if the bind specifies a LOB type, and the LOB value is
         // not NULL, and a result callback has been provided.
         //
-        if ((b.type == SQLT_BLOB || b.type == SQLT_CLOB) &&
-            *b.indicator != -1 &&
-            b.callback.result != 0)
+        if ((b->type == SQLT_BLOB || b->type == SQLT_CLOB) &&
+            *b->indicator != -1 &&
+            b->callback.result != 0)
         {
-          // If b.capacity is 0, we will be stuck in an infinite loop.
+          // If b->capacity is 0, we will be stuck in an infinite loop.
           //
-          assert (b.capacity != 0);
+          assert (b->capacity != 0);
 
-          OCILobLocator* locator (reinterpret_cast<OCILobLocator*> (b.size));
+          OCILobLocator* locator (reinterpret_cast<OCILobLocator*> (b->size));
 
+          // We have to get the length of the LOB due to a limitation of the
+          // polling interface. OCI requires that the maximum number of bytes
+          // to read be specified on the first call to OCILobRead2. The
+          // maximum size of a LOB is determined by the server CHUNK size,
+          // which requires an additional round-trip to obtain. Getting the
+          // LOB length is simpler and no less efficient. A possible
+          // alternative is to use callbacks as opposed to polling.
+          //
           ub8 size (0);
           sword r (OCILobGetLength2(conn_.handle (),
                                     err,
@@ -274,8 +277,8 @@ namespace odb
                              &read,
                              0,
                              1,
-                             b.buffer,
-                             b.capacity,
+                             b->buffer,
+                             b->capacity,
                              piece,
                              0,
                              0,
@@ -294,10 +297,13 @@ namespace odb
             else
               cp = last_chunk;
 
-            if (!(*b.callback.result) (b.callback_context,
-                                       b.buffer,
-                                       static_cast<ub4> (read),
-                                       cp))
+            // OCI generates and ORA-24343 error when an error code is
+            // returned from a user callback. We simulate this.
+            //
+            if (!(*b->callback.result) (b->callback_context,
+                                        b->buffer,
+                                        static_cast<ub4> (read),
+                                        cp))
               throw database_exception (24343, "user defined callback error");
 
             piece = OCI_NEXT_PIECE;
@@ -328,6 +334,7 @@ namespace odb
                       binding& data,
                       size_t lob_prefetch_size)
         : statement (conn, s),
+          data_ (data),
           done_ (false)
     {
       bind_param (cond.bind, cond.count, 0);
@@ -340,6 +347,7 @@ namespace odb
                       binding& data,
                       size_t lob_prefetch_size)
         : statement (conn, s),
+          data_ (data),
           done_ (false)
     {
       bind_result (data.bind, data.count, lob_prefetch_size);
@@ -353,8 +361,7 @@ namespace odb
 
       // @@ Retrieve a single row into the already bound output buffers as an
       // optimization? This will avoid multiple server round-trips in the case
-      // of a single object load. Keep the implications on LOB prefetch in
-      // mind.
+      // of a single object load.
       //
       sword r (OCIStmtExecute (conn_.handle (),
                                stmt_,

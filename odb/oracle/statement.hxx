@@ -55,14 +55,11 @@ namespace odb
       // Stream the result LOBs, calling user callbacks where necessary.
       //
       void
-      stream_result_lobs ();
+      stream_result (bind*, std::size_t count);
 
     protected:
       connection& conn_;
       auto_handle<OCIStmt> stmt_;
-
-      bind* result_binds_;
-      std::size_t count_;
     };
 
     class LIBODB_ORACLE_EXPORT select_statement: public statement
@@ -95,6 +92,12 @@ namespace odb
       fetch ();
 
       void
+      stream_result ()
+      {
+        statement::stream_result (data_.bind, data_.count);
+      }
+
+      void
       free_result ();
 
     private:
@@ -102,6 +105,7 @@ namespace odb
       select_statement& operator= (const select_statement&);
 
     private:
+      binding& data_;
       bool done_;
     };
 
