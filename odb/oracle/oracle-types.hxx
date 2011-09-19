@@ -29,8 +29,8 @@ namespace odb
     //
     typedef bool (*param_callback_type) (
       void* context,         // [in] The user context.
-      ub4* position_context, // [in] A positional context. A callback is free
-                             // to use this to track positional information.
+      ub4* position_context, // [in] A position context. A callback is free to
+                             // use this to track position information.
       void** buffer,         // [out] On return, a pointer to a buffer
                              // containing parameter data.
       ub4* size,             // [out] The parameter data size in bytes.
@@ -39,7 +39,7 @@ namespace odb
       void* temp_buffer,     // [in] A temporary buffer that may be used if
                              // required. The buffer argument should specify
                              // this buffer on return if it is used.
-      ub4 capacity);         // [in] The temporary buffer length in bytes.
+      ub4 capacity);         // [in] The temporary buffer size in bytes.
 
     // Callback function signature used to specify LOB values returned from
     // the database. If false is returned, database_exception is thrown.
@@ -47,7 +47,7 @@ namespace odb
     typedef bool (*result_callback_type) (
       void* context,   // [in] The user context.
       void* buffer,    // [in] A buffer containing the result data.
-      ub4 size,        // [in] The result data length in bytes.
+      ub4 size,        // [in] The result data size in bytes.
       chunk_position); // [in] The position of this chunk.
 
     struct bind
