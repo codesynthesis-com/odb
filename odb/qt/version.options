@@ -8,6 +8,6 @@
 #
 --hxx-prologue '#include <odb/qt/version.hxx>'
 
---hxx-prologue '#if LIBODB_QT_VERSION != 1059901 // 1.6.0.a1'
+--hxx-prologue '#if LIBODB_QT_VERSION != 1059902 // 1.6.0.a2'
 --hxx-prologue '#  error ODB and C++ compilers see different libodb-qt versions'
 --hxx-prologue '#endif'
