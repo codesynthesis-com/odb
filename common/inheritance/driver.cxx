@@ -143,7 +143,7 @@ main (int argc, char* argv[])
 
       transaction t (db->begin ());
 
-      assert (!db->query<base> (b_query::comp::num == 10).empty ());
+      assert (!db->query<base> (b_query::comp.num == 10).empty ());
       assert (!db->query<object1> (o1_query::num1 == 21).empty ());
       assert (!db->query<object2> (o2_query::num == 2).empty ());
 
@@ -155,7 +155,7 @@ main (int argc, char* argv[])
       // Query condition with referenced composite member in base class.
       //
       {
-        r_result r (db->query<reference> (r_query::o1::comp::num == 11));
+        r_result r (db->query<reference> (r_query::o1->comp.num == 11));
         assert (!r.empty ());
         delete r.begin ()->o1_;
       }

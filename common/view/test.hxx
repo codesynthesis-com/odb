@@ -382,7 +382,9 @@ struct view10
 //
 // Composite in object.
 //
-#pragma db view object(person) query((?) + "ORDER BY" + person::age)
+#pragma db view object(person) \
+  query((person::measures.weight > 60 && person::measures.hight < 190) \
+        + "ORDER BY" + person::age)
 struct view11
 {
   std::string last_name;

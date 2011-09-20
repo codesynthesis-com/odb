@@ -172,7 +172,7 @@ main (int argc, char* argv[])
         session s;
         transaction t (db->begin ());
 
-        result r (db->query<obj2> (query::o1::id == "obj1 1"));
+        result r (db->query<obj2> (query::o1->id == "obj1 1"));
         assert (!r.empty ());
         assert (r.begin ()->id == o2->id);
         assert (r.begin ()->o1->id == o1_1->id);
@@ -190,7 +190,7 @@ main (int argc, char* argv[])
         session s;
         transaction t (db->begin ());
 
-        result r (db->query<obj3> (query::o1::id == "obj1 1"));
+        result r (db->query<obj3> (query::o1->id == "obj1 1"));
         size_t n (0);
 
         for (result::iterator i (r.begin ()); i != r.end (); ++i)

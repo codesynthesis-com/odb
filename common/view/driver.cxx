@@ -505,8 +505,8 @@ main (int argc, char* argv[])
 
         {
           result r (db->query<view10> (
-                      query::measures::weight > 60 &&
-                      query::measures::hight < 190));
+                      query::measures.weight > 60 &&
+                      query::measures.hight < 190));
 
           result::iterator i (r.begin ());
 
@@ -535,9 +535,7 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
 
         {
-          result r (db->query<view11> (
-                      query::measures::weight > 60 &&
-                      query::measures::hight < 190));
+          result r (db->query<view11> ());
 
           result::iterator i (r.begin ());
 

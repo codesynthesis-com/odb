@@ -109,11 +109,11 @@ main (int argc, char* argv[])
       transaction t (db->begin ());
 
       p_result pr (db->query<person> (
-                   p_query::residence::location::code == "ZA"));
+                   p_query::residence.location->code == "ZA"));
       assert (size (pr) == 1);
 
       e_result er (db->query<employee> (
-                   e_query::residence::location::code == "ZA"));
+                   e_query::residence.location->code == "ZA"));
       assert (size (er) == 1);
 
       t.commit ();
@@ -125,10 +125,10 @@ main (int argc, char* argv[])
       session s;
       transaction t (db->begin ());
 
-      p_result pr (db->query<person> (p_query::husband::last_name == "Doe"));
+      p_result pr (db->query<person> (p_query::husband->last_name == "Doe"));
       assert (size (pr) == 1);
 
-      e_result er (db->query<employee> (e_query::husband::last_name == "Doe"));
+      e_result er (db->query<employee> (e_query::husband->last_name == "Doe"));
       assert (size (er) == 1);
 
       t.commit ();
@@ -142,8 +142,8 @@ main (int argc, char* argv[])
 
       e_result r (
         db->query<employee> (
-          e_query::employed_by::name == "Simple Tech, Inc" &&
-          e_query::nationality::code == "US"));
+          e_query::employed_by->name == "Simple Tech, Inc" &&
+          e_query::nationality->code == "US"));
 
       assert (size (r) == 1);
 
@@ -158,7 +158,7 @@ main (int argc, char* argv[])
 
       p_result r (
         db->query<person> (
-          p_query::husband::residence::location == "CA"));
+          p_query::husband->residence.location == "CA"));
 
       assert (size (r) == 1);
 

@@ -90,7 +90,7 @@ main (int argc, char* argv[])
       {
         transaction t (db->begin ());
 
-        result r (db->query<person> (query::name::first == "Joe"));
+        result r (db->query<person> (query::name.first == "Joe"));
 
         assert (!r.empty ());
         assert (*r.begin () == p);
@@ -104,7 +104,7 @@ main (int argc, char* argv[])
       {
         transaction t (db->begin ());
 
-        result r (db->query<person> (query::name::flags::alias));
+        result r (db->query<person> (query::name.flags.alias));
 
         assert (!r.empty ());
         assert (*r.begin () == p);

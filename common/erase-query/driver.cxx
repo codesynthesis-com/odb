@@ -112,6 +112,31 @@ main (int argc, char* argv[])
     }
     */
 
+    // For now we can only do column-based tests, like is_null().
+    //
+    {
+      object o11 (1);
+      object o12 (2);
+      object o13 (3);
+      object2 o2;
+
+      o12.o2 = &o2;
+
+      transaction t (db->begin ());
+      db->persist (o2);
+      db->persist (o13);
+      db->persist (o12);
+      db->persist (o11);
+      t.commit ();
+    }
+
+    {
+      transaction t (db->begin ());
+      assert (db->erase_query<object> (query::o2.is_null ()) == 2);
+      db->erase_query<object> ();
+      t.commit ();
+    }
+
     // Make sure container data is deleted.
     //
     {
