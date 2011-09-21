@@ -194,17 +194,6 @@ namespace odb
 
             if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
               translate_error (err, r);
-
-            boolean b (true);
-            r = OCIAttrSet (h,
-                            OCI_HTYPE_DEFINE,
-                            &b,
-                            0,
-                            OCI_ATTR_LOBPREFETCH_LENGTH,
-                            err);
-
-            if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-              translate_error (err, r);
           }
 #endif
         }
@@ -249,25 +238,14 @@ namespace odb
 
           OCILobLocator* locator (reinterpret_cast<OCILobLocator*> (b->size));
 
-          // We have to get the length of the LOB due to a limitation of the
-          // polling interface. OCI requires that the maximum number of bytes
-          // to read be specified on the first call to OCILobRead2. The
-          // maximum size of a LOB is determined by the server CHUNK size,
-          // which requires an additional round-trip to obtain. Getting the
-          // LOB length is simpler and no less efficient. A possible
-          // alternative is to use callbacks as opposed to polling.
-          //
-          ub8 size (0);
-          sword r (OCILobGetLength2(conn_.handle (),
-                                    err,
-                                    locator,
-                                    &size));
-
-          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-            translate_error (err, r);
-
           ub1 piece (OCI_FIRST_PIECE);
-          ub8 read (size);
+
+          // Setting the value pointed to by the byte_amt argument on the first
+          // call to OCILobRead2 instructs OCI to remain in a polling state
+          // until the EOF is reached, at which point OCILobRead2 will return
+          // OCI_SUCCESS.
+          //
+          ub8 read (0);
 
           do
           {
@@ -291,11 +269,13 @@ namespace odb
             chunk_position cp;
 
             if (piece == OCI_FIRST_PIECE)
-              cp = read == size ? one_chunk : first_chunk;
+              cp = r == OCI_SUCCESS ? one_chunk : first_chunk;
             else if (r == OCI_NEED_DATA)
               cp = next_chunk;
             else
               cp = last_chunk;
+
+            piece = OCI_NEXT_PIECE;
 
             // OCI generates and ORA-24343 error when an error code is
             // returned from a user callback. We simulate this.
@@ -305,8 +285,6 @@ namespace odb
                                         static_cast<ub4> (read),
                                         cp))
               throw database_exception (24343, "user defined callback error");
-
-            piece = OCI_NEXT_PIECE;
 
           } while (r == OCI_NEED_DATA);
         }
