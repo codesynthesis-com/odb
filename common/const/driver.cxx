@@ -77,7 +77,7 @@ main (int argc, char* argv[])
     {
       transaction t (db->begin ());
       auto_ptr<aggr> a (db->load<aggr> (1));
-      auto_ptr<const aggr> ca (db->load<const aggr> (2));
+      auto_ptr<const aggr> ca (db->load<aggr> (2));
       t.commit ();
 
       assert (a->o1->id == 2);
@@ -121,13 +121,15 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      result1 r1 (db->query<const obj1> (query1::id < 3));
+      result1 r1 (db->query<obj1> (query1::id < 3));
+      // odb::result<obj1> ur (r1); // error
       size_t n1 (0);
 
       for (result1::iterator i (r1.begin ()); i != r1.end (); ++i)
       {
         // i->f (); // error
         i->cf ();
+        // obj1* p (i.load ()); // error
         const obj1* p (i.load ());
         obj1 o (0);
         i.load (o);
@@ -138,13 +140,14 @@ main (int argc, char* argv[])
 
       assert (n1 == 2);
 
-      result2 r2 (db->query<const obj2> (query2::id < 3));
+      result2 r2 (db->query<obj2> (query2::id < 3));
       size_t n2 (0);
 
       for (result2::iterator i (r2.begin ()); i != r2.end (); ++i)
       {
         // i->f (); // error
         i->cf ();
+        // auto_ptr<obj2> p (i.load ()); // error
         auto_ptr<const obj2> p (i.load ());
         obj2 o (0);
         i.load (o);
@@ -191,17 +194,12 @@ main (int argc, char* argv[])
     {
       session s;
       transaction t (db->begin ());
-      const obj1 o1 (1);
-      db->persist (o1);
 
-      try
-      {
-        db->load<obj1> (1);
-        assert (false);
-      }
-      catch (const odb::const_object&)
-      {
-      }
+      obj1 o1 (1);
+      const obj1& co1 (o1);
+      db->persist (co1);
+
+      assert (db->load<obj1> (1) == &o1);
 
       t.commit ();
     }

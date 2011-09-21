@@ -323,7 +323,7 @@ main (int argc, char* argv[])
     //
     {
       typedef odb::query<view3> query;
-      typedef odb::result<view3> result;
+      typedef odb::result<const view3> result; // Test const result.
 
       {
         transaction t (db->begin ());
