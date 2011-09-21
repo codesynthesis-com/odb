@@ -28,12 +28,11 @@ namespace odb
     public:
       typedef odb::result_impl<T, class_view> base_type;
 
-      typedef typename base_type::pointer_type pointer_type;
-      typedef typename base_type::pointer_traits pointer_traits;
-
       typedef typename base_type::view_type view_type;
       typedef typename base_type::view_traits view_traits;
 
+      typedef typename base_type::pointer_type pointer_type;
+      typedef typename base_type::pointer_traits pointer_traits;
 
       virtual
       ~result_impl ();
