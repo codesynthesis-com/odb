@@ -120,7 +120,7 @@ struct employer
 
   #pragma db id
   std::string name;
-  std::size_t head_count;
+  unsigned int head_count;
   std::vector<person*> employees;
 };
 
@@ -341,7 +341,7 @@ struct view7
   std::string first_name;
   std::string last_name;
 
-  odb::nullable<std::size_t> head_count;
+  odb::nullable<unsigned int> head_count;
 };
 
 //
