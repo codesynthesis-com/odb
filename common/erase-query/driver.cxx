@@ -162,7 +162,8 @@ main (int argc, char* argv[])
 #ifndef DATABASE_MYSQL
     {
       transaction t (db->begin ());
-      assert (db->execute ("SELECT * FROM object_v WHERE object_id = 1") == 0);
+      assert (db->execute ("SELECT * FROM common_erase_query_object_v "
+                           "WHERE object_id = 1") == 0);
       t.commit ();
     }
 #endif
