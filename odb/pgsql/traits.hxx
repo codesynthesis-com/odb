@@ -444,7 +444,19 @@ namespace odb
     };
 
     template <std::size_t n>
+    struct default_value_traits<const char[n], id_numeric>:
+      c_string_value_traits
+    {
+    };
+
+    template <std::size_t n>
     struct default_value_traits<char[n], id_string>: c_string_value_traits
+    {
+    };
+
+    template <std::size_t n>
+    struct default_value_traits<const char[n], id_string>:
+      c_string_value_traits
     {
     };
 
@@ -587,6 +599,12 @@ namespace odb
 
     template <std::size_t n>
     struct default_type_traits<char[n]>
+    {
+      static const database_type_id db_type_id = id_string;
+    };
+
+    template <std::size_t n>
+    struct default_type_traits<const char[n]>
     {
       static const database_type_id db_type_id = id_string;
     };
