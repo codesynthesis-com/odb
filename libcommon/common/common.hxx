@@ -15,6 +15,12 @@
 #include <common/config.hxx>
 #include <common/export.hxx>
 
+// Make sure assert() is not diabled.
+//
+#ifdef NDEBUG
+#  error ODB tests require enabled assert(); un-define the NDEBUG macro
+#endif
+
 LIBCOMMON_EXPORT std::auto_ptr<odb::database>
 create_database (int& argc,
                  char* argv[],
