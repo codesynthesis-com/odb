@@ -240,10 +240,10 @@ namespace odb
 
           ub1 piece (OCI_FIRST_PIECE);
 
-          // Setting the value pointed to by the byte_amt argument on the first
-          // call to OCILobRead2 instructs OCI to remain in a polling state
-          // until the EOF is reached, at which point OCILobRead2 will return
-          // OCI_SUCCESS.
+          // Setting the value pointed to by the byte_amt argument to 0 on the
+          // first call to OCILobRead2 instructs OCI to remain in a polling
+          // state until the EOF is reached, at which point OCILobRead2 will
+          // return OCI_SUCCESS.
           //
           ub8 read (0);
 
