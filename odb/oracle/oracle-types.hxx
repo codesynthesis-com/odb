@@ -50,6 +50,12 @@ namespace odb
       ub4 size,        // [in] The result data size in bytes.
       chunk_position); // [in] The position of this chunk.
 
+    union lob_callback
+    {
+      param_callback_type param;
+      result_callback_type result;
+    };
+
     struct bind
     {
       ub2 type;       // The type stored by buffer. This must be an external
@@ -64,11 +70,7 @@ namespace odb
                       // buffer.
       sb2* indicator; // Pointer to an OCI indicator variable.
 
-      union
-      {
-        param_callback_type param;
-        result_callback_type result;
-      } callback;
+      lob_callback callback;
 
       // This pointer is provided to the user through the context argument
       // in both parameter and result callback functions.
