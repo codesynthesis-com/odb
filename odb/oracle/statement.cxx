@@ -247,6 +247,7 @@ namespace odb
           //
           ub8 read (0);
 
+          sword r;
           do
           {
             r = OCILobRead2 (conn_.handle (),
