@@ -17,7 +17,8 @@ object-statements.cxx    \
 statement.cxx            \
 statements-base.cxx      \
 transaction.cxx          \
-transaction-impl.cxx
+transaction-impl.cxx     \
+details/number.cxx
 
 cli_tun := details/options.cli
 cxx_tun := $(cxx)
