@@ -63,7 +63,7 @@ namespace odb
     struct image_traits<id_int32> {typedef int image_type;};
 
     template <>
-    struct image_traits<id_int64> {typedef long long image_type;};
+    struct image_traits<id_int64> {typedef unsigned char[12] image_type;};
 
     template <>
     struct image_traits<id_big_int> {typedef unsigned char[21] image_type;};
