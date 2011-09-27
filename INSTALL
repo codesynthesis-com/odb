@@ -31,7 +31,7 @@ After unpacking the source code archive, change to the odb-tests
 package directory (referred to as odb-tests/ from now on) and run
 the configure script, for example:
 
-./configure --database <database>
+./configure --with-database <database>
 
 To see the available configuration options run configure with --help:
 
