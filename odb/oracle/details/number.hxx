@@ -16,16 +16,16 @@ namespace odb
     namespace details
     {
       LIBODB_ORACLE_EXPORT long long
-      number_to_int64 (const unsigned char* buffer);
+      number_to_int64 (const char* buffer);
 
       LIBODB_ORACLE_EXPORT void
-      int64_to_number (unsigned char* buffer, long long value);
+      int64_to_number (char* buffer, long long value);
 
       LIBODB_ORACLE_EXPORT unsigned long long
-      number_to_uint64 (const unsigned char* buffer);
+      number_to_uint64 (const char* buffer);
 
       LIBODB_ORACLE_EXPORT void
-      uint64_to_number (unsigned char* buffer, unsigned long long value);
+      uint64_to_number (char* buffer, unsigned long long value);
     }
   }
 }

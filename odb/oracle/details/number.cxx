@@ -34,16 +34,20 @@ namespace odb
       //
 
       long long
-      number_to_int64 (const unsigned char* b)
+      number_to_int64 (const char* b)
       {
-        int n (b[0]);
+        // All bytes in the buffer are interpreted as unsigned.
+        //
+        const unsigned char* ub (reinterpret_cast<const unsigned char*> (b));
+
+        int n (ub[0]);
 
         // Zero is represented by zero significant bits and an exponent
         // set to 128.
         //
         if (n == 1)
         {
-          assert (b[1] == 128);
+          assert (ub[1] == 128);
           return 0;
         }
 
@@ -51,22 +55,21 @@ namespace odb
 
         // Test the sign bit of the exponent.
         //
-        if (b[1] & 0x80)
+        if ((ub[1] & 0x80) != 0)
         {
-
           // The unbiased exponent of a positive number may be calculated as
-          // b[1] - 128 - 65. For an integer, this is the order of magnitude
+          // ub[1] - 128 - 65. For an integer, this is the order of magnitude
           // of the number. Calculate the maximum weight, 100 ^ o, where o is
           // the order of magnitude of the number.
           //
           long long w (1);
 
-          for (size_t i (0), o (b[1] - 193); i < o; ++i)
+          for (size_t i (0), o (ub[1] - 193); i < o; ++i)
             w *= 100;
 
           // Accumlate the sum of the significant base-100 terms.
           //
-          for (const unsigned char* m (b + 2), *e (b + 1 + n); m < e; ++m)
+          for (const unsigned char* m (ub + 2), *e (ub + 1 + n); m < e; ++m)
           {
             v += (*m - 1) * w;
             w /= 100;
@@ -75,20 +78,20 @@ namespace odb
         else
         {
           // The unbiased exponent of a negative number is calculated as
-          // (~b[1] & 0x7F) - 193. For an integer, this is the order of
+          // (~ub[1] & 0x7F) - 193. For an integer, this is the order of
           // magnitude of the number. Calculate the maximum weight, 100 ^ o,
           // where o is the order of magnitude of the number.
           //
           long long w (1);
 
-          for (size_t i (0), o ((~b[1] & 0x7F) - 65); i < o; ++i)
+          for (size_t i (0), o ((~ub[1] & 0x7F) - 65); i < o; ++i)
             w *= 100;
 
           // Accumulate the sum of the significant base-100 terms. Note that
           // negative values will have a terminator byte which is included
           // in the length. This is ignored.
           //
-          for (const unsigned char* m (b + 2), *e (b + n); m < e; ++m)
+          for (const unsigned char* m (ub + 2), *e (ub + n); m < e; ++m)
           {
             v -= (101 - *m) * w;
             w /= 100;
@@ -99,16 +102,20 @@ namespace odb
       }
 
       void
-      int64_to_number (unsigned char* b, long long v)
+      int64_to_number (char* b, long long v)
       {
         // We assume that b is long enough to contain a long long VARNUM
         // representation, that being 12 bytes.
         //
 
+        // All bytes in the buffer are interpreted as unsigned.
+        //
+        unsigned char* ub (reinterpret_cast<unsigned char*> (b));
+
         if (v == 0)
         {
-          b[0] = 1;
-          b[1] = 128;
+          ub[0] = 1;
+          ub[1] = 128;
 
           return;
         }
@@ -138,7 +145,7 @@ namespace odb
           // The exponent is one less than the number of base 100 digits. It is
           // inverted for negative values.
           //
-          b[1] = static_cast<unsigned char> (~(n + 192));
+          ub[1] = static_cast<unsigned char> (~(n + 192));
         }
         else
         {
@@ -156,31 +163,35 @@ namespace odb
 
           // Exponent is one less than the number of base 100 digits.
           //
-          b[1] = static_cast<unsigned char> (n + 192);
+          ub[1] = static_cast<unsigned char> (n + 192);
         }
 
         // Set the length.
         //
-        b[0] = static_cast<unsigned char> (m - t + 1);
+        ub[0] = static_cast<unsigned char> (m - t + 1);
 
         // Set the significant digits in big-endian byte order and the
         // terminator, if any.
         //
         for (size_t i (2); m > t; ++i)
-          b[i] = *--m;
+          ub[i] = *--m;
       }
 
       unsigned long long
-      number_to_uint64 (const unsigned char* b)
+      number_to_uint64 (const char* b)
       {
-        int n (b[0]);
+        // All bytes in the buffer are interpreted as unsigned.
+        //
+        const unsigned char* ub (reinterpret_cast<const unsigned char*> (b));
+
+        int n (ub[0]);
 
         // Zero is represented by zero significant bits and an exponent
         // set to 128.
         //
         if (n == 1)
         {
-          assert (b[1] == 128);
+          assert (ub[1] == 128);
           return 0;
         }
 
@@ -188,25 +199,25 @@ namespace odb
 
         // Test the sign bit of the exponent.
         //
-        if (b[1] & 0x80)
+        if (ub[1] & 0x80)
         {
           assert (false);
           return 0;
         }
 
         // The unbiased exponent of a positive number may be calculated as
-        // b[1] - 128 - 65. For an integer, this is the order of magnitude
+        // ub[1] - 128 - 65. For an integer, this is the order of magnitude
         // of the number. Calculate the maximum weight, 100 ^ o, where o is
         // the order of magnitude of the number.
         //
         unsigned long long w (1);
 
-        for (size_t i (0), o (b[1] - 193); i < o; ++i)
+        for (size_t i (0), o (ub[1] - 193); i < o; ++i)
           w *= 100;
 
         // Accumlate the sum of the significant base-100 terms.
         //
-        for (const unsigned char* m (b + 2), *e (b + 1 + n); m < e; ++m)
+        for (const unsigned char* m (ub + 2), *e (ub + 1 + n); m < e; ++m)
         {
           v += (*m - 1) * w;
           w /= 100;
@@ -216,16 +227,20 @@ namespace odb
       }
 
       void
-      uint64_to_number (unsigned char* b, unsigned long long v)
+      uint64_to_number (char* b, unsigned long long v)
       {
         // We assume that b is long enough to contain an unsigned long long
         // VARNUM representation, that being 12 bytes.
         //
 
+        // All bytes in the buffer are interpreted as unsigned.
+        //
+        unsigned char* ub (reinterpret_cast<unsigned char*> (b));
+
         if (v == 0)
         {
-          b[0] = 1;
-          b[1] = 128;
+          ub[0] = 1;
+          ub[1] = 128;
 
           return;
         }
@@ -248,16 +263,16 @@ namespace odb
 
         // Exponent is one less than the number of base 100 digits.
         //
-        b[1] = static_cast<unsigned char> (n + 192);
+        ub[1] = static_cast<unsigned char> (n + 192);
 
         // Set the length.
         //
-        b[0] = static_cast<unsigned char> (m - t + 1);
+        ub[0] = static_cast<unsigned char> (m - t + 1);
 
         // Set the significant digits in big-endian byte order.
         //
         for (size_t i (2); m > t; ++i)
-          b[i] = *--m;
+          ub[i] = *--m;
       }
     }
   }
