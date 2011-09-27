@@ -22,6 +22,7 @@
 #include <odb/details/wrapper-p.hxx>
 
 #include <odb/oracle/details/export.hxx>
+#include <odb/oracle/details/number.hxx>
 
 namespace odb
 {
@@ -392,6 +393,60 @@ namespace odb
         is_null = false;
         i = image_type (v);
       }
+    };
+
+    // id_big_int partial specialization.
+    //
+    template <typename T, bool unsign>
+    struct big_int_value_traits;
+
+    template <typename T>
+    struct big_int_value_traits<T, false>
+    {
+      static void
+      set_value (T v, char* b, bool is_null)
+      {
+        if (!is_null)
+          v = static_cast<T> (details::number_to_int64 (b));
+        else
+          v = 0;
+      }
+
+      static void
+      set_image (char* b, bool& is_null, T v)
+      {
+        is_null = false;
+        details::int64_to_number (b, static_cast<long long> (v));
+      }
+    };
+
+    template <typename T>
+    struct big_int_value_traits<T, true>
+    {
+      static void
+      set_value (T v, char* b, bool is_null)
+      {
+        if (!is_null)
+          v = details::number_to_uint64 (static_cast<unsigned long long> (b));
+        else
+          v = 0;
+      }
+
+      static void
+      set_image (char* b, bool& is_null, T v)
+      {
+        is_null = false;
+        details::uint64_to_number (b, static_cast<unsigned long long> (v));
+      }
+    };
+
+    template <typename T>
+    struct default_value_traits<T, id_big_int>:
+      big_int_value_traits<T, int_traits<T>::unsign>
+    {
+      typedef T value_type;
+      typedef T query_type;
+      typedef typename image_traits<T, id_big_int>::image_type image_type;
     };
 
     // std::string specialization.

@@ -11,10 +11,18 @@
 
 namespace odb
 {
+  // @@ Revise this.
+  //
+  namespace details
+  {
+  }
+
   namespace oracle
   {
     namespace details
     {
+      using namespace odb::details;
+
       LIBODB_ORACLE_EXPORT long long
       number_to_int64 (const char* buffer);
 
