@@ -120,6 +120,16 @@ namespace odb
 
       for (size_t e (o + c); o < e; ++c, ++b)
       {
+#if OCI_MAJOR_VERSION < 11 || \
+  (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION < 2)
+        // Assert if a 64 bit integer buffer type is provided and the OCI
+        // version is unable to implicitly convert the NUMBER binary data
+        // to the relevant type.
+        //
+        assert ((b->type != SQLT_INT && b->type != SQLT_UIN) ||
+                b->capacity <= 4);
+#endif
+
         OCIBind* h (0);
         sword r (OCIBindByPos (stmt_,
                                &h,
@@ -199,6 +209,16 @@ namespace odb
         }
         else
         {
+#if OCI_MAJOR_VERSION < 11 || \
+  (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION < 2)
+          // Assert if a 64 bit integer buffer type is provided and the OCI
+          // version is unable to implicitly convert the NUMBER binary data
+          // to the relevant type.
+          //
+          assert ((b->type != SQLT_INT && b->type != SQLT_UIN) ||
+                  b->capacity <= 4);
+#endif
+
           OCIDefine* h (0);
           sword r (OCIDefineByPos (stmt_,
                                    &h,
