@@ -134,7 +134,7 @@ view4_test (const auto_ptr<database>& db)
 
 template <typename V>
 void
-view6_test (const auto_ptr<database>& db)
+view6_test (const auto_ptr<database>& db, const odb::query<V>& q)
 {
   typedef odb::query<V> query;
   typedef odb::result<V> result;
@@ -143,9 +143,7 @@ view6_test (const auto_ptr<database>& db)
   transaction t (db->begin ());
 
   {
-    result r (
-      db->query<V> (
-        query::employer::name == "Simple Tech, Inc"));
+    result r (db->query<V> (q));
 
     iterator i (r.begin ());
 
@@ -312,6 +310,24 @@ main (int argc, char* argv[])
       }
     }
 
+    // view1d
+    //
+    {
+      typedef odb::query<view1d> query;
+      typedef odb::result<view1d> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          result r (db->query<view1d> ("age < 31 ORDER BY age"));
+          view1_check (r);
+        }
+
+        t.commit ();
+      }
+    }
+
     // view2
     //
     view2_test<view2> (db);
@@ -412,9 +428,17 @@ main (int argc, char* argv[])
 
     // view6
     //
-    view6_test<view6> (db);
-    view6_test<view6a> (db);
-    view6_test<view6b> (db);
+    view6_test<view6> (
+      db, odb::query<view6>::employer::name == "Simple Tech, Inc");
+
+    view6_test<view6a> (
+      db, odb::query<view6a>::employer::name == "Simple Tech, Inc");
+
+    view6_test<view6b> (
+      db, odb::query<view6b>::employer::name == "Simple Tech, Inc");
+
+    view6_test<view6c> (
+      db, "e.name = " + odb::query<view6c>::_val ("Simple Tech, Inc"));
 
     // view7
     //

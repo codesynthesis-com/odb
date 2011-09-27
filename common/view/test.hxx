@@ -172,6 +172,21 @@ struct view1c
   unsigned short age;
 };
 
+// Assembled SELECT and FROM-lists.
+//
+#pragma db view table("common_view_person")
+struct view1d
+{
+  #pragma db column("first")
+  std::string first;
+
+  #pragma db column("last")
+  std::string last;
+
+  #pragma db column("age")
+  unsigned short age;
+};
+
 //
 // Count view plus associated object.
 //
@@ -327,6 +342,23 @@ struct view6b
   std::string last_name;
 
   #pragma db column(::employer::name)
+  std::string employer;
+};
+
+// The same using tables.
+//
+#pragma db view table("common_view_person" = "p") \
+  table("common_view_employer_employees" = "ee": "ee.value = p.id") \
+  table("common_view_employer" = "e": "ee.object_id = e.name")
+struct view6c
+{
+  #pragma db column("p.first")
+  std::string first_name;
+
+  #pragma db column("p"."last")
+  std::string last_name;
+
+  #pragma db column("e.name")
   std::string employer;
 };
 
