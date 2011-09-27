@@ -60,6 +60,31 @@ namespace odb
     //
 
     bool string_lob_value_traits::
+    result_callback (void* c, void* b, ub4 s, chunk_position p)
+    {
+      string& v (*static_cast<string*> (c));
+
+      switch (p)
+      {
+      case one_chunk:
+      case first_chunk:
+        {
+          v.clear ();
+
+          // Falling through.
+        }
+      case next_chunk:
+      case last_chunk:
+        {
+          v.append (static_cast<char*> (b), s);
+          break;
+        }
+      }
+
+      return true;
+    }
+
+    bool string_lob_value_traits::
     param_callback (void* ctx,
                     ub4* pos_ctx,
                     void** b,
@@ -130,6 +155,33 @@ namespace odb
     //
     // default_value_traits<std::vector<char>, id_blob>
     //
+    bool default_value_traits<std::vector<char>, id_blob>::
+    result_callback (void* c, void* b, ub4 s, chunk_position p)
+    {
+      value_type& v (*static_cast<value_type*> (c));
+
+      switch (p)
+      {
+      case one_chunk:
+      case first_chunk:
+        {
+          v.clear ();
+
+          // Falling through.
+        }
+      case next_chunk:
+      case last_chunk:
+        {
+          char* cb (static_cast<char*> (b));
+          v.insert (v.end (), cb, cb + s);
+
+          break;
+        }
+      }
+
+      return true;
+    }
+
     bool default_value_traits<std::vector<char>, id_blob>::
     param_callback (void* ctx,
                     ub4* pos_ctx,

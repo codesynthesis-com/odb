@@ -526,26 +526,7 @@ namespace odb
       }
 
       static bool
-      result_callback (void* context, void* buffer, ub4 size, chunk_position p)
-      {
-        std::string& v (*reinterpret_cast<std::string*> (context));
-
-        switch (p)
-        {
-        case one_chunk:
-        case first_chunk:
-          {
-            v.clear ();
-          }
-        case next_chunk:
-        case last_chunk:
-          {
-            v.append (reinterpret_cast<char*> (buffer), size);
-          }
-        }
-
-        return true;
-      }
+      result_callback (void* context, void* buffer, ub4 size, chunk_position);
 
       static bool
       param_callback (void* context,
@@ -675,27 +656,7 @@ namespace odb
       }
 
       static bool
-      result_callback (void* context, void* buffer, ub4 size, chunk_position p)
-      {
-        value_type& v (*reinterpret_cast<value_type*> (context));
-
-        switch (p)
-        {
-        case one_chunk:
-        case first_chunk:
-          {
-            v.clear ();
-          }
-        case next_chunk:
-        case last_chunk:
-          {
-            char* b (reinterpret_cast<char*> (buffer));
-            v.insert (v.end (), b, b + size);
-          }
-        }
-
-        return true;
-      }
+      result_callback (void* context, void* buffer, ub4 size, chunk_position);
 
       static bool
       param_callback (void* context,
