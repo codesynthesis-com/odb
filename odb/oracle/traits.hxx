@@ -609,7 +609,7 @@ namespace odb
     //
     // Specialization for const char* which only supports initialization
     // of an image from the value but not the other way around. This way
-    // we can such values to the queries.
+    // we can pass such values to the queries.
     //
     class c_string_lob_value_traits
     {
