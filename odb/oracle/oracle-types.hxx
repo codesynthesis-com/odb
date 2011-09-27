@@ -28,7 +28,7 @@ namespace odb
     // statement execution is aborted.
     //
     typedef bool (*param_callback_type) (
-      void* context,         // [in] The user context.
+      const void* context,   // [in] The user context.
       ub4* position_context, // [in] A position context. A callback is free to
                              // use this to track position information.
       void** buffer,         // [out] On return, a pointer to a buffer

@@ -516,20 +516,20 @@ namespace odb
 
       static void
       set_image (param_callback_type& cb,
-                 void*& context,
+                 const void*& context,
                  bool& is_null,
                  const std::string& v)
       {
         is_null = false;
         cb = &param_callback;
-        context = const_cast<std::string*> (&v);
+        context = &v;
       }
 
       static bool
       result_callback (void* context, void* buffer, ub4 size, chunk_position);
 
       static bool
-      param_callback (void* context,
+      param_callback (const void* context,
                       ub4* position_context,
                       void** buffer,
                       ub4* size,
@@ -565,17 +565,17 @@ namespace odb
 
       static void
       set_image (param_callback_type& cb,
-                 void*& context,
+                 const void*& context,
                  bool& is_null,
                  const char* v)
       {
         is_null = false;
         cb = &param_callback;
-        context = const_cast<char*> (v);
+        context = v;
       }
 
       static bool
-      param_callback (void* context,
+      param_callback (const void* context,
                       ub4* position_context,
                       void** buffer,
                       ub4* size,
@@ -646,20 +646,20 @@ namespace odb
 
       static void
       set_image (param_callback_type& cb,
-                 void*& context,
+                 const void*& context,
                  bool& is_null,
                  const value_type& v)
       {
         is_null = false;
         cb = &param_callback;
-        context = const_cast<value_type*> (&v);
+        context = &v;
       }
 
       static bool
       result_callback (void* context, void* buffer, ub4 size, chunk_position);
 
       static bool
-      param_callback (void* context,
+      param_callback (const void* context,
                       ub4* position_context,
                       void** buffer,
                       ub4* size,

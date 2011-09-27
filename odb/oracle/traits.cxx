@@ -85,7 +85,7 @@ namespace odb
     }
 
     bool string_lob_value_traits::
-    param_callback (void* ctx,
+    param_callback (const void* ctx,
                     ub4* pos_ctx,
                     void** b,
                     ub4* s,
@@ -93,7 +93,7 @@ namespace odb
                     void* temp_b,
                     ub4 cap)
     {
-      const string& v (*reinterpret_cast<string*> (ctx));
+      const string& v (*static_cast<const string*> (ctx));
 
       // @@ We rely on *pos_ctx == 0 for the first call. Make sure that this is
       // set by the generated code, and update comment in oracle-types.hxx
@@ -121,7 +121,7 @@ namespace odb
     //
 
     bool c_string_lob_value_traits::
-    param_callback (void* ctx,
+    param_callback (const void* ctx,
                     ub4* pos_ctx,
                     void** b,
                     ub4* s,
@@ -129,7 +129,7 @@ namespace odb
                     void* temp_b,
                     ub4 cap)
     {
-      const char* v (reinterpret_cast<char*> (ctx));
+      const char* v (static_cast<const char*> (ctx));
 
       // @@ We rely on *pos_ctx == 0 for the first call. Make sure that this is
       // set by the generated code, and update comment in oracle-types.hxx
@@ -183,7 +183,7 @@ namespace odb
     }
 
     bool default_value_traits<std::vector<char>, id_blob>::
-    param_callback (void* ctx,
+    param_callback (const void* ctx,
                     ub4* pos_ctx,
                     void** b,
                     ub4* s,
@@ -191,7 +191,7 @@ namespace odb
                     void* temp_b,
                     ub4 cap)
     {
-      const value_type& v (*reinterpret_cast<value_type*> (ctx));
+      const value_type& v (*static_cast<const value_type*> (ctx));
 
       // @@ We rely on *position_context == 0 for the first call. Make sure
       // that this is set by the generated code and update the comment in
