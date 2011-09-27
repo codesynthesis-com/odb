@@ -1,7 +1,7 @@
 // file      : odb/oracle/details/number.cxx
 // author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
-// license   : GNU GPL v2; see accompanying LICENSE file
+// license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <cstddef>  // std::size_t
 #include <cassert>
