@@ -766,25 +766,25 @@ namespace odb
     template <>
     struct default_type_traits<long>
     {
-      static const database_type_id db_type_id = id_int64;
+      static const database_type_id db_type_id = id_big_int;
     };
 
     template <>
     struct default_type_traits<unsigned long>
     {
-      static const database_type_id db_type_id = id_int64;
+      static const database_type_id db_type_id = id_big_int;
     };
 
     template <>
     struct default_type_traits<long long>
     {
-      static const database_type_id db_type_id = id_int64;
+      static const database_type_id db_type_id = id_big_int;
     };
 
     template <>
     struct default_type_traits<unsigned long long>
     {
-      static const database_type_id db_type_id = id_int64;
+      static const database_type_id db_type_id = id_big_int;
     };
 
     // Float types.
