@@ -23,6 +23,25 @@ namespace odb
 {
   namespace oracle
   {
+    // Mapping of bind::buffer_type values to there equivalent external
+    // OCI typecode identifiers.
+    //
+    static ub4 sqlt_lookup[bind::last] =
+    {
+      SQLT_INT,
+      SQLT_UIN,
+      SQLT_BFLOAT,
+      SQLT_BDOUBLE,
+      SQLT_VNU,
+      SQLT_DAT,
+      SQLT_TIMESTAMP,
+      SQLT_CHR,
+      SQLT_CHR,
+      SQLT_BLOB,
+      SQLT_CLOB,
+      SQLT_CLOB
+    };
+
     static sb4
     param_callback_proxy (void* context,
                           OCIBind*,
@@ -126,8 +145,7 @@ namespace odb
         // version is unable to implicitly convert the NUMBER binary data
         // to the relevant type.
         //
-        assert ((b->type != SQLT_INT && b->type != SQLT_UIN) ||
-                b->capacity <= 4);
+        assert (b->type != bind::integer || b->capacity <= 4);
 #endif
 
         OCIBind* h (0);
@@ -137,7 +155,7 @@ namespace odb
                                o,
                                b->buffer,
                                static_cast<sb4> (b->capacity),
-                               b->type,
+                               sqlt_lookup[b->type],
                                b->indicator,
                                b->size,
                                0,
@@ -148,6 +166,21 @@ namespace odb
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
+
+        if (b->type == bind::nstring || b->type == bind::nclob)
+        {
+          ub1 form (SQLCS_NCHAR);
+
+          r = OCIAttrSet (h,
+                          OCI_HTYPE_BIND,
+                          &form,
+                          0,
+                          OCI_ATTR_CHARSET_FORM,
+                          err);
+
+          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+            translate_error (err, r);
+        }
 
         if (b->callback.param != 0)
         {
@@ -168,16 +201,19 @@ namespace odb
 
       for (size_t i (1); i <= c; ++i, ++b)
       {
-        if (b->type == SQLT_BLOB || b->type == SQLT_CLOB)
+        OCIDefine* h (0);
+
+        if (b->type == bind::blob ||
+            b->type == bind::clob ||
+            b->type == bind::nclob)
         {
-          OCIDefine* h (0);
           sword r (OCIDefineByPos (stmt_,
                                    &h,
                                    err,
                                    i,
                                    reinterpret_cast<OCILobLocator*> (b->size),
                                    sizeof (OCILobLocator*),
-                                   b->type,
+                                   sqlt_lookup[b->type],
                                    b->indicator,
                                    0,
                                    0,
@@ -215,18 +251,17 @@ namespace odb
           // version is unable to implicitly convert the NUMBER binary data
           // to the relevant type.
           //
-          assert ((b->type != SQLT_INT && b->type != SQLT_UIN) ||
+          assert ((b->type != bind::integer || b->type != bind::uinteger) &&
                   b->capacity <= 4);
 #endif
 
-          OCIDefine* h (0);
           sword r (OCIDefineByPos (stmt_,
                                    &h,
                                    err,
                                    i,
                                    b->buffer,
                                    static_cast<sb4> (b->capacity),
-                                   b->type,
+                                   sqlt_lookup[b->type],
                                    b->indicator,
                                    b->size,
                                    0,
@@ -234,6 +269,21 @@ namespace odb
 
           if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
             translate_error (err, r);
+
+          if (b->type == bind::nstring)
+          {
+            ub1 form (SQLCS_NCHAR);
+
+            r = OCIAttrSet (h,
+                            OCI_HTYPE_BIND,
+                            &form,
+                            0,
+                            OCI_ATTR_CHARSET_FORM,
+                            err);
+
+            if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+              translate_error (err, r);
+          }
         }
       }
     }
@@ -248,7 +298,9 @@ namespace odb
         // Only stream if the bind specifies a LOB type, and the LOB value is
         // not NULL, and a result callback has been provided.
         //
-        if ((b->type == SQLT_BLOB || b->type == SQLT_CLOB) &&
+        if ((b->type == bind::blob ||
+             b->type == bind::clob ||
+             b->type == bind::nclob) &&
             *b->indicator != -1 &&
             b->callback.result != 0)
         {
@@ -266,6 +318,7 @@ namespace odb
           // return OCI_SUCCESS.
           //
           ub8 read (0);
+          ub1 cs_form (b->type == bind::nclob ? SQLCS_NCHAR : SQLCS_IMPLICIT);
 
           sword r;
           do
@@ -282,7 +335,7 @@ namespace odb
                              0,
                              0,
                              0,
-                             SQLCS_IMPLICIT);
+                             cs_form);
 
             if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
               translate_error (err, r);

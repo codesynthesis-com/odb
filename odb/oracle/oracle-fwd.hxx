@@ -24,15 +24,6 @@ typedef struct OCIStmt OCIStmt;
 typedef struct OCIAuthInfo OCIAuthInfo;
 typedef struct OCITrans OCITrans;
 
-// Define an external type identifier for the national character types.
-// These are used exclusively for identifying national character encoded
-// buffers while setting the character set form of an OCIBind or OCIDefine
-// handle. They are never passed to the OCI API.
-//
-extern ub2 SQLT_NCHAR;
-extern ub2 SQLT_NVARCHAR2;
-extern ub2 SQLT_NCLOB;
-
 #include <odb/post.hxx>
 
 #endif // ODB_ORACLE_ORACLE_FWD_HXX

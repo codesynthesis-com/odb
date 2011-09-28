@@ -58,17 +58,45 @@ namespace odb
 
     struct bind
     {
-      ub2 type;       // The type stored by buffer. This must be an external
-                      // OCI type identifier of the form SQLT_XXX.
-      void* buffer;   // Data buffer pointer.
-      ub2* size;      // The number of bytes in buffer. When parameter
-                      // callbacks are in use, this is interpreted as a ub4*
-                      // indicating the current position. When result
-                      // callbacks are in use, this is interpreted as an
-                      // OCILobLocator*.
-      ub4 capacity;   // The maximum number of bytes that can be stored in
-                      // buffer.
-      sb2* indicator; // Pointer to an OCI indicator variable.
+      // This enumeration identifies the possible buffer types that can be
+      // bound to a bind instance. In most cases, these map directly to
+      // SQLT_XXX codes, identifying an external OCI type. nstring and nclob
+      // however have no equivalent OCI typecode. These additional identifiers
+      // allow for a consistent interface across all types. Note that these
+      // values are mapped to their corresponding external OCI typecodes (if
+      // any) using their integer values, and should therefore not be
+      // rearranged or explicitly assigned without also adjusting the
+      // sqlt_lookup array in odb/oracle/statement.cxx.
+      //
+      enum buffer_type
+      {
+        integer,       // Buffer is an integer type of size specified by size.
+        uinteger,      // Buffer is an unsigned integer of size specified by
+                       // size.
+        binary_float,  // Buffer is a float.
+        binary_double, // Buffer is a double.
+        number,        // Buffer is a variable length char array.
+        date,          // Buffer is a 7-byte char array.
+        timestamp,     // Buffer is a variable length char array.
+        string,        // Buffer is a variable length char array.
+        nstring,       // Buffer is a variable length char array.
+        blob,          // Bind is a callback.
+        clob,          // Bind is a callback.
+        nclob,         // Bind is a callback.
+        last           // Used as an end of list marker.
+      };
+
+      buffer_type type; // The type stored by buffer. This must be an external
+                        // OCI type identifier of the form SQLT_XXX.
+      void* buffer;     // Data buffer pointer.
+      ub2* size;        // The number of bytes in buffer. When parameter
+                        // callbacks are in use, this is interpreted as a ub4*
+                        // indicating the current position. When result
+                        // callbacks are in use, this is interpreted as an
+                        // OCILobLocator*.
+      ub4 capacity;     // The maximum number of bytes that can be stored in
+                        // buffer.
+      sb2* indicator;   // Pointer to an OCI indicator variable.
 
       lob_callback callback;
 
