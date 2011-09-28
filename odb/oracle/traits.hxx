@@ -427,7 +427,7 @@ namespace odb
       set_value (T v, char* b, bool is_null)
       {
         if (!is_null)
-          v = details::number_to_uint64 (static_cast<unsigned long long> (b));
+          v = static_cast<T> (details::number_to_uint64 (b));
         else
           v = 0;
       }
