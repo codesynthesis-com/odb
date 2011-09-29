@@ -23,22 +23,26 @@ namespace odb
     database (const string& user,
               const string& password,
               const string& db,
+              ub2 charset,
+              ub2 ncharset,
               OCIEnv* environment,
               auto_ptr<connection_factory> factory)
         : user_ (user),
           password_ (password),
           db_ (db),
           port_ (0),
+          charset_ (charset),
+          ncharset_ (ncharset_),
           environment_ (environment),
           factory_ (factory)
     {
       if (environment_ == 0)
       {
-        // @@ Be aware of encoding caveats.
-        //
         sword s (OCIEnvNlsCreate (&environment_,
                                   OCI_THREADED,
-                                  0, 0, 0, 0, 0, 0, 0, 0));
+                                  0, 0, 0, 0, 0, 0,
+                                  charset,
+                                  ncharset));
 
         if (s == OCI_ERROR)
           translate_error (environment_);
@@ -53,6 +57,8 @@ namespace odb
               const string& service,
               const string& host,
               unsigned int port,
+              ub2 charset,
+              ub2 ncharset,
               OCIEnv* environment,
               auto_ptr<connection_factory> factory)
         : user_ (user),
@@ -60,16 +66,18 @@ namespace odb
           service_ (service),
           host_ (host),
           port_ (port),
+          charset_ (charset),
+          ncharset_ (ncharset),
           environment_ (environment),
           factory_ (factory)
     {
       if (environment_ == 0)
       {
-        // @@ Be aware of encoding caveats.
-        //
         sword s (OCIEnvNlsCreate (&environment_,
                                   OCI_THREADED,
-                                  0, 0, 0, 0, 0, 0, 0, 0));
+                                  0, 0, 0, 0, 0, 0,
+                                  charset,
+                                  ncharset));
 
         if (s == OCI_ERROR)
           translate_error (environment_);
@@ -109,19 +117,23 @@ namespace odb
     database (int& argc,
               char* argv[],
               bool erase,
+              ub2 charset,
+              ub2 ncharset,
               OCIEnv* environment,
               auto_ptr<connection_factory> factory)
         : port_ (0),
+          charset_ (charset),
+          ncharset_ (ncharset),
           environment_ (environment),
           factory_ (factory)
     {
       if (environment_ == 0)
       {
-        // @@ Be aware of encoding caveats.
-        //
         sword s (OCIEnvNlsCreate (&environment_,
                                   OCI_THREADED,
-                                  0, 0, 0, 0, 0, 0, 0, 0));
+                                  0, 0, 0, 0, 0, 0,
+                                  charset,
+                                  ncharset));
 
         if (s == OCI_ERROR)
           translate_error (environment_);

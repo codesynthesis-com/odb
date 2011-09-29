@@ -21,6 +21,7 @@
 #include <odb/oracle/connection.hxx>
 #include <odb/oracle/connection-factory.hxx>
 #include <odb/oracle/auto-handle.hxx>
+#include <odb/oracle/oracle-fwd.hxx>
 
 #include <odb/oracle/details/export.hxx>
 
@@ -36,6 +37,8 @@ namespace odb
       database (const std::string& user,
                 const std::string& password,
                 const std::string& db,
+                ub2 charset = 0,
+                ub2 ncharset = 0,
                 OCIEnv* environment = 0,
                 std::auto_ptr<connection_factory> factory =
                   std::auto_ptr<connection_factory> (0));
@@ -45,6 +48,8 @@ namespace odb
                 const std::string& service,
                 const std::string& host = "",
                 unsigned int port = 0,
+                ub2 charset = 0,
+                ub2 ncharset = 0,
                 OCIEnv* environment = 0,
                 std::auto_ptr<connection_factory> factory =
                   std::auto_ptr<connection_factory> (0));
@@ -68,6 +73,8 @@ namespace odb
       database (int& argc,
                 char* argv[],
                 bool erase = false,
+                ub2 charset = 0,
+                ub2 ncharset = 0,
                 OCIEnv* environment = 0,
                 std::auto_ptr<connection_factory> =
                   std::auto_ptr<connection_factory> (0));
@@ -120,6 +127,18 @@ namespace odb
         return port_;
       }
 
+      ub2
+      charset () const
+      {
+        return charset_;
+      }
+
+      ub2
+      ncharset () const
+      {
+        return ncharset_;
+      }
+
       OCIEnv*
       environment ()
       {
@@ -143,6 +162,9 @@ namespace odb
       std::string service_;
       std::string host_;
       unsigned int port_;
+
+      ub2 charset_;
+      ub2 ncharset_;
 
       auto_handle<OCIEnv> auto_environment_;
       OCIEnv* environment_;
