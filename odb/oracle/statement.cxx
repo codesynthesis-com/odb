@@ -411,13 +411,15 @@ namespace odb
       if (!done_)
         free_result ();
 
+      OCIError* err (conn_.error_handle ());
+
       // @@ Retrieve a single row into the already bound output buffers as an
       // optimization? This will avoid multiple server round-trips in the case
       // of a single object load.
       //
       sword r (OCIStmtExecute (conn_.handle (),
                                stmt_,
-                               conn_.error_handle (),
+                               err,
                                0,
                                0,
                                0,
@@ -425,7 +427,17 @@ namespace odb
                                OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_.error_handle (), r);
+        translate_error (err, r);
+
+#ifndef NDEBUG
+      ub4 n (0);
+      r = OCIAttrGet(stmt_, OCI_HTYPE_STMT, &n, 0, OCI_ATTR_PARAM_COUNT, err);
+
+      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+        translate_error (err, r);
+
+      assert (n == data_.count);
+#endif
     }
 
     select_statement::result select_statement::
