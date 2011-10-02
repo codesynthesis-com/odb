@@ -268,7 +268,7 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
 
-          result r (db->query<view1b> (query (true)));
+          result r (db->query<view1b> ());
           view1_check (r);
 
           t.commit ();

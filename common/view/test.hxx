@@ -164,7 +164,7 @@ struct view1b
 
 // Runtime query.
 //
-#pragma db view query()
+#pragma db view //query()
 struct view1c
 {
   std::string first;
@@ -415,7 +415,7 @@ struct view10
 // Composite in object.
 //
 #pragma db view object(person) \
-  query((person::measures.weight > 60 && person::measures.hight < 190) \
+  query((person::measures.weight > 60 && person::measures.hight < 190 && (?)) \
         + "ORDER BY" + person::age)
 struct view11
 {
