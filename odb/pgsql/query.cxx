@@ -24,6 +24,10 @@ namespace odb
     {
     }
 
+    // query
+    //
+    const query query::true_expr (true);
+
     query::
     query (const query& q)
         : clause_ (q.clause_),
@@ -259,6 +263,56 @@ namespace odb
       return native_binding_;
     }
 
+    static bool
+    check_prefix (const string& s)
+    {
+      string::size_type n;
+
+      // It is easier to compare to upper and lower-case versions
+      // rather than getting involved with the portable case-
+      // insensitive string comparison mess.
+      //
+      if (s.compare (0, (n = 5), "WHERE") == 0 ||
+          s.compare (0, (n = 5), "where") == 0 ||
+          s.compare (0, (n = 6), "SELECT") == 0 ||
+          s.compare (0, (n = 6), "select") == 0 ||
+          s.compare (0, (n = 8), "ORDER BY") == 0 ||
+          s.compare (0, (n = 8), "order by") == 0 ||
+          s.compare (0, (n = 8), "GROUP BY") == 0 ||
+          s.compare (0, (n = 8), "group by") == 0 ||
+          s.compare (0, (n = 6), "HAVING") == 0 ||
+          s.compare (0, (n = 6), "having") == 0)
+      {
+        // It either has to be an exact match, or there should be
+        // a whitespace following the keyword.
+        //
+        if (s.size () == n || s[n] == ' ' || s[n] =='\t')
+          return true;
+      }
+
+      return false;
+    }
+
+    void query::
+    optimize ()
+    {
+      // Remove a single TRUE literal or one that is followe by one of
+      // the other clauses. This avoids usless WHERE clauses like
+      //
+      // WHERE TRUE GROUP BY foo
+      //
+      clause_type::iterator i (clause_.begin ()), e (clause_.end ());
+
+      if (i != e && i->kind == clause_part::boolean && i->bool_part)
+      {
+        clause_type::iterator j (i + 1);
+
+        if (j == e ||
+            (j->kind == clause_part::native && check_prefix (j->part)))
+          clause_.erase (i);
+      }
+    }
+
     const char* query::
     clause_prefix () const
     {
@@ -266,33 +320,8 @@ namespace odb
       {
         const clause_part& p (clause_.front ());
 
-        if (p.kind == clause_part::native)
-        {
-          const string& s (p.part);
-          string::size_type n;
-
-          // It is easier to compare to upper and lower-case versions
-          // rather than getting involved with the portable case-
-          // insensitive string comparison mess.
-          //
-          if (s.compare (0, (n = 5), "WHERE") == 0 ||
-              s.compare (0, (n = 5), "where") == 0 ||
-              s.compare (0, (n = 6), "SELECT") == 0 ||
-              s.compare (0, (n = 6), "select") == 0 ||
-              s.compare (0, (n = 8), "ORDER BY") == 0 ||
-              s.compare (0, (n = 8), "order by") == 0 ||
-              s.compare (0, (n = 8), "GROUP BY") == 0 ||
-              s.compare (0, (n = 8), "group by") == 0 ||
-              s.compare (0, (n = 6), "HAVING") == 0 ||
-              s.compare (0, (n = 6), "having") == 0)
-          {
-            // It either has to be an exact match, or there should be
-            // a whitespace following the keyword.
-            //
-            if (s.size () == n || s[n] == ' ' || s[n] =='\t')
-              return "";
-          }
-        }
+        if (p.kind == clause_part::native && check_prefix (p.part))
+          return "";
 
         return "WHERE ";
       }
@@ -307,7 +336,9 @@ namespace odb
       size_t param (1);
 
       for (clause_type::const_iterator i (clause_.begin ()),
-             end (clause_.end ()); i != end; ++i)
+             end (clause_.end ());
+           i != end;
+           ++i)
       {
         char last (!r.empty () ? r[r.size () - 1] : ' ');
 
@@ -347,10 +378,62 @@ namespace odb
             r += p;
             break;
           }
+        case clause_part::boolean:
+          {
+            if (last != ' ' && last != '(')
+              r += ' ';
+
+            r += i->bool_part ? "TRUE" : "FALSE";
+            break;
+          }
         }
       }
 
       return clause_prefix () + r;
+    }
+
+    query
+    operator&& (const query& x, const query& y)
+    {
+      // Optimize cases where one or both sides are constant truth.
+      //
+      bool xt (x.const_true ()), yt (y.const_true ());
+
+      if (xt && yt)
+        return x;
+
+      if (xt)
+        return y;
+
+      if (yt)
+        return x;
+
+      query r ("(");
+      r += x;
+      r += ") AND (";
+      r += y;
+      r += ")";
+      return r;
+    }
+
+    query
+    operator|| (const query& x, const query& y)
+    {
+      query r ("(");
+      r += x;
+      r += ") OR (";
+      r += y;
+      r += ")";
+      return r;
+    }
+
+    query
+    operator! (const query& x)
+    {
+      query r ("NOT (");
+      r += x;
+      r += ")";
+      return r;
     }
   }
 }
