@@ -77,10 +77,10 @@ struct person
   #pragma db id
   unsigned long id;
 
-  #pragma db column ("first")
+  #pragma db column("first")
   std::string first_name_;
 
-  #pragma db column ("last")
+  #pragma db column("last")
   std::string last_name_;
 
   unsigned short age;
@@ -383,10 +383,10 @@ struct view7
   query (wife::husband.is_not_null ())
 struct view8
 {
-  #pragma db column (wife::first_name_)
+  #pragma db column(wife::first_name_)
   std::string wife_name;
 
-  #pragma db column (husb::first_name_)
+  #pragma db column(husb::first_name_)
   std::string husb_name;
 };
 
@@ -421,8 +421,17 @@ struct view11
 {
   std::string last_name;
 
-  #pragma db column (person::measures.hight)
+  #pragma db column(person::measures.hight)
   unsigned short hight;
+};
+
+//
+// Extract object pointer as object id.
+//
+#pragma db view object(person)
+struct view12
+{
+  std::string residence;
 };
 
 #endif // TEST_HXX

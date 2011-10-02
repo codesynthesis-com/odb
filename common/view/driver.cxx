@@ -575,6 +575,29 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+    // view12
+    //
+    {
+      typedef odb::query<view12> query;
+      typedef odb::result<view12> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          result r (db->query<view12> (query::last_name == "Dirt"));
+
+          result::iterator i (r.begin ());
+
+          assert (i != r.end ());
+          assert (i->residence == "US");
+          assert (++i == r.end ());
+        }
+
+        t.commit ();
+      }
+    }
   }
   catch (const odb::exception& e)
   {
