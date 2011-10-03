@@ -67,10 +67,7 @@ fi
 #
 if test x"$libqt_found" = xno; then
 
-  save_CPPFLAGS="$CPPFLAGS"
   save_LIBS="$LIBS"
-
-  CPPFLAGS="$CPPFLAGS -framework QtCore"
   LIBS="-framework QtCore $LIBS"
 
   CXX_LIBTOOL_LINK_IFELSE(
@@ -91,7 +88,6 @@ libqt_found=yes
 ])
 
   if test x"$libqt_found" = xno; then
-    CPPFLAGS="$save_CPPFLAGS"
     LIBS="$save_LIBS"
   fi
 fi
