@@ -38,6 +38,9 @@ namespace odb
       id_float,
       id_double,
 
+      // Both large fixed-point and large floating point NUMBER and FLOAT
+      // values are mapped to this id.
+      //
       id_big_float,
 
       id_date,
