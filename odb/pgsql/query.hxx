@@ -386,13 +386,13 @@ namespace odb
       return r;
     }
 
-    query
+    LIBODB_PGSQL_EXPORT query
     operator&& (const query&, const query&);
 
-    query
+    LIBODB_PGSQL_EXPORT query
     operator|| (const query&, const query&);
 
-    query
+    LIBODB_PGSQL_EXPORT query
     operator! (const query&);
 
     // query_column
