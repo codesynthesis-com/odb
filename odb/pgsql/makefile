@@ -20,6 +20,7 @@ traits.cxx                \
 transaction.cxx           \
 transaction-impl.cxx      \
 query.cxx                 \
+query-const-expr.cxx      \
 details/endian-traits.cxx
 
 cli_tun := details/options.cli
