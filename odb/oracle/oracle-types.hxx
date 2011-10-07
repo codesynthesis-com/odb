@@ -86,8 +86,7 @@ namespace odb
         last           // Used as an end of list marker.
       };
 
-      buffer_type type; // The type stored by buffer. This must be an external
-                        // OCI type identifier of the form SQLT_XXX.
+      buffer_type type; // The type stored by buffer.
       void* buffer;     // Data buffer pointer.
       ub2* size;        // The number of bytes in buffer. When parameter
                         // callbacks are in use, this is interpreted as a ub4*
