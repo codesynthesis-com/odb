@@ -93,11 +93,11 @@ namespace odb
       //
       typename object_traits::image_type& im (statements_.image ());
 
-      if (im.version != statements_.out_image_version ())
+      if (im.version != statements_.select_image_version ())
       {
-        binding& b (statements_.out_image_binding ());
-        object_traits::bind (b.bind, im, true);
-        statements_.out_image_version (im.version);
+        binding& b (statements_.select_image_binding ());
+        object_traits::bind (b.bind, im, statement_select);
+        statements_.select_image_version (im.version);
         b.version++;
       }
 
@@ -105,14 +105,14 @@ namespace odb
 
       if (r == select_statement::truncated)
       {
-        if (object_traits::grow (im, statements_.out_image_truncated ()))
+        if (object_traits::grow (im, statements_.select_image_truncated ()))
           im.version++;
 
-        if (im.version != statements_.out_image_version ())
+        if (im.version != statements_.select_image_version ())
         {
-          binding& b (statements_.out_image_binding ());
-          object_traits::bind (b.bind, im, true);
-          statements_.out_image_version (im.version);
+          binding& b (statements_.select_image_binding ());
+          object_traits::bind (b.bind, im, statement_select);
+          statements_.select_image_version (im.version);
           b.version++;
           statement_->reload ();
         }

@@ -27,33 +27,45 @@ namespace odb
     object_statements (connection_type& conn)
         : object_statements_base (conn),
           container_statement_cache_ (conn),
-          in_image_binding_ (in_image_bind_, object_traits::in_column_count),
-          in_image_native_binding_ (in_image_values_,
-                                    in_image_lengths_,
-                                    in_image_formats_,
-                                    object_traits::in_column_count),
-          out_image_binding_ (out_image_bind_,
-                              object_traits::out_column_count),
-          id_image_binding_ (in_image_bind_ + object_traits::in_column_count,
-                             1),
+          // select
+          select_image_binding_ (select_image_bind_, select_column_count),
+          // insert
+          insert_image_binding_ (insert_image_bind_, insert_column_count),
+          insert_image_native_binding_ (insert_image_values_,
+                                        insert_image_lengths_,
+                                        insert_image_formats_,
+                                        insert_column_count),
+          // update
+          update_image_binding_ (update_image_bind_, update_column_count),
+          update_image_native_binding_ (update_image_values_,
+                                        update_image_lengths_,
+                                        update_image_formats_,
+                                        update_column_count),
+          // id
+          id_image_binding_ (update_image_bind_ + update_column_count,
+                             id_column_count),
           id_image_native_binding_ (
-            in_image_values_ + object_traits::in_column_count,
-            in_image_lengths_ + object_traits::in_column_count,
-            in_image_formats_ + object_traits::in_column_count, 1)
+            update_image_values_ + update_column_count,
+            update_image_lengths_ + update_column_count,
+            update_image_formats_ + update_column_count,
+            id_column_count)
     {
       image_.version = 0;
-      in_image_version_ = 0;
-      out_image_version_ = 0;
+      select_image_version_ = 0;
+      insert_image_version_ = 0;
+      update_image_version_ = 0;
 
       id_image_.version = 0;
       id_image_version_ = 0;
 
-      std::memset (in_image_bind_, 0, sizeof (in_image_bind_));
-      std::memset (out_image_bind_, 0, sizeof (out_image_bind_));
-      std::memset (out_image_truncated_, 0, sizeof (out_image_truncated_));
+      std::memset (insert_image_bind_, 0, sizeof (insert_image_bind_));
+      std::memset (update_image_bind_, 0, sizeof (update_image_bind_));
+      std::memset (select_image_bind_, 0, sizeof (select_image_bind_));
+      std::memset (
+        select_image_truncated_, 0, sizeof (select_image_truncated_));
 
-      for (std::size_t i (0); i < object_traits::out_column_count; ++i)
-        out_image_bind_[i].truncated = out_image_truncated_ + i;
+      for (std::size_t i (0); i < select_column_count; ++i)
+        select_image_bind_[i].truncated = select_image_truncated_ + i;
     }
 
     template <typename T>
