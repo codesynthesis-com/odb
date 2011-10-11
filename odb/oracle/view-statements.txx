@@ -28,7 +28,7 @@ namespace odb
       std::memset (image_bind_, 0, sizeof (image_bind_));
       std::memset (image_indicator_, 0, sizeof (image_indicator_));
 
-      for (std::size_t i (0) i < view_traits::column_count; ++i)
+      for (std::size_t i (0); i < view_traits::column_count; ++i)
         image_bind_[i].indicator = image_indicator_ + i;
     }
   }
