@@ -207,11 +207,37 @@ namespace odb
             b->type == bind::clob ||
             b->type == bind::nclob)
         {
+          // When binding a LOB result, the bind::size member is reinterpreted
+          // as a pointer to an auto_descriptor<OCILobLocator>. If the
+          // descriptor has not yet been allocated, it is allocated now.
+          //
+          auto_descriptor<OCILobLocator>* lob (
+            reinterpret_cast<auto_descriptor<OCILobLocator>*>  (b->size));
+
+          if (lob->get () == 0)
+          {
+            OCILobLocator* h (0);
+
+            sword r (OCIDescriptorAlloc (conn_.database ().environment (),
+                                         reinterpret_cast<void**> (&h),
+                                         OCI_DTYPE_LOB,
+                                         0,
+                                         0));
+
+            // OCIDescriptorAlloc will return OCI_SUCCESS on success, or
+            // OCI_INVALID_HANDLE on an out-of-memory condition.
+            //
+            if (r != OCI_SUCCESS)
+              throw bad_alloc ();
+
+            lob->reset (h);
+          }
+
           sword r (OCIDefineByPos (stmt_,
                                    &h,
                                    err,
                                    i,
-                                   reinterpret_cast<OCILobLocator*> (b->size),
+                                   lob,
                                    sizeof (OCILobLocator*),
                                    sqlt_lookup[b->type],
                                    b->indicator,

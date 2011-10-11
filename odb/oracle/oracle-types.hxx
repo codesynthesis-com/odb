@@ -10,6 +10,7 @@
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/oracle-fwd.hxx>
+#include <odb/oracle/auto-descriptor.hxx>
 
 namespace odb
 {
@@ -92,7 +93,7 @@ namespace odb
                         // callbacks are in use, this is interpreted as a ub4*
                         // indicating the current position. When result
                         // callbacks are in use, this is interpreted as an
-                        // OCILobLocator*.
+                        // auto_descriptor<OCILobLocator>*.
       ub4 capacity;     // The maximum number of bytes that can be stored in
                         // buffer.
       sb2* indicator;   // Pointer to an OCI indicator variable.

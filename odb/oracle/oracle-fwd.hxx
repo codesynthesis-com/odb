@@ -24,6 +24,9 @@ typedef struct OCIStmt OCIStmt;
 typedef struct OCIAuthInfo OCIAuthInfo;
 typedef struct OCITrans OCITrans;
 
+typedef struct OCIParam OCIParam;
+typedef struct OCILobLocator OCILobLocator;
+
 #include <odb/post.hxx>
 
 #endif // ODB_ORACLE_ORACLE_FWD_HXX
