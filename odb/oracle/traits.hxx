@@ -407,7 +407,7 @@ namespace odb
     struct big_int_value_traits<T, false>
     {
       static void
-      set_value (T v, char* b, bool is_null)
+      set_value (T v, const char* b, bool is_null)
       {
         if (!is_null)
           v = static_cast<T> (details::number_to_int64 (b));
@@ -427,7 +427,7 @@ namespace odb
     struct big_int_value_traits<T, true>
     {
       static void
-      set_value (T v, char* b, bool is_null)
+      set_value (T v, const char* b, bool is_null)
       {
         if (!is_null)
           v = static_cast<T> (details::number_to_uint64 (b));
