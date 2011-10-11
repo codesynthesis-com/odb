@@ -260,7 +260,21 @@ namespace odb
         vtraits::set_image (i, is_null, wtraits::get_ref (v));
       }
 
-      // big_int, big_float, timestamp, string, nstring, raw.
+      // big_int, big_float.
+      //
+      static void
+      set_value (W& v, const char* i, bool is_null)
+      {
+        vtraits::set_value (wtraits::set_ref (v), i, is_null);
+      }
+
+      static void
+      set_image (char* i, std::size_t& n, bool& is_null, const W& v)
+      {
+        vtraits::set_image (i, n, is_null, wtraits::get_ref (v));
+      }
+
+      // timestamp, string, nstring, raw.
       //
       static void
       set_value (W& v, const char* i, std::size_t n, bool is_null)
@@ -326,7 +340,27 @@ namespace odb
           vtraits::set_image (i, is_null, wtraits::get_ref (v));
       }
 
-      // big_int, big_float, timestamp, string, nstring, raw.
+      // big_int, big_float.
+      //
+      static void
+      set_value (W& v, const char& i, bool is_null)
+      {
+        if (is_null)
+          wtraits::set_null (v);
+        else
+          vtraits::set_value (wtraits::set_ref (v), i, is_null);
+      }
+
+      static void
+      set_image (char* i, std::size_t& n, bool& is_null, const W& v)
+      {
+        is_null = wtraits::get_null (v);
+
+        if (!is_null)
+          vtraits::set_image (i, n, is_null, wtraits::get_ref (v));
+      }
+
+      // timestamp, string, nstring, raw.
       //
       static void
       set_value (W& v, const char* i, std::size_t n, bool is_null)
@@ -416,10 +450,10 @@ namespace odb
       }
 
       static void
-      set_image (char* b, bool& is_null, T v)
+      set_image (char* b, std::size_t& n, bool& is_null, T v)
       {
         is_null = false;
-        details::int64_to_number (b, static_cast<long long> (v));
+        details::int64_to_number (b, n, static_cast<long long> (v));
       }
     };
 
@@ -436,10 +470,10 @@ namespace odb
       }
 
       static void
-      set_image (char* b, bool& is_null, T v)
+      set_image (char* b, std::size_t& n, bool& is_null, T v)
       {
         is_null = false;
-        details::uint64_to_number (b, static_cast<unsigned long long> (v));
+        details::uint64_to_number (b, n, static_cast<unsigned long long> (v));
       }
     };
 

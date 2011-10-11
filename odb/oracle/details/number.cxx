@@ -102,7 +102,7 @@ namespace odb
       }
 
       void
-      int64_to_number (char* b, long long v)
+      int64_to_number (char* b, size_t& n, long long v)
       {
         // We assume that b is long enough to contain a long long VARNUM
         // representation, that being 12 bytes.
@@ -121,8 +121,8 @@ namespace odb
         }
 
         bool sig (false);
-        size_t n (0);
         unsigned char t[11], *m (t);
+        n = 0;
 
         if (v < 0)
         {
@@ -169,6 +169,7 @@ namespace odb
         // Set the length.
         //
         ub[0] = static_cast<unsigned char> (m - t + 1);
+        n = static_cast<size_t> (ub[0] + 1);
 
         // Set the significant digits in big-endian byte order and the
         // terminator, if any.
@@ -227,7 +228,7 @@ namespace odb
       }
 
       void
-      uint64_to_number (char* b, unsigned long long v)
+      uint64_to_number (char* b, size_t& n, unsigned long long v)
       {
         // We assume that b is long enough to contain an unsigned long long
         // VARNUM representation, that being 12 bytes.
@@ -246,8 +247,8 @@ namespace odb
         }
 
         bool sig (false);
-        size_t n (0);
         unsigned char t[11], *m (t);
+        n = 0;
 
         while (v != 0)
         {
@@ -268,6 +269,7 @@ namespace odb
         // Set the length.
         //
         ub[0] = static_cast<unsigned char> (m - t + 1);
+        n = static_cast<size_t> (ub[0] + 1);
 
         // Set the significant digits in big-endian byte order.
         //

@@ -7,6 +7,9 @@
 #define ODB_ORACLE_NUMBER_HXX
 
 #include <odb/pre.hxx>
+
+#include <cstddef>  // std::size_t
+
 #include <odb/oracle/details/export.hxx>
 
 namespace odb
@@ -27,13 +30,13 @@ namespace odb
       number_to_int64 (const char* buffer);
 
       LIBODB_ORACLE_EXPORT void
-      int64_to_number (char* buffer, long long value);
+      int64_to_number (char* buffer, std::size_t& n, long long val);
 
       LIBODB_ORACLE_EXPORT unsigned long long
       number_to_uint64 (const char* buffer);
 
       LIBODB_ORACLE_EXPORT void
-      uint64_to_number (char* buffer, unsigned long long value);
+      uint64_to_number (char* buffer, std::size_t& n, unsigned long long val);
     }
   }
 }
