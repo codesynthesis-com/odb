@@ -18,5 +18,6 @@ namespace odb
     }
 
     const ub4 descriptor_type_traits<OCIParam>::dtype = OCI_DTYPE_PARAM;
+    const ub4 descriptor_type_traits<OCILobLocator>::dtype = OCI_DTYPE_LOB;
   }
 }

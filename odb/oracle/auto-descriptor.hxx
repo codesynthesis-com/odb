@@ -28,6 +28,11 @@ namespace odb
     struct descriptor_type_traits<OCIParam>
     { static const ub4 dtype; };
 
+    template <>
+    struct descriptor_type_traits<OCILobLocator>
+    { static const ub4 dtype; };
+
+
     //
     // descriptor_traits
     //
@@ -39,7 +44,7 @@ namespace odb
     struct descriptor_traits
     {
       static void
-      release (OCIParam* d)
+      release (D* d)
       {
         oci_descriptor_free (d, descriptor_type_traits<D>::dtype);
       }
