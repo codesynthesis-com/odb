@@ -75,11 +75,11 @@ namespace odb
         return error_;
       }
 
-      // statement_cache_type&
-      // statement_cache ()
-      // {
-      //   return *statement_cache_;
-      // }
+      statement_cache_type&
+      statement_cache ()
+      {
+        return *statement_cache_;
+      }
 
     private:
       connection (const connection&);
@@ -95,7 +95,7 @@ namespace odb
 
       auto_handle<OCISvcCtx> handle_;
 
-      // std::auto_ptr<statement_cache_type> statement_cache_;
+      std::auto_ptr<statement_cache_type> statement_cache_;
     };
   }
 }

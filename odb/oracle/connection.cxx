@@ -13,8 +13,7 @@
 #include <odb/oracle/error.hxx>
 #include <odb/oracle/exceptions.hxx>
 #include <odb/oracle/auto-descriptor.hxx>
-
-// #include <odb/oracle/statement-cache.hxx>
+#include <odb/oracle/statement-cache.hxx>
 
 using namespace std;
 
@@ -25,8 +24,9 @@ namespace odb
     connection::
     connection (database_type& db)
         : odb::connection (db),
-          db_ (db)
-          // statement_cache_ (new statement_cache_type (*this))
+          db_ (db),
+          statement_cache_ (new statement_cache_type (*this)),
+          lob_buffer_ (0)
     {
       sword r (0);
 
@@ -108,8 +108,9 @@ namespace odb
     connection::
     connection (database_type& db, OCISvcCtx* handle)
         : odb::connection (db),
-          db_ (db)
-          // statement_cache_ (new statement_cache_type (*this))
+          db_ (db),
+          statement_cache_ (new statement_cache_type (*this)),
+          lob_buffer_ (0)
     {
       sword r (0);
 
@@ -135,7 +136,7 @@ namespace odb
     {
       // Deallocate prepared statements before we close the connection.
       //
-      // statement_cache_.reset ();
+      statement_cache_.reset ();
     }
 
     transaction_impl* connection::
