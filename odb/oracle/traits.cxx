@@ -108,32 +108,18 @@ namespace odb
 
     bool string_lob_value_traits::
     param_callback (const void* ctx,
-                    ub4* pos_ctx,
-                    void** b,
+                    ub4*,
+                    const void** b,
                     ub4* s,
                     chunk_position* p,
-                    void* temp_b,
-                    ub4 cap)
+                    void*,
+                    ub4)
     {
       const string& v (*static_cast<const string*> (ctx));
 
-      // @@ We rely on *pos_ctx == 0 for the first call. Make sure that this is
-      // set by the generated code, and update comment in oracle-types.hxx
-      // specifying that this is so.
-      //
-      *s = static_cast<ub4> (v.size ()) - *pos_ctx;
-
-      if (*s <= cap)
-        *p = *pos_ctx == 0 ? one_chunk : last_chunk;
-      else
-      {
-        *p = *pos_ctx == 0 ? first_chunk : next_chunk;
-        *s = cap;
-        *pos_ctx += *s;
-      }
-
-      *b = temp_b;
-      memcpy (temp_b, v.c_str () + *pos_ctx, *s);
+      *p= one_chunk;
+      *s= static_cast<ub4> (v.size ());
+      *b = v.c_str ();
 
       return true;
     }
@@ -144,32 +130,18 @@ namespace odb
 
     bool c_string_lob_value_traits::
     param_callback (const void* ctx,
-                    ub4* pos_ctx,
-                    void** b,
+                    ub4*,
+                    const void** b,
                     ub4* s,
                     chunk_position* p,
-                    void* temp_b,
-                    ub4 cap)
+                    void*,
+                    ub4)
     {
       const char* v (static_cast<const char*> (ctx));
 
-      // @@ We rely on *pos_ctx == 0 for the first call. Make sure that this is
-      // set by the generated code, and update comment in oracle-types.hxx
-      // specifying that this is so.
-      //
-      *s = static_cast<ub4> (strlen (v)) - *pos_ctx;
-
-      if (*s <= cap)
-        *p = *pos_ctx == 0 ? one_chunk : last_chunk;
-      else
-      {
-        *p = *pos_ctx == 0 ? first_chunk : next_chunk;
-        *s = cap;
-        *pos_ctx += *s;
-      }
-
-      *b = temp_b;
-      memcpy (temp_b, v + *pos_ctx, *s);
+      *p = one_chunk;
+      *s = static_cast<ub4> (strlen (v));
+      *b = v;
 
       return true;
     }
@@ -206,32 +178,18 @@ namespace odb
 
     bool default_value_traits<std::vector<char>, id_blob>::
     param_callback (const void* ctx,
-                    ub4* pos_ctx,
-                    void** b,
+                    ub4*,
+                    const void** b,
                     ub4* s,
                     chunk_position* p,
-                    void* temp_b,
-                    ub4 cap)
+                    void*,
+                    ub4)
     {
       const value_type& v (*static_cast<const value_type*> (ctx));
 
-      // @@ We rely on *position_context == 0 for the first call. Make sure
-      // that this is set by the generated code and update the comment in
-      // oracle-types.hxx specifying that this is so.
-      //
-      *s = static_cast<ub4> (v.size ()) - *pos_ctx;
-
-      if (*s <= cap)
-        *p = *pos_ctx == 0 ? one_chunk : last_chunk;
-      else
-      {
-        *p = *pos_ctx == 0 ? first_chunk : next_chunk;
-        *s = cap;
-        *pos_ctx += *s;
-      }
-
-      *b = temp_b;
-      memcpy (temp_b, &v[*pos_ctx], *s);
+      *p = one_chunk;
+      *s = static_cast<ub4> (v.size ());
+      *b = &v.front ();
 
       return true;
     }
