@@ -56,6 +56,28 @@ namespace odb
     }
 
     //
+    // default_value_traits<vector<char>, id_raw>
+    //
+
+    void default_value_traits<vector<char>, id_raw>::
+    set_image (char* b,
+               size_t c,
+               size_t& n,
+               bool& is_null,
+               const value_type& v)
+    {
+      is_null = false;
+      n = v.size ();
+
+      assert (n <= c);
+
+      // std::vector::data() may not be available in older compilers.
+      //
+      if (n != 0)
+        memcpy (b, &v.front (), n);
+    }
+
+    //
     // string_lob_value_traits
     //
 

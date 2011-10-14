@@ -582,6 +582,33 @@ namespace odb
     {
     };
 
+    // std::vector specialization for RAW.
+    //
+    template <>
+    struct default_value_traits<std::vector<char>, id_raw>
+    {
+    public:
+      typedef std::vector<char> value_type;
+      typedef std::vector<char> query_type;
+      typedef lob_callback image_type;
+
+      static void
+      set_value (value_type& v, const char* b, std::size_t n, bool is_null)
+      {
+        if (!is_null)
+          v.assign (b, b + n);
+        else
+          v.clear ();
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v);
+    };
+
     // std::string specialization for LOBs.
     //
     class string_lob_value_traits
