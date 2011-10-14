@@ -8,6 +8,9 @@
 
 #include <odb/pre.hxx>
 
+// @@
+#include <iostream>
+
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
@@ -441,7 +444,7 @@ namespace odb
     struct big_int_value_traits<T, false>
     {
       static void
-      set_value (T v, const char* b, bool is_null)
+      set_value (T& v, const char* b, bool is_null)
       {
         if (!is_null)
           v = static_cast<T> (details::number_to_int64 (b));
@@ -461,7 +464,7 @@ namespace odb
     struct big_int_value_traits<T, true>
     {
       static void
-      set_value (T v, const char* b, bool is_null)
+      set_value (T& v, const char* b, bool is_null)
       {
         if (!is_null)
           v = static_cast<T> (details::number_to_uint64 (b));
@@ -508,7 +511,7 @@ namespace odb
       }
 
       static void
-      set_image (char*,
+      set_image (char* b,
                  std::size_t c,
                  std::size_t& n,
                  bool& is_null,
@@ -738,7 +741,8 @@ namespace odb
       c_string_lob_value_traits
     {
     };
-    // std::vector<char> (buffer) specialization.
+
+    // std::vector<char> (buffer) specialization for BLOBs.
     //
     template <>
     struct default_value_traits<std::vector<char>, id_blob>
