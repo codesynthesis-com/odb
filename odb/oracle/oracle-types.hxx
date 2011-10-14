@@ -81,6 +81,7 @@ namespace odb
         timestamp,     // Buffer is a variable length char array.
         string,        // Buffer is a variable length char array.
         nstring,       // Buffer is a variable length char array.
+        raw,           // Buffer is a variable length char array.
         blob,          // Bind is a callback.
         clob,          // Bind is a callback.
         nclob,         // Bind is a callback.

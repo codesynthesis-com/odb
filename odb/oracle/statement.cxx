@@ -28,18 +28,19 @@ namespace odb
     //
     static ub4 sqlt_lookup[bind::last] =
     {
-      SQLT_INT,
-      SQLT_UIN,
-      SQLT_BFLOAT,
-      SQLT_BDOUBLE,
-      SQLT_VNU,
-      SQLT_DAT,
-      SQLT_TIMESTAMP,
-      SQLT_CHR,
-      SQLT_CHR,
-      SQLT_BLOB,
-      SQLT_CLOB,
-      SQLT_CLOB
+      SQLT_INT,       // bind::integer
+      SQLT_UIN,       // bind::uinteger
+      SQLT_BFLOAT,    // bind::binary_float
+      SQLT_BDOUBLE,   // bind::binary_double
+      SQLT_VNU,       // bind::number
+      SQLT_DAT,       // bind::date
+      SQLT_TIMESTAMP, // bind::timestamp
+      SQLT_CHR,       // bind::string
+      SQLT_CHR,       // bind::nstring
+      SQLT_BIN,       // bind::raw
+      SQLT_BLOB,      // bind::blob
+      SQLT_CLOB,      // bind::clob
+      SQLT_CLOB       // bind::nclob
     };
 
     static sb4
