@@ -302,7 +302,7 @@ namespace odb
 
       static void
       set_image (param_callback_type& cb,
-                 void*& context,
+                 const void*& context,
                  bool& is_null,
                  const W& v)
       {
@@ -397,7 +397,7 @@ namespace odb
 
       static void
       set_image (param_callback_type& cb,
-                 void*& context,
+                 const void*& context,
                  bool& is_null,
                  const W& v)
       {

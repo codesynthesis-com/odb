@@ -80,13 +80,13 @@ namespace odb
       if (*b.indicator != -1)
       {
         chunk_position pos;
-        if (!(*b.callback.param) (&b.callback_context,
-                                  reinterpret_cast<ub4*> (b.size),
-                                  const_cast<const void**> (buffer),
-                                  size,
-                                  &pos,
-                                  b.buffer,
-                                  b.capacity))
+        if (!(*b.callback->param) (b.context->param,
+                                   reinterpret_cast<ub4*> (b.size),
+                                   const_cast<const void**> (buffer),
+                                   size,
+                                   &pos,
+                                   b.buffer,
+                                   b.capacity))
           return OCI_ERROR;
 
         switch (pos)
@@ -350,8 +350,7 @@ namespace odb
         if ((b->type == bind::blob ||
              b->type == bind::clob ||
              b->type == bind::nclob) &&
-            *b->indicator != -1 &&
-            b->callback.result != 0)
+            *b->indicator != -1 && b->callback->result != 0)
         {
           // If b->capacity is 0, we will be stuck in an infinite loop.
           //
@@ -404,10 +403,10 @@ namespace odb
             // OCI generates and ORA-24343 error when an error code is
             // returned from a user callback. We simulate this.
             //
-            if (!(*b->callback.result) (b->callback_context,
-                                        b->buffer,
-                                        static_cast<ub4> (read),
-                                        cp))
+            if (!(*b->callback->result) (b->context->result,
+                                         b->buffer,
+                                         static_cast<ub4> (read),
+                                         cp))
               throw database_exception (24343, "user defined callback error");
 
           } while (r == OCI_NEED_DATA);

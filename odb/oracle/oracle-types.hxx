@@ -59,6 +59,12 @@ namespace odb
       result_callback_type result;
     };
 
+    union lob_context
+    {
+      const void* param;
+      void* result;
+    };
+
     struct bind
     {
       // This enumeration identifies the possible buffer types that can be
@@ -101,12 +107,12 @@ namespace odb
                         // buffer.
       sb2* indicator;   // Pointer to an OCI indicator variable.
 
-      lob_callback callback;
+      lob_callback* callback;
 
       // This pointer is provided to the user through the context argument
       // in both parameter and result callback functions.
       //
-      void* callback_context;
+      lob_context* context;
     };
   }
 }
