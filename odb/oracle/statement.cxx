@@ -437,7 +437,7 @@ namespace odb
                       size_t lob_prefetch_size)
         : statement (conn, s),
           data_ (data),
-          done_ (false)
+          done_ (true)
     {
       bind_param (cond.bind, cond.count, 0);
       bind_result (data.bind, data.count, lob_prefetch_size);
@@ -450,7 +450,7 @@ namespace odb
                       size_t lob_prefetch_size)
         : statement (conn, s),
           data_ (data),
-          done_ (false)
+          done_ (true)
     {
       bind_result (data.bind, data.count, lob_prefetch_size);
     }
@@ -493,6 +493,8 @@ namespace odb
       //
       assert (n == data_.count);
 #endif
+
+      done_ = false;
     }
 
     select_statement::result select_statement::
