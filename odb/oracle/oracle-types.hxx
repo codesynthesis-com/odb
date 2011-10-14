@@ -31,8 +31,10 @@ namespace odb
     typedef bool (*param_callback_type) (
       const void* context,   // [in] The user context.
       ub4* position_context, // [in] A position context. A callback is free to
-                             // use this to track position information.
-      void** buffer,         // [out] On return, a pointer to a buffer
+                             // use this to track position information. This is
+                             // initialized to zero before the callback is
+                             // invoked for the first time.
+      const void** buffer,   // [out] On return, a pointer to a buffer
                              // containing parameter data.
       ub4* size,             // [out] The parameter data size in bytes.
       chunk_position*,       // [out] The position of the chunk of data in

@@ -623,7 +623,7 @@ namespace odb
       static bool
       param_callback (const void* context,
                       ub4* position_context,
-                      void** buffer,
+                      const void** buffer,
                       ub4* size,
                       chunk_position*,
                       void* temp_buffer,
@@ -669,7 +669,7 @@ namespace odb
       static bool
       param_callback (const void* context,
                       ub4* position_context,
-                      void** buffer,
+                      const void** buffer,
                       ub4* size,
                       chunk_position*,
                       void* temp_buffer,
@@ -753,7 +753,7 @@ namespace odb
       static bool
       param_callback (const void* context,
                       ub4* position_context,
-                      void** buffer,
+                      const void** buffer,
                       ub4* size,
                       chunk_position*,
                       void* temp_buffer,

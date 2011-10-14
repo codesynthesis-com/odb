@@ -82,7 +82,7 @@ namespace odb
         chunk_position pos;
         if (!(*b.callback.param) (&b.callback_context,
                                   reinterpret_cast<ub4*> (b.size),
-                                  buffer,
+                                  const_cast<const void**> (buffer),
                                   size,
                                   &pos,
                                   b.buffer,
