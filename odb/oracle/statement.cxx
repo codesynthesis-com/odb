@@ -23,10 +23,30 @@ namespace odb
 {
   namespace oracle
   {
-    // Mapping of bind::buffer_type values to there equivalent external
-    // OCI typecode identifiers.
+    // Mapping of bind::buffer_type values for parameter buffers to their
+    // equivalent external OCI typecode identifiers.
     //
-    static ub4 sqlt_lookup[bind::last] =
+    static ub4 param_sqlt_lookup[bind::last] =
+    {
+      SQLT_INT,       // bind::integer
+      SQLT_UIN,       // bind::uinteger
+      SQLT_BFLOAT,    // bind::binary_float
+      SQLT_BDOUBLE,   // bind::binary_double
+      SQLT_VNU,       // bind::number
+      SQLT_DAT,       // bind::date
+      SQLT_TIMESTAMP, // bind::timestamp
+      SQLT_CHR,       // bind::string
+      SQLT_CHR,       // bind::nstring
+      SQLT_BIN,       // bind::raw
+      SQLT_LBI,       // bind::blob
+      SQLT_LNG,       // bind::clob
+      SQLT_LNG        // bind::nclob
+    };
+
+    // Mapping of bind::buffer_type values for result buffers to their
+    // equivalent external OCI typecode identifiers.
+    //
+    static ub4 result_sqlt_lookup[bind::last] =
     {
       SQLT_INT,       // bind::integer
       SQLT_UIN,       // bind::uinteger
@@ -156,7 +176,7 @@ namespace odb
                                o,
                                b->buffer,
                                static_cast<sb4> (b->capacity),
-                               sqlt_lookup[b->type],
+                               param_sqlt_lookup[b->type],
                                b->indicator,
                                b->size,
                                0,
@@ -240,7 +260,7 @@ namespace odb
                                    i,
                                    lob,
                                    sizeof (OCILobLocator*),
-                                   sqlt_lookup[b->type],
+                                   result_sqlt_lookup[b->type],
                                    b->indicator,
                                    0,
                                    0,
@@ -288,7 +308,7 @@ namespace odb
                                    i,
                                    b->buffer,
                                    static_cast<sb4> (b->capacity),
-                                   sqlt_lookup[b->type],
+                                   result_sqlt_lookup[b->type],
                                    b->indicator,
                                    b->size,
                                    0,
