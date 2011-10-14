@@ -169,21 +169,22 @@ namespace odb
         assert (b->type != bind::integer || b->capacity <= 4);
 #endif
 
+        bool callback (b->callback != 0);
         OCIBind* h (0);
+
         sword r (OCIBindByPos (stmt_,
                                &h,
                                err,
                                o,
-                               b->buffer,
+                               callback ? 0 : b->buffer,
                                static_cast<sb4> (b->capacity),
                                param_sqlt_lookup[b->type],
-                               b->indicator,
-                               b->size,
+                               callback ? 0 : b->indicator,
+                               callback ? 0 : b->size,
                                0,
                                0,
                                0,
-                               b->callback.param != 0 ?
-                               OCI_DATA_AT_EXEC : OCI_DEFAULT));
+                               callback ? OCI_DATA_AT_EXEC : OCI_DEFAULT));
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
@@ -203,7 +204,7 @@ namespace odb
             translate_error (err, r);
         }
 
-        if (b->callback.param != 0)
+        if (callback)
         {
           r = OCIBindDynamic (h, err, b, &param_callback_proxy, 0, 0);
 
