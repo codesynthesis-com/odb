@@ -116,7 +116,7 @@ namespace odb
       else
         *piece = OCI_ONE_PIECE;
 
-      *indicator = &b.indicator;
+      *indicator = b.indicator;
 
       return OCI_CONTINUE;
     }
@@ -158,7 +158,7 @@ namespace odb
       //
       ++o;
 
-      for (size_t e (o + c); o < e; ++c, ++b)
+      for (size_t e (o + c); o < e; ++o, ++b)
       {
 #if OCI_MAJOR_VERSION < 11 || \
   (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION < 2)
@@ -166,7 +166,8 @@ namespace odb
         // version is unable to implicitly convert the NUMBER binary data
         // to the relevant type.
         //
-        assert (b->type != bind::integer || b->capacity <= 4);
+        assert ((b->type != bind::integer && b->type != bind::uinteger) ||
+                b->capacity <= 4);
 #endif
 
         bool callback (b->callback != 0);
@@ -234,7 +235,7 @@ namespace odb
           // descriptor has not yet been allocated, it is allocated now.
           //
           auto_descriptor<OCILobLocator>* lob (
-            reinterpret_cast<auto_descriptor<OCILobLocator>*>  (b->size));
+            reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->size));
 
           if (lob->get () == 0)
           {
@@ -250,7 +251,7 @@ namespace odb
             // OCI_INVALID_HANDLE on an out-of-memory condition.
             //
             if (r != OCI_SUCCESS)
-              throw bad_alloc ();
+              throw invalid_oci_handle ();
 
             lob->reset (h);
           }
@@ -299,7 +300,7 @@ namespace odb
           // version is unable to implicitly convert the NUMBER binary data
           // to the relevant type.
           //
-          assert ((b->type != bind::integer || b->type != bind::uinteger) &&
+          assert ((b->type != bind::integer && b->type != bind::uinteger) ||
                   b->capacity <= 4);
 #endif
 
@@ -323,7 +324,7 @@ namespace odb
             ub1 form (SQLCS_NCHAR);
 
             r = OCIAttrSet (h,
-                            OCI_HTYPE_BIND,
+                            OCI_HTYPE_DEFINE,
                             &form,
                             0,
                             OCI_ATTR_CHARSET_FORM,
@@ -356,7 +357,8 @@ namespace odb
           //
           assert (b->capacity != 0);
 
-          OCILobLocator* locator (reinterpret_cast<OCILobLocator*> (b->size));
+          auto_descriptor<OCILobLocator>& locator (
+            *reinterpret_cast<auto_descriptor<OCILobLocator>* > (b->size));
 
           ub1 piece (OCI_FIRST_PIECE);
 

@@ -200,7 +200,7 @@ namespace odb
 
         // Test the sign bit of the exponent.
         //
-        if (ub[1] & 0x80)
+        if ((ub[1] & 0x80) == 0)
         {
           assert (false);
           return 0;
