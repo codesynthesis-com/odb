@@ -1,0 +1,230 @@
+// file      : common/readonly/driver.cxx
+// author    : Boris Kolpackov <boris@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+// Test readonly members/objects.
+//
+
+#include <memory>   // std::auto_ptr
+#include <cassert>
+#include <iostream>
+
+#include <odb/database.hxx>
+#include <odb/transaction.hxx>
+
+#include <common/common.hxx>
+
+#include "test.hxx"
+#include "test-odb.hxx"
+
+using namespace std;
+using namespace odb::core;
+
+int
+main (int argc, char* argv[])
+{
+  try
+  {
+    auto_ptr<database> db (create_database (argc, argv));
+
+    // Simple.
+    //
+    {
+      simple o (1, 1);
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      o.ro++;
+      // const_cast<unsigned long&> (o.co)++;
+      o.rw++;
+
+      {
+        transaction t (db->begin ());
+        db->update (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        db->load<simple> (1, o);
+        t.commit ();
+      }
+
+      assert (o.ro == 1 && /*o.co == 1 &&*/ o.rw == 2);
+    }
+
+    // Pointer.
+    //
+    {
+      pointer p (1, new pointer (2));
+      auto_ptr<pointer> p1 (new pointer (3));
+
+      {
+        transaction t (db->begin ());
+        db->persist (p);
+        db->persist (p.ro);
+        db->persist (*p1);
+        t.commit ();
+      }
+
+      delete p.ro;
+      p.ro = p1.release ();
+      p.rw = p.ro;
+
+      {
+        transaction t (db->begin ());
+        db->update (p);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<pointer> p (db->load<pointer> (1));
+        t.commit ();
+
+        assert (p->ro->id == 2 && p->rw->id == 3);
+      }
+    }
+
+    // Composite.
+    //
+    {
+      composite o (1, 1);
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      o.ro.v++;
+      o.ro.ro++;
+      o.ro.rw++;
+
+      o.rw.v++;
+      o.rw.ro++;
+      o.rw.rw++;
+
+      o.v.v++;
+
+      {
+        transaction t (db->begin ());
+        db->update (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        db->load<composite> (1, o);
+        t.commit ();
+      }
+
+      assert (o.ro.v  == 1 &&
+              o.ro.ro == 1 &&
+              o.ro.rw == 1 &&
+
+              o.rw.v  == 1 &&
+              o.rw.ro == 1 &&
+              o.rw.rw == 2 &&
+
+              o.v.v   == 1);
+    }
+
+    // Container.
+    //
+    {
+      container o (1);
+
+      o.ro.push_back (1);
+      o.ro.push_back (2);
+
+      o.rw.push_back (1);
+      o.rw.push_back (2);
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      o.ro[0]++;
+      o.ro.pop_back ();
+
+      o.rw[0]++;
+      o.rw.pop_back ();
+
+      {
+        transaction t (db->begin ());
+        db->update (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        db->load<container> (1, o);
+        t.commit ();
+      }
+
+      assert (o.ro.size () == 2 && o.ro[0] == 1 && o.ro[1] == 2 &&
+              o.rw.size () == 1 && o.rw[0] == 2);
+    }
+
+    // Readonly object.
+    //
+    {
+      typedef odb::object_traits<ro_object> ro_traits;
+      typedef odb::object_traits<rw_object> rw_traits;
+
+      assert (ro_traits::column_count ==
+              ro_traits::id_column_count + ro_traits::readonly_column_count);
+
+      assert (rw_traits::column_count !=
+              rw_traits::id_column_count + rw_traits::readonly_column_count);
+
+      ro_object ro_o (1, 1);
+      rw_object rw_o (1, 1);
+
+      ro_o.cr.push_back (1);
+      ro_o.cr.push_back (2);
+
+      rw_o.cr.push_back (1);
+      rw_o.cr.push_back (2);
+
+      {
+        transaction t (db->begin ());
+        db->persist (ro_o);
+        db->persist (rw_o);
+        t.commit ();
+      }
+
+      rw_o.sv++;
+      rw_o.rw_sv++;
+
+      {
+        transaction t (db->begin ());
+        //db->update (ro_o); // Compile error.
+        db->update (rw_o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        db->load<ro_object> (1, ro_o);
+        db->load<ro_object> (1, rw_o);
+        t.commit ();
+      }
+
+      assert (rw_o.sv == 1 && rw_o.rw_sv == 2);
+    }
+  }
+  catch (const odb::exception& e)
+  {
+    cerr << e.what () << endl;
+    return 1;
+  }
+}

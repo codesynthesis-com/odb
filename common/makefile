@@ -20,6 +20,7 @@ inverse             \
 lazy-ptr            \
 lifecycle           \
 query               \
+readonly            \
 relationship        \
 relationship-query  \
 schema              \
@@ -37,6 +38,7 @@ auto               \
 container          \
 lazy-ptr           \
 lifecycle          \
+readonly           \
 schema             \
 wrapper
 
