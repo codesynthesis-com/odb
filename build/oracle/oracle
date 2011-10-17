@@ -66,6 +66,8 @@ elif [ -n "$service" ]; then
   conn="$conn@$service"
 fi
 
+opt="-S $opt"
+
 if [ -n "$1" ]; then
   exec $driver $opt $conn <$1
 else
