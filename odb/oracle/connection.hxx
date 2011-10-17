@@ -15,6 +15,7 @@
 #include <odb/connection.hxx>
 
 #include <odb/details/shared-ptr.hxx>
+#include <odb/details/buffer.hxx>
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
@@ -81,6 +82,12 @@ namespace odb
         return *statement_cache_;
       }
 
+      details::buffer&
+      lob_buffer ()
+      {
+        return lob_buffer_;
+      }
+
     private:
       connection (const connection&);
       connection& operator= (const connection&);
@@ -96,6 +103,8 @@ namespace odb
       auto_handle<OCISvcCtx> handle_;
 
       std::auto_ptr<statement_cache_type> statement_cache_;
+
+      details::buffer lob_buffer_;
     };
   }
 }

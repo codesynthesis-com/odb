@@ -97,12 +97,12 @@ namespace odb
       };
 
       buffer_type type; // The type stored by buffer.
-      void* buffer;     // Data buffer pointer.
+      void* buffer;     // Data buffer pointer. When result callbacks are in
+                        // use, this is interpreted as an
+                        // auto_descriptor<OCILobLocator>*.
       ub2* size;        // The number of bytes in buffer. When parameter
                         // callbacks are in use, this is interpreted as a ub4*
-                        // indicating the current position. When result
-                        // callbacks are in use, this is interpreted as an
-                        // auto_descriptor<OCILobLocator>*.
+                        // indicating the current position.
       ub4 capacity;     // The maximum number of bytes that can be stored in
                         // buffer.
       sb2* indicator;   // Pointer to an OCI indicator variable.

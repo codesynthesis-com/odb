@@ -4,6 +4,7 @@
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <cassert>
+#include <limits>
 
 #include <oci.h>
 
@@ -178,7 +179,13 @@ namespace odb
                                err,
                                o,
                                callback ? 0 : b->buffer,
-                               static_cast<sb4> (b->capacity),
+                               // When parameter callbacks are in use, set the
+                               // allowable data length to the maximum
+                               // possible.
+                               //
+                               callback
+                                 ? std::numeric_limits<sb4>::max ()
+                                 : static_cast<sb4> (b->capacity),
                                param_sqlt_lookup[b->type],
                                callback ? 0 : b->indicator,
                                callback ? 0 : b->size,
@@ -207,6 +214,9 @@ namespace odb
 
         if (callback)
         {
+          b->buffer = conn_.lob_buffer ().data ();
+          b->capacity = conn_.lob_buffer ().capacity ();
+
           r = OCIBindDynamic (h, err, b, &param_callback_proxy, 0, 0);
 
           if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
@@ -230,12 +240,12 @@ namespace odb
             b->type == bind::clob ||
             b->type == bind::nclob)
         {
-          // When binding a LOB result, the bind::size member is reinterpreted
-          // as a pointer to an auto_descriptor<OCILobLocator>. If the
-          // descriptor has not yet been allocated, it is allocated now.
+          // When binding a LOB result, the bind::buffer member is
+          // reinterpreted as a pointer to an auto_descriptor<OCILobLocator>.
+          // If the descriptor has not yet been allocated, it is allocated now.
           //
           auto_descriptor<OCILobLocator>* lob (
-            reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->size));
+            reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
 
           if (lob->get () == 0)
           {
@@ -352,12 +362,8 @@ namespace odb
              b->type == bind::nclob) &&
             *b->indicator != -1 && b->callback->result != 0)
         {
-          // If b->capacity is 0, we will be stuck in an infinite loop.
-          //
-          assert (b->capacity != 0);
-
           auto_descriptor<OCILobLocator>& locator (
-            *reinterpret_cast<auto_descriptor<OCILobLocator>* > (b->size));
+            *reinterpret_cast<auto_descriptor<OCILobLocator>* > (b->buffer));
 
           ub1 piece (OCI_FIRST_PIECE);
 
@@ -369,6 +375,10 @@ namespace odb
           ub8 read (0);
           ub1 cs_form (b->type == bind::nclob ? SQLCS_NCHAR : SQLCS_IMPLICIT);
 
+          // Allocate buffer space if necessary.
+          //
+          conn_.lob_buffer ().capacity (4096);
+
           sword r;
           do
           {
@@ -378,8 +388,8 @@ namespace odb
                              &read,
                              0,
                              1,
-                             b->buffer,
-                             b->capacity,
+                             conn_.lob_buffer ().data (),
+                             conn_.lob_buffer ().capacity (),
                              piece,
                              0,
                              0,
@@ -404,7 +414,7 @@ namespace odb
             // returned from a user callback. We simulate this.
             //
             if (!(*b->callback->result) (b->context->result,
-                                         b->buffer,
+                                         conn_.lob_buffer ().data (),
                                          static_cast<ub4> (read),
                                          cp))
               throw database_exception (24343, "user defined callback error");
