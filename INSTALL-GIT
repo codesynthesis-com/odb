@@ -4,9 +4,9 @@ checked out from the git repository.
 The major difference between using a released source code package and source
 code from the repository is that the former does not contain autotools-based
 makefiles or Visual Studio project files. Instead, it contains templates for
-these files as well as its own, custom build system. This build system is 
+these files as well as its own, custom build system. This build system is
 used for development as well as to automatically generate the autotools and
-Visual Studio files. 
+Visual Studio files.
 
 This file describes how to use this build system to build the package as well
 as to create a release-ready source distribution which contains the autotools
@@ -30,6 +30,12 @@ also need the following packages:
   - GNU sed  >= 4.0.0   http://www.gnu.org/software/sed/
   - tofrodos >= 1.7.0   http://www.thefreecountry.com/tofrodos/
 
+As we as the GNU autotools:
+
+  - GNU libtool  >= 2.2.6b  http://www.gnu.org/software/libtool/
+  - GNU autoconf >= 2.67    http://www.gnu.org/software/autoconf/
+  - GNU automake >= 1.11.1  http://www.gnu.org/software/automake/
+
 Any reasonably up to date GNU/Linux installation would normally have all of
 the above packages already present, except for build and maybe tofrodos.
 
@@ -39,7 +45,7 @@ Configuring and Building
 
 To build the source code simply run make in the root directory of the package.
 The first time you run make, the build process will also configure the
-package by asking you several questions. On the subsequent runs, make will 
+package by asking you several questions. On the subsequent runs, make will
 only rebuild what has changed.
 
 To run the automated test suite (if any), run 'make test'. To clean the object
