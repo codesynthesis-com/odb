@@ -927,13 +927,24 @@ profile_paths (strings const& sargs, char const* name)
       {
       case read_prefix:
         {
-          if (line == "#include <...> search starts here:")
+          // The English string that we are looking for is "#include <...>
+          // search starts here:" but it can be translated. However, all
+          // the translations seems to have the "#include" and "<...>"
+          // parts, so we can search for those.
+          //
+          if (line.find ("#include") != string::npos &&
+              line.find ("<...>") != string::npos)
             state = read_path;
           break;
         }
       case read_path:
         {
-          if (line == "End of search list.")
+          // The end of the list is terminated with the "End of search
+          // list." line, which, again, can be translated. Here we don't
+          // have any invariable parts that we can use. Instead, we will
+          // rely on the fact that all the paths are space-indented.
+          //
+          if (!line.empty () && line[0] != ' ')
             state = read_suffix;
           else
             // Paths are indented with a space.
