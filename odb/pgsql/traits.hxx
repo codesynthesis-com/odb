@@ -146,7 +146,7 @@ namespace odb
     struct wrapped_value_traits<W, ID, false>
     {
       typedef wrapper_traits<W> wtraits;
-      typedef typename wtraits::wrapped_type wrapped_type;
+      typedef typename wtraits::unrestricted_wrapped_type wrapped_type;
 
       typedef W value_type;
       typedef wrapped_type query_type;
@@ -207,7 +207,10 @@ namespace odb
       }
 
       static void
-      set_image (details::ubuffer& b, std::size_t& n, bool& is_null, const W& v)
+      set_image (details::ubuffer& b,
+                 std::size_t& n,
+                 bool& is_null,
+                 const W& v)
       {
         vtraits::set_image (b, n, is_null, wtraits::get_ref (v));
       }
@@ -231,7 +234,7 @@ namespace odb
     struct wrapped_value_traits<W, ID, true>
     {
       typedef wrapper_traits<W> wtraits;
-      typedef typename wtraits::wrapped_type wrapped_type;
+      typedef typename wtraits::unrestricted_wrapped_type wrapped_type;
 
       typedef W value_type;
       typedef wrapped_type query_type;
