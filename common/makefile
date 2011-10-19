@@ -9,7 +9,7 @@ tests :=            \
 auto                \
 callback            \
 composite           \
-const               \
+const-object        \
 const-member        \
 container           \
 ctor                \
