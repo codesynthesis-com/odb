@@ -7,6 +7,7 @@
 #define TEST_HXX
 
 #include <vector>
+#include <memory> // std::auto_ptr
 
 #include <odb/core.hxx>
 
@@ -16,11 +17,11 @@
 struct simple
 {
   simple (unsigned long i, unsigned long x)
-      : id (i), ro (x), /*co (x),*/ rw (x)
+      : id (i), ro (x), co (x), rw (x)
   {
   }
 
-  simple ()/*: co (0)*/ {}
+  simple (): co (0) {}
 
   #pragma db id
   unsigned long id;
@@ -28,7 +29,7 @@ struct simple
   #pragma db readonly
   unsigned long ro;
 
-  //const unsigned long co;
+  const unsigned long co;
 
   unsigned long rw;
 };
@@ -38,14 +39,17 @@ struct simple
 #pragma db object
 struct pointer
 {
-  pointer (unsigned long i, pointer* p = 0): id (i), ro (p), rw (p) {}
-  pointer (): ro (0), rw (0) {}
+  pointer (unsigned long i, pointer* p = 0): id (i), ro (p), co (p), rw (p) {}
+  pointer (): ro (0), co (0), rw (0) {}
 
   ~pointer ()
   {
     delete ro;
 
-    if (ro != rw)
+    if (co != ro)
+      delete co;
+
+    if (rw != ro && rw != co)
       delete rw;
   }
 
@@ -54,6 +58,8 @@ struct pointer
 
   #pragma db readonly
   pointer* ro;
+
+  pointer* const co;
 
   pointer* rw;
 };
@@ -73,11 +79,13 @@ struct ro_value
 #pragma db value
 struct value: ro_value
 {
-  value () {}
-  value (unsigned long x): ro_value (x), ro (x), rw (x) {}
+  value (): co (0) {}
+  value (unsigned long x): ro_value (x), ro (x), co (x), rw (x) {}
 
   #pragma db readonly
   unsigned long ro;
+
+  const unsigned long co;
 
   unsigned long rw;
 };
@@ -86,7 +94,7 @@ struct value: ro_value
 struct composite
 {
   composite (unsigned long i, unsigned long x)
-      : id (i), ro (x), rw (x), v (x)
+      : id (i), ro (x), co (x), rw (x), v (x)
   {
   }
 
@@ -97,6 +105,8 @@ struct composite
 
   #pragma db readonly
   value ro;
+
+  const value co;
 
   value rw;
   ro_value v;
@@ -115,6 +125,8 @@ struct container
 
   #pragma db readonly
   std::vector<unsigned long> ro;
+
+  const std::vector<unsigned long> co;
 
   std::vector<unsigned long> rw;
 };
@@ -158,6 +170,32 @@ struct rw_object: ro_object
   rw_object () {}
 
   unsigned long rw_sv;
+};
+
+// Readonly wrappers. Here we make sure that only const wrappers with
+// const wrapped types are automatically treated as readonly.
+//
+#pragma db object
+struct wrapper
+{
+  wrapper (unsigned long i, unsigned long x)
+      : id (i),
+        pl (new unsigned long (x)),
+        cpl (new unsigned long (x)),
+        pcl (new unsigned long (x)),
+        cpcl (new unsigned long (x))
+  {
+  }
+
+  wrapper () {}
+
+  #pragma db id
+  unsigned long id;
+
+  std::auto_ptr<unsigned long> pl;
+  const std::auto_ptr<unsigned long> cpl;
+  std::auto_ptr<const unsigned long> pcl;
+  const std::auto_ptr<const unsigned long> cpcl;
 };
 
 #endif // TEST_HXX

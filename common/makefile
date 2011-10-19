@@ -10,6 +10,7 @@ auto                \
 callback            \
 composite           \
 const               \
+const-member        \
 container           \
 ctor                \
 default             \
@@ -35,6 +36,7 @@ thread_tests := threads
 ifeq ($(db_id),oracle)
 tests :=           \
 auto               \
+const-member       \
 container          \
 lazy-ptr           \
 lifecycle          \
