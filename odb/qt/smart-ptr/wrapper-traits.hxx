@@ -23,6 +23,12 @@ namespace odb
     typedef T wrapped_type;
     typedef QSharedPointer<T> wrapper_type;
 
+    // T can be const.
+    //
+    typedef
+    typename details::meta::remove_const<T>::result
+    unrestricted_wrapped_type;
+
     static const bool null_handler = true;
     static const bool null_default = false;
 
@@ -48,9 +54,9 @@ namespace odb
     set_ref (wrapper_type& p)
     {
       if (p.isNull ())
-        p = wrapper_type (new wrapped_type);
+        p = wrapper_type (new unrestricted_wrapped_type);
 
-      return *p;
+      return const_cast<unrestricted_wrapped_type&> (*p);
     }
   };
 }
