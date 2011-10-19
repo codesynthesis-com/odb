@@ -31,6 +31,6 @@
 // ODB compiler version: interface version plus the bugfix version.
 //
 #define ODB_COMPILER_VERSION     1060000
-#define ODB_COMPILER_VERSION_STR "1.6.0"
+#define ODB_COMPILER_VERSION_STR "1.6.1"
 
 #endif // ODB_VERSION_HXX
