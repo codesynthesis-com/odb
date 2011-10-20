@@ -161,39 +161,42 @@ struct object
 };
 
 #pragma db object
-struct big_ints
+struct big_uint
 {
-  big_ints (bool init = false)
+  big_uint (unsigned int id = 0, unsigned long long v = 0)
+      : id_ (id), value (v)
   {
-    if (init)
-    {
-      signed_zero = 0;
-      signed_min = 0x8000000000000000; // –9223372036854775808
-      signed_max = 0x7FFFFFFFFFFFFFFFLL; // 9223372036854775807
-      unsigned_zero = 0;
-      unsigned_max = 0xFFFFFFFFFFFFFFFFULL;
-    }
   }
 
   #pragma db id
-  unsigned int id;
+  unsigned int id_;
 
-  long long signed_zero;
-  long long signed_min;
-  long long signed_max;
-
-  unsigned long long unsigned_zero;
-  unsigned long long unsigned_max;
+  unsigned long long value;
 
   bool
-  operator== (const big_ints& y) const
+  operator== (const big_uint& y) const
   {
-    return id == y.id &&
-      signed_zero == y.signed_zero &&
-      signed_min == y.signed_min &&
-      signed_max == y.signed_max &&
-      unsigned_zero == y.unsigned_zero &&
-      unsigned_max == y.unsigned_max;
+    return id_ == y.id_ && value == y.value;
+  }
+};
+
+#pragma db object
+struct big_int
+{
+  big_int (unsigned int id = 0, long long v = 0)
+      : id_ (id), value (v)
+  {
+  }
+
+  #pragma db id
+  unsigned int id_;
+
+  long long value;
+
+  bool
+  operator== (const big_int& y) const
+  {
+    return id_ == y.id_ && value == y.value;
   }
 };
 

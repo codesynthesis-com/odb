@@ -82,15 +82,20 @@ main (int argc, char* argv[])
 
     // Test character set conversion.
     //
-    // const char* unicode_str = "a \xD5\x95 \xEA\xAA\xAA \xF2\xAA\xAA\xAA";
+    const char* unicode_str = "a \xD5\x95 \xEA\xAA\xAA \xF2\xAA\xAA\xAA";
 
+    // Testing of character set conversion to and from the client's database
+    // character set is disabled as the server database character set may
+    // not be able to represent some Unicode characters. If this were the case
+    // the test outcome be a false negative.
+    //
     // o.char_ = unicode_str;
     // o.varchar2_ = unicode_str;
     // o.clob_ = unicode_str;
 
-    // o.nchar_ = unicode_str;
-    // o.nvarchar2_ = unicode_str;
-    // o.nclob_ = unicode_str;
+    o.nchar_ = unicode_str;
+    o.nvarchar2_ = unicode_str;
+    o.nclob_ = unicode_str;
 
     // Persist.
     //
@@ -112,14 +117,28 @@ main (int argc, char* argv[])
 
     // Test 64 bit integers.
     //
-    big_ints bi (true);
-    bi.id = 1;
+    big_int bi1 (1, 0x8000000000000000LL);
+    big_int bi2 (2, -123456);
+    big_int bi3 (3, 0);
+    big_int bi4 (4, 123456);
+    big_int bi5 (5, 0xFFFFFFFFFFFFFFFFULL);
+
+    big_uint bui1 (1, 0);
+    big_uint bui2 (2, 123456);
+    big_uint bui3 (3, 0xFFFFFFFFFFFFFFFFULL);
 
     // Persist.
     //
     {
       transaction t (db->begin ());
-      db->persist (bi);
+      db->persist (bi1);
+      db->persist (bi2);
+      db->persist (bi3);
+      db->persist (bi4);
+      db->persist (bi5);
+      db->persist (bui1);
+      db->persist (bui2);
+      db->persist (bui3);
       t.commit ();
     }
 
@@ -127,10 +146,24 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<big_ints> bi1 (db->load<big_ints> (1));
+      auto_ptr<big_int> bil1 (db->load<big_int> (1));
+      auto_ptr<big_int> bil2 (db->load<big_int> (2));
+      auto_ptr<big_int> bil3 (db->load<big_int> (3));
+      auto_ptr<big_int> bil4 (db->load<big_int> (4));
+      auto_ptr<big_int> bil5 (db->load<big_int> (5));
+      auto_ptr<big_uint> buil1 (db->load<big_uint> (1));
+      auto_ptr<big_uint> buil2 (db->load<big_uint> (2));
+      auto_ptr<big_uint> buil3 (db->load<big_uint> (3));
       t.commit ();
 
-      assert (bi == *bi1);
+      assert (bi1 == *bil1);
+      assert (bi2 == *bil2);
+      assert (bi3 == *bil3);
+      assert (bi4 == *bil4);
+      assert (bi5 == *bil5);
+      assert (bui1 == *buil1);
+      assert (bui2 == *buil2);
+      assert (bui3 == *buil3);
     }
   }
   catch (const odb::exception& e)
