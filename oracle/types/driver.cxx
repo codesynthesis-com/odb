@@ -29,7 +29,7 @@ main (int argc, char* argv[])
     // Create an Oracle database instance, setting both the client database
     // and national character set to UTF-8.
     //
-    auto_ptr<database> db (create_database (argc, argv, false, 873, 873));
+    auto_ptr<database> db (create_database (argc, argv, false));
 
     object o (1);
 
@@ -45,29 +45,32 @@ main (int argc, char* argv[])
 
     o.date_ = date_time (2010, 8, 29, 15, 33, 18);
 
-    string short_str (32, 's');
+    string vshort_str (8, 's');
+    string short_str (13, 's');
     string medium_str (104, 'm');
     string long_str (1018, 'l');
     string vlong_str (15000, 'v');
 
     o.char_ = short_str;
     o.varchar2_ = medium_str;
-    o.nchar_ = short_str;
-    o.nvarchar2_ = medium_str;o.raw_.assign (long_str.data (), long_str.data () + long_str.size ());
+    o.clob_.assign (vlong_str.data (), vlong_str.data () + vlong_str.size ());
+
+    o.nchar_ = vshort_str;
+    o.nvarchar2_ = medium_str;
+    o.nclob_.assign (vlong_str.data (), vlong_str.data () + vlong_str.size ());
+
+    o.raw_.assign (long_str.data (), long_str.data () + long_str.size ());
     o.blob_.assign (vlong_str.data (), vlong_str.data () + vlong_str.size ());
 
-    const char* unicode_str = "a \xD5\x95 \xEA\xAA\xAA \xF2\xAA\xAA\xAA";
-
-    o.clob_ = unicode_str;
-    o.nclob_ = unicode_str;
-
+    // Persist.
+    //
     {
       transaction t (db->begin ());
       db->persist (o);
       t.commit ();
     }
 
-    //
+    // Load.
     //
     {
       transaction t (db->begin ());
@@ -75,6 +78,59 @@ main (int argc, char* argv[])
       t.commit ();
 
       assert (o == *o1);
+    }
+
+    // Test character set conversion.
+    //
+    // const char* unicode_str = "a \xD5\x95 \xEA\xAA\xAA \xF2\xAA\xAA\xAA";
+
+    // o.char_ = unicode_str;
+    // o.varchar2_ = unicode_str;
+    // o.clob_ = unicode_str;
+
+    // o.nchar_ = unicode_str;
+    // o.nvarchar2_ = unicode_str;
+    // o.nclob_ = unicode_str;
+
+    // Persist.
+    //
+    {
+      transaction t (db->begin ());
+      db->update (o);
+      t.commit ();
+    }
+
+    // Load.
+    //
+    {
+      transaction t (db->begin ());
+      auto_ptr<object> o1 (db->load<object> (1));
+      t.commit ();
+
+      assert (o == *o1);
+    }
+
+    // Test 64 bit integers.
+    //
+    big_ints bi (true);
+    bi.id = 1;
+
+    // Persist.
+    //
+    {
+      transaction t (db->begin ());
+      db->persist (bi);
+      t.commit ();
+    }
+
+    // Load.
+    //
+    {
+      transaction t (db->begin ());
+      auto_ptr<big_ints> bi1 (db->load<big_ints> (1));
+      t.commit ();
+
+      assert (bi == *bi1);
     }
   }
   catch (const odb::exception& e)
