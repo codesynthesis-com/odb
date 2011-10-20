@@ -31,7 +31,7 @@ typedef nullable<std::string> nullable_string;
 typedef std::tr1::shared_ptr<std::string> tr1_nullable_string;
 #endif
 
-#pragma db object
+#pragma db object table("obj")
 struct object
 {
   #pragma db id auto
@@ -39,17 +39,17 @@ struct object
 
   std::auto_ptr<int> num;
 
-  #pragma db null
   std::auto_ptr<std::string> str;
-
   nullable_string nstr;
+
+  #pragma db id_column ("id")
   std::vector<nullable_string> nstrs;
 
 #ifdef HAVE_TR1_MEMORY
   #pragma db null
   tr1_nullable_string tr1_str;
 
-  #pragma db value_null
+  #pragma db value_null id_column("id")
   std::vector<tr1_nullable_string> tr1_strs;
 #endif
 };
@@ -84,6 +84,7 @@ struct comp2
   std::string str;
   int num;
 
+  #pragma db id_column("id") index_column("i")
   std::vector<std::string> strs;
 };
 
@@ -93,14 +94,17 @@ operator== (const comp2& x, const comp2& y)
   return x.str == y.str && x.num == y.num && x.strs == y.strs;
 }
 
-#pragma db object
+#pragma db object table("comp_obj")
 struct comp_object
 {
   #pragma db id auto
   unsigned long id_;
 
   std::auto_ptr<comp1> c1;           // Wrapped comp value.
+
+  #pragma db id_column("id") index_column("i")
   std::vector<nullable<comp1> > vc1; // Container of wrapped comp values.
+
   std::auto_ptr<comp2> c2;           // Container inside wrapped comp value.
 };
 
@@ -110,10 +114,12 @@ struct comp_object
 struct comp3: comp2
 {
   std::auto_ptr<comp1> c1;
+
+  #pragma db id_column("id") index_column("i")
   std::vector<nullable<comp1> > vc1;
 };
 
-#pragma db object
+#pragma db object table("comp_obj2")
 struct comp_object2
 {
   #pragma db id auto
@@ -130,6 +136,7 @@ struct comp_object2
 struct cont_comp
 {
   int num;
+  #pragma db id_column("id")
   std::auto_ptr<std::vector<std::string> > strs;
 };
 
@@ -139,7 +146,7 @@ operator== (const cont_comp& x, const cont_comp& y)
   return x.num == y.num && *x.strs == *y.strs;
 }
 
-#pragma db object
+#pragma db object table("cont_obj")
 struct cont_object
 {
   #pragma db id auto

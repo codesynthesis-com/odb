@@ -54,6 +54,7 @@ struct cont_comp1
 {
   // This composite value does not have any columns.
   //
+  #pragma db id_column("obj_id")
   num_vector sv; // Have the name "conflic" with the one in the object.
 };
 
@@ -63,11 +64,14 @@ struct cont_comp2
   cont_comp2 (): num (777), str ("ggg") {}
 
   int num;
+
+  #pragma db id_column("obj_id")
   str_list sl;
+
   std::string str;
 };
 
-#pragma db object
+#pragma db object table("obj")
 struct object
 {
   object (): nv (comp1_.sv), sl (comp2_.sl) {}

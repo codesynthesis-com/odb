@@ -217,7 +217,6 @@ main (int argc, char* argv[])
 
         t.commit ();
       }
-
     }
 
     // TR1.

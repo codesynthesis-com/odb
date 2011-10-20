@@ -5,29 +5,39 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
+# @@ Uncomment all tests once Oracle tests have been fully
+# implemented
+#
 tests :=            \
 auto                \
-callback            \
-composite           \
-const               \
 container           \
-ctor                \
-default             \
-enum                \
-erase-query         \
-inheritance         \
-inverse             \
 lazy-ptr            \
 lifecycle           \
-query               \
-relationship        \
-relationship-query  \
 schema              \
-template            \
-view                \
 wrapper
 
-thread_tests := threads
+#auto                \
+#callback            \
+#composite           \
+#const               \
+#container           \
+#ctor                \
+#default             \
+#enum                \
+#erase-query         \
+#inheritance         \
+#inverse             \
+#lazy-ptr            \
+#lifecycle           \
+#query               \
+#relationship        \
+#relationship-query  \
+#schema              \
+#template            \
+#view                \
+#wrapper
+
+#thread_tests := threads
 
 all_tests := $(tests) $(thread_tests)
 build_tests := $(tests) $(thread_tests)

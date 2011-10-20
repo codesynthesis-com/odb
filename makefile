@@ -23,8 +23,8 @@ endif
 # @@ Remove overrides when Oracle implementation is complete.
 #
 ifeq ($(db_id),oracle)
-all_dirs := libcommon oracle
-dirs := libcommon oracle
+all_dirs := libcommon common tracer mysql sqlite oracle
+dirs := common tracer oracle
 endif
 
 default := $(out_base)/
