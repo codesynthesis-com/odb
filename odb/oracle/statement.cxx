@@ -498,6 +498,8 @@ namespace odb
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
         translate_error (err, r);
 
+      done_ = false;
+
 #ifndef NDEBUG
       ub4 n (0);
       r = OCIAttrGet(stmt_, OCI_HTYPE_STMT, &n, 0, OCI_ATTR_PARAM_COUNT, err);
@@ -512,8 +514,6 @@ namespace odb
       //
       assert (n == data_.count);
 #endif
-
-      done_ = false;
     }
 
     select_statement::result select_statement::
