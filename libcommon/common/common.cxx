@@ -49,16 +49,8 @@ create_database (int& argc,
                  char* argv[],
 #if defined(DATABASE_SQLITE)
                  bool schema,
-                 unsigned short,
-                 unsigned short,
-#elif defined(DATABASE_ORACLE)
-                 bool,
-                 unsigned short charset,
-                 unsigned short ncharset,
 #else
                  bool,
-                 unsigned short,
-                 unsigned short,
 #endif
                  size_t max_connections)
 {
@@ -128,7 +120,10 @@ create_database (int& argc,
   if (max_connections != 0)
     f.reset (new oracle::connection_pool_factory (max_connections));
 
-  db.reset (new oracle::database (argc, argv, false, charset, ncharset, 0, f));
+  // Set client database character set and client national character set
+  // to UTF-8.
+  //
+  db.reset (new oracle::database (argc, argv, false, 873, 873, 0, f));
 #endif
 
   return db;
