@@ -681,7 +681,19 @@ namespace odb
                                OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (err, r);
+      {
+        sb4 e;
+        OCIErrorGet (err, 1, 0, &e, 0, 0, OCI_HTYPE_ERROR);
+
+        // The Oracle error code ORA-00001 indicates unique constraint
+        // violation, which covers more than just a duplicate primary key.
+        // Unfortunately, there is nothing more precise that we can use.
+        //
+        if (e == 1)
+          return false;
+        else
+          translate_error (err, r);
+      }
 
       ub4 row_count (0);
       r = OCIAttrGet (stmt_,
