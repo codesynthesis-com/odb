@@ -635,7 +635,7 @@ namespace odb
         sword r (OCIBindByPos (stmt_,
                                &h,
                                err,
-                               data.count,
+                               data.count + 1,
                                0,
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
   || OCI_MAJOR_VERSION > 11
