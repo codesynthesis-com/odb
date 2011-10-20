@@ -5,39 +5,43 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
-# @@ Uncomment all tests once Oracle tests have been fully
-# implemented
-#
 tests :=            \
 auto                \
+callback            \
+composite           \
+const               \
 container           \
+ctor                \
+default             \
+enum                \
+erase-query         \
+inheritance         \
+inverse             \
 lazy-ptr            \
 lifecycle           \
+query               \
+relationship        \
+relationship-query  \
 schema              \
+template            \
+view                \
 wrapper
 
-#auto                \
-#callback            \
-#composite           \
-#const               \
-#container           \
-#ctor                \
-#default             \
-#enum                \
-#erase-query         \
-#inheritance         \
-#inverse             \
-#lazy-ptr            \
-#lifecycle           \
-#query               \
-#relationship        \
-#relationship-query  \
-#schema              \
-#template            \
-#view                \
-#wrapper
+thread_tests := threads
 
-#thread_tests := threads
+# @@ Remove overrides once Oracle has been fully integrated.
+#
+ifeq ($(db_id),oracle)
+tests :=           \
+auto               \
+container          \
+lazy-ptr           \
+lifecycle          \
+schema             \
+wrapper
+
+thread_tests :=
+endif
 
 all_tests := $(tests) $(thread_tests)
 build_tests := $(tests) $(thread_tests)
