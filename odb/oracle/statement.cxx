@@ -76,6 +76,9 @@ namespace odb
     {
       bind& b (*static_cast<bind*> (context));
 
+      details::buffer* lob_buffer (
+        reinterpret_cast<details::buffer*>(b.buffer));
+
       // Only call the callback if the parameter is not NULL.
       //
       if (*b.indicator != -1)
@@ -86,8 +89,8 @@ namespace odb
                                    const_cast<const void**> (buffer),
                                    size,
                                    &pos,
-                                   b.buffer,
-                                   b.capacity))
+                                   lob_buffer->data (),
+                                   lob_buffer->capacity ()))
           return OCI_ERROR;
 
         switch (pos)
@@ -214,8 +217,12 @@ namespace odb
 
         if (callback)
         {
-          b->buffer = conn_.lob_buffer ().data ();
-          b->capacity = conn_.lob_buffer ().capacity ();
+          details::buffer& lob_buffer (conn_.lob_buffer ());
+
+          if (lob_buffer.capacity () == 0)
+            lob_buffer.capacity (4096);
+
+          b->buffer = &lob_buffer;
 
           r = OCIBindDynamic (h, err, b, &param_callback_proxy, 0, 0);
 
@@ -363,7 +370,7 @@ namespace odb
             *b->indicator != -1 && b->callback->result != 0)
         {
           auto_descriptor<OCILobLocator>& locator (
-            *reinterpret_cast<auto_descriptor<OCILobLocator>* > (b->buffer));
+            *reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
 
           ub1 piece (OCI_FIRST_PIECE);
 
@@ -377,7 +384,10 @@ namespace odb
 
           // Allocate buffer space if necessary.
           //
-          conn_.lob_buffer ().capacity (4096);
+          details::buffer& lob_buffer (conn_.lob_buffer ());
+
+          if (lob_buffer.capacity () == 0)
+            lob_buffer.capacity (4096);
 
           sword r;
           do
@@ -388,8 +398,8 @@ namespace odb
                              &read,
                              0,
                              1,
-                             conn_.lob_buffer ().data (),
-                             conn_.lob_buffer ().capacity (),
+                             lob_buffer.data (),
+                             lob_buffer.capacity (),
                              piece,
                              0,
                              0,
@@ -414,7 +424,7 @@ namespace odb
             // returned from a user callback. We simulate this.
             //
             if (!(*b->callback->result) (b->context->result,
-                                         conn_.lob_buffer ().data (),
+                                         lob_buffer.data (),
                                          static_cast<ub4> (read),
                                          cp))
               throw database_exception (24343, "user defined callback error");
