@@ -33,7 +33,7 @@ namespace odb
       SQLT_UIN,       // bind::uinteger
       SQLT_BFLOAT,    // bind::binary_float
       SQLT_BDOUBLE,   // bind::binary_double
-      SQLT_VNU,       // bind::number
+      SQLT_NUM,       // bind::number
       SQLT_DAT,       // bind::date
       SQLT_TIMESTAMP, // bind::timestamp
       SQLT_CHR,       // bind::string
@@ -53,7 +53,7 @@ namespace odb
       SQLT_UIN,       // bind::uinteger
       SQLT_BFLOAT,    // bind::binary_float
       SQLT_BDOUBLE,   // bind::binary_double
-      SQLT_VNU,       // bind::number
+      SQLT_NUM,       // bind::number
       SQLT_DAT,       // bind::date
       SQLT_TIMESTAMP, // bind::timestamp
       SQLT_CHR,       // bind::string

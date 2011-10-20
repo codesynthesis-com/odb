@@ -8,9 +8,6 @@
 
 #include <odb/pre.hxx>
 
-// @@
-#include <iostream>
-
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
@@ -263,21 +260,7 @@ namespace odb
         vtraits::set_image (i, is_null, wtraits::get_ref (v));
       }
 
-      // big_int, big_float.
-      //
-      static void
-      set_value (W& v, const char* i, bool is_null)
-      {
-        vtraits::set_value (wtraits::set_ref (v), i, is_null);
-      }
-
-      static void
-      set_image (char* i, std::size_t& n, bool& is_null, const W& v)
-      {
-        vtraits::set_image (i, n, is_null, wtraits::get_ref (v));
-      }
-
-      // timestamp, string, nstring, raw.
+      // big_int, big_float, timestamp, string, nstring, raw.
       //
       static void
       set_value (W& v, const char* i, std::size_t n, bool is_null)
@@ -285,6 +268,8 @@ namespace odb
         vtraits::set_value (wtraits::set_ref (v), i, n, is_null);
       }
 
+      // timestamp, string, nstring, raw.
+      //
       static void
       set_image (char* i,
                  std::size_t c,
@@ -293,6 +278,14 @@ namespace odb
                  const W& v)
       {
         vtraits::set_image (i, c, n, is_null, wtraits::get_ref (v));
+      }
+
+      // big_int, big_float.
+      //
+      static void
+      set_image (char* i, std::size_t& n, bool& is_null, const W& v)
+      {
+        vtraits::set_image (i, n, is_null, wtraits::get_ref (v));
       }
 
       // blob, clob, nclob.
@@ -343,27 +336,7 @@ namespace odb
           vtraits::set_image (i, is_null, wtraits::get_ref (v));
       }
 
-      // big_int, big_float.
-      //
-      static void
-      set_value (W& v, const char& i, bool is_null)
-      {
-        if (is_null)
-          wtraits::set_null (v);
-        else
-          vtraits::set_value (wtraits::set_ref (v), i, is_null);
-      }
-
-      static void
-      set_image (char* i, std::size_t& n, bool& is_null, const W& v)
-      {
-        is_null = wtraits::get_null (v);
-
-        if (!is_null)
-          vtraits::set_image (i, n, is_null, wtraits::get_ref (v));
-      }
-
-      // timestamp, string, nstring, raw.
+      // big_int, big_float, timestamp, string, nstring, raw.
       //
       static void
       set_value (W& v, const char* i, std::size_t n, bool is_null)
@@ -374,6 +347,8 @@ namespace odb
           vtraits::set_value (wtraits::set_ref (v), i, n, is_null);
       }
 
+      // timestamp, string, nstring, raw.
+      //
       static void
       set_image (char* i,
                  std::size_t c,
@@ -385,6 +360,17 @@ namespace odb
 
         if (!is_null)
           vtraits::set_image (i, c, n, is_null, wtraits::get_ref (v));
+      }
+
+      // big_int, big_float
+      //
+      static void
+      set_image (char* i, std::size_t& n, bool& is_null, const W& v)
+      {
+        is_null = wtraits::get_null (v);
+
+        if (!is_null)
+          vtraits::set_image (i, n, is_null, wtraits::get_ref (v));
       }
 
       // blob, clob, nclob.
@@ -444,10 +430,10 @@ namespace odb
     struct big_int_value_traits<T, false>
     {
       static void
-      set_value (T& v, const char* b, bool is_null)
+      set_value (T& v, const char* b, std::size_t n, bool is_null)
       {
         if (!is_null)
-          v = static_cast<T> (details::number_to_int64 (b));
+          v = static_cast<T> (details::number_to_int64 (b, n));
         else
           v = 0;
       }
@@ -464,10 +450,10 @@ namespace odb
     struct big_int_value_traits<T, true>
     {
       static void
-      set_value (T& v, const char* b, bool is_null)
+      set_value (T& v, const char* b, std::size_t n, bool is_null)
       {
         if (!is_null)
-          v = static_cast<T> (details::number_to_uint64 (b));
+          v = static_cast<T> (details::number_to_uint64 (b, n));
         else
           v = 0;
       }

@@ -27,13 +27,13 @@ namespace odb
       using namespace odb::details;
 
       LIBODB_ORACLE_EXPORT long long
-      number_to_int64 (const char* buffer);
+      number_to_int64 (const char* buffer, std::size_t n);
 
       LIBODB_ORACLE_EXPORT void
       int64_to_number (char* buffer, std::size_t& n, long long val);
 
       LIBODB_ORACLE_EXPORT unsigned long long
-      number_to_uint64 (const char* buffer);
+      number_to_uint64 (const char* buffer, std::size_t n);
 
       LIBODB_ORACLE_EXPORT void
       uint64_to_number (char* buffer, std::size_t& n, unsigned long long val);
