@@ -22,7 +22,6 @@ following additional packages:
   - GNU bash >= 2.0.0   http://www.gnu.org/software/bash/
   - GNU make >= 3.81    http://www.gnu.org/software/make/
   - build    >= latest  http://www.codesynthesis.com/projects/build/
-  - cli      >= latest  http://www.codesynthesis.com/projects/cli/
 
 If you are planning to create the source code distributions, then you will
 also need the following packages:
@@ -30,6 +29,12 @@ also need the following packages:
   - GNU m4   >= 1.4.0   http://www.gnu.org/software/m4/
   - GNU sed  >= 4.0.0   http://www.gnu.org/software/sed/
   - tofrodos >= 1.7.0   http://www.thefreecountry.com/tofrodos/
+
+As we as the GNU autotools:
+
+  - GNU libtool  >= 2.2.6b  http://www.gnu.org/software/libtool/
+  - GNU autoconf >= 2.67    http://www.gnu.org/software/autoconf/
+  - GNU automake >= 1.11.1  http://www.gnu.org/software/automake/
 
 Any reasonably up to date GNU/Linux installation would normally have all of
 the above packages already present, except for build and maybe tofrodos.
