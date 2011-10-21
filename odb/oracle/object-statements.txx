@@ -27,27 +27,23 @@ namespace odb
     object_statements (connection_type& conn)
         : object_statements_base (conn),
           container_statement_cache_ (conn),
-          in_image_binding_ (in_image_bind_, object_traits::in_column_count),
-          out_image_binding_ (out_image_bind_, object_traits::out_column_count),
-          id_image_binding_ (in_image_bind_ + object_traits::in_column_count, 1)
+          select_image_binding_ (select_image_bind_, select_column_count),
+          insert_image_binding_ (insert_image_bind_, insert_column_count),
+          update_image_binding_ (update_image_bind_, update_column_count),
+          id_image_binding_ (update_image_bind_ + update_column_count,
+                             id_column_count)
     {
       image_.version = 0;
-      in_image_version_ = 0;
-      out_image_version_ = 0;
+      select_image_version_ = 0;
+      insert_image_version_ = 0;
+      update_image_version_ = 0;
 
       id_image_.version = 0;
       id_image_version_ = 0;
 
-      std::memset (in_image_bind_, 0, sizeof (in_image_bind_));
-      std::memset (in_image_indicator_, 0, sizeof (in_image_indicator_));
-      std::memset (out_image_bind_, 0, sizeof (out_image_bind_));
-      std::memset (out_image_indicator_, 0, sizeof (out_image_indicator_));
-
-      for (std::size_t i (0); i < object_traits::in_column_count + 1; ++i)
-        in_image_bind_[i].indicator = in_image_indicator_ + i;
-
-      for (std::size_t i (0); i < object_traits::out_column_count; ++i)
-        out_image_bind_[i].indicator = out_image_indicator_ + i;
+      std::memset (insert_image_bind_, 0, sizeof (insert_image_bind_));
+      std::memset (update_image_bind_, 0, sizeof (update_image_bind_));
+      std::memset (select_image_bind_, 0, sizeof (select_image_bind_));
     }
 
     template <typename T>

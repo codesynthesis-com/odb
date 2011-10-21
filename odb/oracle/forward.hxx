@@ -23,6 +23,13 @@ namespace odb
 
     // Implementation details.
     //
+    enum statement_kind
+    {
+      statement_select,
+      statement_insert,
+      statement_update
+    };
+
     class binding;
     class select_statement;
 
