@@ -25,23 +25,33 @@ $echo
 $echo "Please enter the Oracle database password."
 $echo
 
-passwd=`read_value ""`
+# If the user is odb_test then default to odb_test as a password since
+# it is unlikely there is the odb_test user with external authentication.
+#
+if [ "$user" = "odb_test" ]; then
+  def_passwd=odb_test
+else
+  def_passwd=
+fi
+
+passwd=`read_value "$def_passwd"`
 
 $echo
-$echo "Please enter the Oracle listener host."
+$echo "Please enter the Oracle listener host (localhost if left empty)."
 $echo
 
 host=`read_value ""`
 
 $echo
-$echo "Please enter the Oracle listener port."
+$echo "Please enter the Oracle listener port (default port if left empty)."
 $echo
 
 port=`read_value ""`
 
 $echo
-$echo "Please enter the Oracle service to use. Note that the associated"
-$echo "database WILL BE MODIFIED."
+$echo "Please enter the Oracle service to use (default service if left"
+$echo "empty). Note that the database associated with user $user on this"
+$echo "service WILL BE MODIFIED."
 $echo
 
 service=`read_value ""`
