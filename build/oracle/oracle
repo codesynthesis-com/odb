@@ -69,7 +69,7 @@ fi
 opt="-S $opt"
 
 if [ -n "$1" ]; then
-  exec $driver $opt $conn <$1
+  exec $driver $opt $conn @$1
 else
   exec $driver $opt $conn
 fi
