@@ -36,7 +36,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) --generate-schema \
---generate-query --table-prefix common_const_
+--generate-query --table-prefix const_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 

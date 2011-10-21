@@ -94,7 +94,7 @@ main (int argc, char* argv[])
 
       transaction t (db->begin ());
       result r (db->query<object> (
-                  (query::id < 3) + "ORDER BY common_callback_object.id"));
+                  (query::id < 3) + "ORDER BY callback_object.id"));
 
       for (result::iterator i (r.begin ()); i != r.end (); ++i)
       {

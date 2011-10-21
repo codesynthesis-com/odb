@@ -45,7 +45,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) \
---profile qt/smart-ptr --generate-schema --table-prefix qt_common_smart_ptr_
+--profile qt/smart-ptr --generate-schema --table-prefix qt_smart_ptr_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_qt.l.cpp-options) \
 $(qt_core.l.cpp-options)

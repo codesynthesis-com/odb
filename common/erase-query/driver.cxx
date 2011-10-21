@@ -64,7 +64,7 @@ main (int argc, char* argv[])
     {
       transaction t (db->begin ());
       assert (db->erase_query<object> (
-                "common_erase_query_object.id < 3") == 2);
+                "erase_query_object.id < 3") == 2);
       db->erase_query<object> ();
       t.commit ();
     }
@@ -162,7 +162,7 @@ main (int argc, char* argv[])
 #ifndef DATABASE_MYSQL
     {
       transaction t (db->begin ());
-      assert (db->execute ("SELECT * FROM common_erase_query_object_v "
+      assert (db->execute ("SELECT * FROM erase_query_object_v "
                            "WHERE object_id = 1") == 0);
       t.commit ();
     }

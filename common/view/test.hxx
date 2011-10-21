@@ -130,7 +130,7 @@ struct employer
 
 // Complete suffix query template.
 //
-#pragma db view query("SELECT first, last, age FROM common_view_person")
+#pragma db view query("SELECT first, last, age FROM view_person")
 struct view1
 {
   std::string first;
@@ -141,7 +141,7 @@ struct view1
 // Complete query.
 //
 #pragma db view query("SELECT first, last, age " \
-                      "FROM common_view_person " \
+                      "FROM view_person "        \
                       "WHERE age < 31 ORDER BY age")
 struct view1a
 {
@@ -153,7 +153,7 @@ struct view1a
 // Complete placeholder query template.
 //
 #pragma db view query("SELECT first, last, age " \
-                      "FROM common_view_person " \
+                      "FROM view_person "        \
                       "WHERE age < 31 AND (?) ORDER BY age")
 struct view1b
 {
@@ -174,7 +174,7 @@ struct view1c
 
 // Assembled SELECT and FROM-lists.
 //
-#pragma db view table("common_view_person")
+#pragma db view table("view_person")
 struct view1d
 {
   #pragma db column("first")
@@ -194,7 +194,7 @@ struct view1d
 // Complete suffix query.
 //
 #pragma db view object(person) \
-  query("SELECT count(id) FROM common_view_person")
+  query("SELECT count(id) FROM view_person")
 struct view2
 {
   std::size_t count;
@@ -214,7 +214,7 @@ struct view2a
 #pragma db view object(person)
 struct view2b
 {
-  #pragma db column("count(common_view_person.id)")
+  #pragma db column("count(view_person.id)")
   std::size_t count;
 };
 
@@ -235,7 +235,7 @@ struct view2c
 //
 #pragma db view object(person = test) \
   query("SELECT last, count(last) "   \
-        "FROM common_view_person "    \
+        "FROM view_person "           \
         "GROUP BY last")
 struct view3
 {
@@ -265,9 +265,9 @@ struct view3a
 //
 #pragma db view object(person) object(country = residence)  \
   query("SELECT first, last, residence.name "               \
-        "FROM common_view_person "                          \
-        "LEFT JOIN common_view_country AS residence "       \
-        "ON common_view_person.residence = residence.code")
+        "FROM view_person "                                 \
+        "LEFT JOIN view_country AS residence "              \
+        "ON view_person.residence = residence.code")
 struct view4
 {
   std::string first_name;
@@ -347,9 +347,9 @@ struct view6b
 
 // The same using tables.
 //
-#pragma db view table("common_view_person" = "p") \
-  table("common_view_employer_employees" = "ee": "ee.value = p.id") \
-  table("common_view_employer" = "e": "ee.object_id = e.name")
+#pragma db view table("view_person" = "p")                   \
+  table("view_employer_employees" = "ee": "ee.value = p.id") \
+  table("view_employer" = "e": "ee.object_id = e.name")
 struct view6c
 {
   #pragma db column("p.first")
