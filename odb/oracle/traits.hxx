@@ -240,7 +240,7 @@ namespace odb
     struct wrapped_value_traits<W, ID, false>
     {
       typedef wrapper_traits<W> wtraits;
-      typedef typename wtraits::wrapped_type wrapped_type;
+      typedef typename wtraits::unrestricted_wrapped_type wrapped_type;
 
       typedef W value_type;
       typedef wrapped_type query_type;
@@ -310,7 +310,7 @@ namespace odb
     struct wrapped_value_traits<W, ID, true>
     {
       typedef wrapper_traits<W> wtraits;
-      typedef typename wtraits::wrapped_type wrapped_type;
+      typedef typename wtraits::unrestricted_wrapped_type wrapped_type;
 
       typedef W value_type;
       typedef wrapped_type query_type;
