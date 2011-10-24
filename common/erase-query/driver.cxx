@@ -13,7 +13,6 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/config.hxx> // @@ DATABASE_MYSQL
 #include <common/common.hxx>
 
 #include "test.hxx"
@@ -156,17 +155,12 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    // @@ Temporarily disabled until we have out-of-line constraints
-    // in MySQL (coming with evolution support).
-    //
-#ifndef DATABASE_MYSQL
     {
       transaction t (db->begin ());
       assert (db->execute ("SELECT * FROM erase_query_object_v "
                            "WHERE object_id = 1") == 0);
       t.commit ();
     }
-#endif
   }
   catch (const odb::exception& e)
   {
