@@ -301,7 +301,7 @@ main (int argc, char* argv[])
         result r (
           db->query<view1c> (
             "SELECT first, last, age "
-            "FROM test_view_person "
+            "FROM t_view_person "
             "WHERE age < 31 ORDER BY age"));
 
         view1_check (r);
