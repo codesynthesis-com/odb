@@ -117,8 +117,8 @@ namespace odb
     {
       const string& v (*static_cast<const string*> (ctx));
 
-      *p= one_chunk;
-      *s= static_cast<ub4> (v.size ());
+      *p = one_chunk;
+      *s = static_cast<ub4> (v.size ());
       *b = v.c_str ();
 
       return true;
