@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include <odb/core.hxx>
+#include <common/config.hxx>  // DATABASE_XXX
 
 #pragma db object
 struct person
@@ -37,8 +38,11 @@ struct person
 
   #pragma db column ("first")
   std::string first_name_;
-
+#ifndef DATABASE_ORACLE
   #pragma db column ("middle") type ("TEXT") null
+#else
+  #pragma db column ("middle") type ("CLOB") null
+#endif
   std::auto_ptr<std::string> middle_name_;
 
   #pragma db column ("last")
