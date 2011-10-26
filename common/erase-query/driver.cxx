@@ -13,6 +13,7 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
+#include <common/config.hxx> // DATABASE_XXX
 #include <common/common.hxx>
 
 #include "test.hxx"
@@ -62,8 +63,13 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
+#ifndef DATABASE_ORACLE
       assert (db->erase_query<object> (
                 "erase_query_object.id < 3") == 2);
+#else
+      assert (db->erase_query<object> (
+                "\"erase_query_object\".\"id\" < 3") == 2);
+#endif
       db->erase_query<object> ();
       t.commit ();
     }
@@ -155,12 +161,21 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
+#ifndef DATABASE_ORACLE
     {
       transaction t (db->begin ());
       assert (db->execute ("SELECT * FROM erase_query_object_v "
                            "WHERE object_id = 1") == 0);
       t.commit ();
     }
+#else
+    {
+      transaction t (db->begin ());
+      assert (db->execute ("SELECT * FROM \"erase_query_object_v\" "
+                           "WHERE \"object_id\" = 1") == 0);
+      t.commit ();
+    }
+#endif
   }
   catch (const odb::exception& e)
   {

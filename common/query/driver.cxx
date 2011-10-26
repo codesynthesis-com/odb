@@ -108,7 +108,7 @@ main (int argc, char* argv[])
     cout << "test 002" << endl;
     {
       transaction t (db->begin ());
-      result r (db->query<person> ("ORDER BY age"));
+      result r (db->query<person> ("ORDER BY" + query::age));
 
       for (result::iterator i (r.begin ()); i != r.end (); ++i)
       {
@@ -132,7 +132,10 @@ main (int argc, char* argv[])
     cout << "test 003" << endl;
     {
       transaction t (db->begin ());
-      result r (db->query<person> ("age >= 30 AND last = 'Doe'"));
+      result r (
+        db->query<person> (query::age + " >= 30 AND " +
+                           query::last_name + " = 'Doe'"));
+
       print (r);
       t.commit ();
     }
@@ -146,9 +149,8 @@ main (int argc, char* argv[])
       const char* name = "Doe";
 
       result r (
-        db->query<person> (
-          "age >= " + query::_ref (30) + "AND" +
-          "last = " + query::_val (name)));
+        db->query<person> (query::age + " >= " + query::_ref (30) + "AND " +
+                           query::last_name + " = " + query::_val (name)));
 
       print (r);
       t.commit ();
@@ -163,8 +165,8 @@ main (int argc, char* argv[])
       string name;
       unsigned short age;
 
-      query q ("age >= " + query::_ref (age) + "AND" +
-               "last = " + query::_ref (name));
+      query q (query::age + " >= " + query::_ref (age) + "AND" +
+               query::last_name + " = " + query::_ref (name));
 
       name = "Doe";
       age = 30;
@@ -343,7 +345,9 @@ main (int argc, char* argv[])
 
       // +
       //
-      r = db->query<person> ((query::last_name == "Doe") + "ORDER BY age");
+      r = db->query<person> ((query::last_name == "Doe") +
+                             "ORDER BY" +
+                             query::age);
       print (r);
 
       t.commit ();

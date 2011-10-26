@@ -14,6 +14,7 @@
 #include <odb/transaction.hxx>
 
 #include <common/common.hxx>
+#include <common/config.hxx>  // DATABASE_XXX
 
 #include "test.hxx"
 #include "test-odb.hxx"
@@ -33,7 +34,12 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
+
+#ifndef DATABASE_ORACLE
       db->execute ("INSERT INTO default_object (obj_id) VALUES (1)");
+#else
+      db->execute ("INSERT INTO \"default_object\" (\"obj_id\") VALUES (1)");
+#endif
       t.commit ();
     }
 

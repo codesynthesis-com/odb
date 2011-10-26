@@ -14,6 +14,7 @@
 #include <odb/transaction.hxx>
 
 #include <common/common.hxx>
+#include <common/config.hxx>  // DATABASE_XXX
 
 #include "test.hxx"
 #include "test-odb.hxx"
@@ -93,8 +94,14 @@ main (int argc, char* argv[])
       typedef odb::result<object> result;
 
       transaction t (db->begin ());
+
+#ifndef DATABASE_ORACLE
       result r (db->query<object> (
                   (query::id < 3) + "ORDER BY callback_object.id"));
+#else
+      result r (db->query<object> (
+                  (query::id < 3) + "ORDER BY \"callback_object\".\"id\""));
+#endif
 
       for (result::iterator i (r.begin ()); i != r.end (); ++i)
       {

@@ -14,6 +14,7 @@
 #include <odb/transaction.hxx>
 
 #include <common/common.hxx>
+#include <common/config.hxx> // DATABASE_XXX
 
 #include "test.hxx"
 #include "test-odb.hxx"
@@ -58,7 +59,8 @@ view2_test (const auto_ptr<database>& db)
   }
 
   {
-    result r (db->query<V> ("age < 31"));
+    result r (db->query<V> (query::age + " < 31"));
+
     iterator i (r.begin ());
     assert (i != r.end ());
     assert (i->count == 2);
@@ -85,7 +87,10 @@ view4_test (const auto_ptr<database>& db)
   transaction t (db->begin ());
 
   {
-    result r (db->query<V> ("age > 30 ORDER BY age"));
+    result r (db->query<V> (
+                (query::person::age > 30) +
+                "ORDER BY " +
+                query::person::age));
 
     iterator i (r.begin ());
 
@@ -102,7 +107,9 @@ view4_test (const auto_ptr<database>& db)
 
   {
     result r (db->query<V> (
-                (query::person::age > 30) + "ORDER BY age"));
+                (query::person::age > 30) +
+                "ORDER BY " +
+                query::person::age));
 
     iterator i (r.begin ());
 
@@ -229,12 +236,20 @@ main (int argc, char* argv[])
         }
 
         {
+#ifndef DATABASE_ORACLE
           result r (db->query<view1> ("ORDER BY age"));
+#else
+          result r (db->query<view1> ("ORDER BY \"age\""));
+#endif
           assert (size (r) == 4);
         }
 
         {
+#ifndef DATABASE_ORACLE
           result r (db->query<view1> ("age < 31 ORDER BY age"));
+#else
+          result r (db->query<view1> ("\"age\" < 31 ORDER BY \"age\""));
+#endif
           view1_check (r);
         }
 
@@ -277,7 +292,12 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
 
+#ifndef DATABASE_ORACLE
           result r (db->query<view1b> ("first = " + query::_val ("Jane")));
+#else
+          result r (db->query<view1b> ("\"first\" = " + query::_val ("Jane")));
+#endif
+
           result::iterator i (r.begin ());
 
           assert (i != r.end ());
@@ -298,11 +318,19 @@ main (int argc, char* argv[])
       {
         transaction t (db->begin ());
 
+#ifndef DATABASE_ORACLE
         result r (
           db->query<view1c> (
             "SELECT first, last, age "
             "FROM t_view_person "
             "WHERE age < 31 ORDER BY age"));
+#else
+        result r (
+          db->query<view1c> (
+            "SELECT \"first\", \"last\", \"age\" "
+            "FROM \"t_view_person\" "
+            "WHERE \"age\" < 31 ORDER BY \"age\""));
+#endif
 
         view1_check (r);
 
@@ -320,7 +348,11 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
 
         {
+#ifndef DATABASE_ORACLE
           result r (db->query<view1d> ("age < 31 ORDER BY age"));
+#else
+          result r (db->query<view1d> ("\"age\" < 31 ORDER BY \"age\""));
+#endif
           view1_check (r);
         }
 
@@ -438,7 +470,11 @@ main (int argc, char* argv[])
       db, odb::query<view6b>::employer::name == "Simple Tech, Inc");
 
     view6_test<view6c> (
+#ifndef DATABASE_ORACLE
       db, "e.name = " + odb::query<view6c>::_val ("Simple Tech, Inc"));
+#else
+      db, "\"e\".\"name\" = " + odb::query<view6c>::_val ("Simple Tech, Inc"));
+#endif
 
     // view7
     //

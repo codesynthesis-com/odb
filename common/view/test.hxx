@@ -13,6 +13,8 @@
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
 
+#include <common/config.hxx> // DATABASE_XXX
+
 struct employer;
 
 #pragma db object
@@ -130,7 +132,12 @@ struct employer
 
 // Complete suffix query template.
 //
-#pragma db view query("SELECT first, last, age FROM t_view_person")
+#ifndef DATABASE_ORACLE
+#  pragma db view query("SELECT first, last, age FROM t_view_person")
+#else
+#  pragma db view query("SELECT \"first\", \"last\", \"age\" " \
+                        "FROM \"t_view_person\"")
+#endif
 struct view1
 {
   std::string first;
@@ -140,9 +147,15 @@ struct view1
 
 // Complete query.
 //
-#pragma db view query("SELECT first, last, age " \
-                      "FROM t_view_person "      \
-                      "WHERE age < 31 ORDER BY age")
+#ifndef DATABASE_ORACLE
+#  pragma db view query("SELECT first, last, age " \
+                        "FROM t_view_person "      \
+                        "WHERE age < 31 ORDER BY age")
+#else
+#  pragma db view query("SELECT \"first\", \"last\", \"age\" " \
+                        "FROM \"t_view_person\" "              \
+                        "WHERE \"age\" < 31 ORDER BY \"age\"")
+#endif
 struct view1a
 {
   std::string first;
@@ -152,9 +165,15 @@ struct view1a
 
 // Complete placeholder query template.
 //
-#pragma db view query("SELECT first, last, age " \
-                      "FROM t_view_person "      \
-                      "WHERE age < 31 AND (?) ORDER BY age")
+#ifndef DATABASE_ORACLE
+#  pragma db view query("SELECT first, last, age " \
+                        "FROM t_view_person "      \
+                        "WHERE age < 31 AND (?) ORDER BY age")
+#else
+#  pragma db view query("SELECT \"first\", \"last\", \"age\" " \
+                        "FROM \"t_view_person\" "              \
+                        "WHERE \"age\" < 31 AND (?) ORDER BY \"age\"")
+#endif
 struct view1b
 {
   std::string first;
@@ -193,8 +212,13 @@ struct view1d
 
 // Complete suffix query.
 //
-#pragma db view object(person) \
+#ifndef DATABASE_ORACLE
+#  pragma db view object(person) \
   query("SELECT count(id) FROM t_view_person")
+#else
+#  pragma db view object(person) \
+  query("SELECT count(\"id\") FROM \"t_view_person\"")
+#endif
 struct view2
 {
   std::size_t count;
@@ -205,7 +229,11 @@ struct view2
 #pragma db view object(person)
 struct view2a
 {
+#ifndef DATABASE_ORACLE
   #pragma db column("count(id)")
+#else
+  #pragma db column("count(\"id\")")
+#endif
   std::size_t count;
 };
 
@@ -214,7 +242,11 @@ struct view2a
 #pragma db view object(person)
 struct view2b
 {
+#ifndef DATABASE_ORACLE
   #pragma db column("count(t_view_person.id)")
+#else
+  #pragma db column("count(\"t_view_person\".\"id\")")
+#endif
   std::size_t count;
 };
 
@@ -233,10 +265,17 @@ struct view2c
 
 // Complete suffix query.
 //
-#pragma db view object(person = test) \
-  query("SELECT last, count(last) "   \
-        "FROM t_view_person "         \
+#ifndef DATABASE_ORACLE
+#  pragma db view object(person = test) \
+  query("SELECT last, count(last) "     \
+        "FROM t_view_person "           \
         "GROUP BY last")
+#else
+#  pragma db view object(person = test)     \
+  query("SELECT \"last\", count(\"last\") " \
+        "FROM \"t_view_person\" "           \
+        "GROUP BY \"last\"")
+#endif
 struct view3
 {
   std::string last_name;
@@ -263,11 +302,19 @@ struct view3a
 
 // Complete suffix query.
 //
-#pragma db view object(person) object(country = residence)  \
-  query("SELECT first, last, residence.name "               \
-        "FROM t_view_person "                               \
-        "LEFT JOIN t_view_country AS residence "            \
+#ifndef DATABASE_ORACLE
+#  pragma db view object(person) object(country = residence)  \
+  query("SELECT first, last, residence.name "                 \
+        "FROM t_view_person "                                 \
+        "LEFT JOIN t_view_country AS residence "              \
         "ON t_view_person.residence = residence.code")
+#else
+#  pragma db view object(person) object(country = residence)   \
+  query("SELECT \"first\", \"last\", \"residence\".\"name\" "  \
+        "FROM \"t_view_person\" "                              \
+        "LEFT JOIN \"t_view_country\" \"residence\" "          \
+        "ON \"t_view_person\".\"residence\" = \"residence\".\"code\"")
+#endif
 struct view4
 {
   std::string first_name;
@@ -347,18 +394,36 @@ struct view6b
 
 // The same using tables.
 //
-#pragma db view table("t_view_person" = "p")                   \
+#ifndef DATABASE_ORACLE
+#  pragma db view table("t_view_person" = "p")                 \
   table("t_view_employer_employees" = "ee": "ee.value = p.id") \
   table("t_view_employer" = "e": "ee.object_id = e.name")
+#else
+#  pragma db view table("t_view_person" = "p")                                \
+  table("t_view_employer_employees" = "ee": "\"ee\".\"value\" = \"p\".\"id\"")\
+  table("t_view_employer" = "e": "\"ee\".\"object_id\" = \"e\".\"name\"")
+#endif
 struct view6c
 {
+#ifndef DATABASE_ORACLE
   #pragma db column("p.first")
+#else
+  #pragma db column("\"p\".\"first\"")
+#endif
   std::string first_name;
 
-  #pragma db column("p"."last")
+#ifndef DATABASE_ORACLE
+  #pragma db column("p.last")
+#else
+  #pragma db column("\"p\".\"last\"")
+#endif
   std::string last_name;
 
+#ifndef DATABASE_ORACLE
   #pragma db column("e.name")
+#else
+  #pragma db column("\"e\".\"name\"")
+#endif
   std::string employer;
 };
 
