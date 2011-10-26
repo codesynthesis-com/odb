@@ -35,7 +35,7 @@ std::size_t
 size (odb::result<T>& r)
 {
   std::size_t n (0);
-#if defined(DATABASE_SQLITE)
+#if defined(DATABASE_SQLITE) || defined(DATABASE_ORACLE)
   for (typename odb::result<T>::iterator i (r.begin ()); i != r.end (); ++i)
     n++;
 #else
