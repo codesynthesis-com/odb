@@ -31,22 +31,6 @@ wrapper
 
 thread_tests := threads
 
-# @@ Remove overrides once Oracle has been fully integrated.
-#
-ifeq ($(db_id),oracle)
-tests :=           \
-auto               \
-const-member       \
-container          \
-lazy-ptr           \
-lifecycle          \
-readonly           \
-schema             \
-wrapper
-
-thread_tests :=
-endif
-
 all_tests := $(tests) $(thread_tests)
 build_tests := $(tests) $(thread_tests)
 
