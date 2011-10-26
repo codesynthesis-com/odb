@@ -10,6 +10,8 @@
 
 #if defined(DATABASE_MYSQL)
 #  include "traits-mysql.hxx"
+#elif defined(DATABASE_ORACLE)
+#  include "traits-oracle.hxx"
 #elif defined(DATABASE_SQLITE)
 #  include "traits-sqlite.hxx"
 #elif defined(DATABASE_PGSQL)
