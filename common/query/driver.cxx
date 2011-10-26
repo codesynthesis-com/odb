@@ -13,6 +13,7 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
+#include <common/config.hxx>  // DATABASE_XXX
 #include <common/common.hxx>
 
 #include "test.hxx"
@@ -35,9 +36,16 @@ print (result<person>& r)
 const char* names[] = { "John", "Jane", "Joe" };
 const char** names_end = names + sizeof (names)/sizeof (names[0]);
 
+const char* key_data[] = { "\x23\x03\x15", "\x13\x13\x54", "\x08\x62\x35" };
+
 int
 main (int argc, char* argv[])
 {
+  vector<char>
+    key1 (key_data[0], key_data[0] + 3),
+    key2 (key_data[1], key_data[1] + 3),
+    key3 (key_data[2], key_data[2] + 3);
+
   try
   {
     auto_ptr<database> db (create_database (argc, argv));
@@ -48,9 +56,9 @@ main (int argc, char* argv[])
     //
     //
     {
-      person p1 (1, "John", "Doe", 30, true);
-      person p2 (2, "Jane", "Doe", 29, true);
-      person p3 (3, "Joe", "Dirt", 31, false);
+      person p1 (1, "John", "Doe", 30, true, key1);
+      person p2 (2, "Jane", "Doe", 29, true, key2);
+      person p3 (3, "Joe", "Dirt", 31, false, key3);
       p3.middle_name_.reset (new string ("Squeaky"));
       person p4 (4, "Johansen", "Johansen", 32, false);
       p4.middle_name_.reset (new string ("J"));
@@ -416,6 +424,36 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
+    // Test BLOB column operations.
+    //
+    cout << "test 016" << endl;
+    {
+      transaction t (db->begin ());
+
+      result r;
+
+#ifndef DATABASE_ORACLE
+      // ==
+      //
+      r = db->query<person> (query::public_key == key2);
+
+      result::iterator i (r.begin ());
+      assert (i != r.end ());
+      assert (i->public_key_ == key2);
+#endif
+
+      // is_null
+      //
+      r = db->query<person> (query::public_key.is_null ());
+      print (r);
+
+      // is_not_null
+      //
+      r = db->query<person> (query::public_key.is_not_null ());
+      print (r);
+
+      t.commit ();
+    }
   }
   catch (const odb::exception& e)
   {

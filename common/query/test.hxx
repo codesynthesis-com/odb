@@ -7,11 +7,16 @@
 #define TEST_HXX
 
 #include <string>
+#include <vector>
 #include <memory>
 #include <iostream>
 
 #include <odb/core.hxx>
+#include <odb/nullable.hxx>
+
 #include <common/config.hxx>  // DATABASE_XXX
+
+typedef odb::nullable<std::vector<char> > nullable_vector;
 
 #pragma db object
 struct person
@@ -20,12 +25,14 @@ struct person
           const std::string& fn,
           const std::string& ln,
           unsigned short age,
-          bool married)
+          bool married,
+          const nullable_vector& public_key = nullable_vector ())
       : id_ (id),
         first_name_ (fn),
         last_name_ (ln),
         age_ (age),
-        married_ (married)
+        married_ (married),
+        public_key_ (public_key)
   {
   }
 
@@ -38,11 +45,8 @@ struct person
 
   #pragma db column ("first")
   std::string first_name_;
-#ifndef DATABASE_ORACLE
-  #pragma db column ("middle") type ("TEXT") null
-#else
-  #pragma db column ("middle") type ("CLOB") null
-#endif
+
+  #pragma db column ("middle") null
   std::auto_ptr<std::string> middle_name_;
 
   #pragma db column ("last")
@@ -50,6 +54,13 @@ struct person
 
   unsigned short age_;
   bool married_;
+
+#ifdef DATABASE_PGSQL
+  #pragma db column ("key") type ("BYTEA") null
+#else
+  #pragma db column ("key") type ("BLOB") null
+#endif
+  nullable_vector public_key_;
 };
 
 inline std::ostream&
@@ -62,6 +73,16 @@ operator<< (std::ostream& os, const person& p)
 
   os << ' ' << p.last_name_ << ' ' << p.age_ <<
     (p.married_ ? " married" : " single");
+
+  if (p.public_key_ && p.public_key_->size () > 0)
+  {
+    os << ' ';
+
+    for (std::size_t i (0), e (p.public_key_->size () - 1); i < e; ++i)
+      os << (unsigned int)(*p.public_key_)[i] << '-';
+
+    os << (unsigned int)p.public_key_->back ();
+  }
 
   return os;
 }
