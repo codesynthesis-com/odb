@@ -37,7 +37,7 @@ $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) --generate-schema \
 --generate-query --hxx-prologue '\#include "traits.hxx"' \
---table-prefix common_query_
+--table-prefix t_query_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
