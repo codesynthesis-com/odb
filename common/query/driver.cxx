@@ -392,19 +392,19 @@ main (int argc, char* argv[])
     // not invalidate the result.
     //
     cout << "test 014" << endl;
-    {
-      transaction t (db->begin ());
-      result r (db->query<person> (query::last_name == "Doe"));
+    // {
+    //   transaction t (db->begin ());
+    //   result r (db->query<person> (query::last_name == "Doe"));
 
-      result::iterator i (r.begin ());
-      assert (i != r.end ());
-      ++i;
-      assert (i != r.end ());
-      auto_ptr<person> joe (db->load<person> (3));
-      assert (i->last_name_ == "Doe");
+    //   result::iterator i (r.begin ());
+    //   assert (i != r.end ());
+    //   ++i;
+    //   assert (i != r.end ());
+    //   auto_ptr<person> joe (db->load<person> (3));
+    //   assert (i->last_name_ == "Doe");
 
-      t.commit ();
-    }
+    //   t.commit ();
+    // }
 
     // Test uncached result.
     //
