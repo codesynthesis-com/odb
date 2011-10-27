@@ -71,7 +71,7 @@ $(gen): cli_options +=                    \
 --cli-namespace odb::oracle::details::cli \
 --guard-prefix LIBODB_ORACLE_DETAILS
 
-$(out_base)/details/config.h:
+$(out_base)/details/config.h: | $(out_base)/details/.
 	@echo '/* file      : odb/oracle/details/config.h'               >$@
 	@echo ' * author    : automatically generated'                  >>$@
 	@echo ' */'                                                     >>$@
