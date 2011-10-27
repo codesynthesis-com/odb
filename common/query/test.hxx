@@ -16,7 +16,8 @@
 
 #include <common/config.hxx>  // DATABASE_XXX
 
-typedef odb::nullable<std::vector<char> > nullable_vector;
+typedef std::vector<char> buffer;
+typedef odb::nullable<buffer> nullable_buffer;
 
 #pragma db object
 struct person
@@ -26,7 +27,7 @@ struct person
           const std::string& ln,
           unsigned short age,
           bool married,
-          const nullable_vector& public_key = nullable_vector ())
+          const nullable_buffer& public_key = nullable_buffer ())
       : id_ (id),
         first_name_ (fn),
         last_name_ (ln),
@@ -60,7 +61,7 @@ struct person
 #else
   #pragma db column ("key") type ("BLOB") null
 #endif
-  nullable_vector public_key_;
+  nullable_buffer public_key_;
 };
 
 inline std::ostream&

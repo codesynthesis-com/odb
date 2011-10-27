@@ -41,7 +41,7 @@ const char* key_data[] = { "\x23\x03\x15", "\x13\x13\x54", "\x08\x62\x35" };
 int
 main (int argc, char* argv[])
 {
-  vector<char>
+  buffer
     key1 (key_data[0], key_data[0] + 3),
     key2 (key_data[1], key_data[1] + 3),
     key3 (key_data[2], key_data[2] + 3);
