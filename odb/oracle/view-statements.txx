@@ -25,6 +25,8 @@ namespace odb
       image_.version = 0;
       image_version_ = 0;
 
+      image_binding_.change_callback = &image_.change_callback;
+
       std::memset (image_bind_, 0, sizeof (image_bind_));
       std::memset (image_indicator_, 0, sizeof (image_indicator_));
 

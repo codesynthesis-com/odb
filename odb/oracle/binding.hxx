@@ -23,15 +23,18 @@ namespace odb
     {
     public:
       typedef oracle::bind bind_type;
+      typedef oracle::change_callback change_callback_type;
 
       binding (bind_type* b, std::size_t n)
-        : bind (b), count (n), version (0)
+        : bind (b), count (n), version (0), change_callback (0)
       {
       }
 
       bind_type* bind;
       std::size_t count;
       std::size_t version;
+
+      change_callback_type* change_callback;
 
     private:
       binding (const binding&);

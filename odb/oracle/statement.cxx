@@ -521,6 +521,11 @@ namespace odb
     {
       if (!done_)
       {
+        change_callback* cc (data_.change_callback);
+
+        if (cc != 0 && cc->callback != 0)
+          (cc->callback) (cc->context);
+
         sword r (OCIStmtFetch2 (stmt_,
                                 conn_.error_handle (),
                                 1,

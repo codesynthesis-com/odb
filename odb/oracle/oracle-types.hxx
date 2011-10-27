@@ -114,6 +114,18 @@ namespace odb
       //
       lob_context* context;
     };
+
+    // An instance of this structure specifies the function to invoke and
+    // the context to pass just prior to the image associated with a query
+    // is modified.
+    //
+    struct change_callback
+    {
+      change_callback (): callback (0), context (0) {};
+
+      void (*callback) (void*);
+      void* context;
+    };
   }
 }
 
