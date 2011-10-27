@@ -45,7 +45,6 @@ if [ -z "$driver" ]; then
   driver=sqlplus
 fi
 
-opt="-L"
 conn=$user
 
 if [ -n "$passwd" ]; then
@@ -66,7 +65,7 @@ elif [ -n "$service" ]; then
   conn="$conn@$service"
 fi
 
-opt="-S $opt"
+opt="-L -S $opt"
 
 if [ -n "$1" ]; then
   exec $driver $opt $conn @$1
