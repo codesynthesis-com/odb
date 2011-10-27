@@ -1191,7 +1191,7 @@ namespace odb
       virtual void
       bind (bind_type* b)
       {
-        b->type = bind_type::integer;
+        b->type = image_traits<T, id_int32>::buffer_type;
         b->buffer = &image_;
         b->capacity = sizeof (image_);
         b->size = 0;
@@ -1227,7 +1227,7 @@ namespace odb
       virtual void
       bind (bind_type* b)
       {
-        b->type = bind_type::integer;
+        b->type = image_traits<T, id_int64>::buffer_type;
         b->buffer = &image_;
         b->capacity = sizeof (image_);
         b->size = 0;

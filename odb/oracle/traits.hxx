@@ -103,12 +103,14 @@ namespace odb
     template <>
     struct int32_image_traits<false>
     {
+      static const bind::buffer_type buffer_type = bind::integer;
       typedef int image_type;
     };
 
     template <>
     struct int32_image_traits<true>
     {
+      static const bind::buffer_type buffer_type = bind::uinteger;
       typedef unsigned int image_type;
     };
 
@@ -125,12 +127,14 @@ namespace odb
     template <>
     struct int64_image_traits<false>
     {
+      static const bind::buffer_type buffer_type = bind::integer;
       typedef long long image_type;
     };
 
     template <>
     struct int64_image_traits<true>
     {
+      static const bind::buffer_type buffer_type = bind::uinteger;
       typedef unsigned long long image_type;
     };
 
