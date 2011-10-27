@@ -20,6 +20,7 @@ inheritance         \
 inverse             \
 lazy-ptr            \
 lifecycle           \
+no-id               \
 query               \
 readonly            \
 relationship        \
