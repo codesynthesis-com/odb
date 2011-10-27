@@ -41,7 +41,7 @@ $(cxx_obj) $(cxx_od): $(common.l.cpp-options) $(out_base)/config.h
 $(common.l.cpp-options): value := -I$(out_root)/libcommon -I$(src_root)/libcommon
 $(common.l.cpp-options): $(odb_db.l.cpp-options) $(odb.l.cpp-options)
 
-$(out_base)/config.h: $(dcf_root)/configuration-dynamic.make
+$(out_base)/config.h: $(dcf_root)/configuration-dynamic.make | $(out_base)/.
 	@echo '/* file      : libcommon/common/config.h'                 >$@
 	@echo ' * author    : automatically generated'                  >>$@
 	@echo ' */'                                                     >>$@
