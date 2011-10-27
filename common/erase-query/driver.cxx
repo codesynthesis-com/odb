@@ -161,22 +161,18 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-#ifndef DATABASE_ORACLE
     {
       transaction t (db->begin ());
+#ifndef DATABASE_ORACLE
       assert (db->execute ("SELECT * FROM erase_query_object_v "
                            "WHERE object_id = 1") == 0);
-      t.commit ();
-    }
 #else
-    {
-      transaction t (db->begin ());
       assert (db->execute ("SELECT * FROM \"erase_query_object_v\" "
                            "WHERE \"object_id\" = 1") == 0);
+#endif
       t.commit ();
     }
-#endif
-  }
+}
   catch (const odb::exception& e)
   {
     cerr << e.what () << endl;
