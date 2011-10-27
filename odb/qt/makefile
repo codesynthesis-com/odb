@@ -38,7 +38,7 @@ $(odb_qt.l.cpp-options): $(odb.l.cpp-options) $(qt_core.l.cpp-options)
 
 $(cxx_obj) $(cxx_od): $(odb_qt.l.cpp-options) $(out_base)/details/config.h
 
-$(out_base)/details/config.h:
+$(out_base)/details/config.h: | $(out_base)/details/.
 	@echo '/* file      : odb/qt/details/config.h'                   >$@
 	@echo ' * author    : automatically generated'                  >>$@
 	@echo ' */'                                                     >>$@
