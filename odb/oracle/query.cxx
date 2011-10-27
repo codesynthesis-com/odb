@@ -289,6 +289,10 @@ namespace odb
             if (last != ' ' && last != '(')
               r += ' ';
 
+            // Oracle does not have TRUE and FALSE boolean literals (these
+            // are available in PL/SQL). Boolean values seem to only be
+            // created as the result of boolean expressions.
+            //
             r += i->bool_part ? "1 = 1" : "1 = 0";
             break;
           }
