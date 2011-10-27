@@ -59,7 +59,11 @@ view2_test (const auto_ptr<database>& db)
   }
 
   {
-    result r (db->query<V> (query::age + " < 31"));
+#ifndef DATABASE_ORACLE
+    result r (db->query<V> ("age < 31"));
+#else
+    result r (db->query<V> ("\"age\" < 31"));
+#endif
 
     iterator i (r.begin ());
     assert (i != r.end ());
@@ -87,10 +91,11 @@ view4_test (const auto_ptr<database>& db)
   transaction t (db->begin ());
 
   {
-    result r (db->query<V> (
-                (query::person::age > 30) +
-                "ORDER BY " +
-                query::person::age));
+#ifndef DATABASE_ORACLE
+    result r (db->query<V> ((query::person::age > 30) + "ORDER BY age"));
+#else
+    result r (db->query<V> ((query::person::age > 30) + "ORDER BY \"age\""));
+#endif
 
     iterator i (r.begin ());
 
@@ -108,8 +113,7 @@ view4_test (const auto_ptr<database>& db)
   {
     result r (db->query<V> (
                 (query::person::age > 30) +
-                "ORDER BY " +
-                query::person::age));
+                "ORDER BY " + query::person::age));
 
     iterator i (r.begin ());
 

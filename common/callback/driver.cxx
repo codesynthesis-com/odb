@@ -95,13 +95,7 @@ main (int argc, char* argv[])
 
       transaction t (db->begin ());
 
-#ifndef DATABASE_ORACLE
-      result r (db->query<object> (
-                  (query::id < 3) + "ORDER BY callback_object.id"));
-#else
-      result r (db->query<object> (
-                  (query::id < 3) + "ORDER BY \"callback_object\".\"id\""));
-#endif
+      result r (db->query<object> ((query::id < 3) + "ORDER BY" + query::id));
 
       for (result::iterator i (r.begin ()); i != r.end (); ++i)
       {
