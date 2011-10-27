@@ -14,15 +14,6 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
 
-namespace odb
-{
-  namespace pgsql
-  {
-    template <typename T, class_kind kind>
-    class result_impl;
-  }
-}
-
 #include <odb/post.hxx>
 
 #endif // ODB_PGSQL_RESULT_HXX

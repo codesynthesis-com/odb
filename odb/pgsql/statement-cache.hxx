@@ -38,16 +38,18 @@ namespace odb
       }
 
       template <typename T>
-      object_statements<T>&
+      typename object_statements_selector<T>::type&
       find_object ()
       {
+        typedef typename object_statements_selector<T>::type object_statements;
+
         map::iterator i (map_.find (&typeid (T)));
 
         if (i != map_.end ())
-          return static_cast<object_statements<T>&> (*i->second);
+          return static_cast<object_statements&> (*i->second);
 
-        details::shared_ptr<object_statements<T> > p (
-          new (details::shared) object_statements<T> (conn_));
+        details::shared_ptr<object_statements> p (
+          new (details::shared) object_statements (conn_));
 
         map_.insert (map::value_type (&typeid (T), p));
         return *p;

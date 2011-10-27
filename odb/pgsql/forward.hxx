@@ -37,6 +37,9 @@ namespace odb
     class object_statements;
 
     template <typename T>
+    class object_statements_no_id;
+
+    template <typename T>
     class view_statements;
 
     template <typename T>

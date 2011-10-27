@@ -22,11 +22,10 @@ namespace odb
   namespace pgsql
   {
     template <typename T>
-    class result_impl<T, class_view>:
-      public odb::result_impl<T, class_view>
+    class view_result_impl: public odb::view_result_impl<T>
     {
     public:
-      typedef odb::result_impl<T, class_view> base_type;
+      typedef odb::view_result_impl<T> base_type;
 
       typedef typename base_type::view_type view_type;
       typedef typename base_type::view_traits view_traits;
@@ -35,11 +34,11 @@ namespace odb
       typedef typename base_type::pointer_traits pointer_traits;
 
       virtual
-      ~result_impl ();
+      ~view_result_impl ();
 
-      result_impl (const query&,
-                   details::shared_ptr<select_statement>,
-                   view_statements<view_type>&);
+      view_result_impl (const query&,
+                        details::shared_ptr<select_statement>,
+                        view_statements<view_type>&);
 
       virtual void
       load (view_type&);

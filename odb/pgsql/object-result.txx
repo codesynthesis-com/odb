@@ -11,17 +11,21 @@ namespace odb
 {
   namespace pgsql
   {
+    //
+    // object_result_impl
+    //
+
     template <typename T>
-    result_impl<T, class_object>::
-    ~result_impl ()
+    object_result_impl<T>::
+    ~object_result_impl ()
     {
     }
 
     template <typename T>
-    result_impl<T, class_object>::
-    result_impl (const query&,
-                 details::shared_ptr<select_statement> statement,
-                 object_statements<object_type>& statements)
+    object_result_impl<T>::
+    object_result_impl (const query&,
+                        details::shared_ptr<select_statement> statement,
+                        object_statements<object_type>& statements)
         : base_type (statements.connection ().database ()),
           statement_ (statement),
           statements_ (statements)
@@ -29,7 +33,7 @@ namespace odb
     }
 
     template <typename T>
-    void result_impl<T, class_object>::
+    void object_result_impl<T>::
     load (object_type& obj)
     {
       load_image ();
@@ -66,8 +70,8 @@ namespace odb
     }
 
     template <typename T>
-    typename result_impl<T, class_object>::id_type
-    result_impl<T, class_object>::
+    typename object_result_impl<T>::id_type
+    object_result_impl<T>::
     load_id ()
     {
       load_image ();
@@ -75,7 +79,7 @@ namespace odb
     }
 
     template <typename T>
-    void result_impl<T, class_object>::
+    void object_result_impl<T>::
     next ()
     {
       this->current (pointer_type ());
@@ -85,7 +89,7 @@ namespace odb
     }
 
     template <typename T>
-    void result_impl<T, class_object>::
+    void object_result_impl<T>::
     load_image ()
     {
       // The image can grow between calls to load() as a result of other
@@ -120,13 +124,98 @@ namespace odb
     }
 
     template <typename T>
-    void result_impl<T, class_object>::
+    void object_result_impl<T>::
     cache ()
     {
     }
 
     template <typename T>
-    std::size_t result_impl<T, class_object>::
+    std::size_t object_result_impl<T>::
+    size ()
+    {
+      return statement_->result_size ();
+    }
+
+    //
+    // object_result_impl_no_id
+    //
+
+    template <typename T>
+    object_result_impl_no_id<T>::
+    ~object_result_impl_no_id ()
+    {
+    }
+
+    template <typename T>
+    object_result_impl_no_id<T>::
+    object_result_impl_no_id (const query&,
+                              details::shared_ptr<select_statement> statement,
+                              object_statements_no_id<object_type>& statements)
+        : base_type (statements.connection ().database ()),
+          statement_ (statement),
+          statements_ (statements)
+    {
+    }
+
+    template <typename T>
+    void object_result_impl_no_id<T>::
+    load (object_type& obj)
+    {
+      // The image can grow between calls to load() as a result of other
+      // statements execution.
+      //
+      typename object_traits::image_type& im (statements_.image ());
+
+      if (im.version != statements_.select_image_version ())
+      {
+        binding& b (statements_.select_image_binding ());
+        object_traits::bind (b.bind, im, statement_select);
+        statements_.select_image_version (im.version);
+        b.version++;
+      }
+
+      select_statement::result r (statement_->load ());
+
+      if (r == select_statement::truncated)
+      {
+        if (object_traits::grow (im, statements_.select_image_truncated ()))
+          im.version++;
+
+        if (im.version != statements_.select_image_version ())
+        {
+          binding& b (statements_.select_image_binding ());
+          object_traits::bind (b.bind, im, statement_select);
+          statements_.select_image_version (im.version);
+          b.version++;
+          statement_->reload ();
+        }
+      }
+
+      odb::database& db (this->database ());
+
+      object_traits::callback (db, obj, callback_event::pre_load);
+      object_traits::init (obj, im, db);
+      object_traits::callback (db, obj, callback_event::post_load);
+    }
+
+    template <typename T>
+    void object_result_impl_no_id<T>::
+    next ()
+    {
+      this->current (pointer_type ());
+
+      if (!statement_->next ())
+        this->end_ = true;
+    }
+
+    template <typename T>
+    void object_result_impl_no_id<T>::
+    cache ()
+    {
+    }
+
+    template <typename T>
+    std::size_t object_result_impl_no_id<T>::
     size ()
     {
       return statement_->result_size ();
