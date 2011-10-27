@@ -1193,7 +1193,7 @@ namespace odb
       {
         b->type = bind_type::integer;
         b->buffer = &image_;
-        b->capacity = sizeof (int);
+        b->capacity = sizeof (image_);
         b->size = 0;
       }
 
@@ -1229,7 +1229,7 @@ namespace odb
       {
         b->type = bind_type::integer;
         b->buffer = &image_;
-        b->capacity = sizeof (long long);
+        b->capacity = sizeof (image_);
         b->size = 0;
       }
 
@@ -1304,7 +1304,7 @@ namespace odb
       {
         b->type = bind_type::binary_float;
         b->buffer = &image_;
-        b->capacity = sizeof (float);
+        b->capacity = sizeof (image_);
         b->size = 0;
       }
 
@@ -1340,7 +1340,7 @@ namespace odb
       {
         b->type = bind_type::binary_double;
         b->buffer = &image_;
-        b->capacity = sizeof (double);
+        b->capacity = sizeof (image_);
         b->size = 0;
       }
 
@@ -1460,8 +1460,12 @@ namespace odb
       init (const T& v)
       {
         bool dummy;
-        std::size_t size (0), cap (11);
-        value_traits<T, id_timestamp>::set_image (image_, size, cap, dummy, v);
+        std::size_t size (0);
+        value_traits<T, id_timestamp>::set_image (image_,
+                                                  size,
+                                                  sizeof (image_),
+                                                  dummy,
+                                                  v);
         size_ = static_cast<ub2> (size);
       }
 
@@ -1500,7 +1504,11 @@ namespace odb
       {
         bool dummy;
         std::size_t size (0);
-        value_traits<T, id_string>::set_image (image_, 4000, size, dummy, v);
+        value_traits<T, id_string>::set_image (image_,
+                                               sizeof (image_),
+                                               size,
+                                               dummy,
+                                               v);
         size_ = static_cast<ub2> (size);
       }
 
@@ -1539,7 +1547,11 @@ namespace odb
       {
         bool dummy;
         std::size_t size (0);
-        value_traits<T, id_nstring>::set_image (image_, 4000, size, dummy, v);
+        value_traits<T, id_nstring>::set_image (image_,
+                                                sizeof (image_),
+                                                size,
+                                                dummy,
+                                                v);
         size_ = static_cast<ub2> (size);
       }
 
@@ -1578,7 +1590,11 @@ namespace odb
       {
         bool dummy;
         std::size_t size (0);
-        value_traits<T, id_raw>::set_image (image_, 4000, size, dummy, v);
+        value_traits<T, id_raw>::set_image (image_,
+                                            sizeof (image_),
+                                            size,
+                                            dummy,
+                                            v);
         size_ = static_cast<ub2> (size);
       }
 
