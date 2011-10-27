@@ -16,6 +16,10 @@ namespace odb
 {
   namespace oracle
   {
+    //
+    // object_statements
+    //
+
     template <typename T>
     object_statements<T>::
     ~object_statements ()
@@ -110,6 +114,31 @@ namespace odb
       }
 
       delayed_.clear ();
+    }
+
+    //
+    // object_statements_no_id
+    //
+
+    template <typename T>
+    object_statements_no_id<T>::
+    ~object_statements_no_id ()
+    {
+    }
+
+    template <typename T>
+    object_statements_no_id<T>::
+    object_statements_no_id (connection_type& conn)
+        : statements_base (conn),
+          select_image_binding_ (select_image_bind_, select_column_count),
+          insert_image_binding_ (insert_image_bind_, insert_column_count)
+    {
+      image_.version = 0;
+      select_image_version_ = 0;
+      insert_image_version_ = 0;
+
+      std::memset (insert_image_bind_, 0, sizeof (insert_image_bind_));
+      std::memset (select_image_bind_, 0, sizeof (select_image_bind_));
     }
   }
 }

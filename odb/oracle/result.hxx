@@ -14,15 +14,6 @@
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
 
-namespace odb
-{
-  namespace oracle
-  {
-    template <typename T, class_kind kind>
-    class result_impl;
-  }
-}
-
 #include <odb/post.hxx>
 
 #endif // ODB_ORACLE_RESULT_HXX

@@ -22,11 +22,10 @@ namespace odb
   namespace oracle
   {
     template <typename T>
-    class result_impl<T, class_object>:
-      public odb::result_impl<T, class_object>
+    class object_result_impl: public odb::object_result_impl<T>
     {
     public:
-      typedef odb::result_impl<T, class_object> base_type;
+      typedef odb::object_result_impl<T> base_type;
 
       typedef typename base_type::object_type object_type;
       typedef typename base_type::object_traits object_traits;
@@ -36,11 +35,11 @@ namespace odb
       typedef typename base_type::pointer_traits pointer_traits;
 
       virtual
-      ~result_impl ();
+      ~object_result_impl ();
 
-      result_impl (const query&,
-                   details::shared_ptr<select_statement>,
-                   object_statements<object_type>&);
+      object_result_impl (const query&,
+                          details::shared_ptr<select_statement>,
+                          object_statements<object_type>&);
 
       virtual void
       load (object_type&);
@@ -62,6 +61,44 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       object_statements<object_type>& statements_;
+    };
+
+    template <typename T>
+    class object_result_impl_no_id: public odb::object_result_impl_no_id<T>
+    {
+    public:
+      typedef odb::object_result_impl_no_id<T> base_type;
+
+      typedef typename base_type::object_type object_type;
+      typedef typename base_type::object_traits object_traits;
+
+      typedef typename base_type::pointer_type pointer_type;
+      typedef typename base_type::pointer_traits pointer_traits;
+
+      virtual
+      ~object_result_impl_no_id ();
+
+      object_result_impl_no_id (const query&,
+                                details::shared_ptr<select_statement>,
+                                object_statements_no_id<object_type>&);
+
+      virtual void
+      load (object_type&);
+
+      virtual void
+      next ();
+
+      virtual void
+      cache ();
+
+      virtual std::size_t
+      size ();
+
+      using base_type::current;
+
+    private:
+      details::shared_ptr<select_statement> statement_;
+      object_statements_no_id<object_type>& statements_;
     };
   }
 }

@@ -30,6 +30,28 @@ namespace odb
 {
   namespace oracle
   {
+    template <typename T>
+    class object_statements;
+
+    template <typename T>
+    class object_statements_no_id;
+
+    template <typename T, typename ID = typename object_traits<T>::id_type>
+    struct object_statements_selector
+    {
+      typedef object_statements<T> type;
+    };
+
+    template <typename T>
+    struct object_statements_selector<T, void>
+    {
+      typedef object_statements_no_id<T> type;
+    };
+
+    //
+    // Implementation for objects with object id.
+    //
+
     class LIBODB_ORACLE_EXPORT object_statements_base: public statements_base
     {
       // Locking.
@@ -400,6 +422,105 @@ namespace odb
         object_statements& os_;
         delayed_loads& dl_;
       };
+    };
+
+    //
+    // Implementation for objects without object id.
+    //
+
+    template <typename T>
+    class object_statements_no_id: public statements_base
+    {
+    public:
+      typedef T object_type;
+      typedef odb::object_traits<object_type> object_traits;
+      typedef typename object_traits::pointer_type pointer_type;
+      typedef typename object_traits::image_type image_type;
+
+      typedef oracle::insert_statement insert_statement_type;
+
+    public:
+      object_statements_no_id (connection_type&);
+
+      virtual
+      ~object_statements_no_id ();
+
+      // Object image.
+      //
+      image_type&
+      image ()
+      {
+        return image_;
+      }
+
+      // Insert binding.
+      //
+      std::size_t
+      insert_image_version () const { return insert_image_version_;}
+
+      void
+      insert_image_version (std::size_t v) {insert_image_version_ = v;}
+
+      binding&
+      insert_image_binding () {return insert_image_binding_;}
+
+      // Select binding (needed for query support).
+      //
+      std::size_t
+      select_image_version () const { return select_image_version_;}
+
+      void
+      select_image_version (std::size_t v) {select_image_version_ = v;}
+
+      binding&
+      select_image_binding () {return select_image_binding_;}
+
+      // Statements.
+      //
+      insert_statement_type&
+      persist_statement ()
+      {
+        if (persist_ == 0)
+          persist_.reset (
+            new (details::shared) insert_statement_type (
+              conn_,
+              object_traits::persist_statement,
+              insert_image_binding_,
+              false));
+
+        return *persist_;
+      }
+
+    private:
+      object_statements_no_id (const object_statements_no_id&);
+      object_statements_no_id& operator= (const object_statements_no_id&);
+
+    private:
+      // select = total
+      // insert = total - inverse; inverse == 0 for object without id
+      //
+      static const std::size_t insert_column_count =
+        object_traits::column_count;
+
+      static const std::size_t select_column_count =
+        object_traits::column_count;
+
+    private:
+      image_type image_;
+
+      // Select binding.
+      //
+      std::size_t select_image_version_;
+      binding select_image_binding_;
+      bind select_image_bind_[select_column_count];
+
+      // Insert binding.
+      //
+      std::size_t insert_image_version_;
+      binding insert_image_binding_;
+      bind insert_image_bind_[insert_column_count];
+
+      details::shared_ptr<insert_statement_type> persist_;
     };
   }
 }
