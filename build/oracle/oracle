@@ -65,9 +65,10 @@ elif [ -n "$service" ]; then
   conn="$conn@$service"
 fi
 
-opt="-L -S $opt"
+opt="-L $opt"
 
 if [ -n "$1" ]; then
+  opt="-S $opt"
   exec $driver $opt $conn @$1
 else
   exec $driver $opt $conn
