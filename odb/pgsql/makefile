@@ -72,7 +72,7 @@ $(gen): cli_options +=                   \
 --cli-namespace odb::pgsql::details::cli \
 --guard-prefix LIBODB_PGSQL_DETAILS
 
-$(out_base)/details/config.h:
+$(out_base)/details/config.h: | $(out_base)/details/.
 	@echo '/* file      : odb/pgsql/details/config.h'                >$@
 	@echo ' * author    : automatically generated'                  >>$@
 	@echo ' */'                                                     >>$@
