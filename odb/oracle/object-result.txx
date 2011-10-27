@@ -43,13 +43,13 @@ namespace odb
 
       typename object_traits::image_type& i (statements_.image ());
       object_traits::init (obj, i, db);
+      statement_->stream_result ();
 
       // Initialize the id image and binding and load the rest of the object
       // (containers, etc).
       //
       typename object_traits::id_image_type& idi (statements_.id_image ());
       object_traits::init (idi, object_traits::id (i));
-      statement_->stream_result ();
 
       binding& idb (statements_.id_image_binding ());
       if (idi.version != statements_.id_image_version () || idb.version == 0)
