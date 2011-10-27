@@ -74,16 +74,6 @@ operator<< (std::ostream& os, const person& p)
   os << ' ' << p.last_name_ << ' ' << p.age_ <<
     (p.married_ ? " married" : " single");
 
-  if (p.public_key_ && p.public_key_->size () > 0)
-  {
-    os << ' ';
-
-    for (std::size_t i (0), e (p.public_key_->size () - 1); i < e; ++i)
-      os << (unsigned int)(*p.public_key_)[i] << '-';
-
-    os << (unsigned int)p.public_key_->back ();
-  }
-
   return os;
 }
 

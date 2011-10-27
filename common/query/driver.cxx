@@ -444,26 +444,47 @@ main (int argc, char* argv[])
       transaction t (db->begin ());
 
       result r;
+      result::iterator i;
 
+      // Oracle does not support LOB comparisons.
+      //
 #ifndef DATABASE_ORACLE
       // ==
       //
       r = db->query<person> (query::public_key == key2);
 
-      result::iterator i (r.begin ());
+      i = r.begin ();
       assert (i != r.end ());
+
       assert (i->public_key_ == key2);
+      assert (++i == r.end ());
 #endif
 
       // is_null
       //
       r = db->query<person> (query::public_key.is_null ());
-      print (r);
+
+      i = r.begin ();
+      assert (i != r.end ());
+
+      assert (i->first_name_ == "Johansen" && i->last_name_ == "Johansen");
+      assert (++i == r.end ());
 
       // is_not_null
       //
       r = db->query<person> (query::public_key.is_not_null ());
-      print (r);
+
+      i = r.begin ();
+      assert (i != r.end ());
+
+      assert (i->first_name_ == "John" && i->last_name_ == "Doe");
+      assert (++i != r.end ());
+
+      assert (i->first_name_ == "Jane" && i->last_name_ == "Doe");
+      assert (++i != r.end ());
+
+      assert (i->first_name_ == "Joe" && i->last_name_ == "Dirt");
+      assert (++i == r.end ());
 
       t.commit ();
     }
