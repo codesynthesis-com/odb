@@ -71,6 +71,7 @@ namespace odb
         // those before we call the post callback.
         //
         object_traits::init (*l.obj, image (), db);
+        find_->stream_result ();
         object_traits::load_ (*this, *l.obj); // Load containers, etc.
 
         if (!delayed_.empty ())
