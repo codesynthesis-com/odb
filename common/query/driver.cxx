@@ -458,7 +458,7 @@ main (int argc, char* argv[])
       i = r.begin ();
       assert (i != r.end ());
 
-      assert (i->public_key_ == key2);
+      assert (*i->public_key_ == key2);
       assert (++i == r.end ());
 #endif
 
