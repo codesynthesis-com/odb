@@ -57,8 +57,8 @@ namespace odb
         b.version++;
       }
 
-      this->end_ = this->end_ ||
-        (statement_->fetch () == select_statement::success ? false : true);
+      if (statement_->fetch () == select_statement::no_data)
+        this->end_ = true;
     }
 
     template <typename T>
