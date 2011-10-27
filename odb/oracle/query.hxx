@@ -1057,12 +1057,11 @@ namespace odb
     // predicates for these types.
     //
 
-    template <typename T>
-    struct query_column<T, id_blob>
+    struct LIBODB_ORACLE_EXPORT lob_query_column
     {
       // Note that we keep shalow copies of the table and column names.
       //
-      query_column (const char* table, const char* column)
+      lob_query_column (const char* table, const char* column)
           : table_ (table), column_ (column)
       {
       }
@@ -1101,98 +1100,33 @@ namespace odb
     private:
       const char* table_;
       const char* column_;
+    };
+
+    template <typename T>
+    struct query_column<T, id_blob>: lob_query_column
+    {
+      query_column (const char* table, const char* column)
+          : lob_query_column (table, column)
+      {
+      }
     };
 
     template <typename T>
     struct query_column<T, id_clob>
     {
-      // Note that we keep shalow copies of the table and column names.
-      //
       query_column (const char* table, const char* column)
-          : table_ (table), column_ (column)
+          : lob_query_column (table, column)
       {
       }
-
-      const char*
-      table () const
-      {
-        return table_;
-      }
-
-      const char*
-      column () const
-      {
-        return column_;
-      }
-
-      // is_null, is_not_null
-      //
-    public:
-      query
-      is_null () const
-      {
-        query q (table_, column_);
-        q += "IS NULL";
-        return q;
-      }
-
-      query
-      is_not_null () const
-      {
-        query q (table_, column_);
-        q += "IS NOT NULL";
-        return q;
-      }
-
-    private:
-      const char* table_;
-      const char* column_;
     };
 
     template <typename T>
     struct query_column<T, id_nclob>
     {
-      // Note that we keep shalow copies of the table and column names.
-      //
       query_column (const char* table, const char* column)
-          : table_ (table), column_ (column)
+          : lob_query_column (table, column)
       {
       }
-
-      const char*
-      table () const
-      {
-        return table_;
-      }
-
-      const char*
-      column () const
-      {
-        return column_;
-      }
-
-      // is_null, is_not_null
-      //
-    public:
-      query
-      is_null () const
-      {
-        query q (table_, column_);
-        q += "IS NULL";
-        return q;
-      }
-
-      query
-      is_not_null () const
-      {
-        query q (table_, column_);
-        q += "IS NOT NULL";
-        return q;
-      }
-
-    private:
-      const char* table_;
-      const char* column_;
     };
 
     // Provide operator+() for using columns to construct native
