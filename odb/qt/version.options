@@ -4,10 +4,10 @@
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 # Make sure the options files as seen by the ODB compiler and header
-# files as seen by the C++ compiler are from the same profile version.
+# files as seen by the C++ compiler have the same Qt interface version.
 #
 --hxx-prologue '#include <odb/qt/version.hxx>'
 
---hxx-prologue '#if LIBODB_QT_VERSION != 1060000 // 1.6.0'
---hxx-prologue '#  error ODB and C++ compilers see different libodb-qt versions'
+--hxx-prologue '#if ODB_QT_VERSION != 1060000 // 1.6.0'
+--hxx-prologue '#  error ODB and C++ compilers see different libodb-qt interface versions'
 --hxx-prologue '#endif'
