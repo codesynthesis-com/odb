@@ -187,7 +187,8 @@ namespace odb
               insert_one_types_,
               insert_one_count_,
               data_image_binding_,
-              data_image_native_binding_));
+              data_image_native_binding_,
+              false));
         }
 
         return *insert_one_;

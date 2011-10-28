@@ -265,7 +265,8 @@ namespace odb
               object_traits::persist_statement_types,
               insert_column_count,
               insert_image_binding_,
-              insert_image_native_binding_));
+              insert_image_native_binding_,
+              object_traits::auto_id));
         }
 
         return *persist_;
@@ -522,7 +523,8 @@ namespace odb
               object_traits::persist_statement_types,
               insert_column_count,
               insert_image_binding_,
-              insert_image_native_binding_));
+              insert_image_native_binding_,
+              false));
         }
 
         return *persist_;

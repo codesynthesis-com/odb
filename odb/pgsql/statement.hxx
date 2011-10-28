@@ -180,7 +180,8 @@ namespace odb
                         const Oid* types,
                         std::size_t types_count,
                         binding& data,
-                        native_binding& native_data);
+                        native_binding& native_data,
+                        bool returning);
 
       // Return true if successful and false if the row is a duplicate.
       // All other errors are reported by throwing exceptions.
@@ -189,7 +190,10 @@ namespace odb
       execute ();
 
       unsigned long long
-      id ();
+      id ()
+      {
+        return id_;
+      }
 
     private:
       insert_statement (const insert_statement&);
@@ -199,7 +203,7 @@ namespace odb
       binding& data_;
       native_binding& native_data_;
 
-      bool id_cached_;
+      bool returning_;
       unsigned long long id_;
     };
 

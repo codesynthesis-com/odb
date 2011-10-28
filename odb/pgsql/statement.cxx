@@ -11,6 +11,7 @@
 
 #include <odb/exceptions.hxx> // object_not_persistent
 
+#include <odb/pgsql/pgsql-oid.hxx>
 #include <odb/pgsql/statement.hxx>
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/transaction.hxx>
@@ -442,19 +443,18 @@ namespace odb
                       const Oid* types,
                       size_t types_count,
                       binding& data,
-                      native_binding& native_data)
+                      native_binding& native_data,
+                      bool returning)
         : statement (conn, name, stmt, types, types_count),
           data_ (data),
           native_data_ (native_data),
-          id_cached_ (false)
+          returning_ (returning)
     {
     }
 
     bool insert_statement::
     execute ()
     {
-      id_cached_ = false;
-
       bind_param (native_data_, data_);
 
       auto_handle<PGresult> h (
@@ -481,26 +481,44 @@ namespace odb
         translate_error (conn_, h);
       }
 
+      if (returning_)
+      {
+        // Get the id value that was returned using the RETURNING clause.
+        //
+        const char* v (PQgetvalue (h, 0, 0));
+
+        // While the ODB auto id type can only be INT or BIGINT, handle the
+        // SMALLINT integer in case we are dealing with a custom schema.
+        //
+        switch (PQftype (h, 0))
+        {
+        case int2_oid:
+          {
+            id_ = endian_traits::ntoh (
+              *reinterpret_cast<const unsigned short*> (v));
+            break;
+          }
+        case int4_oid:
+          {
+            id_ = endian_traits::ntoh (
+              *reinterpret_cast<const unsigned int*> (v));
+            break;
+          }
+        case int8_oid:
+          {
+            id_ = endian_traits::ntoh (
+              *reinterpret_cast<const unsigned long long*> (v));
+            break;
+          }
+        default:
+          {
+            assert (false);
+            break;
+          }
+        }
+      }
+
       return true;
-    }
-
-    unsigned long long insert_statement::
-    id ()
-    {
-      if (id_cached_)
-        return id_;
-
-      auto_handle<PGresult> h (
-        PQexecParams (conn_.handle (), "select lastval ()", 0, 0, 0, 0, 0, 1));
-
-      if (!is_good_result (h))
-        translate_error (conn_, h);
-
-      id_ = endian_traits::ntoh (*reinterpret_cast<unsigned long long*> (
-                                   PQgetvalue (h, 0, 0)));
-      id_cached_ = true;
-
-      return id_;
     }
 
     //
