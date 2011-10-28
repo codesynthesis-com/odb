@@ -36,7 +36,13 @@ namespace odb
         if (is_null)
           v = QByteArray ();
         else
-          v.replace (0, v.size (), b.data (), static_cast<int> (n));
+        {
+          // Note that we cannot use replace() here since a suitable
+          // overload was only added in Qt 4.7.
+          //
+          v.resize (static_cast<int> (n));
+          std::memcpy (v.data (), b.data (), n);
+        }
       }
 
       static void
