@@ -85,7 +85,7 @@ namespace odb
         d_ = d;
       }
 
-    protected:
+    private:
       auto_descriptor (const auto_descriptor&);
       auto_descriptor& operator= (const auto_descriptor&);
 

@@ -141,11 +141,9 @@ namespace odb
       }
 
       lob_auto_descriptor (lob_auto_descriptor& x)
-        : auto_descriptor<OCILobLocator> (0)
+        : auto_descriptor<OCILobLocator> (x.d_)
       {
-        OCILobLocator* l (x.d_);
         x.d_ = 0;
-        reset (l);
       }
 
       lob_auto_descriptor&

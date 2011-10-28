@@ -55,8 +55,14 @@ namespace odb
       using base_type::current;
 
     private:
+      static void
+      change_callback (void* context);
+
+    private:
       details::shared_ptr<select_statement> statement_;
       view_statements<view_type>& statements_;
+      bool use_copy_;
+      typename view_traits::image_type* image_copy_;
     };
   }
 }

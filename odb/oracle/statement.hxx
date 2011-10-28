@@ -52,6 +52,17 @@ namespace odb
                    std::size_t count,
                    std::size_t lob_prefetch_size = 0);
 
+      // Rebind LOB input parameters. If a query has made a private copy of
+      // the shared image, any LOB handles that were previously owned by the
+      // shared image are now owned by the private image of the query. These
+      // LOB handles need to be reallocated and redefined so that any unfetched
+      // results may be fetched.
+      //
+      void
+      rebind_result (bind*,
+                     std::size_t count,
+                     std::size_t lob_prefetch_size = 0);
+
       // Stream the result LOBs, calling user callbacks where necessary.
       //
       void
@@ -106,6 +117,8 @@ namespace odb
 
     private:
       binding& data_;
+      std::size_t data_version_;
+      const std::size_t lob_prefetch_size_;
       bool done_;
     };
 

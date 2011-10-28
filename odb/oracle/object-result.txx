@@ -20,6 +20,8 @@ namespace odb
     object_result_impl<T>::
     ~object_result_impl ()
     {
+      statements_.image ().change_callback_.callback = 0;
+      delete image_copy_;
     }
 
     template <typename T>
@@ -29,7 +31,9 @@ namespace odb
                         object_statements<object_type>& statements)
         : base_type (statements.connection ().database ()),
           statement_ (statement),
-          statements_ (statements)
+          statements_ (statements),
+          use_copy_ (false),
+          image_copy_ (0)
     {
     }
 
@@ -45,7 +49,9 @@ namespace odb
       odb::database& db (this->database ());
       object_traits::callback (db, obj, callback_event::pre_load);
 
-      typename object_traits::image_type& i (statements_.image ());
+      typename object_traits::image_type& i (
+        use_copy_ ? *image_copy_ : statements_.image ());
+
       object_traits::init (obj, i, db);
       statement_->stream_result ();
 
@@ -85,6 +91,9 @@ namespace odb
 
       typename object_traits::image_type& im (statements_.image ());
 
+      im.change_callback_.callback = 0;
+      use_copy_ = false;
+
       if (im.version != statements_.select_image_version ())
       {
         binding& b (statements_.select_image_binding ());
@@ -95,6 +104,11 @@ namespace odb
 
       if (statement_->fetch () == select_statement::no_data)
         this->end_ = true;
+      else
+      {
+        im.change_callback_.callback = &change_callback;
+        im.change_callback_.context = this;
+      }
     }
 
     template <typename T>
@@ -110,6 +124,24 @@ namespace odb
       throw result_not_cached ();
     }
 
+    template <typename T>
+    void object_result_impl<T>::
+    change_callback (void* c)
+    {
+      object_result_impl<T>* r (static_cast<object_result_impl<T>*> (c));
+      object_statements<object_type>& stmts (r->statements_);
+
+      if (r->image_copy_ == 0)
+        r->image_copy_ = new
+          typename object_traits::image_type (stmts.image ());
+      else
+        *r->image_copy_ = stmts.image ();
+
+      stmts.select_image_binding ().version++;
+      stmts.image ().change_callback_.callback = 0;
+      r->use_copy_ = true;
+    }
+
     //
     // object_result_impl_no_id
     //
@@ -118,6 +150,8 @@ namespace odb
     object_result_impl_no_id<T>::
     ~object_result_impl_no_id ()
     {
+      statements_.image ().change_callback_.callback = 0;
+      delete image_copy_;
     }
 
     template <typename T>
@@ -127,7 +161,9 @@ namespace odb
                               object_statements_no_id<object_type>& statements)
         : base_type (statements.connection ().database ()),
           statement_ (statement),
-          statements_ (statements)
+          statements_ (statements),
+          use_copy_ (false),
+          image_copy_ (0)
     {
     }
 
@@ -138,8 +174,14 @@ namespace odb
       odb::database& db (this->database ());
 
       object_traits::callback (db, obj, callback_event::pre_load);
-      object_traits::init (obj, statements_.image (), db);
+
+      if (use_copy_)
+        object_traits::init (obj, *image_copy_, db);
+      else
+        object_traits::init (obj, statements_.image (), db);
+
       statement_->stream_result ();
+
       object_traits::callback (db, obj, callback_event::post_load);
     }
 
@@ -151,6 +193,9 @@ namespace odb
 
       typename object_traits::image_type& im (statements_.image ());
 
+      im.change_callback_.callback = 0;
+      use_copy_ = false;
+
       if (im.version != statements_.select_image_version ())
       {
         binding& b (statements_.select_image_binding ());
@@ -161,6 +206,11 @@ namespace odb
 
       if (statement_->fetch () == select_statement::no_data)
         this->end_ = true;
+      else
+      {
+        im.change_callback_.callback = &change_callback;
+        im.change_callback_.context = this;
+      }
     }
 
     template <typename T>
@@ -174,6 +224,26 @@ namespace odb
     size ()
     {
       throw result_not_cached ();
+    }
+
+    template <typename T>
+    void object_result_impl_no_id<T>::
+    change_callback (void* c)
+    {
+      object_result_impl_no_id<T>* r (
+        static_cast<object_result_impl_no_id<T>*> (c));
+
+      object_statements_no_id<object_type>& stmts (r->statements_);
+
+      if (r->image_copy_ == 0)
+        r->image_copy_ = new
+          typename object_traits::image_type (stmts.image ());
+      else
+        *r->image_copy_ = stmts.image ();
+
+      stmts.select_image_binding ().version++;
+      stmts.image ().change_callback_.callback = 0;
+      r->use_copy_ = true;
     }
   }
 }

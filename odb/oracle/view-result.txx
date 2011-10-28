@@ -16,6 +16,8 @@ namespace odb
     view_result_impl<T>::
     ~view_result_impl ()
     {
+      statements_.image ().change_callback_.callback = 0;
+      delete image_copy_;
     }
 
     template <typename T>
@@ -25,7 +27,9 @@ namespace odb
                       view_statements<view_type>& statements)
         : base_type (statements.connection ().database ()),
           statement_ (statement),
-          statements_ (statements)
+          statements_ (statements),
+          use_copy_ (false),
+          image_copy_ (0)
     {
     }
 
@@ -36,7 +40,12 @@ namespace odb
       odb::database& db (this->database ());
 
       view_traits::callback (db, view, callback_event::pre_load);
-      view_traits::init (view, statements_.image (), db);
+
+      if (use_copy_)
+        view_traits::init (view, *image_copy_, db);
+      else
+        view_traits::init (view, statements_.image (), db);
+
       statement_->stream_result ();
       view_traits::callback (db, view, callback_event::post_load);
     }
@@ -49,6 +58,9 @@ namespace odb
 
       typename view_traits::image_type& im (statements_.image ());
 
+      im.change_callback_.callback = 0;
+      use_copy_ = false;
+
       if (im.version != statements_.image_version ())
       {
         binding& b (statements_.image_binding ());
@@ -59,6 +71,11 @@ namespace odb
 
       if (statement_->fetch () == select_statement::no_data)
         this->end_ = true;
+      else
+      {
+        im.change_callback_.callback = &change_callback;
+        im.change_callback_.context = this;
+      }
     }
 
     template <typename T>
@@ -72,6 +89,24 @@ namespace odb
     size ()
     {
       throw result_not_cached ();
+    }
+
+    template <typename T>
+    void view_result_impl<T>::
+    change_callback (void* c)
+    {
+      view_result_impl<T>* r (static_cast<view_result_impl<T>*> (c));
+      view_statements<view_type>& stmts (r->statements_);
+
+      if (r->image_copy_ == 0)
+        r->image_copy_ = new
+          typename view_traits::image_type (stmts.image ());
+      else
+        *r->image_copy_ = stmts.image ();
+
+      stmts.image_binding ().version++;
+      stmts.image ().change_callback_.callback = 0;
+      r->use_copy_ = true;
     }
   }
 }

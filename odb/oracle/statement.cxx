@@ -355,6 +355,85 @@ namespace odb
     }
 
     void statement::
+    rebind_result (bind* b, size_t c, size_t p)
+    {
+      ODB_POTENTIALLY_UNUSED (p);
+
+      OCIError* err (conn_.error_handle ());
+
+      for (size_t i (1); i <= c; ++i, ++b)
+      {
+        if (!(b->type == bind::blob ||
+              b->type == bind::clob ||
+              b->type == bind::nclob))
+          continue;
+
+        // When binding a LOB result, the bind::buffer member is
+        // reinterpreted as a pointer to an auto_descriptor<OCILobLocator>.
+        // If the descriptor has been reset, it is re-allocated now.
+        //
+        auto_descriptor<OCILobLocator>* lob (
+          reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
+
+        if (lob->get () == 0)
+        {
+          OCILobLocator* h (0);
+
+          sword r (OCIDescriptorAlloc (conn_.database ().environment (),
+                                       reinterpret_cast<void**> (&h),
+                                       OCI_DTYPE_LOB,
+                                       0,
+                                       0));
+
+          // OCIDescriptorAlloc will return OCI_SUCCESS on success, or
+          // OCI_INVALID_HANDLE on an out-of-memory condition.
+          //
+          if (r != OCI_SUCCESS)
+            throw invalid_oci_handle ();
+
+          lob->reset (h);
+        }
+
+        OCIDefine* h(0);
+        sword r (OCIDefineByPos (stmt_,
+                                 &h,
+                                 err,
+                                 i,
+                                 lob,
+                                 sizeof (OCILobLocator*),
+                                 result_sqlt_lookup[b->type],
+                                 b->indicator,
+                                 0,
+                                 0,
+                                 OCI_DEFAULT));
+
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (err, r);
+
+        // LOB prefetching is only supported in OCI version 11.1 and greater
+        // and in Oracle server 11.1 and greater. If this code is called
+        // against a pre 11.1 server, the call to OCIAttrSet will return an
+        // error code.
+        //
+#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >= 1) \
+  || OCI_MAJOR_VERSION > 11
+        if (p != 0)
+        {
+          r = OCIAttrSet (h,
+                          OCI_HTYPE_DEFINE,
+                          &p,
+                          0,
+                          OCI_ATTR_LOBPREFETCH_SIZE,
+                          err);
+
+          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+            translate_error (err, r);
+        }
+#endif
+      }
+    }
+
+    void statement::
     stream_result (bind* b, size_t c)
     {
       OCIError* err (conn_.error_handle());
@@ -456,10 +535,13 @@ namespace odb
                       size_t lob_prefetch_size)
         : statement (conn, s),
           data_ (data),
+          data_version_ (0),
+          lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
       bind_param (cond.bind, cond.count, 0);
       bind_result (data.bind, data.count, lob_prefetch_size);
+      data_version_ = data_.version;
     }
 
     select_statement::
@@ -469,9 +551,12 @@ namespace odb
                       size_t lob_prefetch_size)
         : statement (conn, s),
           data_ (data),
+          data_version_ (0),
+          lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
       bind_result (data.bind, data.count, lob_prefetch_size);
+      data_version_ = data_.version;
     }
 
     void select_statement::
@@ -525,6 +610,12 @@ namespace odb
 
         if (cc != 0 && cc->callback != 0)
           (cc->callback) (cc->context);
+
+        if (data_version_ != data_.version)
+        {
+          rebind_result (data_.bind, data_.count, lob_prefetch_size_);
+          data_version_ = data_.version;
+        }
 
         sword r (OCIStmtFetch2 (stmt_,
                                 conn_.error_handle (),
