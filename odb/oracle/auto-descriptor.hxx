@@ -85,11 +85,11 @@ namespace odb
         d_ = d;
       }
 
-    private:
+    protected:
       auto_descriptor (const auto_descriptor&);
       auto_descriptor& operator= (const auto_descriptor&);
 
-    private:
+    protected:
       D* d_;
     };
   }

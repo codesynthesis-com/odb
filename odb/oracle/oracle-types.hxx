@@ -98,8 +98,7 @@ namespace odb
 
       buffer_type type; // The type stored by buffer.
       void* buffer;     // Data buffer pointer. When result callbacks are in
-                        // use, this is interpreted as an
-                        // auto_descriptor<OCILobLocator>*.
+                        // use, this is interpreted as an lob_auto_descriptor*.
       ub2* size;        // The number of bytes in buffer. When parameter
                         // callbacks are in use, this is interpreted as a ub4*
                         // indicating the current position.
@@ -117,7 +116,7 @@ namespace odb
 
     // An instance of this structure specifies the function to invoke and
     // the context to pass just prior to the image associated with a query
-    // is modified.
+    // being modified.
     //
     struct change_callback
     {
@@ -125,6 +124,39 @@ namespace odb
 
       void (*callback) (void*);
       void* context;
+    };
+
+    // The LOB specialization of auto_descriptor allows for transparent
+    // transferal of LOB descriptors between auto_descriptor instances. This
+    // simplifies the implementation of a private copy of the shared image
+    // associated with queries.
+    //
+    class LIBODB_ORACLE_EXPORT lob_auto_descriptor
+      : auto_descriptor<OCILobLocator>
+    {
+    public:
+      lob_auto_descriptor (OCILobLocator* l = 0)
+        : auto_descriptor<OCILobLocator> (l)
+      {
+      }
+
+      lob_auto_descriptor (lob_auto_descriptor& x)
+        : auto_descriptor<OCILobLocator> (0)
+      {
+        OCILobLocator* l (x.d_);
+        x.d_ = 0;
+        reset (l);
+      }
+
+      lob_auto_descriptor&
+      operator= (lob_auto_descriptor& x)
+      {
+        OCILobLocator* l (x.d_);
+        x.d_ = 0;
+        reset (l);
+
+        return *this;
+      }
     };
   }
 }
