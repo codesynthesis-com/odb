@@ -413,7 +413,6 @@ main (int argc, char* argv[])
     // not invalidate the result.
     //
     cout << "test 014" << endl;
-#ifndef DATABASE_ORACLE
     {
       transaction t (db->begin ());
       result r (db->query<person> (query::last_name == "Doe"));
@@ -427,7 +426,6 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
-#endif
 
     // Test uncached result.
     //
