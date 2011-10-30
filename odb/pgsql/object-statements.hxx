@@ -219,6 +219,12 @@ namespace odb
       void
       update_image_version (std::size_t v) {update_image_version_ = v;}
 
+      std::size_t
+      update_id_image_version () const { return update_id_image_version_;}
+
+      void
+      update_id_image_version (std::size_t v) {update_id_image_version_ = v;}
+
       binding&
       update_image_binding () {return update_image_binding_;}
 
@@ -304,8 +310,6 @@ namespace odb
               object_traits::update_statement,
               object_traits::update_statement_types,
               update_column_count + id_column_count,
-              id_image_binding_,
-              id_image_native_binding_,
               update_image_binding_,
               update_image_native_binding_));
         }
@@ -390,10 +394,13 @@ namespace odb
       int insert_image_lengths_[insert_column_count];
       int insert_image_formats_[insert_column_count];
 
-      // Update binding. The suffix of the bind array is object id. we
-      // do it this way for consistency with other databases.
+      // Update binding. Note that the id suffix is bound to id_image_
+      // below instead of image_ which makes this binding effectively
+      // bound to two images. As a result, we have to track versions
+      // for both of them.
       //
       std::size_t update_image_version_;
+      std::size_t update_id_image_version_;
       binding update_image_binding_;
       bind update_image_bind_[update_column_count + id_column_count];
       native_binding update_image_native_binding_;

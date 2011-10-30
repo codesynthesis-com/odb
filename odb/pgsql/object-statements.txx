@@ -40,11 +40,12 @@ namespace odb
                                         insert_image_formats_,
                                         insert_column_count),
           // update
-          update_image_binding_ (update_image_bind_, update_column_count),
+          update_image_binding_ (update_image_bind_,
+                                 update_column_count + id_column_count),
           update_image_native_binding_ (update_image_values_,
                                         update_image_lengths_,
                                         update_image_formats_,
-                                        update_column_count),
+                                        update_column_count + id_column_count),
           // id
           id_image_binding_ (update_image_bind_ + update_column_count,
                              id_column_count),
@@ -58,6 +59,7 @@ namespace odb
       select_image_version_ = 0;
       insert_image_version_ = 0;
       update_image_version_ = 0;
+      update_id_image_version_ = 0;
 
       id_image_.version = 0;
       id_image_version_ = 0;

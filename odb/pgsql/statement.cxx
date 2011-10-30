@@ -315,13 +315,13 @@ namespace odb
                       const std::string& stmt,
                       const Oid* types,
                       std::size_t types_count,
-                      binding& cond,
-                      native_binding& native_cond,
-                      binding& data)
+                      binding& param,
+                      native_binding& native_param,
+                      binding& result)
         : statement (conn, name, stmt, types, types_count),
-          cond_ (&cond),
-          native_cond_ (&native_cond),
-          data_ (data),
+          param_ (&param),
+          native_param_ (&native_param),
+          result_ (result),
           row_count_ (0),
           current_row_ (0)
     {
@@ -333,12 +333,12 @@ namespace odb
                       const std::string& stmt,
                       const Oid* types,
                       std::size_t types_count,
-                      native_binding& native_cond,
-                      binding& data)
+                      native_binding& native_param,
+                      binding& result)
         : statement (conn, name, stmt, types, types_count),
-          cond_ (0),
-          native_cond_ (&native_cond),
-          data_ (data),
+          param_ (0),
+          native_param_ (&native_param),
+          result_ (result),
           row_count_ (0),
           current_row_ (0)
     {
@@ -348,11 +348,11 @@ namespace odb
     select_statement (connection& conn,
                       const std::string& name,
                       const std::string& stmt,
-                      binding& data)
+                      binding& result)
         : statement (conn, name, stmt, 0, 0),
-          cond_ (0),
-          native_cond_ (0),
-          data_ (data),
+          param_ (0),
+          native_param_ (0),
+          result_ (result),
           row_count_ (0),
           current_row_ (0)
     {
@@ -361,33 +361,33 @@ namespace odb
     void select_statement::
     execute ()
     {
-      result_.reset ();
+      handle_.reset ();
 
-      if (cond_ != 0)
-        bind_param (*native_cond_, *cond_);
+      if (param_ != 0)
+        bind_param (*native_param_, *param_);
 
-      bool in (native_cond_ != 0);
+      bool in (native_param_ != 0);
 
-      result_.reset (
+      handle_.reset (
         PQexecPrepared (conn_.handle (),
                         name_.c_str (),
-                        in ? native_cond_->count : 0,
-                        in ? native_cond_->values : 0,
-                        in ? native_cond_->lengths : 0,
-                        in ? native_cond_->formats : 0,
+                        in ? native_param_->count : 0,
+                        in ? native_param_->values : 0,
+                        in ? native_param_->lengths : 0,
+                        in ? native_param_->formats : 0,
                         1));
 
-      if (!is_good_result (result_))
-        translate_error (conn_, result_);
+      if (!is_good_result (handle_))
+        translate_error (conn_, handle_);
 
-      row_count_ = static_cast<size_t> (PQntuples (result_));
+      row_count_ = static_cast<size_t> (PQntuples (handle_));
       current_row_ = 0;
     }
 
     void select_statement::
     free_result ()
     {
-      result_.reset ();
+      handle_.reset ();
       row_count_ = 0;
       current_row_ = 0;
     }
@@ -408,7 +408,10 @@ namespace odb
         return no_data;
 
       assert (current_row_ > 0);
-      return bind_result (data_.bind, data_.count, result_, current_row_ - 1)
+      return bind_result (result_.bind,
+                          result_.count,
+                          handle_,
+                          current_row_ - 1)
         ? success
         : truncated;
     }
@@ -419,9 +422,9 @@ namespace odb
       assert (current_row_ > 0);
       assert (current_row_ <= row_count_);
 
-      if (!bind_result (data_.bind,
-                        data_.count,
-                        result_,
+      if (!bind_result (result_.bind,
+                        result_.count,
+                        handle_,
                         current_row_ - 1,
                         true))
         assert (false);
@@ -442,12 +445,12 @@ namespace odb
                       const string& stmt,
                       const Oid* types,
                       size_t types_count,
-                      binding& data,
-                      native_binding& native_data,
+                      binding& param,
+                      native_binding& native_param,
                       bool returning)
         : statement (conn, name, stmt, types, types_count),
-          data_ (data),
-          native_data_ (native_data),
+          param_ (param),
+          native_param_ (native_param),
           returning_ (returning)
     {
     }
@@ -455,15 +458,15 @@ namespace odb
     bool insert_statement::
     execute ()
     {
-      bind_param (native_data_, data_);
+      bind_param (native_param_, param_);
 
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
                         name_.c_str (),
-                        native_data_.count,
-                        native_data_.values,
-                        native_data_.lengths,
-                        native_data_.formats,
+                        native_param_.count,
+                        native_param_.values,
+                        native_param_.lengths,
+                        native_param_.formats,
                         1));
 
       ExecStatusType stat (PGRES_FATAL_ERROR);
@@ -536,35 +539,26 @@ namespace odb
                       const string& stmt,
                       const Oid* types,
                       size_t types_count,
-                      binding& cond,
-                      native_binding& native_cond,
-                      binding& data,
-                      native_binding& native_data)
+                      binding& param,
+                      native_binding& native_param)
         : statement (conn, name, stmt, types, types_count),
-          cond_ (cond),
-          native_cond_ (native_cond),
-          data_ (data),
-          native_data_ (native_data)
+          param_ (param),
+          native_param_ (native_param)
     {
     }
 
     void update_statement::
     execute ()
     {
-      // We assume that the values, lengths, and formats members of
-      // native_cond_ are suffixes of the corresponding members of
-      // native_data_.
-      //
-      bind_param (native_data_, data_);
-      bind_param (native_cond_, cond_);
+      bind_param (native_param_, param_);
 
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
                         name_.c_str (),
-                        native_data_.count + native_cond_.count,
-                        native_data_.values,
-                        native_data_.lengths,
-                        native_data_.formats,
+                        native_param_.count,
+                        native_param_.values,
+                        native_param_.lengths,
+                        native_param_.formats,
                         1));
 
       if (!is_good_result (h))
@@ -592,11 +586,11 @@ namespace odb
                       const string& stmt,
                       const Oid* types,
                       size_t types_count,
-                      binding& cond,
-                      native_binding& native_cond)
+                      binding& param,
+                      native_binding& native_param)
         : statement (conn, name, stmt, types, types_count),
-          cond_ (&cond),
-          native_cond_ (native_cond)
+          param_ (&param),
+          native_param_ (native_param)
     {
     }
 
@@ -606,26 +600,26 @@ namespace odb
                       const string& stmt,
                       const Oid* types,
                       size_t types_count,
-                      native_binding& native_cond)
+                      native_binding& native_param)
         : statement (conn, name, stmt, types, types_count),
-          cond_ (0),
-          native_cond_ (native_cond)
+          param_ (0),
+          native_param_ (native_param)
     {
     }
 
     unsigned long long delete_statement::
     execute ()
     {
-      if (cond_ != 0)
-        bind_param (native_cond_, *cond_);
+      if (param_ != 0)
+        bind_param (native_param_, *param_);
 
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
                         name_.c_str (),
-                        native_cond_.count,
-                        native_cond_.values,
-                        native_cond_.lengths,
-                        native_cond_.formats,
+                        native_param_.count,
+                        native_param_.values,
+                        native_param_.lengths,
+                        native_param_.formats,
                         1));
 
       if (!is_good_result (h))

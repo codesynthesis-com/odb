@@ -78,22 +78,22 @@ namespace odb
                         const std::string& stmt,
                         const Oid* types,
                         std::size_t types_count,
-                        binding& cond,
-                        native_binding& native_cond,
-                        binding& data);
+                        binding& param,
+                        native_binding& native_param,
+                        binding& result);
 
       select_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
                         const Oid* types,
                         std::size_t types_count,
-                        native_binding& native_cond,
-                        binding& data);
+                        native_binding& native_param,
+                        binding& result);
 
       select_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
-                        binding& data);
+                        binding& result);
 
       // Common select interface expected by the generated code.
       //
@@ -158,12 +158,12 @@ namespace odb
       select_statement& operator= (const select_statement&);
 
     private:
-      binding* cond_;
-      native_binding* native_cond_;
+      binding* param_;
+      native_binding* native_param_;
 
-      binding& data_;
+      binding& result_;
 
-      auto_handle<PGresult> result_;
+      auto_handle<PGresult> handle_;
       std::size_t row_count_;
       std::size_t current_row_;
     };
@@ -179,8 +179,8 @@ namespace odb
                         const std::string& stmt,
                         const Oid* types,
                         std::size_t types_count,
-                        binding& data,
-                        native_binding& native_data,
+                        binding& param,
+                        native_binding& native_param,
                         bool returning);
 
       // Return true if successful and false if the row is a duplicate.
@@ -200,8 +200,8 @@ namespace odb
       insert_statement& operator= (const insert_statement&);
 
     private:
-      binding& data_;
-      native_binding& native_data_;
+      binding& param_;
+      native_binding& native_param_;
 
       bool returning_;
       unsigned long long id_;
@@ -213,19 +213,13 @@ namespace odb
       virtual
       ~update_statement ();
 
-      // Asssumes that cond.values, cond.lengths, and cond.formats are
-      // suffixes of data.values, data.lengths, and data.formats
-      // respectively.
-      //
       update_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
                         const Oid* types,
                         std::size_t types_count,
-                        binding& cond,
-                        native_binding& native_cond,
-                        binding& data,
-                        native_binding& native_data);
+                        binding& param,
+                        native_binding& native_param);
 
       void
       execute ();
@@ -235,11 +229,8 @@ namespace odb
       update_statement& operator= (const update_statement&);
 
     private:
-      binding& cond_;
-      native_binding& native_cond_;
-
-      binding& data_;
-      native_binding& native_data_;
+      binding& param_;
+      native_binding& native_param_;
     };
 
     class LIBODB_PGSQL_EXPORT delete_statement: public statement
@@ -253,15 +244,15 @@ namespace odb
                         const std::string& stmt,
                         const Oid* types,
                         std::size_t types_count,
-                        binding& cond,
-                        native_binding& native_cond);
+                        binding& param,
+                        native_binding& native_param);
 
       delete_statement (connection& conn,
                         const std::string& name,
                         const std::string& stmt,
                         const Oid* types,
                         std::size_t types_count,
-                        native_binding& native_cond);
+                        native_binding& native_param);
 
       unsigned long long
       execute ();
@@ -271,8 +262,8 @@ namespace odb
       delete_statement& operator= (const delete_statement&);
 
     private:
-      binding* cond_;
-      native_binding& native_cond_;
+      binding* param_;
+      native_binding& native_param_;
     };
   }
 }
