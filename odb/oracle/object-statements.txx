@@ -33,7 +33,8 @@ namespace odb
           container_statement_cache_ (conn),
           select_image_binding_ (select_image_bind_, select_column_count),
           insert_image_binding_ (insert_image_bind_, insert_column_count),
-          update_image_binding_ (update_image_bind_, update_column_count),
+          update_image_binding_ (update_image_bind_,
+                                 update_column_count + id_column_count),
           id_image_binding_ (update_image_bind_ + update_column_count,
                              id_column_count)
     {
@@ -41,6 +42,7 @@ namespace odb
       select_image_version_ = 0;
       insert_image_version_ = 0;
       update_image_version_ = 0;
+      update_id_image_version_ = 0;
 
       id_image_.version = 0;
       id_image_version_ = 0;

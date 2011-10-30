@@ -36,16 +36,16 @@ namespace odb
     protected:
       statement (connection&, const std::string& statement);
 
-      // Bind output parameters to this statement. This function must only
-      // be called once. Multiple calls to it will result in memory leaks due
-      // to lost OCIBind resources.
+      // Bind parameters for this statement. This function must only
+      // be called once. Multiple calls to it will result in memory
+      // leaks due to lost OCIBind resources.
       //
       void
-      bind_param (bind*, std::size_t count, std::size_t offset);
+      bind_param (bind*, std::size_t count);
 
-      // Bind input parameters to this statement. This function must only be
-      // called once. Multiple calls to it will result in memory leaks due to
-      // lost OCIDefine resources.
+      // Bind results for this statement. This function must only be
+      // called once. Multiple calls to it will result in memory leaks
+      // due to lost OCIDefine resources.
       //
       void
       bind_result (bind*,
@@ -81,13 +81,13 @@ namespace odb
 
       select_statement (connection& conn,
                         const std::string& statement,
-                        binding& cond,
-                        binding& data,
+                        binding& param,
+                        binding& result,
                         std::size_t lob_prefetch_size = 0);
 
       select_statement (connection& conn,
                         const std::string& statement,
-                        binding& data,
+                        binding& result,
                         std::size_t lob_prefetch_size = 0);
 
       enum result
@@ -105,7 +105,7 @@ namespace odb
       void
       stream_result ()
       {
-        statement::stream_result (data_.bind, data_.count);
+        statement::stream_result (result_.bind, result_.count);
       }
 
       void
@@ -116,8 +116,8 @@ namespace odb
       select_statement& operator= (const select_statement&);
 
     private:
-      binding& data_;
-      std::size_t data_version_;
+      binding& result_;
+      std::size_t result_version_;
       const std::size_t lob_prefetch_size_;
       bool done_;
     };
@@ -130,7 +130,7 @@ namespace odb
 
       insert_statement (connection& conn,
                         const std::string& statement,
-                        binding& data,
+                        binding& param,
                         bool returning);
 
       // Return true if successful and false if the row is a duplicate. All
@@ -175,8 +175,7 @@ namespace odb
 
       update_statement (connection& conn,
                         const std::string& statement,
-                        binding& cond,
-                        binding& data);
+                        binding& param);
       void
       execute ();
 
@@ -193,7 +192,7 @@ namespace odb
 
       delete_statement (connection& conn,
                         const std::string& statement,
-                        binding& cond);
+                        binding& param);
 
       unsigned long long
       execute ();

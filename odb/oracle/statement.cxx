@@ -153,16 +153,15 @@ namespace odb
     }
 
     void statement::
-    bind_param (bind* b, size_t c, size_t o)
+    bind_param (bind* b, size_t n)
     {
       OCIError* err (conn_.error_handle ());
 
       // The parameter position in OCIBindByPos is specified as a 1-based
-      // index. Convert o to a 1-based offset.
+      // index.
       //
-      ++o;
-
-      for (size_t e (o + c); o < e; ++o, ++b)
+      n++;
+      for (ub4 i (1); i < n; ++i, ++b)
       {
 #if OCI_MAJOR_VERSION < 11 || \
   (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION < 2)
@@ -180,7 +179,7 @@ namespace odb
         sword r (OCIBindByPos (stmt_,
                                &h,
                                err,
-                               o,
+                               i,
                                callback ? 0 : b->buffer,
                                // When parameter callbacks are in use, set the
                                // allowable data length to the maximum
@@ -541,33 +540,33 @@ namespace odb
     select_statement::
     select_statement (connection& conn,
                       const string& s,
-                      binding& cond,
-                      binding& data,
+                      binding& param,
+                      binding& result,
                       size_t lob_prefetch_size)
         : statement (conn, s),
-          data_ (data),
-          data_version_ (0),
+          result_ (result),
+          result_version_ (0),
           lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
-      bind_param (cond.bind, cond.count, 0);
-      bind_result (data.bind, data.count, lob_prefetch_size);
-      data_version_ = data_.version;
+      bind_param (param.bind, param.count);
+      bind_result (result.bind, result.count, lob_prefetch_size);
+      result_version_ = result_.version;
     }
 
     select_statement::
     select_statement (connection& conn,
                       const string& s,
-                      binding& data,
+                      binding& result,
                       size_t lob_prefetch_size)
         : statement (conn, s),
-          data_ (data),
-          data_version_ (0),
+          result_ (result),
+          result_version_ (0),
           lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
-      bind_result (data.bind, data.count, lob_prefetch_size);
-      data_version_ = data_.version;
+      bind_result (result.bind, result.count, lob_prefetch_size);
+      result_version_ = result_.version;
     }
 
     void select_statement::
@@ -608,7 +607,7 @@ namespace odb
       // of this assertion is a native view with a number of data members
       // not matching the number of columns in the SELECT-list.
       //
-      assert (n == data_.count);
+      assert (n == result_.count);
 #endif
     }
 
@@ -617,15 +616,15 @@ namespace odb
     {
       if (!done_)
       {
-        change_callback* cc (data_.change_callback);
+        change_callback* cc (result_.change_callback);
 
         if (cc != 0 && cc->callback != 0)
           (cc->callback) (cc->context);
 
-        if (data_version_ != data_.version)
+        if (result_version_ != result_.version)
         {
-          rebind_result (data_.bind, data_.count, lob_prefetch_size_);
-          data_version_ = data_.version;
+          rebind_result (result_.bind, result_.count, lob_prefetch_size_);
+          result_version_ = result_.version;
         }
 
         sword r (OCIStmtFetch2 (stmt_,
@@ -728,11 +727,11 @@ namespace odb
     insert_statement::
     insert_statement (connection& conn,
                       const string& s,
-                      binding& data,
+                      binding& param,
                       bool returning)
         : statement (conn, s)
     {
-      bind_param (data.bind, data.count, 0);
+      bind_param (param.bind, param.count);
 
       if (returning)
       {
@@ -742,7 +741,7 @@ namespace odb
         sword r (OCIBindByPos (stmt_,
                                &h,
                                err,
-                               data.count + 1,
+                               param.count + 1,
                                0,
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
   || OCI_MAJOR_VERSION > 11
@@ -842,12 +841,10 @@ namespace odb
     update_statement::
     update_statement (connection& conn,
                       const string& s,
-                      binding& cond,
-                      binding& data)
+                      binding& param)
         : statement (conn, s)
     {
-      bind_param (data.bind, data.count, 0);
-      bind_param (cond.bind, cond.count, data.count);
+      bind_param (param.bind, param.count);
     }
 
     void update_statement::
@@ -898,10 +895,10 @@ namespace odb
     delete_statement::
     delete_statement (connection& conn,
                       const string& s,
-                      binding& cond)
+                      binding& param)
         : statement (conn, s)
     {
-      bind_param (cond.bind, cond.count, 0);
+      bind_param (param.bind, param.count);
     }
 
     unsigned long long delete_statement::
