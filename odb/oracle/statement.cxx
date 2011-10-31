@@ -297,9 +297,11 @@ namespace odb
   || OCI_MAJOR_VERSION > 11
           if (p != 0)
           {
+            ub4 n (static_cast<ub4> (p));
+
             r = OCIAttrSet (h,
                             OCI_HTYPE_DEFINE,
-                            &p,
+                            &n,
                             0,
                             OCI_ATTR_LOBPREFETCH_SIZE,
                             err);
@@ -419,9 +421,11 @@ namespace odb
   || OCI_MAJOR_VERSION > 11
         if (p != 0)
         {
+          ub4 n (static_cast<ub4> (p));
+
           r = OCIAttrSet (h,
                           OCI_HTYPE_DEFINE,
-                          &p,
+                          &n,
                           0,
                           OCI_ATTR_LOBPREFETCH_SIZE,
                           err);
