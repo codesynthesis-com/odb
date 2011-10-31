@@ -33,8 +33,15 @@ extern "C"
 
 #include <cpplib.h>
 #include <cp/cp-tree.h>
-#include <c-common.h>
-#include <c-pragma.h>
+
+#if BUILDING_GCC_MAJOR > 4 || BUILDING_GCC_MAJOR == 4 && BUILDING_GCC_MINOR > 5
+#  include <c-family/c-common.h>
+#  include <c-family/c-pragma.h>
+#else
+#  include <c-common.h>
+#  include <c-pragma.h>
+#endif
+
 #include <diagnostic.h>
 }
 
