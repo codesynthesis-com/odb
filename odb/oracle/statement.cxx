@@ -288,6 +288,12 @@ namespace odb
           if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
             translate_error (err, r);
 
+          // The OCIDefine handle is stored in the size member of the bind in
+          // case the LOB parameter is rebound. If rebinding is necessary, the
+          // same OCIDefine handle is used.
+          //
+          b->size = reinterpret_cast<ub2*> (h);
+
           // LOB prefetching is only supported in OCI version 11.1 and greater
           // and in Oracle server 11.1 and greater. If this code is called
           // against a pre 11.1 server, the call to OCIAttrSet will return an
@@ -396,7 +402,8 @@ namespace odb
           lob->reset (h);
         }
 
-        OCIDefine* h(0);
+        OCIDefine* h (reinterpret_cast<OCIDefine*> (b->size));
+
         sword r (OCIDefineByPos (stmt_,
                                  &h,
                                  err,

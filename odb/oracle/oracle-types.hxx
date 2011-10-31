@@ -101,7 +101,9 @@ namespace odb
                         // use, this is interpreted as an lob_auto_descriptor*.
       ub2* size;        // The number of bytes in buffer. When parameter
                         // callbacks are in use, this is interpreted as a ub4*
-                        // indicating the current position.
+                        // indicating the current position. For LOB result
+                        // bindings, this is interpreted as the OCIDefine
+                        // handle associated with the LOB result parameter.
       ub4 capacity;     // The maximum number of bytes that can be stored in
                         // buffer.
       sb2* indicator;   // Pointer to an OCI indicator variable.
