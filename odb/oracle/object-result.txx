@@ -20,7 +20,14 @@ namespace odb
     object_result_impl<T>::
     ~object_result_impl ()
     {
-      statements_.image ().change_callback_.callback = 0;
+      oracle::change_callback& cc (statements_.image ().change_callback_);
+
+      if (cc.context == this)
+      {
+        cc.context = 0;
+        cc.callback = 0;
+      }
+
       delete image_copy_;
     }
 
@@ -90,8 +97,14 @@ namespace odb
       this->current (pointer_type ());
 
       typename object_traits::image_type& im (statements_.image ());
+      oracle::change_callback& cc (im.change_callback_);
 
-      im.change_callback_.callback = 0;
+      if (cc.context == this)
+      {
+        cc.callback = 0;
+        cc.context = 0;
+      }
+
       use_copy_ = false;
 
       if (im.version != statements_.select_image_version ())
@@ -106,8 +119,8 @@ namespace odb
         this->end_ = true;
       else
       {
-        im.change_callback_.callback = &change_callback;
-        im.change_callback_.context = this;
+        cc.callback = &change_callback;
+        cc.context = this;
       }
     }
 
@@ -129,16 +142,18 @@ namespace odb
     change_callback (void* c)
     {
       object_result_impl<T>* r (static_cast<object_result_impl<T>*> (c));
-      object_statements<object_type>& stmts (r->statements_);
+      typename object_traits::image_type& im (r->statements_.image ());
 
       if (r->image_copy_ == 0)
-        r->image_copy_ = new
-          typename object_traits::image_type (stmts.image ());
+        r->image_copy_ = new typename object_traits::image_type (im);
       else
-        *r->image_copy_ = stmts.image ();
+        *r->image_copy_ = im;
 
-      stmts.select_image_binding ().version++;
-      stmts.image ().change_callback_.callback = 0;
+      r->statements_.select_image_binding ().version++;
+
+      im.change_callback_.callback = 0;
+      im.change_callback_.context = 0;
+
       r->use_copy_ = true;
     }
 
@@ -150,7 +165,14 @@ namespace odb
     object_result_impl_no_id<T>::
     ~object_result_impl_no_id ()
     {
-      statements_.image ().change_callback_.callback = 0;
+      oracle::change_callback& cc (statements_.image ().change_callback_);
+
+      if (cc.context == this)
+      {
+        cc.context = 0;
+        cc.callback = 0;
+      }
+
       delete image_copy_;
     }
 
@@ -175,10 +197,9 @@ namespace odb
 
       object_traits::callback (db, obj, callback_event::pre_load);
 
-      if (use_copy_)
-        object_traits::init (obj, *image_copy_, db);
-      else
-        object_traits::init (obj, statements_.image (), db);
+      object_traits::init (obj,
+                           use_copy_ ? *image_copy_ : statements_.image (),
+                           db);
 
       statement_->stream_result ();
 
@@ -192,8 +213,14 @@ namespace odb
       this->current (pointer_type ());
 
       typename object_traits::image_type& im (statements_.image ());
+      oracle::change_callback& cc (im.change_callback_);
 
-      im.change_callback_.callback = 0;
+      if (cc.context == this)
+      {
+        cc.callback = 0;
+        cc.context = 0;
+      }
+
       use_copy_ = false;
 
       if (im.version != statements_.select_image_version ())
@@ -208,8 +235,8 @@ namespace odb
         this->end_ = true;
       else
       {
-        im.change_callback_.callback = &change_callback;
-        im.change_callback_.context = this;
+        cc.callback = &change_callback;
+        cc.context = this;
       }
     }
 
@@ -233,16 +260,18 @@ namespace odb
       object_result_impl_no_id<T>* r (
         static_cast<object_result_impl_no_id<T>*> (c));
 
-      object_statements_no_id<object_type>& stmts (r->statements_);
+      typename object_traits::image_type im (r->statements_.image ());
 
       if (r->image_copy_ == 0)
-        r->image_copy_ = new
-          typename object_traits::image_type (stmts.image ());
+        r->image_copy_ = new typename object_traits::image_type (im);
       else
-        *r->image_copy_ = stmts.image ();
+        *r->image_copy_ = im;
 
-      stmts.select_image_binding ().version++;
-      stmts.image ().change_callback_.callback = 0;
+      r->statements_.select_image_binding ().version++;
+
+      im.change_callback_.callback = 0;
+      im.change_callback_.context = 0;
+
       r->use_copy_ = true;
     }
   }
