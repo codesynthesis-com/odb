@@ -21,6 +21,7 @@ inverse             \
 lazy-ptr            \
 lifecycle           \
 no-id               \
+optimistic          \
 query               \
 readonly            \
 relationship        \
