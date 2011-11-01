@@ -594,7 +594,7 @@ namespace odb
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
         translate_error (err, r);
 
-      done_ = false;
+      done_ = r == OCI_NO_DATA;
 
 #ifndef NDEBUG
       ub4 n (0);
