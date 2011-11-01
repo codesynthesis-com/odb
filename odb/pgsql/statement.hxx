@@ -221,7 +221,7 @@ namespace odb
                         binding& param,
                         native_binding& native_param);
 
-      void
+      unsigned long long
       execute ();
 
     private:

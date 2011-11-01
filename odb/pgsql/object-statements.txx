@@ -17,6 +17,25 @@ namespace odb
   namespace pgsql
   {
     //
+    // optimistic_data
+    //
+
+    template <typename T>
+    optimistic_data<T, true>::
+    optimistic_data (bind* b, char** nv, int* nl, int* nf)
+        : id_image_binding_ (
+            b,
+            object_traits::id_column_count +
+            object_traits::managed_optimistic_column_count),
+          id_image_native_binding_ (
+            nv, nl, nf,
+            object_traits::id_column_count +
+            object_traits::managed_optimistic_column_count)
+    {
+      id_image_version_ = 0;
+    }
+
+    //
     // object_statements
     //
 
@@ -41,11 +60,13 @@ namespace odb
                                         insert_column_count),
           // update
           update_image_binding_ (update_image_bind_,
-                                 update_column_count + id_column_count),
+                                 update_column_count + id_column_count +
+                                 managed_optimistic_column_count),
           update_image_native_binding_ (update_image_values_,
                                         update_image_lengths_,
                                         update_image_formats_,
-                                        update_column_count + id_column_count),
+                                        update_column_count + id_column_count +
+                                        managed_optimistic_column_count),
           // id
           id_image_binding_ (update_image_bind_ + update_column_count,
                              id_column_count),
@@ -53,7 +74,12 @@ namespace odb
             update_image_values_ + update_column_count,
             update_image_lengths_ + update_column_count,
             update_image_formats_ + update_column_count,
-            id_column_count)
+            id_column_count),
+          // optimistic data
+          od_ (update_image_bind_ + update_column_count,
+               update_image_values_ + update_column_count,
+               update_image_lengths_ + update_column_count,
+               update_image_formats_ + update_column_count)
     {
       image_.version = 0;
       select_image_version_ = 0;

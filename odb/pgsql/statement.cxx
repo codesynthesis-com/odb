@@ -9,8 +9,6 @@
 
 #include <libpq-fe.h>
 
-#include <odb/exceptions.hxx> // object_not_persistent
-
 #include <odb/pgsql/pgsql-oid.hxx>
 #include <odb/pgsql/statement.hxx>
 #include <odb/pgsql/connection.hxx>
@@ -27,6 +25,26 @@ namespace odb
   namespace pgsql
   {
     using namespace details;
+
+    static unsigned long long
+    affected_row_count (PGresult* h)
+    {
+      const char* s (PQcmdTuples (h));
+      unsigned long long count;
+
+      if (s[0] != '\0' && s[1] == '\0')
+        count = static_cast<unsigned long long> (s[0] - '0');
+      else
+      {
+        // @@ Using stringstream conversion for now. See if we can optimize
+        // this (atoll possibly, even though it is not standard).
+        //
+        istringstream ss (s);
+        ss >> count;
+      }
+
+      return count;
+    }
 
     //
     // statement
@@ -102,7 +120,7 @@ namespace odb
           continue;
         }
 
-        n.values[i] = reinterpret_cast<char*> (current_bind.buffer);
+        n.values[i] = static_cast<char*> (current_bind.buffer);
 
         size_t l (0);
 
@@ -547,7 +565,7 @@ namespace odb
     {
     }
 
-    void update_statement::
+    unsigned long long update_statement::
     execute ()
     {
       bind_param (native_param_, param_);
@@ -564,11 +582,7 @@ namespace odb
       if (!is_good_result (h))
         translate_error (conn_, h);
 
-      // PQcmdTuples returns a string representing the number of matching
-      // rows found. "0" indicates no match.
-      //
-      if (PQcmdTuples (h)[0] == '0')
-        throw object_not_persistent ();
+      return affected_row_count (h);
     }
 
     //
@@ -625,21 +639,7 @@ namespace odb
       if (!is_good_result (h))
         translate_error (conn_, h);
 
-      const char* s (PQcmdTuples (h));
-      unsigned long long count;
-
-      if (s[0] != '\0' && s[1] == '\0')
-        count = static_cast<unsigned long long> (s[0] - '0');
-      else
-      {
-        // @@ Using stringstream conversion for now. See if we can optimize
-        // this (atoll possibly, even though it is not standard).
-        //
-        istringstream ss (s);
-        ss >> count;
-      }
-
-      return count;
+      return affected_row_count (h);
     }
   }
 }
