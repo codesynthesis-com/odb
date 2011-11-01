@@ -107,6 +107,31 @@ namespace odb
       bool locked_;
     };
 
+    template <typename T, bool optimistic>
+    struct optimistic_data;
+
+    template <typename T>
+    struct optimistic_data<T, true>
+    {
+      typedef T object_type;
+      typedef odb::object_traits<object_type> object_traits;
+
+      optimistic_data (bind*);
+
+      // The id + optimistic column binding.
+      //
+      std::size_t id_image_version_;
+      binding id_image_binding_;
+
+      details::shared_ptr<delete_statement> erase_;
+    };
+
+    template <typename T>
+    struct optimistic_data<T, false>
+    {
+      optimistic_data (bind*) {}
+    };
+
     template <typename T>
     class object_statements: public object_statements_base
     {
@@ -257,6 +282,17 @@ namespace odb
       binding&
       id_image_binding () {return id_image_binding_;}
 
+      // Optimistic id + managed column image binding.
+      //
+      std::size_t
+      optimistic_id_image_version () const {return od_.id_image_version_;}
+
+      void
+      optimistic_id_image_version (std::size_t v) {od_.id_image_version_ = v;}
+
+      binding&
+      optimistic_id_image_binding () {return od_.id_image_binding_;}
+
       // Statements.
       //
       insert_statement_type&
@@ -314,6 +350,21 @@ namespace odb
         return *erase_;
       }
 
+      delete_statement_type&
+      optimistic_erase_statement ()
+      {
+        if (od_.erase_ == 0)
+        {
+          od_.erase_.reset (
+            new (details::shared) delete_statement_type (
+              conn_,
+              object_traits::optimistic_erase_statement,
+              od_.id_image_binding_));
+        }
+
+        return *od_.erase_;
+      }
+
       // Container statement cache.
       //
       container_statement_cache_type&
@@ -335,20 +386,24 @@ namespace odb
 
     private:
       // select = total
-      // insert = total - inverse
-      // update = total - inverse - id - readonly
+      // insert = total - inverse - managed_optimistic
+      // update = total - inverse - managed_optimistic - id - readonly
       //
       static const std::size_t select_column_count =
         object_traits::column_count;
 
       static const std::size_t insert_column_count =
-        object_traits::column_count - object_traits::inverse_column_count;
+        object_traits::column_count - object_traits::inverse_column_count -
+        object_traits::managed_optimistic_column_count;
 
       static const std::size_t update_column_count = insert_column_count -
         object_traits::id_column_count - object_traits::readonly_column_count;
 
       static const std::size_t id_column_count =
         object_traits::id_column_count;
+
+      static const std::size_t managed_optimistic_column_count =
+        object_traits::managed_optimistic_column_count;
 
     private:
       container_statement_cache_type container_statement_cache_;
@@ -370,12 +425,16 @@ namespace odb
       // Update binding. Note that the id suffix is bound to id_image_
       // below instead of image_ which makes this binding effectively
       // bound to two images. As a result, we have to track versions
-      // for both of them.
+      // for both of them. If this object uses optimistic concurrency,
+      // then the binding for the managed column (version, timestamp,
+      // etc) comes after the id and the image for such a column is
+      // stored as part of the id image.
       //
       std::size_t update_image_version_;
       std::size_t update_id_image_version_;
       binding update_image_binding_;
-      bind update_image_bind_[update_column_count + id_column_count];
+      bind update_image_bind_[update_column_count + id_column_count +
+                              managed_optimistic_column_count];
 
       // Id image binding (only used as a parameter). Uses the suffix in
       // the update bind.
@@ -383,6 +442,10 @@ namespace odb
       id_image_type id_image_;
       std::size_t id_image_version_;
       binding id_image_binding_;
+
+      // Extra data for objects with optimistic concurrency support.
+      //
+      optimistic_data<T, managed_optimistic_column_count != 0> od_;
 
       details::shared_ptr<insert_statement_type> persist_;
       details::shared_ptr<select_statement_type> find_;

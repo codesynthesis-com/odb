@@ -176,7 +176,8 @@ namespace odb
       update_statement (connection& conn,
                         const std::string& statement,
                         binding& param);
-      void
+
+      unsigned long long
       execute ();
 
     private:

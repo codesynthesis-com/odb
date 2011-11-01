@@ -847,7 +847,7 @@ namespace odb
       bind_param (param.bind, param.count);
     }
 
-    void update_statement::
+    unsigned long long update_statement::
     execute ()
     {
       OCIError* err (conn_.error_handle ());
@@ -879,8 +879,7 @@ namespace odb
       // UPDATE statment represents the number of matching rows found. Zero
       // indicates no match.
       //
-      if (row_count == 0)
-        throw object_not_persistent ();
+      return static_cast<unsigned long long> (row_count);
     }
 
     //

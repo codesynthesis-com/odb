@@ -17,6 +17,21 @@ namespace odb
   namespace oracle
   {
     //
+    // optimistic_data
+    //
+
+    template <typename T>
+    optimistic_data<T, true>::
+    optimistic_data (bind* b)
+        : id_image_binding_ (
+            b,
+            object_traits::id_column_count +
+            object_traits::managed_optimistic_column_count)
+    {
+      id_image_version_ = 0;
+    }
+
+    //
     // object_statements
     //
 
@@ -34,9 +49,11 @@ namespace odb
           select_image_binding_ (select_image_bind_, select_column_count),
           insert_image_binding_ (insert_image_bind_, insert_column_count),
           update_image_binding_ (update_image_bind_,
-                                 update_column_count + id_column_count),
+                                 update_column_count + id_column_count +
+                                 managed_optimistic_column_count),
           id_image_binding_ (update_image_bind_ + update_column_count,
-                             id_column_count)
+                             id_column_count),
+          od_ (update_image_bind_ + update_column_count)
     {
       image_.version = 0;
       select_image_version_ = 0;
