@@ -405,25 +405,13 @@ struct view6b
 #endif
 struct view6c
 {
-#ifndef DATABASE_ORACLE
   #pragma db column("p.first")
-#else
-  #pragma db column("\"p\".\"first\"")
-#endif
   std::string first_name;
 
-#ifndef DATABASE_ORACLE
   #pragma db column("p.last")
-#else
-  #pragma db column("\"p\".\"last\"")
-#endif
   std::string last_name;
 
-#ifndef DATABASE_ORACLE
-  #pragma db column("e.name")
-#else
-  #pragma db column("\"e\".\"name\"")
-#endif
+  #pragma db column("e"."name")
   std::string employer;
 };
 
