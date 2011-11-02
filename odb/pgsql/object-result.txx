@@ -34,9 +34,10 @@ namespace odb
 
     template <typename T>
     void object_result_impl<T>::
-    load (object_type& obj)
+    load (object_type& obj, bool fetch)
     {
-      load_image ();
+      if (fetch)
+        load_image ();
 
       // This is a top-level call so the statements cannot be locked.
       //
