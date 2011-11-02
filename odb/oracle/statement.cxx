@@ -417,6 +417,33 @@ namespace odb
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
+
+        // LOB prefetching is only supported in OCI version 11.1 and greater
+        // and in Oracle server 11.1 and greater. If this code is called
+        // against a pre 11.1 server, the call to OCIAttrSet will return an
+        // error code.
+        //
+        // Note that even though we are re-binding the same handle, we still
+        // have to reset this attribute. Failing to do so will result in the
+        // mysterious ORA-03106 fatal two-task communication protocol error.
+        //
+#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >= 1) \
+  || OCI_MAJOR_VERSION > 11
+        if (p != 0)
+        {
+          ub4 n (static_cast<ub4> (p));
+
+          r = OCIAttrSet (h,
+                          OCI_HTYPE_DEFINE,
+                          &n,
+                          0,
+                          OCI_ATTR_LOBPREFETCH_SIZE,
+                          err);
+
+          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+            translate_error (err, r);
+        }
+#endif
       }
     }
 
