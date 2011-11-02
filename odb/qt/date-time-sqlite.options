@@ -5,7 +5,10 @@
 
 --profile qt/version
 
---odb-epilogue '#include <odb/qt/date-time/sqlite/default-mapping.hxx>'
+# Include the default mapping in prologue instead of epilogue to
+# allow the user to override the default mapping.
+#
+--odb-prologue '#include <odb/qt/date-time/sqlite/default-mapping.hxx>'
 
 --hxx-prologue '#include <odb/qt/date-time/sqlite/qdate-traits.hxx>'
 --hxx-prologue '#include <odb/qt/date-time/sqlite/qtime-traits.hxx>'
