@@ -422,7 +422,12 @@ main (int argc, char* argv[])
       ++i;
       assert (i != r.end ());
       auto_ptr<person> joe (db->load<person> (3));
-      assert (i->last_name_ == "Doe");
+      assert (i->last_name_ == "Doe"); // Actual load.
+
+      person p;
+      joe.reset (db->load<person> (3)); // Overwrite object image again.
+      i.load (p);
+      assert (p.last_name_ == "Doe");
 
       t.commit ();
     }
