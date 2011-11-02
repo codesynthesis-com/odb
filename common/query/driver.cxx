@@ -493,6 +493,20 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
+
+    // Test iterator::id().
+    //
+    cout << "test 017" << endl;
+    {
+      transaction t (db->begin ());
+      result r (db->query<person> (query::last_name == "Dirt"));
+
+      result::iterator i (r.begin ());
+      assert (i != r.end ());
+      assert (i.id () == 3);
+
+      t.commit ();
+    }
   }
   catch (const odb::exception& e)
   {
