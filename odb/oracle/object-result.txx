@@ -87,7 +87,8 @@ namespace odb
     object_result_impl<T>::
     load_id ()
     {
-      return object_traits::id (statements_.image ());
+      return object_traits::id (
+        use_copy_ ? *image_copy_ : statements_.image ());
     }
 
     template <typename T>
