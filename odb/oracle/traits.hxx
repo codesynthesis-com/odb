@@ -668,7 +668,11 @@ namespace odb
       }
 
       static bool
-      result_callback (void* context, void* buffer, ub4 size, chunk_position);
+      result_callback (void* context,
+                       ub4* position_context,
+                       void* buffer,
+                       ub4 size,
+                       chunk_position);
 
       static bool
       param_callback (const void* context,
@@ -799,7 +803,11 @@ namespace odb
       }
 
       static bool
-      result_callback (void* context, void* buffer, ub4 size, chunk_position);
+      result_callback (void* context,
+                       ub4* position_context,
+                       void* buffer,
+                       ub4 size,
+                       chunk_position);
 
       static bool
       param_callback (const void* context,
@@ -848,7 +856,11 @@ namespace odb
       }
 
       static bool
-      result_callback (void* context, void* buffer, ub4 size, chunk_position);
+      result_callback (void* context,
+                       ub4* position_context,
+                       void* buffer,
+                       ub4 size,
+                       chunk_position);
 
       static bool
       param_callback (const void* context,

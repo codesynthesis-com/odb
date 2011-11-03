@@ -465,6 +465,7 @@ namespace odb
           auto_descriptor<OCILobLocator>& locator (
             *reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
 
+          ub4 position (0); // Position context.
           ub1 piece (OCI_FIRST_PIECE);
 
           // Setting the value pointed to by the byte_amt argument to 0 on the
@@ -517,6 +518,7 @@ namespace odb
             // returned from a user callback. We simulate this.
             //
             if (!(*b->callback->result) (b->context->result,
+                                         &position,
                                          lob_buffer.data (),
                                          static_cast<ub4> (read),
                                          cp))

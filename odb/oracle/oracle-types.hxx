@@ -48,10 +48,14 @@ namespace odb
     // the database. If false is returned, database_exception is thrown.
     //
     typedef bool (*result_callback_type) (
-      void* context,   // [in] The user context.
-      void* buffer,    // [in] A buffer containing the result data.
-      ub4 size,        // [in] The result data size in bytes.
-      chunk_position); // [in] The position of this chunk.
+      void* context,         // [in] The user context.
+      ub4* position_context, // [in] A position context. A callback is free to
+                             // use this to track position information. This is
+                             // initialized to zero before the callback is
+                             // invoked for the first time.
+      void* buffer,          // [in] A buffer containing the result data.
+      ub4 size,              // [in] The result data size in bytes.
+      chunk_position);       // [in] The position of this chunk.
 
     union lob_callback
     {
@@ -98,7 +102,7 @@ namespace odb
 
       buffer_type type; // The type stored by buffer.
       void* buffer;     // Data buffer pointer. When result callbacks are in
-                        // use, this is interpreted as an lob_auto_descriptor*.
+                        // use, this is interpreted as a lob_auto_descriptor*.
       ub2* size;        // The number of bytes in buffer. When parameter
                         // callbacks are in use, this is interpreted as a ub4*
                         // indicating the current position. For LOB result

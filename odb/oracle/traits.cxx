@@ -104,7 +104,7 @@ namespace odb
     //
 
     bool string_lob_value_traits::
-    result_callback (void* c, void* b, ub4 s, chunk_position p)
+    result_callback (void* c, ub4*, void* b, ub4 s, chunk_position p)
     {
       string& v (*static_cast<string*> (c));
 
@@ -173,7 +173,7 @@ namespace odb
     //
 
     bool default_value_traits<std::vector<char>, id_blob>::
-    result_callback (void* c, void* b, ub4 s, chunk_position p)
+    result_callback (void* c, ub4*, void* b, ub4 s, chunk_position p)
     {
       value_type& v (*static_cast<value_type*> (c));
 
@@ -222,7 +222,7 @@ namespace odb
     //
 
     bool default_value_traits<std::vector<unsigned char>, id_blob>::
-    result_callback (void* c, void* b, ub4 s, chunk_position p)
+    result_callback (void* c, ub4*, void* b, ub4 s, chunk_position p)
     {
       value_type& v (*static_cast<value_type*> (c));
 
