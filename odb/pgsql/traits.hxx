@@ -466,7 +466,8 @@ namespace odb
     // std::vector<char> (buffer) specialization.
     //
     template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<std::vector<char>, id_bytea>
+    struct LIBODB_PGSQL_EXPORT default_value_traits<
+      std::vector<char>, id_bytea>
     {
     public:
       typedef std::vector<char> value_type;
@@ -481,6 +482,40 @@ namespace odb
       {
         if (!is_null)
           v.assign (b.data (), b.data () + n);
+        else
+          v.clear ();
+      }
+
+      static void
+      set_image (details::buffer&,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type&);
+    };
+
+    // std::vector<unsigned char> (buffer) specialization.
+    //
+    template <>
+    struct LIBODB_PGSQL_EXPORT default_value_traits<
+      std::vector<unsigned char>, id_bytea>
+    {
+    public:
+      typedef std::vector<unsigned char> value_type;
+      typedef std::vector<unsigned char> query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (value_type& v,
+                 const details::buffer& b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        if (!is_null)
+        {
+          const unsigned char* d (
+            reinterpret_cast<const unsigned char*> (b.data ()));
+          v.assign (d, d + n);
+        }
         else
           v.clear ();
       }
