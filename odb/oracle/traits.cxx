@@ -78,6 +78,28 @@ namespace odb
     }
 
     //
+    // default_value_traits<vector<unsigned char>, id_raw>
+    //
+
+    void default_value_traits<vector<unsigned char>, id_raw>::
+    set_image (char* b,
+               size_t c,
+               size_t& n,
+               bool& is_null,
+               const value_type& v)
+    {
+      is_null = false;
+      n = v.size ();
+
+      assert (n <= c);
+
+      // std::vector::data() may not be available in older compilers.
+      //
+      if (n != 0)
+        memcpy (b, &v.front (), n);
+    }
+
+    //
     // string_lob_value_traits
     //
 
@@ -149,6 +171,7 @@ namespace odb
     //
     // default_value_traits<std::vector<char>, id_blob>
     //
+
     bool default_value_traits<std::vector<char>, id_blob>::
     result_callback (void* c, void* b, ub4 s, chunk_position p)
     {
@@ -177,6 +200,55 @@ namespace odb
     }
 
     bool default_value_traits<std::vector<char>, id_blob>::
+    param_callback (const void* ctx,
+                    ub4*,
+                    const void** b,
+                    ub4* s,
+                    chunk_position* p,
+                    void*,
+                    ub4)
+    {
+      const value_type& v (*static_cast<const value_type*> (ctx));
+
+      *p = one_chunk;
+      *s = static_cast<ub4> (v.size ());
+      *b = &v.front ();
+
+      return true;
+    }
+
+    //
+    // default_value_traits<std::vector<unsigned char>, id_blob>
+    //
+
+    bool default_value_traits<std::vector<unsigned char>, id_blob>::
+    result_callback (void* c, void* b, ub4 s, chunk_position p)
+    {
+      value_type& v (*static_cast<value_type*> (c));
+
+      switch (p)
+      {
+      case one_chunk:
+      case first_chunk:
+        {
+          v.clear ();
+
+          // Falling through.
+        }
+      case next_chunk:
+      case last_chunk:
+        {
+          unsigned char* cb (static_cast<unsigned char*> (b));
+          v.insert (v.end (), cb, cb + s);
+
+          break;
+        }
+      }
+
+      return true;
+    }
+
+    bool default_value_traits<std::vector<unsigned char>, id_blob>::
     param_callback (const void* ctx,
                     ub4*,
                     const void** b,

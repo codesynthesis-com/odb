@@ -575,7 +575,7 @@ namespace odb
     {
     };
 
-    // std::vector specialization for RAW.
+    // std::vector<char> (buffer) specialization for RAW.
     //
     template <>
     struct default_value_traits<std::vector<char>, id_raw>
@@ -590,6 +590,36 @@ namespace odb
       {
         if (!is_null)
           v.assign (b, b + n);
+        else
+          v.clear ();
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v);
+    };
+
+    // std::vector<unsigned char> (buffer) specialization for RAW.
+    //
+    template <>
+    struct default_value_traits<std::vector<unsigned char>, id_raw>
+    {
+    public:
+      typedef std::vector<unsigned char> value_type;
+      typedef std::vector<unsigned char> query_type;
+      typedef lob_callback image_type;
+
+      static void
+      set_value (value_type& v, const char* b, std::size_t n, bool is_null)
+      {
+        if (!is_null)
+        {
+          const unsigned char* ub (reinterpret_cast<const unsigned char*> (b));
+          v.assign (ub, ub + n);
+        }
         else
           v.clear ();
       }
@@ -740,6 +770,55 @@ namespace odb
     public:
       typedef std::vector<char> value_type;
       typedef std::vector<char> query_type;
+      typedef lob_callback image_type;
+
+      static void
+      set_value (value_type& v,
+                 result_callback_type& cb,
+                 void*& context,
+                 bool is_null)
+      {
+        if (!is_null)
+        {
+          cb = &result_callback;
+          context = &v;
+        }
+        else
+          v.clear ();
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = &v;
+      }
+
+      static bool
+      result_callback (void* context, void* buffer, ub4 size, chunk_position);
+
+      static bool
+      param_callback (const void* context,
+                      ub4* position_context,
+                      const void** buffer,
+                      ub4* size,
+                      chunk_position*,
+                      void* temp_buffer,
+                      ub4 capacity);
+    };
+
+    // std::vector<unsigned char> (buffer) specialization for BLOBs.
+    //
+    template <>
+    struct default_value_traits<std::vector<unsigned char>, id_blob>
+    {
+    public:
+      typedef std::vector<unsigned char> value_type;
+      typedef std::vector<unsigned char> query_type;
       typedef lob_callback image_type;
 
       static void
