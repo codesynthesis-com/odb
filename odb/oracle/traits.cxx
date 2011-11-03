@@ -129,7 +129,7 @@ namespace odb
     }
 
     bool string_lob_value_traits::
-    param_callback (const void* ctx,
+    param_callback (const void* c,
                     ub4*,
                     const void** b,
                     ub4* s,
@@ -137,7 +137,7 @@ namespace odb
                     void*,
                     ub4)
     {
-      const string& v (*static_cast<const string*> (ctx));
+      const string& v (*static_cast<const string*> (c));
 
       *p = one_chunk;
       *s = static_cast<ub4> (v.size ());
@@ -151,7 +151,7 @@ namespace odb
     //
 
     bool c_string_lob_value_traits::
-    param_callback (const void* ctx,
+    param_callback (const void* c,
                     ub4*,
                     const void** b,
                     ub4* s,
@@ -159,7 +159,7 @@ namespace odb
                     void*,
                     ub4)
     {
-      const char* v (static_cast<const char*> (ctx));
+      const char* v (static_cast<const char*> (c));
 
       *p = one_chunk;
       *s = static_cast<ub4> (strlen (v));
@@ -200,7 +200,7 @@ namespace odb
     }
 
     bool default_value_traits<std::vector<char>, id_blob>::
-    param_callback (const void* ctx,
+    param_callback (const void* c,
                     ub4*,
                     const void** b,
                     ub4* s,
@@ -208,7 +208,7 @@ namespace odb
                     void*,
                     ub4)
     {
-      const value_type& v (*static_cast<const value_type*> (ctx));
+      const value_type& v (*static_cast<const value_type*> (c));
 
       *p = one_chunk;
       *s = static_cast<ub4> (v.size ());
@@ -249,7 +249,7 @@ namespace odb
     }
 
     bool default_value_traits<std::vector<unsigned char>, id_blob>::
-    param_callback (const void* ctx,
+    param_callback (const void* c,
                     ub4*,
                     const void** b,
                     ub4* s,
@@ -257,7 +257,7 @@ namespace odb
                     void*,
                     ub4)
     {
-      const value_type& v (*static_cast<const value_type*> (ctx));
+      const value_type& v (*static_cast<const value_type*> (c));
 
       *p = one_chunk;
       *s = static_cast<ub4> (v.size ());
