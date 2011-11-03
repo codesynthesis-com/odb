@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
+#include <cstring> // std::memcpy, std::memset, std::strlen
 
 #include <odb/traits.hxx>
 #include <odb/wrapper-traits.hxx>
@@ -525,6 +526,82 @@ namespace odb
                  std::size_t& n,
                  bool& is_null,
                  const value_type&);
+    };
+
+    // char[n] (buffer) specialization.
+    //
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_bytea>
+    {
+    public:
+      typedef char* value_type;
+      typedef const char* query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (char* const& v,
+                 const details::buffer& b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v, b.data (), (n < N ? n : N));
+        else
+          std::memset (v, 0, N);
+      }
+
+      static void
+      set_image (details::buffer& b,
+                 std::size_t& n,
+                 bool& is_null,
+                 const char* v)
+      {
+        is_null = false;
+        n = N;
+
+        if (n > b.capacity ())
+          b.capacity (n);
+
+        std::memcpy (b.data (), v, n);
+      }
+    };
+
+    // unsigned char[n] (buffer) specialization.
+    //
+    template <std::size_t N>
+    struct default_value_traits<unsigned char[N], id_bytea>
+    {
+    public:
+      typedef unsigned char* value_type;
+      typedef const unsigned char* query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (unsigned char* const& v,
+                 const details::buffer& b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v, b.data (), (n < N ? n : N));
+        else
+          std::memset (v, 0, N);
+      }
+
+      static void
+      set_image (details::buffer& b,
+                 std::size_t& n,
+                 bool& is_null,
+                 const unsigned char* v)
+      {
+        is_null = false;
+        n = N;
+
+        if (n > b.capacity ())
+          b.capacity (n);
+
+        std::memcpy (b.data (), v, n);
+      }
     };
 
     //
