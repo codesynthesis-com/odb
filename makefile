@@ -5,7 +5,8 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))build/bootstrap.make
 
-all_dirs := libcommon common tracer mysql sqlite pgsql oracle boost qt
+#all_dirs := libcommon common tracer mysql sqlite pgsql oracle boost qt
+all_dirs := libcommon common tracer mysql sqlite pgsql boost qt
 dirs := common tracer boost qt
 
 ifeq ($(db_id),mysql)
