@@ -14,8 +14,6 @@
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
 
-#include <common/config.hxx>  // DATABASE_XXX
-
 typedef std::vector<char> buffer;
 typedef odb::nullable<buffer> nullable_buffer;
 
@@ -56,7 +54,7 @@ struct person
   unsigned short age_;
   bool married_;
 
-#ifdef DATABASE_PGSQL
+#ifdef ODB_DATABASE_PGSQL
   #pragma db column ("key") type ("BYTEA") null
 #else
   #pragma db column ("key") type ("BLOB") null

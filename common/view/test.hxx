@@ -13,8 +13,6 @@
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
 
-#include <common/config.hxx> // DATABASE_XXX
-
 struct employer;
 
 #pragma db object
@@ -132,7 +130,7 @@ struct employer
 
 // Complete suffix query template.
 //
-#ifndef DATABASE_ORACLE
+#ifndef ODB_DATABASE_ORACLE
 #  pragma db view query("SELECT first, last, age FROM t_view_person")
 #else
 #  pragma db view query("SELECT \"first\", \"last\", \"age\" " \
@@ -147,7 +145,7 @@ struct view1
 
 // Complete query.
 //
-#ifndef DATABASE_ORACLE
+#ifndef ODB_DATABASE_ORACLE
 #  pragma db view query("SELECT first, last, age " \
                         "FROM t_view_person "      \
                         "WHERE age < 31 ORDER BY age")
@@ -165,7 +163,7 @@ struct view1a
 
 // Complete placeholder query template.
 //
-#ifndef DATABASE_ORACLE
+#ifndef ODB_DATABASE_ORACLE
 #  pragma db view query("SELECT first, last, age " \
                         "FROM t_view_person "      \
                         "WHERE age < 31 AND (?) ORDER BY age")
@@ -212,7 +210,7 @@ struct view1d
 
 // Complete suffix query.
 //
-#ifndef DATABASE_ORACLE
+#ifndef ODB_DATABASE_ORACLE
 #  pragma db view object(person) \
   query("SELECT count(id) FROM t_view_person")
 #else
@@ -229,7 +227,7 @@ struct view2
 #pragma db view object(person)
 struct view2a
 {
-#ifndef DATABASE_ORACLE
+#ifndef ODB_DATABASE_ORACLE
   #pragma db column("count(id)")
 #else
   #pragma db column("count(\"id\")")
@@ -242,7 +240,7 @@ struct view2a
 #pragma db view object(person)
 struct view2b
 {
-#ifndef DATABASE_ORACLE
+#ifndef ODB_DATABASE_ORACLE
   #pragma db column("count(t_view_person.id)")
 #else
   #pragma db column("count(\"t_view_person\".\"id\")")
@@ -265,7 +263,7 @@ struct view2c
 
 // Complete suffix query.
 //
-#ifndef DATABASE_ORACLE
+#ifndef ODB_DATABASE_ORACLE
 #  pragma db view object(person = test) \
   query("SELECT last, count(last) "     \
         "FROM t_view_person "           \
@@ -302,7 +300,7 @@ struct view3a
 
 // Complete suffix query.
 //
-#ifndef DATABASE_ORACLE
+#ifndef ODB_DATABASE_ORACLE
 #  pragma db view object(person) object(country = residence)  \
   query("SELECT first, last, residence.name "                 \
         "FROM t_view_person "                                 \
@@ -394,7 +392,7 @@ struct view6b
 
 // The same using tables.
 //
-#ifndef DATABASE_ORACLE
+#ifndef ODB_DATABASE_ORACLE
 #  pragma db view table("t_view_person" = "p")                 \
   table("t_view_employer_employees" = "ee": "ee.value = p.id") \
   table("t_view_employer" = "e": "ee.object_id = e.name")
