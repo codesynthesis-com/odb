@@ -3,10 +3,6 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <cstddef> // std::size_t
-#include <cstring> // std::memcpy, std::strlen
-#include <cassert>
-
 #include <odb/oracle/traits.hxx>
 
 using namespace std;

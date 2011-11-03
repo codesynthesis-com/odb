@@ -11,6 +11,8 @@
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
+#include <cstring> // std::memcpy, std::memset, std::strlen
+#include <cassert>
 
 #include <odb/traits.hxx>
 #include <odb/wrapper-traits.hxx>
@@ -632,6 +634,75 @@ namespace odb
                  const value_type& v);
     };
 
+    // char[n] (buffer) specialization for RAW.
+    //
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_raw>
+    {
+    public:
+      typedef char* value_type;
+      typedef const char* query_type;
+      typedef char* image_type;
+
+      static void
+      set_value (char* const& v, const char* b, std::size_t n, bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v, b, (n < N ? n : N));
+        else
+          std::memset (v, 0, N);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const char* v)
+      {
+        is_null = false;
+        n = N;
+        assert (N <= c);
+        std::memcpy (b, v, n);
+      }
+    };
+
+    // unsigned char[n] (buffer) specialization for RAW.
+    //
+    template <std::size_t N>
+    struct default_value_traits<unsigned char[N], id_raw>
+    {
+    public:
+      typedef unsigned char* value_type;
+      typedef const unsigned char* query_type;
+      typedef char* image_type;
+
+      static void
+      set_value (unsigned char* const& v,
+                 const char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v, b, (n < N ? n : N));
+        else
+          std::memset (v, 0, N);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const unsigned char* v)
+      {
+        is_null = false;
+        n = N;
+        assert (N <= c);
+        std::memcpy (b, v, n);
+      }
+    };
+
     // std::string specialization for LOBs.
     //
     class string_lob_value_traits
@@ -872,6 +943,112 @@ namespace odb
                       ub4 capacity);
     };
 
+    // char[n] (buffer) specialization for BLOBs.
+    //
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_blob>
+    {
+    public:
+      typedef char* value_type;
+      typedef const char* query_type;
+      typedef lob_callback image_type;
+
+      static void
+      set_value (char* const& v,
+                 result_callback_type& cb,
+                 void*& context,
+                 bool is_null)
+      {
+        if (!is_null)
+        {
+          cb = &result_callback;
+          context = v;
+        }
+        else
+          std::memset (v, 0, N);
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const char* v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v;
+      }
+
+      static bool
+      result_callback (void* context,
+                       ub4* position_context,
+                       void* buffer,
+                       ub4 size,
+                       chunk_position);
+
+      static bool
+      param_callback (const void* context,
+                      ub4* position_context,
+                      const void** buffer,
+                      ub4* size,
+                      chunk_position*,
+                      void* temp_buffer,
+                      ub4 capacity);
+    };
+
+    // unsigned char[n] (buffer) specialization for BLOBs.
+    //
+    template <std::size_t N>
+    struct default_value_traits<unsigned char[N], id_blob>
+    {
+    public:
+      typedef unsigned char* value_type;
+      typedef const unsigned char* query_type;
+      typedef lob_callback image_type;
+
+      static void
+      set_value (unsigned char* const& v,
+                 result_callback_type& cb,
+                 void*& context,
+                 bool is_null)
+      {
+        if (!is_null)
+        {
+          cb = &result_callback;
+          context = v;
+        }
+        else
+          std::memset (v, 0, N);
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const unsigned char* v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v;
+      }
+
+      static bool
+      result_callback (void* context,
+                       ub4* position_context,
+                       void* buffer,
+                       ub4 size,
+                       chunk_position);
+
+      static bool
+      param_callback (const void* context,
+                      ub4* position_context,
+                      const void** buffer,
+                      ub4* size,
+                      chunk_position*,
+                      void* temp_buffer,
+                      ub4 capacity);
+    };
+
     //
     // type_traits
     //
@@ -993,6 +1170,8 @@ namespace odb
     };
   }
 }
+
+#include <odb/oracle/traits.txx>
 
 #include <odb/post.hxx>
 
