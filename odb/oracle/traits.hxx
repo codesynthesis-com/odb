@@ -583,7 +583,7 @@ namespace odb
     public:
       typedef std::vector<char> value_type;
       typedef std::vector<char> query_type;
-      typedef lob_callback image_type;
+      typedef char* image_type;
 
       static void
       set_value (value_type& v, const char* b, std::size_t n, bool is_null)
@@ -610,7 +610,7 @@ namespace odb
     public:
       typedef std::vector<unsigned char> value_type;
       typedef std::vector<unsigned char> query_type;
-      typedef lob_callback image_type;
+      typedef char* image_type;
 
       static void
       set_value (value_type& v, const char* b, std::size_t n, bool is_null)
