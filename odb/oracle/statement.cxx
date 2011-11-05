@@ -81,7 +81,7 @@ namespace odb
       bind& b (*static_cast<bind*> (context));
 
       details::buffer* lob_buffer (
-        reinterpret_cast<details::buffer*>(b.buffer));
+        reinterpret_cast<details::buffer*> (b.buffer));
 
       // Only call the callback if the parameter is not NULL.
       //
@@ -681,7 +681,7 @@ namespace odb
     void statement::
     stream_result (bind* b, size_t c)
     {
-      OCIError* err (conn_.error_handle());
+      OCIError* err (conn_.error_handle ());
 
       for (size_t i (0); i < c; ++i, ++b)
       {
@@ -834,7 +834,7 @@ namespace odb
 
 #ifndef NDEBUG
       ub4 n (0);
-      r = OCIAttrGet(stmt_, OCI_HTYPE_STMT, &n, 0, OCI_ATTR_PARAM_COUNT, err);
+      r = OCIAttrGet (stmt_, OCI_HTYPE_STMT, &n, 0, OCI_ATTR_PARAM_COUNT, err);
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
         translate_error (err, r);
