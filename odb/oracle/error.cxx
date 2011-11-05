@@ -35,7 +35,7 @@ namespace odb
                              1,
                              0,
                              &e,
-                             reinterpret_cast<text*> (b.data ()),
+                             reinterpret_cast<OraText*> (b.data ()),
                              b.capacity (),
                              t) == OCI_ERROR;
 

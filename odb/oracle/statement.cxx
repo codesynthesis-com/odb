@@ -143,7 +143,7 @@ namespace odb
       sword r (OCIStmtPrepare2 (conn_.handle (),
                                 &handle,
                                 err,
-                                reinterpret_cast<const text*> (s.c_str ()),
+                                reinterpret_cast<const OraText*> (s.c_str ()),
                                 static_cast<ub4> (s.size ()),
                                 0,
                                 0,

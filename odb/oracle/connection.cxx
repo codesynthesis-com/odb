@@ -62,7 +62,7 @@ namespace odb
       r = OCIAttrSet (
         auth_info,
         OCI_HTYPE_AUTHINFO,
-        reinterpret_cast<text*> (const_cast<char*> (db_.user ().c_str ())),
+        reinterpret_cast<OraText*> (const_cast<char*> (db_.user ().c_str ())),
         static_cast <ub4> (db_.user ().size ()),
         OCI_ATTR_USERNAME,
         error_);
@@ -73,7 +73,8 @@ namespace odb
       r = OCIAttrSet (
         auth_info,
         OCI_HTYPE_AUTHINFO,
-        reinterpret_cast<text*> (const_cast<char*> (db_.password ().c_str ())),
+        reinterpret_cast<OraText*> (
+          const_cast<char*> (db_.password ().c_str ())),
         static_cast<ub4> (db_.password ().size ()),
         OCI_ATTR_PASSWORD,
         error_);
@@ -89,7 +90,7 @@ namespace odb
           error_,
           &s,
           auth_info,
-          reinterpret_cast<text*> (const_cast<char*> (db_.db ().c_str ())),
+          reinterpret_cast<OraText*> (const_cast<char*> (db_.db ().c_str ())),
           static_cast<ub4> (db_.db ().size ()),
           0,
           0,
@@ -160,7 +161,7 @@ namespace odb
         r = OCIStmtPrepare2 (handle_,
                              &s,
                              error_,
-                             reinterpret_cast<const text*> (sql.c_str ()),
+                             reinterpret_cast<const OraText*> (sql.c_str ()),
                              static_cast<ub4> (sql.size ()),
                              0,
                              0,
