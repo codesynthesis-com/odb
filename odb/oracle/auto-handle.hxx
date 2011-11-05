@@ -98,13 +98,13 @@ namespace odb
           handle_traits<H>::release (h_);
       }
 
-      operator H* ()
+      operator H* () const
       {
         return h_;
       }
 
       H*
-      get ()
+      get () const
       {
         return h_;
       }
@@ -158,13 +158,13 @@ namespace odb
           handle_traits<OCISvcCtx>::release (h_, e_);
       }
 
-      operator OCISvcCtx* ()
+      operator OCISvcCtx* () const
       {
         return h_;
       }
 
       OCISvcCtx*
-      get ()
+      get () const
       {
         return h_;
       }
@@ -227,13 +227,13 @@ namespace odb
           handle_traits<OCIStmt>::release (h_, release_mode_, e_);
       }
 
-      operator OCIStmt* ()
+      operator OCIStmt* () const
       {
         return h_;
       }
 
       OCIStmt*
-      get ()
+      get () const
       {
         return h_;
       }
