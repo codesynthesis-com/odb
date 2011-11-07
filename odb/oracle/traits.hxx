@@ -47,6 +47,8 @@ namespace odb
 
       id_date,
       id_timestamp,
+      id_interval_ym,
+      id_interval_ds,
 
       id_string,
       id_nstring,
@@ -181,11 +183,19 @@ namespace odb
     template <typename T>
     struct image_traits<T, id_timestamp>
     {
-      // Image is a buffer containing the native OCI TIMESTAMP representation.
-      // This buffer has varying length, depending on the microsecond
-      // precision of the TIMESTAMP value.
-      //
-      typedef char* image_type;
+      typedef datetime image_type;
+    };
+
+    template <typename T>
+    struct image_traits<T, id_interval_ym>
+    {
+      typedef interval_ym image_type;
+    };
+
+    template <typename T>
+    struct image_traits<T, id_interval_ds>
+    {
+      typedef interval_ds image_type;
     };
 
     template <typename T>
@@ -266,7 +276,7 @@ namespace odb
         vtraits::set_image (i, is_null, wtraits::get_ref (v));
       }
 
-      // big_int, big_float, timestamp, string, nstring, raw.
+      // big_int, big_float, string, nstring, raw.
       //
       static void
       set_value (W& v, const char* i, std::size_t n, bool is_null)
@@ -274,7 +284,7 @@ namespace odb
         vtraits::set_value (wtraits::set_ref (v), i, n, is_null);
       }
 
-      // timestamp, string, nstring, raw.
+      // string, nstring, raw.
       //
       static void
       set_image (char* i,
@@ -342,7 +352,7 @@ namespace odb
           vtraits::set_image (i, is_null, wtraits::get_ref (v));
       }
 
-      // big_int, big_float, timestamp, string, nstring, raw.
+      // big_int, big_float, string, nstring, raw.
       //
       static void
       set_value (W& v, const char* i, std::size_t n, bool is_null)
@@ -353,7 +363,7 @@ namespace odb
           vtraits::set_value (wtraits::set_ref (v), i, n, is_null);
       }
 
-      // timestamp, string, nstring, raw.
+      // string, nstring, raw.
       //
       static void
       set_image (char* i,

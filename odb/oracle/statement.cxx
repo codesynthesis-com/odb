@@ -27,41 +27,45 @@ namespace odb
     // Mapping of bind::buffer_type values for parameter buffers to their
     // equivalent external OCI typecode identifiers.
     //
-    static ub4 param_sqlt_lookup[bind::last] =
+    static const ub4 param_sqlt_lookup[bind::last] =
     {
-      SQLT_INT,       // bind::integer
-      SQLT_UIN,       // bind::uinteger
-      SQLT_BFLOAT,    // bind::binary_float
-      SQLT_BDOUBLE,   // bind::binary_double
-      SQLT_NUM,       // bind::number
-      SQLT_DAT,       // bind::date
-      SQLT_TIMESTAMP, // bind::timestamp
-      SQLT_CHR,       // bind::string
-      SQLT_CHR,       // bind::nstring
-      SQLT_BIN,       // bind::raw
-      SQLT_LBI,       // bind::blob
-      SQLT_LNG,       // bind::clob
-      SQLT_LNG        // bind::nclob
+      SQLT_INT,         // bind::integer
+      SQLT_UIN,         // bind::uinteger
+      SQLT_BFLOAT,      // bind::binary_float
+      SQLT_BDOUBLE,     // bind::binary_double
+      SQLT_NUM,         // bind::number
+      SQLT_DAT,         // bind::date
+      SQLT_TIMESTAMP,   // bind::timestamp
+      SQLT_INTERVAL_YM, // bind::interval_ym
+      SQLT_INTERVAL_DS, // bind::interval_ds
+      SQLT_CHR,         // bind::string
+      SQLT_CHR,         // bind::nstring
+      SQLT_BIN,         // bind::raw
+      SQLT_LBI,         // bind::blob
+      SQLT_LNG,         // bind::clob
+      SQLT_LNG          // bind::nclob
     };
 
     // Mapping of bind::buffer_type values for result buffers to their
     // equivalent external OCI typecode identifiers.
     //
-    static ub4 result_sqlt_lookup[bind::last] =
+    static const ub4 result_sqlt_lookup[bind::last] =
     {
-      SQLT_INT,       // bind::integer
-      SQLT_UIN,       // bind::uinteger
-      SQLT_BFLOAT,    // bind::binary_float
-      SQLT_BDOUBLE,   // bind::binary_double
-      SQLT_NUM,       // bind::number
-      SQLT_DAT,       // bind::date
-      SQLT_TIMESTAMP, // bind::timestamp
-      SQLT_CHR,       // bind::string
-      SQLT_CHR,       // bind::nstring
-      SQLT_BIN,       // bind::raw
-      SQLT_BLOB,      // bind::blob
-      SQLT_CLOB,      // bind::clob
-      SQLT_CLOB       // bind::nclob
+      SQLT_INT,         // bind::integer
+      SQLT_UIN,         // bind::uinteger
+      SQLT_BFLOAT,      // bind::binary_float
+      SQLT_BDOUBLE,     // bind::binary_double
+      SQLT_NUM,         // bind::number
+      SQLT_DAT,         // bind::date
+      SQLT_TIMESTAMP,   // bind::timestamp
+      SQLT_INTERVAL_YM, // bind::interval_ym
+      SQLT_INTERVAL_DS, // bind::interval_ds
+      SQLT_CHR,         // bind::string
+      SQLT_CHR,         // bind::nstring
+      SQLT_BIN,         // bind::raw
+      SQLT_BLOB,        // bind::blob
+      SQLT_CLOB,        // bind::clob
+      SQLT_CLOB         // bind::nclob
     };
 
     static sb4
@@ -156,41 +160,139 @@ namespace odb
     bind_param (bind* b, size_t n)
     {
       OCIError* err (conn_.error_handle ());
+      OCIEnv* env (conn_.database ().environment ());
 
       // The parameter position in OCIBindByPos is specified as a 1-based
       // index.
       //
       n++;
+
       for (ub4 i (1); i < n; ++i, ++b)
       {
-#if OCI_MAJOR_VERSION < 11 || \
-  (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION < 2)
-        // Assert if a 64 bit integer buffer type is provided and the OCI
-        // version is unable to implicitly convert the NUMBER binary data
-        // to the relevant type.
-        //
-        assert ((b->type != bind::integer && b->type != bind::uinteger) ||
-                b->capacity <= 4);
-#endif
-
+        void* value (0);
         bool callback (b->callback != 0);
+
+        switch (b->type)
+        {
+        case bind::timestamp:
+          {
+            datetime* dt (static_cast<datetime*> (b->buffer));
+
+            if (dt->descriptor.get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env,
+                                           &d,
+                                           OCI_DTYPE_TIMESTAMP,
+                                           0,
+                                           0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              dt->descriptor.reset (static_cast<OCIDateTime*> (d));
+              dt->descriptor.environment = env;
+              dt->descriptor.error = err;
+              dt->set ();
+            }
+
+            value = &dt->descriptor.get ();
+            break;
+          }
+        case bind::interval_ym:
+          {
+            interval_ym* iym (static_cast<interval_ym*> (b->buffer));
+
+            if (iym->descriptor.get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env,
+                                           &d,
+                                           OCI_DTYPE_INTERVAL_YM,
+                                           0,
+                                           0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              iym->descriptor.reset (static_cast<OCIInterval*> (d));
+              iym->descriptor.environment = env;
+              iym->descriptor.error = err;
+              iym->set ();
+            }
+
+            value = &iym->descriptor.get ();
+            break;
+          }
+        case bind::interval_ds:
+          {
+            interval_ds* ids (static_cast<interval_ds*> (b->buffer));
+
+            if (ids->descriptor.get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env,
+                                           &d,
+                                           OCI_DTYPE_INTERVAL_DS,
+                                           0,
+                                           0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              ids->descriptor.reset (static_cast<OCIInterval*> (d));
+              ids->descriptor.environment = env;
+              ids->descriptor.error = err;
+              ids->set ();
+            }
+
+            value = &ids->descriptor.get ();
+            break;
+          }
+        case bind::blob:
+        case bind::clob:
+        case bind::nclob:
+          {
+            details::buffer& lob_buffer (conn_.lob_buffer ());
+
+            if (lob_buffer.capacity () == 0)
+              lob_buffer.capacity (4096);
+
+            b->buffer = &lob_buffer;
+
+            break;
+          }
+        default:
+          {
+#if OCI_MAJOR_VERSION < 11 ||                           \
+  (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION < 2)
+            // Assert if a 64 bit integer buffer type is provided and the OCI
+            // version is unable to implicitly convert the NUMBER binary data
+            // to the relevant type.
+            //
+            assert ((b->type != bind::integer &&
+                     b->type != bind::uinteger) || b->capacity <= 4);
+#endif
+            if (!callback)
+              value = b->buffer;
+
+            break;
+          }
+        }
+
         OCIBind* h (0);
 
         sword r (OCIBindByPos (stmt_,
                                &h,
                                err,
                                i,
-                               callback ? 0 : b->buffer,
-                               // When parameter callbacks are in use, set the
-                               // allowable data length to the maximum
-                               // possible.
-                               //
+                               value,
                                callback
-                                 ? std::numeric_limits<sb4>::max ()
-                                 : static_cast<sb4> (b->capacity),
+                               ? std::numeric_limits<sb4>::max ()
+                               : static_cast<sb4> (b->capacity),
                                param_sqlt_lookup[b->type],
-                               callback ? 0 : b->indicator,
-                               callback ? 0 : b->size,
+                               b->indicator,
+                               b->size,
                                0,
                                0,
                                0,
@@ -199,6 +301,8 @@ namespace odb
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
 
+        // Set the character set form for national strings.
+        //
         if (b->type == bind::nstring || b->type == bind::nclob)
         {
           ub1 form (SQLCS_NCHAR);
@@ -216,13 +320,6 @@ namespace odb
 
         if (callback)
         {
-          details::buffer& lob_buffer (conn_.lob_buffer ());
-
-          if (lob_buffer.capacity () == 0)
-            lob_buffer.capacity (4096);
-
-          b->buffer = &lob_buffer;
-
           r = OCIBindDynamic (h, err, b, &param_callback_proxy, 0, 0);
 
           if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
@@ -237,56 +334,146 @@ namespace odb
       ODB_POTENTIALLY_UNUSED (p);
 
       OCIError* err (conn_.error_handle ());
+      OCIEnv* env (conn_.database ().environment ());
 
       for (size_t i (1); i <= c; ++i, ++b)
       {
+        void* value (0);
+        ub2* size (0);
+
+        switch (b->type)
+        {
+        case bind::timestamp:
+          {
+            datetime* dt (static_cast<datetime*> (b->buffer));
+
+            if (dt->descriptor.get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env,
+                                           &d,
+                                           OCI_DTYPE_TIMESTAMP,
+                                           0,
+                                           0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              dt->descriptor.reset (static_cast<OCIDateTime*> (d));
+              dt->descriptor.environment = env;
+              dt->descriptor.error = err;
+            }
+
+            value = &dt->descriptor.get ();
+            break;
+          }
+        case bind::interval_ym:
+          {
+            interval_ym* iym (static_cast<interval_ym*> (b->buffer));
+
+            if (iym->descriptor.get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env,
+                                           &d,
+                                           OCI_DTYPE_INTERVAL_YM,
+                                           0,
+                                           0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              iym->descriptor.reset (static_cast<OCIInterval*> (d));
+              iym->descriptor.environment = env;
+              iym->descriptor.error = err;
+            }
+
+            value = &iym->descriptor.get ();
+            break;
+          }
+        case bind::interval_ds:
+          {
+            interval_ds* ids (static_cast<interval_ds*> (b->buffer));
+
+            if (ids->descriptor.get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env,
+                                           &d,
+                                           OCI_DTYPE_INTERVAL_DS,
+                                           0,
+                                           0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              ids->descriptor.reset (static_cast<OCIInterval*> (d));
+              ids->descriptor.environment = env;
+              ids->descriptor.error = err;
+            }
+
+            value = &ids->descriptor.get ();
+            break;
+          }
+        case bind::blob:
+        case bind::clob:
+        case bind::nclob:
+          {
+            auto_descriptor<OCILobLocator>* lob (
+              static_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
+
+            if (lob->get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env, &d, OCI_DTYPE_LOB, 0, 0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              lob->reset (static_cast<OCILobLocator*> (d));
+            }
+
+            value = &lob->get ();
+            break;
+          }
+        default:
+          {
+#if OCI_MAJOR_VERSION < 11 || \
+  (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION < 2)
+            // Assert if a 64 bit integer buffer type is provided and the OCI
+            // version is unable to implicitly convert the NUMBER binary data
+            // to the relevant type.
+            //
+            assert ((b->type != bind::integer && b->type != bind::uinteger) ||
+                    b->capacity <= 4);
+#endif
+            value = b->buffer;
+            size = b->size;
+
+            break;
+          }
+        }
+
         OCIDefine* h (0);
+        sword r (OCIDefineByPos (stmt_,
+                                 &h,
+                                 err,
+                                 i,
+                                 value,
+                                 static_cast<sb4> (b->capacity),
+                                 result_sqlt_lookup[b->type],
+                                 b->indicator,
+                                 size,
+                                 0,
+                                 OCI_DEFAULT));
+
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (err, r);
 
         if (b->type == bind::blob ||
             b->type == bind::clob ||
             b->type == bind::nclob)
         {
-          // When binding a LOB result, the bind::buffer member is
-          // reinterpreted as a pointer to an auto_descriptor<OCILobLocator>.
-          // If the descriptor has not yet been allocated, it is allocated now.
-          //
-          auto_descriptor<OCILobLocator>* lob (
-            reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
-
-          if (lob->get () == 0)
-          {
-            OCILobLocator* h (0);
-
-            sword r (OCIDescriptorAlloc (conn_.database ().environment (),
-                                         reinterpret_cast<void**> (&h),
-                                         OCI_DTYPE_LOB,
-                                         0,
-                                         0));
-
-            // OCIDescriptorAlloc will return OCI_SUCCESS on success, or
-            // OCI_INVALID_HANDLE on an out-of-memory condition.
-            //
-            if (r != OCI_SUCCESS)
-              throw invalid_oci_handle ();
-
-            lob->reset (h);
-          }
-
-          sword r (OCIDefineByPos (stmt_,
-                                   &h,
-                                   err,
-                                   i,
-                                   lob,
-                                   sizeof (OCILobLocator*),
-                                   result_sqlt_lookup[b->type],
-                                   b->indicator,
-                                   0,
-                                   0,
-                                   OCI_DEFAULT));
-
-          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-            translate_error (err, r);
-
           // The OCIDefine handle is stored in the size member of the bind in
           // case the LOB parameter is rebound. If rebinding is necessary, the
           // same OCIDefine handle is used.
@@ -316,47 +503,19 @@ namespace odb
           }
 #endif
         }
-        else
+        else if (b->type == bind::nstring)
         {
-#if OCI_MAJOR_VERSION < 11 || \
-  (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION < 2)
-          // Assert if a 64 bit integer buffer type is provided and the OCI
-          // version is unable to implicitly convert the NUMBER binary data
-          // to the relevant type.
-          //
-          assert ((b->type != bind::integer && b->type != bind::uinteger) ||
-                  b->capacity <= 4);
-#endif
+          ub1 form (SQLCS_NCHAR);
 
-          sword r (OCIDefineByPos (stmt_,
-                                   &h,
-                                   err,
-                                   i,
-                                   b->buffer,
-                                   static_cast<sb4> (b->capacity),
-                                   result_sqlt_lookup[b->type],
-                                   b->indicator,
-                                   b->size,
-                                   0,
-                                   OCI_DEFAULT));
+          r = OCIAttrSet (h,
+                          OCI_HTYPE_DEFINE,
+                          &form,
+                          0,
+                          OCI_ATTR_CHARSET_FORM,
+                          err);
 
           if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
             translate_error (err, r);
-
-          if (b->type == bind::nstring)
-          {
-            ub1 form (SQLCS_NCHAR);
-
-            r = OCIAttrSet (h,
-                            OCI_HTYPE_DEFINE,
-                            &form,
-                            0,
-                            OCI_ATTR_CHARSET_FORM,
-                            err);
-
-            if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-              translate_error (err, r);
-          }
         }
       }
     }
@@ -366,49 +525,119 @@ namespace odb
     {
       ODB_POTENTIALLY_UNUSED (p);
 
-      OCIError* err (conn_.error_handle ());
+      OCIEnv* env (conn_.database ().environment ());
 
       for (size_t i (1); i <= c; ++i, ++b)
       {
-        if (!(b->type == bind::blob ||
-              b->type == bind::clob ||
-              b->type == bind::nclob))
-          continue;
+        void* value (0);
 
-        // When binding a LOB result, the bind::buffer member is
-        // reinterpreted as a pointer to an auto_descriptor<OCILobLocator>.
-        // If the descriptor has been reset, it is re-allocated now.
-        //
-        auto_descriptor<OCILobLocator>* lob (
-          reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
-
-        if (lob->get () == 0)
+        switch (b->type)
         {
-          OCILobLocator* h (0);
+        case bind::timestamp:
+          {
+            datetime* dt (static_cast<datetime*> (b->buffer));
 
-          sword r (OCIDescriptorAlloc (conn_.database ().environment (),
-                                       reinterpret_cast<void**> (&h),
-                                       OCI_DTYPE_LOB,
-                                       0,
-                                       0));
+            if (dt->descriptor.get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env,
+                                           &d,
+                                           OCI_DTYPE_TIMESTAMP,
+                                           0,
+                                           0));
 
-          // OCIDescriptorAlloc will return OCI_SUCCESS on success, or
-          // OCI_INVALID_HANDLE on an out-of-memory condition.
-          //
-          if (r != OCI_SUCCESS)
-            throw invalid_oci_handle ();
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
 
-          lob->reset (h);
+              dt->descriptor.reset (static_cast<OCIDateTime*> (d));
+            }
+
+            value = &dt->descriptor.get ();
+            break;
+          }
+        case bind::interval_ym:
+          {
+            interval_ym* iym (static_cast<interval_ym*> (b->buffer));
+
+            if (iym->descriptor.get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env,
+                                           &d,
+                                           OCI_DTYPE_INTERVAL_YM,
+                                           0,
+                                           0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              iym->descriptor.reset (static_cast<OCIInterval*> (d));
+            }
+
+            value = &iym->descriptor.get ();
+            break;
+          }
+        case bind::interval_ds:
+          {
+            interval_ds* ids (static_cast<interval_ds*> (b->buffer));
+
+            if (ids->descriptor.get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env,
+                                           &d,
+                                           OCI_DTYPE_INTERVAL_DS,
+                                           0,
+                                           0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              ids->descriptor.reset (static_cast<OCIInterval*> (d));
+            }
+
+            value = &ids->descriptor.get ();
+            break;
+          }
+        case bind::blob:
+        case bind::clob:
+        case bind::nclob:
+          {
+            auto_descriptor<OCILobLocator>* lob (
+              reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
+
+            if (lob->get () == 0)
+            {
+              void* d (0);
+              sword r (OCIDescriptorAlloc (env, &d, OCI_DTYPE_LOB, 0, 0));
+
+              if (r != OCI_SUCCESS)
+                throw invalid_oci_handle ();
+
+              lob->reset (static_cast <OCILobLocator*> (d));
+            }
+
+            value = &lob->get ();
+            break;
+          }
+        default:
+          {
+            continue;
+          }
         }
 
+        // The bind::size member of bind instances associated with LOB and
+        // TIMESTAMP type is interpreted as the OCIDefine* returned by the
+        // initial call to OCIDefineByPos when binding for the first time.
+        //
         OCIDefine* h (reinterpret_cast<OCIDefine*> (b->size));
 
         sword r (OCIDefineByPos (stmt_,
                                  &h,
-                                 err,
+                                 conn_.error_handle (),
                                  i,
-                                 lob,
-                                 sizeof (OCILobLocator*),
+                                 value,
+                                 static_cast<sb4> (b->capacity),
                                  result_sqlt_lookup[b->type],
                                  b->indicator,
                                  0,
@@ -416,34 +645,7 @@ namespace odb
                                  OCI_DEFAULT));
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (err, r);
-
-        // LOB prefetching is only supported in OCI version 11.1 and greater
-        // and in Oracle server 11.1 and greater. If this code is called
-        // against a pre 11.1 server, the call to OCIAttrSet will return an
-        // error code.
-        //
-        // Note that even though we are re-binding the same handle, we still
-        // have to reset this attribute. Failing to do so will result in the
-        // mysterious ORA-03106 fatal two-task communication protocol error.
-        //
-#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >= 1) \
-  || OCI_MAJOR_VERSION > 11
-        if (p != 0)
-        {
-          ub4 n (static_cast<ub4> (p));
-
-          r = OCIAttrSet (h,
-                          OCI_HTYPE_DEFINE,
-                          &n,
-                          0,
-                          OCI_ATTR_LOBPREFETCH_SIZE,
-                          err);
-
-          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-            translate_error (err, r);
-        }
-#endif
+          translate_error (conn_.error_handle (), r);
       }
     }
 

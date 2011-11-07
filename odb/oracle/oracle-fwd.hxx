@@ -12,6 +12,9 @@
 // allows us to avoid having to include oci.h in public headers.
 //
 typedef signed int sword;
+
+typedef unsigned char ub1;
+typedef signed char sb1;
 typedef signed short sb2;
 typedef unsigned short ub2;
 typedef signed int sb4;
@@ -26,6 +29,8 @@ typedef struct OCITrans OCITrans;
 
 typedef struct OCIParam OCIParam;
 typedef struct OCILobLocator OCILobLocator;
+typedef struct OCIDateTime OCIDateTime;
+typedef struct OCIInterval OCIInterval;
 
 #include <odb/post.hxx>
 

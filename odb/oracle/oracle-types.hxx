@@ -90,7 +90,9 @@ namespace odb
         binary_double, // Buffer is a double.
         number,        // Buffer is a variable length char array.
         date,          // Buffer is a 7-byte char array.
-        timestamp,     // Buffer is a variable length char array.
+        timestamp,     // Buffer is a datetime.
+        interval_ym,   // Buffer is an interval_ym.
+        interval_ds,   // Buffer is an interval_ds.
         string,        // Buffer is a variable length char array.
         nstring,       // Buffer is a variable length char array.
         raw,           // Buffer is a variable length char array.
@@ -132,22 +134,28 @@ namespace odb
       void* context;
     };
 
-    // The LOB specialization of auto_descriptor allows for transparent
-    // transferal of LOB descriptors between auto_descriptor instances. This
-    // simplifies the implementation of a private copy of the shared image
-    // associated with queries.
     //
-    class LIBODB_ORACLE_EXPORT lob_auto_descriptor
-      : auto_descriptor<OCILobLocator>
+    // These specialized auto_descriptor classes allows for transparent
+    // transferal of descriptors between auto_descriptor instances. This
+    // simplifies the implementation of a private copy of the shared image
+    // associated with queries. The specializations for OCIDateTime and
+    // OCIInterval also wrap OCI handles that are required for manipulation
+    // of the descriptor data.
+    //
+
+    class LIBODB_ORACLE_EXPORT lob_auto_descriptor:
+      public auto_descriptor<OCILobLocator>
     {
+      typedef auto_descriptor <OCILobLocator> base;
+
     public:
       lob_auto_descriptor (OCILobLocator* l = 0)
-        : auto_descriptor<OCILobLocator> (l)
+        : base (l)
       {
       }
 
       lob_auto_descriptor (lob_auto_descriptor& x)
-        : auto_descriptor<OCILobLocator> (x.d_)
+        : base (x.d_)
       {
         x.d_ = 0;
       }
@@ -161,6 +169,195 @@ namespace odb
 
         return *this;
       }
+    };
+
+    class LIBODB_ORACLE_EXPORT datetime_auto_descriptor:
+      public auto_descriptor<OCIDateTime, dt_timestamp>
+    {
+      typedef auto_descriptor<OCIDateTime, dt_timestamp> base;
+
+    public:
+      datetime_auto_descriptor (OCIDateTime* d = 0):
+        base (d),
+        environment (0),
+        error (0)
+      {
+      }
+
+      datetime_auto_descriptor (datetime_auto_descriptor& x):
+        base (x.d_),
+        environment (x.environment),
+        error (x.error)
+      {
+        x.d_ = 0;
+      }
+
+      datetime_auto_descriptor&
+      operator= (datetime_auto_descriptor& x)
+      {
+        OCIDateTime* l (x.d_);
+        x.d_ = 0;
+        reset (l);
+
+        environment = x.environment;
+        error = x.error;
+
+        return *this;
+      }
+
+      OCIEnv* environment;
+      OCIError* error;
+    };
+
+    class LIBODB_ORACLE_EXPORT interval_ym_auto_descriptor:
+      public auto_descriptor<OCIInterval, dt_interval_ym>
+    {
+      typedef auto_descriptor<OCIInterval, dt_interval_ym> base;
+
+    public:
+      interval_ym_auto_descriptor (OCIInterval* d = 0):
+        base (d),
+        environment (0),
+        error (0)
+      {
+      }
+
+      interval_ym_auto_descriptor (interval_ym_auto_descriptor& x):
+        base (x.d_),
+        environment (x.environment),
+        error (x.error)
+      {
+        x.d_ = 0;
+      }
+
+      interval_ym_auto_descriptor&
+      operator= (interval_ym_auto_descriptor& x)
+      {
+        OCIInterval* l (x.d_);
+        x.d_ = 0;
+        reset (l);
+
+        environment = x.environment;
+        error = x.error;
+
+        return *this;
+      }
+
+      OCIEnv* environment;
+      OCIError* error;
+    };
+
+    class LIBODB_ORACLE_EXPORT interval_ds_auto_descriptor:
+      public auto_descriptor<OCIInterval, dt_interval_ds>
+    {
+      typedef auto_descriptor<OCIInterval, dt_interval_ds> base;
+
+    public:
+      interval_ds_auto_descriptor (OCIInterval* d = 0):
+        base (d),
+        environment (0),
+        error (0)
+      {
+      }
+
+      interval_ds_auto_descriptor (interval_ds_auto_descriptor& x):
+        base (x.d_),
+        environment (x.environment),
+        error (x.error)
+      {
+        x.d_ = 0;
+      }
+
+      interval_ds_auto_descriptor&
+      operator= (interval_ds_auto_descriptor& x)
+      {
+        OCIInterval* l (x.d_);
+        x.d_ = 0;
+        reset (l);
+
+        environment = x.environment;
+        error = x.error;
+
+        return *this;
+      }
+
+      OCIEnv* environment;
+      OCIError* error;
+    };
+
+    //
+    // The OCIDateTime and OCIInterval APIs require that an environment and
+    // error handle be passed any function that manipulates an OCIDateTime or
+    // OCIInterval descriptor. It is however impossible to obtain these handles
+    // the first time any temporal data image is initialized. The following
+    // structures allow ODB generated code to interact with the OCI temporal
+    // descriptor types indirectly via C++ primitives. The wrapped OCI
+    // descriptor is then set using these primitives at a time when the all the
+    // required data is available. A symmetric get interface is provided for
+    // consistency.
+    //
+
+    struct LIBODB_ORACLE_EXPORT datetime
+    {
+      struct fields_type
+      {
+        sb2 year;
+        ub1 month;
+        ub1 day;
+        ub1 hour;
+        ub1 minute;
+        ub1 second;
+        ub4 nanosecond;
+      };
+
+      mutable fields_type fields;
+      datetime_auto_descriptor descriptor;
+
+      void
+      get () const;
+
+      void
+      set ();
+
+    };
+
+    struct LIBODB_ORACLE_EXPORT interval_ym
+    {
+      struct fields_type
+      {
+        sb4 year;
+        sb4 month;
+      };
+
+      mutable fields_type fields;
+      interval_ym_auto_descriptor descriptor;
+
+      void
+      get () const;
+
+      void
+      set ();
+    };
+
+    struct LIBODB_ORACLE_EXPORT interval_ds
+    {
+      struct fields_type
+      {
+        sb4 day;
+        sb4 hour;
+        sb4 minute;
+        sb4 second;
+        sb4 nanosecond;
+      };
+
+      mutable fields_type fields;
+      interval_ds_auto_descriptor descriptor;
+
+      void
+      get () const;
+
+      void
+      set ();
     };
   }
 }

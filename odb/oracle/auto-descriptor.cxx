@@ -11,13 +11,19 @@ namespace odb
 {
   namespace oracle
   {
-    void
-    oci_descriptor_free (void* d, ub4 type)
+    static const ub4 oci_descriptor_types[] =
     {
-      OCIDescriptorFree (d, type);
-    }
+      OCI_DTYPE_PARAM,
+      OCI_DTYPE_LOB,
+      OCI_DTYPE_TIMESTAMP,
+      OCI_DTYPE_INTERVAL_YM,
+      OCI_DTYPE_INTERVAL_DS
+    };
 
-    const ub4 descriptor_type_traits<OCIParam>::dtype = OCI_DTYPE_PARAM;
-    const ub4 descriptor_type_traits<OCILobLocator>::dtype = OCI_DTYPE_LOB;
+    void
+    oci_descriptor_free (void* d, descriptor_type type)
+    {
+      OCIDescriptorFree (d, oci_descriptor_types[type - 1]);
+    }
   }
 }

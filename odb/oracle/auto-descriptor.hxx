@@ -17,41 +17,64 @@ namespace odb
 {
   namespace oracle
   {
+    enum descriptor_type
+    {
+      dt_default = 0,
+      dt_param,
+      dt_lob,
+      dt_timestamp,
+      dt_interval_ym,
+      dt_interval_ds
+    };
+
+    LIBODB_ORACLE_EXPORT void
+    oci_descriptor_free (void* descriptor, descriptor_type type);
+
     //
     // descriptor_type_traits
     //
 
     template <typename D>
-    struct descriptor_type_traits;
+    struct default_descriptor_type_traits;
 
     template <>
-    struct descriptor_type_traits<OCIParam>
-    { static const ub4 dtype; };
+    struct default_descriptor_type_traits<OCIParam>
+    { static const descriptor_type dtype = dt_param; };
 
     template <>
-    struct descriptor_type_traits<OCILobLocator>
-    { static const ub4 dtype; };
-
+    struct default_descriptor_type_traits<OCILobLocator>
+    { static const descriptor_type dtype = dt_lob; };
 
     //
-    // descriptor_traits
+    // auto_descriptor_base
     //
 
-    LIBODB_ORACLE_EXPORT void
-    oci_descriptor_free (void* descriptor, ub4 type);
-
-    template <typename D>
-    struct descriptor_traits
+    template <typename D, descriptor_type Type>
+    struct auto_descriptor_base
     {
       static void
       release (D* d)
       {
-        oci_descriptor_free (d, descriptor_type_traits<D>::dtype);
+        oci_descriptor_free (d, Type);
       }
     };
 
     template <typename D>
-    class auto_descriptor
+    struct auto_descriptor_base<D, dt_default>
+    {
+      static void
+      release (D* d)
+      {
+        oci_descriptor_free (d, default_descriptor_type_traits<D>::dtype);
+      }
+    };
+
+    //
+    // auto_descriptor
+    //
+
+    template <typename D, descriptor_type T = dt_default>
+    class auto_descriptor: auto_descriptor_base<D, T>
     {
     public:
       auto_descriptor (D* d = 0)
@@ -62,16 +85,22 @@ namespace odb
       ~auto_descriptor ()
       {
         if (d_ != 0)
-          descriptor_traits<D>::release (d_);
+          release (d_);
       }
 
-      operator D* ()
+      operator D* () const
+      {
+        return d_;
+      }
+
+      D*&
+      get ()
       {
         return d_;
       }
 
       D*
-      get ()
+      get () const
       {
         return d_;
       }
@@ -80,7 +109,7 @@ namespace odb
       reset (D* d = 0)
       {
         if (d_ != 0)
-          descriptor_traits<D>::release (d_);
+          release (d_);
 
         d_ = d;
       }
