@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include <odb/core.hxx>
 
@@ -22,13 +23,15 @@ struct date_time
              unsigned char d,
              unsigned char h,
              unsigned char min,
-             unsigned char sec)
+             unsigned char sec,
+             unsigned int nsec)
       : year (y),
         month (m),
         day (d),
         hour (h),
         minute (min),
-        second (sec)
+        second (sec),
+        nanosecond (nsec)
   {
   }
 
@@ -41,7 +44,8 @@ struct date_time
       day == y.day &&
       hour == y.hour &&
       minute == y.minute &&
-      second == y.second;
+      second == y.second &&
+      nanosecond == y.nanosecond;
   }
 
   unsigned short year;
@@ -50,6 +54,46 @@ struct date_time
   unsigned char hour;
   unsigned char minute;
   unsigned char second;
+  unsigned int nanosecond;
+};
+
+struct time_interval
+{
+  time_interval ()
+  {
+  }
+
+  time_interval (int y, int m, int d, int h, int min, int sec, int nsec)
+      : year (y),
+        month (m),
+        day (d),
+        hour (h),
+        minute (min),
+        second (sec),
+        nanosecond (nsec)
+  {
+  }
+
+  bool
+  operator== (const time_interval& y) const
+  {
+    return
+      year == y.year &&
+      month == y.month &&
+      day == y.day &&
+      hour == y.hour &&
+      minute == y.minute &&
+      second == y.second &&
+      nanosecond == y.nanosecond;
+  }
+
+  int year;
+  int month;
+  int day;
+  int hour;
+  int minute;
+  int second;
+  int nanosecond;
 };
 
 #pragma db object
@@ -100,9 +144,14 @@ struct object
   #pragma db type ("DATE")
   date_time date_;
 
-  // @@
-  // #pragma db type ("TIMESTAMP(6)")
-  // date_time timestamp_;
+  #pragma db type ("TIMESTAMP(6)")
+  date_time timestamp_;
+
+  #pragma db type ("INTERVAL DAY TO SECOND")
+  time_interval interval_ds_;
+
+  #pragma db type ("INTERVAL YEAR TO MONTH")
+  time_interval interval_ym_;
 
   // String and binary types.
   //
@@ -149,6 +198,9 @@ struct object
       binary_float_ == y.binary_float_ &&
       binary_double_ == y.binary_double_ &&
       date_ == y.date_ &&
+      timestamp_ == y.timestamp_ &&
+      interval_ds_ == y.interval_ds_ &&
+      interval_ym_ == y.interval_ym_ &&
       char_ == y.char_ &&
       varchar2_ == y.varchar2_ &&
       nchar_ == y.nchar_ &&

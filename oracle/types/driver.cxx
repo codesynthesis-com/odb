@@ -43,7 +43,10 @@ main (int argc, char* argv[])
     o.binary_float_ = 1.123F;
     o.binary_double_ = 1.123;
 
-    o.date_ = date_time (2010, 8, 29, 15, 33, 18);
+    o.date_ = date_time (2010, 8, 29, 15, 33, 18, 0);
+    o.timestamp_ = date_time (1996, 3, 9, 18, 2, 54, 123000);
+    o.interval_ds_ = time_interval (0, 0, 13, 43, 23, 19, 123000);
+    o.interval_ym_ = time_interval (12, 3, 0, 0, 0, 0, 0);
 
     string vshort_str (8, 's');
     string short_str (13, 's');
@@ -87,7 +90,7 @@ main (int argc, char* argv[])
     // Testing of character set conversion to and from the client's database
     // character set is disabled as the server database character set may
     // not be able to represent some Unicode characters. If this were the case
-    // the test outcome be a false negative.
+    // the test outcome would be a false negative.
     //
     // o.char_ = unicode_str;
     // o.varchar2_ = unicode_str;
