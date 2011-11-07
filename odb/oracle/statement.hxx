@@ -12,8 +12,7 @@
 #include <cstddef>  // std::size_t
 
 #include <odb/forward.hxx>
-
-#include <odb/details/shared-ptr.hxx>
+#include <odb/statement.hxx>
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/binding.hxx>
@@ -27,11 +26,20 @@ namespace odb
 {
   namespace oracle
   {
-    class LIBODB_ORACLE_EXPORT statement: public details::shared_base
+    class LIBODB_ORACLE_EXPORT statement: public odb::statement
     {
     public:
       virtual
       ~statement () = 0;
+
+      OCIStmt*
+      handle () const
+      {
+        return stmt_;
+      }
+
+      virtual const char*
+      text () const;
 
     protected:
       statement (connection&, const std::string& statement);
@@ -71,6 +79,26 @@ namespace odb
     protected:
       connection& conn_;
       auto_handle<OCIStmt> stmt_;
+    };
+
+    class LIBODB_ORACLE_EXPORT generic_statement: public statement
+    {
+    public:
+      virtual
+      ~generic_statement ();
+
+      generic_statement (connection&, const std::string& statement);
+
+      unsigned long long
+      execute ();
+
+    private:
+      generic_statement (const generic_statement&);
+      generic_statement& operator= (const generic_statement&);
+
+    private:
+      ub2 stmt_type_;
+      bool bound_;
     };
 
     class LIBODB_ORACLE_EXPORT select_statement: public statement

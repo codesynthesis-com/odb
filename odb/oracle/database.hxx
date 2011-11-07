@@ -18,6 +18,7 @@
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
+#include <odb/oracle/tracer.hxx>
 #include <odb/oracle/connection.hxx>
 #include <odb/oracle/connection-factory.hxx>
 #include <odb/oracle/auto-handle.hxx>
@@ -144,6 +145,25 @@ namespace odb
       {
         return environment_;
       }
+
+      // SQL statement tracing.
+      //
+    public:
+      typedef oracle::tracer tracer_type;
+
+      void
+      tracer (tracer_type& t)
+      {
+        odb::database::tracer (t);
+      }
+
+      void
+      tracer (tracer_type* t)
+      {
+        odb::database::tracer (t);
+      }
+
+      using odb::database::tracer;
 
     public:
       virtual

@@ -3,11 +3,12 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <cassert>
 #include <limits>
+#include <cassert>
 
 #include <oci.h>
 
+#include <odb/tracer.hxx>
 #include <odb/exceptions.hxx> // object_not_persistent
 #include <odb/details/unused.hxx>
 
@@ -134,6 +135,18 @@ namespace odb
     //
 
     statement::
+    ~statement ()
+    {
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->deallocate (conn_, *this);
+      }
+    }
+
+    statement::
     statement (connection& conn, const string& s)
         : conn_ (conn)
     {
@@ -154,6 +167,33 @@ namespace odb
         translate_error (err, r);
 
       stmt_.reset (handle, OCI_STRLS_CACHE_DELETE, err);
+
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->prepare (conn_, *this);
+      }
+    }
+
+    const char* statement::
+    text () const
+    {
+      OCIError* err (conn_.error_handle ());
+
+      OraText* s (0);
+      sword r (OCIAttrGet (stmt_,
+                           OCI_HTYPE_STMT,
+                           &s,
+                           0,
+                           OCI_ATTR_STATEMENT,
+                           err));
+
+      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+        translate_error (err, r);
+
+      return reinterpret_cast<char*> (s);
     }
 
     void statement::
@@ -760,9 +800,164 @@ namespace odb
       }
     }
 
-    statement::
-    ~statement ()
+    //
+    // generic_statement
+    //
+
+    generic_statement::
+    generic_statement (connection& conn, const string& s)
+        : statement (conn, s), bound_ (false)
     {
+      OCIError* err (conn_.error_handle ());
+
+      sword r (OCIAttrGet (stmt_,
+                           OCI_HTYPE_STMT,
+                           &stmt_type_,
+                           0,
+                           OCI_ATTR_STMT_TYPE,
+                           err));
+
+      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+        translate_error (err, r);
+    }
+
+    generic_statement::
+    ~generic_statement ()
+    {
+    }
+
+    unsigned long long generic_statement::
+    execute ()
+    {
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
+
+      sword r (0);
+
+      OCISvcCtx* handle (conn_.handle ());
+      OCIError* err (conn_.error_handle ());
+
+      if (stmt_type_ == OCI_STMT_SELECT)
+      {
+        // Do not prefetch any rows.
+        //
+        r = OCIStmtExecute (handle, stmt_, err, 0, 0, 0, 0, OCI_DEFAULT);
+
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (err, r);
+
+        // In order to successfully execute a select statement, OCI/Oracle
+        // requires that there be OCIDefine handles provided for all select
+        // list columns. Since we are not interested in any data returned by
+        // the select statement, all buffer pointers, indicator variable
+        // pointers, and data length pointers are specified as NULL (we still
+        // specify a valid data type identifier; not doing so results in
+        // undefined behavior). This results in truncation errors being
+        // returned for all attempted row fetches. However, cursor behaves
+        // normally allowing us to return the row count for a select
+        // statement. Note also that we only need to do this once.
+        //
+        if (!bound_)
+        {
+          for (ub4 i (1); ; ++i)
+          {
+            auto_descriptor<OCIParam> param;
+            {
+              OCIParam* p (0);
+              r = OCIParamGet (stmt_,
+                               OCI_HTYPE_STMT,
+                               err,
+                               reinterpret_cast<void**> (&p),
+                               i);
+
+              if (r == OCI_ERROR) // No more result columns.
+                break;
+
+              param.reset (p);
+            }
+
+            ub2 data_type;
+            r = OCIAttrGet (param,
+                            OCI_DTYPE_PARAM,
+                            &data_type,
+                            0,
+                            OCI_ATTR_DATA_TYPE,
+                            err);
+
+            if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+              translate_error (err, r);
+
+            // No need to keep track of the OCIDefine handles - these will
+            // be deallocated with the statement.
+            //
+            OCIDefine* define (0);
+            r = OCIDefineByPos (stmt_,
+                                &define,
+                                err,
+                                i,
+                                0,    // NULL value buffer pointer
+                                0,    // zero length value buffer
+                                data_type,
+                                0,    // NULL indicator pointer
+                                0,    // NULL length data pointer
+                                0,    // NULL column level return code pointer
+                                OCI_DEFAULT);
+
+            if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+              translate_error (err, r);
+          }
+
+          bound_ = true;
+        }
+
+        for (;;)
+        {
+          r = OCIStmtFetch2 (stmt_, err, 1, OCI_FETCH_NEXT, 0, OCI_DEFAULT);
+
+          if (r == OCI_NO_DATA)
+            break;
+          else if (r == OCI_ERROR)
+          {
+            sb4 e;
+            r = OCIErrorGet (err, 1, 0, &e, 0, 0, OCI_HTYPE_ERROR);
+
+            // ORA-01406 is returned if there is a truncation error. We expect
+            // and ignore this error.
+            //
+            if (e != 1406)
+              translate_error (err, r);
+          }
+          else if (r == OCI_INVALID_HANDLE)
+            translate_error (err, r);
+        }
+      }
+      else
+      {
+        // OCIStmtExecute requires a non-zero iters param for DML statements.
+        //
+        r = OCIStmtExecute (handle, stmt_, err, 1, 0, 0, 0, OCI_DEFAULT);
+
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (err, r);
+      }
+
+      ub4 row_count (0);
+      r = OCIAttrGet (stmt_,
+                      OCI_HTYPE_STMT,
+                      &row_count,
+                      0,
+                      OCI_ATTR_ROW_COUNT,
+                      err);
+
+      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+        translate_error (err, r);
+
+      return row_count;
     }
 
     //
@@ -811,6 +1006,14 @@ namespace odb
     {
       if (!done_)
         free_result ();
+
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
 
       OCIError* err (conn_.error_handle ());
 
@@ -1012,6 +1215,14 @@ namespace odb
     bool insert_statement::
     execute ()
     {
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
+
       OCIError* err (conn_.error_handle ());
 
       sword r (OCIStmtExecute (conn_.handle (),
@@ -1087,6 +1298,14 @@ namespace odb
     unsigned long long update_statement::
     execute ()
     {
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
+
       OCIError* err (conn_.error_handle ());
 
       sword r (OCIStmtExecute (conn_.handle (),
@@ -1140,6 +1359,14 @@ namespace odb
     unsigned long long delete_statement::
     execute ()
     {
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
+
       OCIError* err (conn_.error_handle ());
 
       sword r (OCIStmtExecute (conn_.handle (),

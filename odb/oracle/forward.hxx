@@ -18,7 +18,9 @@ namespace odb
     class connection;
     typedef details::shared_ptr<connection> connection_ptr;
     class connection_factory;
+    class statement;
     class transaction;
+    class tracer;
     class query;
 
     // Implementation details.

@@ -19,6 +19,7 @@
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
+#include <odb/oracle/tracer.hxx>
 #include <odb/oracle/transaction-impl.hxx>
 #include <odb/oracle/auto-handle.hxx>
 #include <odb/oracle/oracle-fwd.hxx>
@@ -62,6 +63,25 @@ namespace odb
 
       virtual unsigned long long
       execute (const char* statement, std::size_t length);
+
+      // SQL statement tracing.
+      //
+    public:
+      typedef oracle::tracer tracer_type;
+
+      void
+      tracer (tracer_type& t)
+      {
+        odb::connection::tracer (t);
+      }
+
+      void
+      tracer (tracer_type* t)
+      {
+        odb::connection::tracer (t);
+      }
+
+      using odb::connection::tracer;
 
     public:
       OCISvcCtx*

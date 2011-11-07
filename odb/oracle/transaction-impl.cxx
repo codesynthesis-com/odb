@@ -7,6 +7,8 @@
 
 #include <oci.h>
 
+#include <odb/tracer.hxx>
+
 #include <odb/oracle/database.hxx>
 #include <odb/oracle/connection.hxx>
 #include <odb/oracle/error.hxx>
@@ -89,6 +91,12 @@ namespace odb
         auto_t.release ();
       }
 
+      {
+        odb::tracer* t;
+        if ((t = connection_->tracer ()) || (t = database_.tracer ()))
+          t->execute (*connection_, "BEGIN");
+      }
+
       // We never use OCITransDetach so the timeout parameter is
       // of no consequence.
       //
@@ -104,6 +112,12 @@ namespace odb
     void transaction_impl::
     commit ()
     {
+      {
+        odb::tracer* t;
+        if ((t = connection_->tracer ()) || (t = database_.tracer ()))
+          t->execute (*connection_, "COMMIT");
+      }
+
       sword s (OCITransCommit (connection_->handle (),
                                connection_->error_handle (),
                                OCI_DEFAULT));
@@ -115,6 +129,12 @@ namespace odb
     void transaction_impl::
     rollback ()
     {
+      {
+        odb::tracer* t;
+        if ((t = connection_->tracer ()) || (t = database_.tracer ()))
+          t->execute (*connection_, "ROLLBACK");
+      }
+
       sword s (OCITransRollback (connection_->handle (),
                                  connection_->error_handle (),
                                  OCI_DEFAULT));
