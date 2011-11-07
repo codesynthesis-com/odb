@@ -287,9 +287,7 @@ namespace odb
                                err,
                                i,
                                value,
-                               callback
-                               ? std::numeric_limits<sb4>::max ()
-                               : static_cast<sb4> (b->capacity),
+                               static_cast<sb4> (b->capacity),
                                param_sqlt_lookup[b->type],
                                b->indicator,
                                b->size,
