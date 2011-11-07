@@ -11,7 +11,8 @@
 #include <string>
 #include <cstddef>  // std::size_t
 
-#include <odb/details/shared-ptr.hxx>
+#include <odb/forward.hxx>
+#include <odb/statement.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
@@ -26,11 +27,20 @@ namespace odb
   {
     class connection;
 
-    class LIBODB_PGSQL_EXPORT statement: public details::shared_base
+    class LIBODB_PGSQL_EXPORT statement: public odb::statement
     {
     public:
       virtual
       ~statement () = 0;
+
+      const char*
+      name () const
+      {
+        return name_.c_str ();
+      }
+
+      virtual const char*
+      text () const;
 
       void
       deallocate ();
@@ -55,13 +65,14 @@ namespace odb
     protected:
       statement (connection&,
                  const std::string& name,
-                 const std::string& stmt,
+                 const std::string& text,
                  const Oid* types,
                  std::size_t types_count);
 
     protected:
       connection& conn_;
       std::string name_;
+      std::string text_;
 
     private:
       bool deallocated_;

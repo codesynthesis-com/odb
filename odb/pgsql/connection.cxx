@@ -86,6 +86,14 @@ namespace odb
       //
       string str (s, n);
 
+      {
+        odb::tracer* t;
+        if ((t = transaction_tracer ()) ||
+            (t = tracer ()) ||
+            (t = database ().tracer ()))
+          t->execute (*this, str.c_str ());
+      }
+
       auto_handle<PGresult> h (PQexec (handle_, str.c_str ()));
 
       unsigned long long count (0);

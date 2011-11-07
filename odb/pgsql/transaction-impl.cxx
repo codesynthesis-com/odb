@@ -7,6 +7,8 @@
 
 #include <libpq-fe.h>
 
+#include <odb/tracer.hxx>
+
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/error.hxx>
@@ -46,6 +48,12 @@ namespace odb
         odb::transaction_impl::connection_ = connection_.get ();
       }
 
+      {
+        odb::tracer* t;
+        if ((t = connection_->tracer ()) || (t = database_.tracer ()))
+          t->execute (*connection_, "BEGIN");
+      }
+
       auto_handle<PGresult> h (PQexec (connection_->handle (), "begin"));
 
       if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
@@ -55,6 +63,12 @@ namespace odb
     void transaction_impl::
     commit ()
     {
+      {
+        odb::tracer* t;
+        if ((t = connection_->tracer ()) || (t = database_.tracer ()))
+          t->execute (*connection_, "COMMIT");
+      }
+
       auto_handle<PGresult> h (PQexec (connection_->handle (), "commit"));
 
       if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
@@ -64,6 +78,12 @@ namespace odb
     void transaction_impl::
     rollback ()
     {
+      {
+        odb::tracer* t;
+        if ((t = connection_->tracer ()) || (t = database_.tracer ()))
+          t->execute (*connection_, "ROLLBACK");
+      }
+
       auto_handle<PGresult> h (PQexec (connection_->handle (), "rollback"));
 
       if (!h || PGRES_COMMAND_OK != PQresultStatus (h))

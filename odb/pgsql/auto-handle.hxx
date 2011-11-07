@@ -72,7 +72,7 @@ namespace odb
         return h;
       }
 
-      operator H* ()
+      operator H* () const
       {
         return h_;
       }

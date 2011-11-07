@@ -12,6 +12,7 @@
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
+#include <odb/pgsql/tracer.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 
@@ -50,6 +51,25 @@ namespace odb
       //
       static void
       current (transaction&);
+
+      // SQL statement tracing.
+      //
+    public:
+      typedef pgsql::tracer tracer_type;
+
+      void
+      tracer (tracer_type& t)
+      {
+        odb::transaction::tracer (t);
+      }
+
+      void
+      tracer (tracer_type* t)
+      {
+        odb::transaction::tracer (t);
+      }
+
+      using odb::transaction::tracer;
 
     public:
       transaction_impl&

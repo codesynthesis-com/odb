@@ -18,6 +18,7 @@
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
+#include <odb/pgsql/tracer.hxx>
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/connection-factory.hxx>
 
@@ -97,6 +98,25 @@ namespace odb
     protected:
       virtual odb::connection*
       connection_ ();
+
+      // SQL statement tracing.
+      //
+    public:
+      typedef pgsql::tracer tracer_type;
+
+      void
+      tracer (tracer_type& t)
+      {
+        odb::database::tracer (t);
+      }
+
+      void
+      tracer (tracer_type* t)
+      {
+        odb::database::tracer (t);
+      }
+
+      using odb::database::tracer;
 
     public:
       const std::string&

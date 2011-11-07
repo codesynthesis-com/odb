@@ -18,6 +18,7 @@
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
+#include <odb/pgsql/tracer.hxx>
 #include <odb/pgsql/transaction-impl.hxx>
 #include <odb/pgsql/auto-handle.hxx>
 #include <odb/pgsql/pgsql-fwd.hxx> // PGconn
@@ -61,6 +62,25 @@ namespace odb
 
       virtual unsigned long long
       execute (const char* statement, std::size_t length);
+
+      // SQL statement tracing.
+      //
+    public:
+      typedef pgsql::tracer tracer_type;
+
+      void
+      tracer (tracer_type& t)
+      {
+        odb::connection::tracer (t);
+      }
+
+      void
+      tracer (tracer_type* t)
+      {
+        odb::connection::tracer (t);
+      }
+
+      using odb::connection::tracer;
 
     public:
       PGconn*

@@ -9,6 +9,8 @@
 
 #include <libpq-fe.h>
 
+#include <odb/tracer.hxx>
+
 #include <odb/pgsql/pgsql-oid.hxx>
 #include <odb/pgsql/statement.hxx>
 #include <odb/pgsql/connection.hxx>
@@ -68,6 +70,14 @@ namespace odb
       if (deallocated_)
         return;
 
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->deallocate (conn_, *this);
+      }
+
       string s ("deallocate \"");
       s += name_;
       s += "\"";
@@ -79,17 +89,26 @@ namespace odb
     statement::
     statement (connection& conn,
                const string& name,
-               const string& stmt,
+               const string& text,
                const Oid* types,
                size_t types_count)
         : conn_ (conn),
           name_ (name),
+          text_ (text),
           deallocated_ (false)
     {
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->prepare (conn_, *this);
+      }
+
       auto_handle<PGresult> h (
         PQprepare (conn_.handle (),
                    name_.c_str (),
-                   stmt.c_str (),
+                   text_.c_str (),
                    static_cast<int> (types_count),
                    types));
 
@@ -100,6 +119,12 @@ namespace odb
       // If any code after this line throws, the statement will be leaked
       // (on the server) since deallocate() won't be called for it.
       //
+    }
+
+    const char* statement::
+    text () const
+    {
+      return text_.c_str ();
     }
 
     void statement::
@@ -384,6 +409,14 @@ namespace odb
       if (param_ != 0)
         bind_param (*native_param_, *param_);
 
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
+
       bool in (native_param_ != 0);
 
       handle_.reset (
@@ -478,6 +511,14 @@ namespace odb
     {
       bind_param (native_param_, param_);
 
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
+
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
                         name_.c_str (),
@@ -570,6 +611,14 @@ namespace odb
     {
       bind_param (native_param_, param_);
 
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
+
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
                         name_.c_str (),
@@ -626,6 +675,14 @@ namespace odb
     {
       if (param_ != 0)
         bind_param (native_param_, *param_);
+
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
 
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
