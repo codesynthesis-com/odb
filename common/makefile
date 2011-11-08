@@ -17,18 +17,21 @@ ctor                \
 default             \
 enum                \
 erase-query         \
+include             \
 inheritance         \
 inverse             \
 lazy-ptr            \
 lifecycle           \
 no-id               \
 optimistic          \
+pragma              \
 query               \
 readonly            \
 relationship        \
 relationship-query  \
 schema              \
 template            \
+types               \
 view                \
 wrapper
 

@@ -5,8 +5,8 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))build/bootstrap.make
 
-all_dirs := libcommon common tracer mysql sqlite pgsql oracle boost qt
-dirs := common tracer boost qt
+all_dirs := libcommon common mysql sqlite pgsql oracle boost qt
+dirs := common boost qt
 
 ifeq ($(db_id),mysql)
 dirs += mysql
@@ -23,8 +23,8 @@ endif
 # @@ Remove overrides when Oracle implementation is complete.
 #
 ifeq ($(db_id),oracle)
-all_dirs := libcommon common tracer mysql sqlite pgsql oracle boost
-dirs := common tracer boost oracle
+all_dirs := libcommon common mysql sqlite pgsql oracle boost
+dirs := common boost oracle
 endif
 
 default := $(out_base)/
@@ -45,7 +45,7 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_dirs)))
 	$(call dist-data,$(data_dist))
 	$(call dist-exec,$(exec_dist))
 	$(call dist-dir,m4)
-	$(call meta-vctest,tracer/tracer-vc10.sln,build.bat)
+	$(call meta-vctest,libcommon/libcommon-mysql-vc10.sln,build.bat)
 	$(call meta-automake)
 	$(call meta-autoconf)
 

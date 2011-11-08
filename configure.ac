@@ -7,7 +7,7 @@ AC_PREREQ(2.60)
 AC_INIT([odb-tests], [__value__(version)], [odb-users@codesynthesis.com])
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR([tracer/template/driver.cxx])
+AC_CONFIG_SRCDIR([common/template/driver.cxx])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign nostdinc subdir-objects dist-bzip2 dist-zip tar-ustar])
 
@@ -33,7 +33,6 @@ AM_CONDITIONAL([ODB_TESTS_THREADS], [test x$threads != xnone])
 # Check for the ODB libs.
 #
 LIBODB([], [AC_MSG_ERROR([libodb is not found; consider using --with-libodb=DIR])])
-LIBODB_TRACER([], [AC_MSG_ERROR([libodb-tracer is not found; consider using --with-libodb-tracer=DIR])])
 
 # Check for TR1 <memory> availability.
 #

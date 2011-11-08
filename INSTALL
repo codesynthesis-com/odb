@@ -12,7 +12,6 @@ Prerequisites
 Required:
   - odb                     http://www.codesynthesis.com/products/odb/
   - libodb                  http://www.codesynthesis.com/products/odb/
-  - libodb-tracer           http://www.codesynthesis.com/products/odb/
   - libodb-<database>       http://www.codesynthesis.com/products/odb/
 
 Optional:
@@ -55,19 +54,19 @@ option to specify the build directory, for example:
 
 ./configure --with-odb=/tmp/odb
 
-The configure script also expects the libodb, libodb-tracer, and
-libodb-<database> headers and libraries to be installed in a directory
-where the C++ compiler and linker will search for them by default (normally
-/usr and /usr/local). If these libraries are installed in other directories,
-you can use the CPPFLAGS and LDFLAGS configure variables to specify their
-locations, for example:
+The configure script also expects the libodb and libodb-<database> headers
+and libraries to be installed in a directory where the C++ compiler and
+linker will search for them by default (normally /usr and /usr/local).
+If these libraries are installed in other directories, you can use the
+CPPFLAGS and LDFLAGS configure variables to specify their locations, for
+example:
 
 ./configure CPPFLAGS=-I/opt/libodb/include LDFLAGS=-L/opt/libodb/lib
 
 If these libraries are not installed and you would like to use their
-build directories instead, you can use the --with-libodb,
---with-libodb-tracer, and --with-libodb-<database> configure options
-to specify their locations, for example:
+build directories instead, you can use the --with-libodb, and
+--with-libodb-<database> configure options to specify their locations,
+for example:
 
 ./configure --with-libodb=/tmp/libodb
 
@@ -110,8 +109,8 @@ Cygwin or MinGW, refer to the "Building on UNIX" section above.
 The standard Visual Studio project and solution files are used on this
 platform. The provided project files expect the directory where the ODB
 compiler binary is installed to be in the executable search path (the
-PATH environment variable). They also expect the libodb, libodb-tracer,
-and libodb-<database> header and import library directories to be in the
+PATH environment variable). They also expect the libodb and
+libodb-<database> header and import library directories to be in the
 VC++ Directories Include and Library search lists. See the INSTALL files
 in the ODB library packages for more information on how to setup their
 VC++ Directories.
@@ -127,13 +126,13 @@ Qt, refer to their documentation.
 
 There are two ways to build the tests with Visual Studio. After unpacking
 the source code archive, you can manually open solution files located in
-the tracer\, common\, <database>\, boost\common\, boost\<database>\,
+the libcommon\, common\, <database>\, boost\common\, boost\<database>\,
 qt\common\, and qt\<database>\ directories in the odb-tests package
-directory (referred to as odb-tests\ from now on). In the tracer\ directory
-the solution file is named tracer-vc<N>.sln. In the common\, boost\common\,
-and qt\common\ directories they are named common-<database>-vc<N>.sln. And
-in the <database>\, boost\<database>\, and qt\<database> directories they
-are named <database>-vc<N>.sln. Here <N> is the version of Visual Studio
+directory (referred to as odb-tests\ from now on). In the libcommon\,
+common\, boost\common\, and qt\common\ directories the solutions are
+named in the form name-<database>-vc<N>.sln. And in the <database>\,
+boost\<database>\, and qt\<database>\ directories they are named in
+the form <database>-vc<N>.sln. Here <N> is the version of Visual Studio
 that you are using. Once each solution is open, select the desired build
 configuration (Debug or Release) and platform (Win32 or x64) and build the
 solution.
@@ -147,10 +146,10 @@ build.bat <database> <N> <conf> <plat> [/Build|/Clean|/Rebuild]
 
 Where <N> is the version of Visual Studio that you are using, <conf> is the
 desired configuration (e.g., Debug or Release), and <plat> is the desired
-platform (e.g., Win32 or x64). For <conf> and <plat> arguments you can specify
-several configurations or platforms. You can also use the 'all' value to build
-all configurations and/or all platforms. If no action is specified, the
-default is /Build.
+platform (e.g., Win32 or x64). For <conf> and <plat> arguments you can
+specify several configurations or platforms. You can also use the 'all'
+value to build all configurations and/or all platforms. If no action is
+specified, the default is /Build.
 
 Once the build is completed successfully, you can run all the tests using
 the test.bat batch file located in the odb-tests\ directory.

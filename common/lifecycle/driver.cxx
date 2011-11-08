@@ -28,6 +28,18 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
+    // Database operation out of transaction.
+    //
+    try
+    {
+      object o (1);
+      db->persist (o);
+      assert (false);
+    }
+    catch (const not_in_transaction&)
+    {
+    }
+
     // Transient.
     //
     try
@@ -63,11 +75,100 @@ main (int argc, char* argv[])
       }
     }
 
+    // Find.
+    //
+    {
+      transaction t (db->begin ());
+
+      auto_ptr<object> o1 (db->find<object> (1));
+      assert (o1.get () != 0 && o1->str_ == "value 1");
+
+      auto_ptr<object> o2 (db->find<object> (2));
+      assert (o2.get () == 0);
+
+      t.commit ();
+    }
+
+    // Find (into existing).
+    //
+    {
+      object o;
+
+      transaction t (db->begin ());
+
+      assert (db->find (1, o));
+      assert (o.str_ == "value 1");
+
+      assert (!db->find (2, o));
+
+      t.commit ();
+    }
+
+    // Load.
+    //
     {
       transaction t (db->begin ());
       auto_ptr<object> o (db->load<object> (1));
       assert (o->str_ == "value 1");
       t.commit ();
+
+      try
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> o (db->load<object> (2));
+        assert (false);
+        t.commit ();
+      }
+      catch (const object_not_persistent&)
+      {
+      }
+    }
+
+    // Load (into existing).
+    //
+    {
+      object o;
+
+      transaction t (db->begin ());
+      db->load (1, o);
+      assert (o.str_ == "value 1");
+      t.commit ();
+
+      try
+      {
+        transaction t (db->begin ());
+        db->load (2, o);
+        assert (false);
+        t.commit ();
+      }
+      catch (const object_not_persistent&)
+      {
+      }
+    }
+
+    // Reload.
+    //
+    {
+      object o;
+
+      transaction t (db->begin ());
+      db->load (1, o);
+      o.str_ = "junk";
+      db->reload (o);
+      assert (o.str_ == "value 1");
+      t.commit ();
+
+      try
+      {
+        transaction t (db->begin ());
+        o.id_ = 2;
+        db->reload (o);
+        assert (false);
+        t.commit ();
+      }
+      catch (const object_not_persistent&)
+      {
+      }
     }
 
     // Modified.
@@ -78,6 +179,18 @@ main (int argc, char* argv[])
       o->str_ = "value 2";
       db->update (*o);
       t.commit ();
+
+      try
+      {
+        transaction t (db->begin ());
+        o->id_ = 2;
+        db->update (*o);
+        assert (false);
+        t.commit ();
+      }
+      catch (const object_not_persistent&)
+      {
+      }
     }
 
     {
@@ -103,6 +216,17 @@ main (int argc, char* argv[])
       auto_ptr<object> o (db->load<object> (1));
       db->erase (*o);
       t.commit ();
+
+      try
+      {
+        transaction t (db->begin ());
+        db->erase<object> (1);
+        assert (false);
+        t.commit ();
+      }
+      catch (const object_not_persistent&)
+      {
+      }
     }
 
     try
