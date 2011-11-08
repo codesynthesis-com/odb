@@ -31,6 +31,7 @@ relationship        \
 relationship-query  \
 schema              \
 template            \
+transaction         \
 types               \
 view                \
 wrapper

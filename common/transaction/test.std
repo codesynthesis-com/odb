@@ -1,0 +1,21 @@
+test 001
+begin transaction
+begin transaction
+rollback transaction
+rollback transaction
+test 002
+begin transaction
+commit transaction
+test 003
+begin transaction
+rollback transaction
+test 004
+begin transaction
+rollback transaction
+test 005
+begin transaction
+already_in_transaction
+rollback transaction
+test 006
+begin transaction
+rollback transaction

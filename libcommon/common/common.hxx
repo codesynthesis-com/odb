@@ -15,7 +15,7 @@
 #include <common/config.hxx>
 #include <common/export.hxx>
 
-// Make sure assert() is not diabled.
+// Make sure assert() is not disabled.
 //
 #ifdef NDEBUG
 #  error ODB tests require enabled assert(); un-define the NDEBUG macro
