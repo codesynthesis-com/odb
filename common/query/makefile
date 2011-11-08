@@ -36,8 +36,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) --generate-schema \
---generate-query --hxx-prologue '\#include "traits.hxx"' \
---table-prefix t_query_
+--generate-query --table-prefix t_query_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
@@ -54,13 +53,12 @@ name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
 $(dist): db_id := @database@
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
-$(dist): export extra_headers := traits.hxx $(databases:%=traits-%.hxx)
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
 $(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \
 $(call vc10projs,$(name))
 $(dist):
-	$(call dist-data,$(sources) $(headers) $(extra_headers) $(data_dist))
+	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
 	$(call meta-vc9projs,../template/template,$(name))
 	$(call meta-vc10projs,../template/template,$(name))

@@ -399,7 +399,7 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    // Test value_traits::type != value_traits::value_type.
+    // Test value_traits::value_type != value_traits::query_type.
     //
     cout << "test 013" << endl;
     {
