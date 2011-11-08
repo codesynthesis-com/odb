@@ -178,16 +178,12 @@ namespace odb
 
     public:
       datetime_auto_descriptor (OCIDateTime* d = 0):
-        base (d),
-        environment (0),
-        error (0)
+        base (d)
       {
       }
 
       datetime_auto_descriptor (datetime_auto_descriptor& x):
-        base (x.d_),
-        environment (x.environment),
-        error (x.error)
+        base (x.d_)
       {
         x.d_ = 0;
       }
@@ -199,14 +195,8 @@ namespace odb
         x.d_ = 0;
         reset (l);
 
-        environment = x.environment;
-        error = x.error;
-
         return *this;
       }
-
-      OCIEnv* environment;
-      OCIError* error;
     };
 
     class LIBODB_ORACLE_EXPORT interval_ym_auto_descriptor:
@@ -216,16 +206,12 @@ namespace odb
 
     public:
       interval_ym_auto_descriptor (OCIInterval* d = 0):
-        base (d),
-        environment (0),
-        error (0)
+        base (d)
       {
       }
 
       interval_ym_auto_descriptor (interval_ym_auto_descriptor& x):
-        base (x.d_),
-        environment (x.environment),
-        error (x.error)
+        base (x.d_)
       {
         x.d_ = 0;
       }
@@ -237,14 +223,8 @@ namespace odb
         x.d_ = 0;
         reset (l);
 
-        environment = x.environment;
-        error = x.error;
-
         return *this;
       }
-
-      OCIEnv* environment;
-      OCIError* error;
     };
 
     class LIBODB_ORACLE_EXPORT interval_ds_auto_descriptor:
@@ -254,16 +234,12 @@ namespace odb
 
     public:
       interval_ds_auto_descriptor (OCIInterval* d = 0):
-        base (d),
-        environment (0),
-        error (0)
+        base (d)
       {
       }
 
       interval_ds_auto_descriptor (interval_ds_auto_descriptor& x):
-        base (x.d_),
-        environment (x.environment),
-        error (x.error)
+        base (x.d_)
       {
         x.d_ = 0;
       }
@@ -275,14 +251,8 @@ namespace odb
         x.d_ = 0;
         reset (l);
 
-        environment = x.environment;
-        error = x.error;
-
         return *this;
       }
-
-      OCIEnv* environment;
-      OCIError* error;
     };
 
     //
@@ -299,65 +269,96 @@ namespace odb
 
     struct LIBODB_ORACLE_EXPORT datetime
     {
-      struct fields_type
-      {
-        sb2 year;
-        ub1 month;
-        ub1 day;
-        ub1 hour;
-        ub1 minute;
-        ub1 second;
-        ub4 nanosecond;
-      };
-
-      mutable fields_type fields;
-      datetime_auto_descriptor descriptor;
+      void
+      get (sb2& year,
+           ub1& month,
+           ub1& day,
+           ub1& hour,
+           ub1& minute,
+           ub1& second,
+           ub4& nanosecond) const;
 
       void
-      get () const;
+      set (sb2 year,
+           ub1 month,
+           ub1 day,
+           ub1 hour,
+           ub1 minute,
+           ub1 second,
+           ub4 nanosecond);
 
       void
       set ();
 
+    public:
+      OCIEnv* environment;
+      OCIError* error;
+
+      datetime_auto_descriptor descriptor;
+
+    private:
+      sb2 year_;
+      ub1 month_;
+      ub1 day_;
+      ub1 hour_;
+      ub1 minute_;
+      ub1 second_;
+      ub4 nanosecond_;
     };
 
     struct LIBODB_ORACLE_EXPORT interval_ym
     {
-      struct fields_type
-      {
-        sb4 year;
-        sb4 month;
-      };
-
-      mutable fields_type fields;
-      interval_ym_auto_descriptor descriptor;
+      void
+      get (sb4& year, sb4& month) const;
 
       void
-      get () const;
+      set (sb4 year, sb4 month);
 
       void
       set ();
+
+    public:
+      OCIEnv* environment;
+      OCIError* error;
+
+      interval_ym_auto_descriptor descriptor;
+
+    private:
+      sb4 year_;
+      sb4 month_;
     };
 
     struct LIBODB_ORACLE_EXPORT interval_ds
     {
-      struct fields_type
-      {
-        sb4 day;
-        sb4 hour;
-        sb4 minute;
-        sb4 second;
-        sb4 nanosecond;
-      };
-
-      mutable fields_type fields;
-      interval_ds_auto_descriptor descriptor;
+      void
+      get (sb4& day,
+           sb4& hour,
+           sb4& minute,
+           sb4& second,
+           sb4& nanosecond) const;
 
       void
-      get () const;
+      set (sb4 day,
+           sb4 hour,
+           sb4 minute,
+           sb4 second,
+           sb4 nanosecond);
 
       void
       set ();
+
+    public:
+      OCIEnv* environment;
+      OCIError* error;
+
+      interval_ds_auto_descriptor descriptor;
+
+    private:
+      sb4 day_;
+      sb4 hour_;
+      sb4 minute_;
+      sb4 second_;
+      sb4 nanosecond_;
     };
   }
 }

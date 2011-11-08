@@ -191,8 +191,8 @@ namespace odb
                 throw invalid_oci_handle ();
 
               dt->descriptor.reset (static_cast<OCIDateTime*> (d));
-              dt->descriptor.environment = env;
-              dt->descriptor.error = err;
+              dt->environment = env;
+              dt->error = err;
               dt->set ();
             }
 
@@ -216,8 +216,8 @@ namespace odb
                 throw invalid_oci_handle ();
 
               iym->descriptor.reset (static_cast<OCIInterval*> (d));
-              iym->descriptor.environment = env;
-              iym->descriptor.error = err;
+              iym->environment = env;
+              iym->error = err;
               iym->set ();
             }
 
@@ -241,8 +241,8 @@ namespace odb
                 throw invalid_oci_handle ();
 
               ids->descriptor.reset (static_cast<OCIInterval*> (d));
-              ids->descriptor.environment = env;
-              ids->descriptor.error = err;
+              ids->environment = env;
+              ids->error = err;
               ids->set ();
             }
 
@@ -358,8 +358,8 @@ namespace odb
                 throw invalid_oci_handle ();
 
               dt->descriptor.reset (static_cast<OCIDateTime*> (d));
-              dt->descriptor.environment = env;
-              dt->descriptor.error = err;
+              dt->environment = env;
+              dt->error = err;
             }
 
             value = &dt->descriptor.get ();
@@ -382,8 +382,8 @@ namespace odb
                 throw invalid_oci_handle ();
 
               iym->descriptor.reset (static_cast<OCIInterval*> (d));
-              iym->descriptor.environment = env;
-              iym->descriptor.error = err;
+              iym->environment = env;
+              iym->error = err;
             }
 
             value = &iym->descriptor.get ();
@@ -406,8 +406,8 @@ namespace odb
                 throw invalid_oci_handle ();
 
               ids->descriptor.reset (static_cast<OCIInterval*> (d));
-              ids->descriptor.environment = env;
-              ids->descriptor.error = err;
+              ids->environment = env;
+              ids->error = err;
             }
 
             value = &ids->descriptor.get ();
