@@ -19,12 +19,12 @@ namespace odb
   {
     enum descriptor_type
     {
-      dt_default = 0,
       dt_param,
       dt_lob,
       dt_timestamp,
       dt_interval_ym,
-      dt_interval_ds
+      dt_interval_ds,
+      dt_default,
     };
 
     LIBODB_ORACLE_EXPORT void

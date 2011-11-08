@@ -23,7 +23,7 @@ namespace odb
     void
     oci_descriptor_free (void* d, descriptor_type type)
     {
-      OCIDescriptorFree (d, oci_descriptor_types[type - 1]);
+      OCIDescriptorFree (d, oci_descriptor_types[type]);
     }
   }
 }
