@@ -37,13 +37,13 @@ namespace odb
       }
 
       inline void
-      get_date (short& year,
+      get_date (const char* b,
+                short& year,
                 unsigned char& month,
                 unsigned char& day,
                 unsigned char& hour,
                 unsigned char& minute,
-                unsigned char& second,
-                const char* b)
+                unsigned char& second)
       {
         const unsigned char* ub (reinterpret_cast<const unsigned char*> (b));
 
