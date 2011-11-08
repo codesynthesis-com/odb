@@ -49,13 +49,13 @@ namespace odb
     // auto_descriptor_base
     //
 
-    template <typename D, descriptor_type Type>
+    template <typename D, descriptor_type type>
     struct auto_descriptor_base
     {
       static void
       release (D* d)
       {
-        oci_descriptor_free (d, Type);
+        oci_descriptor_free (d, type);
       }
     };
 
@@ -73,8 +73,8 @@ namespace odb
     // auto_descriptor
     //
 
-    template <typename D, descriptor_type T = dt_default>
-    class auto_descriptor: auto_descriptor_base<D, T>
+    template <typename D, descriptor_type type = dt_default>
+    class auto_descriptor: auto_descriptor_base<D, type>
     {
     public:
       auto_descriptor (D* d = 0)
