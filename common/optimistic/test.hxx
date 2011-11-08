@@ -61,7 +61,7 @@ struct base
   unsigned long id_;
 
   #pragma db version
-  unsigned long ver;
+  const unsigned long ver;
 
   std::string str;
 
