@@ -138,9 +138,7 @@ namespace odb
     // These specialized auto_descriptor classes allows for transparent
     // transferal of descriptors between auto_descriptor instances. This
     // simplifies the implementation of a private copy of the shared image
-    // associated with queries. The specializations for OCIDateTime and
-    // OCIInterval also wrap OCI handles that are required for manipulation
-    // of the descriptor data.
+    // associated with queries.
     //
 
     class LIBODB_ORACLE_EXPORT lob_auto_descriptor:
@@ -257,12 +255,12 @@ namespace odb
 
     //
     // The OCIDateTime and OCIInterval APIs require that an environment and
-    // error handle be passed any function that manipulates an OCIDateTime or
-    // OCIInterval descriptor. It is however impossible to obtain these handles
-    // the first time any temporal data image is initialized. The following
-    // structures allow ODB generated code to interact with the OCI temporal
-    // descriptor types indirectly via C++ primitives. The wrapped OCI
-    // descriptor is then set using these primitives at a time when the all the
+    // error handle be passed to any function that manipulates an OCIDateTime
+    // or OCIInterval descriptor. It is however impossible to obtain these
+    // handles at the time a temporal data image is first initialized. The
+    // following structures allow ODB generated code to interact with the OCI
+    // temporal descriptor types indirectly via C++ primitives. The wrapped OCI
+    // descriptor is then set using these primitives at a time when the
     // required data is available. A symmetric get interface is provided for
     // consistency.
     //
