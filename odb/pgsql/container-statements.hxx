@@ -188,6 +188,7 @@ namespace odb
               insert_one_count_,
               data_image_binding_,
               data_image_native_binding_,
+              false,
               false));
         }
 
@@ -208,7 +209,8 @@ namespace odb
               select_all_count_,
               cond_image_binding_,
               cond_image_native_binding_,
-              data_image_binding_));
+              data_image_binding_,
+              false));
         }
 
         return *select_all_;
@@ -227,7 +229,8 @@ namespace odb
               delete_all_types_,
               delete_all_count_,
               cond_image_binding_,
-              cond_image_native_binding_));
+              cond_image_native_binding_,
+              false));
         }
 
         return *delete_all_;

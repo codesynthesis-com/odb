@@ -93,9 +93,50 @@ namespace odb
                const Oid* types,
                size_t types_count)
         : conn_ (conn),
-          name_ (name),
-          text_ (text),
+          name_copy_ (name), name_ (name_copy_.c_str ()),
+          text_copy_ (text), text_ (text_copy_.c_str ()),
           deallocated_ (false)
+    {
+      init (types, types_count);
+
+      //
+      // If any code after this line throws, the statement will be leaked
+      // (on the server) since deallocate() won't be called for it.
+      //
+    }
+
+    statement::
+    statement (connection& conn,
+               const char* name,
+               const char* text,
+               bool copy,
+               const Oid* types,
+               size_t types_count)
+        : conn_ (conn), deallocated_ (false)
+    {
+      if (copy)
+      {
+        name_copy_ = name;
+        name_ = name_copy_.c_str ();
+        text_copy_ = text;
+        text_ = text_copy_.c_str ();
+      }
+      else
+      {
+        name_ = name;
+        text_ = text;
+      }
+
+      init (types, types_count);
+
+      //
+      // If any code after this line throws, the statement will be leaked
+      // (on the server) since deallocate() won't be called for it.
+      //
+    }
+
+    void statement::
+    init (const Oid* types, size_t types_count)
     {
       {
         odb::tracer* t;
@@ -107,8 +148,8 @@ namespace odb
 
       auto_handle<PGresult> h (
         PQprepare (conn_.handle (),
-                   name_.c_str (),
-                   text_.c_str (),
+                   name_,
+                   text_,
                    static_cast<int> (types_count),
                    types));
 
@@ -124,7 +165,7 @@ namespace odb
     const char* statement::
     text () const
     {
-      return text_.c_str ();
+      return text_;
     }
 
     void statement::
@@ -355,13 +396,32 @@ namespace odb
     select_statement::
     select_statement (connection& conn,
                       const std::string& name,
-                      const std::string& stmt,
+                      const std::string& text,
                       const Oid* types,
                       std::size_t types_count,
                       binding& param,
                       native_binding& native_param,
                       binding& result)
-        : statement (conn, name, stmt, types, types_count),
+        : statement (conn, name, text, types, types_count),
+          param_ (&param),
+          native_param_ (&native_param),
+          result_ (result),
+          row_count_ (0),
+          current_row_ (0)
+    {
+    }
+
+    select_statement::
+    select_statement (connection& conn,
+                      const char* name,
+                      const char* text,
+                      const Oid* types,
+                      std::size_t types_count,
+                      binding& param,
+                      native_binding& native_param,
+                      binding& result,
+                      bool copy)
+        : statement (conn, name, text, copy, types, types_count),
           param_ (&param),
           native_param_ (&native_param),
           result_ (result),
@@ -373,14 +433,26 @@ namespace odb
     select_statement::
     select_statement (connection& conn,
                       const std::string& name,
-                      const std::string& stmt,
-                      const Oid* types,
-                      std::size_t types_count,
-                      native_binding& native_param,
+                      const std::string& text,
                       binding& result)
-        : statement (conn, name, stmt, types, types_count),
+        : statement (conn, name, text, 0, 0),
           param_ (0),
-          native_param_ (&native_param),
+          native_param_ (0),
+          result_ (result),
+          row_count_ (0),
+          current_row_ (0)
+    {
+    }
+
+    select_statement::
+    select_statement (connection& conn,
+                      const char* name,
+                      const char* text,
+                      binding& result,
+                      bool copy)
+        : statement (conn, name, text, copy, 0, 0),
+          param_ (0),
+          native_param_ (0),
           result_ (result),
           row_count_ (0),
           current_row_ (0)
@@ -390,11 +462,14 @@ namespace odb
     select_statement::
     select_statement (connection& conn,
                       const std::string& name,
-                      const std::string& stmt,
+                      const std::string& text,
+                      const Oid* types,
+                      std::size_t types_count,
+                      native_binding& native_param,
                       binding& result)
-        : statement (conn, name, stmt, 0, 0),
+        : statement (conn, name, text, types, types_count),
           param_ (0),
-          native_param_ (0),
+          native_param_ (&native_param),
           result_ (result),
           row_count_ (0),
           current_row_ (0)
@@ -421,7 +496,7 @@ namespace odb
 
       handle_.reset (
         PQexecPrepared (conn_.handle (),
-                        name_.c_str (),
+                        name_,
                         in ? native_param_->count : 0,
                         in ? native_param_->values : 0,
                         in ? native_param_->lengths : 0,
@@ -493,13 +568,30 @@ namespace odb
     insert_statement::
     insert_statement (connection& conn,
                       const string& name,
-                      const string& stmt,
+                      const string& text,
                       const Oid* types,
                       size_t types_count,
                       binding& param,
                       native_binding& native_param,
                       bool returning)
-        : statement (conn, name, stmt, types, types_count),
+        : statement (conn, name, text, types, types_count),
+          param_ (param),
+          native_param_ (native_param),
+          returning_ (returning)
+    {
+    }
+
+    insert_statement::
+    insert_statement (connection& conn,
+                      const char* name,
+                      const char* text,
+                      const Oid* types,
+                      size_t types_count,
+                      binding& param,
+                      native_binding& native_param,
+                      bool returning,
+                      bool copy)
+        : statement (conn, name, text, copy, types, types_count),
           param_ (param),
           native_param_ (native_param),
           returning_ (returning)
@@ -521,7 +613,7 @@ namespace odb
 
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
-                        name_.c_str (),
+                        name_,
                         native_param_.count,
                         native_param_.values,
                         native_param_.lengths,
@@ -595,12 +687,27 @@ namespace odb
     update_statement::
     update_statement (connection& conn,
                       const string& name,
-                      const string& stmt,
+                      const string& text,
                       const Oid* types,
                       size_t types_count,
                       binding& param,
                       native_binding& native_param)
-        : statement (conn, name, stmt, types, types_count),
+        : statement (conn, name, text, types, types_count),
+          param_ (param),
+          native_param_ (native_param)
+    {
+    }
+
+    update_statement::
+    update_statement (connection& conn,
+                      const char* name,
+                      const char* text,
+                      const Oid* types,
+                      size_t types_count,
+                      binding& param,
+                      native_binding& native_param,
+                      bool copy)
+        : statement (conn, name, text, copy, types, types_count),
           param_ (param),
           native_param_ (native_param)
     {
@@ -621,7 +728,7 @@ namespace odb
 
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
-                        name_.c_str (),
+                        name_,
                         native_param_.count,
                         native_param_.values,
                         native_param_.lengths,
@@ -646,12 +753,27 @@ namespace odb
     delete_statement::
     delete_statement (connection& conn,
                       const string& name,
-                      const string& stmt,
+                      const string& text,
                       const Oid* types,
                       size_t types_count,
                       binding& param,
                       native_binding& native_param)
-        : statement (conn, name, stmt, types, types_count),
+        : statement (conn, name, text, types, types_count),
+          param_ (&param),
+          native_param_ (native_param)
+    {
+    }
+
+    delete_statement::
+    delete_statement (connection& conn,
+                      const char* name,
+                      const char* text,
+                      const Oid* types,
+                      size_t types_count,
+                      binding& param,
+                      native_binding& native_param,
+                      bool copy)
+        : statement (conn, name, text, copy, types, types_count),
           param_ (&param),
           native_param_ (native_param)
     {
@@ -660,11 +782,11 @@ namespace odb
     delete_statement::
     delete_statement (connection& conn,
                       const string& name,
-                      const string& stmt,
+                      const string& text,
                       const Oid* types,
                       size_t types_count,
                       native_binding& native_param)
-        : statement (conn, name, stmt, types, types_count),
+        : statement (conn, name, text, types, types_count),
           param_ (0),
           native_param_ (native_param)
     {
@@ -686,7 +808,7 @@ namespace odb
 
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
-                        name_.c_str (),
+                        name_,
                         native_param_.count,
                         native_param_.values,
                         native_param_.lengths,

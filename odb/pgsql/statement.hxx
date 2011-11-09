@@ -36,7 +36,7 @@ namespace odb
       const char*
       name () const
       {
-        return name_.c_str ();
+        return name_;
       }
 
       virtual const char*
@@ -69,10 +69,25 @@ namespace odb
                  const Oid* types,
                  std::size_t types_count);
 
+      statement (connection&,
+                 const char* name,
+                 const char* text,
+                 bool copy_name_text,
+                 const Oid* types,
+                 std::size_t types_count);
+
+    private:
+      void
+      init (const Oid* types, std::size_t types_count);
+
     protected:
       connection& conn_;
-      std::string name_;
-      std::string text_;
+
+      std::string name_copy_;
+      const char* name_;
+
+      std::string text_copy_;
+      const char* text_;
 
     private:
       bool deallocated_;
@@ -86,7 +101,7 @@ namespace odb
 
       select_statement (connection& conn,
                         const std::string& name,
-                        const std::string& stmt,
+                        const std::string& text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,
@@ -94,16 +109,32 @@ namespace odb
                         binding& result);
 
       select_statement (connection& conn,
-                        const std::string& name,
-                        const std::string& stmt,
+                        const char* name,
+                        const char* stmt,
                         const Oid* types,
                         std::size_t types_count,
+                        binding& param,
                         native_binding& native_param,
-                        binding& result);
+                        binding& result,
+                        bool copy_name_text = true);
 
       select_statement (connection& conn,
                         const std::string& name,
-                        const std::string& stmt,
+                        const std::string& text,
+                        binding& result);
+
+      select_statement (connection& conn,
+                        const char* name,
+                        const char* text,
+                        binding& result,
+                        bool copy_name_text = true);
+
+      select_statement (connection& conn,
+                        const std::string& name,
+                        const std::string& text,
+                        const Oid* types,
+                        std::size_t types_count,
+                        native_binding& native_param,
                         binding& result);
 
       // Common select interface expected by the generated code.
@@ -187,12 +218,22 @@ namespace odb
 
       insert_statement (connection& conn,
                         const std::string& name,
-                        const std::string& stmt,
+                        const std::string& text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,
                         native_binding& native_param,
                         bool returning);
+
+      insert_statement (connection& conn,
+                        const char* name,
+                        const char* text,
+                        const Oid* types,
+                        std::size_t types_count,
+                        binding& param,
+                        native_binding& native_param,
+                        bool returning,
+                        bool copy_name_text = true);
 
       // Return true if successful and false if the row is a duplicate.
       // All other errors are reported by throwing exceptions.
@@ -226,11 +267,20 @@ namespace odb
 
       update_statement (connection& conn,
                         const std::string& name,
-                        const std::string& stmt,
+                        const std::string& text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,
                         native_binding& native_param);
+
+      update_statement (connection& conn,
+                        const char* name,
+                        const char* text,
+                        const Oid* types,
+                        std::size_t types_count,
+                        binding& param,
+                        native_binding& native_param,
+                        bool copy_name_text = true);
 
       unsigned long long
       execute ();
@@ -252,15 +302,24 @@ namespace odb
 
       delete_statement (connection& conn,
                         const std::string& name,
-                        const std::string& stmt,
+                        const std::string& text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,
                         native_binding& native_param);
 
       delete_statement (connection& conn,
+                        const char* name,
+                        const char* text,
+                        const Oid* types,
+                        std::size_t types_count,
+                        binding& param,
+                        native_binding& native_param,
+                        bool copy_name_text = true);
+
+      delete_statement (connection& conn,
                         const std::string& name,
-                        const std::string& stmt,
+                        const std::string& text,
                         const Oid* types,
                         std::size_t types_count,
                         native_binding& native_param);

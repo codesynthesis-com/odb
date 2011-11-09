@@ -309,7 +309,8 @@ namespace odb
               insert_column_count,
               insert_image_binding_,
               insert_image_native_binding_,
-              object_traits::auto_id));
+              object_traits::auto_id,
+              false));
         }
 
         return *persist_;
@@ -329,7 +330,8 @@ namespace odb
               id_column_count,
               id_image_binding_,
               id_image_native_binding_,
-              select_image_binding_));
+              select_image_binding_,
+              false));
         }
 
         return *find_;
@@ -348,7 +350,8 @@ namespace odb
               object_traits::update_statement_types,
               update_column_count + id_column_count,
               update_image_binding_,
-              update_image_native_binding_));
+              update_image_native_binding_,
+              false));
         }
 
         return *update_;
@@ -367,7 +370,8 @@ namespace odb
               object_traits::erase_statement_types,
               id_column_count,
               id_image_binding_,
-              id_image_native_binding_));
+              id_image_native_binding_,
+              false));
         }
 
         return *erase_;
@@ -386,7 +390,8 @@ namespace odb
               object_traits::optimistic_erase_statement_types,
               id_column_count + managed_optimistic_column_count,
               od_.id_image_binding_,
-              od_.id_image_native_binding_));
+              od_.id_image_native_binding_,
+              false));
         }
 
         return *od_.erase_;
@@ -602,6 +607,7 @@ namespace odb
               insert_column_count,
               insert_image_binding_,
               insert_image_native_binding_,
+              false,
               false));
         }
 
