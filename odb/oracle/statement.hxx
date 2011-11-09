@@ -42,8 +42,14 @@ namespace odb
       text () const;
 
     protected:
-      statement (connection&, const std::string& statement);
+      statement (connection&, const std::string& text);
+      statement (connection&, const char* text);
 
+    private:
+      void
+      init (const char* text, std::size_t text_size);
+
+    protected:
       // Bind parameters for this statement. This function must only
       // be called once. Multiple calls to it will result in memory
       // leaks due to lost OCIBind resources.
@@ -87,7 +93,8 @@ namespace odb
       virtual
       ~generic_statement ();
 
-      generic_statement (connection&, const std::string& statement);
+      generic_statement (connection&, const std::string& text);
+      generic_statement (connection&, const char* text);
 
       unsigned long long
       execute ();
@@ -95,6 +102,10 @@ namespace odb
     private:
       generic_statement (const generic_statement&);
       generic_statement& operator= (const generic_statement&);
+
+    private:
+      void
+      init ();
 
     private:
       ub2 stmt_type_;
@@ -108,13 +119,24 @@ namespace odb
       ~select_statement ();
 
       select_statement (connection& conn,
-                        const std::string& statement,
+                        const std::string& text,
                         binding& param,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
 
       select_statement (connection& conn,
-                        const std::string& statement,
+                        const char* text,
+                        binding& param,
+                        binding& result,
+                        std::size_t lob_prefetch_size = 0);
+
+      select_statement (connection& conn,
+                        const std::string& text,
+                        binding& result,
+                        std::size_t lob_prefetch_size = 0);
+
+      select_statement (connection& conn,
+                        const char* text,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
 
@@ -157,7 +179,12 @@ namespace odb
       ~insert_statement ();
 
       insert_statement (connection& conn,
-                        const std::string& statement,
+                        const std::string& text,
+                        binding& param,
+                        bool returning);
+
+      insert_statement (connection& conn,
+                        const char* text,
                         binding& param,
                         bool returning);
 
@@ -192,6 +219,10 @@ namespace odb
       };
 
     private:
+      void
+      init (binding& param, bool returning);
+
+    private:
       id_bind_type id_bind_;
     };
 
@@ -202,8 +233,10 @@ namespace odb
       ~update_statement ();
 
       update_statement (connection& conn,
-                        const std::string& statement,
+                        const std::string& text,
                         binding& param);
+
+      update_statement (connection& conn, const char* text, binding& param);
 
       unsigned long long
       execute ();
@@ -220,8 +253,10 @@ namespace odb
       ~delete_statement ();
 
       delete_statement (connection& conn,
-                        const std::string& statement,
+                        const std::string& text,
                         binding& param);
+
+      delete_statement (connection& conn, const char* text, binding& param);
 
       unsigned long long
       execute ();

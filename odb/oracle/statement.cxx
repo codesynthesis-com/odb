@@ -3,7 +3,7 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <limits>
+#include <cstring> // std::strlen
 #include <cassert>
 
 #include <oci.h>
@@ -147,8 +147,21 @@ namespace odb
     }
 
     statement::
-    statement (connection& conn, const string& s)
+    statement (connection& conn, const string& text)
         : conn_ (conn)
+    {
+      init (text.c_str (), text.size ());
+    }
+
+    statement::
+    statement (connection& conn, const char* text)
+        : conn_ (conn)
+    {
+      init (text, strlen (text));
+    }
+
+    void statement::
+    init (const char* text, size_t text_size)
     {
       OCIError* err (conn_.error_handle ());
       OCIStmt* handle (0);
@@ -156,8 +169,8 @@ namespace odb
       sword r (OCIStmtPrepare2 (conn_.handle (),
                                 &handle,
                                 err,
-                                reinterpret_cast<const OraText*> (s.c_str ()),
-                                static_cast<ub4> (s.size ()),
+                                reinterpret_cast<const OraText*> (text),
+                                static_cast<ub4> (text_size),
                                 0,
                                 0,
                                 OCI_NTV_SYNTAX,
@@ -805,8 +818,21 @@ namespace odb
     //
 
     generic_statement::
-    generic_statement (connection& conn, const string& s)
-        : statement (conn, s), bound_ (false)
+    generic_statement (connection& conn, const string& text)
+        : statement (conn, text), bound_ (false)
+    {
+      init ();
+    }
+
+    generic_statement::
+    generic_statement (connection& conn, const char* text)
+        : statement (conn, text), bound_ (false)
+    {
+      init ();
+    }
+
+    void generic_statement::
+    init ()
     {
       OCIError* err (conn_.error_handle ());
 
@@ -971,11 +997,11 @@ namespace odb
 
     select_statement::
     select_statement (connection& conn,
-                      const string& s,
+                      const string& text,
                       binding& param,
                       binding& result,
                       size_t lob_prefetch_size)
-        : statement (conn, s),
+        : statement (conn, text),
           result_ (result),
           result_version_ (0),
           lob_prefetch_size_ (lob_prefetch_size),
@@ -988,10 +1014,42 @@ namespace odb
 
     select_statement::
     select_statement (connection& conn,
-                      const string& s,
+                      const char* text,
+                      binding& param,
                       binding& result,
                       size_t lob_prefetch_size)
-        : statement (conn, s),
+        : statement (conn, text),
+          result_ (result),
+          result_version_ (0),
+          lob_prefetch_size_ (lob_prefetch_size),
+          done_ (true)
+    {
+      bind_param (param.bind, param.count);
+      bind_result (result.bind, result.count, lob_prefetch_size);
+      result_version_ = result_.version;
+    }
+
+    select_statement::
+    select_statement (connection& conn,
+                      const string& text,
+                      binding& result,
+                      size_t lob_prefetch_size)
+        : statement (conn, text),
+          result_ (result),
+          result_version_ (0),
+          lob_prefetch_size_ (lob_prefetch_size),
+          done_ (true)
+    {
+      bind_result (result.bind, result.count, lob_prefetch_size);
+      result_version_ = result_.version;
+    }
+
+    select_statement::
+    select_statement (connection& conn,
+                      const char* text,
+                      binding& result,
+                      size_t lob_prefetch_size)
+        : statement (conn, text),
           result_ (result),
           result_version_ (0),
           lob_prefetch_size_ (lob_prefetch_size),
@@ -1166,10 +1224,26 @@ namespace odb
 
     insert_statement::
     insert_statement (connection& conn,
-                      const string& s,
+                      const string& text,
                       binding& param,
                       bool returning)
-        : statement (conn, s)
+        : statement (conn, text)
+    {
+      init (param, returning);
+    }
+
+    insert_statement::
+    insert_statement (connection& conn,
+                      const char* text,
+                      binding& param,
+                      bool returning)
+        : statement (conn, text)
+    {
+      init (param, returning);
+    }
+
+    void insert_statement::
+    init (binding& param, bool returning)
     {
       bind_param (param.bind, param.count);
 
@@ -1287,10 +1361,15 @@ namespace odb
     }
 
     update_statement::
-    update_statement (connection& conn,
-                      const string& s,
-                      binding& param)
-        : statement (conn, s)
+    update_statement (connection& conn, const string& text, binding& param)
+        : statement (conn, text)
+    {
+      bind_param (param.bind, param.count);
+    }
+
+    update_statement::
+    update_statement (connection& conn, const char* text, binding& param)
+        : statement (conn, text)
     {
       bind_param (param.bind, param.count);
     }
@@ -1348,10 +1427,15 @@ namespace odb
     }
 
     delete_statement::
-    delete_statement (connection& conn,
-                      const string& s,
-                      binding& param)
-        : statement (conn, s)
+    delete_statement (connection& conn, const string& text, binding& param)
+        : statement (conn, text)
+    {
+      bind_param (param.bind, param.count);
+    }
+
+    delete_statement::
+    delete_statement (connection& conn, const char* text, binding& param)
+        : statement (conn, text)
     {
       bind_param (param.bind, param.count);
     }
