@@ -39,6 +39,10 @@ struct object
 
   #pragma db type(BLOB_TYPE)
   unsigned char uc[1024];
+
+  // Make sure we can still use std::vector<char> as a container.
+  //
+  std::vector<unsigned char> cont;
 };
 
 inline bool
@@ -49,7 +53,8 @@ operator== (const object& x, const object& y)
     x.vc == y.vc &&
     x.vuc == y.vuc &&
     std::memcmp (x.c, y.c, sizeof (x.c)) == 0 &&
-    std::memcmp (x.uc, y.uc, sizeof (x.uc)) == 0;
+    std::memcmp (x.uc, y.uc, sizeof (x.uc)) == 0 &&
+    x.cont == y.cont;
 }
 
 #endif // TEST_HXX

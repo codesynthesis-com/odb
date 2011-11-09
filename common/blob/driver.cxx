@@ -48,6 +48,9 @@ main (int argc, char* argv[])
     o.vuc.assign (udata, udata + sizeof (data));
     memcpy (o.c, data, sizeof (data));
     memcpy (o.uc, udata, sizeof (data));
+    o.cont.push_back (1);
+    o.cont.push_back (2);
+    o.cont.push_back (3);
 
     {
       transaction t (db->begin ());
