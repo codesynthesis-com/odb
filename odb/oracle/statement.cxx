@@ -314,10 +314,10 @@ namespace odb
             b->buffer = &lob_buffer;
 
             // When binding LOB parameters, the capacity must be greater than
-            // than 4000 and less than the maximum LOB length in bytes. If it
-            // is not, OCI returns an error. Other than this, the capacity
-            // seems to be irrelevant to OCI bind behaviour for LOB parameters
-            // when used with callbacks.
+            // 4000 and less than the maximum LOB length in bytes. If it is
+            // not, OCI returns an error. Other than this, the capacity seems
+            // to be irrelevant to OCI bind behaviour for LOB parameters when
+            // used with callbacks.
             //
             b->capacity = 4096;
 
