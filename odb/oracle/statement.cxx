@@ -144,18 +144,69 @@ namespace odb
             (t = conn_.database ().tracer ()))
           t->deallocate (conn_, *this);
       }
+
+      // Unbind (free) parameter descriptors.
+      //
+      for (size_t i (0); i < usize_; ++i)
+      {
+        ub4 t;
+        bind& b (*udata_[i].bind);
+
+        switch (b.type)
+        {
+        case bind::timestamp:
+          {
+            datetime* dt (static_cast<datetime*> (b.buffer));
+
+            if (dt->flags & descriptor_cache)
+              dt->descriptor = 0;
+
+            t = OCI_DTYPE_TIMESTAMP;
+            break;
+          }
+        case bind::interval_ym:
+          {
+            interval_ym* iym (static_cast<interval_ym*> (b.buffer));
+
+            if (iym->flags & descriptor_cache)
+              iym->descriptor = 0;
+
+            t = OCI_DTYPE_INTERVAL_YM;
+            break;
+          }
+        case bind::interval_ds:
+          {
+            interval_ds* ids (static_cast<interval_ds*> (b.buffer));
+
+            if (ids->flags & descriptor_cache)
+              ids->descriptor = 0;
+
+            t = OCI_DTYPE_INTERVAL_DS;
+            break;
+          }
+        default:
+          {
+            assert (false);
+            return;
+          }
+        }
+
+        OCIDescriptorFree (udata_[i].value, t);
+      }
+
+      delete[] udata_;
     }
 
     statement::
     statement (connection& conn, const string& text)
-        : conn_ (conn)
+        : conn_ (conn), udata_ (0), usize_ (0)
     {
       init (text.c_str (), text.size ());
     }
 
     statement::
     statement (connection& conn, const char* text)
-        : conn_ (conn)
+        : conn_ (conn), udata_ (0), usize_ (0)
     {
       init (text, strlen (text));
     }
@@ -212,6 +263,46 @@ namespace odb
     void statement::
     bind_param (bind* b, size_t n)
     {
+      // Figure out how many unbind elements we will need and allocate them.
+      //
+      {
+        size_t un (0);
+
+        for (size_t i (0); i < n; ++i)
+        {
+          switch (b[i].type)
+          {
+          case bind::timestamp:
+            {
+              datetime* dt (static_cast<datetime*> (b[i].buffer));
+              if (dt->descriptor == 0 && (dt->flags & descriptor_free) == 0)
+                un++;
+              break;
+            }
+          case bind::interval_ym:
+            {
+              interval_ym* iym (static_cast<interval_ym*> (b[i].buffer));
+              if (iym->descriptor == 0 && (iym->flags & descriptor_free) == 0)
+                un++;
+              break;
+            }
+          case bind::interval_ds:
+            {
+              interval_ds* ids (static_cast<interval_ds*> (b[i].buffer));
+              if (ids->descriptor == 0 && (ids->flags & descriptor_free) == 0)
+                un++;
+              break;
+            }
+          default:
+            break;
+          }
+        }
+
+        if (un != 0)
+          udata_ = new unbind[un];
+      }
+
+      sword r;
       OCIError* err (conn_.error_handle ());
       OCIEnv* env (conn_.database ().environment ());
 
@@ -231,75 +322,172 @@ namespace odb
           {
             datetime* dt (static_cast<datetime*> (b->buffer));
 
-            if (dt->descriptor.get () == 0)
+            if (dt->descriptor == 0)
             {
               void* d (0);
-              sword r (OCIDescriptorAlloc (env,
-                                           &d,
-                                           OCI_DTYPE_TIMESTAMP,
-                                           0,
-                                           0));
+              r = OCIDescriptorAlloc (env,
+                                      &d,
+                                      OCI_DTYPE_TIMESTAMP,
+                                      0,
+                                      0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              dt->descriptor.reset (static_cast<OCIDateTime*> (d));
-              dt->environment = env;
-              dt->error = err;
-              dt->set ();
-            }
+              if (dt->flags & descriptor_cache)
+              {
+                dt->descriptor = static_cast<OCIDateTime*> (d);
+                dt->environment = env;
+                dt->error = err;
+              }
 
-            value = &dt->descriptor.get ();
+              // If the datetime instance is not responsible for the
+              // descriptor, then we have to arrange to have it freed
+              // using the unbind machinery.
+              //
+              if ((dt->flags & descriptor_free) == 0)
+              {
+                unbind& u (udata_[usize_++]);
+
+                u.bind = b;
+                u.value = d;
+                value = &u.value;
+              }
+              else
+                value = &dt->descriptor;
+
+              // Initialize the descriptor from the cached data.
+              //
+              r = OCIDateTimeConstruct (env,
+                                        err,
+                                        static_cast<OCIDateTime*> (d),
+                                        dt->year_,
+                                        dt->month_,
+                                        dt->day_,
+                                        dt->hour_,
+                                        dt->minute_,
+                                        dt->second_,
+                                        dt->nanosecond_,
+                                        0,
+                                        0);
+
+              if (r != OCI_SUCCESS)
+                translate_error (err, r);
+            }
+            else
+              value = &dt->descriptor;
+
             break;
           }
         case bind::interval_ym:
           {
             interval_ym* iym (static_cast<interval_ym*> (b->buffer));
 
-            if (iym->descriptor.get () == 0)
+            if (iym->descriptor == 0)
             {
               void* d (0);
-              sword r (OCIDescriptorAlloc (env,
-                                           &d,
-                                           OCI_DTYPE_INTERVAL_YM,
-                                           0,
-                                           0));
+              r = OCIDescriptorAlloc (env,
+                                      &d,
+                                      OCI_DTYPE_INTERVAL_YM,
+                                      0,
+                                      0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              iym->descriptor.reset (static_cast<OCIInterval*> (d));
-              iym->environment = env;
-              iym->error = err;
-              iym->set ();
-            }
+              if (iym->flags & descriptor_cache)
+              {
+                iym->descriptor = static_cast<OCIInterval*> (d);
+                iym->environment = env;
+                iym->error = err;
+              }
 
-            value = &iym->descriptor.get ();
+              // If the interval_ym instance is not responsible for the
+              // descriptor, then we have to arrange to have it freed
+              // using the unbind machinery.
+              //
+              if ((iym->flags & descriptor_free) == 0)
+              {
+                unbind& u (udata_[usize_++]);
+
+                u.bind = b;
+                u.value = d;
+                value = &u.value;
+              }
+              else
+                value = &iym->descriptor;
+
+              // Initialize the descriptor from the cached data.
+              //
+              r = OCIIntervalSetYearMonth (env,
+                                           err,
+                                           iym->year_,
+                                           iym->month_,
+                                           static_cast<OCIInterval*> (d));
+
+              if (r != OCI_SUCCESS)
+                translate_error (err, r);
+            }
+            else
+              value = &iym->descriptor;
+
             break;
           }
         case bind::interval_ds:
           {
             interval_ds* ids (static_cast<interval_ds*> (b->buffer));
 
-            if (ids->descriptor.get () == 0)
+            if (ids->descriptor == 0)
             {
               void* d (0);
-              sword r (OCIDescriptorAlloc (env,
-                                           &d,
-                                           OCI_DTYPE_INTERVAL_DS,
-                                           0,
-                                           0));
+              r = OCIDescriptorAlloc (env,
+                                      &d,
+                                      OCI_DTYPE_INTERVAL_DS,
+                                      0,
+                                      0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              ids->descriptor.reset (static_cast<OCIInterval*> (d));
-              ids->environment = env;
-              ids->error = err;
-              ids->set ();
-            }
+              if (ids->flags & descriptor_cache)
+              {
+                ids->descriptor = static_cast<OCIInterval*> (d);
+                ids->environment = env;
+                ids->error = err;
+              }
 
-            value = &ids->descriptor.get ();
+              // If the interval_ds instance is not responsible for the
+              // descriptor, then we have to arrange to have it freed
+              // using the unbind machinery.
+              //
+              if ((ids->flags & descriptor_free) == 0)
+              {
+                unbind& u (udata_[usize_++]);
+
+                u.bind = b;
+                u.value = d;
+                value = &u.value;
+              }
+              else
+                value = &ids->descriptor;
+
+              // Initialize the descriptor from the cached data.
+              //
+              r = OCIIntervalSetDaySecond (env,
+                                           err,
+                                           ids->day_,
+                                           ids->hour_,
+                                           ids->minute_,
+                                           ids->second_,
+                                           ids->nanosecond_,
+                                           static_cast<OCIInterval*> (d));
+
+              if (r != OCI_SUCCESS)
+                translate_error (err, r);
+            }
+            else
+              value = &ids->descriptor;
+
             break;
           }
         case bind::blob:
@@ -311,6 +499,11 @@ namespace odb
             if (lob_buffer.capacity () == 0)
               lob_buffer.capacity (4096);
 
+            // Generally, we should not modify the binding structure or
+            // image since that would break the thread-safety guarantee
+            // of the query expression. However, in Oracle, LOBs cannot
+            // be used in queries so we can make an exception here.
+            //
             b->buffer = &lob_buffer;
 
             // When binding LOB parameters, the capacity must be greater than
@@ -342,20 +535,19 @@ namespace odb
         }
 
         OCIBind* h (0);
-
-        sword r (OCIBindByPos (stmt_,
-                               &h,
-                               err,
-                               i,
-                               value,
-                               static_cast<sb4> (b->capacity),
-                               param_sqlt_lookup[b->type],
-                               b->indicator,
-                               b->size,
-                               0,
-                               0,
-                               0,
-                               callback ? OCI_DATA_AT_EXEC : OCI_DEFAULT));
+        r = OCIBindByPos (stmt_,
+                          &h,
+                          err,
+                          i,
+                          value,
+                          static_cast<sb4> (b->capacity),
+                          param_sqlt_lookup[b->type],
+                          b->indicator,
+                          b->size,
+                          0,
+                          0,
+                          0,
+                          callback ? OCI_DATA_AT_EXEC : OCI_DEFAULT);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
@@ -392,6 +584,7 @@ namespace odb
     {
       ODB_POTENTIALLY_UNUSED (p);
 
+      sword r;
       OCIError* err (conn_.error_handle ());
       OCIEnv* env (conn_.database ().environment ());
 
@@ -406,72 +599,81 @@ namespace odb
           {
             datetime* dt (static_cast<datetime*> (b->buffer));
 
-            if (dt->descriptor.get () == 0)
+            if (dt->descriptor == 0)
             {
+              assert ((dt->flags & descriptor_cache) &&
+                      (dt->flags & descriptor_free));
+
               void* d (0);
-              sword r (OCIDescriptorAlloc (env,
-                                           &d,
-                                           OCI_DTYPE_TIMESTAMP,
-                                           0,
-                                           0));
+              r = OCIDescriptorAlloc (env,
+                                      &d,
+                                      OCI_DTYPE_TIMESTAMP,
+                                      0,
+                                      0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              dt->descriptor.reset (static_cast<OCIDateTime*> (d));
+              dt->descriptor = static_cast<OCIDateTime*> (d);
               dt->environment = env;
               dt->error = err;
             }
 
-            value = &dt->descriptor.get ();
+            value = &dt->descriptor;
             break;
           }
         case bind::interval_ym:
           {
             interval_ym* iym (static_cast<interval_ym*> (b->buffer));
 
-            if (iym->descriptor.get () == 0)
+            if (iym->descriptor == 0)
             {
+              assert ((iym->flags & descriptor_cache) &&
+                      (iym->flags & descriptor_free));
+
               void* d (0);
-              sword r (OCIDescriptorAlloc (env,
-                                           &d,
-                                           OCI_DTYPE_INTERVAL_YM,
-                                           0,
-                                           0));
+              r = OCIDescriptorAlloc (env,
+                                      &d,
+                                      OCI_DTYPE_INTERVAL_YM,
+                                      0,
+                                      0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              iym->descriptor.reset (static_cast<OCIInterval*> (d));
+              iym->descriptor = static_cast<OCIInterval*> (d);
               iym->environment = env;
               iym->error = err;
             }
 
-            value = &iym->descriptor.get ();
+            value = &iym->descriptor;
             break;
           }
         case bind::interval_ds:
           {
             interval_ds* ids (static_cast<interval_ds*> (b->buffer));
 
-            if (ids->descriptor.get () == 0)
+            if (ids->descriptor == 0)
             {
+              assert ((ids->flags & descriptor_cache) &&
+                      (ids->flags & descriptor_free));
+
               void* d (0);
-              sword r (OCIDescriptorAlloc (env,
-                                           &d,
-                                           OCI_DTYPE_INTERVAL_DS,
-                                           0,
-                                           0));
+              r = OCIDescriptorAlloc (env,
+                                      &d,
+                                      OCI_DTYPE_INTERVAL_DS,
+                                      0,
+                                      0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              ids->descriptor.reset (static_cast<OCIInterval*> (d));
+              ids->descriptor = static_cast<OCIInterval*> (d);
               ids->environment = env;
               ids->error = err;
             }
 
-            value = &ids->descriptor.get ();
+            value = &ids->descriptor;
             break;
           }
         case bind::blob:
@@ -484,7 +686,7 @@ namespace odb
             if (lob->get () == 0)
             {
               void* d (0);
-              sword r (OCIDescriptorAlloc (env, &d, OCI_DTYPE_LOB, 0, 0));
+              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_LOB, 0, 0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
@@ -514,17 +716,17 @@ namespace odb
         }
 
         OCIDefine* h (0);
-        sword r (OCIDefineByPos (stmt_,
-                                 &h,
-                                 err,
-                                 i,
-                                 value,
-                                 static_cast<sb4> (b->capacity),
-                                 result_sqlt_lookup[b->type],
-                                 b->indicator,
-                                 size,
-                                 0,
-                                 OCI_DEFAULT));
+        r = OCIDefineByPos (stmt_,
+                            &h,
+                            err,
+                            i,
+                            value,
+                            static_cast<sb4> (b->capacity),
+                            result_sqlt_lookup[b->type],
+                            b->indicator,
+                            size,
+                            0,
+                            OCI_DEFAULT);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
@@ -584,6 +786,7 @@ namespace odb
     {
       ODB_POTENTIALLY_UNUSED (p);
 
+      sword r;
       OCIEnv* env (conn_.database ().environment ());
 
       for (size_t i (1); i <= c; ++i, ++b)
@@ -596,66 +799,66 @@ namespace odb
           {
             datetime* dt (static_cast<datetime*> (b->buffer));
 
-            if (dt->descriptor.get () == 0)
+            if (dt->descriptor == 0)
             {
               void* d (0);
-              sword r (OCIDescriptorAlloc (env,
-                                           &d,
-                                           OCI_DTYPE_TIMESTAMP,
-                                           0,
-                                           0));
+              r = OCIDescriptorAlloc (env,
+                                      &d,
+                                      OCI_DTYPE_TIMESTAMP,
+                                      0,
+                                      0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              dt->descriptor.reset (static_cast<OCIDateTime*> (d));
+              dt->descriptor = static_cast<OCIDateTime*> (d);
             }
 
-            value = &dt->descriptor.get ();
+            value = &dt->descriptor;
             break;
           }
         case bind::interval_ym:
           {
             interval_ym* iym (static_cast<interval_ym*> (b->buffer));
 
-            if (iym->descriptor.get () == 0)
+            if (iym->descriptor == 0)
             {
               void* d (0);
-              sword r (OCIDescriptorAlloc (env,
-                                           &d,
-                                           OCI_DTYPE_INTERVAL_YM,
-                                           0,
-                                           0));
+              r = OCIDescriptorAlloc (env,
+                                      &d,
+                                      OCI_DTYPE_INTERVAL_YM,
+                                      0,
+                                      0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              iym->descriptor.reset (static_cast<OCIInterval*> (d));
+              iym->descriptor = static_cast<OCIInterval*> (d);
             }
 
-            value = &iym->descriptor.get ();
+            value = &iym->descriptor;
             break;
           }
         case bind::interval_ds:
           {
             interval_ds* ids (static_cast<interval_ds*> (b->buffer));
 
-            if (ids->descriptor.get () == 0)
+            if (ids->descriptor == 0)
             {
               void* d (0);
-              sword r (OCIDescriptorAlloc (env,
-                                           &d,
-                                           OCI_DTYPE_INTERVAL_DS,
-                                           0,
-                                           0));
+              r = OCIDescriptorAlloc (env,
+                                      &d,
+                                      OCI_DTYPE_INTERVAL_DS,
+                                      0,
+                                      0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              ids->descriptor.reset (static_cast<OCIInterval*> (d));
+              ids->descriptor = static_cast<OCIInterval*> (d);
             }
 
-            value = &ids->descriptor.get ();
+            value = &ids->descriptor;
             break;
           }
         case bind::blob:
@@ -668,7 +871,7 @@ namespace odb
             if (lob->get () == 0)
             {
               void* d (0);
-              sword r (OCIDescriptorAlloc (env, &d, OCI_DTYPE_LOB, 0, 0));
+              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_LOB, 0, 0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
@@ -692,17 +895,17 @@ namespace odb
         OCIDefine* h (reinterpret_cast<OCIDefine*> (b->size));
         OCIError* err (conn_.error_handle ());
 
-        sword r (OCIDefineByPos (stmt_,
-                                 &h,
-                                 err,
-                                 i,
-                                 value,
-                                 static_cast<sb4> (b->capacity),
-                                 result_sqlt_lookup[b->type],
-                                 b->indicator,
-                                 0,
-                                 0,
-                                 OCI_DEFAULT));
+        r = OCIDefineByPos (stmt_,
+                            &h,
+                            err,
+                            i,
+                            value,
+                            static_cast<sb4> (b->capacity),
+                            result_sqlt_lookup[b->type],
+                            b->indicator,
+                            0,
+                            0,
+                            OCI_DEFAULT);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);

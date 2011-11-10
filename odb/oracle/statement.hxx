@@ -50,6 +50,12 @@ namespace odb
       init (const char* text, std::size_t text_size);
 
     protected:
+      struct unbind
+      {
+        oracle::bind* bind;  // Corresponding bind entry.
+        void* value;         // Actual value passed to OCIBindByPos.
+      };
+
       // Bind parameters for this statement. This function must only
       // be called once. Multiple calls to it will result in memory
       // leaks due to lost OCIBind resources.
@@ -85,6 +91,9 @@ namespace odb
     protected:
       connection& conn_;
       auto_handle<OCIStmt> stmt_;
+
+      unbind* udata_;
+      std::size_t usize_;
     };
 
     class LIBODB_ORACLE_EXPORT generic_statement: public statement

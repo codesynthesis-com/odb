@@ -14,10 +14,64 @@ namespace odb
 {
   namespace oracle
   {
+    //
+    // datetime
+    //
+
+    datetime::
+    ~datetime ()
+    {
+      if (descriptor != 0 && (flags & descriptor_free))
+        OCIDescriptorFree (descriptor, OCI_DTYPE_TIMESTAMP);
+    }
+
+    datetime::
+    datetime (datetime& x)
+        : environment (x.environment),
+          error (x.error),
+          descriptor (x.descriptor),
+          flags (x.flags),
+          year_ (x.year_),
+          month_ (x.month_),
+          day_ (x.day_),
+          hour_ (x.hour_),
+          minute_ (x.minute_),
+          second_ (x.second_),
+          nanosecond_ (x.nanosecond_)
+      {
+        x.descriptor = 0;
+      }
+
+    datetime& datetime::
+    operator= (datetime& x)
+    {
+      if (this != &x)
+      {
+        if (descriptor != 0 && (flags & descriptor_free))
+          OCIDescriptorFree (descriptor, OCI_DTYPE_TIMESTAMP);
+
+        environment = x.environment;
+        error = x.error;
+        descriptor = x.descriptor;
+        flags = x.flags;
+        year_ = x.year_;
+        month_ = x.month_;
+        day_ = x.day_;
+        hour_ = x.hour_;
+        minute_ = x.minute_;
+        second_ = x.second_;
+        nanosecond_ = x.nanosecond_;
+
+        x.descriptor = 0;
+      }
+
+      return *this;
+    }
+
     void datetime::
     get (sb2& y, ub1& m, ub1& d, ub1& h, ub1& minute, ub1& s, ub4& ns) const
     {
-      assert (descriptor.get () != 0);
+      assert (descriptor != 0);
 
       sword r (OCIDateTimeGetDate (environment,
                                    error,
@@ -44,7 +98,7 @@ namespace odb
     void datetime::
     set (sb2 y, ub1 m, ub1 d, ub1 h, ub1 minute, ub1 s, ub4 ns)
     {
-      if (descriptor.get () != 0)
+      if (descriptor != 0)
       {
         sword r (OCIDateTimeConstruct (environment,
                                        error,
@@ -74,32 +128,54 @@ namespace odb
       }
     }
 
-    void datetime::
-    set ()
+    //
+    // interval_ym
+    //
+
+    interval_ym::
+    ~interval_ym ()
     {
-      assert (descriptor.get () != 0);
+      if (descriptor != 0 && (flags & descriptor_free))
+        OCIDescriptorFree (descriptor, OCI_DTYPE_INTERVAL_YM);
+    }
 
-      sword r (OCIDateTimeConstruct (environment,
-                                     error,
-                                     descriptor,
-                                     year_,
-                                     month_,
-                                     day_,
-                                     hour_,
-                                     minute_,
-                                     second_,
-                                     nanosecond_,
-                                     0,
-                                     0));
+    interval_ym::
+    interval_ym (interval_ym& x)
+        : environment (x.environment),
+          error (x.error),
+          descriptor (x.descriptor),
+          flags (x.flags),
+          year_ (x.year_),
+          month_ (x.month_)
+      {
+        x.descriptor = 0;
+      }
 
-      if (r != OCI_SUCCESS)
-        translate_error (error, r);
+    interval_ym& interval_ym::
+    operator= (interval_ym& x)
+    {
+      if (this != &x)
+      {
+        if (descriptor != 0 && (flags & descriptor_free))
+          OCIDescriptorFree (descriptor, OCI_DTYPE_INTERVAL_YM);
+
+        environment = x.environment;
+        error = x.error;
+        descriptor = x.descriptor;
+        flags = x.flags;
+        year_ = x.year_;
+        month_ = x.month_;
+
+        x.descriptor = 0;
+      }
+
+      return *this;
     }
 
     void interval_ym::
     get (sb4& y, sb4& m) const
     {
-      assert (descriptor.get () != 0);
+      assert (descriptor != 0);
 
       sword r (OCIIntervalGetYearMonth (environment,
                                         error,
@@ -114,7 +190,7 @@ namespace odb
     void interval_ym::
     set (sb4 y, sb4 m)
     {
-      if (descriptor.get () != 0)
+      if (descriptor != 0)
       {
         sword r (OCIIntervalSetYearMonth (environment,
                                           error,
@@ -132,25 +208,60 @@ namespace odb
       }
     }
 
-    void interval_ym::
-    set ()
+    //
+    // interval_ds
+    //
+
+    interval_ds::
+    ~interval_ds ()
     {
-      assert (descriptor.get () != 0);
+      if (descriptor != 0 && (flags & descriptor_free))
+        OCIDescriptorFree (descriptor, OCI_DTYPE_INTERVAL_DS);
+    }
 
-      sword r (OCIIntervalSetYearMonth (environment,
-                                        error,
-                                        year_,
-                                        month_,
-                                        descriptor));
+    interval_ds::
+    interval_ds (interval_ds& x)
+        : environment (x.environment),
+          error (x.error),
+          descriptor (x.descriptor),
+          flags (x.flags),
+          day_ (x.day_),
+          hour_ (x.hour_),
+          minute_ (x.minute_),
+          second_ (x.second_),
+          nanosecond_ (x.nanosecond_)
+      {
+        x.descriptor = 0;
+      }
 
-      if (r != OCI_SUCCESS)
-        translate_error (error, r);
+    interval_ds& interval_ds::
+    operator= (interval_ds& x)
+    {
+      if (this != &x)
+      {
+        if (descriptor != 0 && (flags & descriptor_free))
+          OCIDescriptorFree (descriptor, OCI_DTYPE_INTERVAL_DS);
+
+        environment = x.environment;
+        error = x.error;
+        descriptor = x.descriptor;
+        flags = x.flags;
+        day_ = x.day_;
+        hour_ = x.hour_;
+        minute_ = x.minute_;
+        second_ = x.second_;
+        nanosecond_ = x.nanosecond_;
+
+        x.descriptor = 0;
+      }
+
+      return *this;
     }
 
     void interval_ds::
     get (sb4& d, sb4& h, sb4& m, sb4& s, sb4& ns) const
     {
-      assert (descriptor.get () != 0);
+      assert (descriptor != 0);
 
       sword r (OCIIntervalGetDaySecond (environment,
                                         error,
@@ -168,7 +279,7 @@ namespace odb
     void interval_ds::
     set (sb4 d, sb4 h, sb4 m, sb4 s, sb4 ns)
     {
-      if (descriptor.get () != 0)
+      if (descriptor != 0)
       {
         sword r (OCIIntervalSetDaySecond (environment,
                                           error,
@@ -190,24 +301,6 @@ namespace odb
         second_ = s;
         nanosecond_ = ns;
       }
-    }
-
-    void interval_ds::
-    set ()
-    {
-      assert (descriptor.get () != 0);
-
-      sword r (OCIIntervalSetDaySecond (environment,
-                                        error,
-                                        day_,
-                                        hour_,
-                                        minute_,
-                                        second_,
-                                        nanosecond_,
-                                        descriptor));
-
-      if (r != OCI_SUCCESS)
-        translate_error (error, r);
     }
   }
 }

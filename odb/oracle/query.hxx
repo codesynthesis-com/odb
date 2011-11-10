@@ -1436,8 +1436,19 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_timestamp>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
-      query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
+      query_param_impl (ref_bind<T> r)
+          : query_param (&r.ref),
+            image_ (descriptor_cache) // Cache, don't free.
+      {
+      }
+
+      query_param_impl (val_bind<T> v)
+          : query_param (0),
+            image_ (0) // Don't cache, don't free.
+
+      {
+        init (v.val);
+      }
 
       virtual bool
       init ()
@@ -1451,8 +1462,8 @@ namespace odb
       {
         b->type = bind_type::timestamp;
         b->buffer = &image_;
-        b->capacity = sizeof (image_);
-        b->size = &size_;
+        b->capacity = sizeof (OCIDateTime*);
+        b->size = 0;
       }
 
     private:
@@ -1460,18 +1471,105 @@ namespace odb
       init (const T& v)
       {
         bool dummy;
-        std::size_t size (0);
-        value_traits<T, id_timestamp>::set_image (image_,
-                                                  size,
-                                                  sizeof (image_),
-                                                  dummy,
-                                                  v);
-        size_ = static_cast<ub2> (size);
+        value_traits<T, id_timestamp>::set_image (image_, dummy, v);
       }
 
     private:
-      char image_[11];
-      ub2 size_;
+      datetime image_;
+    };
+
+    // id_interval_ym
+    //
+    template <typename T>
+    struct query_param_impl<T, id_interval_ym>: query_param
+    {
+      query_param_impl (ref_bind<T> r)
+          : query_param (&r.ref),
+            image_ (descriptor_cache) // Cache, don't free.
+      {
+      }
+
+      query_param_impl (val_bind<T> v)
+          : query_param (0),
+            image_ (0) // Don't cache, don't free.
+
+      {
+        init (v.val);
+      }
+
+      virtual bool
+      init ()
+      {
+        init (*static_cast<const T*> (value_));
+        return false;
+      }
+
+      virtual void
+      bind (bind_type* b)
+      {
+        b->type = bind_type::interval_ym;
+        b->buffer = &image_;
+        b->capacity = sizeof (OCIInterval*);
+        b->size = 0;
+      }
+
+    private:
+      void
+      init (const T& v)
+      {
+        bool dummy;
+        value_traits<T, id_interval_ym>::set_image (image_, dummy, v);
+      }
+
+    private:
+      interval_ym image_;
+    };
+
+    // id_interval_ds
+    //
+    template <typename T>
+    struct query_param_impl<T, id_interval_ds>: query_param
+    {
+      query_param_impl (ref_bind<T> r)
+          : query_param (&r.ref),
+            image_ (descriptor_cache) // Cache, don't free.
+      {
+      }
+
+      query_param_impl (val_bind<T> v)
+          : query_param (0),
+            image_ (0) // Don't cache, don't free.
+
+      {
+        init (v.val);
+      }
+
+      virtual bool
+      init ()
+      {
+        init (*static_cast<const T*> (value_));
+        return false;
+      }
+
+      virtual void
+      bind (bind_type* b)
+      {
+        b->type = bind_type::interval_ds;
+        b->buffer = &image_;
+        b->capacity = sizeof (OCIInterval*);
+        b->size = 0;
+      }
+
+    private:
+      void
+      init (const T& v)
+      {
+        bool dummy;
+        value_traits<T, id_interval_ds>::set_image (image_, dummy, v);
+      }
+
+    private:
+      interval_ds image_;
     };
 
     // id_string.

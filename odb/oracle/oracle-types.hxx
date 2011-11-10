@@ -169,90 +169,6 @@ namespace odb
       }
     };
 
-    class LIBODB_ORACLE_EXPORT datetime_auto_descriptor:
-      public auto_descriptor<OCIDateTime, dt_timestamp>
-    {
-      typedef auto_descriptor<OCIDateTime, dt_timestamp> base;
-
-    public:
-      datetime_auto_descriptor (OCIDateTime* d = 0):
-        base (d)
-      {
-      }
-
-      datetime_auto_descriptor (datetime_auto_descriptor& x):
-        base (x.d_)
-      {
-        x.d_ = 0;
-      }
-
-      datetime_auto_descriptor&
-      operator= (datetime_auto_descriptor& x)
-      {
-        OCIDateTime* l (x.d_);
-        x.d_ = 0;
-        reset (l);
-
-        return *this;
-      }
-    };
-
-    class LIBODB_ORACLE_EXPORT interval_ym_auto_descriptor:
-      public auto_descriptor<OCIInterval, dt_interval_ym>
-    {
-      typedef auto_descriptor<OCIInterval, dt_interval_ym> base;
-
-    public:
-      interval_ym_auto_descriptor (OCIInterval* d = 0):
-        base (d)
-      {
-      }
-
-      interval_ym_auto_descriptor (interval_ym_auto_descriptor& x):
-        base (x.d_)
-      {
-        x.d_ = 0;
-      }
-
-      interval_ym_auto_descriptor&
-      operator= (interval_ym_auto_descriptor& x)
-      {
-        OCIInterval* l (x.d_);
-        x.d_ = 0;
-        reset (l);
-
-        return *this;
-      }
-    };
-
-    class LIBODB_ORACLE_EXPORT interval_ds_auto_descriptor:
-      public auto_descriptor<OCIInterval, dt_interval_ds>
-    {
-      typedef auto_descriptor<OCIInterval, dt_interval_ds> base;
-
-    public:
-      interval_ds_auto_descriptor (OCIInterval* d = 0):
-        base (d)
-      {
-      }
-
-      interval_ds_auto_descriptor (interval_ds_auto_descriptor& x):
-        base (x.d_)
-      {
-        x.d_ = 0;
-      }
-
-      interval_ds_auto_descriptor&
-      operator= (interval_ds_auto_descriptor& x)
-      {
-        OCIInterval* l (x.d_);
-        x.d_ = 0;
-        reset (l);
-
-        return *this;
-      }
-    };
-
     //
     // The OCIDateTime and OCIInterval APIs require that an environment and
     // error handle be passed to any function that manipulates an OCIDateTime
@@ -264,6 +180,11 @@ namespace odb
     // required data is available. A symmetric get interface is provided for
     // consistency.
     //
+
+    // Descriptor management flags.
+    //
+    const unsigned short descriptor_cache = 0x01;
+    const unsigned short descriptor_free  = 0x02;
 
     struct LIBODB_ORACLE_EXPORT datetime
     {
@@ -285,16 +206,25 @@ namespace odb
            ub1 second,
            ub4 nanosecond);
 
-      void
-      set ();
-
     public:
       OCIEnv* environment;
       OCIError* error;
+      OCIDateTime* descriptor;
 
-      datetime_auto_descriptor descriptor;
+      unsigned short flags;
 
-    private:
+    public:
+      datetime (unsigned short f = descriptor_cache | descriptor_free)
+        : descriptor (0), flags (f)
+      {
+      }
+
+      datetime (datetime&);
+      datetime& operator= (datetime&);
+
+      ~datetime ();
+
+    public:
       sb2 year_;
       ub1 month_;
       ub1 day_;
@@ -312,16 +242,25 @@ namespace odb
       void
       set (sb4 year, sb4 month);
 
-      void
-      set ();
-
     public:
       OCIEnv* environment;
       OCIError* error;
+      OCIInterval* descriptor;
 
-      interval_ym_auto_descriptor descriptor;
+      unsigned short flags;
 
-    private:
+    public:
+      interval_ym (unsigned short f = descriptor_cache | descriptor_free)
+        : descriptor (0), flags (f)
+      {
+      }
+
+      interval_ym (interval_ym&);
+      interval_ym& operator= (interval_ym&);
+
+      ~interval_ym ();
+
+    public:
       sb4 year_;
       sb4 month_;
     };
@@ -342,16 +281,25 @@ namespace odb
            sb4 second,
            sb4 nanosecond);
 
-      void
-      set ();
-
     public:
       OCIEnv* environment;
       OCIError* error;
+      OCIInterval* descriptor;
 
-      interval_ds_auto_descriptor descriptor;
+      unsigned short flags;
 
-    private:
+    public:
+      interval_ds (unsigned short f = descriptor_cache | descriptor_free)
+        : descriptor (0), flags (f)
+      {
+      }
+
+      interval_ds (interval_ds&);
+      interval_ds& operator= (interval_ds&);
+
+      ~interval_ds ();
+
+    public:
       sb4 day_;
       sb4 hour_;
       sb4 minute_;
