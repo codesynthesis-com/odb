@@ -45,7 +45,7 @@ main (int argc, char* argv[])
 
     o.date_ = date_time (2010, 8, 29, 15, 33, 18, 0);
     o.timestamp_ = date_time (1996, 3, 9, 18, 2, 54, 123000);
-    o.interval_ds_ = time_interval (0, 0, 13, 43, 23, 19, 123000);
+    o.interval_ds_ = time_interval (0, 0, 13, 15, 23, 19, 123000);
     o.interval_ym_ = time_interval (12, 3, 0, 0, 0, 0, 0);
 
     string vshort_str (8, 's');
