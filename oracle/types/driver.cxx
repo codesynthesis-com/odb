@@ -169,6 +169,28 @@ main (int argc, char* argv[])
       assert (bui3 == *buil3);
     }
 
+    // Test large BLOBs.
+    //
+    blob b (1, 50000);
+
+    // Persist.
+    //
+    {
+      transaction t (db->begin ());
+      db->persist (b);
+      t.commit ();
+    }
+
+    // Load.
+    //
+    {
+      transaction t (db->begin ());
+      auto_ptr<blob> bl (db->load<blob> (1));
+      t.commit ();
+
+      assert (b == *bl);
+    }
+
     // Test descriptor management in TIMESTAMP and INTERVAL images.
     //
     {

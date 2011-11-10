@@ -252,4 +252,27 @@ struct big_int
   }
 };
 
+#pragma db object
+struct blob
+{
+  blob (): id_ (0) {}
+
+  blob (unsigned int id, std::size_t n)
+      : id_ (id), value_ ('b', n)
+  {
+  }
+
+  #pragma db id
+  unsigned int id_;
+
+  #pragma db type ("BLOB")
+  std::vector<char> value_;
+
+  bool
+  operator== (const blob& y) const
+  {
+    return id_ == y.id_ && value_ == y.value_;
+  }
+};
+
 #endif // TEST_HXX
