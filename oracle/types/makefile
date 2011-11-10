@@ -36,7 +36,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database oracle --generate-schema \
---table-prefix oracle_types_ --hxx-prologue '\#include "traits.hxx"'
+--generate-query --hxx-prologue '\#include "traits.hxx"' \
+--table-prefix oracle_types_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 

@@ -168,6 +168,31 @@ main (int argc, char* argv[])
       assert (bui2 == *buil2);
       assert (bui3 == *buil3);
     }
+
+    // Test descriptor management in TIMESTAMP and INTERVAL images.
+    //
+    {
+      typedef odb::query<object> query;
+      typedef odb::result<object> result;
+
+      query q (query::timestamp == o.timestamp_ &&
+               query::interval_ym == o.interval_ym_ &&
+               query::interval_ds == o.interval_ds_);
+
+      transaction t (db->begin ());
+
+      {
+        result r (db->query<object> (q));
+        assert (size (r) == 1);
+      }
+
+      {
+        result r (db->query<object> (q));
+        assert (size (r) == 1);
+      }
+
+      t.commit ();
+    }
   }
   catch (const odb::exception& e)
   {
