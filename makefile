@@ -12,19 +12,16 @@ ifeq ($(db_id),mysql)
 dirs += mysql
 endif
 
+ifeq ($(db_id),oracle)
+dirs += oracle
+endif
+
 ifeq ($(db_id),sqlite)
 dirs += sqlite
 endif
 
 ifeq ($(db_id),pgsql)
 dirs += pgsql
-endif
-
-# @@ Remove overrides when Oracle implementation is complete.
-#
-ifeq ($(db_id),oracle)
-all_dirs := libcommon common mysql sqlite pgsql oracle boost
-dirs := common boost oracle
 endif
 
 default := $(out_base)/
