@@ -50,7 +50,7 @@ $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database oracle \
 --profile boost/date-time --generate-schema \
---table-prefix date_time_
+--table-prefix boost_or_dt_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_boost.l.cpp-options) \
 $(boost.l.cpp-options)

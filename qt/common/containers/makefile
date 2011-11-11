@@ -46,7 +46,7 @@ $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) \
 --profile qt/containers --profile qt/basic --generate-schema \
---table-prefix qt_containers_
+--table-prefix qt_cont_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_qt.l.cpp-options) \
 $(qt_core.l.cpp-options)
