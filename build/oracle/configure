@@ -80,6 +80,20 @@ echo "--port '$port'"       >>$opt
 fi
 
 echo "#!/bin/sh"                                                >$drv
+
+dir=`dirname $driver`
+if [ "$dir" != "." ]; then
+  echo                                                         >>$drv
+  echo "LD_LIBRARY_PATH=\"$dir:$LD_LIBRARY_PATH\""             >>$drv
+  echo export LD_LIBRARY_PATH                                  >>$drv
+  echo                                                         >>$drv
+  echo "if [ -z \"\$SQLPATH\" ]; then"                         >>$drv
+  echo "  SQLPATH=\"$dir\""                                    >>$drv
+  echo export SQLPATH                                          >>$drv
+  echo "fi"                                                    >>$drv
+  echo                                                         >>$drv
+fi
+
 echo "opt=\`cat $opt\`"                                        >>$drv
 echo "eval $scf_root/oracle/oracle --driver $driver \$opt \$*" >>$drv
 chmod 755 $drv
