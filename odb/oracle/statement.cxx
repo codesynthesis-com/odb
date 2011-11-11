@@ -905,7 +905,7 @@ namespace odb
                             b->indicator,
                             0,
                             0,
-                            OCI_DEFAULT);
+                            OCI_DEFINE_SOFT);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
