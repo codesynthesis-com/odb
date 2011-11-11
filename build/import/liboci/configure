@@ -19,9 +19,46 @@ $echo "Configuring external dependency on 'OCI library' for '$project_name'."
 $echo
 
 $echo
-$echo "Please enter the 'Oracle' home directory."
+$echo "Please enter the 'Oracle' home or Instant Client directory."
 $echo
 
-liboci_root=`read_path --directory --exist $ORACLE_HOME`
+liboci_root=$ORACLE_HOME
+liboci_include=
+liboci_lib=
 
-echo liboci_root := $liboci_root  >$1
+while [ -z "$liboci_include" ]; do
+  liboci_root=`read_path --directory --exist $liboci_root`
+
+  if [ -d "$liboci_root/sdk/include" ]; then
+    liboci_include="$liboci_root/sdk/include"
+
+    liboci_lib=`ls $liboci_root/libclntsh.so 2>/dev/null`
+    if [ -z "$liboci_lib" ]; then
+      liboci_lib=`ls $liboci_root/libclntsh.so.* 2>/dev/null`
+    fi
+
+  elif [ -d "$liboci_root/rdbms/public" ]; then
+    liboci_include="$liboci_root/rdbms/public"
+    liboci_lib=`ls $liboci_root/lib/libclntsh.so 2>/dev/null`
+  fi
+
+  if [ -z "$liboci_include" ]; then
+    liboci_root=
+
+    $echo
+    $echo "The specified directory looks like neither an Instant Client nor "
+    $echo "an Oracle home directory."
+    $echo
+  elif [ -z "$liboci_lib" ]; then
+    liboci_root=
+
+    $echo
+    $echo "The libclntsh shared library cannot be found."
+    $echo
+  fi
+
+done
+
+echo liboci_root := $liboci_root        > $1
+echo liboci_include := $liboci_include  >>$1
+echo liboci_lib := $liboci_lib          >>$1

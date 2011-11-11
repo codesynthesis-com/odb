@@ -4,14 +4,16 @@
 # license   : ODB NCUEL; see accompanying LICENSE file
 
 $(dcf_root)/import/liboci/%: root := $(liboci_root)
+$(dcf_root)/import/liboci/%: include := $(liboci_include)
+$(dcf_root)/import/liboci/%: lib := $(liboci_lib)
 $(dcf_root)/import/liboci/oci.l: | $(dcf_root)/import/liboci/.
 
-$(dcf_root)/import/liboci/oci.l: $(liboci_root)/lib/libclntsh.so
-	@echo $< >$@
-	@echo rpath:$(root)/lib >>$@
+$(dcf_root)/import/liboci/oci.l: $(liboci_lib)
+	@echo $(lib) >$@
+	@echo rpath:$(dir $(lib)) >>$@
 
 $(dcf_root)/import/liboci/oci.l.cpp-options: | $(dcf_root)/import/liboci/.
-	@echo include: -I$(root)/rdbms/public >$@
+	@echo include: -I$(include) >$@
 
 ifndef %foreign%
 
