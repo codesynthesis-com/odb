@@ -19,7 +19,7 @@ $echo "Configuring external dependency on 'OCI library' for '$project_name'."
 $echo
 
 $echo
-$echo "Please enter the 'Oracle' home or Instant Client directory."
+$echo "Please enter the 'Oracle' home or 'Instant Client' directory."
 $echo
 
 liboci_root=$ORACLE_HOME
@@ -46,14 +46,15 @@ while [ -z "$liboci_include" ]; do
     liboci_root=
 
     $echo
-    $echo "The specified directory looks like neither an Instant Client nor "
+    $echo "The specified directory looks like neither an Instant Client nor"
     $echo "an Oracle home directory."
     $echo
   elif [ -z "$liboci_lib" ]; then
     liboci_root=
+    liboci_include=
 
     $echo
-    $echo "The libclntsh shared library cannot be found."
+    $echo "The libclntsh.so shared library not found."
     $echo
   fi
 
