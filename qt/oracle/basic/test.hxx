@@ -16,14 +16,26 @@ struct object
   operator== (const object& x) const
   {
     return
-      str == x.str &&
-      blob == x.blob;
+      varchar == x.varchar &&
+      clob == x.clob &&
+      nclob == x.nclob &&
+      blob == x.blob &&
+      raw == x.raw;
   }
 
   #pragma db id
-  QString str;
+  QString varchar;
+
+  #pragma db type ("CLOB")
+  QString clob;
+
+  #pragma db type ("NCLOB")
+  QString nclob;
 
   QByteArray blob;
+
+  #pragma db type ("RAW(128)")
+  QByteArray raw;
 };
 
 #endif // TEST_HXX

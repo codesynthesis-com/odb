@@ -9,6 +9,7 @@
 #include <memory>   // std::auto_ptr
 #include <cassert>
 #include <iostream>
+#include <string>
 
 #include <odb/oracle/database.hxx>
 #include <odb/oracle/transaction.hxx>
@@ -28,9 +29,15 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
+    string long_str (20000, 'l');
+
     object o;
-    o.str = "John Doe";
-    o.blob = QByteArray ("\0x13\0xDE\0x00\0x00\0x00\0x54\0xF2\0x6A", 8);
+    o.varchar = "John Doe";
+    o.clob = QString::fromStdString (string (150, 'c'));
+    o.nclob = QString::fromStdString (long_str);
+    o.raw = QByteArray ("\0x13\0xDE\0x00\0x00\0x00\0x54\0xF2\0x6A", 8);
+    o.blob = QByteArray (long_str.c_str (),
+                         static_cast<int> (long_str.size ()));
 
     // Persist.
     //
@@ -44,7 +51,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      object* ol = db->load<object> (o.str);
+      object* ol = db->load<object> (o.varchar);
       t.commit ();
 
       assert (*ol == o);
