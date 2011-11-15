@@ -43,7 +43,7 @@ namespace odb
                          QTime (static_cast<int> (h),
                                 static_cast<int> (min),
                                 static_cast<int> (s),
-                                static_cast<int> (ns / 1000)));
+                                static_cast<int> (ns / 1000000)));
         }
       }
 
@@ -65,7 +65,7 @@ namespace odb
                  static_cast<ub1> (t.hour ()),
                  static_cast<ub1> (t.minute ()),
                  static_cast<ub1> (t.second ()),
-                 static_cast<ub4> (t.msec () * 1000));
+                 static_cast<ub4> (t.msec () * 1000000));
         }
       }
     };

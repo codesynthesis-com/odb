@@ -37,7 +37,7 @@ namespace odb
           sb4 d (0), h (0), m (0), s (0), ns (0);
           i.get (d, h, m, s, ns);
 
-          v.setHMS (h, m, s, ns / 1000);
+          v.setHMS (h, m, s, ns / 1000000);
         }
       }
 
@@ -50,7 +50,7 @@ namespace odb
         {
           is_null = false;
 
-          i.set (0, v.hour (), v.minute (), v.second (), v.msec () * 1000);
+          i.set (0, v.hour (), v.minute (), v.second (), v.msec () * 1000000);
         }
       }
     };

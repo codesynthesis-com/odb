@@ -19,11 +19,11 @@
 // represent clock times with a maximum precision of milliseconds. QTime
 // provides a null representation so allow NULL values by default.
 //
-#pragma db value(QTime) type("INTERVAL DAY(0) TO SECOND") null
+#pragma db value(QTime) type("INTERVAL DAY(0) TO SECOND(3)") null
 
 // Map QDateTime to ORACLE TIMESTAMP by default. QDateTime provides a null
 // representation so allow NULL values by default.
 //
-#pragma db value(QDateTime) type("TIMESTAMP(6)") null
+#pragma db value(QDateTime) type("TIMESTAMP(3)") null
 
 #endif // ODB_QT_DATE_TIME_ORACLE_DEFAULT_MAPPING_HXX
