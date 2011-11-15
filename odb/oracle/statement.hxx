@@ -20,6 +20,7 @@
 #include <odb/oracle/oracle-fwd.hxx>
 #include <odb/oracle/auto-handle.hxx>
 
+#include <odb/oracle/details/number.hxx>
 #include <odb/oracle/details/export.hxx>
 
 namespace odb
@@ -213,16 +214,22 @@ namespace odb
       // Only OCI versions 11.2 and greater support conversion of the internal
       // Oracle type NUMBER to an external 64-bit integer type. If we detect
       // version 11.2 or greater we provide an unsigned long long image.
-      // Otherwise, we revert to using a 32-bit unsigned integer.
+      // Otherwise, we revert to using a NUMBER image and manipulate it using
+      // the custom conversion algorithms found in details/number.hxx.
       //
     public:
       struct id_bind_type
       {
         union
         {
-          unsigned int value32;
-          unsigned long long value64;
-        } id;
+          struct
+          {
+            char buffer[21];
+            ub4 size;
+          } number;
+
+          unsigned long long integer;
+        }id;
 
         sb2 indicator;
       };

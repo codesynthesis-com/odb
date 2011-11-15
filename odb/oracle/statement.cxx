@@ -1419,11 +1419,12 @@ namespace odb
 
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
   || OCI_MAJOR_VERSION > 11
-      *buffer = &b.id.value64;
+      *buffer = &b.id.integer;
       **size = sizeof (unsigned long long);
 #else
-      *buffer = &b.id.value32;
-      **size = sizeof (unsigned int);
+      *buffer = b.id.number.buffer;
+      *size = &b.id.number.size;
+      b.id.number.size = 21;
 #endif
 
       *indicator = &b.indicator;
@@ -1475,10 +1476,11 @@ namespace odb
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
   || OCI_MAJOR_VERSION > 11
                                sizeof (unsigned long long),
-#else
-                               sizeof (unsigned int),
-#endif
                                SQLT_UIN,
+#else
+                               21,
+                               SQLT_NUM,
+#endif
                                0,
                                0,
                                0,
@@ -1560,9 +1562,11 @@ namespace odb
     {
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
   || OCI_MAJOR_VERSION > 11
-      return id_bind_.id.value64;
+      return id_bind_.id.integer;
 #else
-      return id_bind_.id.value32;
+      return details::number_to_uint64 (
+        id_bind_.id.number.buffer,
+        static_cast <std::size_t> (id_bind_.id.number.size));
 #endif
     }
 
