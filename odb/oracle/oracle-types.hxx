@@ -214,16 +214,8 @@ namespace odb
       unsigned short flags;
 
     public:
-      datetime (unsigned short f = descriptor_cache | descriptor_free):
-        descriptor (0),
-        flags (f),
-        year_ (1),
-        month_ (1),
-        day_ (1),
-        hour_ (0),
-        minute_ (0),
-        second_ (0),
-        nanosecond_ (0)
+      datetime (unsigned short f = descriptor_cache | descriptor_free)
+        : descriptor (0), flags (f)
       {
       }
 

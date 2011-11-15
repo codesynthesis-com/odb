@@ -358,18 +358,19 @@ namespace odb
 
               // Initialize the descriptor from the cached data.
               //
-              r = OCIDateTimeConstruct (env,
-                                        err,
-                                        static_cast<OCIDateTime*> (d),
-                                        dt->year_,
-                                        dt->month_,
-                                        dt->day_,
-                                        dt->hour_,
-                                        dt->minute_,
-                                        dt->second_,
-                                        dt->nanosecond_,
-                                        0,
-                                        0);
+              if (b->indicator == 0 || *b->indicator != -1)
+                r = OCIDateTimeConstruct (env,
+                                          err,
+                                          static_cast<OCIDateTime*> (d),
+                                          dt->year_,
+                                          dt->month_,
+                                          dt->day_,
+                                          dt->hour_,
+                                          dt->minute_,
+                                          dt->second_,
+                                          dt->nanosecond_,
+                                          0,
+                                          0);
 
               if (r != OCI_SUCCESS)
                 translate_error (err, r);
@@ -419,11 +420,12 @@ namespace odb
 
               // Initialize the descriptor from the cached data.
               //
-              r = OCIIntervalSetYearMonth (env,
-                                           err,
-                                           iym->year_,
-                                           iym->month_,
-                                           static_cast<OCIInterval*> (d));
+              if (b->indicator == 0 || *b->indicator != -1)
+                r = OCIIntervalSetYearMonth (env,
+                                             err,
+                                             iym->year_,
+                                             iym->month_,
+                                             static_cast<OCIInterval*> (d));
 
               if (r != OCI_SUCCESS)
                 translate_error (err, r);
@@ -473,14 +475,15 @@ namespace odb
 
               // Initialize the descriptor from the cached data.
               //
-              r = OCIIntervalSetDaySecond (env,
-                                           err,
-                                           ids->day_,
-                                           ids->hour_,
-                                           ids->minute_,
-                                           ids->second_,
-                                           ids->nanosecond_,
-                                           static_cast<OCIInterval*> (d));
+              if (b->indicator == 0 || *b->indicator != -1)
+                r = OCIIntervalSetDaySecond (env,
+                                             err,
+                                             ids->day_,
+                                             ids->hour_,
+                                             ids->minute_,
+                                             ids->second_,
+                                             ids->nanosecond_,
+                                             static_cast<OCIInterval*> (d));
 
               if (r != OCI_SUCCESS)
                 translate_error (err, r);
@@ -955,7 +958,8 @@ namespace odb
         if ((b->type == bind::blob ||
              b->type == bind::clob ||
              b->type == bind::nclob) &&
-            *b->indicator != -1 && b->callback->result != 0)
+            (b->indicator == 0 || *b->indicator != -1) &&
+            b->callback->result != 0)
         {
           auto_descriptor<OCILobLocator>& locator (
             *reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
