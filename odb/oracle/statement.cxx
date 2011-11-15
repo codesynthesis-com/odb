@@ -80,9 +80,7 @@ namespace odb
                           void** indicator)
     {
       bind& b (*static_cast<bind*> (context));
-
-      details::buffer* lob_buffer (
-        reinterpret_cast<details::buffer*> (b.buffer));
+      lob* l (static_cast<lob*> (b.buffer));
 
       // Only call the callback if the parameter is not NULL.
       //
@@ -90,12 +88,12 @@ namespace odb
       {
         chunk_position pos;
         if (!(*b.callback->param) (b.context->param,
-                                   reinterpret_cast<ub4*> (b.size),
+                                   l->position_context,
                                    const_cast<const void**> (buffer),
                                    size,
                                    &pos,
-                                   lob_buffer->data (),
-                                   lob_buffer->capacity ()))
+                                   l->buffer->data (),
+                                   l->buffer->capacity ()))
           return OCI_ERROR;
 
         switch (pos)
@@ -313,7 +311,9 @@ namespace odb
 
       for (ub4 i (1); i < n; ++i, ++b)
       {
-        void* value (0);
+        void* value;
+        sb4 capacity;
+        ub2* size (0);
         bool callback (b->callback != 0);
 
         switch (b->type)
@@ -378,6 +378,8 @@ namespace odb
             else
               value = &dt->descriptor;
 
+            capacity = static_cast<sb4> (sizeof (OCIDateTime*));
+
             break;
           }
         case bind::interval_ym:
@@ -432,6 +434,8 @@ namespace odb
             }
             else
               value = &iym->descriptor;
+
+            capacity = static_cast<sb4> (sizeof (OCIInterval*));
 
             break;
           }
@@ -491,23 +495,33 @@ namespace odb
             else
               value = &ids->descriptor;
 
+            capacity = static_cast<sb4> (sizeof (OCIInterval*));
+
             break;
           }
         case bind::blob:
         case bind::clob:
         case bind::nclob:
           {
-            details::buffer& lob_buffer (conn_.lob_buffer ());
+            lob* l (static_cast<lob*> (b->buffer));
 
-            if (lob_buffer.capacity () == 0)
-              lob_buffer.capacity (4096);
+            if (l->buffer == 0)
+            {
+              details::buffer& lob_buffer (conn_.lob_buffer ());
 
-            // Generally, we should not modify the binding structure or
-            // image since that would break the thread-safety guarantee
-            // of the query expression. However, in Oracle, LOBs cannot
-            // be used in queries so we can make an exception here.
-            //
-            b->buffer = &lob_buffer;
+              if (lob_buffer.capacity () == 0)
+                lob_buffer.capacity (4096);
+
+              // Generally, we should not modify the image since that would
+              // break the thread-safety guarantee of the query expression.
+              // However, in Oracle, LOBs cannot be used in queries so we can
+              // make an exception here.
+              //
+              l->buffer = &lob_buffer;
+            }
+
+            assert (callback);
+            value = 0;
 
             // When binding LOB parameters, the capacity must be greater than
             // 4000 and less than the maximum LOB length in bytes. If it is
@@ -515,7 +529,7 @@ namespace odb
             // to be irrelevant to OCI bind behaviour for LOB parameters when
             // used with callbacks.
             //
-            b->capacity = 4096;
+            capacity = 4096;
 
             break;
           }
@@ -530,8 +544,9 @@ namespace odb
             assert ((b->type != bind::integer &&
                      b->type != bind::uinteger) || b->capacity <= 4);
 #endif
-            if (!callback)
-              value = b->buffer;
+            value = callback ? 0 : b->buffer;
+            capacity = static_cast<sb4> (b->capacity);
+            size = b->size;
 
             break;
           }
@@ -543,10 +558,10 @@ namespace odb
                           err,
                           i,
                           value,
-                          static_cast<sb4> (b->capacity),
+                          capacity,
                           param_sqlt_lookup[b->type],
                           b->indicator,
-                          b->size,
+                          size,
                           0,
                           0,
                           0,
@@ -593,7 +608,8 @@ namespace odb
 
       for (size_t i (1); i <= c; ++i, ++b)
       {
-        void* value (0);
+        void* value;
+        sb4 capacity;
         ub2* size (0);
 
         switch (b->type)
@@ -608,11 +624,7 @@ namespace odb
                       (dt->flags & descriptor_free));
 
               void* d (0);
-              r = OCIDescriptorAlloc (env,
-                                      &d,
-                                      OCI_DTYPE_TIMESTAMP,
-                                      0,
-                                      0);
+              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_TIMESTAMP, 0, 0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
@@ -623,6 +635,8 @@ namespace odb
             }
 
             value = &dt->descriptor;
+            capacity = static_cast<sb4> (sizeof (OCIDateTime*));
+
             break;
           }
         case bind::interval_ym:
@@ -635,11 +649,7 @@ namespace odb
                       (iym->flags & descriptor_free));
 
               void* d (0);
-              r = OCIDescriptorAlloc (env,
-                                      &d,
-                                      OCI_DTYPE_INTERVAL_YM,
-                                      0,
-                                      0);
+              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_INTERVAL_YM, 0, 0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
@@ -650,6 +660,8 @@ namespace odb
             }
 
             value = &iym->descriptor;
+            capacity = static_cast<sb4> (sizeof (OCIInterval*));
+
             break;
           }
         case bind::interval_ds:
@@ -662,11 +674,7 @@ namespace odb
                       (ids->flags & descriptor_free));
 
               void* d (0);
-              r = OCIDescriptorAlloc (env,
-                                      &d,
-                                      OCI_DTYPE_INTERVAL_DS,
-                                      0,
-                                      0);
+              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_INTERVAL_DS, 0, 0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
@@ -677,16 +685,17 @@ namespace odb
             }
 
             value = &ids->descriptor;
+            capacity = static_cast<sb4> (sizeof (OCIInterval*));
+
             break;
           }
         case bind::blob:
         case bind::clob:
         case bind::nclob:
           {
-            auto_descriptor<OCILobLocator>* lob (
-              static_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
+            lob* l (static_cast<lob*> (b->buffer));
 
-            if (lob->get () == 0)
+            if (l->locator == 0)
             {
               void* d (0);
               r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_LOB, 0, 0);
@@ -694,10 +703,12 @@ namespace odb
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              lob->reset (static_cast<OCILobLocator*> (d));
+              l->locator = static_cast<OCILobLocator*> (d);
             }
 
-            value = &lob->get ();
+            value = &l->locator;
+            capacity = static_cast<sb4> (sizeof (OCILobLocator*));
+
             break;
           }
         default:
@@ -712,6 +723,7 @@ namespace odb
                     b->capacity <= 4);
 #endif
             value = b->buffer;
+            capacity = static_cast<sb4> (b->capacity);
             size = b->size;
 
             break;
@@ -724,7 +736,7 @@ namespace odb
                             err,
                             i,
                             value,
-                            static_cast<sb4> (b->capacity),
+                            capacity,
                             result_sqlt_lookup[b->type],
                             b->indicator,
                             size,
@@ -794,7 +806,7 @@ namespace odb
 
       for (size_t i (1); i <= c; ++i, ++b)
       {
-        void* value (0);
+        void* value;
 
         switch (b->type)
         {
@@ -805,11 +817,7 @@ namespace odb
             if (dt->descriptor == 0)
             {
               void* d (0);
-              r = OCIDescriptorAlloc (env,
-                                      &d,
-                                      OCI_DTYPE_TIMESTAMP,
-                                      0,
-                                      0);
+              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_TIMESTAMP, 0, 0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
@@ -827,11 +835,7 @@ namespace odb
             if (iym->descriptor == 0)
             {
               void* d (0);
-              r = OCIDescriptorAlloc (env,
-                                      &d,
-                                      OCI_DTYPE_INTERVAL_YM,
-                                      0,
-                                      0);
+              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_INTERVAL_YM, 0, 0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
@@ -849,11 +853,7 @@ namespace odb
             if (ids->descriptor == 0)
             {
               void* d (0);
-              r = OCIDescriptorAlloc (env,
-                                      &d,
-                                      OCI_DTYPE_INTERVAL_DS,
-                                      0,
-                                      0);
+              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_INTERVAL_DS, 0, 0);
 
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
@@ -868,10 +868,9 @@ namespace odb
         case bind::clob:
         case bind::nclob:
           {
-            auto_descriptor<OCILobLocator>* lob (
-              reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
+            lob* l (static_cast<lob*> (b->buffer));
 
-            if (lob->get () == 0)
+            if (l->locator == 0)
             {
               void* d (0);
               r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_LOB, 0, 0);
@@ -879,10 +878,10 @@ namespace odb
               if (r != OCI_SUCCESS)
                 throw invalid_oci_handle ();
 
-              lob->reset (static_cast <OCILobLocator*> (d));
+              l->locator = static_cast<OCILobLocator*> (d);
             }
 
-            value = &lob->get ();
+            value = &l->locator;
             break;
           }
         default:
@@ -903,7 +902,7 @@ namespace odb
                             err,
                             i,
                             value,
-                            static_cast<sb4> (b->capacity),
+                            static_cast<sb4> (sizeof (void*)),
                             result_sqlt_lookup[b->type],
                             b->indicator,
                             0,
@@ -961,8 +960,7 @@ namespace odb
             (b->indicator == 0 || *b->indicator != -1) &&
             b->callback->result != 0)
         {
-          auto_descriptor<OCILobLocator>& locator (
-            *reinterpret_cast<auto_descriptor<OCILobLocator>*> (b->buffer));
+          lob* l (static_cast<lob*> (b->buffer));
 
           ub4 position (0); // Position context.
           ub1 piece (OCI_FIRST_PIECE);
@@ -987,7 +985,7 @@ namespace odb
           {
             r = OCILobRead2 (conn_.handle (),
                              err,
-                             locator,
+                             l->locator,
                              &read,
                              0,
                              1,

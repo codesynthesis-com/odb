@@ -15,6 +15,44 @@ namespace odb
   namespace oracle
   {
     //
+    // lob
+    //
+
+    lob::
+    ~lob ()
+    {
+      if (locator != 0)
+        OCIDescriptorFree (locator, OCI_DTYPE_LOB);
+    }
+
+    lob::
+    lob (lob& x)
+        : locator (x.locator),
+          buffer (x.buffer),
+          position_context (x.position_context)
+    {
+      x.locator = 0;
+    }
+
+    lob& lob::
+    operator= (lob& x)
+    {
+      if (this != &x)
+      {
+        if (locator != 0)
+          OCIDescriptorFree (locator, OCI_DTYPE_LOB);
+
+        locator = x.locator;
+        buffer = x.buffer;
+        position_context = x.position_context;
+
+        x.locator = 0;
+      }
+
+      return *this;
+    }
+
+    //
     // datetime
     //
 

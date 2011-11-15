@@ -8,6 +8,8 @@
 
 #include <odb/pre.hxx>
 
+#include <odb/details/buffer.hxx>
+
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/oracle-fwd.hxx>
 #include <odb/oracle/auto-descriptor.hxx>
@@ -103,11 +105,9 @@ namespace odb
       };
 
       buffer_type type; // The type stored by buffer.
-      void* buffer;     // Data buffer pointer. When result callbacks are in
-                        // use, this is interpreted as a lob_auto_descriptor*.
-      ub2* size;        // The number of bytes in buffer. When parameter
-                        // callbacks are in use, this is interpreted as a ub4*
-                        // indicating the current position. For LOB result
+      void* buffer;     // Data buffer pointer. For LOB type bindings, this is
+                        // interpreted as an oracle::lob*.
+      ub2* size;        // The number of bytes in buffer. For LOB result
                         // bindings, this is interpreted as the OCIDefine
                         // handle associated with the LOB result parameter.
       ub4 capacity;     // The maximum number of bytes that can be stored in
@@ -134,39 +134,22 @@ namespace odb
       void* context;
     };
 
+    // The lob structure wraps data required for both parameter and result
+    // LOB type bindings.
     //
-    // These specialized auto_descriptor classes allows for transparent
-    // transferal of descriptors between auto_descriptor instances. This
-    // simplifies the implementation of a private copy of the shared image
-    // associated with queries.
-    //
-
-    class LIBODB_ORACLE_EXPORT lob_auto_descriptor:
-      public auto_descriptor<OCILobLocator>
+    struct LIBODB_ORACLE_EXPORT lob
     {
-      typedef auto_descriptor <OCILobLocator> base;
+      lob (): locator (0), buffer (0), position_context (0) {}
+
+      lob (lob&);
+      lob& operator= (lob&);
+
+      ~lob ();
 
     public:
-      lob_auto_descriptor (OCILobLocator* l = 0)
-        : base (l)
-      {
-      }
-
-      lob_auto_descriptor (lob_auto_descriptor& x)
-        : base (x.d_)
-      {
-        x.d_ = 0;
-      }
-
-      lob_auto_descriptor&
-      operator= (lob_auto_descriptor& x)
-      {
-        OCILobLocator* l (x.d_);
-        x.d_ = 0;
-        reset (l);
-
-        return *this;
-      }
+      OCILobLocator* locator;
+      details::buffer* buffer;
+      ub4* position_context;
     };
 
     //
