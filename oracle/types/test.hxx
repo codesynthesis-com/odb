@@ -8,7 +8,7 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
+#include <memory>   // std::auto_ptr
 
 #include <odb/core.hxx>
 
@@ -96,6 +96,9 @@ struct time_interval
   int nanosecond;
 };
 
+typedef std::auto_ptr<std::string> string_ptr;
+typedef std::vector<std::string> strings;
+
 #pragma db object
 struct object
 {
@@ -181,8 +184,15 @@ struct object
   #pragma db type ("NCLOB")
   std::string nclob_;
 
+  // Test containers of LOBs
+  //
+  #pragma db value_type ("CLOB")
+  strings strs_;
+
   // Test NULL value.
   //
+  #pragma db type ("VARCHAR(32)") null
+  string_ptr null_;
 
   bool
   operator== (const object& y) const
@@ -208,7 +218,9 @@ struct object
       raw_ == y.raw_ &&
       blob_ == y.blob_ &&
       clob_ == y.clob_ &&
-      nclob_ == y.nclob_;
+      nclob_ == y.nclob_ &&
+      strs_ == y.strs_ &&
+      ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);
   }
 };
 

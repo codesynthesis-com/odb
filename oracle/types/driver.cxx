@@ -65,6 +65,11 @@ main (int argc, char* argv[])
     o.raw_.assign (long_str.data (), long_str.data () + long_str.size ());
     o.blob_.assign (vlong_str.data (), vlong_str.data () + vlong_str.size ());
 
+    o.strs_.push_back (short_str);
+    o.strs_.push_back (medium_str);
+    o.strs_.push_back (long_str);
+    o.strs_.push_back (vlong_str);
+
     // Persist.
     //
     {

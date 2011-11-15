@@ -32,6 +32,7 @@ main (int argc, char* argv[])
     string long_str (20000, 'l');
 
     object o;
+
     o.varchar = "John Doe";
     o.clob = QString::fromStdString (string (150, 'c'));
     o.nclob = QString::fromStdString (long_str);
