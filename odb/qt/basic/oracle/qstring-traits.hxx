@@ -53,13 +53,13 @@ namespace odb
           is_null = false;
 
           const QByteArray& a (v.toUtf8 ());
+
           n = static_cast<std::size_t> (a.size ());
 
-          //@@ Assert or throw?
-          //
-          assert (n <= c);
+          if (n > c)
+            n = c;
 
-          std::memcpy (b, a.data (), n);
+          std::memcpy (b, a.constData (), n);
         }
       }
     };

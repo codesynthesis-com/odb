@@ -59,11 +59,10 @@ namespace odb
 
           n = static_cast<std::size_t> (v.size ());
 
-          //@@ Assert or throw?
-          //
-          assert (n <= c);
+          if (n > c)
+            n = c;
 
-          std::memcpy (b, v.data (), n);
+          std::memcpy (b, v.constData (), n);
         }
       }
     };
