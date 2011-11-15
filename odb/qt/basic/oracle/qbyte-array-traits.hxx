@@ -68,9 +68,95 @@ namespace odb
     };
 
     template <>
+    struct default_value_traits<QByteArray, id_blob>
+    {
+      typedef QByteArray value_type;
+      typedef QByteArray query_type;
+      typedef lob_callback image_type;
+
+      static void
+      set_value (QByteArray& v,
+                 result_callback_type& cb,
+                 void*& context,
+                 bool is_null)
+      {
+        if (is_null)
+          v = QByteArray ();
+        else
+        {
+          cb = &result_callback;
+          context = &v;
+        }
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const QByteArray& v)
+      {
+        if (v.isNull ())
+          is_null = true;
+        else
+        {
+          is_null = false;
+          cb = &param_callback;
+          context = &v;
+        }
+      }
+
+      static bool
+      result_callback (void* context,
+                       ub4*,
+                       void* b,
+                       ub4 s,
+                       chunk_position p)
+      {
+        QByteArray& v (*static_cast<QByteArray*> (context));
+
+        switch (p)
+        {
+        case one_chunk:
+        case first_chunk:
+          {
+            v.clear ();
+
+            // Falling through.
+          }
+        case next_chunk:
+        case last_chunk:
+          {
+            v.append (static_cast<char*> (b), static_cast<int> (s));
+            break;
+          }
+        }
+
+        return true;
+      }
+
+      static bool
+      param_callback (const void* context,
+                      ub4*,
+                      const void** b,
+                      ub4* s,
+                      chunk_position* p,
+                      void*,
+                      ub4)
+      {
+        const QByteArray& v (*static_cast<const QByteArray*> (context));
+
+        *p = one_chunk;
+        *s = static_cast<ub4> (v.size ());
+        *b = v.constData ();
+
+        return true;
+      }
+    };
+
+    template <>
     struct default_type_traits<QByteArray>
     {
-      static const database_type_id db_type_id = id_raw;
+      static const database_type_id db_type_id = id_blob;
     };
   }
 }
