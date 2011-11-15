@@ -156,7 +156,10 @@ namespace odb
     template <>
     struct default_type_traits<QByteArray>
     {
-      static const database_type_id db_type_id = id_blob;
+      // Allow use of QByteArray in query expressions by default by specifying
+      // the default type id as RAW.
+      //
+      static const database_type_id db_type_id = id_raw;
     };
   }
 }

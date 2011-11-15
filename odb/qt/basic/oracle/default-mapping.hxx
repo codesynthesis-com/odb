@@ -14,9 +14,9 @@
 //
 #pragma db value(QString) type("VARCHAR2(4000)") null
 
-// Map QByteArray to Oracle RAW by default. Allow NULL values by default as
+// Map QByteArray to Oracle BLOB by default. Allow NULL values by default as
 // QByteArray provides a null representation.
 //
-#pragma db value(QByteArray) type("RAW(2000)") null
+#pragma db value(QByteArray) type("BLOB") null
 
 #endif // ODB_QT_BASIC_ORACLE_DEFAULT_MAPPING_HXX
