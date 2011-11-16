@@ -1,10 +1,10 @@
-// file      : odb/oracle/errors.hxx
+// file      : odb/oracle/error.hxx
 // author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#ifndef ODB_ORACLE_ERRORS_HXX
-#define ODB_ORACLE_ERRORS_HXX
+#ifndef ODB_ORACLE_ERROR_HXX
+#define ODB_ORACLE_ERROR_HXX
 
 #include <odb/pre.hxx>
 
@@ -46,4 +46,4 @@ namespace odb
 
 #include <odb/post.hxx>
 
-#endif // ODB_ORACLE_ERRORS_HXX
+#endif // ODB_ORACLE_ERROR_HXX
