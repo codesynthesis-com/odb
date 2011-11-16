@@ -139,7 +139,7 @@ namespace odb
     //
     struct LIBODB_ORACLE_EXPORT lob
     {
-      lob (): locator (0), buffer (0), position_context (0) {}
+      lob (): locator (0), buffer (0), position (0) {}
 
       lob (lob&);
       lob& operator= (lob&);
@@ -149,7 +149,7 @@ namespace odb
     public:
       OCILobLocator* locator;
       details::buffer* buffer;
-      ub4* position_context;
+      ub4 position;
     };
 
     //

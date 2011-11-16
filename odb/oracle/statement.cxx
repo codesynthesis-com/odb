@@ -88,7 +88,7 @@ namespace odb
       {
         chunk_position pos;
         if (!(*b.callback->param) (b.context->param,
-                                   l->position_context,
+                                   &l->position,
                                    const_cast<const void**> (buffer),
                                    size,
                                    &pos,

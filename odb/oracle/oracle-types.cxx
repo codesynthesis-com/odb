@@ -29,7 +29,7 @@ namespace odb
     lob (lob& x)
         : locator (x.locator),
           buffer (x.buffer),
-          position_context (x.position_context)
+          position (x.position)
     {
       x.locator = 0;
     }
@@ -44,7 +44,7 @@ namespace odb
 
         locator = x.locator;
         buffer = x.buffer;
-        position_context = x.position_context;
+        position = x.position;
 
         x.locator = 0;
       }
