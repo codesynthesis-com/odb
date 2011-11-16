@@ -34,7 +34,7 @@ namespace odb
         std::string --host
         {
           "<str>",
-	  "PostgreSQL database host name or address (localhost by default)."
+          "PostgreSQL database host name or address (localhost by default)."
         };
 
         std::string --port
@@ -44,13 +44,13 @@ namespace odb
            Unix-domain connections."
         };
 
-	std::string --options-file
-	{
-	  "<file>"
+        std::string --options-file
+        {
+          "<file>",
           "Read additional options from <file>. Each option appearing on a
            separate line optionally followed by space and an option value.
            Empty lines and lines starting with \cb{#} are ignored."
-	};
+        };
       };
     }
   }
