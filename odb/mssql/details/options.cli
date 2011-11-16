@@ -1,0 +1,57 @@
+// file      : odb/mssql/details/options.cli
+// author    : Constantin Michael <constantin@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+include <string>;
+
+namespace odb
+{
+  namespace mssql
+  {
+    namespace details
+    {
+      class options
+      {
+        std::string --user | --username
+        {
+          "<name>",
+          "PostgreSQL database user."
+        };
+
+        std::string --password
+        {
+          "<str>",
+          "PostgreSQL database password."
+        };
+
+        std::string --database | --dbname
+        {
+          "<name>",
+          "PostgreSQL database name."
+        };
+
+        std::string --host
+        {
+          "<str>",
+          "PostgreSQL database host name or address (localhost by default)."
+        };
+
+        std::string --port
+        {
+          "<str>",
+          "PostgreSQL database port number or socket file name extension for
+           Unix-domain connections."
+        };
+
+        std::string --options-file
+        {
+          "<file>",
+          "Read additional options from <file>. Each option appearing on a
+           separate line optionally followed by space and an option value.
+           Empty lines and lines starting with \cb{#} are ignored."
+        };
+      };
+    }
+  }
+}
