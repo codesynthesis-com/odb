@@ -51,7 +51,7 @@ namespace odb
 
         std::string --options-file
         {
-          "<file>"
+          "<file>",
           "Read additional options from <file>. Each option appearing on a
            separate line optionally followed by space and an option value.
            Empty lines and lines starting with \cb{#} are ignored."
