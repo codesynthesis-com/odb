@@ -7,6 +7,7 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 cxx :=            \
+auto-handle.cxx   \
 exceptions.cxx
 
 

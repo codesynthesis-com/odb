@@ -13,9 +13,14 @@
 // in public headers.
 //
 #ifdef _WIN32
-typedef long          SQLINTEGER;
-typedef unsigned long SQLUINTEGER;
+typedef long           SQLINTEGER;
+typedef unsigned long  SQLUINTEGER;
 #endif
+
+typedef short          SQLSMALLINT;
+typedef unsigned short SQLUSMALLINT;
+
+typedef void*          SQLHANDLE;
 
 #include <odb/post.hxx>
 
