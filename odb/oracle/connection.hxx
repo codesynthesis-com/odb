@@ -29,7 +29,6 @@ namespace odb
 {
   namespace oracle
   {
-    class statement;
     class statement_cache;
 
     class connection;
