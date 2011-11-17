@@ -14,8 +14,6 @@
 
 #include <odb/database.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
 #include <odb/pgsql/tracer.hxx>

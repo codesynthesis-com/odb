@@ -13,8 +13,6 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/pgsql/details/export.hxx>
 
 namespace odb

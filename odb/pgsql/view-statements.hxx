@@ -13,8 +13,6 @@
 #include <odb/forward.hxx>
 #include <odb/traits.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
 #include <odb/pgsql/statement.hxx>
