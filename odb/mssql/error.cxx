@@ -15,8 +15,10 @@ namespace odb
   namespace mssql
   {
     static void
-    translate_error (SQLHANDLE h, SQLSMALLINT htype, connection* /*conn*/)
+    translate_error (SQLHANDLE h, SQLSMALLINT htype, connection* conn)
     {
+      SQLRETURN r;
+
       char sqlstate[SQL_SQLSTATE_SIZE + 1];
       SQLINTEGER native_code; // Will be 0 if no natve code.
       char msg[512];          // Will be truncated if doesn't fit.
@@ -26,21 +28,20 @@ namespace odb
 
       for (SQLSMALLINT i (1);; ++i)
       {
-        SQLRETURN r (SQLGetDiagRec (htype,
-                                    h,
-                                    i,
-                                    (SQLCHAR*) sqlstate,
-                                    &native_code,
-                                    (SQLCHAR*) msg,
-                                    sizeof (msg),
-                                    &msg_size));
+         r = SQLGetDiagRec (htype,
+                            h,
+                            i,
+                            (SQLCHAR*) sqlstate,
+                            &native_code,
+                            (SQLCHAR*) msg,
+                            sizeof (msg),
+                            &msg_size);
 
         if (r == SQL_NO_DATA)
           break;
-        else if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
+        else if (SQL_SUCCEEDED (r))
         {
-          //@@ TODO: translate timeout, connection_lost exceptions
-          //@@ TODO: if conn != 0, mark it as failed for certain errors
+          //@@ TODO: translate deadlock, timeout, connection_lost exceptions
 
           e.append (native_code, sqlstate, msg);
         }
@@ -52,17 +53,31 @@ namespace odb
       if (e.size () == 0)
         e.append (0, "?????", "no diagnostic record (using wrong handle?)");
 
+      // Check if the connection has gone bad and mark it as failed if so.
+      //
+      if (conn != 0)
+      {
+        SQLUINTEGER dead (0);
+        r = SQLGetConnectAttr (conn->handle (),
+                               SQL_ATTR_CONNECTION_DEAD,
+                               (SQLPOINTER) &dead,
+                               SQL_IS_UINTEGER,
+                               0);
+
+        if (!SQL_SUCCEEDED (r) || dead == SQL_CD_TRUE)
+          conn->mark_failed ();
+      }
+
       throw e;
     }
 
     void
-    translate_error (connection& /*c*/)
+    translate_error (connection& c)
     {
-      //@@ TODO enable (also header inclusion)
-      // translate_error (c.handle (), SQL_HANDLE_DBC, &c);
+      translate_error (c.handle (), SQL_HANDLE_DBC, &c);
     }
 
-    LIBODB_MSSQL_EXPORT void
+    void
     translate_error (SQLHANDLE h, SQLSMALLINT htype)
     {
       translate_error (h, htype, 0);
