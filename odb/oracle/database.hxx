@@ -14,8 +14,6 @@
 
 #include <odb/database.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
 #include <odb/oracle/tracer.hxx>

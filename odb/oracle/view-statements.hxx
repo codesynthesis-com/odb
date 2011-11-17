@@ -13,8 +13,6 @@
 #include <odb/forward.hxx>
 #include <odb/traits.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/oracle/oracle-types.hxx>
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/statement.hxx>

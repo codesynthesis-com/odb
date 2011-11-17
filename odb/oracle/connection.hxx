@@ -8,7 +8,6 @@
 
 #include <odb/pre.hxx>
 
-#include <vector>
 #include <memory> // std::auto_ptr
 
 #include <odb/forward.hxx>

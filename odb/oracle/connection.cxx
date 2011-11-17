@@ -4,7 +4,6 @@
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <string>
-#include <sstream>
 
 #include <oci.h>
 
