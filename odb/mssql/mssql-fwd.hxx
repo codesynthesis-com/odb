@@ -22,6 +22,21 @@ typedef unsigned short SQLUSMALLINT;
 
 typedef void*          SQLHANDLE;
 typedef SQLHANDLE      SQLHENV;
+typedef SQLHANDLE      SQLHDBC;
+typedef SQLHANDLE      SQLHSTMT;
+typedef SQLHANDLE      SQLHDESC;
+
+// If you get a redefinition error or warning for one of these macros,
+// then that means you included this header (or one that includes it),
+// before <sql.h> or <sqlext.h>. As a general rule, include <sql.h> or
+// <sqlext.h> before any of the ODB headers.
+//
+#ifndef SQL_HANDLE_ENV
+#  define SQL_HANDLE_ENV  1
+#  define SQL_HANDLE_DBC  2
+#  define SQL_HANDLE_STMT 3
+#  define SQL_HANDLE_DESC 4
+#endif
 
 #include <odb/post.hxx>
 

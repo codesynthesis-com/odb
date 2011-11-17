@@ -228,7 +228,6 @@ namespace odb
     {
     }
 
-    /*
     transaction_impl* database::
     begin ()
     {
@@ -241,6 +240,5 @@ namespace odb
       connection_ptr c (factory_->connect ());
       return c.release ();
     }
-    */
   }
 }

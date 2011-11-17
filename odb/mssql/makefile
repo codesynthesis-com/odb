@@ -6,11 +6,14 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-cxx :=            \
-auto-handle.cxx   \
-database.cxx      \
-error.cxx         \
-exceptions.cxx
+cxx :=                    \
+auto-handle.cxx           \
+connection.cxx            \
+connection-factory.cxx    \
+database.cxx              \
+error.cxx                 \
+exceptions.cxx            \
+transaction-impl.cxx
 
 
 cli_tun := details/options.cli

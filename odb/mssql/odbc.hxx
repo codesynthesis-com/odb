@@ -8,6 +8,12 @@
 
 #include <odb/pre.hxx>
 
+// This file should always be included before mssql-fwd.hxx.
+//
+#ifdef ODB_MSSQL_MSSQL_FWD_HXX
+#  error odb/mssql/mssql-fwd.hxx included before odb/mssql/odbc.hxx
+#endif
+
 #ifdef _WIN32
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN

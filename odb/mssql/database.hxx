@@ -19,8 +19,8 @@
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
 //#include <odb/mssql/tracer.hxx>
-//#include <odb/mssql/connection.hxx>
-//#include <odb/mssql/connection-factory.hxx>
+#include <odb/mssql/connection.hxx>
+#include <odb/mssql/connection-factory.hxx>
 #include <odb/mssql/auto-handle.hxx>
 #include <odb/mssql/mssql-fwd.hxx>
 
@@ -84,12 +84,12 @@ namespace odb
 
 
     public:
-      //virtual transaction_impl*
-      //begin ();
+      virtual transaction_impl*
+      begin ();
 
     public:
-      //connection_ptr
-      //connection ();
+      connection_ptr
+      connection ();
 
     public:
       /*
@@ -168,8 +168,8 @@ namespace odb
       ~database ();
 
     protected:
-      //virtual odb::connection*
-      //connection_ ();
+      virtual odb::connection*
+      connection_ ();
 
     private:
       /*
