@@ -28,7 +28,6 @@ namespace odb
 {
   namespace pgsql
   {
-    class statement;
     class statement_cache;
 
     class connection;
