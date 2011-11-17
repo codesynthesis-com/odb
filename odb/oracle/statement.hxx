@@ -228,7 +228,7 @@ namespace odb
           } number;
 
           unsigned long long integer;
-        }id;
+        } id;
 
         sb2 indicator;
       };
