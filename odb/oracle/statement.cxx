@@ -19,6 +19,8 @@
 #include <odb/oracle/error.hxx>
 #include <odb/oracle/exceptions.hxx>
 
+#include <odb/oracle/details/number.hxx>
+
 using namespace std;
 
 namespace odb

@@ -20,7 +20,6 @@
 #include <odb/oracle/oracle-fwd.hxx>
 #include <odb/oracle/auto-handle.hxx>
 
-#include <odb/oracle/details/number.hxx>
 #include <odb/oracle/details/export.hxx>
 
 namespace odb
