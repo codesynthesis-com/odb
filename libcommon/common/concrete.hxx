@@ -38,6 +38,13 @@ namespace odb_db = odb::pgsql;
 
 namespace odb_db = odb::oracle;
 
+#elif defined(DATABASE_MSSQL)
+
+#include <odb/mssql/database.hxx>
+#include <odb/mssql/transaction.hxx>
+
+namespace odb_db = odb::mssql;
+
 #endif
 
 #endif // LIBCOMMON_COMMON_CONCRETE_HXX

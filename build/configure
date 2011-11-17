@@ -26,9 +26,10 @@ $echo "(1) MySQL"
 $echo "(2) SQLite"
 $echo "(3) PostgreSQL"
 $echo "(4) Oracle"
+$echo "(5) Microsoft SQL Server"
 $echo
 
-db_id=`read_option "mysql sqlite pgsql oracle"`
+db_id=`read_option "mysql sqlite pgsql oracle mssql"`
 
 echo "db_id := $db_id" >$1
 

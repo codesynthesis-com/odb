@@ -25,6 +25,9 @@
 #elif defined(DATABASE_ORACLE)
 #  include <odb/oracle/database.hxx>
 #  include <odb/oracle/connection-factory.hxx>
+#elif defined(DATABASE_MSSQL)
+#  include <odb/mssql/database.hxx>
+#  include <odb/mssql/connection-factory.hxx>
 #else
 #  error unknown database
 #endif
@@ -42,6 +45,8 @@ namespace sqlite = odb::sqlite;
 namespace pgsql = odb::pgsql;
 #elif defined(DATABASE_ORACLE)
 namespace oracle = odb::oracle;
+#elif defined(DATABASE_MSSQL)
+namespace mssql = odb::mssql;
 #endif
 
 auto_ptr<database>
@@ -124,6 +129,14 @@ create_database (int& argc,
   // to UTF-8.
   //
   db.reset (new oracle::database (argc, argv, false, 873, 873, 0, f));
+
+#elif defined(DATABASE_MSSQL)
+  auto_ptr<mssql::connection_factory> f;
+
+  if (max_connections != 0)
+    f.reset (new mssql::connection_pool_factory (max_connections));
+
+  db.reset (new mssql::database (argc, argv, false, 0, f));
 #endif
 
   return db;
