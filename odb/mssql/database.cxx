@@ -47,6 +47,11 @@ namespace odb
         if (!SQL_SUCCEEDED (r))
           translate_error (environment_, SQL_HANDLE_ENV);
       }
+
+      if (factory_.get () == 0)
+        factory_.reset (new connection_pool_factory ());
+
+      factory_->database (*this);
     }
 
     /*
@@ -113,21 +118,16 @@ namespace odb
     }
     */
 
-    /*
     database::
     database (int& argc,
               char* argv[],
               bool erase,
-              ub2 charset,
-              ub2 ncharset,
-              OCIEnv* environment,
+              SQLHENV environment,
               auto_ptr<connection_factory> factory)
-        : port_ (0),
-          charset_ (charset),
-          ncharset_ (ncharset),
-          environment_ (environment),
+        : environment_ (environment),
           factory_ (factory)
     {
+      /*
       if (environment_ == 0)
       {
         sword s (OCIEnvNlsCreate (&environment_,
@@ -209,13 +209,13 @@ namespace odb
         oss << e;
         throw cli_exception (oss.str ());
       }
+      */
 
       if (factory_.get () == 0)
         factory_.reset (new connection_pool_factory ());
 
       factory_->database (*this);
     }
-    */
 
     void database::
     print_usage (std::ostream& os)

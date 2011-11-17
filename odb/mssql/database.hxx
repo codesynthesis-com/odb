@@ -68,16 +68,14 @@ namespace odb
       // argv array and the argc count is updated accordingly. This
       // constructor may throw the cli_exception exception.
       //
+      */
+
       database (int& argc,
                 char* argv[],
                 bool erase = false,
-                ub2 charset = 0,
-                ub2 ncharset = 0,
-                OCIEnv* environment = 0,
+                SQLHENV environment = 0,
                 std::auto_ptr<connection_factory> =
                   std::auto_ptr<connection_factory> (0));
-
-      */
 
       static void
       print_usage (std::ostream&);
