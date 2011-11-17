@@ -56,16 +56,16 @@ namespace odb
     }
 
     void
-    translate_error (const auto_handle<SQL_HANDLE_ENV>& h)
-    {
-      translate_error (h, SQL_HANDLE_ENV, 0);
-    }
-
-    void
     translate_error (connection& /*c*/)
     {
       //@@ TODO enable (also header inclusion)
       // translate_error (c.handle (), SQL_HANDLE_DBC, &c);
+    }
+
+    LIBODB_MSSQL_EXPORT void
+    translate_error (SQLHANDLE h, SQLSMALLINT htype)
+    {
+      translate_error (h, htype, 0);
     }
   }
 }

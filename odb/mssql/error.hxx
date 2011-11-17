@@ -10,7 +10,7 @@
 
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>     // connection
-#include <odb/mssql/auto-handle.hxx>
+#include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/details/export.hxx>
 
 namespace odb
@@ -18,10 +18,10 @@ namespace odb
   namespace mssql
   {
     LIBODB_MSSQL_EXPORT void
-    translate_error (const auto_handle<SQL_HANDLE_ENV>&);
+    translate_error (connection&);
 
     LIBODB_MSSQL_EXPORT void
-    translate_error (connection&);
+    translate_error (SQLHANDLE, SQLSMALLINT htype);
   }
 }
 

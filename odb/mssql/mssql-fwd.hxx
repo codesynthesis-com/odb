@@ -21,6 +21,7 @@ typedef short          SQLSMALLINT;
 typedef unsigned short SQLUSMALLINT;
 
 typedef void*          SQLHANDLE;
+typedef SQLHANDLE      SQLHENV;
 
 #include <odb/post.hxx>
 
