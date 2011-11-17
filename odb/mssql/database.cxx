@@ -7,7 +7,7 @@
 
 #include <sstream>
 
-#include <odb/mssql/odbc.hxx>
+#include <odb/mssql/mssql.hxx>
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/exceptions.hxx>
 #include <odb/mssql/error.hxx>

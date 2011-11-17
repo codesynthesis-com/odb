@@ -1,17 +1,17 @@
-// file      : odb/mssql/odbc.hxx
+// file      : odb/mssql/mssql.hxx
 // author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#ifndef ODB_MSSQL_ODBC_HXX
-#define ODB_MSSQL_ODBC_HXX
+#ifndef ODB_MSSQL_MSSQL_HXX
+#define ODB_MSSQL_MSSQL_HXX
 
 #include <odb/pre.hxx>
 
 // This file should always be included before mssql-fwd.hxx.
 //
 #ifdef ODB_MSSQL_MSSQL_FWD_HXX
-#  error odb/mssql/mssql-fwd.hxx included before odb/mssql/odbc.hxx
+#  error odb/mssql/mssql-fwd.hxx included before odb/mssql/mssql.hxx
 #endif
 
 #ifdef _WIN32
@@ -28,4 +28,4 @@
 
 #include <odb/post.hxx>
 
-#endif // ODB_MSSQL_ODBC_HXX
+#endif // ODB_MSSQL_MSSQL_HXX

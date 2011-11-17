@@ -3,9 +3,9 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <odb/mssql/odbc.hxx>
+#include <odb/mssql/mssql.hxx>
 #include <odb/mssql/error.hxx>
-//#include <odb/mssql/connection.hxx>
+#include <odb/mssql/connection.hxx>
 #include <odb/mssql/exceptions.hxx>
 
 using namespace std;

@@ -7,7 +7,7 @@
 
 //#include <string>
 
-#include <odb/mssql/odbc.hxx>
+#include <odb/mssql/mssql.hxx>
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/connection.hxx>
 //#include <odb/mssql/transaction.hxx>
