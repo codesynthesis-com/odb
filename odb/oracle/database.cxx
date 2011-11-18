@@ -49,6 +49,11 @@ namespace odb
 
         auto_environment_.reset (environment_);
       }
+
+      if (factory_.get () == 0)
+        factory_.reset (new connection_pool_factory ());
+
+      factory_->database (*this);
     }
 
     database::
