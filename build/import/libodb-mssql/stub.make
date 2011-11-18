@@ -13,7 +13,7 @@ ifdef libodb_mssql_installed
 
 ifeq ($(libodb_mssql_installed),y)
 
-$(call export,l: -lodb-mssql -lodb,cpp-options: )
+$(call export,l: -lodb-mssql -lodb -lodbc,cpp-options: )
 
 else
 
