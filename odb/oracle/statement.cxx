@@ -302,6 +302,7 @@ namespace odb
           udata_ = new unbind[un];
       }
 
+      bool seen_lob (false);
       sword r;
       OCIError* err (conn_.error_handle ());
       OCIEnv* env (conn_.database ().environment ());
@@ -505,6 +506,8 @@ namespace odb
         case bind::clob:
         case bind::nclob:
           {
+            seen_lob = true;
+
             lob* l (static_cast<lob*> (b->buffer));
 
             if (l->buffer == 0)
@@ -588,7 +591,7 @@ namespace odb
             translate_error (err, r);
         }
 
-        if (b->type == bind::string || b->type == bind::nstring)
+        if (seen_lob && (b->type == bind::string || b->type == bind::nstring))
         {
           // Set the maximum data size for all string types. If this is not set
           // Oracle server will implicitly calculate this maximum size. If the
@@ -600,7 +603,7 @@ namespace odb
           r = OCIAttrSet (h,
                           OCI_HTYPE_BIND,
                           &n,
-                          9,
+                          0,
                           OCI_ATTR_MAXDATA_SIZE,
                           err);
 
