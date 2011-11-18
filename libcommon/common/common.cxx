@@ -136,7 +136,7 @@ create_database (int& argc,
   if (max_connections != 0)
     f.reset (new mssql::connection_pool_factory (max_connections));
 
-  db.reset (new mssql::database (argc, argv, false, 0, f));
+  db.reset (new mssql::database (argc, argv, false, "", 0, f));
 #endif
 
   return db;
