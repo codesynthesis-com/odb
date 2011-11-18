@@ -13,35 +13,42 @@ namespace odb
     {
       class options
       {
-        std::string --user | --username
+        std::string --user | -U
         {
           "<name>",
-          "PostgreSQL database user."
+          "SQL Server database user. If not specified, then Windows
+           authentication is used."
         };
 
-        std::string --password
+        std::string --password | -P
         {
           "<str>",
-          "PostgreSQL database password."
+          "SQL Server database password. Omit this option if the user
+           password is blank or Windows authentication is used."
         };
 
-        std::string --database | --dbname
+        std::string --database | -d
         {
           "<name>",
-          "PostgreSQL database name."
+          "SQL Server database name. If not specified, then the default
+           database for this user is used."
         };
 
-        std::string --host
+        std::string --server | -S
         {
-          "<str>",
-          "PostgreSQL database host name or address (localhost by default)."
+          "<addr>",
+          "SQL Server instance address in the
+           \c{[\i{protocol}\b{:}]\i{host}[\b{\\}\i{instance}][\b{,}\i{port}]}
+           format, where \ci{protocol} can be \cb{tcp} (TCP/IP),
+           \cb{lpc} (shared memory), or \cb{np} (named pipe). If not specifid,
+           then \cb{localhost} is used."
         };
 
-        std::string --port
+        std::string --driver
         {
-          "<str>",
-          "PostgreSQL database port number or socket file name extension for
-           Unix-domain connections."
+          "<name>",
+          "SQL Server Native Client ODBC driver name. If not specified, then
+           the latest available driver is used."
         };
 
         std::string --options-file
