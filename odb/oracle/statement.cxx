@@ -577,12 +577,31 @@ namespace odb
         if (b->type == bind::nstring || b->type == bind::nclob)
         {
           ub1 form (SQLCS_NCHAR);
-
           r = OCIAttrSet (h,
                           OCI_HTYPE_BIND,
                           &form,
                           0,
                           OCI_ATTR_CHARSET_FORM,
+                          err);
+
+          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+            translate_error (err, r);
+        }
+
+        if (b->type == bind::string || b->type == bind::nstring)
+        {
+          // Set the maximum data size for all string types. If this is not set
+          // Oracle server will implicitly calculate this maximum size. If the
+          // calculated size exceeds 4000 bytes (which may occur if a character
+          // set conversion is required) and the string is bound after a LOB
+          // binding, the server will return an ORA-24816 error.
+          //
+          sb4 n (4000);
+          r = OCIAttrSet (h,
+                          OCI_HTYPE_BIND,
+                          &n,
+                          9,
+                          OCI_ATTR_MAXDATA_SIZE,
                           err);
 
           if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
