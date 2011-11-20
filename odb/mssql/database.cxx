@@ -264,7 +264,7 @@ namespace odb
                            0);
 
         if (!SQL_SUCCEEDED (r))
-          translate_error (environment_, SQL_HANDLE_ENV);
+          translate_error (r, environment_, SQL_HANDLE_ENV);
       }
 
       // Build the connection string.
@@ -292,7 +292,7 @@ namespace odb
             if (r == SQL_NO_DATA)
               break;
             else if (!SQL_SUCCEEDED (r))
-              translate_error (environment_, SQL_HANDLE_ENV);
+              translate_error (r, environment_, SQL_HANDLE_ENV);
 
             // Native Client 9.0 (first version).
             //

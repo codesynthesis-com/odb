@@ -20,13 +20,15 @@ namespace odb
   namespace mssql
   {
     LIBODB_MSSQL_EXPORT void
-    translate_error (connection&);
+    translate_error (SQLRETURN, connection&);
 
     LIBODB_MSSQL_EXPORT void
-    translate_error (connection&, const auto_handle<SQL_HANDLE_STMT>&);
+    translate_error (SQLRETURN,
+                     connection&,
+                     const auto_handle<SQL_HANDLE_STMT>&);
 
     LIBODB_MSSQL_EXPORT void
-    translate_error (SQLHANDLE, SQLSMALLINT htype);
+    translate_error (SQLRETURN, SQLHANDLE, SQLSMALLINT htype);
   }
 }
 

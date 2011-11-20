@@ -37,7 +37,7 @@ namespace odb
         r = SQLAllocHandle (SQL_HANDLE_DBC, db_.environment (), &h);
 
         if (!SQL_SUCCEEDED (r))
-          translate_error (db_.environment (), SQL_HANDLE_ENV);
+          translate_error (r, db_.environment (), SQL_HANDLE_ENV);
 
         handle_.reset (h);
       }
@@ -59,7 +59,7 @@ namespace odb
           // Still use the handle version of translate_error since there
           // is no connection.
           //
-          translate_error (handle_, SQL_HANDLE_DBC);
+          translate_error (r, handle_, SQL_HANDLE_DBC);
 
         state_ = state_connected;
       }

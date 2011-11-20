@@ -17,10 +17,40 @@ namespace odb
   namespace mssql
   {
     static void
-    translate_error (SQLHANDLE h, SQLSMALLINT htype, connection* conn)
+    translate_error (SQLRETURN r,
+                     SQLHANDLE h,
+                     SQLSMALLINT htype,
+                     connection* conn)
     {
-      SQLRETURN r;
+      // First see if we have one of the errors indicated via the
+      // return error code.
+      //
+      switch (r)
+      {
+      case SQL_STILL_EXECUTING:
+        {
+          throw database_exception (0, "?????", "statement still executing");
+          break;
+        }
+      case SQL_NEED_DATA:
+      case SQL_NO_DATA:
+#if ODBCVER >= 0x0380
+      case SQL_PARAM_DATA_AVAILABLE:
+#endif
+        {
+          throw database_exception (
+            0, "?????", "unhandled SQL_*_DATA condition");
+          break;
+        }
+      case SQL_INVALID_HANDLE:
+        {
+          throw database_exception (0, "?????", "invalid handle");
+          break;
+        }
+      }
 
+      // Otherwise the diagnostics is stored in the handle.
+      //
       char sqlstate[SQL_SQLSTATE_SIZE + 1];
       SQLINTEGER native_code; // Will be 0 if no natve code.
       char msg[512];          // Will be truncated if doesn't fit.
@@ -161,21 +191,23 @@ namespace odb
     }
 
     void
-    translate_error (connection& c)
+    translate_error (SQLRETURN r, connection& c)
     {
-      translate_error (c.handle (), SQL_HANDLE_DBC, &c);
+      translate_error (r, c.handle (), SQL_HANDLE_DBC, &c);
     }
 
     void
-    translate_error (connection& c, const auto_handle<SQL_HANDLE_STMT>& h)
+    translate_error (SQLRETURN r,
+                     connection& c,
+                     const auto_handle<SQL_HANDLE_STMT>& h)
     {
-      translate_error (h, SQL_HANDLE_STMT, &c);
+      translate_error (r, h, SQL_HANDLE_STMT, &c);
     }
 
     void
-    translate_error (SQLHANDLE h, SQLSMALLINT htype)
+    translate_error (SQLRETURN r, SQLHANDLE h, SQLSMALLINT htype)
     {
-      translate_error (h, htype, 0);
+      translate_error (r, h, htype, 0);
     }
   }
 }

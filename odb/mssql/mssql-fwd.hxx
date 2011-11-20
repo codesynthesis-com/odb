@@ -20,6 +20,8 @@ typedef unsigned long  SQLUINTEGER;
 typedef short          SQLSMALLINT;
 typedef unsigned short SQLUSMALLINT;
 
+typedef SQLSMALLINT    SQLRETURN;
+
 typedef void*          SQLHANDLE;
 typedef SQLHANDLE      SQLHENV;
 typedef SQLHANDLE      SQLHDBC;
