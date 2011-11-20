@@ -10,7 +10,7 @@
 #include <odb/mssql/mssql.hxx>
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/connection.hxx>
-//#include <odb/mssql/transaction.hxx>
+#include <odb/mssql/transaction.hxx>
 //#include <odb/mssql/statement.hxx>
 //#include <odb/mssql/statement-cache.hxx>
 #include <odb/mssql/error.hxx>
@@ -42,6 +42,19 @@ namespace odb
         handle_.reset (h);
       }
 
+      // Set the manual commit mode.
+      //
+      r = SQLSetConnectAttr (handle_,
+                             SQL_ATTR_AUTOCOMMIT,
+                             SQL_AUTOCOMMIT_OFF,
+                             SQL_IS_UINTEGER);
+
+      if (!SQL_SUCCEEDED (r))
+        // Still use the handle version of translate_error since there
+        // is no connection yet.
+        //
+        translate_error (r, handle_, SQL_HANDLE_DBC);
+
       // Connect.
       //
       {
@@ -56,9 +69,6 @@ namespace odb
                               SQL_DRIVER_NOPROMPT);
 
         if (!SQL_SUCCEEDED (r))
-          // Still use the handle version of translate_error since there
-          // is no connection.
-          //
           translate_error (r, handle_, SQL_HANDLE_DBC);
 
         state_ = state_connected;
@@ -93,9 +103,7 @@ namespace odb
     transaction_impl* connection::
     begin ()
     {
-      //@@
-      //return new transaction_impl (connection_ptr (inc_ref (this)));
-      return 0;
+      return new transaction_impl (connection_ptr (inc_ref (this)));
     }
 
     unsigned long long connection::

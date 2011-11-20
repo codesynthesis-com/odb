@@ -5,6 +5,7 @@
 
 #include <odb/tracer.hxx>
 
+#include <odb/mssql/mssql.hxx>
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/connection.hxx>
 #include <odb/mssql/transaction-impl.hxx>
@@ -34,7 +35,6 @@ namespace odb
     void transaction_impl::
     start ()
     {
-      /*
       // Grab a connection if we don't already have one.
       //
       if (connection_ == 0)
@@ -43,57 +43,65 @@ namespace odb
         odb::transaction_impl::connection_ = connection_.get ();
       }
 
+      /*
+        @@ TODO
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
           t->execute (*connection_, "BEGIN");
       }
-
-      if (mssql_real_query (connection_->handle (), "begin", 5) != 0)
-        translate_error (*connection_);
       */
+
+      // In ODBC a transaction is started automatically before the first
+      // statement is executed.
+      //
     }
 
     void transaction_impl::
     commit ()
     {
       /*
-      connection_->clear ();
-
+        @@ TODO
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
           t->execute (*connection_, "COMMIT");
       }
+      */
 
-      if (mssql_real_query (connection_->handle (), "commit", 6) != 0)
-        translate_error (*connection_);
+      SQLRETURN r (
+        SQLEndTran (SQL_HANDLE_DBC, connection_->handle (), SQL_COMMIT));
 
-      // Release the connection.
+      if (!SQL_SUCCEEDED (r))
+        translate_error (r, *connection_, true);
+
+      // We cannot release the connection early since we may still need
+      // to free (query) statements.
       //
       //connection_.reset ();
-      */
     }
 
     void transaction_impl::
     rollback ()
     {
       /*
-      connection_->clear ();
-
+        @@ TODO
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
           t->execute (*connection_, "ROLLBACK");
       }
+      */
 
-      if (mssql_real_query (connection_->handle (), "rollback", 8) != 0)
-        translate_error (*connection_);
+      SQLRETURN r (
+        SQLEndTran (SQL_HANDLE_DBC, connection_->handle (), SQL_ROLLBACK));
+
+      if (!SQL_SUCCEEDED (r))
+        translate_error (r, *connection_, true);
 
       // Release the connection.
       //
       //connection_.reset ();
-      */
     }
   }
 }

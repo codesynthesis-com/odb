@@ -20,7 +20,8 @@ namespace odb
     translate_error (SQLRETURN r,
                      SQLHANDLE h,
                      SQLSMALLINT htype,
-                     connection* conn)
+                     connection* conn,
+                     bool end_tran)
     {
       // First see if we have one of the errors indicated via the
       // return error code.
@@ -120,6 +121,18 @@ namespace odb
             break;
           }
 
+          // If a call to SQLEndTran() fails, then the connection is
+          // put into the so called "suspended state" and should be
+          // disconnected unless we know the transaction was rolled
+          // back. See SQLEndTran() documentation for details.
+          //
+          if (end_tran &&
+              s != "25S03" && // Transaction is rolled back.
+              s != "40001" && // Serialization failure.
+              s != "40002" && // Integrity constraint.
+              s != "HYC00")   // Optional feature not implemented.
+            conn->mark_failed ();
+
           if (c != code_none && c != nc)
           {
             // Several different codes.
@@ -173,7 +186,12 @@ namespace odb
             string s (sqlstate);
 
             if (s == "08S01" || // Link failure.
-                s == "HYT01")   // Connection timeout.
+                s == "HYT01" || // Connection timeout.
+                (end_tran &&
+                 s != "25S03" &&
+                 s != "40001" &&
+                 s != "40002" &&
+                 s != "HYC00"))
               conn->mark_failed ();
           }
 
@@ -191,9 +209,9 @@ namespace odb
     }
 
     void
-    translate_error (SQLRETURN r, connection& c)
+    translate_error (SQLRETURN r, connection& c, bool end_tran)
     {
-      translate_error (r, c.handle (), SQL_HANDLE_DBC, &c);
+      translate_error (r, c.handle (), SQL_HANDLE_DBC, &c, end_tran);
     }
 
     void
@@ -201,13 +219,13 @@ namespace odb
                      connection& c,
                      const auto_handle<SQL_HANDLE_STMT>& h)
     {
-      translate_error (r, h, SQL_HANDLE_STMT, &c);
+      translate_error (r, h, SQL_HANDLE_STMT, &c, false);
     }
 
     void
     translate_error (SQLRETURN r, SQLHANDLE h, SQLSMALLINT htype)
     {
-      translate_error (r, h, htype, 0);
+      translate_error (r, h, htype, 0, false);
     }
   }
 }

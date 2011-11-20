@@ -20,7 +20,7 @@ namespace odb
   namespace mssql
   {
     LIBODB_MSSQL_EXPORT void
-    translate_error (SQLRETURN, connection&);
+    translate_error (SQLRETURN, connection&, bool end_tran = false);
 
     LIBODB_MSSQL_EXPORT void
     translate_error (SQLRETURN,
