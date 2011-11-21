@@ -154,21 +154,24 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+m4_ifelse(__value__(odb_options),,,
+m4_dnl
   <ItemGroup>
 __custom_build_entry__(
 test.hxx,
 odb test.hxx,
 odb.exe __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options), @database@, __value__(database)) -DHAVE_CONFIG_VC_H -I$(SolutionDir)\..\libcommon)) test.hxx,
 test-odb.hxx;test-odb.ixx;test-odb.cxx)
-  </ItemGroup>
+  </ItemGroup>)
   <ItemGroup>
+m4_ifelse(__value__(odb_options),,,
 __header_entry__(test-odb.hxx)
-__header_entry__(test-odb.ixx)
+__header_entry__(test-odb.ixx))
 __header_entries__(extra_headers)
   </ItemGroup>
   <ItemGroup>
 __source_entry__(driver.cxx)
-__source_entry__(test-odb.cxx)
+m4_ifelse(__value__(odb_options),,,__source_entry__(test-odb.cxx))
 __source_entries__(extra_sources)
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

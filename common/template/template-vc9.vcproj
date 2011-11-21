@@ -337,7 +337,7 @@
 			UniqueIdentifier="{__uuid__()}"
 			>
 __source_entry__(driver.cxx)
-__source_entry__(test-odb.cxx)
+m4_ifelse(__value__(odb_options),,,__source_entry__(test-odb.cxx))
 __source_entries__(extra_sources)
 		</Filter>
 		<Filter
@@ -345,13 +345,14 @@ __source_entries__(extra_sources)
 			Filter="h;hxx;ixx;txx"
 			UniqueIdentifier="{__uuid__()}"
 			>
+m4_ifelse(__value__(odb_options),,,
 __file_entry_custom_build__(
 test.hxx,
 odb test.hxx,
 odb.exe __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options), @database@, __value__(database)) -DHAVE_CONFIG_VC_H -I$(SolutionDir)\..\libcommon)) test.hxx,
 test-odb.hxx;test-odb.ixx;test-odb.cxx)
 __file_entry__(test-odb.hxx)
-__file_entry__(test-odb.ixx)
+__file_entry__(test-odb.ixx))
 __file_entries__(extra_headers)
 		</Filter>
 	</Files>

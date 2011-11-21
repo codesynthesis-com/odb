@@ -14,6 +14,8 @@ AM_CPPFLAGS += -I'$(builddir)' -I'$(srcdir)'
 TESTS=$(top_builddir)/tester
 TESTS_ENVIRONMENT=top_builddir=$(top_builddir); export top_builddir;
 
+m4_ifelse(__value__(odb_options),,,
+
 # ODB compilation.
 #
 driver_SOURCES += test.hxx
@@ -27,3 +29,4 @@ ODBCPPFLAGS = @ODBCPPFLAGS@
 
 test-odb.hxx: test.hxx
 	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options) $<
+)
