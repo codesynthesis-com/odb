@@ -127,6 +127,11 @@ namespace odb
         state_failed
       } state_;
 
+      // Statement handle for direct execution. It should be after the
+      // connection handle to be destroyed in the correct order.
+      //
+      auto_handle<SQL_HANDLE_STMT> direct_stmt_;
+
       //std::auto_ptr<statement_cache_type> statement_cache_;
     };
   }
