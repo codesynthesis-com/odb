@@ -50,7 +50,7 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(build_tests)))
 
 name := common
 $(dist): name := $(name)
-$(dist): export dirs := $(tests)
+$(dist): export dirs := $(filter-out include,$(tests))
 $(dist): export thread_dirs := $(thread_tests)
 $(dist): export extra_dist :=  test.bat $(call vc9slns,$(name)) \
 $(call vc10slns,$(name))
