@@ -38,8 +38,8 @@ namespace odb
         else
         {
           short y (0);
-          unsigned char m (0), d (0), h (0), min (0), s (0);
-          details::get_date (b, y, m, d, h, min, s);
+          unsigned char m (0), d (0), h (0), minute (0), s (0);
+          details::get_date (b, y, m, d, h, minute, s);
 
           v.setDate (y, m, d);
         }

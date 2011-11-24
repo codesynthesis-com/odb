@@ -33,15 +33,15 @@ namespace odb
         else
         {
           sb2 y (0);
-          ub1 m (0), d (0), h (0), min (0), s (0);
+          ub1 m (0), d (0), h (0), minute (0), s (0);
           ub4 ns (0);
-          i.get (y, m, d, h, min, s, ns);
+          i.get (y, m, d, h, minute, s, ns);
 
           v = QDateTime (QDate (static_cast<int> (y),
                                 static_cast<int> (m),
                                 static_cast<int> (d)),
                          QTime (static_cast<int> (h),
-                                static_cast<int> (min),
+                                static_cast<int> (minute),
                                 static_cast<int> (s),
                                 static_cast<int> (ns / 1000000)));
         }
