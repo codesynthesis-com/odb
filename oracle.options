@@ -1,0 +1,9 @@
+# Sample Oracle options file used to run the tests. Adjust to
+# match your Oracle setup.
+#
+
+--user odb_test
+--password odb_test
+# --service
+# --host
+# --port

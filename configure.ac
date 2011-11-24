@@ -81,6 +81,10 @@ case $database in
     LIBODB_PGSQL([], [AC_MSG_ERROR([libodb-pgsql is not found; consider using --with-libodb-pgsql=DIR])])
     PGSQL
     ;;
+  oracle)
+    LIBODB_ORACLE([], [AC_MSG_ERROR([libodb-oracle is not found; consider using --with-libodb-oracle=DIR])])
+    ORACLE
+    ;;
 esac
 
 # Check for the ODB compiler.

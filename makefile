@@ -33,7 +33,8 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): data_dist := GPLv2 LICENSE README INSTALL version test.bat \
 tester.bat mysql-driver.bat mysql.options sqlite-driver.bat \
-sqlite.options pgsql-driver.bat pgsql.options
+sqlite.options pgsql-driver.bat pgsql.options oracle.options \
+oracle-driver.bat
 $(dist): exec_dist := bootstrap tester.in
 $(dist): export extra_dist := $(data_dist) $(exec_dist) build.bat
 $(dist): export version = $(shell cat $(src_root)/version)

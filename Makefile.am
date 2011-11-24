@@ -25,5 +25,9 @@ if DATABASE_PGSQL
 SUBDIRS += pgsql
 endif
 
+if DATABASE_ORACLE
+SUBDIRS += oracle
+endif
+
 EXTRA_DIST = __file__(extra_dist)
 ACLOCAL_AMFLAGS = -I m4
