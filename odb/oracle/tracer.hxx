@@ -17,7 +17,7 @@ namespace odb
 {
   namespace oracle
   {
-    class LIBODB_EXPORT tracer: private odb::tracer
+    class LIBODB_ORACLE_EXPORT tracer: private odb::tracer
     {
     public:
       virtual
