@@ -590,7 +590,7 @@ namespace odb
     // std::vector<char> (buffer) specialization for RAW.
     //
     template <>
-    struct default_value_traits<std::vector<char>, id_raw>
+    struct LIBODB_ORACLE_EXPORT default_value_traits<std::vector<char>, id_raw>
     {
     public:
       typedef std::vector<char> value_type;
@@ -617,7 +617,8 @@ namespace odb
     // std::vector<unsigned char> (buffer) specialization for RAW.
     //
     template <>
-    struct default_value_traits<std::vector<unsigned char>, id_raw>
+    struct LIBODB_ORACLE_EXPORT
+    default_value_traits<std::vector<unsigned char>, id_raw>
     {
     public:
       typedef std::vector<unsigned char> value_type;
@@ -715,7 +716,7 @@ namespace odb
 
     // std::string specialization for LOBs.
     //
-    class string_lob_value_traits
+    class LIBODB_ORACLE_EXPORT string_lob_value_traits
     {
     public:
       typedef std::string value_type;
@@ -783,7 +784,7 @@ namespace odb
     // of an image from the value but not the other way around. This way
     // we can pass such values to the queries.
     //
-    class c_string_lob_value_traits
+    class LIBODB_ORACLE_EXPORT c_string_lob_value_traits
     {
     public:
       typedef const char* value_type;
@@ -850,7 +851,8 @@ namespace odb
     // std::vector<char> (buffer) specialization for BLOBs.
     //
     template <>
-    struct default_value_traits<std::vector<char>, id_blob>
+    struct LIBODB_ORACLE_EXPORT default_value_traits<std::vector<char>,
+                                                     id_blob>
     {
     public:
       typedef std::vector<char> value_type;
@@ -903,7 +905,8 @@ namespace odb
     // std::vector<unsigned char> (buffer) specialization for BLOBs.
     //
     template <>
-    struct default_value_traits<std::vector<unsigned char>, id_blob>
+    struct LIBODB_ORACLE_EXPORT
+    default_value_traits<std::vector<unsigned char>, id_blob>
     {
     public:
       typedef std::vector<unsigned char> value_type;
