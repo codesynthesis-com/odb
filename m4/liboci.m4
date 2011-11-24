@@ -1,0 +1,124 @@
+dnl file      : m4/oci.m4
+dnl author    : Constantin Michael <constantin@codesynthesis.com>
+dnl copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+dnl license   : GNU GPL v2; see accompanying LICENSE file
+dnl
+dnl LIBOCI([ACTION-IF-FOUND[,
+dnl        ACTION-IF-NOT-FOUND]])
+dnl
+dnl
+AC_DEFUN([LIBOCI], [
+oci_found=no
+
+AC_ARG_WITH(
+  [oci],
+  [AC_HELP_STRING([--with-oci=DIR],[location of oci sdk directory])],
+  [oci_dir=${withval}],
+  [oci_dir=])
+
+AC_MSG_CHECKING([for oci])
+
+save_CPPFLAGS="$CPPFLAGS"
+save_LDFLAGS="$LDFLAGS"
+save_LIBS="$LIBS"
+
+# If oci_dir was given, add the necessary preprocessor and linker flags.
+#
+if test x"$oci_dir" != x; then
+  # Check whether oci_dir refers to an Oracle server or an Instant Client
+  # installation.
+  #
+  if test -d "$oci_dir/sdk/include"; then
+    CPPFLAGS="$CPPFLAGS -I$oci_dir/sdk/include"
+    LDFLAGS="$LDFLAGS -L$oci_dir"
+    LIBS="-lclntsh $LIBS"
+
+    CXX_LIBTOOL_LINK_IFELSE(
+AC_LANG_SOURCE([[
+#include <oci.h>
+
+int
+main ()
+{
+  OCIEnv* env (0);
+  OCIEnvNlsCreate (&env, OCI_THREADED, 0, 0, 0, 0, 0, 0, 0, 0);
+  OCIHandleFree (env, OCI_HTYPE_ENV);
+  return 0;
+}
+]]),
+[
+oci_found=yes
+])
+
+    if test x"$oci_found" = xno; then
+      LDFLAGS="$save_LDFLAGS"
+      LIBS="$save_LIBS -Wc,`ls $oci_dir/libclntsh.so.* 2>/dev/null`"
+    fi
+  elif test -d "$oci_dir/rdbms/public"; then
+    CPPFLAGS="$CPPFLAGS -I$oci_dir/rdbms/public"
+    LDFLAGS="$LDFLAGS -L$oci_dir/lib"
+    LIBS="-lclntsh $LIBS"
+  fi
+fi
+
+CXX_LIBTOOL_LINK_IFELSE(
+AC_LANG_SOURCE([[
+#include <oci.h>
+
+int
+main ()
+{
+  OCIEnv* env (0);
+  OCIEnvNlsCreate (&env, OCI_THREADED, 0, 0, 0, 0, 0, 0, 0, 0);
+  OCIHandleFree (env, OCI_HTYPE_ENV);
+  return 0;
+}
+]]),
+[
+oci_found=yes
+])
+
+if test x"$oci_found" = xno; then
+
+  # Try using ORACLE_HOME if it exists.
+  #
+  if test x"$ORACLE_HOME" != x; then
+    CPPFLAGS="$CPPFLAGS -I$ORACLE_HOME/rdbms/public"
+    LDFLAGS="$LDFLAGS -L$ORACLE_HOME/lib"
+    LIBS="$LIBS -lclntsh"
+
+    CXX_LIBTOOL_LINK_IFELSE(
+AC_LANG_SOURCE([[
+#include <oci.h>
+
+int
+main ()
+{
+  OCIEnv* env (0);
+  OCIEnvNlsCreate (&env, OCI_THREADED, 0, 0, 0, 0, 0, 0, 0, 0);
+  OCIHandleFree (env, OCI_HTYPE_ENV);
+  return 0;
+}
+]]),
+[
+oci_found=yes
+])
+
+    if test x"$oci_found" = xno; then
+      CPPFLAGS="$save_CPPFLAGS"
+      LDFLAGS="$save_LDFLAGS"
+      LIBS="$save_LIBS"
+    fi
+
+  fi
+fi
+
+if test x"$oci_found" = xyes; then
+  AC_MSG_RESULT([yes])
+  $1
+else
+  LIBS="$save_LIBS"
+  AC_MSG_RESULT([no])
+  $2
+fi
+])dnl

@@ -1,0 +1,16 @@
+# file      : libodb-oracle.pc.in
+# author    : Boris Kolpackov <boris@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libodb-oracle
+Description: Object-relational mapping (ORM) system for C++, Oracle runtime library
+URL: http://www.codesynthesis.com/products/odb/
+Version: @VERSION@
+Libs: -L${libdir} -lodb-oracle
+Cflags: -I${includedir}
