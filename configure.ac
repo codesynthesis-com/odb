@@ -32,7 +32,7 @@ THREADS
 #
 LIBOCI(
   [],
-  [AC_MSG_ERROR([oci is not found; consider using CPPFLAGS/LDFLAGS to specify its location])])
+  [AC_MSG_ERROR([oci is not found; consider using --with-oci=DIR])])
 
 # Check for libodb.
 #

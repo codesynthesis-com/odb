@@ -45,7 +45,7 @@ namespace odb
 
         unsigned int --port
         {
-          "<str>",
+          "<integer>",
           "Oracle database port number."
         };
 

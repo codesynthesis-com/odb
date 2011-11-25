@@ -12,7 +12,7 @@ oci_found=no
 
 AC_ARG_WITH(
   [oci],
-  [AC_HELP_STRING([--with-oci=DIR],[location of oci sdk directory])],
+  [AC_HELP_STRING([--with-oci=DIR],[oracle home or instant client directory])],
   [oci_dir=${withval}],
   [oci_dir=])
 
@@ -25,8 +25,8 @@ save_LIBS="$LIBS"
 # If oci_dir was given, add the necessary preprocessor and linker flags.
 #
 if test x"$oci_dir" != x; then
-  # Check whether oci_dir refers to an Oracle server or an Instant Client
-  # installation.
+  # Check whether oci_dir refers to Oracle home or an Instant Client
+  # directory.
   #
   if test -d "$oci_dir/sdk/include"; then
     CPPFLAGS="$CPPFLAGS -I$oci_dir/sdk/include"
@@ -52,7 +52,7 @@ oci_found=yes
 
     if test x"$oci_found" = xno; then
       LDFLAGS="$save_LDFLAGS"
-      LIBS="$save_LIBS -Wc,`ls $oci_dir/libclntsh.so.* 2>/dev/null`"
+      LIBS="-Wc,`ls $oci_dir/libclntsh.* 2>/dev/null` $save_LIBS"
     fi
   elif test -d "$oci_dir/rdbms/public"; then
     CPPFLAGS="$CPPFLAGS -I$oci_dir/rdbms/public"
@@ -61,7 +61,9 @@ oci_found=yes
   fi
 fi
 
-CXX_LIBTOOL_LINK_IFELSE(
+if test x"$oci_found" = xno; then
+
+  CXX_LIBTOOL_LINK_IFELSE(
 AC_LANG_SOURCE([[
 #include <oci.h>
 
@@ -78,14 +80,20 @@ main ()
 oci_found=yes
 ])
 
+fi
+
 if test x"$oci_found" = xno; then
+
+  CPPFLAGS="$save_CPPFLAGS"
+  LDFLAGS="$save_LDFLAGS"
+  LIBS="$save_LIBS"
 
   # Try using ORACLE_HOME if it exists.
   #
   if test x"$ORACLE_HOME" != x; then
     CPPFLAGS="$CPPFLAGS -I$ORACLE_HOME/rdbms/public"
     LDFLAGS="$LDFLAGS -L$ORACLE_HOME/lib"
-    LIBS="$LIBS -lclntsh"
+    LIBS="-lclntsh $LIBS"
 
     CXX_LIBTOOL_LINK_IFELSE(
 AC_LANG_SOURCE([[
