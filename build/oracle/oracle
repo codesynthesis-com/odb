@@ -9,6 +9,13 @@
 # Oracle driver wrapper.
 #
 
+driver=
+user=
+passwd=
+service=
+host=
+port=
+
 while [ $# -gt 0 ]; do
   case $1 in
     --driver)
@@ -65,7 +72,7 @@ elif [ -n "$service" ]; then
   conn="$conn@$service"
 fi
 
-opt="-L $opt"
+opt="-L"
 
 if [ -n "$1" ]; then
   opt="-S $opt"

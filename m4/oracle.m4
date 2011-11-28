@@ -184,6 +184,8 @@ AC_CONFIG_COMMANDS([oracle.options],
    rm -f db.options
    echo '#! /bin/sh' >db-driver
 
+   echo 'conn_str=' >>db-driver
+
    if test x$oracle_user_set = xyes; then
      echo "--user '$oracle_user'" >>db.options
      echo 'conn_str="'"$oracle_user"'"' >>db-driver

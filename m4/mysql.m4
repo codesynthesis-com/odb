@@ -207,6 +207,8 @@ AC_CONFIG_COMMANDS([mysql.options],
    rm -f db.options
    echo '#! /bin/sh' >db-driver
 
+   echo 'opt=' >>db-driver
+
    if test x$mysql_user_set = xyes; then
      echo "--user '$mysql_user'" >>db.options
      echo 'opt="$opt --user='"$mysql_user"'"' >>db-driver

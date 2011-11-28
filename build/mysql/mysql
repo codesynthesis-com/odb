@@ -9,6 +9,9 @@
 # MySQL driver wrapper.
 #
 
+opt=
+driver=
+
 while [ $# -gt 0 ]; do
   case $1 in
     --driver)

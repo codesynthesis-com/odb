@@ -153,6 +153,8 @@ AC_CONFIG_COMMANDS([pgsql.options],
    rm -f db.options
    echo '#! /bin/sh' >db-driver
 
+   echo 'opt=' >>db-driver
+
    if test x$pgsql_user_set = xyes; then
      echo "--username '$pgsql_user'" >>db.options
      echo 'opt="$opt --username='"$pgsql_user"'"' >>db-driver
