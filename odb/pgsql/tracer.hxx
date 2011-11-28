@@ -10,6 +10,7 @@
 
 #include <odb/tracer.hxx>
 
+#include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
 #include <odb/pgsql/details/export.hxx>
 
@@ -17,7 +18,7 @@ namespace odb
 {
   namespace pgsql
   {
-    class LIBODB_EXPORT tracer: private odb::tracer
+    class LIBODB_PGSQL_EXPORT tracer: private odb::tracer
     {
     public:
       virtual
