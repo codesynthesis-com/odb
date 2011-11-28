@@ -1,0 +1,30 @@
+#! /usr/bin/env bash
+
+# file      : build/import/libodbc/configure
+# author    : Boris Kolpackov <boris@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Boris Kolpackov
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+
+# $1           - out config file
+#
+# bld_root     - build root
+# project_name - project name
+#
+
+source $bld_root/dialog.bash
+
+$echo
+$echo "Configuring external dependency on 'ODBC library' for '$project_name'."
+$echo
+
+$echo
+$echo "Please select the driver manager you would like to use:"
+$echo
+$echo "(1) Windows ODBC"
+$echo "(2) unixODBC"
+$echo
+
+manager=`read_option "windows unix" "unix"`
+
+echo libodbc_manager := $manager >$1

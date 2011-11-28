@@ -39,19 +39,16 @@ $(call import,\
   $(scf_root)/import/libodb/stub.make,\
   l: odb.l,cpp-options: odb.l.cpp-options)
 
-# @@ TODO
-#
-#$(call import,\
-#  $(scf_root)/import/libpq/stub.make,\
-#  l: pq.l,\
-#  cpp-options: pq.l.cpp-options,\
-#  cpp-options-inline: pq_cpp_options)
+$(call import,\
+  $(scf_root)/import/libodbc/stub.make,\
+  l: odbc.l,\
+  cpp-options: odbc.l.cpp-options)
 
 # Build.
 #
-$(odb_mssql.l): $(cxx_obj) $(odb.l) -lodbc32 # @@ TODO
+$(odb_mssql.l): $(cxx_obj) $(odb.l) $(odbc.l)
 $(odb_mssql.l.cpp-options): value := -I$(out_root) -I$(src_root)
-$(odb_mssql.l.cpp-options): $(odb.l.cpp-options)
+$(odb_mssql.l.cpp-options): $(odb.l.cpp-options) $(odbc.l.cpp-options)
 
 $(cxx_obj) $(cxx_od): $(odb_mssql.l.cpp-options) $(out_base)/details/config.h
 
