@@ -27,7 +27,7 @@ namespace odb
 
         std::string --database
         {
-          "<connect-id>",
+          "<conn-id>",
           "Oracle connect identifier."
         };
 
