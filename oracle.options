@@ -4,6 +4,6 @@
 
 --user odb_test
 --password odb_test
-# --service
 # --host
 # --port
+# --service

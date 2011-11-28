@@ -13,8 +13,9 @@ rem
 
 setlocal
 
-set "options=%ORACLE_OPTIONS%"
+set "options=%ORACLE_OPTIONS% -L -S"
 set "options=%options% odb_test/odb_test"
+rem set "options=%options% odb_test/odb_test@//192.168.0.5:1521/xe"
 
 set "oracle=%ORACLE_CLIENT%"
 
@@ -25,7 +26,7 @@ if "_%1_" == "__" (
   goto usage
 )
 
-%oracle% %options% < %1
+%oracle% %options% @%1
 
 if errorlevel 1 goto error
 goto end
