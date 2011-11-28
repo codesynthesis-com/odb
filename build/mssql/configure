@@ -9,4 +9,46 @@
 # dcf_root - dynamic configuration root
 #
 
-#@@ TODO
+$echo
+$echo "Please enter the SQL Server client program path."
+$echo
+
+driver=`read_path --command sqlcmd`
+
+$echo
+$echo "Please enter the SQL Server database user."
+$echo
+
+user=`read_value "odb_test"`
+
+$echo
+$echo "Please enter the SQL Server database password."
+$echo
+
+passwd=`read_value "odb_test"`
+
+$echo
+$echo "Please enter the SQL Server database name. Note that it WILL BE"
+$echo "MODIFIED by the tests."
+$echo
+
+db=`read_value "odb_test"`
+
+$echo
+$echo "Please enter the SQL Server instance address."
+$echo
+
+server=`read_value ""`
+
+opt=$dcf_root/db.options
+drv=$dcf_root/db-driver
+
+echo "--user '$user'"        >$opt
+echo "--password '$passwd'" >>$opt
+echo "--database '$db'"     >>$opt
+echo "--server '$server'"   >>$opt
+
+echo "#!/bin/sh"                                              >$drv
+echo "opt=\`cat $opt\`"                                      >>$drv
+echo "eval $scf_root/mssql/mssql --driver $driver \$opt \$*" >>$drv
+chmod 755 $drv
