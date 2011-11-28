@@ -72,7 +72,7 @@ AC_ARG_WITH(
   [AC_HELP_STRING([--with-oracle-password=login], [Oracle database password (odb_test by default)])],
   [case $withval in
      yes)
-       oracle_password=
+       oracle_password=odb_test
        oracle_password_set=yes
        ;;
      no)
@@ -131,7 +131,7 @@ AC_ARG_WITH(
   [AC_HELP_STRING([--with-oracle-host=host], [Oracle database host (localhost by default)])],
   [case $withval in
      yes)
-       oracle_host=
+       oracle_host=localhost
        oracle_host_set=yes
        ;;
      no)
@@ -147,7 +147,7 @@ AC_ARG_WITH(
 if test x$oracle_host_set = xyes; then
   AC_MSG_RESULT(['$oracle_host'])
 else
-  AC_MSG_RESULT([default])
+  AC_MSG_RESULT([localhost])
 fi
 
 # Port.
@@ -158,7 +158,7 @@ AC_ARG_WITH(
   [AC_HELP_STRING([--with-oracle-port=port], [Oracle database port (standard Oracle port by default)])],
   [case $withval in
      yes)
-       oracle_port=0
+       oracle_port=1521
        oracle_port_set=yes
        ;;
      no)
