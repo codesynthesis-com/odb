@@ -10,6 +10,7 @@
 
 #include <odb/tracer.hxx>
 
+#include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
 #include <odb/oracle/details/export.hxx>
 
