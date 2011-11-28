@@ -8,9 +8,9 @@
 
 #include <odb/pre.hxx>
 
+#include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>     // connection
-#include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/auto-handle.hxx>
 
 #include <odb/mssql/details/export.hxx>

@@ -8,25 +8,78 @@
 
 #include <odb/pre.hxx>
 
+#include <cstddef> // std::size_t
+
 // Forward declaration for some of the types defined in sqltypes.h or
 // sqlncli.h. This allows us to avoid having to include these files
 // in public headers.
 //
 #ifdef _WIN32
-typedef long           SQLINTEGER;
-typedef unsigned long  SQLUINTEGER;
+
+// Keep consistent with Windows ODBC headers.
+//
+
+typedef long             SQLINTEGER;
+typedef unsigned long    SQLUINTEGER;
+
+#ifdef _WIN64
+typedef __int64          SQLLEN;
+typedef unsigned __int64 SQLULEN;
+#else
+#ifndef SQLLEN
+typedef SQLINTEGER       SQLLEN;
+typedef SQLUINTEGER      SQLULEN;
+#endif
 #endif
 
-typedef short          SQLSMALLINT;
-typedef unsigned short SQLUSMALLINT;
+#else // _WIN32
 
-typedef SQLSMALLINT    SQLRETURN;
+// Keep consistent with unixODBC headers.
+//
 
-typedef void*          SQLHANDLE;
-typedef SQLHANDLE      SQLHENV;
-typedef SQLHANDLE      SQLHDBC;
-typedef SQLHANDLE      SQLHSTMT;
-typedef SQLHANDLE      SQLHDESC;
+template <std::size_t sizeof_long>
+struct odbc_types;
+
+template <>
+struct odbc_types<4>
+{
+  typedef long           integer;
+  typedef unsigned long  uinteger;
+
+  typedef integer        len;
+  typedef uinteger       ulen;
+};
+
+template <>
+struct odbc_types<8>
+{
+  typedef int            integer;
+  typedef unsigned int   uinteger;
+
+  typedef long           len;
+  typedef unsigned long  ulen;
+};
+
+typedef odbc_types<sizeof (long)>::integer  SQLINTEGER;
+typedef odbc_types<sizeof (long)>::uinteger SQLUINTEGER;
+
+#ifndef SQLLEN
+typedef odbc_types<sizeof (long)>::len  SQLLEN;
+typedef odbc_types<sizeof (long)>::ulen SQLULEN;
+#endif
+
+#endif // _WIN32
+
+typedef short            SQLSMALLINT;
+typedef unsigned short   SQLUSMALLINT;
+
+typedef SQLSMALLINT      SQLRETURN;
+
+typedef void*            SQLHANDLE;
+typedef SQLHANDLE        SQLHENV;
+typedef SQLHANDLE        SQLHDBC;
+typedef SQLHANDLE        SQLHSTMT;
+typedef SQLHANDLE        SQLHDESC;
 
 // If you get a redefinition error or warning for one of these macros,
 // then that means you included this header (or one that includes it),

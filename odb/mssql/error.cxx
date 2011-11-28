@@ -87,13 +87,12 @@ namespace odb
                            0,
                            &msg_size);
 
-        string s (sqlstate);
-
         if (r == SQL_NO_DATA)
           break;
         else if (SQL_SUCCEEDED (r))
         {
           code nc;
+          string s (sqlstate);
 
           if (s == "40001")      // Serialization failure (native code 1205).
             nc = code_deadlock;

@@ -6,8 +6,6 @@
 #ifndef ODB_MSSQL_DATABASE_HXX
 #define ODB_MSSQL_DATABASE_HXX
 
-//@@ disabled functionality
-
 #include <odb/pre.hxx>
 
 #include <string>
@@ -16,13 +14,13 @@
 
 #include <odb/database.hxx>
 
+#include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
-//#include <odb/mssql/tracer.hxx>
+#include <odb/mssql/tracer.hxx>
 #include <odb/mssql/connection.hxx>
 #include <odb/mssql/connection-factory.hxx>
 #include <odb/mssql/auto-handle.hxx>
-#include <odb/mssql/mssql-fwd.hxx>
 
 #include <odb/mssql/details/export.hxx>
 
@@ -211,7 +209,6 @@ namespace odb
       // SQL statement tracing.
       //
     public:
-      /*
       typedef mssql::tracer tracer_type;
 
       void
@@ -227,7 +224,6 @@ namespace odb
       }
 
       using odb::database::tracer;
-      */
 
     public:
       virtual

@@ -3,8 +3,6 @@
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-//@@ disabled functionality
-
 #ifndef ODB_MSSQL_TRANSACTION_HXX
 #define ODB_MSSQL_TRANSACTION_HXX
 
@@ -14,7 +12,7 @@
 
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
-//#include <odb/mssql/tracer.hxx>
+#include <odb/mssql/tracer.hxx>
 
 #include <odb/mssql/details/export.hxx>
 
@@ -54,7 +52,6 @@ namespace odb
       static void
       current (transaction&);
 
-      /*
       // SQL statement tracing.
       //
     public:
@@ -73,7 +70,6 @@ namespace odb
       }
 
       using odb::transaction::tracer;
-      */
 
     public:
       transaction_impl&

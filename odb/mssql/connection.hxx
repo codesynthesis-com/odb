@@ -15,14 +15,15 @@
 #include <odb/forward.hxx>
 #include <odb/connection.hxx>
 
+#include <odb/details/buffer.hxx>
 #include <odb/details/shared-ptr.hxx>
 
+#include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
-//#include <odb/mssql/tracer.hxx>
+#include <odb/mssql/tracer.hxx>
 #include <odb/mssql/transaction-impl.hxx>
 #include <odb/mssql/auto-handle.hxx>
-#include <odb/mssql/mssql-fwd.hxx>
 
 #include <odb/mssql/details/export.hxx>
 
@@ -66,7 +67,6 @@ namespace odb
       // SQL statement tracing.
       //
     public:
-      /*
       typedef mssql::tracer tracer_type;
 
       void
@@ -82,7 +82,6 @@ namespace odb
       }
 
       using odb::connection::tracer;
-      */
 
     public:
       bool
@@ -112,6 +111,12 @@ namespace odb
       }
       */
 
+      details::buffer&
+      long_buffer ()
+      {
+        return long_buffer_;
+      }
+
     private:
       connection (const connection&);
       connection& operator= (const connection&);
@@ -133,6 +138,8 @@ namespace odb
       auto_handle<SQL_HANDLE_STMT> direct_stmt_;
 
       //std::auto_ptr<statement_cache_type> statement_cache_;
+
+      details::buffer long_buffer_;
     };
   }
 }

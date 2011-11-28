@@ -25,8 +25,9 @@ namespace odb
     connection (database_type& db)
         : odb::connection (db),
           db_ (db),
-          state_ (state_disconnected)
+          state_ (state_disconnected),
           // statement_cache_ (new statement_cache_type (*this))
+          long_buffer_ (0)
     {
       SQLRETURN r;
 
@@ -46,13 +47,23 @@ namespace odb
       //
       r = SQLSetConnectAttr (handle_,
                              SQL_ATTR_AUTOCOMMIT,
-                             SQL_AUTOCOMMIT_OFF,
+                             (SQLPOINTER) SQL_AUTOCOMMIT_OFF,
                              0);
 
       if (!SQL_SUCCEEDED (r))
         // Still use the handle version of translate_error since there
         // is no connection yet.
         //
+        translate_error (r, handle_, SQL_HANDLE_DBC);
+
+      // Enable Multiple Active Result Sets (MARS).
+      //
+      r = SQLSetConnectAttr (handle_,
+                             SQL_COPT_SS_MARS_ENABLED,
+                             (SQLPOINTER) SQL_MARS_ENABLED_YES,
+                             SQL_IS_UINTEGER);
+
+      if (!SQL_SUCCEEDED (r))
         translate_error (r, handle_, SQL_HANDLE_DBC);
 
       // Connect.
@@ -84,8 +95,9 @@ namespace odb
         : odb::connection (db),
           db_ (db),
           handle_ (handle),
-          state_ (state_connected)
+          state_ (state_connected),
           // statement_cache_ (new statement_cache_type (*this))
+          long_buffer_ (0)
     {
     }
 
@@ -109,8 +121,6 @@ namespace odb
     unsigned long long connection::
     execute (const char* s, std::size_t n)
     {
-      /*
-        @@
       {
         odb::tracer* t;
         if ((t = transaction_tracer ()) ||
@@ -121,7 +131,6 @@ namespace odb
           t->execute (*this, str.c_str ());
         }
       }
-      */
 
       SQLRETURN r;
 

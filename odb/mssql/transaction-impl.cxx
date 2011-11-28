@@ -43,14 +43,11 @@ namespace odb
         odb::transaction_impl::connection_ = connection_.get ();
       }
 
-      /*
-        @@ TODO
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
           t->execute (*connection_, "BEGIN");
       }
-      */
 
       // In ODBC a transaction is started automatically before the first
       // statement is executed.
@@ -60,14 +57,11 @@ namespace odb
     void transaction_impl::
     commit ()
     {
-      /*
-        @@ TODO
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
           t->execute (*connection_, "COMMIT");
       }
-      */
 
       SQLRETURN r (
         SQLEndTran (SQL_HANDLE_DBC, connection_->handle (), SQL_COMMIT));
@@ -84,14 +78,11 @@ namespace odb
     void transaction_impl::
     rollback ()
     {
-      /*
-        @@ TODO
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
           t->execute (*connection_, "ROLLBACK");
       }
-      */
 
       SQLRETURN r (
         SQLEndTran (SQL_HANDLE_DBC, connection_->handle (), SQL_ROLLBACK));
