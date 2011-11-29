@@ -18,7 +18,7 @@ namespace odb
     //
 
     database_exception::record::
-    record (int e, const string& m)
+    record (sb4 e, const string& m)
         : error_ (e), message_ (m)
     {
     }
@@ -34,13 +34,13 @@ namespace odb
     }
 
     database_exception::
-    database_exception (int e, const string& m)
+    database_exception (sb4 e, const string& m)
     {
       append (e, m);
     }
 
     void database_exception::
-    append (int e, const string& m)
+    append (sb4 e, const string& m)
     {
       records_.push_back (record (e, m));
 

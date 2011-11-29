@@ -14,6 +14,7 @@
 #include <odb/exceptions.hxx>
 
 #include <odb/oracle/version.hxx>
+#include <odb/oracle/oracle-fwd.hxx>
 #include <odb/oracle/details/export.hxx>
 
 namespace odb
@@ -24,9 +25,9 @@ namespace odb
     {
       struct record
       {
-        record (int error, const std::string& message);
+        record (sb4 error, const std::string& message);
 
-        int
+        sb4
         error () const
         {
           return error_;
@@ -39,7 +40,7 @@ namespace odb
         }
 
       private:
-        int error_;
+        sb4 error_;
         std::string message_;
       };
 
@@ -70,14 +71,13 @@ namespace odb
       ~database_exception () throw ();
 
       database_exception ();
-      database_exception (int error, const std::string& message);
+      database_exception (sb4 error, const std::string& message);
 
       virtual const char*
       what () const throw ();
 
       void
-      append (int error,
-              const std::string& message);
+      append (sb4 error, const std::string& message);
 
     private:
       records records_;
