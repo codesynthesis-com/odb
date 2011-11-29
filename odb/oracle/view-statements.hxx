@@ -63,12 +63,6 @@ namespace odb
         return image_binding_;
       }
 
-      sb2*
-      image_indicator ()
-      {
-        return image_indicator_;
-      }
-
     private:
       view_statements (const view_statements&);
       view_statements& operator= (const view_statements&);
@@ -78,7 +72,6 @@ namespace odb
       std::size_t image_version_;
       binding image_binding_;
       bind image_bind_[view_traits::column_count];
-      sb2 image_indicator_[view_traits::column_count];
     };
   }
 }

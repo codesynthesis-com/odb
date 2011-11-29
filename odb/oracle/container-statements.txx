@@ -3,7 +3,6 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <cstddef> // std::size_t
 #include <cstring> // std::memset
 
 namespace odb
@@ -40,10 +39,7 @@ namespace odb
         : base (conn)
     {
       this->cond_image_bind_ = cond_image_bind_array_;
-      this->cond_image_indicator_ = cond_image_indicator_array_;
-
       this->data_image_bind_ = data_image_bind_array_;
-      this->data_image_indicator_ = data_image_indicator_array_;
 
       this->cond_image_binding_.bind = this->cond_image_bind_;
       this->cond_image_binding_.count = traits::cond_column_count;
@@ -52,20 +48,7 @@ namespace odb
       this->data_image_binding_.count = traits::data_column_count;
 
       std::memset (cond_image_bind_array_, 0, sizeof (cond_image_bind_array_));
-      std::memset (cond_image_indicator_array_,
-                   0,
-                   sizeof (cond_image_indicator_array_));
-
-      for (std::size_t i (0); i < traits::cond_column_count; ++i)
-        cond_image_bind_array_[i].indicator = cond_image_indicator_array_ + i;
-
       std::memset (data_image_bind_array_, 0, sizeof (data_image_bind_array_));
-      std::memset (data_image_indicator_array_,
-                   0,
-                   sizeof (data_image_indicator_array_));
-
-      for (std::size_t i (0); i < traits::data_column_count; ++i)
-        data_image_bind_array_[i].indicator = data_image_indicator_array_ + i;
 
       this->insert_one_text_ = traits::insert_one_statement;
       this->select_all_text_ = traits::select_all_statement;

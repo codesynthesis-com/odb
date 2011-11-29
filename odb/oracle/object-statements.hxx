@@ -20,7 +20,6 @@
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/oracle-types.hxx>
-#include <odb/oracle/oracle-fwd.hxx>   // sb2
 #include <odb/oracle/statement.hxx>
 #include <odb/oracle/statements-base.hxx>
 

@@ -15,7 +15,6 @@
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/oracle-types.hxx>
-#include <odb/oracle/oracle-fwd.hxx>    // sb2
 #include <odb/oracle/statement.hxx>
 
 #include <odb/oracle/details/export.hxx>
@@ -114,12 +113,6 @@ namespace odb
         return cond_image_binding_;
       }
 
-      sb2*
-      cond_image_indicator ()
-      {
-        return cond_image_indicator_;
-      }
-
       // Data image.
       //
       data_image_type&
@@ -156,12 +149,6 @@ namespace odb
       data_image_binding ()
       {
         return data_image_binding_;
-      }
-
-      sb2*
-      data_image_indicator ()
-      {
-        return data_image_indicator_;
       }
 
       //
@@ -223,14 +210,12 @@ namespace odb
       std::size_t cond_id_binding_version_;
       binding cond_image_binding_;
       bind* cond_image_bind_;
-      sb2* cond_image_indicator_;
 
       data_image_type data_image_;
       std::size_t data_image_version_;
       std::size_t data_id_binding_version_;
       binding data_image_binding_;
       bind* data_image_bind_;
-      sb2* data_image_indicator_;
 
       const char* insert_one_text_;
       const char* select_all_text_;
@@ -259,10 +244,7 @@ namespace odb
 
     private:
       bind cond_image_bind_array_[traits::cond_column_count];
-      sb2 cond_image_indicator_array_[traits::cond_column_count];
-
       bind data_image_bind_array_[traits::data_column_count];
-      sb2 data_image_indicator_array_[traits::data_column_count];
     };
   }
 }
