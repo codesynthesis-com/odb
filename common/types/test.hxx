@@ -51,7 +51,7 @@ struct num_wrap
 struct object3
 {
   #pragma db id type("INTEGER")
-  num_wrap<int> num_;
+  num_wrap<long long> num_; // Use long long to avoid warnings.
 };
 
 #endif // TEST_HXX
