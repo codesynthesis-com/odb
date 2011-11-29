@@ -30,7 +30,7 @@ if test x"$oci_dir" != x; then
   #
   if test -d "$oci_dir/sdk/include"; then
     CPPFLAGS="$CPPFLAGS -I$oci_dir/sdk/include"
-    LDFLAGS="$LDFLAGS -L$oci_dir -R $oci_dir"
+    LDFLAGS="$LDFLAGS -L$oci_dir"
     LIBS="-lclntsh $LIBS"
 
     CXX_LIBTOOL_LINK_IFELSE(
@@ -56,7 +56,7 @@ oci_found=yes
     fi
   elif test -d "$oci_dir/rdbms/public"; then
     CPPFLAGS="$CPPFLAGS -I$oci_dir/rdbms/public"
-    LDFLAGS="$LDFLAGS -L$oci_dir/lib -R $oci_dir/lib"
+    LDFLAGS="$LDFLAGS -L$oci_dir/lib"
     LIBS="-lclntsh $LIBS"
   fi
 fi
@@ -92,7 +92,7 @@ if test x"$oci_found" = xno; then
   #
   if test x"$ORACLE_HOME" != x; then
     CPPFLAGS="$CPPFLAGS -I$ORACLE_HOME/rdbms/public"
-    LDFLAGS="$LDFLAGS -L$ORACLE_HOME/lib -R $ORACLE_HOME/lib"
+    LDFLAGS="$LDFLAGS -L$ORACLE_HOME/lib"
     LIBS="-lclntsh $LIBS"
 
     CXX_LIBTOOL_LINK_IFELSE(
