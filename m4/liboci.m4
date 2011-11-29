@@ -51,7 +51,6 @@ oci_found=yes
 ])
 
     if test x"$oci_found" = xno; then
-      LDFLAGS="$save_LDFLAGS"
       LIBS="-Wc,`ls $oci_dir/libclntsh.* 2>/dev/null` $save_LIBS"
     fi
   elif test -d "$oci_dir/rdbms/public"; then
