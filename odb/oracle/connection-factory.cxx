@@ -126,9 +126,10 @@ namespace odb
 
       // Determine if we need to keep or free this connection.
       //
-      bool keep (waiters_ != 0 ||
-                 min_ == 0 ||
-                 (connections_.size () + in_use_ <= min_));
+      bool keep (!c->failed () &&
+                 (waiters_ != 0 ||
+                  min_ == 0 ||
+                  (connections_.size () + in_use_ <= min_)));
 
       in_use_--;
 

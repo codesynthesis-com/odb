@@ -26,6 +26,7 @@ namespace odb
     connection (database_type& db)
         : odb::connection (db),
           db_ (db),
+          failed_ (false),
           statement_cache_ (new statement_cache_type (*this)),
           lob_buffer_ (0)
     {
@@ -111,6 +112,7 @@ namespace odb
     connection (database_type& db, OCISvcCtx* handle)
         : odb::connection (db),
           db_ (db),
+          failed_ (false),
           statement_cache_ (new statement_cache_type (*this)),
           lob_buffer_ (0)
     {

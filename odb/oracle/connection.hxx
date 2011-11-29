@@ -82,6 +82,19 @@ namespace odb
       using odb::connection::tracer;
 
     public:
+      bool
+      failed () const
+      {
+        return failed_;
+      }
+
+      void
+      mark_failed ()
+      {
+        failed_ = true;
+      }
+
+    public:
       OCISvcCtx*
       handle ()
       {
@@ -119,6 +132,7 @@ namespace odb
       auto_handle<OCIError> error_;
 
       auto_handle<OCISvcCtx> handle_;
+      bool failed_;
 
       std::auto_ptr<statement_cache_type> statement_cache_;
 

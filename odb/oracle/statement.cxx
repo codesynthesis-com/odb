@@ -229,7 +229,7 @@ namespace odb
                                 OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (err, r);
+        translate_error (err, r, &conn_);
 
       stmt_.reset (handle, OCI_STRLS_CACHE_DELETE, err);
 
@@ -1023,7 +1023,7 @@ namespace odb
                              cs_form);
 
             if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-              translate_error (err, r);
+              translate_error (err, r, &conn_);
 
             chunk_position cp;
 
@@ -1114,7 +1114,7 @@ namespace odb
         r = OCIStmtExecute (handle, stmt_, err, 0, 0, 0, 0, OCI_DEFAULT);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (err, r);
+          translate_error (err, r, &conn_);
 
         // In order to successfully execute a select statement, OCI/Oracle
         // requires that there be OCIDefine handles provided for all select
@@ -1195,7 +1195,7 @@ namespace odb
             // and ignore this error.
             //
             if (e != 1406)
-              translate_error (err, r);
+              translate_error (err, r, &conn_);
           }
           else if (r == OCI_INVALID_HANDLE)
             translate_error (err, r);
@@ -1208,7 +1208,7 @@ namespace odb
         r = OCIStmtExecute (handle, stmt_, err, 1, 0, 0, 0, OCI_DEFAULT);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (err, r);
+          translate_error (err, r, &conn_);
       }
 
       ub4 row_count (0);
@@ -1328,7 +1328,7 @@ namespace odb
                                OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (err, r);
+        translate_error (err, r, &conn_);
 
       done_ = r == OCI_NO_DATA;
 
@@ -1372,7 +1372,7 @@ namespace odb
                                 OCI_DEFAULT));
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (conn_.error_handle (), r);
+          translate_error (conn_.error_handle (), r, &conn_);
         else if (r == OCI_NO_DATA)
           done_ = true;
       }
@@ -1393,7 +1393,7 @@ namespace odb
                                 OCI_DEFAULT));
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (conn_.error_handle (), r);
+          translate_error (conn_.error_handle (), r, &conn_);
 
         done_ = true;
       }
@@ -1561,7 +1561,7 @@ namespace odb
         if (e == 1)
           return false;
         else
-          translate_error (err, r);
+          translate_error (err, r, &conn_);
       }
 
       ub4 row_count (0);
@@ -1640,7 +1640,7 @@ namespace odb
                                OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (err, r);
+        translate_error (err, r, &conn_);
 
       ub4 row_count (0);
       r = OCIAttrGet (stmt_,
@@ -1706,7 +1706,7 @@ namespace odb
                                OCI_DEFAULT));
 
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (err, r);
+        translate_error (err, r, &conn_);
 
       ub4 row_count (0);
       r = OCIAttrGet (stmt_,

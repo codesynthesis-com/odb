@@ -9,6 +9,7 @@
 #include <odb/pre.hxx>
 
 #include <string>
+#include <vector>
 
 #include <odb/exceptions.hxx>
 
@@ -21,28 +22,66 @@ namespace odb
   {
     struct LIBODB_ORACLE_EXPORT database_exception: odb::database_exception
     {
-      database_exception (int error, const std::string& message);
+      struct record
+      {
+        record (int error, const std::string& message);
 
+        int
+        error () const
+        {
+          return error_;
+        }
+
+        const std::string&
+        message () const
+        {
+          return message_;
+        }
+
+      private:
+        int error_;
+        std::string message_;
+      };
+
+      typedef std::vector<record> records;
+
+      typedef records::size_type size_type;
+      typedef records::const_iterator iterator;
+
+      iterator
+      begin () const
+      {
+        return records_.begin ();
+      }
+
+      iterator
+      end () const
+      {
+        return records_.end ();
+      }
+
+      size_type
+      size () const
+      {
+        return records_.size ();
+      }
+
+    public:
       ~database_exception () throw ();
 
-      int
-      error () const
-      {
-        return error_;
-      }
-
-      const std::string&
-      message () const
-      {
-        return message_;
-      }
+      database_exception ();
+      database_exception (int error, const std::string& message);
 
       virtual const char*
       what () const throw ();
 
+      void
+      append (int error,
+              const std::string& message);
+
     private:
-      int error_;
-      std::string message_;
+      records records_;
+      std::string what_;
     };
 
     struct LIBODB_ORACLE_EXPORT cli_exception: odb::exception

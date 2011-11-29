@@ -3,6 +3,8 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <sstream>
+
 #include <odb/oracle/exceptions.hxx>
 
 using namespace std;
@@ -15,9 +17,9 @@ namespace odb
     // database_exception
     //
 
-    database_exception::
-    database_exception (int error, const string& message)
-        : error_ (error), message_ (message)
+    database_exception::record::
+    record (int e, const string& m)
+        : error_ (e), message_ (m)
     {
     }
 
@@ -26,10 +28,34 @@ namespace odb
     {
     }
 
+    database_exception::
+    database_exception ()
+    {
+    }
+
+    database_exception::
+    database_exception (int e, const string& m)
+    {
+      append (e, m);
+    }
+
+    void database_exception::
+    append (int e, const string& m)
+    {
+      records_.push_back (record (e, m));
+
+      if (!what_.empty ())
+        what_ += '\n';
+
+      ostringstream ostr;
+      ostr << e << ": " << m;
+      what_ += ostr.str ();
+    }
+
     const char* database_exception::
     what () const throw ()
     {
-      return message_.c_str ();
+      return what_.c_str ();
     }
 
     //
