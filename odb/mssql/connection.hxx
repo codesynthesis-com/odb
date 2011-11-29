@@ -3,8 +3,6 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-//@@ disabled functionality
-
 #ifndef ODB_MSSQL_CONNECTION_HXX
 #define ODB_MSSQL_CONNECTION_HXX
 
@@ -103,13 +101,11 @@ namespace odb
         return handle_;
       }
 
-      /*
       statement_cache_type&
       statement_cache ()
       {
         return *statement_cache_;
       }
-      */
 
       details::buffer&
       long_buffer ()
@@ -137,7 +133,7 @@ namespace odb
       //
       auto_handle<SQL_HANDLE_STMT> direct_stmt_;
 
-      //std::auto_ptr<statement_cache_type> statement_cache_;
+      std::auto_ptr<statement_cache_type> statement_cache_;
 
       details::buffer long_buffer_;
     };

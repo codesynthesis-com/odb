@@ -13,7 +13,9 @@ connection-factory.cxx    \
 database.cxx              \
 error.cxx                 \
 exceptions.cxx            \
+object-statements.cxx     \
 statement.cxx             \
+statements-base.cxx       \
 tracer.cxx                \
 transaction.cxx           \
 transaction-impl.cxx
