@@ -20,38 +20,38 @@ namespace odb
   namespace oracle
   {
     static void
-    translate_error (void* h, ub4 t, sword s, connection* conn)
+    translate_error (void* h, ub4 htype, sword r, connection* conn)
     {
-      assert (s != OCI_SUCCESS && s != OCI_SUCCESS_WITH_INFO);
+      assert (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO);
 
-      if (s != OCI_ERROR)
+      switch (r)
       {
-        switch (s)
+      case OCI_STILL_EXECUTING:
         {
-        case OCI_STILL_EXECUTING:
-          {
-            throw database_exception (0, "statement still executing");
-            break;
+          throw database_exception (0, "statement still executing");
+          break;
           }
-        case OCI_NEED_DATA:
-        case OCI_NO_DATA:
-          {
-            throw database_exception (0, "unhandled OCI_*_DATA condition");
-            break;
-          }
-        case OCI_INVALID_HANDLE:
-          {
-            throw invalid_oci_handle ();
-            break;
-          }
+      case OCI_NEED_DATA:
+      case OCI_NO_DATA:
+        {
+          throw database_exception (0, "unhandled OCI_*_DATA condition");
+          break;
+        }
+      case OCI_INVALID_HANDLE:
+        {
+          throw invalid_oci_handle ();
+          break;
+        }
+      default:
+        {
+          break;
         }
       }
 
-      sword r;
       sb4 e;
       char b[512];  // Error message will be truncated if it does not fit.
 
-      if (t == OCI_HTYPE_ERROR)
+      if (htype == OCI_HTYPE_ERROR)
       {
         // Mark the connection as failed if necessary.
         //
@@ -104,7 +104,13 @@ namespace odb
 
         for (sb4 i (1);; ++i)
         {
-          r = OCIErrorGet (h, i, 0, &e, reinterpret_cast<OraText*> (b), 512, t);
+          r = OCIErrorGet (h,
+                           i,
+                           0,
+                           &e,
+                           reinterpret_cast<OraText*> (b),
+                           512,
+                           htype);
 
           if (r == OCI_NO_DATA)
             break;
@@ -116,7 +122,7 @@ namespace odb
             nc = code_deadlock;
           else if (e == 51 || // Timeout occurred while waiting for a resource.
                    e == 54 || // Resource busy and acquisition timeout expired.
-                   e == 2049)  // Distributed lock timeout.
+                   e == 2049) // Distributed lock timeout.
             nc = code_timeout;
           else if (e == 28 ||   // Session has been killed.
                    e == 3113 || // End-of-file on communication channel.
@@ -166,7 +172,7 @@ namespace odb
                          &e,
                          reinterpret_cast<OraText*> (b),
                          512,
-                         t);
+                         htype);
 
         if (r == OCI_NO_DATA)
           break;
@@ -178,15 +184,15 @@ namespace odb
     }
 
     void
-    translate_error (OCIError* h, sword result)
+    translate_error (OCIError* h, sword r)
     {
-      translate_error (h, OCI_HTYPE_ERROR, result, 0);
+      translate_error (h, OCI_HTYPE_ERROR, r, 0);
     }
 
     void
-    translate_error (connection& c, sword result)
+    translate_error (connection& c, sword r)
     {
-      translate_error (c.error_handle (), OCI_HTYPE_ERROR, result, &c);
+      translate_error (c.error_handle (), OCI_HTYPE_ERROR, r, &c);
     }
 
     void

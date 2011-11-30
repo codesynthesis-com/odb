@@ -21,16 +21,16 @@ namespace odb
     // exception.
     //
     LIBODB_ORACLE_EXPORT void
-    translate_error (OCIError* h, sword result);
+    translate_error (OCIError*, sword result);
 
     LIBODB_ORACLE_EXPORT void
-    translate_error (connection& c, sword result);
+    translate_error (connection&, sword result);
 
     // Translate an OCI error given an environment handle error and throw
     // an appropriate exception.
     //
     LIBODB_ORACLE_EXPORT void
-    translate_error (OCIEnv* h);
+    translate_error (OCIEnv*);
   }
 }
 
