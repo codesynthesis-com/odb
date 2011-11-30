@@ -19,8 +19,7 @@ namespace odb
 {
   namespace oracle
   {
-    template <>
-    struct default_value_traits <QString, id_string>
+    struct qstring_value_traits
     {
     public:
       typedef QString value_type;
@@ -62,6 +61,16 @@ namespace odb
           std::memcpy (b, a.constData (), n);
         }
       }
+    };
+
+    template <>
+    struct default_value_traits <QString, id_string>: qstring_value_traits
+    {
+    };
+
+    template <>
+    struct default_value_traits <QString, id_nstring>: qstring_value_traits
+    {
     };
 
     class qstring_lob_value_traits
