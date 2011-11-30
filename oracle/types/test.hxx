@@ -197,7 +197,7 @@ struct object
 
   // Test NULL value.
   //
-  #pragma db type ("VARCHAR(32)") null
+  #pragma db type ("VARCHAR2(32)") null
   string_ptr null_;
 
   bool
