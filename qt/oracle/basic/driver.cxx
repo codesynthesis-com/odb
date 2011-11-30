@@ -29,13 +29,21 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    string long_str (20000, 'l');
+    string short_str (13, 's');
+    string medium_str (150, 'm');
+    string long_str (20000, 'v');
+    string unicode_str ("a \xD5\x95 \xEA\xAA\xAA \xF2\xAA\xAA\xAA");
 
     object o;
 
-    o.varchar = "John Doe";
-    o.clob = QString::fromStdString (string (150, 'c'));
+    o.char_= QString::fromStdString (short_str);
+    o.varchar2 = QString::fromStdString (medium_str);
+    o.clob = QString::fromStdString (long_str);
+
+    o.nchar= QString::fromStdString (unicode_str);
+    o.nvarchar2 = QString::fromStdString (unicode_str);
     o.nclob = QString::fromStdString (long_str);
+
     o.raw = QByteArray ("\0x13\0xDE\0x00\0x00\0x00\0x54\0xF2\0x6A", 8);
     o.blob = QByteArray (long_str.c_str (),
                          static_cast<int> (long_str.size ()));
@@ -52,7 +60,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      object* ol = db->load<object> (o.varchar);
+      object* ol = db->load<object> (o.varchar2);
       t.commit ();
 
       assert (*ol == o);

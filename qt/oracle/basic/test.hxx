@@ -16,7 +16,10 @@ struct object
   operator== (const object& x) const
   {
     return
-      varchar == x.varchar &&
+      varchar2 == x.varchar2 &&
+      char_ == x.char_ &&
+      nchar == x.nchar &&
+      nvarchar2 == x.nvarchar2 &&
       clob == x.clob &&
       nclob == x.nclob &&
       blob == x.blob &&
@@ -24,7 +27,16 @@ struct object
   }
 
   #pragma db id
-  QString varchar;
+  QString varchar2;
+
+  #pragma db type ("CHAR(13)")
+  QString char_;
+
+  #pragma db type ("NCHAR(13)")
+  QString nchar;
+
+  #pragma db type ("NVARCHAR2(512)")
+  QString nvarchar2;
 
   #pragma db type ("CLOB")
   QString clob;
