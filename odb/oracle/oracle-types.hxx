@@ -60,16 +60,19 @@ namespace odb
       ub4 size,              // [in] The result data size in bytes.
       chunk_position);       // [in] The position of this chunk.
 
-    union lob_callback
+    struct lob_callback
     {
-      param_callback_type param;
-      result_callback_type result;
-    };
+      union
+      {
+        param_callback_type param;
+        result_callback_type result;
+      } callback;
 
-    union lob_context
-    {
-      const void* param;
-      void* result;
+      union
+      {
+        const void* param;
+        void* result;
+      } context;
     };
 
     struct bind
@@ -112,15 +115,10 @@ namespace odb
                         // bindings, this is interpreted as the OCIDefine
                         // handle associated with the LOB result parameter.
       ub4 capacity;     // The maximum number of bytes that can be stored in
-                        // buffer.
+                        // the buffer.
       sb2* indicator;   // Pointer to an OCI indicator variable.
 
       lob_callback* callback;
-
-      // This pointer is provided to the user through the context argument
-      // in both parameter and result callback functions.
-      //
-      lob_context* context;
     };
 
     // An instance of this structure specifies the function to invoke and

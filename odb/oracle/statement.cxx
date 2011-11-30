@@ -89,13 +89,14 @@ namespace odb
       if (*b.indicator != -1)
       {
         chunk_position pos;
-        if (!(*b.callback->param) (b.context->param,
-                                   &l->position,
-                                   const_cast<const void**> (buffer),
-                                   size,
-                                   &pos,
-                                   l->buffer->data (),
-                                   l->buffer->capacity ()))
+        if (!(*b.callback->callback.param) (
+              b.callback->context.param,
+              &l->position,
+              const_cast<const void**> (buffer),
+              size,
+              &pos,
+              l->buffer->data (),
+              l->buffer->capacity ()))
           return OCI_ERROR;
 
         switch (pos)
@@ -982,7 +983,7 @@ namespace odb
              b->type == bind::clob ||
              b->type == bind::nclob) &&
             (b->indicator == 0 || *b->indicator != -1) &&
-            b->callback->result != 0)
+            b->callback->callback.result != 0)
         {
           lob* l (static_cast<lob*> (b->buffer));
 
@@ -1038,11 +1039,12 @@ namespace odb
             // OCI generates and ORA-24343 error when an error code is
             // returned from a user callback. We simulate this.
             //
-            if (!(*b->callback->result) (b->context->result,
-                                         &position,
-                                         lob_buffer.data (),
-                                         static_cast<ub4> (read),
-                                         cp))
+            if (!(*b->callback->callback.result) (
+                  b->callback->context.result,
+                  &position,
+                  lob_buffer.data (),
+                  static_cast<ub4> (read),
+                  cp))
               throw database_exception (24343, "user defined callback error");
 
           } while (r == OCI_NEED_DATA);
