@@ -12,7 +12,8 @@
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/oracle-fwd.hxx>
-#include <odb/oracle/auto-descriptor.hxx>
+
+#include <odb/oracle/details/export.hxx>
 
 namespace odb
 {
