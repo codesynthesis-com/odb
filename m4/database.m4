@@ -12,7 +12,7 @@ AC_MSG_CHECKING([for database to use])
 
 AC_ARG_WITH(
   [database],
-  [AC_HELP_STRING([--with-database=db],
+  [AC_HELP_STRING([--with-database=DB],
                   [database to use for tests; valid values are: 'mysql', 'sqlite', 'pgsql', and 'oracle'])],
   [case $withval in
      no | yes)

@@ -12,7 +12,7 @@ AC_DEFUN([PGSQL], [
 AC_MSG_CHECKING([for pgsql client program])
 AC_ARG_WITH(
   [pgsql-client],
-  [AC_HELP_STRING([--with-pgsql-client=path], [PostgreSQL client program path (psql by default)])],
+  [AC_HELP_STRING([--with-pgsql-client=PATH], [PostgreSQL client program path (psql by default)])],
   [case $withval in
      yes)
        pgsql_client=psql
@@ -41,7 +41,7 @@ fi
 AC_MSG_CHECKING([for pgsql database user])
 AC_ARG_WITH(
   [pgsql-user],
-  [AC_HELP_STRING([--with-pgsql-user=login], [PostgreSQL database user (odb_test by default). The user must be able to login without specifying a password.])],
+  [AC_HELP_STRING([--with-pgsql-user=NAME], [PostgreSQL database user (odb_test by default). The user must be able to login without specifying a password.])],
   [case $withval in
      yes)
        pgsql_user=odb_test
@@ -69,7 +69,7 @@ fi
 AC_MSG_CHECKING([for pgsql database name])
 AC_ARG_WITH(
   [pgsql-db],
-  [AC_HELP_STRING([--with-pgsql-db=name], [PostgreSQL database name (odb_test by default). Note that all data in this database WILL BE LOST!])],
+  [AC_HELP_STRING([--with-pgsql-db=NAME], [PostgreSQL database name (odb_test by default). Note that all data in this database WILL BE LOST!])],
   [case $withval in
      yes)
        pgsql_db=odb_test
@@ -97,7 +97,7 @@ fi
 AC_MSG_CHECKING([for pgsql database host])
 AC_ARG_WITH(
   [pgsql-host],
-  [AC_HELP_STRING([--with-pgsql-host=host], [PostgreSQL database host (localhost by default)])],
+  [AC_HELP_STRING([--with-pgsql-host=HOST], [PostgreSQL database host (localhost by default)])],
   [case $withval in
      yes)
        pgsql_host=
@@ -124,7 +124,7 @@ fi
 AC_MSG_CHECKING([for pgsql database port])
 AC_ARG_WITH(
   [pgsql-port],
-  [AC_HELP_STRING([--with-pgsql-port=port], [PostgreSQL database port (standard PostgreSQL port by default)])],
+  [AC_HELP_STRING([--with-pgsql-port=PORT], [PostgreSQL database port (standard PostgreSQL port by default)])],
   [case $withval in
      yes)
        pgsql_port=0

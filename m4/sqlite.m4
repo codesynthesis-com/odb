@@ -12,7 +12,7 @@ AC_DEFUN([SQLITE], [
 AC_MSG_CHECKING([for sqlite database file])
 AC_ARG_WITH(
   [sqlite-db],
-  [AC_HELP_STRING([--with-sqlite-db=file], [SQLite database file (odb_test.db by default). Note that all data in this database WILL BE LOST!])],
+  [AC_HELP_STRING([--with-sqlite-db=FILE], [SQLite database file (odb_test.db by default). Note that all data in this database WILL BE LOST!])],
   [case $withval in
      yes)
        sqlite_db=odb_test.db

@@ -12,7 +12,7 @@ AC_DEFUN([MYSQL], [
 AC_MSG_CHECKING([for mysql client program])
 AC_ARG_WITH(
   [mysql-client],
-  [AC_HELP_STRING([--with-mysql-client=path], [MySQL client program path (mysql by default)])],
+  [AC_HELP_STRING([--with-mysql-client=PATH], [MySQL client program path (mysql by default)])],
   [case $withval in
      yes)
        mysql_client=mysql
@@ -41,7 +41,7 @@ fi
 AC_MSG_CHECKING([for mysql database user])
 AC_ARG_WITH(
   [mysql-user],
-  [AC_HELP_STRING([--with-mysql-user=login], [MySQL database user (odb_test by default)])],
+  [AC_HELP_STRING([--with-mysql-user=NAME], [MySQL database user (odb_test by default)])],
   [case $withval in
      yes)
        mysql_user=odb_test
@@ -69,7 +69,7 @@ fi
 AC_MSG_CHECKING([for mysql database password])
 AC_ARG_WITH(
   [mysql-password],
-  [AC_HELP_STRING([--with-mysql-password=login], [MySQL database password (no password by default)])],
+  [AC_HELP_STRING([--with-mysql-password=PASS], [MySQL database password (no password by default)])],
   [case $withval in
      yes)
        mysql_password=
@@ -96,7 +96,7 @@ fi
 AC_MSG_CHECKING([for mysql database name])
 AC_ARG_WITH(
   [mysql-db],
-  [AC_HELP_STRING([--with-mysql-db=name], [MySQL database name (odb_test by default). Note that all data in this database WILL BE LOST!])],
+  [AC_HELP_STRING([--with-mysql-db=NAME], [MySQL database name (odb_test by default). Note that all data in this database WILL BE LOST!])],
   [case $withval in
      yes)
        mysql_db=odb_test
@@ -124,7 +124,7 @@ fi
 AC_MSG_CHECKING([for mysql database host])
 AC_ARG_WITH(
   [mysql-host],
-  [AC_HELP_STRING([--with-mysql-host=host], [MySQL database host (localhost by default)])],
+  [AC_HELP_STRING([--with-mysql-host=HOST], [MySQL database host (localhost by default)])],
   [case $withval in
      yes)
        mysql_host=localhost
@@ -151,7 +151,7 @@ fi
 AC_MSG_CHECKING([for mysql database port])
 AC_ARG_WITH(
   [mysql-port],
-  [AC_HELP_STRING([--with-mysql-port=port], [MySQL database port (standard MySQL port by default)])],
+  [AC_HELP_STRING([--with-mysql-port=PORT], [MySQL database port (standard MySQL port by default)])],
   [case $withval in
      yes)
        mysql_port=0
@@ -178,7 +178,7 @@ fi
 AC_MSG_CHECKING([for mysql database socket])
 AC_ARG_WITH(
   [mysql-socket],
-  [AC_HELP_STRING([--with-mysql-socket=socket], [MySQL database socket (standard MySQL socket by default)])],
+  [AC_HELP_STRING([--with-mysql-socket=SOCKET], [MySQL database socket (standard MySQL socket by default)])],
   [case $withval in
      yes)
        mysql_socket=

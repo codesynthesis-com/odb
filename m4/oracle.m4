@@ -12,7 +12,7 @@ AC_DEFUN([ORACLE], [
 AC_MSG_CHECKING([for oracle client program])
 AC_ARG_WITH(
   [oracle-client],
-  [AC_HELP_STRING([--with-oracle-client=path], [Oracle client program path (sqlplus by default)])],
+  [AC_HELP_STRING([--with-oracle-client=PATH], [Oracle client program path (sqlplus by default)])],
   [case $withval in
      yes)
        oracle_client=sqlplus
@@ -41,7 +41,7 @@ fi
 AC_MSG_CHECKING([for oracle database user])
 AC_ARG_WITH(
   [oracle-user],
-  [AC_HELP_STRING([--with-oracle-user=login], [Oracle database user (odb_test by default)])],
+  [AC_HELP_STRING([--with-oracle-user=NAME], [Oracle database user (odb_test by default)])],
   [case $withval in
      yes)
        oracle_user=odb_test
@@ -69,7 +69,7 @@ fi
 AC_MSG_CHECKING([for oracle database password])
 AC_ARG_WITH(
   [oracle-password],
-  [AC_HELP_STRING([--with-oracle-password=login], [Oracle database password (odb_test by default)])],
+  [AC_HELP_STRING([--with-oracle-password=PASS], [Oracle database password (odb_test by default)])],
   [case $withval in
      yes)
        oracle_password=odb_test
@@ -101,7 +101,7 @@ fi
 AC_MSG_CHECKING([for oracle service name])
 AC_ARG_WITH(
   [oracle-service],
-  [AC_HELP_STRING([--with-oracle-service=name], [Oracle service name (default service if left empty). Note that all data associated with this user on this service WILL BE LOST!])],
+  [AC_HELP_STRING([--with-oracle-service=NAME], [Oracle service name (default service if left empty). Note that all data associated with this user on this service WILL BE LOST!])],
   [case $withval in
      yes)
        oracle_service=
@@ -128,7 +128,7 @@ fi
 AC_MSG_CHECKING([for oracle database host])
 AC_ARG_WITH(
   [oracle-host],
-  [AC_HELP_STRING([--with-oracle-host=host], [Oracle database host (localhost by default)])],
+  [AC_HELP_STRING([--with-oracle-host=HOST], [Oracle database host (localhost by default)])],
   [case $withval in
      yes)
        oracle_host=localhost
@@ -155,7 +155,7 @@ fi
 AC_MSG_CHECKING([for oracle database port])
 AC_ARG_WITH(
   [oracle-port],
-  [AC_HELP_STRING([--with-oracle-port=port], [Oracle database port (standard Oracle port by default)])],
+  [AC_HELP_STRING([--with-oracle-port=PORT], [Oracle database port (standard Oracle port by default)])],
   [case $withval in
      yes)
        oracle_port=1521

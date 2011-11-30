@@ -15,6 +15,10 @@ LT_INIT([win32-dll])
 
 AC_CANONICAL_HOST
 
+# Check for diff.
+#
+DIFF_TOOL
+
 # Check for C++ compiler and use it to compile the tests.
 #
 AC_PROG_CXX
@@ -29,6 +33,10 @@ LT_OUTPUT
 THREADS
 
 AM_CONDITIONAL([ODB_TESTS_THREADS], [test x$threads != xnone])
+
+# Check for the ODB compiler.
+#
+ODB_COMPILER([], [AC_MSG_ERROR([odb compiler is not found; consider setting ODB variable or using --with-odb=DIR])])
 
 # Check for the ODB libs.
 #
@@ -86,14 +94,6 @@ case $database in
     ORACLE
     ;;
 esac
-
-# Check for the ODB compiler.
-#
-ODB_COMPILER([], [AC_MSG_ERROR([odb compiler is not found; consider setting ODB variable or using --with-odb=DIR])])
-
-# Check for diff.
-#
-DIFF_TOOL
 
 # Define LIBCOMMON_STATIC_LIB if we are build static library on certain
 # platforms.

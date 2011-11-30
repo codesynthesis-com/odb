@@ -14,7 +14,7 @@ AC_ARG_VAR([ODBCPPFLAGS],[ODB-specific C++ preprocessor flags])
 
 AC_ARG_WITH(
   [odb],
-  [AC_HELP_STRING([--with-odb=DIR],[location of odb build directory])],
+  [AC_HELP_STRING([--with-odb=DIR],[location of odb compiler build directory])],
   [odb_dir=${withval}],
   [odb_dir=])
 
