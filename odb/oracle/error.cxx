@@ -53,36 +53,6 @@ namespace odb
 
       if (htype == OCI_HTYPE_ERROR)
       {
-        // Mark the connection as failed if necessary.
-        //
-        if (conn != 0)
-        {
-          OCIServer* server;
-          r = OCIAttrGet (conn->handle (),
-                          OCI_HTYPE_SVCCTX,
-                          &server,
-                          0,
-                          OCI_ATTR_SERVER,
-                          conn->error_handle ());
-
-          if (r != OCI_SUCCESS)
-            throw invalid_oci_handle ();
-
-          ub4 server_status;
-          r = OCIAttrGet (server,
-                          OCI_HTYPE_SERVER,
-                          &server_status,
-                          0,
-                          OCI_ATTR_SERVER_STATUS,
-                          conn->error_handle ());
-
-          if (r != OCI_SUCCESS)
-            throw invalid_oci_handle ();
-
-          if (server_status == OCI_SERVER_NOT_CONNECTED)
-            conn->mark_failed ();
-        }
-
         // We need to translate certain Oracle error codes to special
         // exceptions, such as deadlock, timeout, etc. The problem is we can
         // have multiple records potentially with different error codes. If we
@@ -147,6 +117,38 @@ namespace odb
           c = nc;
         }
 
+        // Check if the connection is lost. If code is connection_lost,
+        // then we know it is gone. If code is deadlock, then the
+        // connection is most likely ok.
+        //
+        if (conn != 0 && (c == code_none || c == code_timeout))
+        {
+          OCIServer* server;
+          r = OCIAttrGet (conn->handle (),
+                          OCI_HTYPE_SVCCTX,
+                          &server,
+                          0,
+                          OCI_ATTR_SERVER,
+                          conn->error_handle ());
+
+          if (r != OCI_SUCCESS)
+            throw invalid_oci_handle ();
+
+          ub4 server_status;
+          r = OCIAttrGet (server,
+                          OCI_HTYPE_SERVER,
+                          &server_status,
+                          0,
+                          OCI_ATTR_SERVER_STATUS,
+                          conn->error_handle ());
+
+          if (r != OCI_SUCCESS)
+            throw invalid_oci_handle ();
+
+          if (server_status == OCI_SERVER_NOT_CONNECTED)
+            conn->mark_failed ();
+        }
+
         switch (c)
         {
         case code_deadlock:
@@ -154,7 +156,12 @@ namespace odb
         case code_timeout:
           throw timeout ();
         case code_connection_lost:
-          throw connection_lost ();
+          {
+            if (conn != 0)
+              conn->mark_failed ();
+
+            throw connection_lost ();
+          }
         case code_none:
           break;
         }
