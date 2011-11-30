@@ -115,9 +115,11 @@ namespace odb
               e == 104)  // Deadlock detected; all public servers blocked.
             nc = code_deadlock;
           else if (e == 51 || // Timeout occurred while waiting for a resource.
-                   e == 54)   // Resource busy and acquisition timeout expired.
+                   e == 54 || // Resource busy and acquisition timeout expired.
+                   e == 2049)  // Distributed lock timeout.
             nc = code_timeout;
           else if (e == 28 ||   // Session has been killed.
+                   e == 3113 || // End-of-file on communication channel.
                    e == 3135 || // Connection lost contact.
                    e == 3136 || // Inbound connection timed out.
                    e == 3138)   // Connection terminated.
