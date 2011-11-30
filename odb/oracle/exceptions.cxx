@@ -86,7 +86,7 @@ namespace odb
     const char* invalid_oci_handle::
     what () const throw ()
     {
-      return "invalid oci handle";
+      return "invalid oci handle passed or unable to allocate handle";
     }
   }
 }
