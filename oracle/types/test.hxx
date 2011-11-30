@@ -136,6 +136,12 @@ struct object
   #pragma db type ("FLOAT(53)")
   double double_;
 
+  #pragma db type ("NUMBER(7,3)")
+  float num_float_;
+
+  #pragma db type ("NUMBER(15,5)")
+  double num_double_;
+
   #pragma db type ("BINARY_FLOAT")
   float binary_float_;
 
@@ -205,6 +211,8 @@ struct object
       ulong_long_ == y.ulong_long_ &&
       float_ == y.float_ &&
       double_ == y.double_ &&
+      num_float_ == y.num_float_ &&
+      num_double_ == y.num_double_ &&
       binary_float_ == y.binary_float_ &&
       binary_double_ == y.binary_double_ &&
       date_ == y.date_ &&

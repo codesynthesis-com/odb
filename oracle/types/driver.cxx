@@ -40,6 +40,8 @@ main (int argc, char* argv[])
 
     o.float_ = 1.123F;
     o.double_ = 1.123;
+    o.num_float_ = 1.123F;
+    o.num_double_ = 1.123;
     o.binary_float_ = 1.123F;
     o.binary_double_ = 1.123;
 
