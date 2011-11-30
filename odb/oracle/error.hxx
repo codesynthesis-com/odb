@@ -8,8 +8,7 @@
 
 #include <odb/pre.hxx>
 
-#include <oci.h>
-
+#include <odb/oracle/oracle-fwd.hxx>
 #include <odb/oracle/forward.hxx>
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/details/export.hxx>
@@ -18,26 +17,20 @@ namespace odb
 {
   namespace oracle
   {
-    void
-    translate_error (void* h, ub4 t, sword s, connection*);
-
     // Translate OCI error given an error handle and throw an appropriate
     // exception.
     //
-    inline LIBODB_ORACLE_EXPORT void
-    translate_error (OCIError* h, sword s, connection* c = 0)
-    {
-      translate_error (h, OCI_HTYPE_ERROR, s, c);
-    }
+    LIBODB_ORACLE_EXPORT void
+    translate_error (OCIError* h, sword result);
+
+    LIBODB_ORACLE_EXPORT void
+    translate_error (connection& c, sword result);
 
     // Translate an OCI error given an environment handle error and throw
     // an appropriate exception.
     //
-    inline LIBODB_ORACLE_EXPORT void
-    translate_error (OCIEnv* h)
-    {
-      translate_error (h, OCI_HTYPE_ENV, OCI_ERROR, 0);
-    }
+    LIBODB_ORACLE_EXPORT void
+    translate_error (OCIEnv* h);
   }
 }
 

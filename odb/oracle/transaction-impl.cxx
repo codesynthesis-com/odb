@@ -106,7 +106,7 @@ namespace odb
                          OCI_TRANS_NEW);
 
       if (s == OCI_ERROR || s == OCI_INVALID_HANDLE)
-        translate_error (err, s, connection_.get ());
+        translate_error (*connection_, s);
     }
 
     void transaction_impl::
@@ -123,7 +123,7 @@ namespace odb
                                OCI_DEFAULT));
 
       if (s == OCI_ERROR || s == OCI_INVALID_HANDLE)
-        translate_error (connection_->error_handle (), s, connection_.get ());
+        translate_error (*connection_, s);
     }
 
     void transaction_impl::
@@ -140,7 +140,7 @@ namespace odb
                                  OCI_DEFAULT));
 
       if (s == OCI_ERROR || s == OCI_INVALID_HANDLE)
-        translate_error (connection_->error_handle (), s, connection_.get ());
+        translate_error (*connection_, s);
     }
   }
 }

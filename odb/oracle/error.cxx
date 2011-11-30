@@ -5,6 +5,8 @@
 
 #include <cassert>
 
+#include <oci.h>
+
 #include <odb/details/buffer.hxx>
 
 #include <odb/oracle/error.hxx>
@@ -17,7 +19,7 @@ namespace odb
 {
   namespace oracle
   {
-    void
+    static void
     translate_error (void* h, ub4 t, sword s, connection* conn)
     {
       assert (s != OCI_SUCCESS && s != OCI_SUCCESS_WITH_INFO);
@@ -45,7 +47,7 @@ namespace odb
         }
       }
 
-      sword r (0);
+      sword r;
       sb4 e;
       char b[512];  // Error message will be truncated if it does not fit.
 
@@ -55,7 +57,7 @@ namespace odb
         //
         if (conn != 0)
         {
-          OCIServer* server (0);
+          OCIServer* server;
           r = OCIAttrGet (conn->handle (),
                           OCI_HTYPE_SVCCTX,
                           &server,
@@ -66,7 +68,7 @@ namespace odb
           if (r != OCI_SUCCESS)
             throw invalid_oci_handle ();
 
-          ub4 server_status (0);
+          ub4 server_status;
           r = OCIAttrGet (server,
                           OCI_HTYPE_SERVER,
                           &server_status,
@@ -171,6 +173,24 @@ namespace odb
       }
 
       throw dbe;
+    }
+
+    void
+    translate_error (OCIError* h, sword result)
+    {
+      translate_error (h, OCI_HTYPE_ERROR, result, 0);
+    }
+
+    void
+    translate_error (connection& c, sword result)
+    {
+      translate_error (c.error_handle (), OCI_HTYPE_ERROR, result, &c);
+    }
+
+    void
+    translate_error (OCIEnv* h)
+    {
+      translate_error (h, OCI_HTYPE_ENV, OCI_ERROR, 0);
     }
   }
 }
