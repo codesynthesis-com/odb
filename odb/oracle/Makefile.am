@@ -1,7 +1,7 @@
 # file      : odb/oracle/Makefile.am
 # author    : Boris Kolpackov <boris@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
-# license   : GNU GPL v2; see accompanying LICENSE file
+# license   : ODB NCUEL; see accompanying LICENSE file
 
 lib_LTLIBRARIES = libodb-oracle.la
 libodb_oracle_la_SOURCES = __path__(sources)
