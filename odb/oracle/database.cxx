@@ -108,8 +108,6 @@ namespace odb
           ss << service_;
       }
 
-      // @@ Quote FQ connect identifier.
-      //
       db_ = ss.str ();
 
       if (factory_.get () == 0)
@@ -203,9 +201,6 @@ namespace odb
 
           db_ = oss.str ();
         }
-
-        // @@ Quote FQ connect identifier.
-        //
       }
       catch (const cli::exception& e)
       {
