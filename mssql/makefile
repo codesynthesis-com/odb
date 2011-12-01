@@ -1,7 +1,7 @@
 # file      : mssql/makefile
 # author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
-# license   : ODB NCUEL; see accompanying LICENSE file
+# license   : GNU GPL; see accompanying LICENSE file
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
