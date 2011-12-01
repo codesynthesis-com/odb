@@ -12,16 +12,16 @@ ifeq ($(db_id),mysql)
 dirs += mysql
 endif
 
-ifeq ($(db_id),oracle)
-dirs += oracle
-endif
-
 ifeq ($(db_id),sqlite)
 dirs += sqlite
 endif
 
 ifeq ($(db_id),pgsql)
 dirs += pgsql
+endif
+
+ifeq ($(db_id),oracle)
+dirs += oracle
 endif
 
 default := $(out_base)/
