@@ -186,14 +186,12 @@ namespace odb
     };
 
     template <>
-    struct LIBODB_ORACLE_EXPORT default_value_traits<QString, id_clob>:
-      qstring_lob_value_traits
+    struct default_value_traits<QString, id_clob>: qstring_lob_value_traits
     {
     };
 
     template <>
-    struct LIBODB_ORACLE_EXPORT default_value_traits<QString, id_nclob>:
-      qstring_lob_value_traits
+    struct default_value_traits<QString, id_nclob>: qstring_lob_value_traits
     {
     };
 
