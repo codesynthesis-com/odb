@@ -180,7 +180,7 @@ AC_CONFIG_COMMANDS([pgsql.options],
    echo 'export PGOPTIONS' >>db-driver
 
    echo 'if test x$[]1 != x; then' >>db-driver
-   echo "  exec $pgsql_client "'$opt <$[]1' >>db-driver
+   echo "  exec $pgsql_client "'$opt --set ON_ERROR_STOP=1 -f $[]1' >>db-driver
    echo "else" >>db-driver
    echo "  exec $pgsql_client "'$opt' >>db-driver
    echo "fi" >>db-driver

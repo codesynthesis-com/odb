@@ -49,7 +49,7 @@ opt="--quiet $opt"
 export PGOPTIONS=--client-min-messages=warning
 
 if [ -n "$1" ]; then
-  exec $driver $opt <$1
+  exec $driver $opt --set ON_ERROR_STOP=1 -f $1
 else
   exec $driver $opt
 fi
