@@ -30,7 +30,7 @@ namespace odb
   {
     connection::
     connection (database_type& db)
-        : odb::connection (db), db_ (db)
+        : odb::connection (db), db_ (db), failed_ (false)
     {
       handle_.reset (PQconnectdb (db.conninfo ().c_str ()));
 
@@ -44,7 +44,7 @@ namespace odb
 
     connection::
     connection (database_type& db, PGconn* handle)
-        : odb::connection (db), db_ (db), handle_ (handle)
+        : odb::connection (db), db_ (db), handle_ (handle), failed_ (false)
     {
       init ();
     }

@@ -81,6 +81,19 @@ namespace odb
       using odb::connection::tracer;
 
     public:
+      bool
+      failed () const
+      {
+        return failed_;
+      }
+
+      void
+      mark_failed ()
+      {
+        failed_ = true;
+      }
+
+    public:
       PGconn*
       handle ()
       {
@@ -108,6 +121,7 @@ namespace odb
       database_type& db_;
 
       auto_handle<PGconn> handle_;
+      bool failed_;
 
       // Keep statement_cache_ after handle_ so that it is destroyed before
       // the connection is closed.

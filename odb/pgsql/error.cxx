@@ -17,26 +17,15 @@ namespace odb
   namespace pgsql
   {
     void
-    translate_error (connection& c)
-    {
-      PGconn* h (c.handle ());
-
-      assert (CONNECTION_BAD == PQstatus (h));
-
-      if (const char* m = PQerrorMessage (h))
-        throw database_exception (m);
-      else
-        throw database_exception ("unknown error");
-    }
-
-    void
-    translate_error (connection& c,
-                     PGresult* r)
+    translate_error (connection& c, PGresult* r)
     {
       if (!r)
       {
         if (CONNECTION_BAD == PQstatus (c.handle ()))
+        {
+          c.mark_failed ();
           throw connection_lost ();
+        }
         else
           throw bad_alloc ();
       }
@@ -66,8 +55,10 @@ namespace odb
             throw deadlock ();
 
           else if (CONNECTION_BAD == PQstatus (c.handle ()))
+          {
+            c.mark_failed ();
             throw connection_lost ();
-
+          }
           else
             throw database_exception (ss, error_message);
         }

@@ -11,17 +11,13 @@
 #include <libpq-fe.h>
 
 #include <odb/pgsql/version.hxx>
+#include <odb/pgsql/forward.hxx> // connection
 #include <odb/pgsql/details/export.hxx>
 
 namespace odb
 {
   namespace pgsql
   {
-    class connection;
-
-    LIBODB_PGSQL_EXPORT void
-    translate_error (connection&);
-
     // Translate an error condition involving a PGresult*. If r is null, it is
     // assumed that the error was caused due to a bad connection or a memory
     // allocation error.
