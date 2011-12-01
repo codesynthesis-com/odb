@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include <QtCore/QSharedPointer>
+#include <QtCore/QCoreApplication>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
@@ -32,6 +33,8 @@ template class QLazyWeakPointer<cont>;
 int
 main (int argc, char* argv[])
 {
+  QCoreApplication app (argc, argv);
+
   try
   {
     auto_ptr<database> db (create_database (argc, argv));

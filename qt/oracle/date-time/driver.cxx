@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include <QtCore/QDateTime>
+#include <QtCore/QCoreApplication>
 
 #include <odb/oracle/database.hxx>
 #include <odb/oracle/transaction.hxx>
@@ -26,6 +27,8 @@ using namespace odb::core;
 int
 main (int argc, char* argv[])
 {
+  QCoreApplication app (argc, argv);
+
   try
   {
     auto_ptr<database> db (create_database (argc, argv));

@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include <QtCore/QDateTime>
+#include <QtCore/QCoreApplication>
 
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/transaction.hxx>
@@ -29,6 +30,8 @@ test_out_of_range_value (object&, database&);
 int
 main (int argc, char* argv[])
 {
+  QCoreApplication app (argc, argv);
+
   try
   {
     auto_ptr<database> db (create_database (argc, argv));

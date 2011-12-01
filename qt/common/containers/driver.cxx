@@ -10,6 +10,8 @@
 #include <cassert>
 #include <iostream>
 
+#include <QtCore/QCoreApplication>
+
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
@@ -24,6 +26,8 @@ using namespace odb::core;
 int
 main (int argc, char* argv[])
 {
+  QCoreApplication app (argc, argv);
+
   try
   {
     auto_ptr<database> db (create_database (argc, argv));
