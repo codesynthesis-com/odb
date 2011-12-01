@@ -81,8 +81,8 @@ cannot be discovered automatically.
 For each <database> value the configure script has a set of options in
 the form --with-<database>-* that allow you to specify various database
 system parameters, such as the login name, password, and database name,
-that should be used when running the tests. Run configure with
---help to see the available options for your database.
+that should be used when running the tests. Run configure with --help
+to see the available options for your database.
 
 As another example, the following configure command uses the specified
 C++ compiler and compiles with optimization and without debug information:
@@ -158,7 +158,7 @@ Before you can run test.bat, you may need to adjust the database system
 parameters, such as the login name, password, and database name, that
 should be used when running the tests. To do this, edit the
 <database>.options and <database>-driver.bat files located in the
-odb-tests\ directory. Once this is, done you can run the tests by
+odb-tests\ directory. Once this is done, you can run the tests by
 executing the following command from the command prompt:
 
 test.bat <database>
