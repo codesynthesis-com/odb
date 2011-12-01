@@ -1,1 +1,155 @@
-@@ Complete INSTALL instructions
+Prerequisites
+=============
+
+  - libodb   http://www.codesynthesis.com/products/odb/
+  - oci      http://www.oracle.com/technetwork/database/features/instant-client/index-100365.html
+
+The OCI library can be obtained in two ways: as part of the Oracle database
+installation or as a separate distribution called Instant Client.
+
+If you have the Oracle database installed, then the OCI headers and
+libraries can be found in the following locations relative to ORACLE_HOME
+(root directory of the Oracle database installation):
+
+UNIX
+  headers                   ORACLE_HOME/rdbms/public
+  libraries                 ORACLE_HOME/lib
+
+Windows
+  headers                   ORACLE_HOME\oci\include
+  import libraries (.lib)   ORACLE_HOME\oci\lib\msvc
+  dynamic libraries (.dll)  ORACLE_HOME\bin
+
+If you would like to use Instant Client, then in order to build the
+Oracle ODB runtime you will need the 'basic' and 'sdk' packages of the
+Instant Client distribution. If you are planning to run the ODB tests
+or examples, then you will also need the 'sqlplus' package.
+
+Once the Instant Client packages are unpacked, the OCI headers and
+libraries can be found in the following locations relative to the
+Instant Client root directory (referred to as instantclient_X_Y below):
+
+UNIX
+  headers                   instantclient_X_Y/sdk/include
+  libraries                 instantclient_X_Y
+
+Windows
+  headers                   instantclient_X_Y\sdk\include
+  import libraries (.lib)   instantclient_X_Y\sdk\lib\msvc
+  dynamic libraries (.dll)  instantclient_X_Y
+
+In order for applications that are using OCI to be able to find the
+OCI libraries, when using either the Oracle database installation or
+Instant Client, make sure that:
+
+- on UNIX the 'libraries' directory is added to the LD_LIBRARY_PATH
+  environment variable or the ld.so.conf file (or equivalent
+  mechanisms for your platform);
+
+- on Windows the 'dynamic libraries' directory is added to the PATH
+  environment variable.
+
+Building on UNIX
+================
+
+The following build instructions are for the Linux/UNIX/Mac OS X
+operating systems as well as for Cygwin and MinGW on Windows.
+
+The standard autotools-based build system is used on these platforms.
+After unpacking the source code archive, change to the libodb-oracle
+package directory (referred to as libodb-oracle/ from now on) and run
+the configure script:
+
+./configure
+
+To see the available configuration options run configure with --help:
+
+./configure --help
+
+The configure script expects the libodb headers and library to be
+installed in a directory where the C++ compiler and linker will search
+for them by default (normally /usr and /usr/local). If this library is
+installed in another directory, you can use the CPPFLAGS and LDFLAGS
+configure variables to specify its location, for example:
+
+./configure CPPFLAGS=-I/opt/libodb/include LDFLAGS=-L/opt/libodb/lib
+
+If libodb is not installed and you would like to use its build directory
+instead, you can use the --with-libodb configure option to specify its
+location, for example:
+
+./configure --with-libodb=/tmp/libodb
+
+While you can use the CPPFLAGS and LDFLAGS configure variables to specify
+the location of the OCI headers and libraries, the configure script provides
+the --with-oci option which can be used to specify the root directory either
+of the Oracle database installation (ORACLE_HOME) or of Instant Client
+(instantclient_X_Y). If the --with-oci option is not specified and OCI
+cannot be found using CPPFLAGS/LDFLAGS, then the configure script also
+checks if the ORACLE_HOME environment variable is set and if so, uses its
+value as the root of the Oracle database installation.
+
+As another example, the following configure command only builds shared
+libraries, uses the specified C++ compiler, and compiles with optimization
+and without debug information:
+
+./configure --disable-static CXX=g++-4.5 CXXFLAGS=-O3
+
+Once configuration is complete, run make to build libodb-oracle:
+
+make
+
+Once the build is completed successfully, you can install the libodb-oracle
+headers and libraries using the install target (you may need to do this
+step as root depending on the installation directory):
+
+make install
+
+
+Building on Windows
+===================
+
+The following build instructions are for Windows using Microsoft Visual
+Studio. If you would like to build libodb-oracle with GCC either using
+Cygwin or MinGW, refer to the "Building on UNIX" section above.
+
+The standard Visual Studio project and solution files are used on this
+platform. The provided project files expect the libodb and OCI header
+and import library directories to be in the VC++ Directories Include
+and Library search lists. For libodb, see the INSTALL file in the
+package directory for more information on how to setup the VC++
+Directories.
+
+For OCI, add the 'headers' directory mentioned in the Prerequisites
+section to the Include search list and the 'import libraries' directory
+to the Library search list.
+
+To build libodb-oracle, unpack the source code archive and open the
+libodb-oracle-vc<N>.sln file located in the libodb-oracle package
+directory (referred to as libodb-oracle\ from now on). Here <N> is the
+version of Visual Studio that you are using. Once the solution is open,
+select the desired build configuration (Debug or Release) and platform
+(Win32 or x64) and build the solution.
+
+The resulting 32-bit DLLs and import libraries are placed into the
+libodb-oracle\bin\ and libodb-oracle\lib\ directories, respectively.
+Similarly, the 64-bit DLLs and import libraries are placed into
+libodb-oracle\bin64\ and libodb-oracle\lib64\. The Release versions of
+the import libraries are named odb-oracle.lib and the Debug versions
+are named odb-oracle-d.lib.
+
+To configure Visual Studio to automatically locate the libodb-oracle
+headers, DLLs, and import libraries, add the following paths to your
+VC++ Directories:
+
+Win32:
+
+  Include:    ...\libodb-oracle
+  Library:    ...\libodb-oracle\lib
+  Executable: ...\libodb-oracle\bin
+
+x64:
+
+  Include:    ...\libodb-oracle
+  Library:    ...\libodb-oracle\lib64
+  Executable: ...\libodb-oracle\bin64
