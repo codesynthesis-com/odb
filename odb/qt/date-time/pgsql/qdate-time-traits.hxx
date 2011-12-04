@@ -10,9 +10,7 @@
 
 #include <QtCore/QDateTime>
 
-#include <odb/details/buffer.hxx>
 #include <odb/pgsql/traits.hxx>
-#include <odb/qt/date-time/exceptions.hxx>
 
 namespace odb
 {
@@ -31,11 +29,6 @@ namespace odb
       typedef QDateTime query_type;
       typedef long long image_type;
 
-      // The difference between the Unix epoch and the PostgreSQL epoch
-      // in seconds.
-      //
-      static const long long epoch_diff = 946684800LL;
-
       static void
       set_value (QDateTime& v, long long i, bool is_null)
       {
@@ -44,9 +37,11 @@ namespace odb
           //
           v = QDateTime ();
         else
-          v.setTime_t (
-            static_cast <uint> (
-              endian_traits::ntoh (i) / 1000000 + epoch_diff));
+        {
+          const QDateTime pg_epoch (QDate (2000, 1, 1), QTime (0, 0, 0));
+          v = pg_epoch.addMSecs (
+            static_cast <qint64> (endian_traits::ntoh (i) / 1000LL));
+        }
       }
 
       static void
@@ -54,21 +49,12 @@ namespace odb
       {
         if (v.isNull ())
           is_null = true;
-        // QDateTime::toTime_t returns an unsigned integer. Values less
-        // than the Unix epoch are not supported.
-        //
-        else if (v < QDateTime (QDate (1970, 1, 1),
-                                QTime (0, 0, 0),
-                                Qt::UTC))
-          throw odb::qt::date_time::value_out_of_range ();
         else
         {
           is_null = false;
-
-          long long pg_seconds (static_cast<long long> (v.toTime_t ()) -
-                                epoch_diff);
-
-          i = endian_traits::hton (pg_seconds * 1000000);
+          const QDateTime pg_epoch (QDate (2000, 1, 1), QTime (0, 0, 0));
+          i = endian_traits::hton (
+            static_cast<long long> (pg_epoch.msecsTo (v)) * 1000LL);
         }
       }
     };

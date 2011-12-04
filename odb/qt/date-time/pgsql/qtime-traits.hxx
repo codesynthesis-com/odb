@@ -38,8 +38,12 @@ namespace odb
           //
           v.setHMS (24, 0, 0);
         else
-          v = QTime (0, 0, 0).addSecs (
-            static_cast<int> (endian_traits::ntoh (i) / 1000000));
+        {
+          const QTime base (0, 0, 0);
+
+          v = base.addMSecs (
+            static_cast<int> (endian_traits::ntoh (i) / 1000));
+        }
       }
 
       static void
@@ -50,8 +54,10 @@ namespace odb
         else
         {
           is_null = false;
+          const QTime base (0, 0, 0);
+
           i = endian_traits::hton (
-            static_cast<long long> (QTime (0, 0, 0).secsTo (v)) * 1000000);
+            static_cast<long long> (base.msecsTo (v)) * 1000);
         }
       }
     };

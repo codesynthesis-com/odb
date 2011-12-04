@@ -11,7 +11,6 @@
 #include <QtCore/QDate>
 
 #include <odb/pgsql/traits.hxx>
-#include <odb/qt/date-time/exceptions.hxx>
 
 namespace odb
 {
@@ -38,7 +37,10 @@ namespace odb
           //
           v.setDate (0, 0, 0);
         else
-          v = QDate (2000, 1, 1).addDays (endian_traits::ntoh (i));
+        {
+          const QDate pg_epoch (2000, 1, 1);
+          v = pg_epoch.addDays (endian_traits::ntoh (i));
+        }
       }
 
       static void
@@ -49,7 +51,8 @@ namespace odb
         else
         {
           is_null = false;
-          i = endian_traits::hton (QDate (2000, 1, 1).daysTo (v));
+          const QDate pg_epoch (2000, 1, 1);
+          i = endian_traits::hton (pg_epoch.daysTo (v));
         }
       }
     };
