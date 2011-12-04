@@ -50,24 +50,20 @@ main (int argc, char* argv[])
     o.dates.push_back (date (max_date_time));
     o.dates.push_back (date (min_date_time));
 
-    o.times.push_back (second_clock::local_time ());
+    o.times.push_back (microsec_clock::local_time ());
     o.times.push_back (not_a_date_time);
     o.times.push_back (pos_infin);
     o.times.push_back (neg_infin);
-
-    // Boost seems to handle 64 bit std::time_t incorrectly.
-    // Insert 32 bit minimum and maximum UNIX time values for now.
-    //
-    // o.times.push_back (date (max_date_time));
-    // o.times.push_back (date (min_date_time));
-    //
-
-    o.times.push_back (ptime (date (1901, 12, 14), time_duration (0, 0, 0)));
-    o.times.push_back (ptime (date (2038, 1, 19), time_duration (3, 14, 7)));
+    o.times.push_back (ptime (date (max_date_time),
+                              time_duration (16, 23, 0, 123456)));
+    o.times.push_back (ptime (date (min_date_time),
+                              time_duration (3, 14, 7, 123456)));
+    o.times.push_back (ptime (date (1969, 12, 31), // Before PG epoch.
+                              time_duration (23, 59, 59, 123000)));
 
     o.durations.push_back (time_duration (0, 0, 0));
-    o.durations.push_back (time_duration (12, 3, 4));
-    o.durations.push_back (time_duration (23, 59, 59));
+    o.durations.push_back (time_duration (12, 3, 4, 123456));
+    o.durations.push_back (time_duration (23, 59, 59, 123456));
     o.durations.push_back (not_a_date_time);
 
     {

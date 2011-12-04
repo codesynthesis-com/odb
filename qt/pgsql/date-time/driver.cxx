@@ -38,59 +38,68 @@ main (int argc, char* argv[])
 
     // Check persistence of null values.
     //
-    object o1;
     {
-      transaction t (db->begin ());
-      db->persist (o1);
-      t.commit ();
+      object o;
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> ol (db->load<object> (o.id));
+        t.commit ();
+
+        assert (ol->is_null ());
+      }
     }
-
-    {
-      transaction t (db->begin ());
-      auto_ptr<object> ol1 (db->load<object> (o1.id));
-      t.commit ();
-
-      assert (ol1->is_null ());
-    }
-
-    QDateTime ct (QDateTime::currentDateTime ());
-    QDateTime ct_no_ms = QDateTime (QDate (ct.date ().year (),
-                                           ct.date ().month (),
-                                           ct.date ().day ()),
-                                    QTime (ct.time ().hour (),
-                                           ct.time ().minute (),
-                                           ct.time ().second ()));
 
     // Check persistence of valid dates and times.
     //
-    object o2;
     {
-      o2.date = ct.date ();
-      o2.time = ct_no_ms.time ();
-      o2.date_time = ct_no_ms;
+      QDateTime ct (QDateTime::currentDateTime ());
 
-      transaction t (db->begin ());
-      db->persist (o2);
-      t.commit ();
+      object o;
+      o.date = ct.date ();
+      o.time = ct.time ();
+      o.date_time = ct;
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> ol (db->load<object> (o.id));
+        t.commit ();
+
+        assert (*ol == o);
+      }
     }
 
-    {
-      transaction t (db->begin ());
-      auto_ptr<object> ol2 (db->load<object> (o2.id));
-      t.commit ();
-
-      assert (*ol2 == o2);
-    }
-
-    // Test out of range values for QDateTime traits.
+    // Test a QDateTime value before PG epoch.
     //
     {
       object o;
-      o.date_time = QDateTime (QDate (1969, 12, 31),
-                               QTime (23, 59, 59),
-                               Qt::UTC);
+      o.date_time = QDateTime (QDate (1969, 12, 31), QTime (23, 59, 59, 123));
 
-      assert (test_out_of_range_value (o, *db));
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> ol (db->load<object> (o.id));
+        t.commit ();
+
+        assert (*ol == o);
+      }
     }
   }
   catch (const odb::exception& e)
@@ -98,22 +107,4 @@ main (int argc, char* argv[])
     cerr << e.what () << endl;
     return 1;
   }
-}
-
-bool
-test_out_of_range_value (object& x, database& db)
-{
-  try
-  {
-    transaction t (db.begin ());
-    db.persist (x);
-    t.rollback ();
-
-    return false;
-  }
-  catch (const odb::qt::date_time::value_out_of_range&)
-  {
-  }
-
-  return true;
 }
