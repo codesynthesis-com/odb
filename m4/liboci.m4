@@ -58,6 +58,8 @@ oci_found=yes
     LDFLAGS="$LDFLAGS -L$oci_dir/lib"
     LIBS="-lclntsh $LIBS"
   fi
+else
+  LIBS="-lclntsh $LIBS"
 fi
 
 if test x"$oci_found" = xno; then
