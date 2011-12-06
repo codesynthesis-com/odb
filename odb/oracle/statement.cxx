@@ -71,15 +71,15 @@ namespace odb
       SQLT_CLOB         // bind::nclob
     };
 
-    static sb4
-    param_callback_proxy (void* context,
-                          OCIBind*,
-                          ub4,               // iteration
-                          ub4,               // index
-                          void** buffer,
-                          ub4* size,
-                          ub1* piece,
-                          void** indicator)
+    extern "C" sb4
+    odb_oracle_param_callback_proxy (void* context,
+                                     OCIBind*,
+                                     ub4,               // iteration
+                                     ub4,               // index
+                                     void** buffer,
+                                     ub4* size,
+                                     ub1* piece,
+                                     void** indicator)
     {
       bind& b (*static_cast<bind*> (context));
       lob* l (static_cast<lob*> (b.buffer));
@@ -614,7 +614,8 @@ namespace odb
 
         if (callback)
         {
-          r = OCIBindDynamic (h, err, b, &param_callback_proxy, 0, 0);
+          r = OCIBindDynamic (
+            h, err, b, &odb_oracle_param_callback_proxy, 0, 0);
 
           if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
             translate_error (err, r);
@@ -1403,15 +1404,15 @@ namespace odb
     // insert_statement
     //
 
-    static sb4
-    returning_in (void* context,
-                  OCIBind*,            // bind
-                  ub4,                 // iter
-                  ub4,                 // index
-                  void** buffer,
-                  ub4* size,
-                  ub1* piece,
-                  void** indicator)
+    extern "C" sb4
+    odb_oracle_returning_in (void* context,
+                             OCIBind*,       // bind
+                             ub4,            // iter
+                             ub4,            // index
+                             void** buffer,
+                             ub4* size,
+                             ub1* piece,
+                             void** indicator)
     {
       typedef insert_statement::id_bind_type bind;
 
@@ -1426,16 +1427,16 @@ namespace odb
       return OCI_CONTINUE;
     }
 
-    static sb4
-    returning_out (void* context,
-                   OCIBind*,           // bind
-                   ub4,                // iter
-                   ub4,                // index
-                   void** buffer,
-                   ub4** size,
-                   ub1*,               // piece
-                   void** indicator,
-                   ub2** rcode)
+    extern "C" sb4
+    odb_oracle_returning_out (void* context,
+                              OCIBind*,        // bind
+                              ub4,             // iter
+                              ub4,             // index
+                              void** buffer,
+                              ub4** size,
+                              ub1*,            // piece
+                              void** indicator,
+                              ub2** rcode)
     {
       typedef insert_statement::id_bind_type bind;
 
@@ -1518,9 +1519,9 @@ namespace odb
         r = OCIBindDynamic (h,
                             err,
                             &id_bind_,
-                            &returning_in,
+                            &odb_oracle_returning_in,
                             &id_bind_,
-                            &returning_out);
+                            &odb_oracle_returning_out);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
