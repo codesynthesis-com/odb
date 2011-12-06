@@ -24,7 +24,7 @@ namespace odb
       dt_timestamp,
       dt_interval_ym,
       dt_interval_ds,
-      dt_default,
+      dt_default
     };
 
     LIBODB_ORACLE_EXPORT void

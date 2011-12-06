@@ -67,7 +67,7 @@ namespace odb
           code_none,
           code_deadlock,
           code_timeout,
-          code_connection_lost,
+          code_connection_lost
         };
 
         code c (code_none);
