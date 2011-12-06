@@ -14,7 +14,7 @@ clean    := $(out_base)/.clean
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): export dirs := $(dirs)
-$(dist): export docs := GPLv2 LICENSE README NEWS version
+$(dist): export docs := NCUEL LICENSE README NEWS version
 $(dist): data_dist := INSTALL libodb-mssql-vc9.sln libodb-mssql-vc10.sln
 $(dist): exec_dist := bootstrap
 $(dist): export extra_dist := $(data_dist) $(exec_dist)
