@@ -13,6 +13,7 @@
 #include <odb/tracer.hxx>
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
+#include <odb/statement.hxx>
 #include <odb/exceptions.hxx>
 
 #include <common/common.hxx>
@@ -34,6 +35,14 @@ struct transaction_tracer: odb::tracer
       cout << "commit transaction" << endl;
     else if (str == "ROLLBACK")
       cout << "rollback transaction" << endl;
+  }
+
+  // Override the other version to get rid of a Sun CC warning.
+  //
+  virtual void
+  execute (connection& c, const statement& s)
+  {
+    execute (c, s.text ());
   }
 };
 
