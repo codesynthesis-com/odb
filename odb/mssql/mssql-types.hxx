@@ -87,12 +87,10 @@ namespace odb
         int_,           // Buffer is a 4-byte integer.
         bigint,         // Buffer is an 8-byte integer.
 
-        /*
-        numeric,        // Buffer is an SQL_NUMERIC_STRUCT.
+        decimal,        // Buffer is a decimal struct (SQL_NUMERIC_STRUCT).
 
-        smallmoney,     // Buffer is a 4-byte integer (*10,000 value).
-        money,          // Buffer is an 8-byte integer (*10,000 value).
-        */
+        smallmoney,     // Buffer is a smallmoney struct (DBMONEY4).
+        money,          // Buffer is a money struct (DBMONEY).
 
         float4,         // Buffer is a float.
         float8,         // Buffer is a double.
@@ -124,6 +122,9 @@ namespace odb
       SQLLEN* size_ind; // Pointer to the size/inidicator variable.
       SQLLEN capacity;  // Buffer capacity. For string/binary parameters
                         // this value is also used as maximum column size.
+                        // For decimal parameters it contains precision (p)
+                        // and scale (s) encoded as (p * 100 + s). For float4
+                        // and float8 it contains precision.
     };
   }
 }

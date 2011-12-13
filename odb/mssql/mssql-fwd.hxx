@@ -93,6 +93,66 @@ typedef SQLHANDLE        SQLHDESC;
 #  define SQL_HANDLE_DESC 4
 #endif
 
+// The following types are our own equivalents of ODBC and Native Client
+// ODBC driver types. They are all PODs and should be layout-compatible
+// with the original types, which means they can be used interchangeably.
+//
+namespace odb
+{
+  namespace mssql
+  {
+    // UCS-2 character type (SQLWCHAR).
+    //
+#ifdef _WIN32
+    typedef wchar_t ucs2_char;
+#else
+    typedef unsigned short ucs2_char;
+#endif
+
+    // SQL_NUMERIC_STRUCT
+    //
+#ifndef SQL_MAX_NUMERIC_LEN
+#define SQL_MAX_NUMERIC_LEN 16
+#else
+#  if SQL_MAX_NUMERIC_LEN != 16
+#    error unexpected SQL_NUMERIC_STRUCT value
+#  endif
+#endif
+
+    struct decimal
+    {
+      unsigned char precision;
+      signed char   scale;
+      unsigned char sign; // 1 - positive, 0 - negative
+      unsigned char val[SQL_MAX_NUMERIC_LEN];
+    };
+
+    // DBMONEY
+    //
+    struct money
+    {
+      // 8-byte signed integer containing value * 10,000.
+      //
+      int high;
+      unsigned int low;
+    };
+
+    // DBMONEY4
+    //
+    struct smallmoney
+    {
+      int value; // 4-byte signed integer containing value * 10,000.
+    };
+
+    //@@ TODO
+    //
+    struct date {};
+    struct time {};
+    struct datetime {};
+    struct datetimeoffset {};
+  }
+}
+
 #include <odb/post.hxx>
 
 #endif // ODB_MSSQL_MSSQL_FWD_HXX

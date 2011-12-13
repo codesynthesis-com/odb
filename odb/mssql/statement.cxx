@@ -31,8 +31,12 @@ namespace odb
       SQL_INTEGER,    // bind::integer
       SQL_BIGINT,     // bind::bigint
 
-      SQL_REAL,       // bind::float4
-      SQL_DOUBLE,     // bind::float8
+      SQL_DECIMAL,    // bind::decimal
+      SQL_DECIMAL,    // bind::smallmoney
+      SQL_DECIMAL,    // bind::money
+
+      SQL_FLOAT,      // bind::float4
+      SQL_FLOAT,      // bind::float8
 
       SQL_VARCHAR,    // bind::string
       SQL_VARCHAR,    // bind::long_string
@@ -53,6 +57,10 @@ namespace odb
       SQL_C_SSHORT,   // bind::smallint
       SQL_C_SLONG,    // bind::integer
       SQL_C_SBIGINT,  // bind::bigint
+
+      SQL_C_NUMERIC,  // bind::decimal
+      SQL_C_BINARY,   // bind::smallmoney
+      SQL_C_BINARY,   // bind::money
 
       SQL_C_FLOAT,    // bind::float4
       SQL_C_DOUBLE,   // bind::float8
@@ -170,10 +178,39 @@ namespace odb
       for (size_t i (1); i < n; ++i, ++b)
       {
         SQLULEN col_size;
+        SQLSMALLINT digits (0);
         SQLPOINTER buf;
 
         switch (b->type)
         {
+        case bind::decimal:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            col_size = (SQLULEN) (b->capacity / 100);   // precision
+            digits = (SQLSMALLINT) (b->capacity % 100); // scale
+            break;
+          }
+        case bind::smallmoney:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            col_size = 10;
+            digits = 4;
+            break;
+          }
+        case bind::money:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            col_size = 19;
+            digits = 4;
+            break;
+          }
+        case bind::float4:
+        case bind::float8:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            col_size = (SQLULEN) b->capacity; // precision
+            break;
+          }
         case bind::long_string:
         case bind::long_binary:
           {
@@ -207,6 +244,7 @@ namespace odb
         default:
           {
             buf = (SQLPOINTER) b->buffer;
+            col_size = 0;
             break;
           }
         }
@@ -218,7 +256,7 @@ namespace odb
           c_type_lookup[b->type],
           sql_type_lookup[b->type],
           col_size,
-          0, // decimal digits
+          digits,
           buf,
           0, // buffer capacity (shouldn't be needed for input parameters)
           b->size_ind);
@@ -236,8 +274,35 @@ namespace odb
       size_t i (0);
       for (bind* end (b + n); b != end; ++b)
       {
+        SQLLEN cap;
+
         switch (b->type)
         {
+        case bind::decimal:
+          {
+            cap = (SQLLEN) sizeof (decimal);
+            break;
+          }
+        case bind::smallmoney:
+          {
+            cap = (SQLLEN) sizeof (smallmoney);
+            break;
+          }
+        case bind::money:
+          {
+            cap = (SQLLEN) sizeof (money);
+            break;
+          }
+        case bind::float4:
+          {
+            cap = (SQLLEN) sizeof (float);
+            break;
+          }
+        case bind::float8:
+          {
+            cap = (SQLLEN) sizeof (double);
+            break;
+          }
         case bind::long_string:
         case bind::long_nstring:
         case bind::long_binary:
@@ -248,6 +313,7 @@ namespace odb
           }
         default:
           {
+            cap = b->capacity;
             break;
           }
         }
@@ -256,7 +322,7 @@ namespace odb
                         (SQLUSMALLINT) (i + 1), // Results are counted from 1.
                         c_type_lookup[b->type],
                         (SQLPOINTER) b->buffer,
-                        b->capacity,
+                        cap,
                         b->size_ind);
 
         if (!SQL_SUCCEEDED (r))

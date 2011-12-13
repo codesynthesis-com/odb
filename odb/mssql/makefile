@@ -17,6 +17,7 @@ object-statements.cxx     \
 statement.cxx             \
 statements-base.cxx       \
 tracer.cxx                \
+traits.cxx                \
 transaction.cxx           \
 transaction-impl.cxx
 
