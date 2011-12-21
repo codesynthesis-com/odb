@@ -93,6 +93,12 @@ typedef SQLHANDLE        SQLHDESC;
 #  define SQL_HANDLE_DESC 4
 #endif
 
+#ifndef SQL_NULL_DATA
+#  define SQL_NULL_DATA     (-1)
+#  define SQL_DATA_AT_EXEC  (-2)
+#  define SQL_NO_TOTAL      (-4)
+#endif
+
 // The following types are our own equivalents of ODBC and Native Client
 // ODBC driver types. They are all PODs and should be layout-compatible
 // with the original types, which means they can be used interchangeably.
@@ -122,7 +128,7 @@ namespace odb
     struct decimal
     {
       unsigned char precision;
-      signed char   scale;
+      signed char scale;
       unsigned char sign; // 1 - positive, 0 - negative
       unsigned char val[SQL_MAX_NUMERIC_LEN];
     };
@@ -144,12 +150,66 @@ namespace odb
       int value; // 4-byte signed integer containing value * 10,000.
     };
 
-    //@@ TODO
+    // SQL_DATE_STRUCT
     //
-    struct date {};
-    struct time {};
-    struct datetime {};
-    struct datetimeoffset {};
+    struct date
+    {
+      SQLSMALLINT year;
+      SQLUSMALLINT month;
+      SQLUSMALLINT day;
+    };
+
+    // SQL_SS_TIME2_STRUCT
+    //
+#pragma pack(push,8)
+    struct time
+    {
+      SQLUSMALLINT hour;
+      SQLUSMALLINT minute;
+      SQLUSMALLINT second;
+      SQLUINTEGER fraction;
+    };
+#pragma pack(pop)
+
+    // SQL_TIMESTAMP_STRUCT
+    //
+    struct datetime
+    {
+      SQLSMALLINT year;
+      SQLUSMALLINT month;
+      SQLUSMALLINT day;
+      SQLUSMALLINT hour;
+      SQLUSMALLINT minute;
+      SQLUSMALLINT second;
+      SQLUINTEGER fraction;
+    };
+
+    // SQL_SS_TIMESTAMPOFFSET_STRUCT
+    //
+#pragma pack(push,8)
+    struct datetimeoffset
+    {
+      SQLSMALLINT year;
+      SQLUSMALLINT month;
+      SQLUSMALLINT day;
+      SQLUSMALLINT hour;
+      SQLUSMALLINT minute;
+      SQLUSMALLINT second;
+      SQLUINTEGER fraction;
+      SQLSMALLINT timezone_hour;
+      SQLSMALLINT timezone_minute;
+    };
+#pragma pack(pop)
+
+    // SQLGUID
+    //
+    struct uniqueidentifier
+    {
+      unsigned int data1;
+      unsigned short data2;
+      unsigned short data3;
+      unsigned char data4[8];
+    };
   }
 }
 

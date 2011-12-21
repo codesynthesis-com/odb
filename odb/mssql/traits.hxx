@@ -11,8 +11,12 @@
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
-//@@ #include <cstring> // std::memcpy, std::memset, std::strlen
-//@@ #include <cassert>
+#include <cstring> // std::memcpy, std::memset, std::strlen
+#include <cwchar>  // std::wcslen
+
+#ifdef _WIN32
+typedef struct _GUID GUID;
+#endif
 
 #include <odb/traits.hxx>
 #include <odb/wrapper-traits.hxx>
@@ -37,30 +41,30 @@ namespace odb
       id_int,
       id_bigint,
 
-      id_decimal,        // DECIMAL; NUMERIC
+      id_decimal,          // DECIMAL; NUMERIC
 
       id_smallmoney,
       id_money,
 
-      id_float4,         // REAL; FLOAT(n) with n <= 24
-      id_float8,         // FLOAT(n) with n > 24
+      id_float4,           // REAL; FLOAT(n) with n <= 24
+      id_float8,           // FLOAT(n) with n > 24
 
-      id_string,         // CHAR(n), VARCHAR(n) with n <= N
-      id_long_string,    // CHAR(n), VARCHAR(n) with n > N; TEXT
+      id_string,           // CHAR(n), VARCHAR(n) with n <= N
+      id_long_string,      // CHAR(n), VARCHAR(n) with n > N; TEXT
 
-      id_nstring,        // NCHAR(n), NVARCHAR(n) with 2*n <= N
-      id_long_nstring,   // NCHAR(n), NVARCHAR(n) with 2*n > N; NTEXT
+      id_nstring,          // NCHAR(n), NVARCHAR(n) with 2*n <= N
+      id_long_nstring,     // NCHAR(n), NVARCHAR(n) with 2*n > N; NTEXT
 
-      id_binary,         // BINARY(n), VARBINARY(n) with n <= N
-      id_long_binary,    // BINARY(n), VARBINARY(n) with n > N; IMAGE
+      id_binary,           // BINARY(n), VARBINARY(n) with n <= N
+      id_long_binary,      // BINARY(n), VARBINARY(n) with n > N; IMAGE
 
-      id_date,           // DATE
-      id_time,           // TIME
-      id_datetime,       // DATETIME; DATETIME2; SMALLDATETIME
-      id_datetimeoffset, // DATETIMEOFFSET
+      id_date,             // DATE
+      id_time,             // TIME
+      id_datetime,         // DATETIME; DATETIME2; SMALLDATETIME
+      id_datetimeoffset,   // DATETIMEOFFSET
 
-      id_uuid,           // UNIQUEIDENTIFIER
-      id_rowversion      // ROWVERSION; TIMESTAMP
+      id_uniqueidentifier, // UNIQUEIDENTIFIER
+      id_rowversion        // ROWVERSION; TIMESTAMP
     };
 
     //
@@ -128,12 +132,16 @@ namespace odb
     struct image_traits<id_datetime> {typedef datetime image_type;};
 
     template <>
-    struct image_traits<id_datetimeoffset> {typedef datetimeoffset image_type;};
+    struct image_traits<id_datetimeoffset>
+    {
+      typedef datetimeoffset image_type;
+    };
 
-    // Image is a 16-byte sequence.
-    //
     template <>
-    struct image_traits<id_uuid> {typedef unsigned char* image_type;};
+    struct image_traits<id_uniqueidentifier>
+    {
+      typedef uniqueidentifier image_type;
+    };
 
     // Image is an 8-byte sequence.
     //
@@ -200,10 +208,7 @@ namespace odb
         vtraits::set_image (i, is_null, wtraits::get_ref (v));
       }
 
-      /*
-        @@ TODO
-
-      // big_int, big_float, string, nstring, raw.
+      // string, binary.
       //
       static void
       set_value (W& v, const char* i, std::size_t n, bool is_null)
@@ -211,8 +216,6 @@ namespace odb
         vtraits::set_value (wtraits::set_ref (v), i, n, is_null);
       }
 
-      // string, nstring, raw.
-      //
       static void
       set_image (char* i,
                  std::size_t c,
@@ -223,20 +226,30 @@ namespace odb
         vtraits::set_image (i, c, n, is_null, wtraits::get_ref (v));
       }
 
-      // big_int, big_float.
+      // nstring.
       //
       static void
-      set_image (char* i, std::size_t& n, bool& is_null, const W& v)
+      set_value (W& v, const ucs2_char* i, std::size_t n, bool is_null)
       {
-        vtraits::set_image (i, n, is_null, wtraits::get_ref (v));
+        vtraits::set_value (wtraits::set_ref (v), i, n, is_null);
       }
 
-      // blob, clob, nclob.
+      static void
+      set_image (ucs2_char* i,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const W& v)
+      {
+        vtraits::set_image (i, c, n, is_null, wtraits::get_ref (v));
+      }
+
+      // long_string, long_nstring, long_binary.
       //
       static void
-      set_value (W& v, result_callback_type& cb, void*& context, bool is_null)
+      set_value (W& v, result_callback_type& cb, void*& context)
       {
-        vtraits::set_value (wtraits::set_ref (v), cb, context, is_null);
+        vtraits::set_value (wtraits::set_ref (v), cb, context);
       }
 
       static void
@@ -247,7 +260,14 @@ namespace odb
       {
         vtraits::set_image (cb, context, is_null, wtraits::get_ref (v));
       }
-      */
+
+      // time, datetime, datetimeoffset.
+      //
+      static void
+      set_image (image_type& i, unsigned short s, bool& is_null, const W& v)
+      {
+        vtraits::set_image (i, s, is_null, wtraits::get_ref (v));
+      }
     };
 
     template <typename W, database_type_id ID>
@@ -280,10 +300,7 @@ namespace odb
           vtraits::set_image (i, is_null, wtraits::get_ref (v));
       }
 
-      /*
-        @@ TODO
-
-      // big_int, big_float, string, nstring, raw.
+      // string, binary.
       //
       static void
       set_value (W& v, const char* i, std::size_t n, bool is_null)
@@ -294,8 +311,6 @@ namespace odb
           vtraits::set_value (wtraits::set_ref (v), i, n, is_null);
       }
 
-      // string, nstring, raw.
-      //
       static void
       set_image (char* i,
                  std::size_t c,
@@ -309,26 +324,40 @@ namespace odb
           vtraits::set_image (i, c, n, is_null, wtraits::get_ref (v));
       }
 
-      // big_int, big_float
+      // nstring.
       //
       static void
-      set_image (char* i, std::size_t& n, bool& is_null, const W& v)
-      {
-        is_null = wtraits::get_null (v);
-
-        if (!is_null)
-          vtraits::set_image (i, n, is_null, wtraits::get_ref (v));
-      }
-
-      // blob, clob, nclob.
-      //
-      static void
-      set_value (W& v, result_callback_type& cb, void*& context, bool is_null)
+      set_value (W& v, const ucs2_char* i, std::size_t n, bool is_null)
       {
         if (is_null)
           wtraits::set_null (v);
         else
-          vtraits::set_value (wtraits::set_ref (v), cb, context, is_null);
+          vtraits::set_value (wtraits::set_ref (v), i, n, is_null);
+      }
+
+      static void
+      set_image (ucs2_char* i,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const W& v)
+      {
+        is_null = wtraits::get_null (v);
+
+        if (!is_null)
+          vtraits::set_image (i, c, n, is_null, wtraits::get_ref (v));
+      }
+
+      // long_string, long_nstring, long_binary.
+      //
+      static void
+      set_value (W& v, result_callback_type& cb, void*& context)
+      {
+        // We have to use our own callback since the NULL information
+        // is only available during streaming.
+        //
+        cb = &result_callback;
+        context = &v;
       }
 
       static void
@@ -342,7 +371,27 @@ namespace odb
         if (!is_null)
           vtraits::set_image (cb, context, is_null, wtraits::get_ref (v));
       }
-      */
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+
+      // time, datetime, datetimeoffset.
+      //
+      static void
+      set_image (image_type& i, unsigned short s, bool& is_null, const W& v)
+      {
+        is_null = wtraits::get_null (v);
+
+        if (!is_null)
+          vtraits::set_image (i, s, is_null, wtraits::get_ref (v));
+      }
     };
 
     template <typename T, database_type_id ID>
@@ -367,6 +416,939 @@ namespace odb
         is_null = false;
         i = image_type (v);
       }
+    };
+
+    // smallmoney as float/double.
+    //
+    template <typename T>
+    struct smallmoney_float_value_traits
+    {
+      typedef T value_type;
+      typedef T query_type;
+      typedef smallmoney image_type;
+
+      static void
+      set_value (T& v, const smallmoney& i, bool is_null)
+      {
+        if (!is_null)
+          v = T (i.value / 10000) + T (i.value % 10000) / 10000;
+        else
+          v = T ();
+      }
+
+      static void
+      set_image (smallmoney& i, bool& is_null, T v)
+      {
+        is_null = false;
+        i.value = static_cast<int> (v) * 10000 +
+          static_cast<int> (v * 10000) % 10000;
+      }
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<float, id_smallmoney>:
+      smallmoney_float_value_traits<float>
+    {
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<double, id_smallmoney>:
+      smallmoney_float_value_traits<double>
+    {
+    };
+
+    // smallmoney as integer.
+    //
+    template <typename T>
+    struct default_value_traits<T, id_smallmoney>
+    {
+      typedef T value_type;
+      typedef T query_type;
+      typedef smallmoney image_type;
+
+      static void
+      set_value (T& v, const smallmoney& i, bool is_null)
+      {
+        if (!is_null)
+          v = static_cast<T> (i.value);
+        else
+          v = T ();
+      }
+
+      static void
+      set_image (smallmoney& i, bool& is_null, T v)
+      {
+        is_null = false;
+        i.value = static_cast<int> (v);
+      }
+    };
+
+    // money as float/double.
+    //
+    template <typename T>
+    struct money_float_value_traits
+    {
+      typedef T value_type;
+      typedef T query_type;
+      typedef money image_type;
+
+      static void
+      set_value (T& v, const money& i, bool is_null)
+      {
+        if (!is_null)
+        {
+          long long iv ((static_cast<long long> (i.high) << 32) | i.low);
+          v = T (iv / 10000) + T (iv % 10000) / 10000;
+        }
+        else
+          v = T ();
+      }
+
+      static void
+      set_image (money& i, bool& is_null, T v)
+      {
+        is_null = false;
+        long long iv (static_cast<long long> (v) * 10000 +
+                      static_cast<long long> (v * 10000) % 10000);
+        i.high = static_cast<int> (iv >> 32);
+        i.low = static_cast<unsigned int> (iv);
+      }
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<float, id_money>:
+      money_float_value_traits<float>
+    {
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<double, id_money>:
+      money_float_value_traits<double>
+    {
+    };
+
+    // money as integer.
+    //
+    template <typename T>
+    struct default_value_traits<T, id_money>
+    {
+      typedef T value_type;
+      typedef T query_type;
+      typedef money image_type;
+
+      static void
+      set_value (T& v, const money& i, bool is_null)
+      {
+        if (!is_null)
+        {
+          long long iv ((static_cast<long long> (i.high) << 32) | i.low);
+          v = static_cast<T> (iv);
+        }
+        else
+          v = T ();
+      }
+
+      static void
+      set_image (money& i, bool& is_null, T v)
+      {
+        is_null = false;
+        long long iv (static_cast<long long> (v));
+        i.high = static_cast<int> (iv >> 32);
+        i.low = static_cast<unsigned int> (iv);
+      }
+    };
+
+    // std::string specialization for string.
+    //
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<std::string, id_string>
+    {
+      typedef std::string value_type;
+      typedef std::string query_type;
+      typedef char* image_type;
+
+      static void
+        set_value (std::string& v,
+                   const char* b,
+                   std::size_t n,
+                   bool is_null)
+      {
+        if (!is_null)
+          v.assign (b, n);
+        else
+          v.erase ();
+      }
+
+      static void
+        set_image (char* b,
+                   std::size_t c,
+                   std::size_t& n,
+                   bool& is_null,
+                   const std::string& v)
+      {
+        is_null = false;
+        n = v.size ();
+
+        if (n > c)
+          n = c;
+
+        if (n != 0)
+          std::memcpy (b, v.c_str (), n);
+      }
+    };
+
+    // const char* specialization for string.
+    //
+    // Specialization for const char* which only supports initialization
+    // of an image from the value but not the other way around. This way
+    // we can pass such values to the queries.
+    //
+    class LIBODB_MSSQL_EXPORT c_string_value_traits
+    {
+      public:
+      typedef const char* value_type;
+      typedef const char* query_type;
+      typedef char* image_type;
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const char* v)
+      {
+        is_null = false;
+        n = std::strlen (v);
+
+        if (n > c)
+          n = c;
+
+        if (n != 0)
+          std::memcpy (b, v, n);
+      }
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<const char*, id_string>:
+      c_string_value_traits
+    {
+    };
+
+    template <std::size_t n>
+    struct default_value_traits<char[n], id_string>: c_string_value_traits
+    {
+    };
+
+    template <std::size_t n>
+    struct default_value_traits<const char[n], id_string>:
+      c_string_value_traits
+    {
+    };
+
+    // std::string specialization for long_string.
+    //
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<std::string,
+                                                    id_long_string>
+    {
+      typedef std::string value_type;
+      typedef std::string query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_value (std::string& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        cb = &result_callback;
+        context = &v;
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const std::string& v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = &v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+    };
+
+    // const char* specialization for long_string.
+    //
+    class LIBODB_MSSQL_EXPORT c_string_long_value_traits
+    {
+    public:
+      typedef const char* value_type;
+      typedef const char* query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const char* v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<const char*,
+                                                    id_long_string>:
+      c_string_long_value_traits
+    {
+    };
+
+    template <std::size_t n>
+    struct default_value_traits<char[n], id_long_string>:
+      c_string_long_value_traits
+    {
+    };
+
+    template <std::size_t n>
+    struct default_value_traits<const char[n], id_long_string>:
+      c_string_long_value_traits
+    {
+    };
+
+    // std::wstring specialization for nstring.
+    //
+    template <std::size_t = sizeof (wchar_t)>
+    struct wstring_functions
+    {
+      static void
+      assign (std::wstring& s, const ucs2_char* b, std::size_t n)
+      {
+        s.assign (b, b + n);
+      }
+
+      static void
+      assign (ucs2_char* b, const wchar_t* s, std::size_t n)
+      {
+        for (std::size_t i (0); i < n; ++i)
+          b[i] = static_cast<ucs2_char> (s[i]);
+      }
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT wstring_functions<sizeof (ucs2_char)>
+    {
+      static void
+      assign (std::wstring& s, const ucs2_char* b, std::size_t n)
+      {
+        s.assign (reinterpret_cast<const wchar_t*> (b), n);
+      }
+
+      static void
+      assign (ucs2_char* b, const wchar_t* s, std::size_t n)
+      {
+        if (n != 0)
+          std::memcpy (b, s, n * sizeof (ucs2_char));
+      }
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<std::wstring, id_nstring>
+    {
+      typedef std::wstring value_type;
+      typedef std::wstring query_type;
+      typedef ucs2_char* image_type;
+
+      typedef wstring_functions<> functions;
+
+      static void
+      set_value (std::wstring& v,
+                 const ucs2_char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        if (!is_null)
+          functions::assign (v, b, n);
+        else
+          v.erase ();
+      }
+
+      static void
+      set_image (ucs2_char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const std::wstring& v)
+      {
+        is_null = false;
+        n = v.size ();
+
+        if (n > c)
+          n = c;
+
+        functions::assign (b, v.c_str (), n);
+      }
+    };
+
+    // const wchar_t* specialization for nstring.
+    //
+    class LIBODB_MSSQL_EXPORT c_wstring_value_traits
+    {
+    public:
+      typedef const wchar_t* value_type;
+      typedef const wchar_t* query_type;
+      typedef ucs2_char* image_type;
+
+      typedef wstring_functions<> functions;
+
+      static void
+      set_image (ucs2_char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const wchar_t* v)
+      {
+        is_null = false;
+        n = std::wcslen (v);
+
+        if (n > c)
+          n = c;
+
+        functions::assign (b, v, n);
+      }
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<const wchar_t*,
+                                                    id_nstring>:
+      c_wstring_value_traits
+    {
+    };
+
+    template <std::size_t n>
+    struct default_value_traits<wchar_t[n], id_nstring>:
+      c_wstring_value_traits
+    {
+    };
+
+    template <std::size_t n>
+    struct default_value_traits<const wchar_t[n], id_nstring>:
+      c_wstring_value_traits
+    {
+    };
+
+    // std::wstring specialization for long_nstring.
+    //
+    template <std::size_t = sizeof (wchar_t)>
+    struct wstring_long_value_traits;
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT wstring_long_value_traits<2>
+    {
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+    };
+
+#ifndef _WIN32
+    template <>
+    struct LIBODB_MSSQL_EXPORT wstring_long_value_traits<4>
+    {
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+    };
+#endif
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<std::wstring,
+                                                    id_long_nstring>
+    {
+      typedef std::wstring value_type;
+      typedef std::wstring query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_value (std::wstring& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        cb = &wstring_long_value_traits<>::result_callback;
+        context = &v;
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const std::wstring& v)
+      {
+        is_null = false;
+        cb = &wstring_long_value_traits<>::param_callback;
+        context = &v;
+      }
+    };
+
+    // const wchar_t* specialization for long_nstring.
+    //
+    template <std::size_t = sizeof (wchar_t)>
+    struct c_wstring_long_value_traits;
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT c_wstring_long_value_traits<2>
+    {
+      typedef const wchar_t* value_type;
+      typedef const wchar_t* query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const wchar_t* v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+    };
+
+#ifndef _WIN32
+    template <>
+    struct LIBODB_MSSQL_EXPORT c_wstring_long_value_traits<4>
+    {
+      typedef const wchar_t* value_type;
+      typedef const wchar_t* query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const wchar_t* v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+    };
+#endif
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<const wchar_t*,
+                                                    id_long_nstring>:
+      c_wstring_long_value_traits<>
+    {
+    };
+
+    template <std::size_t n>
+    struct default_value_traits<wchar_t[n], id_long_nstring>:
+      c_wstring_long_value_traits<>
+    {
+    };
+
+    template <std::size_t n>
+    struct default_value_traits<const wchar_t[n], id_long_nstring>:
+      c_wstring_long_value_traits<>
+    {
+    };
+
+    // std::vector (buffer) specialization for binary.
+    //
+    template <typename C>
+    struct vector_binary_value_traits
+    {
+      typedef std::vector<C> value_type;
+      typedef std::vector<C> query_type;
+      typedef char* image_type;
+
+      static void
+      set_value (value_type& v, const char* b, std::size_t n, bool is_null)
+      {
+        if (!is_null)
+        {
+          const C* cb (reinterpret_cast<const C*> (b));
+          v.assign (cb, cb + n);
+        }
+        else
+          v.clear ();
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        n = v.size ();
+
+        if (n > c)
+          n = c;
+
+        // std::vector::data() may not be available in older compilers.
+        //
+        if (n != 0)
+          std::memcpy (b, &v.front (), n);
+      }
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<std::vector<char>,
+                                                    id_binary>:
+      vector_binary_value_traits<char>
+    {
+    };
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<std::vector<unsigned char>,
+                                                    id_binary>:
+      vector_binary_value_traits<unsigned char>
+    {
+    };
+
+    // char array (buffer) specialization for binary.
+    //
+    template <typename C, std::size_t N>
+    struct array_binary_value_traits
+    {
+      typedef C* value_type;
+      typedef const C* query_type;
+      typedef char* image_type;
+
+      static void
+      set_value (C* const& v, const char* b, std::size_t n, bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v, b, n < N ? n : N);
+        else
+          std::memset (v, 0, N);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const C* v)
+      {
+        is_null = false;
+        n = c > N ? N : c;
+        std::memcpy (b, v, n);
+      }
+    };
+
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_binary>:
+      array_binary_value_traits<char, N>
+    {
+    };
+
+    template <std::size_t N>
+    struct default_value_traits<unsigned char[N], id_binary>:
+      array_binary_value_traits<unsigned char, N>
+    {
+    };
+
+    // std::vector<char> (buffer) specialization for long_binary.
+    //
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<std::vector<char>,
+                                                    id_long_binary>
+    {
+      typedef std::vector<char> value_type;
+      typedef std::vector<char> query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_value (value_type& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        cb = &result_callback;
+        context = &v;
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = &v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+    };
+
+    // std::vector<unsigned char> (buffer) specialization for long_binary.
+    //
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<std::vector<unsigned char>,
+                                                    id_long_binary>
+    {
+      typedef std::vector<unsigned char> value_type;
+      typedef std::vector<unsigned char> query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_value (value_type& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        cb = &result_callback;
+        context = &v;
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = &v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+    };
+
+    // char array (buffer) specialization for long_binary.
+    //
+    template <typename C, std::size_t N>
+    struct array_long_binary_value_traits
+    {
+      typedef C* value_type;
+      typedef const C* query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_value (C* const& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        cb = &result_callback;
+        context = v;
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const C* v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+    };
+
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_long_binary>:
+      array_long_binary_value_traits<char, N>
+    {
+    };
+
+    template <std::size_t N>
+    struct default_value_traits<unsigned char[N], id_long_binary>:
+      array_long_binary_value_traits<unsigned char, N>
+    {
+    };
+
+    // GUID specialization for uniqueidentifier.
+    //
+#ifdef _WIN32
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<GUID, id_uniqueidentifier>
+    {
+      typedef GUID value_type;
+      typedef GUID query_type;
+      typedef uniqueidentifier image_type;
+
+      static void
+      set_value (GUID& v, const uniqueidentifier& i, bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (&v, &i, 16);
+        else
+          std::memset (&v, 0, 16);
+      }
+
+      static void
+      set_image (uniqueidentifier& i, bool& is_null, const GUID& v)
+      {
+        is_null = false;
+        std::memcpy (&i, &v, 16);
+      }
+    };
+#endif
+
+    // unsigned long long specialization for rowversion.
+    //
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<unsigned long long,
+                                                    id_rowversion>
+    {
+      typedef unsigned long long value_type;
+      typedef unsigned long long query_type;
+      typedef unsigned char* image_type;
+
+      static void
+      set_value (unsigned long long& v, const unsigned char* i, bool is_null)
+      {
+        if (!is_null)
+        {
+          // The value is in the big-endian format.
+          //
+          unsigned char* p (reinterpret_cast<unsigned char*> (&v));
+          p[0] = i[7];
+          p[1] = i[6];
+          p[2] = i[5];
+          p[3] = i[4];
+          p[4] = i[3];
+          p[5] = i[2];
+          p[6] = i[1];
+          p[7] = i[0];
+        }
+        else
+          v = 0;
+      }
+
+      // There is no set_image() since it is impossible to insert an
+      // explicit value into a rowversion column.
     };
 
     //
@@ -488,6 +1470,42 @@ namespace odb
     {
       static const database_type_id db_type_id = id_long_string;
     };
+
+    // Wide string type.
+    //
+    template <>
+    struct default_type_traits<std::wstring>
+    {
+      static const database_type_id db_type_id = id_long_nstring;
+    };
+
+    template <>
+    struct default_type_traits<const wchar_t*>
+    {
+      static const database_type_id db_type_id = id_long_nstring;
+    };
+
+    template <std::size_t n>
+    struct default_type_traits<wchar_t[n]>
+    {
+      static const database_type_id db_type_id = id_long_nstring;
+    };
+
+    template <std::size_t n>
+    struct default_type_traits<const wchar_t[n]>
+    {
+      static const database_type_id db_type_id = id_long_nstring;
+    };
+
+    // GUID.
+    //
+#ifdef _WIN32
+    template <>
+    struct default_type_traits<GUID>
+    {
+      static const database_type_id db_type_id = id_uniqueidentifier;
+    };
+#endif
   }
 }
 

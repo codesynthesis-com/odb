@@ -47,6 +47,11 @@
 #  define SQL_MARS_ENABLED_YES 1L
 #endif
 
+#ifndef SQL_SS_TIME2
+#  define SQL_SS_TIME2           (-154)
+#  define SQL_SS_TIMESTAMPOFFSET (-155)
+#endif
+
 // unixODBC doesn't define SQL_PARAM_DATA_AVAILABLE even though it
 // claims ODBC version 3.80.
 //

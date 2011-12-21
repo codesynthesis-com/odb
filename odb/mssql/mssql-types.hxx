@@ -19,19 +19,21 @@ namespace odb
   {
     enum chunk_type
     {
-      first_chunk,
-      next_chunk,
-      last_chunk,
-      one_chunk,
-      null_chunk
+      chunk_null,
+      chunk_one,
+      chunk_first,
+      chunk_next,
+      chunk_last,
     };
 
     typedef void (*param_callback_type) (
       const void* context,   // User context.
-      std::size_t* position, // Position context. Am implementation is free
+      std::size_t* position, // Position context. An implementation is free
                              // to use this to track position information. It
                              // is initialized to zero before the first call.
-      const void** buffer,   // [out] Buffer contaning the data.
+      const void** buffer,   // [in/out] Buffer contaning the data. On the
+                             // the first call it contains a pointer to the
+                             // long_callback struct (used for redirections).
       std::size_t* size,     // [out] Data size.
       chunk_type*,           // [out] The position of this chunk of data.
       void* temp_buffer,     // A temporary buffer that may be used by the
@@ -40,18 +42,20 @@ namespace odb
 
     typedef void (*result_callback_type) (
       void* context,         // User context.
-      std::size_t* position, // Position context. Am implementation is free
+      std::size_t* position, // Position context. An implementation is free
                              // to use this to track position information. It
                              // is initialized to zero before the first call.
-      void** buffer,         // [out] Buffer to copy the data to.
+      void** buffer,         // [in/out] Buffer to copy the data to. On the
+                             // the first call it contains a pointer to the
+                             // long_callback struct (used for redirections).
       std::size_t* size,     // [in/out] In: amount of data copied into the
                              // buffer after the previous call. Out: capacity
                              // of the buffer.
-      chunk_type,            // The position of this chunk; first_chunk means
-                             // this is the first call, last_chunk means there
-                             // is no more data, null_chunk means this value is
-                             // NULL, and one_chunk means the value is empty
-                             // (in this case *size is 0).
+      chunk_type,            // The position of this chunk; chunk_first means
+                             // this is the first call, chunk_last means there
+                             // is no more data, chunk_null means this value is
+                             // NULL, and chunk_one means the value is empty
+                             // (in this case *total_size is 0).
       std::size_t size_left, // Contains the amount of data left or 0 if this
                              // information is not available.
       void* temp_buffer,     // A temporary buffer that may be used by the
@@ -81,50 +85,59 @@ namespace odb
       //
       enum buffer_type
       {
-        bit,            // Buffer is a 1-byte integer.
-        tinyint,        // Buffer is a 1-byte integer.
-        smallint,       // Buffer is a 2-byte integer.
-        int_,           // Buffer is a 4-byte integer.
-        bigint,         // Buffer is an 8-byte integer.
+        bit,              // Buffer is a 1-byte integer.
+        tinyint,          // Buffer is a 1-byte integer.
+        smallint,         // Buffer is a 2-byte integer.
+        int_,             // Buffer is a 4-byte integer.
+        bigint,           // Buffer is an 8-byte integer.
 
-        decimal,        // Buffer is a decimal struct (SQL_NUMERIC_STRUCT).
+        decimal,          // Buffer is a decimal struct (SQL_NUMERIC_STRUCT).
 
-        smallmoney,     // Buffer is a smallmoney struct (DBMONEY4).
-        money,          // Buffer is a money struct (DBMONEY).
+        smallmoney,       // Buffer is a smallmoney struct (DBMONEY4).
+        money,            // Buffer is a money struct (DBMONEY).
 
-        float4,         // Buffer is a float.
-        float8,         // Buffer is a double.
+        float4,           // Buffer is a float.
+        float8,           // Buffer is a double.
 
-        string,         // Buffer is a char array.
-        long_string,    // Buffer is a long_callback.
+        string,           // Buffer is a char array.
+        long_string,      // Buffer is a long_callback.
 
-        nstring,        // Buffer is a wchar_t (2-byte) array.
-        long_nstring,   // Buffer is a long_callback.
+        nstring,          // Buffer is a wchar_t (2-byte) array.
+        long_nstring,     // Buffer is a long_callback.
 
-        binary,         // Buffer is a byte array.
-        long_binary,    // Buffer is a long_callback.
+        binary,           // Buffer is a byte array.
+        long_binary,      // Buffer is a long_callback.
 
-        /*
-        date,           // Buffer is an SQL_DATE_STRUCT.
-        time,           // Buffer is an SQL_SS_TIME2_STRUCT.
-        datetime,       // Buffer is an SQL_TIMESTAMP_STRUCT.
-        datetimeoffset, // Buffer is an SQL_SS_TIMESTAMPOFFSET_STRUCT.
+        date,             // Buffer is an SQL_DATE_STRUCT.
+        time,             // Buffer is an SQL_SS_TIME2_STRUCT.
+        datetime,         // Buffer is an SQL_TIMESTAMP_STRUCT.
+        datetimeoffset,   // Buffer is an SQL_SS_TIMESTAMPOFFSET_STRUCT.
 
-        uuid,           // Buffer is a 16-byte array (or SQLGUID).
-        rowversion,     // Buffer is an 8-byte array.
-        */
+        uniqueidentifier, // Buffer is an SQLGUID.
+        rowversion,       // Buffer is an 8-byte array.
 
-        last            // Used as an end of list marker.
+        last               // Used as an end of list marker.
       };
 
       buffer_type type; // The buffer type.
       void* buffer;     // The buffer. For long data this is a long_callback.
-      SQLLEN* size_ind; // Pointer to the size/inidicator variable.
-      SQLLEN capacity;  // Buffer capacity. For string/binary parameters
-                        // this value is also used as maximum column size.
-                        // For decimal parameters it contains precision (p)
-                        // and scale (s) encoded as (p * 100 + s). For float4
-                        // and float8 it contains precision.
+      SQLLEN* size_ind; // Pointer to the size/inidicator variable. Size is
+                        // ignored except for variable-size, [small]money, and
+                        // rowversion types. Sepcial indicator values are
+                        // SQL_NULL_DATA (value is NULL) and SQL_DATA_AT_EXEC
+                        // (should be set for the long_* data types).
+      SQLLEN capacity;  // Buffer capacity. Only used for variable-size
+                        // types as well as to pass column/size precisions
+                        // as follows: For string/binary parameters this
+                        // value (minus one character for strings) is used
+                        // as maximum column size. For decimal parameters
+                        // it contains precision (p) and scale (s) encoded
+                        // as (p * 100 + s). For float4 and float8 it
+                        // contains precision. For time, datetime, and
+                        // datatimeoffset it contains fractional seconds
+                        // (scale). In case of datetime, the special
+                        // value 8 indicates the SMALLDATETIME type
+                        // which the the seconds precision.
     };
   }
 }

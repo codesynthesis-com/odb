@@ -25,54 +25,70 @@ namespace odb
     //
     static const SQLSMALLINT sql_type_lookup [bind::last] =
     {
-      SQL_BIT,        // bind::bit
-      SQL_TINYINT,    // bind::tinyint
-      SQL_SMALLINT,   // bind::smallint
-      SQL_INTEGER,    // bind::integer
-      SQL_BIGINT,     // bind::bigint
+      SQL_BIT,                // bind::bit
+      SQL_TINYINT,            // bind::tinyint
+      SQL_SMALLINT,           // bind::smallint
+      SQL_INTEGER,            // bind::integer
+      SQL_BIGINT,             // bind::bigint
 
-      SQL_DECIMAL,    // bind::decimal
-      SQL_DECIMAL,    // bind::smallmoney
-      SQL_DECIMAL,    // bind::money
+      SQL_DECIMAL,            // bind::decimal
+      SQL_DECIMAL,            // bind::smallmoney
+      SQL_DECIMAL,            // bind::money
 
-      SQL_FLOAT,      // bind::float4
-      SQL_FLOAT,      // bind::float8
+      SQL_FLOAT,              // bind::float4
+      SQL_FLOAT,              // bind::float8
 
-      SQL_VARCHAR,    // bind::string
-      SQL_VARCHAR,    // bind::long_string
+      SQL_VARCHAR,            // bind::string
+      SQL_VARCHAR,            // bind::long_string
 
-      SQL_WVARCHAR,   // bind::nstring
-      SQL_WVARCHAR,   // bind::long_nstring
+      SQL_WVARCHAR,           // bind::nstring
+      SQL_WVARCHAR,           // bind::long_nstring
 
-      SQL_VARBINARY,  // bind::binary
-      SQL_VARBINARY   // bind::long_binary
+      SQL_VARBINARY,          // bind::binary
+      SQL_VARBINARY,          // bind::long_binary
+
+      SQL_TYPE_DATE,          // bind::date
+      SQL_SS_TIME2,           // bind::time
+      SQL_TYPE_TIMESTAMP,     // bind::datetime
+      SQL_SS_TIMESTAMPOFFSET, // bind::datetimeoffset
+
+      SQL_GUID,               // bind::uniqueidentifier
+      SQL_BINARY              // bind::rowversion
     };
 
     // Mapping of bind::buffer_type to SQL_C_* C types.
     //
     static const SQLSMALLINT c_type_lookup [bind::last] =
     {
-      SQL_C_BIT,      // bind::bit
-      SQL_C_UTINYINT, // bind::tinyint
-      SQL_C_SSHORT,   // bind::smallint
-      SQL_C_SLONG,    // bind::integer
-      SQL_C_SBIGINT,  // bind::bigint
+      SQL_C_BIT,            // bind::bit
+      SQL_C_UTINYINT,       // bind::tinyint
+      SQL_C_SSHORT,         // bind::smallint
+      SQL_C_SLONG,          // bind::integer
+      SQL_C_SBIGINT,        // bind::bigint
 
-      SQL_C_NUMERIC,  // bind::decimal
-      SQL_C_BINARY,   // bind::smallmoney
-      SQL_C_BINARY,   // bind::money
+      SQL_C_NUMERIC,        // bind::decimal
+      SQL_C_BINARY,         // bind::smallmoney
+      SQL_C_BINARY,         // bind::money
 
-      SQL_C_FLOAT,    // bind::float4
-      SQL_C_DOUBLE,   // bind::float8
+      SQL_C_FLOAT,          // bind::float4
+      SQL_C_DOUBLE,         // bind::float8
 
-      SQL_C_CHAR,     // bind::string
-      SQL_C_CHAR,     // bind::long_string
+      SQL_C_CHAR,           // bind::string
+      SQL_C_CHAR,           // bind::long_string
 
-      SQL_C_WCHAR,    // bind::nstring
-      SQL_C_WCHAR,    // bind::long_nstring
+      SQL_C_WCHAR,          // bind::nstring
+      SQL_C_WCHAR,          // bind::long_nstring
 
-      SQL_C_BINARY,   // bind::binary
-      SQL_C_BINARY    // bind::long_binary
+      SQL_C_BINARY,         // bind::binary
+      SQL_C_BINARY,         // bind::long_binary
+
+      SQL_C_TYPE_DATE,      // bind::date
+      SQL_C_BINARY,         // bind::time
+      SQL_C_TYPE_TIMESTAMP, // bind::datetime
+      SQL_C_BINARY,         // bind::datetimeoffset
+
+      SQL_C_GUID,           // bind::uniqueidentifier
+      SQL_C_BINARY          // bind::rowversion
     };
 
     //
@@ -177,7 +193,7 @@ namespace odb
 
       for (size_t i (1); i < n; ++i, ++b)
       {
-        SQLULEN col_size;
+        SQLULEN col_size (0);
         SQLSMALLINT digits (0);
         SQLPOINTER buf;
 
@@ -229,6 +245,11 @@ namespace odb
             break;
           }
         case bind::string:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            col_size = (SQLULEN) b->capacity - 1; // Sans the null-terminator.
+            break;
+          }
         case bind::binary:
           {
             buf = (SQLPOINTER) b->buffer;
@@ -238,13 +259,78 @@ namespace odb
         case bind::nstring:
           {
             buf = (SQLPOINTER) b->buffer;
-            col_size = (SQLULEN) b->capacity / 2; // In characters, not bytes.
+            // In characters, not bytes, and sans the null-terminator.
+            col_size = (SQLULEN) (b->capacity / 2 - 1);
+            break;
+          }
+        case bind::date:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            // Native Client 10.0 requires the correct precision.
+            //
+            col_size = 10;
+            break;
+          }
+        case bind::time:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            digits = (SQLULEN) b->capacity;
+
+            // Native Client 10.0 requires the correct precision.
+            //
+            if (digits == 0)
+              col_size = 8;
+            else
+              col_size = digits + 9;
+
+            break;
+          }
+        case bind::datetime:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            digits = (SQLULEN) b->capacity;
+
+            // Native Client 10.0 requires the correct precision.
+            //
+            if (digits == 0)
+              col_size = 19;
+            else if (digits == 8)
+            {
+              // This is a SMALLDATETIME column which only has the minutes
+              // precision. Documentation indicates that the correct numeric
+              // precision value for this type is 16.
+              //
+              digits = 0;
+              col_size = 16;
+            }
+            else
+              col_size = digits + 20;
+
+            break;
+          }
+        case bind::datetimeoffset:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            digits = (SQLULEN) b->capacity;
+
+            // Native Client 10.0 requires the correct precision.
+            //
+            if (digits == 0)
+              col_size = 26;
+            else
+              col_size = digits + 27;
+
+            break;
+          }
+        case bind::rowversion:
+          {
+            buf = (SQLPOINTER) b->buffer;
+            col_size = 8;
             break;
           }
         default:
           {
             buf = (SQLPOINTER) b->buffer;
-            col_size = 0;
             break;
           }
         }
@@ -278,6 +364,27 @@ namespace odb
 
         switch (b->type)
         {
+        case bind::bit:
+        case bind::tinyint:
+          {
+            cap = 1;
+            break;
+          }
+        case bind::smallint:
+          {
+            cap = 2;
+            break;
+          }
+        case bind::int_:
+          {
+            cap = 4;
+            break;
+          }
+        case bind::bigint:
+          {
+            cap = 8;
+            break;
+          }
         case bind::decimal:
           {
             cap = (SQLLEN) sizeof (decimal);
@@ -285,22 +392,29 @@ namespace odb
           }
         case bind::smallmoney:
           {
-            cap = (SQLLEN) sizeof (smallmoney);
+            cap = 4;
             break;
           }
         case bind::money:
           {
-            cap = (SQLLEN) sizeof (money);
+            cap = 8;
             break;
           }
         case bind::float4:
           {
-            cap = (SQLLEN) sizeof (float);
+            cap = 4;
             break;
           }
         case bind::float8:
           {
-            cap = (SQLLEN) sizeof (double);
+            cap = 8;
+            break;
+          }
+        case bind::string:
+        case bind::nstring:
+        case bind::binary:
+          {
+            cap = b->capacity;
             break;
           }
         case bind::long_string:
@@ -311,9 +425,39 @@ namespace odb
             //
             continue;
           }
-        default:
+        case bind::date:
           {
-            cap = b->capacity;
+            cap = (SQLLEN) sizeof (date);
+            break;
+          }
+        case bind::time:
+          {
+            cap = (SQLLEN) sizeof (time);
+            break;
+          }
+        case bind::datetime:
+          {
+            cap = (SQLLEN) sizeof (datetime);
+            break;
+          }
+        case bind::datetimeoffset:
+          {
+            cap = (SQLLEN) sizeof (datetimeoffset);
+            break;
+          }
+        case bind::uniqueidentifier:
+          {
+            cap = 16;
+            break;
+          }
+        case bind::rowversion:
+          {
+            cap = 8;
+            break;
+          }
+        case bind::last:
+          {
+            assert (false);
             break;
           }
         }
@@ -365,48 +509,41 @@ namespace odb
           if (r != SQL_NEED_DATA)
             break;
 
-          // See if we have a NULL value.
+          long_callback& cb (*static_cast<long_callback*> (b->buffer));
+
+          // Store the pointer to the long_callback struct in buf on the
+          // first call to the callback. This allows the callback to
+          // redirect further calls to some other callback.
           //
-          if (*b->size_ind == SQL_NULL_DATA)
+          const void* buf (&cb);
+
+          size_t position (0);
+          for (;;)
           {
-            r = SQLPutData (stmt_, 0, SQL_NULL_DATA);
+            size_t n;
+            chunk_type chunk;
+
+            cb.callback.param (
+              cb.context.param,
+              &position,
+              &buf,
+              &n,
+              &chunk,
+              tmp_buf.data (),
+              tmp_buf.capacity ());
+
+            r = SQLPutData (
+              stmt_,
+              (SQLPOINTER) (buf != 0 ? buf : &buf), // Always pass non-NULL.
+              chunk != chunk_null ? (SQLLEN) n : SQL_NULL_DATA);
 
             if (!SQL_SUCCEEDED (r))
               translate_error (r, conn_, stmt_);
-          }
-          else
-          {
-            long_callback& cb (*static_cast<long_callback*> (b->buffer));
 
-            size_t position (0);
-            for (;;)
-            {
-              size_t n;
-              const void* buf;
-              chunk_type chunk;
-
-              cb.callback.param (
-                cb.context.param,
-                &position,
-                &buf,
-                &n,
-                &chunk,
-                tmp_buf.data (),
-                tmp_buf.capacity ());
-
-              r = SQLPutData (
-                stmt_,
-                (SQLPOINTER) buf,
-                chunk != null_chunk ? (SQLLEN) n : SQL_NULL_DATA);
-
-              if (!SQL_SUCCEEDED (r))
-                translate_error (r, conn_, stmt_);
-
-              if (chunk == one_chunk ||
-                  chunk == last_chunk ||
-                  chunk == null_chunk)
-                break;
-            }
+            if (chunk == chunk_one ||
+                chunk == chunk_last ||
+                chunk == chunk_null)
+              break;
           }
         }
       }
@@ -463,14 +600,18 @@ namespace odb
         if (!SQL_SUCCEEDED (r))
           translate_error (r, conn_, stmt_);
 
-        void* buf;
+        // Store the pointer to the long_callback struct in buf on the
+        // first call to the callback. This allows the callback to
+        // redirect further calls to some other callback.
+        //
+        void* buf (&cb);
         size_t size (0);
         size_t position (0);
         size_t size_left (si == SQL_NO_TOTAL ? 0 : static_cast<size_t> (si));
 
         chunk_type c (si == SQL_NULL_DATA
-                      ? null_chunk
-                      : (si == 0 ? one_chunk : first_chunk));
+                      ? chunk_null
+                      : (si == 0 ? chunk_one : chunk_first));
 
         for (;;)
         {
@@ -484,7 +625,7 @@ namespace odb
                 tmp_buf.data (),
                 tmp_buf.capacity ());
 
-          if (c == last_chunk || c == one_chunk || c == null_chunk)
+          if (c == chunk_last || c == chunk_one || c == chunk_null)
             break;
 
           // SQLGetData() can keep returning SQL_SUCCESS_WITH_INFO (truncated)
@@ -507,14 +648,14 @@ namespace odb
             // include the NULL teminator).
             //
             size = static_cast<size_t> (si);
-            c = last_chunk;
+            c = chunk_last;
           }
           else if (r == SQL_SUCCESS_WITH_INFO)
           {
             if (char_data)
               size--; // NULL terminator.
 
-            c = next_chunk;
+            c = chunk_next;
           }
           else
             translate_error (r, conn_, stmt_);
