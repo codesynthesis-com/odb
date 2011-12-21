@@ -170,6 +170,18 @@ namespace odb
         return data_image_native_binding_;
       }
 
+      binding&
+      select_image_binding ()
+      {
+        return select_image_binding_;
+      }
+
+      bool*
+      select_image_truncated ()
+      {
+        return select_image_truncated_;
+      }
+
       //
       // Statements.
       //
@@ -209,7 +221,7 @@ namespace odb
               select_all_count_,
               cond_image_binding_,
               cond_image_native_binding_,
-              data_image_binding_,
+              select_image_binding_,
               false));
         }
 
@@ -250,16 +262,20 @@ namespace odb
       std::size_t cond_image_version_;
       std::size_t cond_id_binding_version_;
       binding cond_image_binding_;
-      bind* cond_image_bind_;
       native_binding cond_image_native_binding_;
 
       data_image_type data_image_;
       std::size_t data_image_version_;
       std::size_t data_id_binding_version_;
+
       binding data_image_binding_;
-      bind* data_image_bind_;
       bool* data_image_truncated_;
       native_binding data_image_native_binding_;
+
+      // Skips the id from data_image_binding.
+      //
+      binding select_image_binding_;
+      bool* select_image_truncated_;
 
       const char* insert_one_name_;
       const char* insert_one_text_;
@@ -298,12 +314,12 @@ namespace odb
       container_statements_impl& operator= (const container_statements_impl&);
 
     private:
-      bind cond_image_bind_array_[traits::cond_column_count];
+      bind cond_image_bind_[traits::cond_column_count];
       char* cond_image_values_[traits::cond_column_count];
       int cond_image_lengths_[traits::cond_column_count];
       int cond_image_formats_[traits::cond_column_count];
 
-      bind data_image_bind_array_[traits::data_column_count];
+      bind data_image_bind_[traits::data_column_count];
       char* data_image_values_[traits::data_column_count];
       int data_image_lengths_[traits::data_column_count];
       int data_image_formats_[traits::data_column_count];

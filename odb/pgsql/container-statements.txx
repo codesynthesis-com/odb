@@ -22,10 +22,11 @@ namespace odb
                       &traits::load_all,
                       &traits::delete_all),
           id_binding_ (0),
-          cond_image_binding_ (0, 0),              // Initialized by impl.
-          cond_image_native_binding_ (0, 0, 0, 0), // Initialized by impl.
-          data_image_binding_ (0, 0),              // Initialized by impl.
-          data_image_native_binding_ (0, 0, 0, 0)  // Initialized by impl.
+          cond_image_binding_ (0, 0),               // Initialized by impl.
+          cond_image_native_binding_ (0, 0, 0, 0),  // Initialized by impl.
+          data_image_binding_ (0, 0),               // Initialized by impl.
+          data_image_native_binding_ (0, 0, 0, 0),  // Initialized by impl.
+          select_image_binding_ (0, 0)              // Initialized by impl.
     {
       cond_image_.version = 0;
       cond_image_version_ = 0;
@@ -41,15 +42,20 @@ namespace odb
     container_statements_impl (connection_type& conn)
         : base (conn)
     {
-      this->cond_image_bind_ = cond_image_bind_array_;
-      this->data_image_bind_ = data_image_bind_array_;
       this->data_image_truncated_ = data_image_truncated_array_;
+      this->select_image_truncated_ = data_image_truncated_array_ +
+        traits::id_column_count;
 
-      this->cond_image_binding_.bind = this->cond_image_bind_;
+      this->cond_image_binding_.bind = cond_image_bind_;
       this->cond_image_binding_.count = traits::cond_column_count;
 
-      this->data_image_binding_.bind = this->data_image_bind_;
+      this->data_image_binding_.bind = data_image_bind_;
       this->data_image_binding_.count = traits::data_column_count;
+
+      this->select_image_binding_.bind = data_image_bind_ +
+        traits::id_column_count;
+      this->select_image_binding_.count = traits::data_column_count -
+        traits::id_column_count;
 
       this->cond_image_native_binding_.values = cond_image_values_;
       this->cond_image_native_binding_.lengths = cond_image_lengths_;
@@ -61,14 +67,14 @@ namespace odb
       this->data_image_native_binding_.formats = data_image_formats_;
       this->data_image_native_binding_.count = traits::data_column_count;
 
-      std::memset (cond_image_bind_array_, 0, sizeof (cond_image_bind_array_));
-      std::memset (data_image_bind_array_, 0, sizeof (data_image_bind_array_));
+      std::memset (cond_image_bind_, 0, sizeof (cond_image_bind_));
+      std::memset (data_image_bind_, 0, sizeof (data_image_bind_));
       std::memset (data_image_truncated_array_,
                    0,
                    sizeof (data_image_truncated_array_));
 
       for (std::size_t i (0); i < traits::data_column_count; ++i)
-        data_image_bind_array_[i].truncated = data_image_truncated_array_ + i;
+        data_image_bind_[i].truncated = data_image_truncated_array_ + i;
 
       this->insert_one_name_ = traits::insert_one_name;
       this->insert_one_text_ = traits::insert_one_statement;
