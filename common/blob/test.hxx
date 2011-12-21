@@ -12,8 +12,10 @@
 #include <odb/core.hxx>
 
 #ifdef ODB_COMPILER
-#  ifdef ODB_DATABASE_PGSQL
+#  if defined(ODB_DATABASE_PGSQL)
 #    define BLOB_TYPE "BYTEA"
+#  elif defined(ODB_DATABASE_MSSQL)
+#    define BLOB_TYPE "VARBINARY(max)"
 #  else
 #    define BLOB_TYPE "BLOB"
 #  endif
