@@ -620,7 +620,6 @@ namespace odb
     struct LIBODB_ORACLE_EXPORT
     default_value_traits<std::vector<unsigned char>, id_raw>
     {
-    public:
       typedef std::vector<unsigned char> value_type;
       typedef std::vector<unsigned char> query_type;
       typedef char* image_type;
@@ -650,7 +649,6 @@ namespace odb
     template <std::size_t N>
     struct default_value_traits<char[N], id_raw>
     {
-    public:
       typedef char* value_type;
       typedef const char* query_type;
       typedef char* image_type;
@@ -683,7 +681,6 @@ namespace odb
     template <std::size_t N>
     struct default_value_traits<unsigned char[N], id_raw>
     {
-    public:
       typedef unsigned char* value_type;
       typedef const unsigned char* query_type;
       typedef char* image_type;
