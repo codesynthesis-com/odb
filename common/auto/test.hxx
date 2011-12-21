@@ -30,4 +30,13 @@ private:
   friend class odb::access;
 };
 
+// Test the case where the object has just the auto id.
+//
+#pragma db object
+struct auto_only
+{
+  #pragma db auto id
+  unsigned long id_;
+};
+
 #endif // TEST_HXX

@@ -28,37 +28,64 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    unsigned long id1, id2, id3;
+    // object
+    //
     {
-      object o1 ("one");
-      object o2 ("two");
-      object o3 ("three");
+      unsigned long id1, id2, id3;
+      {
+        object o1 ("one");
+        object o2 ("two");
+        object o3 ("three");
 
-      transaction t (db->begin ());
-      db->persist (o1);
-      db->persist (o2);
-      db->persist (o3);
-      t.commit ();
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        db->persist (o3);
+        t.commit ();
 
-      id1 = o1.id_;
-      id2 = o2.id_;
-      id3 = o3.id_;
+        id1 = o1.id_;
+        id2 = o2.id_;
+        id3 = o3.id_;
 
-      assert (id1 != id2);
-      assert (id1 != id3);
-      assert (id2 != id3);
+        assert (id1 != id2);
+        assert (id1 != id3);
+        assert (id2 != id3);
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> o1 (db->load<object> (id1));
+        auto_ptr<object> o2 (db->load<object> (id2));
+        auto_ptr<object> o3 (db->load<object> (id3));
+        t.commit ();
+
+        assert (o1->id_ == id1 && o1->str_ == "one");
+        assert (o2->id_ == id2 && o2->str_ == "two");
+        assert (o3->id_ == id3 && o3->str_ == "three");
+      }
     }
 
+    // auto_only
+    //
     {
-      transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (id1));
-      auto_ptr<object> o2 (db->load<object> (id2));
-      auto_ptr<object> o3 (db->load<object> (id3));
-      t.commit ();
+      unsigned long id;
+      {
+        auto_only o;
 
-      assert (o1->id_ == id1 && o1->str_ == "one");
-      assert (o2->id_ == id2 && o2->str_ == "two");
-      assert (o3->id_ == id3 && o3->str_ == "three");
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+
+        id = o.id_;
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<auto_only> o (db->load<auto_only> (id));
+        t.commit ();
+
+        assert (o->id_ == id);
+      }
     }
   }
   catch (const odb::exception& e)
