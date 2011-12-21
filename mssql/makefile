@@ -8,7 +8,8 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 #@@ template
 #
 tests :=      \
-native
+native        \
+types
 
 default   := $(out_base)/
 dist      := $(out_base)/.dist

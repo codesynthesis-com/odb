@@ -1,0 +1,158 @@
+// file      : mssql/types/driver.cxx
+// author    : Constantin Michael <constantin@codesynthesis.com>
+// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+// Test SQL Server type conversion.
+//
+
+#include <memory>   // std::auto_ptr
+#include <cassert>
+#include <iostream>
+
+#include <odb/mssql/database.hxx>
+#include <odb/mssql/transaction.hxx>
+
+#include <common/common.hxx>
+
+#include "test.hxx"
+#include "test-odb.hxx"
+
+using namespace std;
+using namespace odb::core;
+
+int
+main (int argc, char* argv[])
+{
+  try
+  {
+    auto_ptr<database> db (create_database (argc, argv, false));
+
+    {
+      object o (1);
+
+      o.bit_ = 1;
+      o.utint_ = 222;
+      o.stint_ = -123;
+      o.usint_ = 65000;
+      o.ssint_ = -12345;
+      o.uint_ = 4294967290U;
+      o.sint_ = -1234567890;
+      o.ubint_ = 18446744073709551610ULL;
+      o.sbint_ = -1234567890123456789LL;
+
+      o.fsm_ = -214748.3648F;
+      o.dsm_ = 214748.3647D;
+      o.ism_ = -2147483647 -1;
+
+      o.dm1_ = -922337203685477.5808D;
+      o.dm2_ = 922337203685476.3520D; // 922337203685477.5807
+      o.im_ = 9223372036854775807LL;
+
+      o.f4_ = 123.123F;
+      o.f8_ = 123.1234567D;
+
+      o.schar_ = "short data char     ";
+      o.svchar_ = "short data varchar";
+
+      o.lchar_.assign (257, 'a');
+      o.lvchar_ = "long data varchar"; // Test the short string optimization.
+      o.mvchar_.assign (70000, 'm');
+      o.text_.assign (70000, 't');
+
+      o.snchar_ = L"short data nchar\x1FFF\xD7FF  ";
+      o.snvchar_ = L"short data nvarchar \x1FFF\xD7FF";
+
+      o.lnchar_.assign (129, L'\x1234');
+      o.lnvchar_ = L""; // Test empty string.
+      o.mnvchar_.assign (70000, L'\x2345');
+      o.ntext_.assign (70000, L'\x4356');
+
+      const char sdata[] = "abc""\x00\x01""def";
+      memcpy (o.sbin_, sdata, sizeof (sdata));
+      o.svbin_.assign (sdata, sdata + sizeof (sdata));
+
+      string ldata (256 * 1024, '\x01');
+      memset (o.lbin_, 2, sizeof (o.lbin_));
+      o.lvbin_.assign (50, '\x03');
+      o.mvbin_.assign (ldata.begin (), ldata.end ());
+      o.image_.assign (ldata.begin (), ldata.end ());
+
+      o.date_ = date_time (2011, 12, 20, 0, 0, 0, 0, 0, 0);
+      o.time7_ = date_time (0, 0, 0, 13, 34, 39, 123456789, 0, 0);
+      o.time4_ = date_time (0, 0, 0, 13, 34, 39, 123456700, 0, 0);
+      o.sdt_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 0, 0);
+      o.dt_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 0, 0);
+      o.dt2_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 0, 0);
+      o.dto7_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 2, 0);
+      o.dto0_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 2, 0);
+
+#ifdef _WIN32
+      // 6F846D41-C89A-4E4D-B22F-56443CFA543F
+      o.guid_.Data1 = 0x6F846D41;
+      o.guid_.Data2 = 0xC89A;
+      o.guid_.Data3 = 0x4E4D;
+      memcpy (&o.guid_.Data4, "\xB2\x2F\x56\x44\x3C\xFA\x54\x3F", 8);
+#endif
+
+      // Persist.
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      o.time7_ = date_time (0, 0, 0, 13, 34, 39, 123456700, 0, 0);
+      o.time4_ = date_time (0, 0, 0, 13, 34, 39, 123400000, 0, 0);
+      o.sdt_ = date_time (2011, 12, 20, 15, 44, 0, 0, 0, 0);
+      o.dt_ = date_time (2011, 12, 20, 15, 44, 29, 123000000, 0, 0);
+      o.dto0_ = date_time (2011, 12, 20, 15, 44, 29, 0, 2, 0);
+
+      // Load.
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> o1 (db->load<object> (1));
+        t.commit ();
+
+        assert (o == *o1);
+      }
+    }
+
+    // Test long NULL data.
+    //
+    {
+      long_null o1 (1);
+      long_null o2 (2);
+      o2.str_.reset (new string);
+      o2.str_->assign (70000, 'x');
+
+      // Persist.
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        t.commit ();
+      }
+
+      // Load.
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<long_null> p1 (db->load<long_null> (1));
+        auto_ptr<long_null> p2 (db->load<long_null> (2));
+        t.commit ();
+
+        assert (o1 == *p1);
+        assert (o2 == *p2);
+      }
+    }
+  }
+  catch (const odb::exception& e)
+  {
+    cerr << e.what () << endl;
+    return 1;
+  }
+}
