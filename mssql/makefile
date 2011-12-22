@@ -5,9 +5,8 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
-#@@ template
-#
 tests :=      \
+template      \
 native        \
 types
 
