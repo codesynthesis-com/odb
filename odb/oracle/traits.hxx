@@ -12,7 +12,6 @@
 #include <vector>
 #include <cstddef> // std::size_t
 #include <cstring> // std::memcpy, std::memset, std::strlen
-#include <cassert>
 
 #include <odb/traits.hxx>
 #include <odb/wrapper-traits.hxx>
@@ -517,7 +516,17 @@ namespace odb
                  std::size_t c,
                  std::size_t& n,
                  bool& is_null,
-                 const std::string&);
+                 const std::string& v)
+      {
+        is_null = false;
+        n = v.size ();
+
+        if (n > c)
+          n = c;
+
+        if (n != 0)
+          std::memcpy (b, v.c_str (), n);
+      }
     };
 
     template <>
@@ -546,11 +555,21 @@ namespace odb
       typedef char* image_type;
 
       static void
-      set_image (char*,
+      set_image (char* b,
                  std::size_t c,
                  std::size_t& n,
                  bool& is_null,
-                 const char*);
+                 const char* v)
+      {
+        is_null = false;
+        n = std::strlen (v);
+
+        if (n > c)
+          n = c;
+
+        if (n != 0)
+          std::memcpy (b, v, n);
+      }
     };
 
     template <>
@@ -611,7 +630,19 @@ namespace odb
                  std::size_t c,
                  std::size_t& n,
                  bool& is_null,
-                 const value_type& v);
+                 const value_type& v)
+      {
+        is_null = false;
+        n = v.size ();
+
+        if (n > c)
+          n = c;
+
+        // std::vector::data() may not be available in older compilers.
+        //
+        if (n != 0)
+          std::memcpy (b, &v.front (), n);
+      }
     };
 
     // std::vector<unsigned char> (buffer) specialization for RAW.
@@ -641,7 +672,19 @@ namespace odb
                  std::size_t c,
                  std::size_t& n,
                  bool& is_null,
-                 const value_type& v);
+                 const value_type& v)
+      {
+        is_null = false;
+        n = v.size ();
+
+        if (n > c)
+          n = c;
+
+        // std::vector::data() may not be available in older compilers.
+        //
+        if (n != 0)
+          std::memcpy (b, &v.front (), n);
+      }
     };
 
     // char[n] (buffer) specialization for RAW.
@@ -670,8 +713,7 @@ namespace odb
                  const char* v)
       {
         is_null = false;
-        n = N;
-        assert (N <= c);
+        n = N < c ? N : c;
         std::memcpy (b, v, n);
       }
     };
@@ -705,8 +747,7 @@ namespace odb
                  const unsigned char* v)
       {
         is_null = false;
-        n = N;
-        assert (N <= c);
+        n = N < c ? N : c;
         std::memcpy (b, v, n);
       }
     };
