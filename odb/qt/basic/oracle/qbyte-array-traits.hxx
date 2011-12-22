@@ -116,15 +116,15 @@ namespace odb
 
         switch (p)
         {
-        case one_chunk:
-        case first_chunk:
+        case chunk_one:
+        case chunk_first:
           {
             v.clear ();
 
             // Falling through.
           }
-        case next_chunk:
-        case last_chunk:
+        case chunk_next:
+        case chunk_last:
           {
             v.append (static_cast<char*> (b), static_cast<int> (s));
             break;
@@ -145,7 +145,7 @@ namespace odb
       {
         const QByteArray& v (*static_cast<const QByteArray*> (context));
 
-        *p = one_chunk;
+        *p = chunk_one;
         *s = static_cast<ub4> (v.size ());
         *b = v.constData ();
 

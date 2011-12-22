@@ -122,15 +122,15 @@ namespace odb
 
         switch (p)
         {
-        case one_chunk:
-        case first_chunk:
+        case chunk_one:
+        case chunk_first:
           {
             v.clear ();
 
             // Falling through.
           }
-        case next_chunk:
-        case last_chunk:
+        case chunk_next:
+        case chunk_last:
           {
             v += QString::fromUtf8(static_cast<char*> (b),
                                    static_cast<int> (s));
@@ -157,11 +157,11 @@ namespace odb
         if (*position_context == 0)
         {
           if (*s <= capacity)
-            *p = one_chunk;
+            *p = chunk_one;
           else
           {
             *s = capacity;
-            *p = first_chunk;
+            *p = chunk_first;
           }
         }
         else
@@ -169,11 +169,11 @@ namespace odb
           *s -= *position_context;
 
           if (*s <= capacity)
-            *p = last_chunk;
+            *p = chunk_last;
           else
           {
             *s = capacity;
-            *p = next_chunk;
+            *p = chunk_next;
           }
         }
 
