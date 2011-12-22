@@ -31,7 +31,7 @@ namespace odb
                     void*,
                     ub4)
     {
-      *p = one_chunk;
+      *p = chunk_one;
       *s = static_cast<ub4> (N);
       *b = c;
       return true;
@@ -61,7 +61,7 @@ namespace odb
                     void*,
                     ub4)
     {
-      *p = one_chunk;
+      *p = chunk_one;
       *s = static_cast<ub4> (N);
       *b = c;
       return true;

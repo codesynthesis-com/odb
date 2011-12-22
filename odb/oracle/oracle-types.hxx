@@ -21,10 +21,10 @@ namespace odb
   {
     enum chunk_position
     {
-      one_chunk,
-      first_chunk,
-      next_chunk,
-      last_chunk
+      chunk_one,
+      chunk_first,
+      chunk_next,
+      chunk_last
     };
 
     // Callback function signature used to specify LOB parameters that are

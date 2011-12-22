@@ -106,15 +106,15 @@ namespace odb
 
       switch (p)
       {
-      case one_chunk:
-      case first_chunk:
+      case chunk_one:
+      case chunk_first:
         {
           v.clear ();
 
           // Falling through.
         }
-      case next_chunk:
-      case last_chunk:
+      case chunk_next:
+      case chunk_last:
         {
           v.append (static_cast<char*> (b), s);
           break;
@@ -135,7 +135,7 @@ namespace odb
     {
       const string& v (*static_cast<const string*> (c));
 
-      *p = one_chunk;
+      *p = chunk_one;
       *s = static_cast<ub4> (v.size ());
       *b = v.c_str ();
 
@@ -157,7 +157,7 @@ namespace odb
     {
       const char* v (static_cast<const char*> (c));
 
-      *p = one_chunk;
+      *p = chunk_one;
       *s = static_cast<ub4> (strlen (v));
       *b = v;
 
@@ -175,15 +175,15 @@ namespace odb
 
       switch (p)
       {
-      case one_chunk:
-      case first_chunk:
+      case chunk_one:
+      case chunk_first:
         {
           v.clear ();
 
           // Falling through.
         }
-      case next_chunk:
-      case last_chunk:
+      case chunk_next:
+      case chunk_last:
         {
           char* cb (static_cast<char*> (b));
           v.insert (v.end (), cb, cb + s);
@@ -206,7 +206,7 @@ namespace odb
     {
       const value_type& v (*static_cast<const value_type*> (c));
 
-      *p = one_chunk;
+      *p = chunk_one;
       *s = static_cast<ub4> (v.size ());
       *b = &v.front ();
 
@@ -224,15 +224,15 @@ namespace odb
 
       switch (p)
       {
-      case one_chunk:
-      case first_chunk:
+      case chunk_one:
+      case chunk_first:
         {
           v.clear ();
 
           // Falling through.
         }
-      case next_chunk:
-      case last_chunk:
+      case chunk_next:
+      case chunk_last:
         {
           unsigned char* cb (static_cast<unsigned char*> (b));
           v.insert (v.end (), cb, cb + s);
@@ -255,7 +255,7 @@ namespace odb
     {
       const value_type& v (*static_cast<const value_type*> (c));
 
-      *p = one_chunk;
+      *p = chunk_one;
       *s = static_cast<ub4> (v.size ());
       *b = &v.front ();
 

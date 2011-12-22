@@ -101,22 +101,22 @@ namespace odb
 
         switch (pos)
         {
-        case one_chunk:
+        case chunk_one:
           {
             *piece = OCI_ONE_PIECE;
             break;
           }
-        case first_chunk:
+        case chunk_first:
           {
             *piece = OCI_FIRST_PIECE;
             break;
           }
-        case next_chunk:
+        case chunk_next:
           {
             *piece = OCI_NEXT_PIECE;
             break;
           }
-        case last_chunk:
+        case chunk_last:
           {
             *piece = OCI_LAST_PIECE;
             break;
@@ -1029,11 +1029,11 @@ namespace odb
             chunk_position cp;
 
             if (piece == OCI_FIRST_PIECE)
-              cp = r == OCI_SUCCESS ? one_chunk : first_chunk;
+              cp = r == OCI_SUCCESS ? chunk_one : chunk_first;
             else if (r == OCI_NEED_DATA)
-              cp = next_chunk;
+              cp = chunk_next;
             else
-              cp = last_chunk;
+              cp = chunk_last;
 
             piece = OCI_NEXT_PIECE;
 
