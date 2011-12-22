@@ -298,7 +298,6 @@ struct object
   }
 };
 
-
 // Test long NULL data.
 //
 #pragma db object
@@ -319,6 +318,44 @@ struct long_null
     return
       id_ == y.id_ &&
       ((str_.get () == 0 && y.str_.get () == 0) || *str_ == *y.str_);
+  }
+};
+
+// Test long data in containers, in particular column re-arrangement.
+//
+#pragma db value
+struct long_comp
+{
+  long_comp () {}
+  long_comp (std::string s, unsigned int n): str (s), num (n) {}
+
+  #pragma db type ("VARCHAR(max)")
+  std::string str;
+
+  unsigned int num;
+
+  bool
+  operator== (const long_comp& y) const
+  {
+    return str == y.str && num == y.num;
+  }
+};
+
+#pragma db object
+struct long_cont
+{
+  long_cont () {}
+  long_cont (unsigned int id): id_ (id) {}
+
+  #pragma db id
+  unsigned int id_;
+
+  std::vector<long_comp> v;
+
+  bool
+  operator== (const long_cont& y) const
+  {
+    return id_ == y.id_ && v == y.v;
   }
 };
 

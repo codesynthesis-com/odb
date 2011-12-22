@@ -149,6 +149,33 @@ main (int argc, char* argv[])
         assert (o2 == *p2);
       }
     }
+
+    // Test long data in containers.
+    //
+    {
+      long_cont o (1);
+      o.v.push_back (long_comp ("aaa", 123));
+      o.v.push_back (long_comp (string (500, 'b'), 234));
+      o.v.push_back (long_comp (string (70000, 'c'), 345));
+
+      // Persist.
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      // Load.
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<long_cont> p (db->load<long_cont> (1));
+        t.commit ();
+
+        assert (o == *p);
+      }
+    }
   }
   catch (const odb::exception& e)
   {
