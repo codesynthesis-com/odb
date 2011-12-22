@@ -97,6 +97,7 @@ namespace odb
         //
         object_traits::init (*l.obj, image (), db);
         find_->stream_result ();
+        find_->free_result (); // Our find_() version delays result freeing.
         object_traits::load_ (*this, *l.obj); // Load containers, etc.
 
         if (!delayed_.empty ())
