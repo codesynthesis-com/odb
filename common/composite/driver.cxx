@@ -122,6 +122,43 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+    // Test composite class template instantiation.
+    //
+    {
+      object o (1);
+
+      o.comp_.num = 123;
+      o.comp_.str = "abc";
+      o.comp_.vec.push_back (int_str_pair (123, "abc"));
+      o.comp_.vec.push_back (int_str_pair (234, "bcd"));
+      o.comp_.vec.push_back (int_str_pair (345, "cde"));
+
+      o.pair_.first = 123;
+      o.pair_.second = "abc";
+
+      o.vec_.push_back (int_str_pair (123, "abc"));
+      o.vec_.push_back (int_str_pair (234, "bcd"));
+      o.vec_.push_back (int_str_pair (345, "cde"));
+
+      // persist
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      // load & check
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> o1 (db->load<object> (1));
+        t.commit ();
+
+        assert (o == *o1);
+      }
+    }
   }
   catch (const odb::exception& e)
   {
