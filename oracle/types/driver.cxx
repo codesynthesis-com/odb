@@ -178,13 +178,15 @@ main (int argc, char* argv[])
 
     // Test large BLOBs.
     //
-    blob b (1, 50000);
+    blob b1 (1, 50000);
+    blob b2 (2, 500000);
 
     // Persist.
     //
     {
       transaction t (db->begin ());
-      db->persist (b);
+      db->persist (b1);
+      db->persist (b2);
       t.commit ();
     }
 
@@ -192,10 +194,41 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<blob> bl (db->load<blob> (1));
+      auto_ptr<blob> p1 (db->load<blob> (1));
+      auto_ptr<blob> p2 (db->load<blob> (2));
       t.commit ();
 
-      assert (b == *bl);
+      assert (b1 == *p1);
+      assert (b2 == *p2);
+    }
+
+    // Test image copying with LOB data.
+    //
+    {
+      typedef odb::query<blob> query;
+      typedef odb::result<blob> result;
+
+      transaction t (db->begin ());
+
+      result r (db->query<blob> (query::id < 3));
+      result::iterator i (r.begin ());
+
+      assert (i != r.end ());
+      ++i;
+      assert (i != r.end ());
+
+      {
+        result r (db->query<blob> (query::id < 2));
+        result::iterator i (r.begin ());
+        assert (i != r.end ());
+        assert (i->value_.size () == 50000);
+        assert (++i == r.end ());
+      }
+
+      assert (i->value_.size () == 500000); // Load from copy.
+      assert (++i == r.end ());
+
+      t.commit ();
     }
 
     // Test descriptor management in TIMESTAMP and INTERVAL images.
