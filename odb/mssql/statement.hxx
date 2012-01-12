@@ -122,15 +122,20 @@ namespace odb
       result
       fetch ();
 
-      void
+      // Return true if any long data was streamed.
+      //
+      bool
       stream_result (void* old_base = 0, void* new_base = 0)
       {
-        if (first_long_ != result_.count)
+        bool ld (first_long_ != result_.count);
+
+        if (ld)
           statement::stream_result (result_.bind,
                                     first_long_,
                                     result_.count,
                                     old_base,
                                     new_base);
+        return ld;
       }
 
       void

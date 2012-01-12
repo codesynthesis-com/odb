@@ -67,6 +67,7 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       object_statements<object_type>& statements_;
+      bool can_load_;
       bool use_copy_;
       typename object_traits::image_type* image_copy_;
     };
@@ -113,6 +114,7 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       object_statements_no_id<object_type>& statements_;
+      bool can_load_;
       bool use_copy_;
       typename object_traits::image_type* image_copy_;
     };

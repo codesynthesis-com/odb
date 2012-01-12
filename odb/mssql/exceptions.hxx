@@ -108,6 +108,12 @@ namespace odb
     private:
       std::string what_;
     };
+
+    struct LIBODB_MSSQL_EXPORT long_data_reload: odb::exception
+    {
+      virtual const char*
+      what () const throw ();
+    };
   }
 }
 

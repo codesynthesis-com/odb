@@ -4,8 +4,9 @@
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <odb/callback.hxx>
-#include <odb/exceptions.hxx>
+#include <odb/exceptions.hxx> // result_not_cached
 
+#include <odb/mssql/exceptions.hxx> // long_data_reload
 #include <odb/mssql/view-statements.hxx>
 
 namespace odb
@@ -44,6 +45,9 @@ namespace odb
     void view_result_impl<T>::
     load (view_type& view)
     {
+      if (!can_load_)
+        throw long_data_reload ();
+
       odb::database& db (this->database ());
 
       view_traits::callback (db, view, callback_event::pre_load);
@@ -55,7 +59,7 @@ namespace odb
       // If we are using a copy, make sure the callback information for
       // long data also comes from the copy.
       //
-      statement_->stream_result (
+      can_load_ = !statement_->stream_result (
         use_copy_ ? &statements_.image () : 0,
         use_copy_ ? image_copy_ : 0);
 
@@ -66,6 +70,7 @@ namespace odb
     void view_result_impl<T>::
     next ()
     {
+      can_load_ = true;
       this->current (pointer_type ());
 
       typename view_traits::image_type& im (statements_.image ());

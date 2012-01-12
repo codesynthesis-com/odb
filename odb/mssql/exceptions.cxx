@@ -78,5 +78,16 @@ namespace odb
     {
       return what_.c_str ();
     }
+
+    //
+    // long_data_reload
+    //
+
+    const char* long_data_reload::
+    what () const throw ()
+    {
+      return "attempt to re-load object or view with long data "
+        "from query result";
+    }
   }
 }

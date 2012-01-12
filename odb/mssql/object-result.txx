@@ -6,8 +6,9 @@
 #include <cassert>
 
 #include <odb/callback.hxx>
-#include <odb/exceptions.hxx>
+#include <odb/exceptions.hxx> // result_not_cached
 
+#include <odb/mssql/exceptions.hxx> // long_data_reload
 #include <odb/mssql/object-statements.hxx>
 
 namespace odb
@@ -50,6 +51,9 @@ namespace odb
     void object_result_impl<T>::
     load (object_type& obj, bool)
     {
+      if (!can_load_)
+        throw long_data_reload ();
+
       // This is a top-level call so the statements cannot be locked.
       //
       assert (!statements_.locked ());
@@ -66,7 +70,7 @@ namespace odb
       // If we are using a copy, make sure the callback information for
       // long data also comes from the copy.
       //
-      statement_->stream_result (
+      can_load_ = !statement_->stream_result (
         use_copy_ ? &statements_.image () : 0,
         use_copy_ ? image_copy_ : 0);
 
@@ -103,6 +107,7 @@ namespace odb
     void object_result_impl<T>::
     next ()
     {
+      can_load_ = true;
       this->current (pointer_type ());
 
       typename object_traits::image_type& im (statements_.image ());
@@ -200,6 +205,9 @@ namespace odb
     void object_result_impl_no_id<T>::
     load (object_type& obj)
     {
+      if (!can_load_)
+        throw long_data_reload ();
+
       odb::database& db (this->database ());
 
       object_traits::callback (db, obj, callback_event::pre_load);
@@ -211,7 +219,7 @@ namespace odb
       // If we are using a copy, make sure the callback information for
       // long data also comes from the copy.
       //
-      statement_->stream_result (
+      can_load_ = !statement_->stream_result (
         use_copy_ ? &statements_.image () : 0,
         use_copy_ ? image_copy_ : 0);
 
@@ -222,6 +230,7 @@ namespace odb
     void object_result_impl_no_id<T>::
     next ()
     {
+      can_load_ = true;
       this->current (pointer_type ());
 
       typename object_traits::image_type& im (statements_.image ());

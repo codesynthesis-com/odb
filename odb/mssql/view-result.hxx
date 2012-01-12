@@ -63,6 +63,7 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       view_statements<view_type>& statements_;
+      bool can_load_;
       bool use_copy_;
       typename view_traits::image_type* image_copy_;
     };
