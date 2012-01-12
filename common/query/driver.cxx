@@ -421,8 +421,15 @@ main (int argc, char* argv[])
       assert (i != r.end ());
       ++i;
       assert (i != r.end ());
+
       auto_ptr<person> joe (db->load<person> (3));
+
+      // SQL Server does not support re-loading of an object with long data
+      // from a query result.
+      //
+#ifndef DATABASE_MSSQL
       assert (i->last_name_ == "Doe"); // Actual load.
+#endif
 
       person p;
       joe.reset (db->load<person> (3)); // Overwrite object image again.
