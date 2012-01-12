@@ -55,7 +55,7 @@ main (int argc, char* argv[])
       o.schar_ = "short data char     ";
       o.svchar_ = "short data varchar";
 
-      o.lchar_.assign (257, 'a');
+      o.lchar_.assign (1025, 'a');
       o.lvchar_ = "long data varchar"; // Test the short string optimization.
       o.mvchar_.assign (70000, 'm');
       o.text_.assign (70000, 't');
@@ -63,7 +63,7 @@ main (int argc, char* argv[])
       o.snchar_ = L"short data nchar\x1FFF\xD7FF  ";
       o.snvchar_ = L"short data nvarchar \x1FFF\xD7FF";
 
-      o.lnchar_.assign (129, L'\x1234');
+      o.lnchar_.assign (513, L'\x1234');
       o.lnvchar_ = L""; // Test empty string.
       o.mnvchar_.assign (70000, L'\x2345');
       o.ntext_.assign (70000, L'\x4356');

@@ -153,7 +153,7 @@ struct object
   #pragma db type ("VARCHAR(128)")
   std::string svchar_;
 
-  #pragma db type ("CHAR(257)")
+  #pragma db type ("CHAR(1025)")
   std::string lchar_;
 
   #pragma db type ("CHARACTER VARYING(8000)")
@@ -173,7 +173,7 @@ struct object
   #pragma db type ("NVARCHAR(128)")
   std::wstring snvchar_;
 
-  #pragma db type ("NCHAR(129)")
+  #pragma db type ("NCHAR(513)")
   std::wstring lnchar_;
 
   #pragma db type ("NATIONAL CHARACTER VARYING(4000)")
@@ -193,8 +193,8 @@ struct object
   #pragma db type ("VARBINARY(256)")
   std::vector<char> svbin_;
 
-  #pragma db type ("BINARY(257)")
-  char lbin_[257];
+  #pragma db type ("BINARY(1025)")
+  char lbin_[1025];
 
   #pragma db type ("BINARY VARYING(8000)")
   std::vector<char> lvbin_;
