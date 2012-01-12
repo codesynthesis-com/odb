@@ -141,6 +141,21 @@ namespace odb
                         // value 8 indicates the SMALLDATETIME type
                         // which has no seconds.
     };
+
+    // An instance of this structure specifies the function to invoke and
+    // the context to pass when the object/view image is about to be
+    // modified. This mechanism is used by the query machinery to save the
+    // image between result iteration and dereferencing if something gets
+    // executed between these two operations that would overwrite the
+    // image.
+    //
+    struct change_callback
+    {
+      change_callback (): callback (0), context (0) {};
+
+      void (*callback) (void*);
+      void* context;
+    };
   }
 }
 

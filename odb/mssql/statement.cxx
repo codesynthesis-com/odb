@@ -247,20 +247,26 @@ namespace odb
         case bind::string:
           {
             buf = (SQLPOINTER) b->buffer;
-            col_size = (SQLULEN) b->capacity - 1; // Sans the null-terminator.
+            col_size = b->capacity != 0
+              ? (SQLULEN) b->capacity - 1 // Sans the null-terminator.
+              : SQL_SS_LENGTH_UNLIMITED;
             break;
           }
         case bind::binary:
           {
             buf = (SQLPOINTER) b->buffer;
-            col_size = (SQLULEN) b->capacity;
+            col_size = b->capacity != 0
+              ? (SQLULEN) b->capacity
+              : SQL_SS_LENGTH_UNLIMITED;
             break;
           }
         case bind::nstring:
           {
             buf = (SQLPOINTER) b->buffer;
-            // In characters, not bytes, and sans the null-terminator.
-            col_size = (SQLULEN) (b->capacity / 2 - 1);
+            col_size = b->capacity != 0
+              // In characters, not bytes, and sans the null-terminator.
+              ? (SQLULEN) (b->capacity / 2 - 1)
+              : SQL_SS_LENGTH_UNLIMITED;
             break;
           }
         case bind::date:
@@ -552,7 +558,7 @@ namespace odb
     }
 
     void statement::
-    stream_result (bind* b, size_t i, size_t n)
+    stream_result (bind* b, size_t i, size_t n, void* obase, void* nbase)
     {
       details::buffer& tmp_buf (conn_.long_buffer ());
 
@@ -584,7 +590,23 @@ namespace odb
           }
         }
 
-        long_callback& cb (*static_cast<long_callback*> (b->buffer));
+        void* cbp;
+
+        if (obase == 0)
+          cbp = b->buffer;
+        else
+        {
+          // Re-base the pointer.
+          //
+          char* p (static_cast<char*> (b->buffer));
+          char* ob (static_cast<char*> (obase));
+          char* nb (static_cast<char*> (nbase));
+
+          assert (ob <= p);
+          cbp = nb + (p - ob);
+        }
+
+        long_callback& cb (*static_cast<long_callback*> (cbp));
 
         // First determine if the value is NULL as well as try to
         // get the total data size.
@@ -746,6 +768,11 @@ namespace odb
     select_statement::result select_statement::
     fetch ()
     {
+      change_callback* cc (result_.change_callback);
+
+      if (cc != 0 && cc->callback != 0)
+        (cc->callback) (cc->context);
+
       SQLRETURN r (SQLFetch (stmt_));
 
       if (r == SQL_NO_DATA)

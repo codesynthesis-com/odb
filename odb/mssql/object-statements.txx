@@ -63,8 +63,7 @@ namespace odb
       id_image_.version = 0;
       id_image_version_ = 0;
 
-      //@@ TODO
-      // select_image_binding_.change_callback = image_.change_callback ();
+      select_image_binding_.change_callback = image_.change_callback ();
 
       std::memset (insert_image_bind_, 0, sizeof (insert_image_bind_));
       std::memset (update_image_bind_, 0, sizeof (update_image_bind_));
@@ -159,8 +158,7 @@ namespace odb
       select_image_version_ = 0;
       insert_image_version_ = 0;
 
-      //@@ TODO
-      // select_image_binding_.change_callback = image_.change_callback ();
+      select_image_binding_.change_callback = image_.change_callback ();
 
       std::memset (insert_image_bind_, 0, sizeof (insert_image_bind_));
       std::memset (select_image_bind_, 0, sizeof (select_image_bind_));

@@ -14,6 +14,8 @@ database.cxx              \
 error.cxx                 \
 exceptions.cxx            \
 object-statements.cxx     \
+query.cxx                 \
+query-const-expr.cxx      \
 statement.cxx             \
 statements-base.cxx       \
 tracer.cxx                \
