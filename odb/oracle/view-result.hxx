@@ -55,6 +55,8 @@ namespace odb
       using base_type::current;
 
     private:
+      typedef oracle::change_callback change_callback_type;
+
       static void
       change_callback (void* context);
 

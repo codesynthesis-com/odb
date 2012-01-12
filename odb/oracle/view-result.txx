@@ -16,7 +16,7 @@ namespace odb
     view_result_impl<T>::
     ~view_result_impl ()
     {
-      oracle::change_callback& cc (statements_.image ().change_callback_);
+      change_callback_type& cc (statements_.image ().change_callback_);
 
       if (cc.context == this)
       {
@@ -63,7 +63,7 @@ namespace odb
       this->current (pointer_type ());
 
       typename view_traits::image_type& im (statements_.image ());
-      oracle::change_callback& cc (im.change_callback_);
+      change_callback_type& cc (im.change_callback_);
 
       if (cc.context == this)
       {
