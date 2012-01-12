@@ -102,21 +102,23 @@ namespace odb
         string,           // Buffer is a char array.
         long_string,      // Buffer is a long_callback.
 
-        nstring,          // Buffer is a wchar_t (2-byte) array.
+        nstring,          // Buffer is a ucs2_char array.
         long_nstring,     // Buffer is a long_callback.
 
         binary,           // Buffer is a byte array.
         long_binary,      // Buffer is a long_callback.
 
-        date,             // Buffer is an SQL_DATE_STRUCT.
-        time,             // Buffer is an SQL_SS_TIME2_STRUCT.
-        datetime,         // Buffer is an SQL_TIMESTAMP_STRUCT.
-        datetimeoffset,   // Buffer is an SQL_SS_TIMESTAMPOFFSET_STRUCT.
+        date,             // Buffer is a date struct (SQL_DATE_STRUCT).
+        time,             // Buffer is a time struct (SQL_SS_TIME2_STRUCT).
+        datetime,         // Buffer is a datetime struct
+                          // (SQL_TIMESTAMP_STRUCT).
+        datetimeoffset,   // Buffer is a datetimeoffset
+                          // (SQL_SS_TIMESTAMPOFFSET_STRUCT).
 
-        uniqueidentifier, // Buffer is an SQLGUID.
+        uniqueidentifier, // Buffer is a uniqueidentifier struct (SQLGUID).
         rowversion,       // Buffer is an 8-byte array.
 
-        last               // Used as an end of list marker.
+        last              // Used as an end of list marker.
       };
 
       buffer_type type; // The buffer type.
@@ -137,7 +139,7 @@ namespace odb
                         // datatimeoffset it contains fractional seconds
                         // (scale). In case of datetime, the special
                         // value 8 indicates the SMALLDATETIME type
-                        // which the the seconds precision.
+                        // which has no seconds.
     };
   }
 }
