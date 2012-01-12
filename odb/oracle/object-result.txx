@@ -62,7 +62,13 @@ namespace odb
         use_copy_ ? *image_copy_ : statements_.image ());
 
       object_traits::init (obj, i, db);
-      statement_->stream_result ();
+
+      // If we are using a copy, make sure the callback information for
+      // LOB data also comes from the copy.
+      //
+      statement_->stream_result (
+        use_copy_ ? &statements_.image () : 0,
+        use_copy_ ? image_copy_ : 0);
 
       // Initialize the id image and binding and load the rest of the object
       // (containers, etc).
@@ -208,7 +214,12 @@ namespace odb
                            use_copy_ ? *image_copy_ : statements_.image (),
                            db);
 
-      statement_->stream_result ();
+      // If we are using a copy, make sure the callback information for
+      // LOB data also comes from the copy.
+      //
+      statement_->stream_result (
+        use_copy_ ? &statements_.image () : 0,
+        use_copy_ ? image_copy_ : 0);
 
       object_traits::callback (db, obj, callback_event::post_load);
     }

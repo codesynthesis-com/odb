@@ -84,9 +84,18 @@ namespace odb
                      std::size_t lob_prefetch_size = 0);
 
       // Stream the result LOBs, calling user callbacks where necessary.
+      // The old_base and new_base arguments can be used to "re-base" the
+      // lob_callback struct pointer (stored in bind::callback), the lob
+      // struct pointer (stored in bind::buffer), and the indicator value
+      // pointer (stored in bind::indicator). This is used by the query
+      // machinery to cause stream_result() to use the callback information
+      // from a copy of the image instead of the bound image.
       //
       void
-      stream_result (bind*, std::size_t count);
+      stream_result (bind*,
+                     std::size_t count,
+                     void* old_base = 0,
+                     void* new_base = 0);
 
     protected:
       connection& conn_;
@@ -162,9 +171,12 @@ namespace odb
       fetch ();
 
       void
-      stream_result ()
+      stream_result (void* old_base = 0, void* new_base = 0)
       {
-        statement::stream_result (result_.bind, result_.count);
+        statement::stream_result (result_.bind,
+                                  result_.count,
+                                  old_base,
+                                  new_base);
       }
 
       void

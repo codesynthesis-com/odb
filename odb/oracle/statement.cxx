@@ -971,22 +971,58 @@ namespace odb
     }
 
     void statement::
-    stream_result (bind* b, size_t c)
+    stream_result (bind* b, size_t c, void* obase, void* nbase)
     {
       OCIError* err (conn_.error_handle ());
 
       for (size_t i (0); i < c; ++i, ++b)
       {
-        // Only stream if the bind specifies a LOB type, and the LOB value is
-        // not NULL, and a result callback has been provided.
+        // Only stream if the bind specifies a LOB type.
         //
-        if ((b->type == bind::blob ||
-             b->type == bind::clob ||
-             b->type == bind::nclob) &&
-            (b->indicator == 0 || *b->indicator != -1) &&
-            b->callback->callback.result != 0)
+        if (b->type == bind::blob ||
+            b->type == bind::clob ||
+            b->type == bind::nclob)
         {
-          lob* l (static_cast<lob*> (b->buffer));
+          lob* l;
+          sb2* ind;
+          lob_callback* cb;
+
+          if (obase == 0)
+          {
+            l = static_cast<lob*> (b->buffer);
+            ind = b->indicator;
+            cb = b->callback;
+          }
+          else
+          {
+            // Re-base the pointers.
+            //
+            char* ob (static_cast<char*> (obase));
+            char* nb (static_cast<char*> (nbase));
+
+            char* p (static_cast<char*> (b->buffer));
+            assert (ob <= p);
+            l = reinterpret_cast<lob*> (nb + (p - ob));
+
+            if (b->indicator == 0)
+              ind = 0;
+            else
+            {
+              p = reinterpret_cast<char*> (b->indicator);
+              assert (ob <= p);
+              ind = reinterpret_cast<sb2*> (nb + (p - ob));
+            }
+
+            p = reinterpret_cast<char*> (b->callback);
+            assert (ob <= p);
+            cb = reinterpret_cast<lob_callback*> (nb + (p - ob));
+          }
+
+          // Nothing to do if the LOB value is NULL or the result callback
+          // hasn't been provided.
+          //
+          if ((ind != 0 && *ind == -1) || cb->callback.result == 0)
+            continue;
 
           ub4 position (0); // Position context.
           ub1 piece (OCI_FIRST_PIECE);
@@ -1040,8 +1076,8 @@ namespace odb
             // OCI generates and ORA-24343 error when an error code is
             // returned from a user callback. We simulate this.
             //
-            if (!(*b->callback->callback.result) (
-                  b->callback->context.result,
+            if (!(*cb->callback.result) (
+                  cb->context.result,
                   &position,
                   lob_buffer.data (),
                   static_cast<ub4> (read),
