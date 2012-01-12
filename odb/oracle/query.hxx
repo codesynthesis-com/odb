@@ -19,7 +19,6 @@
 #include <odb/oracle/traits.hxx>
 #include <odb/oracle/binding.hxx>
 
-#include <odb/details/buffer.hxx>
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/oracle/details/export.hxx>
