@@ -278,7 +278,7 @@ struct blob
   blob (): id_ (0) {}
 
   blob (unsigned int id, std::size_t n)
-      : id_ (id), value_ ('b', n)
+      : id_ (id), value_ (n, 'b')
   {
   }
 
