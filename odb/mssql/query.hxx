@@ -1590,15 +1590,15 @@ namespace odb
     {
       query_param_impl (ref_bind<T> r)
           : query_param (&r.ref),
-            // Default to short data max (700).
-            buf_ (r.prec != 0 ? r.prec : 700)
+            // Default to short data max (1024).
+            buf_ (r.prec != 0 ? r.prec : 1024)
       {
       }
 
       query_param_impl (val_bind<T> v)
           : query_param (0),
-            // Default to short data max (700).
-            buf_ (v.prec != 0 ? v.prec : 700)
+            // Default to short data max (1024).
+            buf_ (v.prec != 0 ? v.prec : 1024)
       {
         init (v.val);
       }
@@ -1644,15 +1644,15 @@ namespace odb
     {
       query_param_impl (ref_bind<T> r)
           : query_param (&r.ref),
-            // Precision is in 2-byte chars. Default to short data max (700).
-            buf_ (r.prec != 0 ? r.prec * 2 : 700)
+            // Precision is in 2-byte chars. Default to short data max (1024).
+            buf_ (r.prec != 0 ? r.prec * 2 : 1024)
       {
       }
 
       query_param_impl (val_bind<T> v)
           : query_param (0),
-            // Precision is in 2-byte chars. Default to short data max (700).
-            buf_ (v.prec != 0 ? v.prec * 2 : 700)
+            // Precision is in 2-byte chars. Default to short data max (1024).
+            buf_ (v.prec != 0 ? v.prec * 2 : 1024)
       {
         init (v.val);
       }
@@ -1702,15 +1702,15 @@ namespace odb
     {
       query_param_impl (ref_bind<T> r)
           : query_param (&r.ref),
-            // Default to short data max (700).
-            buf_ (r.prec != 0 ? r.prec : 700)
+            // Default to short data max (1024).
+            buf_ (r.prec != 0 ? r.prec : 1024)
       {
       }
 
       query_param_impl (val_bind<T> v)
           : query_param (0),
-            // Default to short data max (700).
-            buf_ (v.prec != 0 ? v.prec : 700)
+            // Default to short data max (1024).
+            buf_ (v.prec != 0 ? v.prec : 1024)
       {
         init (v.val);
       }
