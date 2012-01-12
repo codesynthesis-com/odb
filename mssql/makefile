@@ -8,6 +8,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 tests :=      \
 template      \
 native        \
+query         \
 types
 
 default   := $(out_base)/

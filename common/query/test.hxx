@@ -14,6 +14,16 @@
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
 
+#ifdef ODB_COMPILER
+#  if defined(ODB_DATABASE_PGSQL)
+#    define BLOB_TYPE "BYTEA"
+#  elif defined(ODB_DATABASE_MSSQL)
+#    define BLOB_TYPE "VARBINARY(max)"
+#  else
+#    define BLOB_TYPE "BLOB"
+#  endif
+#endif
+
 typedef std::vector<char> buffer;
 typedef odb::nullable<buffer> nullable_buffer;
 
@@ -54,11 +64,7 @@ struct person
   unsigned short age_;
   bool married_;
 
-#ifdef ODB_DATABASE_PGSQL
-  #pragma db column ("key") type ("BYTEA") null
-#else
-  #pragma db column ("key") type ("BLOB") null
-#endif
+  #pragma db column ("key") type(BLOB_TYPE) null
   nullable_buffer public_key_;
 };
 
