@@ -3,6 +3,8 @@
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <cassert>
+
 #include <odb/callback.hxx>
 
 #include <odb/pgsql/object-statements.hxx>
