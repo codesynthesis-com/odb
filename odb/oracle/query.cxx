@@ -203,7 +203,7 @@ namespace odb
     optimize ()
     {
       // Remove a single TRUE literal or one that is followe by one of
-      // the other clauses. This avoids usless WHERE clauses like
+      // the other clauses. This avoids useless WHERE clauses like
       //
       // WHERE TRUE GROUP BY foo
       //

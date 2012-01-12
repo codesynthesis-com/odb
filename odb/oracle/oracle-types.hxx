@@ -122,8 +122,11 @@ namespace odb
     };
 
     // An instance of this structure specifies the function to invoke and
-    // the context to pass just prior to the image associated with a query
-    // being modified.
+    // the context to pass when the object/view image is about to be
+    // modified. This mechanism is used by the query machinery to save the
+    // image between result iteration and dereferencing if something gets
+    // executed between these two operations that would overwrite the
+    // image.
     //
     struct change_callback
     {

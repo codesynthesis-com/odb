@@ -152,6 +152,10 @@ namespace odb
       else
         *r->image_copy_ = im;
 
+      // Increment binding version since we may have "stolen" some
+      // descriptors (LOB, date-time) from the image. Re-bind will
+      // reallocate them and update the binding.
+      //
       r->statements_.select_image_binding ().version++;
 
       im.change_callback_.callback = 0;
@@ -270,6 +274,10 @@ namespace odb
       else
         *r->image_copy_ = im;
 
+      // Increment binding version since we may have "stolen" some
+      // descriptors (LOB, date-time) from the image. Re-bind will
+      // reallocate them and update the binding.
+      //
       r->statements_.select_image_binding ().version++;
 
       im.change_callback_.callback = 0;
