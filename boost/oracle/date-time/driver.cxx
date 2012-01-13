@@ -72,9 +72,9 @@ main (int argc, char* argv[])
       assert (*ol == o);
     }
 
+    // Test invalid date mappings.
+    //
     {
-      // Test invalid date mappings.
-      //
       object sv1, sv2;
       sv1.dates.push_back (date (neg_infin));
       sv2.dates.push_back (date (pos_infin));
@@ -85,9 +85,9 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
+    // Test invalid ptime mappings.
+    //
     {
-      // Test invalid ptime mappings.
-      //
       object sv1, sv2;
       sv1.times.push_back (neg_infin);
       sv2.times.push_back (pos_infin);
@@ -98,9 +98,9 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
+    // Test invalid time_duration mappings.
+    //
     {
-      // Test invalid time_duration mappings.
-      //
       object sv1, sv2;
       sv1.durations.push_back (pos_infin);
       sv2.durations.push_back (neg_infin);
