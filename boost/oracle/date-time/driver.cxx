@@ -54,7 +54,7 @@ main (int argc, char* argv[])
     o.times.push_back (min_date_time);
     o.times.push_back (ptime (max_date_time));
 
-    o.durations.push_back (time_duration (1, 2, 3));
+    o.durations.push_back (time_duration (1, 2, 3, 123456));
     o.durations.push_back (time_duration (-1, 2, 3));
     o.durations.push_back (not_a_date_time);
 
