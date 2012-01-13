@@ -5,18 +5,9 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
-all_dirs := common mysql sqlite pgsql oracle
+all_dirs := common mysql sqlite pgsql oracle mssql
 dirs := common
-
-ifeq ($(db_id),mysql)
-dirs += mysql
-else ifeq ($(db_id),sqlite)
-dirs += sqlite
-else ifeq ($(db_id),pgsql)
-dirs += pgsql
-else ifeq ($(db_id),oracle)
-dirs += oracle
-endif
+dirs += $(db_id)
 
 default := $(out_base)/
 dist    := $(out_base)/.dist
