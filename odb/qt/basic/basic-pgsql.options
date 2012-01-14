@@ -1,4 +1,4 @@
-# file      : odb/qt/basic-pgsql.options
+# file      : odb/qt/basic/basic-pgsql.options
 # author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file

@@ -1,4 +1,4 @@
-# file      : odb/qt/basic-mssql.options
+# file      : odb/qt/basic/basic-mysql.options
 # author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
@@ -8,7 +8,7 @@
 # Include the default mapping in prologue instead of epilogue to
 # allow the user to override the default mapping.
 #
---odb-prologue '#include <odb/qt/basic/mssql/default-mapping.hxx>'
+--odb-prologue '#include <odb/qt/basic/mysql/default-mapping.hxx>'
 
---hxx-prologue '#include <odb/qt/basic/mssql/qstring-traits.hxx>'
---hxx-prologue '#include <odb/qt/basic/mssql/qbyte-array-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/mysql/qstring-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/mysql/qbyte-array-traits.hxx>'
