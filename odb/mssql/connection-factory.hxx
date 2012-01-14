@@ -1,7 +1,7 @@
 // file      : odb/mssql/connection-factory.hxx
 // author    : Boris Kolpackov <boris@codesynthesis.com>
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
-// license   : GNU GPL v2; see accompanying LICENSE file
+// license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_MSSQL_CONNECTION_FACTORY_HXX
 #define ODB_MSSQL_CONNECTION_FACTORY_HXX
