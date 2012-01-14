@@ -1,7 +1,7 @@
 # file      : build/import/liboci/stub.make
 # author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
-# license   : ODB NCUEL; see accompanying LICENSE file
+# license   : GNU GPL v2; see accompanying LICENSE file
 
 $(call include-once,$(scf_root)/import/liboci/configuration-rules.make,$(dcf_root))
 
