@@ -568,7 +568,7 @@ namespace odb
       typedef char* image_type;
 
       static void
-        set_value (std::string& v,
+      set_value (std::string& v,
                    const char* b,
                    std::size_t n,
                    bool is_null)
@@ -580,11 +580,11 @@ namespace odb
       }
 
       static void
-        set_image (char* b,
-                   std::size_t c,
-                   std::size_t& n,
-                   bool& is_null,
-                   const std::string& v)
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const std::string& v)
       {
         is_null = false;
         n = v.size ();
