@@ -51,32 +51,27 @@ main (int argc, char* argv[])
       assert (ol->is_null ());
     }
 
-    // // Check persistence of valid dates and times.
-    // //
-    // QDateTime t (QDateTime::currentDateTime ());
+    // Check persistence of valid dates and times.
+    //
+    QDateTime t (QDateTime::currentDateTime ());
 
-    // t.setTime (QTime (t.time ().hour (),
-    //                   t.time ().minute (),
-    //                   t.time ().second (),
-    //                   t.time ().msec ()));
+    o.date = t.date ();
+    o.date_time = t;
+    o.time = t.time ();
 
-    // o.date = t.date ();
-    // o.date_time = t;
-    // o.time = t.time ();
+    {
+      transaction t (db->begin ());
+      db->persist (o);
+      t.commit ();
+    }
 
-    // {
-    //   transaction t (db->begin ());
-    //   db->persist (o);
-    //   t.commit ();
-    // }
+    {
+      transaction t (db->begin ());
+      auto_ptr<object> ol (db->load<object> (o.id));
+      t.commit ();
 
-    // {
-    //   transaction t (db->begin ());
-    //   auto_ptr<object> ol (db->load<object> (o.id));
-    //   t.commit ();
-
-    //   assert (*ol == o);
-    // }
+      assert (*ol == o);
+    }
   }
   catch (const odb::exception& e)
   {
