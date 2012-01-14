@@ -15,14 +15,16 @@
 //
 #pragma db value(QDate) type("DATE") null
 
-// Map QTime to Oracle INTERVAL DAY(0) TO SECOND by default. QTime can only
-// represent clock times with a maximum precision of milliseconds. QTime
-// provides a null representation so allow NULL values by default.
+// Map QTime to Oracle INTERVAL DAY(0) TO SECOND(3) by default. QTime can
+// only represent clock times with a maximum precision of milliseconds.
+// QTime provides a null representation so allow NULL values by default.
 //
 #pragma db value(QTime) type("INTERVAL DAY(0) TO SECOND(3)") null
 
-// Map QDateTime to ORACLE TIMESTAMP by default. QDateTime provides a null
-// representation so allow NULL values by default.
+// Map QDateTime to Oracle TIMESTAMP(3) by default. QDateTime can only
+// represent clock times with a maximum precision of milliseconds.
+// QDateTime provides a null representation so allow NULL values by
+// default.
 //
 #pragma db value(QDateTime) type("TIMESTAMP(3)") null
 
