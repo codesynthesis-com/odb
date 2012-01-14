@@ -6,8 +6,6 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <vector>
-
 #include <QtCore/QDateTime>
 
 #include <odb/core.hxx>
