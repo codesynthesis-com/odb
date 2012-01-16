@@ -8,7 +8,7 @@ rem
 rem oracle-driver.bat sql-file
 rem
 rem Run the oracle client on the SQL file specified. Adjust the
-rem option below to match your Oracle setup.
+rem options below to match your Oracle setup.
 rem
 
 setlocal

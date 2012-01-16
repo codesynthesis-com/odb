@@ -93,7 +93,7 @@ elif test x$oracle_user = xodb_test; then
   AC_MSG_RESULT(['$oracle_password'])
 elif test x$oracle_user != x/; then
   AC_MSG_RESULT([none])
-  AC_MSG_ERROR([password not specfied; Oracle requires a password])
+  AC_MSG_ERROR([password not specified; Oracle requires a password (--with-oracle-password=PASS)])
 fi
 
 # Service name.

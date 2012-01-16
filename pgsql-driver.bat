@@ -8,7 +8,7 @@ rem
 rem pgsql-driver.bat sql-file
 rem
 rem Run the pgsql client on the SQL file specified. Adjust the
-rem option below to match your PostgreSQL setup.
+rem options below to match your PostgreSQL setup.
 rem
 
 setlocal

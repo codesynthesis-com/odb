@@ -8,7 +8,7 @@ rem
 rem mysql-driver.bat sql-file
 rem
 rem Run the mysql client on the SQL file specified. Adjust the
-rem option below to match your MySQL setup.
+rem options below to match your MySQL setup.
 rem
 
 setlocal

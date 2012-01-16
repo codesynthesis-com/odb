@@ -64,7 +64,7 @@ main ()
 }
 ]]),
 [libodb_oracle_found=yes])
-libodb_oracle_found=yes
+
 if test x"$libodb_oracle_found" = xno; then
   LIBS="$save_LIBS"
 
