@@ -51,17 +51,13 @@ $(out_base)/config.h: $(dcf_root)/configuration-dynamic.make | $(out_base)/.
 	@echo ''                                                        >>$@
 ifeq ($(db_id),mysql)
 	@echo '#define DATABASE_MYSQL 1'                                >>$@
-endif
-ifeq ($(db_id),sqlite)
+else ifeq ($(db_id),sqlite)
 	@echo '#define DATABASE_SQLITE 1'                               >>$@
-endif
-ifeq ($(db_id),pgsql)
+else ifeq ($(db_id),pgsql)
 	@echo '#define DATABASE_PGSQL 1'                                >>$@
-endif
-ifeq ($(db_id),oracle)
+else ifeq ($(db_id),oracle)
 	@echo '#define DATABASE_ORACLE 1'                               >>$@
-endif
-ifeq ($(db_id),mssql)
+else ifeq ($(db_id),mssql)
 	@echo '#define DATABASE_MSSQL 1'                                >>$@
 endif
 	@echo '#define HAVE_TR1_MEMORY 1'                               >>$@
