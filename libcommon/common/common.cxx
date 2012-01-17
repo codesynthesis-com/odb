@@ -141,3 +141,15 @@ create_database (int& argc,
 
   return db;
 }
+
+bool
+size_available ()
+{
+#if defined(DATABASE_SQLITE) || \
+    defined(DATABASE_ORACLE) || \
+    defined(DATABASE_MSSQL)
+  return false;
+#else
+  return true;
+#endif
+}
