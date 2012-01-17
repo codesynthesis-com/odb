@@ -31,15 +31,15 @@ namespace odb
         if (!is_null)
         {
           short y (0);
-          unsigned char m (0), d (0), h (0), min (0), s (0);
+          unsigned char m (0), d (0), h (0), mins (0), s (0);
 
-          details::get_date (i, y, m, d, h, min, s);
+          details::get_date (i, y, m, d, h, mins, s);
 
           v.year = y;
           v.month = m;
           v.day = d;
           v.hour = h;
-          v.minute = min;
+          v.minute = mins;
           v.second = s;
 
           // Oracle DATE does not support fractional seconds.
@@ -76,16 +76,16 @@ namespace odb
         if (!is_null)
         {
           sb2 y (0);
-          ub1 m (0), d (0), h (0), min (0), s (0);
+          ub1 m (0), d (0), h (0), mins (0), s (0);
           ub4 ns (0);
 
-          i.get (y, m, d, h, min, s, ns);
+          i.get (y, m, d, h, mins, s, ns);
 
           v.year = y;
           v.month = m;
           v.day = d;
           v.hour = h;
-          v.minute = min;
+          v.minute = mins;
           v.second = s;
           v.nanosecond = ns;
         }
