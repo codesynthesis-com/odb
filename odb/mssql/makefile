@@ -1,6 +1,5 @@
 # file      : odb/mssql/makefile
 # author    : Boris Kolpackov <boris@codesynthesis.com>
-# author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : ODB NCUEL; see accompanying LICENSE file
 
