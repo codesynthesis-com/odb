@@ -35,6 +35,10 @@ AC_ARG_WITH(
        database=oracle
        AC_DEFINE([DATABASE_ORACLE], [1], [Using Oracle.])
        ;;
+     mssql)
+       database=mssql
+       AC_DEFINE([DATABASE_MSSQL], [1], [Using SQL Server.])
+       ;;
      *)
        AC_MSG_RESULT([])
        AC_MSG_ERROR([unknown database $withval])
@@ -52,5 +56,6 @@ AM_CONDITIONAL([DATABASE_MYSQL], [test x$database = xmysql])
 AM_CONDITIONAL([DATABASE_SQLITE], [test x$database = xsqlite])
 AM_CONDITIONAL([DATABASE_PGSQL], [test x$database = xpgsql])
 AM_CONDITIONAL([DATABASE_ORACLE], [test x$database = xoracle])
+AM_CONDITIONAL([DATABASE_MSSQL], [test x$database = xmssql])
 
 ])dnl

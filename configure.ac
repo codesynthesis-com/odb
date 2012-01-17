@@ -93,6 +93,10 @@ case $database in
     LIBODB_ORACLE([], [AC_MSG_ERROR([libodb-oracle is not found; consider using --with-libodb-oracle=DIR])])
     ORACLE
     ;;
+  mssql)
+    LIBODB_MSSQL([], [AC_MSG_ERROR([libodb-mssql is not found; consider using --with-libodb-mssql=DIR])])
+    MSSQL
+    ;;
 esac
 
 # Define LIBCOMMON_STATIC_LIB if we are build static library on certain

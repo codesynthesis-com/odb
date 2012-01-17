@@ -1,0 +1,15 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+__projects__
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+__solution_configurations__
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+__project_configurations__
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

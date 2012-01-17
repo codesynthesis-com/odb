@@ -1,0 +1,10 @@
+# Sample Microsoft SQL Server options file used to run the tests. Adjust to
+# match your SQL Server setup.
+#
+
+--user odb_test
+--password odb_test
+--database odb_test
+# --server host\instance
+# --server tcp:host,port
+# --driver

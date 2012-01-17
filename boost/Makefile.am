@@ -21,4 +21,8 @@ if DATABASE_ORACLE
 SUBDIRS += oracle
 endif
 
+if DATABASE_MSSQL
+SUBDIRS += mssql
+endif
+
 EXTRA_DIST = __file__(extra_dist)
