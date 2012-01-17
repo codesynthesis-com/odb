@@ -43,10 +43,10 @@ namespace odb
 
       // Set the manual commit mode.
       //
-      r = SQLSetConnectAttr (handle_,
-                             SQL_ATTR_AUTOCOMMIT,
-                             (SQLPOINTER) SQL_AUTOCOMMIT_OFF,
-                             0);
+      r = SQLSetConnectAttrA (handle_,
+                              SQL_ATTR_AUTOCOMMIT,
+                              (SQLPOINTER) SQL_AUTOCOMMIT_OFF,
+                              0);
 
       if (!SQL_SUCCEEDED (r))
         // Still use the handle version of translate_error since there
@@ -56,10 +56,10 @@ namespace odb
 
       // Enable Multiple Active Result Sets (MARS).
       //
-      r = SQLSetConnectAttr (handle_,
-                             SQL_COPT_SS_MARS_ENABLED,
-                             (SQLPOINTER) SQL_MARS_ENABLED_YES,
-                             SQL_IS_UINTEGER);
+      r = SQLSetConnectAttrA (handle_,
+                              SQL_COPT_SS_MARS_ENABLED,
+                              (SQLPOINTER) SQL_MARS_ENABLED_YES,
+                              SQL_IS_UINTEGER);
 
       if (!SQL_SUCCEEDED (r))
         translate_error (r, handle_, SQL_HANDLE_DBC);
@@ -68,14 +68,14 @@ namespace odb
       //
       {
         SQLSMALLINT out_conn_str_size;
-        r = SQLDriverConnect (handle_,
-                              0, // Parent windows handle.
-                              (SQLCHAR*) db_.connect_string ().c_str (),
-                              SQL_NTS,
-                              0, // Output connection string buffer.
-                              0, // Size of output connection string buffer.
-                              &out_conn_str_size,
-                              SQL_DRIVER_NOPROMPT);
+        r = SQLDriverConnectA (handle_,
+                               0, // Parent window handle.
+                               (SQLCHAR*) db_.connect_string ().c_str (),
+                               SQL_NTS,
+                               0, // Output connection string buffer.
+                               0, // Size of output connection string buffer.
+                               &out_conn_str_size,
+                               SQL_DRIVER_NOPROMPT);
 
         if (!SQL_SUCCEEDED (r))
           translate_error (r, handle_, SQL_HANDLE_DBC);
@@ -167,7 +167,7 @@ namespace odb
 
       // Execute.
       //
-      r = SQLExecDirect (direct_stmt_, (SQLCHAR*) s, (SQLINTEGER) n);
+      r = SQLExecDirectA (direct_stmt_, (SQLCHAR*) s, (SQLINTEGER) n);
 
       // SQL_NO_DATA indicates that a DML statement hasn't affected
       // any rows.

@@ -152,7 +152,7 @@ namespace odb
 
       // Prepare the statement.
       //
-      r = SQLPrepare (stmt_, (SQLCHAR*) text_, (SQLINTEGER) text_size);
+      r = SQLPrepareA (stmt_, (SQLCHAR*) text_, (SQLINTEGER) text_size);
 
       if (!SQL_SUCCEEDED (r))
         translate_error (r, conn_, stmt_);
@@ -280,21 +280,21 @@ namespace odb
         case bind::time:
           {
             buf = (SQLPOINTER) b->buffer;
-            digits = (SQLULEN) b->capacity;
+            digits = (SQLSMALLINT) b->capacity;
 
             // Native Client 10.0 requires the correct precision.
             //
             if (digits == 0)
               col_size = 8;
             else
-              col_size = digits + 9;
+              col_size = (SQLULEN) (digits + 9);
 
             break;
           }
         case bind::datetime:
           {
             buf = (SQLPOINTER) b->buffer;
-            digits = (SQLULEN) b->capacity;
+            digits = (SQLSMALLINT) b->capacity;
 
             // Native Client 10.0 requires the correct precision.
             //
@@ -310,21 +310,21 @@ namespace odb
               col_size = 16;
             }
             else
-              col_size = digits + 20;
+              col_size = (SQLULEN) (digits + 20);
 
             break;
           }
         case bind::datetimeoffset:
           {
             buf = (SQLPOINTER) b->buffer;
-            digits = (SQLULEN) b->capacity;
+            digits = (SQLSMALLINT) b->capacity;
 
             // Native Client 10.0 requires the correct precision.
             //
             if (digits == 0)
               col_size = 26;
             else
-              col_size = digits + 27;
+              col_size = (SQLULEN) (digits + 27);
 
             break;
           }
@@ -870,14 +870,14 @@ namespace odb
 
         for (SQLSMALLINT i (1);; ++i)
         {
-          SQLRETURN r (SQLGetDiagRec (SQL_HANDLE_STMT,
-                                      stmt_,
-                                      i,
-                                      (SQLCHAR*) sqlstate,
-                                      &native_code,
-                                      0,
-                                      0,
-                                      &msg_size));
+          SQLRETURN r (SQLGetDiagRecA (SQL_HANDLE_STMT,
+                                       stmt_,
+                                       i,
+                                       (SQLCHAR*) sqlstate,
+                                       &native_code,
+                                       0,
+                                       0,
+                                       &msg_size));
 
           if (r == SQL_NO_DATA)
             break;

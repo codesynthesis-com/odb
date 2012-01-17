@@ -78,14 +78,14 @@ namespace odb
 
       for (SQLSMALLINT i (1);; ++i)
       {
-        r = SQLGetDiagRec (htype,
-                           h,
-                           i,
-                           (SQLCHAR*) sqlstate,
-                           &native_code,
-                           0,
-                           0,
-                           &msg_size);
+        r = SQLGetDiagRecA (htype,
+                            h,
+                            i,
+                            (SQLCHAR*) sqlstate,
+                            &native_code,
+                            0,
+                            0,
+                            &msg_size);
 
         if (r == SQL_NO_DATA)
           break;
@@ -167,14 +167,14 @@ namespace odb
 
       for (SQLSMALLINT i (1);; ++i)
       {
-         r = SQLGetDiagRec (htype,
-                            h,
-                            i,
-                            (SQLCHAR*) sqlstate,
-                            &native_code,
-                            (SQLCHAR*) msg,
-                            sizeof (msg),
-                            &msg_size);
+         r = SQLGetDiagRecA (htype,
+                             h,
+                             i,
+                             (SQLCHAR*) sqlstate,
+                             &native_code,
+                             (SQLCHAR*) msg,
+                             sizeof (msg),
+                             &msg_size);
 
         if (r == SQL_NO_DATA)
           break;

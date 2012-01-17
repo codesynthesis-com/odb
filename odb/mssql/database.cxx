@@ -280,14 +280,14 @@ namespace odb
             char desc[256];
             SQLSMALLINT desc_size, attr_size;
 
-            r = SQLDrivers (environment_,
-                            first ? SQL_FETCH_FIRST : SQL_FETCH_NEXT,
-                            (SQLCHAR*) desc,
-                            sizeof (desc),
-                            &desc_size,
-                            0,
-                            0,
-                            &attr_size);
+            r = SQLDriversA (environment_,
+                             first ? SQL_FETCH_FIRST : SQL_FETCH_NEXT,
+                             (SQLCHAR*) desc,
+                             sizeof (desc),
+                             &desc_size,
+                             0,
+                             0,
+                             &attr_size);
 
             if (r == SQL_NO_DATA)
               break;
