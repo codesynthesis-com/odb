@@ -172,7 +172,7 @@ main (int argc, char* argv[])
 #endif
       t.commit ();
     }
-}
+  }
   catch (const odb::exception& e)
   {
     cerr << e.what () << endl;
