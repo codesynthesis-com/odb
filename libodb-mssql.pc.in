@@ -1,0 +1,16 @@
+# file      : libodb-mssql.pc.in
+# author    : Boris Kolpackov <boris@codesynthesis.com>
+# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libodb-mssql
+Description: Object-relational mapping (ORM) system for C++, Microsoft SQL Server runtime library
+URL: http://www.codesynthesis.com/products/odb/
+Version: @VERSION@
+Libs: -L${libdir} -lodb-mssql
+Cflags: -I${includedir}
