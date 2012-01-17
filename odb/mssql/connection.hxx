@@ -128,8 +128,7 @@ namespace odb
         state_failed
       } state_;
 
-      // Statement handle for direct execution. It should be after the
-      // connection handle to be destroyed in the correct order.
+      // Statement handle for direct execution.
       //
       auto_handle<SQL_HANDLE_STMT> direct_stmt_;
 

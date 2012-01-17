@@ -105,6 +105,7 @@ namespace odb
       // Deallocate prepared statements before we close the connection.
       //
       statement_cache_.reset ();
+      direct_stmt_.reset ();
 
       if (state_ != state_disconnected)
         SQLDisconnect (handle_); // Ignore any errors.
