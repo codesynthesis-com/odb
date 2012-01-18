@@ -11,7 +11,7 @@
 #    define WIN32_LEAN_AND_MEAN
 #  endif
 #  include <windows.h> // GUID
-#elif defined(WIN32_CROSS)
+#elif defined(HOST_WIN32)
 typedef struct _GUID
 {
    unsigned int Data1;
@@ -205,8 +205,9 @@ struct object
   #pragma db type ("IMAGE")
   std::vector<char> image_;
 
-  // Date-time.
+  // Date-time. SQL Server 2005 (9.0) only has DATETIME and SMALLDATETIME.
   //
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
   #pragma db type ("DATE")
   date_time date_;
 
@@ -215,6 +216,7 @@ struct object
 
   #pragma db type ("TIME(4)")
   date_time time4_;
+#endif
 
   #pragma db type ("SMALLDATETIME")
   date_time sdt_;
@@ -222,6 +224,7 @@ struct object
   #pragma db type ("DATETIME")
   date_time dt_;
 
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
   #pragma db type ("DATETIME2")
   date_time dt2_;
 
@@ -230,10 +233,11 @@ struct object
 
   #pragma db type ("DATETIMEOFFSET(0)")
   date_time dto0_;
+#endif
 
   // Other types.
   //
-#if defined(_WIN32) || defined(WIN32_CROSS)
+#if defined(_WIN32) || defined(HOST_WIN32)
   //#pragma db type ("UNIQUEIDENTIFIER")
   GUID guid_;
 #endif
@@ -280,16 +284,20 @@ struct object
       std::memcmp (lbin_, y.lbin_, sizeof (lbin_)) == 0 &&
       lvbin_ == y.lvbin_ &&
       mvbin_ == y.mvbin_ &&
-      image_ == y.image_ &&
+      image_ == y.image_
 
-      date_ == y.date_ &&
-      time7_ == y.time7_ &&
-      time4_ == y.time4_ &&
-      sdt_ == y.sdt_ &&
-      dt_ == y.dt_ &&
-      dt2_ == y.dt2_ &&
-      dto7_ == y.dto7_ &&
-      dto0_ == y.dto0_
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
+      && date_ == y.date_
+      && time7_ == y.time7_
+      && time4_ == y.time4_
+#endif
+      && sdt_ == y.sdt_
+      && dt_ == y.dt_
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
+      && dt2_ == y.dt2_
+      && dto7_ == y.dto7_
+      && dto0_ == y.dto0_
+#endif
 
 #ifdef _WIN32
       && std::memcmp (&guid_, &y.guid_, sizeof (guid_)) == 0

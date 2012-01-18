@@ -53,10 +53,12 @@ main (int argc, char* argv[])
 
     // Check persistence of valid dates and times.
     //
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
     QDateTime t (QDateTime::currentDateTime ());
 
     o.date = t.date ();
     o.date_time = t;
+#endif
 
     // In DATETIME fractional seconds are rounded to .000, .003, or .007.
     //
@@ -68,7 +70,9 @@ main (int argc, char* argv[])
     o.date_time_sdt = QDateTime (QDate (2012, 1, 14),
                                  QTime (11, 57, 0, 0));
 
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
     o.time = t.time ();
+#endif
 
     {
       transaction t (db->begin ());

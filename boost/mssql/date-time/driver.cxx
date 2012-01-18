@@ -44,6 +44,7 @@ main (int argc, char* argv[])
 
     // Test all valid date-time mappings.
     //
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
     o.dates.push_back (day_clock::local_day ());
     o.dates.push_back (date (not_a_date_time));
     o.dates.push_back (date (max_date_time));
@@ -53,6 +54,7 @@ main (int argc, char* argv[])
     o.times.push_back (not_a_date_time);
     o.times.push_back (min_date_time);
     o.times.push_back (ptime (max_date_time));
+#endif
 
     // In DATETIME fractional seconds are rounded to .000, .003, or .007.
     //
@@ -64,8 +66,10 @@ main (int argc, char* argv[])
     o.times_sdt.push_back (ptime (date (2012, 1, 13),
                                   time_duration (11, 57, 0, 0)));
 
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
     o.durations.push_back (time_duration (1, 2, 3, 123456));
     o.durations.push_back (not_a_date_time);
+#endif
 
     {
       transaction t (db->begin ());
@@ -81,6 +85,7 @@ main (int argc, char* argv[])
       assert (*ol == o);
     }
 
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
     // Test invalid date mappings.
     //
     {
@@ -130,6 +135,7 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
+#endif
   }
   catch (const odb::exception& e)
   {

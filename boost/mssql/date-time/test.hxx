@@ -20,24 +20,14 @@ struct object
   {
   }
 
-  bool
-  operator== (const object& x) const
-  {
-    return
-      id == x.id &&
-      dates == x.dates &&
-      times == x.times &&
-      times_dt == x.times_dt &&
-      times_sdt == x.times_sdt &&
-      durations == x.durations;
-  }
-
   #pragma db id auto
   unsigned long id;
 
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
   std::vector<boost::gregorian::date> dates;
 
   std::vector<boost::posix_time::ptime> times;
+#endif
 
   #pragma db value_type("DATETIME")
   std::vector<boost::posix_time::ptime> times_dt;
@@ -45,7 +35,26 @@ struct object
   #pragma db value_type("SMALLDATETIME")
   std::vector<boost::posix_time::ptime> times_sdt;
 
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
   std::vector<boost::posix_time::time_duration> durations;
+#endif
+
+  bool
+  operator== (const object& x) const
+  {
+    return
+      id == x.id
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
+      && dates == x.dates
+      && times == x.times
+#endif
+      && times_dt == x.times_dt
+      && times_sdt == x.times_sdt
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
+      && durations == x.durations
+#endif
+      ;
+  }
 };
 
 #endif // TEST_HXX

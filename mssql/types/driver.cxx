@@ -78,14 +78,18 @@ main (int argc, char* argv[])
       o.mvbin_.assign (ldata.begin (), ldata.end ());
       o.image_.assign (ldata.begin (), ldata.end ());
 
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
       o.date_ = date_time (2011, 12, 20, 0, 0, 0, 0, 0, 0);
       o.time7_ = date_time (0, 0, 0, 13, 34, 39, 123456789, 0, 0);
       o.time4_ = date_time (0, 0, 0, 13, 34, 39, 123456700, 0, 0);
+#endif
       o.sdt_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 0, 0);
       o.dt_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 0, 0);
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
       o.dt2_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 0, 0);
       o.dto7_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 2, 0);
       o.dto0_ = date_time (2011, 12, 20, 15, 44, 29, 123456700, 2, 0);
+#endif
 
 #ifdef _WIN32
       // 6F846D41-C89A-4E4D-B22F-56443CFA543F
@@ -103,11 +107,15 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
       o.time7_ = date_time (0, 0, 0, 13, 34, 39, 123456700, 0, 0);
       o.time4_ = date_time (0, 0, 0, 13, 34, 39, 123400000, 0, 0);
+#endif
       o.sdt_ = date_time (2011, 12, 20, 15, 44, 0, 0, 0, 0);
       o.dt_ = date_time (2011, 12, 20, 15, 44, 29, 123000000, 0, 0);
+#if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
       o.dto0_ = date_time (2011, 12, 20, 15, 44, 29, 0, 2, 0);
+#endif
 
       // Load.
       //

@@ -163,3 +163,46 @@ odb-tests\ directory. Once this is done, you can run the tests by
 executing the following command from the command prompt:
 
 test.bat <database>
+
+
+Test Suite Configuration
+========================
+
+The test suite supports additional configuration via the following
+preprocessor macros:
+
+HOST_WIN32            Specifies that the tests will run on Windows. This
+                      macro is only needed when cross-compiling for Windows
+                      using, for example, a cross-compiler to MinGW.
+
+MSSQL_SERVER_VERSION  Specifies the SQL Server version that will be used to
+                      run the tests. The version is specified as XXYY where
+                      XX is the major and YY is the minor SQL Server versions,
+                      for example, 900 (SQL Server 2005/9.0), 1000 (2008/10.0),
+                      1050 (2008R2/10.5), 1100 (2012/11.0). If this macro is
+                      not defined, then the test suite assumes SQL Server 2008.
+
+To define any of these macros when building on UNIX operating systems you
+can use the CPPFLAGS configure variable, for example:
+
+./configure CPPFLAGS=-DMSSQL_SERVER_VERSION=900
+
+When building on Windows with Visual Studio the extra macros have to be
+specified in two places: in the default.options ODB configuration file
+(located in the odb-X.Y.Z-i686-windows\etc\odb\ directory) as well as
+in the CL environment variable. For example, to specify the SQL Server
+version add the following line to the default.options file:
+
+-DMSSQL_SERVER_VERSION=900
+
+As well as set the CL environment variable before running the build.bat
+batch file:
+
+SET CL=-DMSSQL_SERVER_VERSION=900
+
+If you are using the Visual Studio IDE to build the tests, then you will
+need to start the IDE from a command prompt after setting the CL variable,
+for example:
+
+SET CL=-DMSSQL_SERVER_VERSION=900
+C:\Program Files (x86)\Microsoft Visual Studio <N>\Common7\IDE\devenv.com
