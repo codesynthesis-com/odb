@@ -45,8 +45,8 @@ namespace odb
 
       // Connect to the specified server using the latest available SQL
       // Server Native Client ODBC driver by default. If user is empty,
-      // then use Windows authentication. If database is empty, then
-      // use the default database for this user.
+      // then use Windows authentication. If db is empty, then use the
+      // default database for this user.
       //
       database (const std::string& user,
                 const std::string& password,
@@ -61,8 +61,8 @@ namespace odb
       // By default connect to the default instance on localhost using
       // default protocol and the latest available SQL Server Native
       // Client ODBC driver. If user is empty, then use Windows
-      // authentication. If database is empty, then use the default
-      // database for this user.
+      // authentication. If db is empty, then use the default database
+      // for this user.
       //
       database (const std::string& user,
                 const std::string& password,
@@ -123,7 +123,6 @@ namespace odb
 
       static void
       print_usage (std::ostream&);
-
 
     public:
       virtual transaction_impl*
