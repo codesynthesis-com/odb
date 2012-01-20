@@ -3,7 +3,7 @@
 // copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <cstring> // std::strlen
+#include <cstring> // std::strlen, std::strstr
 #include <cassert>
 
 #include <odb/tracer.hxx>
@@ -839,6 +839,16 @@ namespace odb
     void insert_statement::
     init_result ()
     {
+      // Figure out if we are using the OUTPUT clause or a batch of
+      // INSERT and SELECT statements. The latter is used to work
+      // around a bug in SQL Server 2005 that causes it to fail
+      // on an INSERT statement with the OUTPUT clause if data
+      // for one of the inserted columns is supplied at execution
+      // (long data).
+      //
+      batch_ = strstr (text_, "OUTPUT INSERTED.") == 0 &&
+        strstr (text_, "output inserted.") == 0;
+
       SQLRETURN r (
         SQLBindCol (stmt_,
                     1,
@@ -914,6 +924,21 @@ namespace odb
       //
       if (returning_)
       {
+        if (batch_)
+        {
+          r = SQLMoreResults (stmt_);
+
+          if (r == SQL_NO_DATA)
+          {
+            throw database_exception (
+            0,
+            "?????",
+            "multiple result sets expected from a batch of statements");
+          }
+          else if (!SQL_SUCCEEDED (r))
+            translate_error (r, conn_, stmt_);
+        }
+
         r = SQLFetch (stmt_);
 
         if (r != SQL_NO_DATA && !SQL_SUCCEEDED (r))

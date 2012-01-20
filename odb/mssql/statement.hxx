@@ -190,6 +190,7 @@ namespace odb
 
     private:
       bool returning_;
+      bool batch_;
       unsigned long long id_;
       SQLLEN id_size_ind_;
     };
