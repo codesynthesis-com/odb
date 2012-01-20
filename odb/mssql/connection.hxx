@@ -108,9 +108,9 @@ namespace odb
       }
 
       details::buffer&
-      long_buffer ()
+      long_data_buffer ()
       {
-        return long_buffer_;
+        return long_data_buffer_;
       }
 
     private:
@@ -134,7 +134,7 @@ namespace odb
 
       std::auto_ptr<statement_cache_type> statement_cache_;
 
-      details::buffer long_buffer_;
+      details::buffer long_data_buffer_;
     };
   }
 }

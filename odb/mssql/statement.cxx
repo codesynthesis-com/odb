@@ -499,7 +499,7 @@ namespace odb
 
       if (r == SQL_NEED_DATA)
       {
-        details::buffer& tmp_buf (conn_.long_buffer ());
+        details::buffer& tmp_buf (conn_.long_data_buffer ());
 
         if (tmp_buf.capacity () == 0)
           tmp_buf.capacity (4096);
@@ -560,7 +560,7 @@ namespace odb
     void statement::
     stream_result (bind* b, size_t i, size_t n, void* obase, void* nbase)
     {
-      details::buffer& tmp_buf (conn_.long_buffer ());
+      details::buffer& tmp_buf (conn_.long_data_buffer ());
 
       if (tmp_buf.capacity () == 0)
         tmp_buf.capacity (4096);

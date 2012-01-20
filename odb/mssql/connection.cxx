@@ -25,7 +25,7 @@ namespace odb
           db_ (db),
           state_ (state_disconnected),
           statement_cache_ (new statement_cache_type (*this)),
-          long_buffer_ (0)
+          long_data_buffer_ (0)
     {
       SQLRETURN r;
 
@@ -95,7 +95,7 @@ namespace odb
           handle_ (handle),
           state_ (state_connected),
           statement_cache_ (new statement_cache_type (*this)),
-          long_buffer_ (0)
+          long_data_buffer_ (0)
     {
     }
 
