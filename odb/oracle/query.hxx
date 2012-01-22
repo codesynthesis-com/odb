@@ -19,6 +19,7 @@
 #include <odb/oracle/traits.hxx>
 #include <odb/oracle/binding.hxx>
 
+#include <odb/details/buffer.hxx>
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/oracle/details/export.hxx>
@@ -1651,8 +1652,21 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_string>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
-      query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
+      query_param_impl (ref_bind<T> r)
+          : query_param (&r.ref),
+            // Default to max (4000).
+            buf_ (r.prec != 0xFFF ? r.prec : 4000)
+      {
+      }
+
+      query_param_impl (val_bind<T> v)
+          : query_param (0),
+            // Default to max (4000).
+            buf_ (v.prec != 0xFFF ? v.prec : 4000)
+
+      {
+        init (v.val);
+      }
 
       virtual bool
       init ()
@@ -1665,8 +1679,8 @@ namespace odb
       bind (bind_type* b)
       {
         b->type = bind_type::string;
-        b->buffer = image_;
-        b->capacity = 4000;
+        b->buffer = buf_.data ();
+        b->capacity = static_cast<ub4> (buf_.capacity ());
         b->size = &size_;
       }
 
@@ -1676,16 +1690,13 @@ namespace odb
       {
         bool dummy;
         std::size_t size (0);
-        value_traits<T, id_string>::set_image (image_,
-                                               sizeof (image_),
-                                               size,
-                                               dummy,
-                                               v);
+        value_traits<T, id_string>::set_image (
+          buf_.data (), buf_.capacity (), size, dummy, v);
         size_ = static_cast<ub2> (size);
       }
 
     private:
-      char image_[4000];
+      details::buffer buf_;
       ub2 size_;
     };
 
@@ -1694,8 +1705,21 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_nstring>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
-      query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
+      query_param_impl (ref_bind<T> r)
+          : query_param (&r.ref),
+            // Default to max (4000).
+            buf_ (r.prec != 0xFFF ? r.prec : 4000)
+      {
+      }
+
+      query_param_impl (val_bind<T> v)
+          : query_param (0),
+            // Default to max (4000).
+            buf_ (v.prec != 0xFFF ? v.prec : 4000)
+
+      {
+        init (v.val);
+      }
 
       virtual bool
       init ()
@@ -1707,9 +1731,9 @@ namespace odb
       virtual void
       bind (bind_type* b)
       {
-        b->type = bind_type::string;
-        b->buffer = image_;
-        b->capacity = 4000;
+        b->type = bind_type::nstring;
+        b->buffer = buf_.data ();
+        b->capacity = static_cast<ub4> (buf_.capacity ());
         b->size = &size_;
       }
 
@@ -1719,16 +1743,13 @@ namespace odb
       {
         bool dummy;
         std::size_t size (0);
-        value_traits<T, id_nstring>::set_image (image_,
-                                                sizeof (image_),
-                                                size,
-                                                dummy,
-                                                v);
+        value_traits<T, id_nstring>::set_image (
+          buf_.data (), buf_.capacity (), size, dummy, v);
         size_ = static_cast<ub2> (size);
       }
 
     private:
-      char image_[4000];
+      details::buffer buf_;
       ub2 size_;
     };
 
@@ -1737,8 +1758,21 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_raw>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
-      query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
+      query_param_impl (ref_bind<T> r)
+          : query_param (&r.ref),
+            // Default to max (2000).
+            buf_ (r.prec != 0xFFF ? r.prec : 2000)
+      {
+      }
+
+      query_param_impl (val_bind<T> v)
+          : query_param (0),
+            // Default to max (2000).
+            buf_ (v.prec != 0xFFF ? v.prec : 2000)
+
+      {
+        init (v.val);
+      }
 
       virtual bool
       init ()
@@ -1750,9 +1784,9 @@ namespace odb
       virtual void
       bind (bind_type* b)
       {
-        b->type = bind_type::string;
-        b->buffer = image_;
-        b->capacity = 2000;
+        b->type = bind_type::raw;
+        b->buffer = buf_.data ();
+        b->capacity = static_cast<ub4> (buf_.capacity ());
         b->size = &size_;
       }
 
@@ -1762,16 +1796,13 @@ namespace odb
       {
         bool dummy;
         std::size_t size (0);
-        value_traits<T, id_raw>::set_image (image_,
-                                            sizeof (image_),
-                                            size,
-                                            dummy,
-                                            v);
+        value_traits<T, id_raw>::set_image (
+          buf_.data (), buf_.capacity (), size, dummy, v);
         size_ = static_cast<ub2> (size);
       }
 
     private:
-      char image_[2000];
+      details::buffer buf_;
       ub2 size_;
     };
   }
