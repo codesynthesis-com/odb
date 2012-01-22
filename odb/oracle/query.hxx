@@ -27,14 +27,29 @@ namespace odb
 {
   namespace oracle
   {
+    // For both precision and scale 0 is a valid value. Furthermore,
+    // scale can be negative. To indicate that these values are not
+    // specified, we will use 0xFFF which is out of range for both
+    // precision (0 to 4000) and scale (-84 to 127). Note also that
+    // string size (stored in precision) is always in bytes. If a
+    // national string size is specified as a number of characters
+    // and not bytes, then this will be a conservative estimate (4
+    // bytes per character).
+    //
     template <typename T>
     class val_bind
     {
     public:
       explicit
-      val_bind (const T& v): val (v) {}
+      val_bind (const T& v, unsigned short p = 0xFFF, short s = 0xFFF)
+          : val (v), prec (p), scale (s)
+      {
+      }
 
       const T& val;
+
+      unsigned short prec;
+      short scale;
     };
 
     template <typename T>
@@ -42,9 +57,15 @@ namespace odb
     {
     public:
       explicit
-      ref_bind (const T& r): ref (r) {}
+      ref_bind (const T& r, unsigned short p = 0xFFF, short s = 0xFFF)
+          : ref (r), prec (p), scale (s)
+      {
+      }
 
       const T& ref;
+
+      unsigned short prec;
+      short scale;
     };
 
     struct LIBODB_ORACLE_EXPORT query_param: details::shared_base
@@ -194,16 +215,16 @@ namespace odb
     public:
       template <typename T>
       static val_bind<T>
-      _val (const T& x)
+      _val (const T& x, unsigned short prec = 0xFFF, short scale = 0xFFF)
       {
-        return val_bind<T> (x);
+        return val_bind<T> (x, prec, scale);
       }
 
       template <typename T>
       static ref_bind<T>
-      _ref (const T& x)
+      _ref (const T& x, unsigned short prec = 0xFFF, short scale = 0xFFF)
       {
-        return ref_bind<T> (x);
+        return ref_bind<T> (x, prec, scale);
       }
 
     public:
@@ -393,8 +414,11 @@ namespace odb
     {
       // Note that we keep shalow copies of the table and column names.
       //
-      query_column (const char* table, const char* column)
-          : table_ (table), column_ (column)
+      query_column (const char* table,
+                    const char* column,
+                    unsigned short prec = 0xFFF,
+                    short scale = 0xFFF)
+          : table_ (table), column_ (column), prec_ (prec), scale_ (scale)
       {
       }
 
@@ -408,6 +432,18 @@ namespace odb
       column () const
       {
         return column_;
+      }
+
+      unsigned short
+      prec () const
+      {
+        return prec_;
+      }
+
+      short
+      scale () const
+      {
+        return scale_;
       }
 
       // is_null, is_not_null
@@ -460,6 +496,9 @@ namespace odb
       query
       equal (val_bind<T> v) const
       {
+        v.prec = prec_;
+        v.scale = scale_;
+
         query q (table_, column_);
         q += "=";
         q.append<T, ID> (v);
@@ -477,6 +516,9 @@ namespace odb
       query
       equal (ref_bind<T> r) const
       {
+        r.prec = prec_;
+        r.scale = scale_;
+
         query q (table_, column_);
         q += "=";
         q.append<T, ID> (r);
@@ -545,6 +587,9 @@ namespace odb
       query
       unequal (val_bind<T> v) const
       {
+        v.prec = prec_;
+        v.scale = scale_;
+
         query q (table_, column_);
         q += "!=";
         q.append<T, ID> (v);
@@ -562,6 +607,9 @@ namespace odb
       query
       unequal (ref_bind<T> r) const
       {
+        r.prec = prec_;
+        r.scale = scale_;
+
         query q (table_, column_);
         q += "!=";
         q.append<T, ID> (r);
@@ -630,6 +678,9 @@ namespace odb
       query
       less (val_bind<T> v) const
       {
+        v.prec = prec_;
+        v.scale = scale_;
+
         query q (table_, column_);
         q += "<";
         q.append<T, ID> (v);
@@ -647,6 +698,9 @@ namespace odb
       query
       less (ref_bind<T> r) const
       {
+        r.prec = prec_;
+        r.scale = scale_;
+
         query q (table_, column_);
         q += "<";
         q.append<T, ID> (r);
@@ -715,6 +769,9 @@ namespace odb
       query
       greater (val_bind<T> v) const
       {
+        v.prec = prec_;
+        v.scale = scale_;
+
         query q (table_, column_);
         q += ">";
         q.append<T, ID> (v);
@@ -732,6 +789,9 @@ namespace odb
       query
       greater (ref_bind<T> r) const
       {
+        r.prec = prec_;
+        r.scale = scale_;
+
         query q (table_, column_);
         q += ">";
         q.append<T, ID> (r);
@@ -800,6 +860,9 @@ namespace odb
       query
       less_equal (val_bind<T> v) const
       {
+        v.prec = prec_;
+        v.scale = scale_;
+
         query q (table_, column_);
         q += "<=";
         q.append<T, ID> (v);
@@ -817,6 +880,9 @@ namespace odb
       query
       less_equal (ref_bind<T> r) const
       {
+        r.prec = prec_;
+        r.scale = scale_;
+
         query q (table_, column_);
         q += "<=";
         q.append<T, ID> (r);
@@ -885,6 +951,9 @@ namespace odb
       query
       greater_equal (val_bind<T> v) const
       {
+        v.prec = prec_;
+        v.scale = scale_;
+
         query q (table_, column_);
         q += ">=";
         q.append<T, ID> (v);
@@ -902,6 +971,9 @@ namespace odb
       query
       greater_equal (ref_bind<T> r) const
       {
+        r.prec = prec_;
+        r.scale = scale_;
+
         query q (table_, column_);
         q += ">=";
         q.append<T, ID> (r);
@@ -1048,6 +1120,9 @@ namespace odb
     private:
       const char* table_;
       const char* column_;
+
+      unsigned short prec_;
+      short scale_;
     };
 
     //
