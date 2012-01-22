@@ -12,7 +12,7 @@
 // Map QString to Oracle VARCHAR2 by default. Allow NULL values by default as
 // QString provides a null representation.
 //
-#pragma db value(QString) type("VARCHAR2(4000)") null
+#pragma db value(QString) type("VARCHAR2(512)") null
 
 // Map QByteArray to Oracle BLOB by default. Allow NULL values by default as
 // QByteArray provides a null representation.
