@@ -1677,7 +1677,7 @@ namespace odb
       {
         b->type = bind_type::string;
         b->buffer = image_;
-        b->capacity = 4000;
+        b->capacity = 2000;
         b->size = &size_;
       }
 
@@ -1696,7 +1696,7 @@ namespace odb
       }
 
     private:
-      char image_[4000];
+      char image_[2000];
       ub2 size_;
     };
   }
