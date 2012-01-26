@@ -180,11 +180,9 @@ namespace odb
     void query::
     append (const char* table, const char* column)
     {
-      string s ("\"");
-      s += table;
-      s += "\".\"";
+      string s (table);
+      s += '.';
       s += column;
-      s += '"';
 
       clause_.push_back (clause_part (clause_part::column, s));
     }
