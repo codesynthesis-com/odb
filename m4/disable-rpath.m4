@@ -1,5 +1,5 @@
 dnl file      : m4/disable-rpath.m4
-dnl copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+dnl copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 dnl license   : GNU GPL v2; see accompanying LICENSE file
 dnl
 AC_DEFUN([DISABLE_RPATH],[

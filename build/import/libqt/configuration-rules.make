@@ -1,5 +1,5 @@
 # file      : build/import/libqt/configuration-rules.make
-# copyright : Copyright (c) 2005-2011 Boris Kolpackov
+# copyright : Copyright (c) 2005-2012 Boris Kolpackov
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 $(dcf_root)/import/libqt/configuration-dynamic.make: | $(dcf_root)/import/libqt/.
