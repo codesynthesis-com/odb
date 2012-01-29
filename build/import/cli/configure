@@ -1,7 +1,6 @@
 #! /usr/bin/env bash
 
 # file      : build/import/cli/configure
-# author    : Boris Kolpackov <boris@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
