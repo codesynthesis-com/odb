@@ -1,5 +1,5 @@
 // file      : odb/mssql/auto-handle.cxx
-// copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <odb/mssql/mssql.hxx>

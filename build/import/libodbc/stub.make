@@ -1,5 +1,5 @@
 # file      : build/import/libodbc/stub.make
-# copyright : Copyright (c) 2009-2011 Boris Kolpackov
+# copyright : Copyright (c) 2009-2012 Boris Kolpackov
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 $(call include-once,$(scf_root)/import/libodbc/configuration-rules.make,$(dcf_root))
