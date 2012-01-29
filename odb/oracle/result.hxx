@@ -1,5 +1,5 @@
 // file      : odb/oracle/result.hxx
-// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_ORACLE_RESULT_HXX
