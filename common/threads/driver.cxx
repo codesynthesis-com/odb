@@ -1,5 +1,5 @@
 // file      : common/threads/driver.cxx
-// copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 // Test operations in a multi-threaded environment.

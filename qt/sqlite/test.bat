@@ -1,6 +1,6 @@
 @echo off
 rem file      : qt/sqlite/test.bat
-rem copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+rem copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 rem license   : GNU GPL v2; see accompanying LICENSE file
 
 setlocal

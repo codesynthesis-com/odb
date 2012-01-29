@@ -1,5 +1,5 @@
 // file      : libcommon/common/config.hxx
-// copyright : Copyright (c) 2005-2011 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef LIBCOMMON_COMMON_CONFIG_HXX
