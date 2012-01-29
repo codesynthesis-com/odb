@@ -1,5 +1,4 @@
 # file      : odb/oracle/makefile
-# author    : Constantin Michael <constantin@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : ODB NCUEL; see accompanying LICENSE file
 
@@ -75,7 +74,7 @@ $(gen): cli_options +=                    \
 
 $(out_base)/details/config.h: | $(out_base)/details/.
 	@echo '/* file      : odb/oracle/details/config.h'               >$@
-	@echo ' * author    : automatically generated'                  >>$@
+	@echo ' * note      : automatically generated'                  >>$@
 	@echo ' */'                                                     >>$@
 	@echo ''                                                        >>$@
 	@echo '#ifndef ODB_ORACLE_DETAILS_CONFIG_H'                     >>$@
