@@ -1,6 +1,5 @@
 @echo off
 rem file      : mssql-driver.bat
-rem author    : Boris Kolpackov <boris@codesynthesis.com>
 rem copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 rem license   : GNU GPL v2; see accompanying LICENSE file
 

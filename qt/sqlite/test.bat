@@ -1,6 +1,5 @@
 @echo off
 rem file      : qt/sqlite/test.bat
-rem author    : Constantin Michael <constantin@codesynthesis.com>
 rem copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 rem license   : GNU GPL v2; see accompanying LICENSE file
 

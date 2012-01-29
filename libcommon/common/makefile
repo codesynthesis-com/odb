@@ -1,5 +1,4 @@
 # file      : libcommon/common/makefile
-# author    : Boris Kolpackov <boris@codesynthesis.com>
 # copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
@@ -43,7 +42,7 @@ $(common.l.cpp-options): $(odb_db.l.cpp-options) $(odb.l.cpp-options)
 
 $(out_base)/config.h: $(dcf_root)/configuration-dynamic.make | $(out_base)/.
 	@echo '/* file      : libcommon/common/config.h'                 >$@
-	@echo ' * author    : automatically generated'                  >>$@
+	@echo ' * note      : automatically generated'                  >>$@
 	@echo ' */'                                                     >>$@
 	@echo ''                                                        >>$@
 	@echo '#ifndef LIBCOMMON_COMMON_CONFIG_H'                       >>$@

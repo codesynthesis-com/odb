@@ -1,6 +1,4 @@
 // file      : pgsql/truncation/driver.cxx
-// author    : Boris Kolpackov <boris@codesynthesis.com>
-// author    : Constantin Michael <constantin@codesynthesis.com>
 // copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
