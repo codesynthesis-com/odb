@@ -1,5 +1,5 @@
 # file      : build/import/libqt/core/rules.make
-# copyright : Copyright (c) 2005-2012 Boris Kolpackov
+# copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 $(dcf_root)/import/libqt/%: root := $(libqt_root)
