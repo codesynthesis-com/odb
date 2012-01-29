@@ -1,5 +1,5 @@
 # file      : build/import/libpq/rules.make
-# copyright : Copyright (c) 2009-2011 Code Synthesis Tools CC
+# copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 $(dcf_root)/import/libpq/%: root := $(libpq_root)
