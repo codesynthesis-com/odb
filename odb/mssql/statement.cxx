@@ -365,7 +365,7 @@ namespace odb
       size_t i (0);
       for (bind* end (b + n); b != end; ++b)
       {
-        SQLLEN cap;
+        SQLLEN cap (0);
 
         switch (b->type)
         {
