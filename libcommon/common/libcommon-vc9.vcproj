@@ -303,7 +303,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb-__value__(database)-d.lib odb.lib"
+				AdditionalDependencies="odb-__value__(database).lib odb.lib"
 				OutputFile="$(OutDir)\bin64\common.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
