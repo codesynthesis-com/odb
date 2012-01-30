@@ -60,22 +60,34 @@ namespace odb
           i.day = static_cast<SQLUSMALLINT> (d.day ());
           i.hour = static_cast<SQLUSMALLINT> (t.hour ());
           i.minute = static_cast<SQLUSMALLINT> (t.minute ());
-          i.second = static_cast<SQLUSMALLINT> (t.second ());
 
-          const unsigned int divider[8] =
+          // Scale value 8 indicates we are dealing with SMALLDATETIME
+          // which has the minutes precision.
+          //
+          if (s != 8)
           {
-            1000000000,
-            100000000,
-            10000000,
-            1000000,
-            100000,
-            10000,
-            1000,
-            100
-          };
+            i.second = static_cast<SQLUSMALLINT> (t.second ());
 
-          unsigned int ns (static_cast<unsigned int> (t.msec ()) * 1000000);
-          i.fraction = static_cast<SQLUINTEGER> (ns - ns % divider[s]);
+            const unsigned int divider[8] =
+            {
+              1000000000,
+              100000000,
+              10000000,
+              1000000,
+              100000,
+              10000,
+              1000,
+              100
+            };
+
+            unsigned int ns (static_cast<unsigned int> (t.msec ()) * 1000000);
+            i.fraction = static_cast<SQLUINTEGER> (ns - ns % divider[s]);
+          }
+          else
+          {
+            i.second = 0;
+            i.fraction = 0;
+          }
         }
       }
     };
