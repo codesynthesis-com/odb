@@ -157,12 +157,6 @@ namespace odb
         return data_image_binding_;
       }
 
-      bool*
-      data_image_truncated ()
-      {
-        return data_image_truncated_;
-      }
-
       native_binding&
       data_image_native_binding ()
       {
@@ -268,7 +262,6 @@ namespace odb
       std::size_t data_id_binding_version_;
 
       binding data_image_binding_;
-      bool* data_image_truncated_;
       native_binding data_image_native_binding_;
 
       // Skips the id from data_image_binding.
@@ -323,7 +316,8 @@ namespace odb
       int data_image_lengths_[traits::data_column_count];
       int data_image_formats_[traits::data_column_count];
 
-      bool data_image_truncated_array_[traits::data_column_count];
+      bool select_image_truncated_array_[traits::data_column_count -
+                                         traits::id_column_count];
     };
   }
 }

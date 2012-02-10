@@ -41,9 +41,7 @@ namespace odb
     container_statements_impl (connection_type& conn)
         : base (conn)
     {
-      this->data_image_truncated_ = data_image_truncated_array_;
-      this->select_image_truncated_ = data_image_truncated_array_ +
-        traits::id_column_count;
+      this->select_image_truncated_ = select_image_truncated_array_;
 
       this->cond_image_binding_.bind = cond_image_bind_;
       this->cond_image_binding_.count = traits::cond_column_count;
@@ -68,12 +66,13 @@ namespace odb
 
       std::memset (cond_image_bind_, 0, sizeof (cond_image_bind_));
       std::memset (data_image_bind_, 0, sizeof (data_image_bind_));
-      std::memset (data_image_truncated_array_,
+      std::memset (select_image_truncated_array_,
                    0,
-                   sizeof (data_image_truncated_array_));
+                   sizeof (select_image_truncated_array_));
 
       for (std::size_t i (0); i < traits::data_column_count; ++i)
-        data_image_bind_[i].truncated = data_image_truncated_array_ + i;
+        data_image_bind_[i + traits::id_column_count].truncated =
+          select_image_truncated_array_ + i;
 
       this->insert_one_name_ = traits::insert_one_name;
       this->insert_one_text_ = traits::insert_one_statement;
