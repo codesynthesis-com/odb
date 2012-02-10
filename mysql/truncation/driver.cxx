@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include <odb/mysql/database.hxx>
+#include <odb/mysql/connection.hxx>
 #include <odb/mysql/transaction.hxx>
 
 #include <common/common.hxx>
@@ -23,9 +24,9 @@ using namespace odb::core;
 int
 main (int argc, char* argv[])
 {
-  // The default pre-allocated buffer is 512 bytes long.
+  // The default pre-allocated buffer is 256 bytes long.
   //
-  string long_str (640, 'c'); // This will get the buffer to 1024
+  string long_str (300, 'c'); // This will get the buffer to 512
   string longer_str (1025, 'b');
 
   try
@@ -150,6 +151,34 @@ main (int argc, char* argv[])
         assert (i->str_ == "test string");
 
         t.commit ();
+      }
+    }
+
+    // Test containers.
+    //
+    {
+      auto_ptr<database> db (create_database (argc, argv));
+
+      // Use different connections to persist and load the object.
+      //
+      connection_ptr c1 (db->connection ());
+      connection_ptr c2 (db->connection ());
+
+      container o (1);
+      o.vec_.push_back (string (513, 'x'));
+
+      {
+        transaction t (c1->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (c2->begin ());
+        auto_ptr<container> p (db->load<container> (1));
+        t.commit ();
+
+        assert (p->vec_ == o.vec_);
       }
     }
   }
