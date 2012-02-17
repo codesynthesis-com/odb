@@ -223,6 +223,7 @@ main (int argc, char* argv[])
 #ifdef HAVE_TR1_MEMORY
     {
       using namespace ::tr1;
+      using std::tr1::shared_ptr;
 
       // persist
       //
