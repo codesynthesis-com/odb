@@ -9,6 +9,7 @@ auto                \
 blob                \
 callback            \
 composite           \
+composite-id        \
 const-object        \
 const-member        \
 container           \
