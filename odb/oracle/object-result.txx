@@ -60,7 +60,7 @@ namespace odb
       typename object_traits::image_type& i (
         use_copy_ ? *image_copy_ : statements_.image ());
 
-      object_traits::init (obj, i, db);
+      object_traits::init (obj, i, &db);
 
       // If we are using a copy, make sure the callback information for
       // LOB data also comes from the copy.
@@ -211,7 +211,7 @@ namespace odb
 
       object_traits::init (obj,
                            use_copy_ ? *image_copy_ : statements_.image (),
-                           db);
+                           &db);
 
       // If we are using a copy, make sure the callback information for
       // LOB data also comes from the copy.
