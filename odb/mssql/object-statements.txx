@@ -93,7 +93,7 @@ namespace odb
         // loads being added to the delayed_ vector. We need to process
         // those before we call the post callback.
         //
-        object_traits::init (*l.obj, image (), db);
+        object_traits::init (*l.obj, image (), &db);
         find_->stream_result ();
         find_->free_result (); // Our find_() version delays result freeing.
         object_traits::load_ (*this, *l.obj); // Load containers, etc.

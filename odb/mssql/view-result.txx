@@ -53,7 +53,7 @@ namespace odb
 
       view_traits::init (view,
                          use_copy_ ? *image_copy_ : statements_.image (),
-                         db);
+                         &db);
 
       // If we are using a copy, make sure the callback information for
       // long data also comes from the copy.
