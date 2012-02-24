@@ -98,7 +98,12 @@ $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
+$(call include,$(bld_root)/cxx/standard.make) # cxx_standard
+ifdef cxx_standard
+$(gen): odb_options += --std $(cxx_standard)
 $(call include,$(odb_rules))
+endif
+
 $(call include,$(bld_root)/cxx/cxx-d.make)
 $(call include,$(bld_root)/cxx/cxx-o.make)
 $(call include,$(bld_root)/cxx/o-e.make)
