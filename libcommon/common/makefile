@@ -40,7 +40,11 @@ $(cxx_obj) $(cxx_od): $(common.l.cpp-options) $(out_base)/config.h
 $(common.l.cpp-options): value := -I$(out_root)/libcommon -I$(src_root)/libcommon
 $(common.l.cpp-options): $(odb_db.l.cpp-options) $(odb.l.cpp-options)
 
-$(out_base)/config.h: $(dcf_root)/configuration-dynamic.make | $(out_base)/.
+$(call include,$(bld_root)/cxx/standard.make) # cxx_standard
+
+ifdef db_id
+ifdef cxx_standard
+$(out_base)/config.h: | $(out_base)/.
 	@echo '/* file      : libcommon/common/config.h'                 >$@
 	@echo ' * note      : automatically generated'                  >>$@
 	@echo ' */'                                                     >>$@
@@ -59,9 +63,14 @@ else ifeq ($(db_id),oracle)
 else ifeq ($(db_id),mssql)
 	@echo '#define DATABASE_MSSQL 1'                                >>$@
 endif
+ifeq ($(cxx_standard),c++11)
+	@echo '#define HAVE_CXX11 1'                                    >>$@
+endif
 	@echo '#define HAVE_TR1_MEMORY 1'                               >>$@
 	@echo ''                                                        >>$@
 	@echo '#endif /* LIBCOMMON_COMMON_CONFIG_H */'                  >>$@
+endif
+endif
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(out_base)/config.h)
 

@@ -98,6 +98,7 @@ $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
+
 $(call include,$(odb_rules))
 $(call include,$(bld_root)/cxx/cxx-d.make)
 $(call include,$(bld_root)/cxx/cxx-o.make)

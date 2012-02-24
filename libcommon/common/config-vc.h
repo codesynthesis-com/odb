@@ -10,4 +10,10 @@
 
 #define HAVE_TR1_MEMORY
 
+/* VC++10 has C++11 always enabled.
+ */
+#if _MSC_VER >= 1600
+#  define HAVE_CXX11
+#endif
+
 #endif /* LIBCOMMON_COMMON_CONFIG_VC_H */
