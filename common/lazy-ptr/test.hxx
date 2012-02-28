@@ -5,7 +5,7 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_TR1_MEMORY
+#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
 
 #include <vector>
 #include <string>
@@ -14,7 +14,7 @@
 #include <odb/core.hxx>
 #include <odb/lazy-ptr.hxx>
 
-#ifdef HAVE_TR1_MEMORY
+#if !defined(HAVE_CXX11) && defined(HAVE_TR1_MEMORY)
 #  include <odb/tr1/memory.hxx>
 #  include <odb/tr1/lazy-ptr.hxx>
 #endif
@@ -59,8 +59,8 @@ inline cont1::
 ~cont1 ()
 {
   for (obj_list::iterator i (o.begin ()); i != o.end (); ++i)
-    if (i->loaded ())
-      delete i->get ();
+    if (obj1* p = i->get ())
+      delete p;
 }
 
 // Auto pointer.
@@ -98,14 +98,20 @@ public:
   lazy_ptr<cont2> c; // weak
 };
 
-// TR1.
+// shared_ptr
 //
-#ifdef HAVE_TR1_MEMORY
-namespace tr1
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
+namespace shared
 {
+#ifdef HAVE_CXX11
+  using std::shared_ptr;
+  using odb::lazy_shared_ptr;
+  using odb::lazy_weak_ptr;
+#else
   using std::tr1::shared_ptr;
   using odb::tr1::lazy_shared_ptr;
   using odb::tr1::lazy_weak_ptr;
+#endif
 
   class obj;
 

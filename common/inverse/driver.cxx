@@ -28,9 +28,11 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    // Raw pointer version.
+    // Test raw pointers.
     //
     {
+      using namespace test1;
+
       obj1_ptr o1_1 (new obj1);
       obj1_ptr o1_2 (new obj1);
       obj2_ptr o2 (new obj2);
@@ -208,18 +210,20 @@ main (int argc, char* argv[])
       delete o1_2;
     }
 
-    // TR1 pointer version.
+    // Test shared_ptr/weak_ptr.
     //
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     {
-      tr1_obj1_ptr o1_1 (new tr1_obj1);
-      tr1_obj1_ptr o1_2 (new tr1_obj1);
-      tr1_obj2_ptr o2 (new tr1_obj2);
-      tr1_obj3_ptr o3_1 (new tr1_obj3);
-      tr1_obj3_ptr o3_2 (new tr1_obj3);
-      tr1_obj4_ptr o4 (new tr1_obj4);
-      tr1_obj5_ptr o5_1 (new tr1_obj5);
-      tr1_obj5_ptr o5_2 (new tr1_obj5);
+      using namespace test2;
+
+      obj1_ptr o1_1 (new obj1);
+      obj1_ptr o1_2 (new obj1);
+      obj2_ptr o2 (new obj2);
+      obj3_ptr o3_1 (new obj3);
+      obj3_ptr o3_2 (new obj3);
+      obj4_ptr o4 (new obj4);
+      obj5_ptr o5_1 (new obj5);
+      obj5_ptr o5_2 (new obj5);
 
       o1_1->id = "obj1 1";
       o1_1->o2 = o2;
@@ -230,7 +234,7 @@ main (int argc, char* argv[])
       o1_1->o5.push_back (o5_2);
 
       o1_2->id = "obj1 2";
-      o1_2->o2 = tr1_obj2_ptr ();
+      o1_2->o2 = obj2_ptr ();
       o1_2->o3.clear ();
       o1_2->o4 = o4;
       o1_2->o5.push_back (o5_1);
@@ -279,12 +283,12 @@ main (int argc, char* argv[])
       {
         session s;
         transaction t (db->begin ());
-        tr1_obj2_ptr x2 (db->load<tr1_obj2> (o2->id));
-        tr1_obj3_ptr x3_1 (db->load<tr1_obj3> (o3_1->id));
-        tr1_obj3_ptr x3_2 (db->load<tr1_obj3> (o3_2->id));
-        tr1_obj4_ptr x4 (db->load<tr1_obj4> (o4->id));
-        tr1_obj5_ptr x5_1 (db->load<tr1_obj5> (o5_1->id));
-        tr1_obj5_ptr x5_2 (db->load<tr1_obj5> (o5_2->id));
+        obj2_ptr x2 (db->load<obj2> (o2->id));
+        obj3_ptr x3_1 (db->load<obj3> (o3_1->id));
+        obj3_ptr x3_2 (db->load<obj3> (o3_2->id));
+        obj4_ptr x4 (db->load<obj4> (o4->id));
+        obj5_ptr x5_1 (db->load<obj5> (o5_1->id));
+        obj5_ptr x5_2 (db->load<obj5> (o5_2->id));
         t.commit ();
 
         assert (x2->str == o2->str);
@@ -301,7 +305,7 @@ main (int argc, char* argv[])
         {
           assert (x4->str == o4->str);
 
-          tr1_obj1_ptr t1 (x4->o1[0].lock ()), t2 (x4->o1[1].lock ());
+          obj1_ptr t1 (x4->o1[0].lock ()), t2 (x4->o1[1].lock ());
 
           assert (t1->id == o1_1->id || t2->id == o1_1->id);
           assert (t1->id == o1_2->id || t2->id == o1_2->id);
@@ -311,7 +315,7 @@ main (int argc, char* argv[])
           assert (x5_1->str == o5_1->str);
           assert (x5_2->str == o5_2->str);
 
-          tr1_obj1_ptr t1 (x5_1->o1[0].lock ()), t2 (x5_1->o1[1].lock ()),
+          obj1_ptr t1 (x5_1->o1[0].lock ()), t2 (x5_1->o1[1].lock ()),
             t3 (x5_2->o1[0].lock ());
 
           assert (t1->id == o1_1->id || t2->id == o1_1->id);

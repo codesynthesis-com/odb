@@ -5,7 +5,7 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_TR1_MEMORY
+#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
 
 #include <set>
 #include <map>
@@ -15,7 +15,7 @@
 
 #include <odb/core.hxx>
 
-#ifdef HAVE_TR1_MEMORY
+#if !defined(HAVE_CXX11) && defined(HAVE_TR1_MEMORY)
 #  include <odb/tr1/memory.hxx>
 #endif
 
@@ -138,11 +138,16 @@ operator== (const obj2& x, const obj2& y)
   return x.id == y.id && x.str == y.str;
 }
 
-// tr1::shared_ptr
+// shared_ptr
 //
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
 struct obj3;
+
+#ifdef HAVE_CXX11
+typedef std::shared_ptr<obj3> obj3_ptr;
+#else
 typedef std::tr1::shared_ptr<obj3> obj3_ptr;
+#endif
 
 #pragma db object pointer(obj3_ptr)
 struct obj3
@@ -211,7 +216,7 @@ struct aggr
 
   obj1* o1;
   std::auto_ptr<obj2> o2;
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
   obj3_ptr o3;
   comp c;
   comp_vec cv;
@@ -235,7 +240,7 @@ operator== (const aggr& x, const aggr& y)
     x.id == y.id &&
     (x.o1 ? (y.o1 && *x.o1 == *y.o1) : !y.o1) &&
     (x.o2.get () ? (y.o2.get () && *x.o2 == *y.o2) : !y.o2.get ()) &&
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     (x.o3.get () ? (y.o3.get () && *x.o3 == *y.o3) : !y.o3.get ()) &&
     x.c == y.c &&
     x.cv == y.cv &&

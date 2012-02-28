@@ -5,21 +5,28 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_TR1_MEMORY
+#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
 
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
 
 #include <string>
 
 #include <odb/core.hxx>
-#include <odb/tr1/memory.hxx>
+
+#ifdef HAVE_CXX11
+#  include <memory>
+using std::shared_ptr;
+#else
+#  include <odb/tr1/memory.hxx>
+using std::tr1::shared_ptr;
+#endif
 
 struct country;
 
 #pragma db value
 struct residence_info
 {
-  residence_info (bool p, std::tr1::shared_ptr<country> l)
+  residence_info (bool p, shared_ptr<country> l)
       : permanent (p), location (l)
   {
   }
@@ -31,19 +38,19 @@ struct residence_info
   bool permanent;
 
   #pragma db not_null
-  std::tr1::shared_ptr<country> location;
+  shared_ptr<country> location;
 };
 
-#pragma db object pointer(std::tr1::shared_ptr)
+#pragma db object pointer(shared_ptr)
 struct person
 {
   person (unsigned long i,
           const std::string& fn,
           const std::string& ln,
           unsigned short a,
-          std::tr1::shared_ptr<country> r,
+          shared_ptr<country> r,
           bool p,
-          std::tr1::shared_ptr<country> n)
+          shared_ptr<country> n)
       : id (i),
         first_name (fn),
         last_name (ln),
@@ -71,24 +78,24 @@ struct person
   residence_info residence;
 
   #pragma db not_null
-  std::tr1::shared_ptr<country> nationality;
+  shared_ptr<country> nationality;
 
-  std::tr1::shared_ptr<person> husband; // Self-join.
+  shared_ptr<person> husband; // Self-join.
 };
 
 struct employer;
 
-#pragma db object pointer(std::tr1::shared_ptr)
+#pragma db object pointer(shared_ptr)
 struct employee: person
 {
   employee (unsigned long i,
           const std::string& fn,
           const std::string& ln,
           unsigned short a,
-          std::tr1::shared_ptr<country> r,
+          shared_ptr<country> r,
           bool p,
-          std::tr1::shared_ptr<country> n,
-          std::tr1::shared_ptr<employer> e)
+          shared_ptr<country> n,
+          shared_ptr<employer> e)
       : person (i, fn, ln, a, r, p, n),
         employed_by (e)
   {
@@ -98,10 +105,10 @@ struct employee: person
   {
   }
 
-  std::tr1::shared_ptr<employer> employed_by;
+  shared_ptr<employer> employed_by;
 };
 
-#pragma db object pointer(std::tr1::shared_ptr)
+#pragma db object pointer(shared_ptr)
 struct employer
 {
   employer (const std::string& n)
@@ -117,7 +124,7 @@ struct employer
   std::string name;
 };
 
-#pragma db object pointer(std::tr1::shared_ptr)
+#pragma db object pointer(shared_ptr)
 struct country
 {
   country (const std::string& c, std::string const& n)
@@ -135,5 +142,5 @@ struct country
   std::string name;
 };
 
-#endif // HAVE_TR1_MEMORY
+#endif // HAVE_CXX11 || HAVE_TR1_MEMORY
 #endif // TEST_HXX

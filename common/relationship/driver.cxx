@@ -30,7 +30,7 @@ main (int argc, char* argv[])
     aggr a ("aggr");
     a.o1 = new obj1 ("o1", "obj1");
     a.o2.reset (new obj2 ("obj2"));
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     a.o3.reset (new obj3 ("obj3"));
 
     a.c.num = 123;
@@ -60,7 +60,7 @@ main (int argc, char* argv[])
       transaction t (db->begin ());
       db->persist (a.o1);
       db->persist (a.o2);
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
       db->persist (a.o3);
 
       db->persist (a.c.o3);
@@ -117,7 +117,7 @@ main (int argc, char* argv[])
     delete a.o1;
     a.o1 = 0;
     a.o2.reset ();
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     a.o3.reset ();
 #endif
 

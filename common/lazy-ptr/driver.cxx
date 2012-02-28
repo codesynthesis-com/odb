@@ -6,6 +6,7 @@
 //
 
 #include <memory>   // std::auto_ptr
+#include <utility>  // std::move
 #include <cassert>
 #include <iostream>
 
@@ -113,8 +114,13 @@ main (int argc, char* argv[])
 
         // Correct object ids.
         //
+#ifdef HAVE_CXX11
+        assert (c->o[0].object_id () == o->id);
+        assert (o->c.object_id () == c->id);
+#else
         assert (c->o[0].object_id<obj> () == o->id);
         assert (o->c.object_id<cont> () == c->id);
+#endif
 
         // Load.
         //
@@ -185,8 +191,13 @@ main (int argc, char* argv[])
 
         // Correct object ids.
         //
+#ifdef HAVE_CXX11
+        assert (c->o.object_id () == o->id);
+        assert (o->c.object_id () == c->id);
+#else
         assert (c->o.object_id<obj> () == o->id);
         assert (o->c.object_id<cont> () == c->id);
+#endif
 
         // Load.
         //
@@ -218,12 +229,11 @@ main (int argc, char* argv[])
       }
     }
 
-    // TR1.
+    // Shared pointer from C++11 or TR1.
     //
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     {
-      using namespace ::tr1;
-      using std::tr1::shared_ptr;
+      using namespace shared;
 
       // persist
       //
@@ -258,6 +268,22 @@ main (int argc, char* argv[])
       assert (lc1 == lazy_shared_ptr<cont> (*db, c1));
       assert (lc1 != lazy_shared_ptr<cont> (*db, c2));
 
+      // Test move constructors.
+      //
+#ifdef HAVE_CXX11
+      {
+        lazy_shared_ptr<cont> tmp (*db, 1);
+        lazy_shared_ptr<cont> l (std::move (tmp));
+        assert (lc1 == l);
+      }
+
+      {
+        shared_ptr<cont> tmp (c1);
+        lazy_shared_ptr<cont> l (*db, std::move (tmp));
+        assert (lc1 == l);
+      }
+#endif
+
       {
         transaction t (db->begin ());
 
@@ -289,8 +315,13 @@ main (int argc, char* argv[])
 
         // Correct object ids.
         //
+#ifdef HAVE_CXX11
+        assert (c->o[0].object_id () == o->id);
+        assert (o->c.object_id () == c->id);
+#else
         assert (c->o[0].object_id<obj> () == o->id);
         assert (o->c.object_id<cont> () == c->id);
+#endif
 
         // Load.
         //
@@ -315,7 +346,12 @@ main (int argc, char* argv[])
         assert (!c->o[1].loaded ());
         lazy_shared_ptr<obj> l (c->o[1].lock ());
         assert (!l.loaded ());
+
+#ifdef HAVE_CXX11
+        assert (l.object_id () == c->o[1].object_id ());
+#else
         assert (l.object_id<obj> () == c->o[1].object_id<obj> ());
+#endif
 
         // Reload.
         //

@@ -13,7 +13,7 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/config.hxx> // HAVE_TR1_MEMORY
+#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
 #include <common/common.hxx>
 
 #include "test.hxx"
@@ -29,9 +29,7 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-#ifdef HAVE_TR1_MEMORY
-
-    using std::tr1::shared_ptr;
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
 
     //
     //
@@ -164,7 +162,8 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-#endif
+#endif // HAVE_CXX11 || HAVE_TR1_MEMORY
+
   }
   catch (const odb::exception& e)
   {

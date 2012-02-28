@@ -5,7 +5,7 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_TR1_MEMORY
+#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
 
 #include <set>
 #include <vector>
@@ -14,203 +14,222 @@
 
 #include <odb/core.hxx>
 
-#ifdef HAVE_TR1_MEMORY
+#if !defined(HAVE_CXX11) && defined(HAVE_TR1_MEMORY)
 #  include <odb/tr1/memory.hxx>
 #endif
 
-struct obj1;
-struct obj2;
-struct obj3;
-struct obj4;
-struct obj5;
-
-typedef obj1* obj1_ptr;
-typedef obj2* obj2_ptr;
-typedef obj3* obj3_ptr;
-typedef obj4* obj4_ptr;
-typedef obj5* obj5_ptr;
-
-typedef std::set<obj1_ptr> obj1_ptr_set;
-typedef std::set<obj3_ptr> obj3_ptr_set;
-typedef std::set<obj5_ptr> obj5_ptr_set;
-
-#pragma db object
-struct obj1
+// Test raw pointers.
+//
+#pragma db namespace table("t1_")
+namespace test1
 {
-  obj1 (): o2 (0), o4 (0) {}
-  ~obj1 ();
+  struct obj1;
+  struct obj2;
+  struct obj3;
+  struct obj4;
+  struct obj5;
 
-  #pragma db id
-  std::string id;
+  typedef obj1* obj1_ptr;
+  typedef obj2* obj2_ptr;
+  typedef obj3* obj3_ptr;
+  typedef obj4* obj4_ptr;
+  typedef obj5* obj5_ptr;
 
-  obj2_ptr o2;
+  typedef std::set<obj1_ptr> obj1_ptr_set;
+  typedef std::set<obj3_ptr> obj3_ptr_set;
+  typedef std::set<obj5_ptr> obj5_ptr_set;
 
-  #pragma db id_column("obj1_id") value_column("obj3_id")
-  obj3_ptr_set o3;
+  #pragma db object
+  struct obj1
+  {
+    obj1 (): o2 (0), o4 (0) {}
+    ~obj1 ();
 
-  obj4_ptr o4;
+    #pragma db id
+    std::string id;
 
-  obj5_ptr_set o5;
-};
+    obj2_ptr o2;
 
-#pragma db object
-struct obj2
-{
-  #pragma db id auto
-  int id;
+    #pragma db id_column("obj1_id") value_column("obj3_id")
+    obj3_ptr_set o3;
 
-  // one-to-one
-  //
-  #pragma db inverse(o2)
-  obj1_ptr o1;
+    obj4_ptr o4;
 
-  std::string str;
-};
+    obj5_ptr_set o5;
+  };
 
-#pragma db object
-struct obj3
-{
-  std::string str;
+  #pragma db object
+  struct obj2
+  {
+    #pragma db id auto
+    int id;
 
-  // one(i)-to-many
-  //
-  #pragma db inverse (o3)
-  obj1_ptr o1;
+    // one-to-one
+    //
+    #pragma db inverse(o2)
+    obj1_ptr o1;
 
-  #pragma db id auto
-  int id;
-};
+    std::string str;
+  };
 
-#pragma db object
-struct obj4
-{
-  #pragma db id auto
-  int id;
+  #pragma db object
+  struct obj3
+  {
+    std::string str;
 
-  std::string str;
+    // one(i)-to-many
+    //
+    #pragma db inverse (o3)
+    obj1_ptr o1;
 
-  // many(i)-to-one
-  //
-  #pragma db inverse (o4)
-  obj1_ptr_set o1;
-};
+    #pragma db id auto
+    int id;
+  };
 
-#pragma db object
-struct obj5
-{
-  #pragma db id auto
-  int id;
+  #pragma db object
+  struct obj4
+  {
+    #pragma db id auto
+    int id;
 
-  std::string str;
+    std::string str;
 
-  // many(i)-to-many
-  //
-  #pragma db inverse (o5)
-  obj1_ptr_set o1;
-};
+    // many(i)-to-one
+    //
+    #pragma db inverse (o4)
+    obj1_ptr_set o1;
+  };
 
-inline obj1::
-~obj1 ()
-{
-  delete o2;
-  for (obj3_ptr_set::iterator i (o3.begin ()); i != o3.end (); ++i)
-    delete *i;
-  delete o4;
-  for (obj5_ptr_set::iterator i (o5.begin ()); i != o5.end (); ++i)
-    delete *i;
+  #pragma db object
+  struct obj5
+  {
+    #pragma db id auto
+    int id;
+
+    std::string str;
+
+    // many(i)-to-many
+    //
+    #pragma db inverse (o5)
+    obj1_ptr_set o1;
+  };
+
+  inline obj1::
+  ~obj1 ()
+  {
+    delete o2;
+    for (obj3_ptr_set::iterator i (o3.begin ()); i != o3.end (); ++i)
+      delete *i;
+    delete o4;
+    for (obj5_ptr_set::iterator i (o5.begin ()); i != o5.end (); ++i)
+      delete *i;
+  }
 }
 
-// TR1 version
+// Test shared_ptr/weak_ptr.
 //
-#ifdef HAVE_TR1_MEMORY
-struct tr1_obj1;
-struct tr1_obj2;
-struct tr1_obj3;
-struct tr1_obj4;
-struct tr1_obj5;
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
 
-typedef std::tr1::shared_ptr<tr1_obj1> tr1_obj1_ptr;
-typedef std::tr1::shared_ptr<tr1_obj2> tr1_obj2_ptr;
-typedef std::tr1::shared_ptr<tr1_obj3> tr1_obj3_ptr;
-typedef std::tr1::shared_ptr<tr1_obj4> tr1_obj4_ptr;
-typedef std::tr1::shared_ptr<tr1_obj5> tr1_obj5_ptr;
-
-typedef std::tr1::weak_ptr<tr1_obj1> tr1_obj1_wptr;
-
-typedef std::vector<tr1_obj1_wptr> tr1_obj1_wptr_vec;
-typedef std::vector<tr1_obj3_ptr> tr1_obj3_ptr_vec;
-typedef std::vector<tr1_obj5_ptr> tr1_obj5_ptr_vec;
-
-#pragma db object pointer(tr1_obj1_ptr)
-struct tr1_obj1
+#pragma db namespace table("t2_")
+namespace test2
 {
-  #pragma db id
-  std::string id;
+#ifdef HAVE_CXX11
+  using std::shared_ptr;
+  using std::weak_ptr;
+#else
+  using std::tr1::shared_ptr;
+  using std::tr1::weak_ptr;
+#endif
 
-  tr1_obj2_ptr o2;
+  struct obj1;
+  struct obj2;
+  struct obj3;
+  struct obj4;
+  struct obj5;
 
-  #pragma db id_column("tr1_obj1_id") value_column("tr1_obj3_id")
-  tr1_obj3_ptr_vec o3;
+  typedef shared_ptr<obj1> obj1_ptr;
+  typedef shared_ptr<obj2> obj2_ptr;
+  typedef shared_ptr<obj3> obj3_ptr;
+  typedef shared_ptr<obj4> obj4_ptr;
+  typedef shared_ptr<obj5> obj5_ptr;
 
-  tr1_obj4_ptr o4;
-  tr1_obj5_ptr_vec o5;
-};
+  typedef weak_ptr<obj1> obj1_wptr;
 
-#pragma db object pointer(tr1_obj2_ptr)
-struct tr1_obj2
-{
-  #pragma db id auto
-  int id;
+  typedef std::vector<obj1_wptr> obj1_wptr_vec;
+  typedef std::vector<obj3_ptr> obj3_ptr_vec;
+  typedef std::vector<obj5_ptr> obj5_ptr_vec;
 
-  std::string str;
+  #pragma db object pointer(obj1_ptr)
+  struct obj1
+  {
+    #pragma db id
+    std::string id;
 
-  // one(i)-to-one
-  //
-  #pragma db inverse(o2)
-  tr1_obj1_wptr o1;
-};
+    obj2_ptr o2;
 
-#pragma db object pointer(tr1_obj3_ptr)
-struct tr1_obj3
-{
-  #pragma db id auto
-  int id;
+    #pragma db id_column("obj1_id") value_column("obj3_id")
+    obj3_ptr_vec o3;
 
-  std::string str;
+    obj4_ptr o4;
+    obj5_ptr_vec o5;
+  };
 
-  // one(i)-to-many
-  //
-  #pragma db inverse (o3)
-  tr1_obj1_wptr o1;
-};
+  #pragma db object pointer(obj2_ptr)
+  struct obj2
+  {
+    #pragma db id auto
+    int id;
 
-#pragma db object pointer(tr1_obj4_ptr)
-struct tr1_obj4
-{
-  #pragma db id auto
-  int id;
+    std::string str;
 
-  std::string str;
+    // one(i)-to-one
+    //
+    #pragma db inverse(o2)
+    obj1_wptr o1;
+  };
 
-  // many(i)-to-one
-  //
-  #pragma db inverse (o4)
-  tr1_obj1_wptr_vec o1;
-};
+  #pragma db object pointer(obj3_ptr)
+  struct obj3
+  {
+    #pragma db id auto
+    int id;
 
-#pragma db object pointer(tr1_obj5_ptr)
-struct tr1_obj5
-{
-  #pragma db id auto
-  int id;
+    std::string str;
 
-  std::string str;
+    // one(i)-to-many
+    //
+    #pragma db inverse (o3)
+    obj1_wptr o1;
+  };
 
-  // many(i)-to-many
-  //
-  #pragma db inverse (o5)
-  tr1_obj1_wptr_vec o1;
-};
+  #pragma db object pointer(obj4_ptr)
+  struct obj4
+  {
+    #pragma db id auto
+    int id;
+
+    std::string str;
+
+    // many(i)-to-one
+    //
+    #pragma db inverse (o4)
+    obj1_wptr_vec o1;
+  };
+
+  #pragma db object pointer(obj5_ptr)
+  struct obj5
+  {
+    #pragma db id auto
+    int id;
+
+    std::string str;
+
+    // many(i)-to-many
+    //
+    #pragma db inverse (o5)
+    obj1_wptr_vec o1;
+  };
+}
 #endif
 
 #endif // TEST_HXX
