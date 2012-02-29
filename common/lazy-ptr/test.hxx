@@ -21,87 +21,106 @@
 
 // Raw pointer.
 //
-using odb::lazy_ptr;
-class obj1;
-
-#pragma db object
-class cont1
+#pragma db namespace table("t1_")
+namespace test1
 {
-public:
-  cont1 () {}
-  cont1 (unsigned long i): id (i) {}
-  ~cont1 ();
+  using odb::lazy_ptr;
+  class obj;
 
-  #pragma db id
-  unsigned long id;
+  #pragma db object
+  class cont
+  {
+  public:
+    cont () {}
+    cont (unsigned long i): id (i) {}
+    ~cont ();
 
-  typedef std::vector<lazy_ptr<obj1> > obj_list;
+    #pragma db id
+    unsigned long id;
 
-  #pragma db value_not_null
-  obj_list o;
-};
+    typedef std::vector<lazy_ptr<obj> > obj_list;
 
-#pragma db object
-class obj1
-{
-public:
-  obj1 () {}
-  obj1 (unsigned long i): id (i) {}
+    #pragma db value_not_null
+    obj_list o;
+  };
 
-  #pragma db id
-  unsigned long id;
+  #pragma db object
+  class obj
+  {
+  public:
+    obj () {}
+    obj (unsigned long i): id (i) {}
 
-  #pragma db inverse(o) not_null
-  lazy_ptr<cont1> c; // weak
-};
+    #pragma db id
+    unsigned long id;
 
-inline cont1::
-~cont1 ()
-{
-  for (obj_list::iterator i (o.begin ()); i != o.end (); ++i)
-    if (obj1* p = i->get ())
-      delete p;
+    #pragma db inverse(o) not_null
+    lazy_ptr<cont> c; // weak
+  };
+
+  inline cont::
+  ~cont ()
+  {
+    for (obj_list::iterator i (o.begin ()); i != o.end (); ++i)
+      if (obj* p = i->get ())
+        delete p;
+  }
 }
 
-// Auto pointer.
+// std::auto_ptr/std::unique_ptr
 //
-using std::auto_ptr;
-using odb::lazy_auto_ptr;
-
-class obj2;
-
-#pragma db object
-class cont2
+#pragma db namespace table("t2_")
+namespace test2
 {
-public:
-  cont2 () {}
-  cont2 (unsigned long i): id (i) {}
+  using odb::lazy_ptr;
 
-  #pragma db id
-  unsigned long id;
+  class obj;
+  class cont;
 
-  #pragma db not_null
-  lazy_auto_ptr<obj2> o;
-};
+#ifdef HAVE_CXX11
+  typedef std::unique_ptr<obj> obj_ptr;
+  typedef std::unique_ptr<cont> cont_ptr;
+  typedef odb::lazy_unique_ptr<obj> lazy_obj_ptr;
+#else
+  typedef std::auto_ptr<obj> obj_ptr;
+  typedef std::auto_ptr<cont> cont_ptr;
+  typedef odb::lazy_auto_ptr<obj> lazy_obj_ptr;
+#endif
 
-#pragma db object
-class obj2
-{
-public:
-  obj2 () {}
-  obj2 (unsigned long i): id (i) {}
+  #pragma db object
+  class cont
+  {
+  public:
+    cont () {}
+    cont (unsigned long i): id (i) {}
 
-  #pragma db id
-  unsigned long id;
+    #pragma db id
+    unsigned long id;
 
-  #pragma db inverse(o) not_null
-  lazy_ptr<cont2> c; // weak
-};
+    #pragma db not_null
+    lazy_obj_ptr o;
+  };
+
+  #pragma db object
+  class obj
+  {
+  public:
+    obj () {}
+    obj (unsigned long i): id (i) {}
+
+    #pragma db id
+    unsigned long id;
+
+    #pragma db inverse(o) not_null
+    lazy_ptr<cont> c; // weak
+  };
+}
 
 // shared_ptr
 //
 #if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
-namespace shared
+#pragma db namespace table("t3_")
+namespace test3
 {
 #ifdef HAVE_CXX11
   using std::shared_ptr;

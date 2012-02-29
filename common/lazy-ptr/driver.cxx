@@ -21,18 +21,21 @@
 using namespace std;
 using namespace odb::core;
 
-auto_ptr<obj2>
-create (unsigned int id)
+namespace test2
 {
-  auto_ptr<obj2> r (new obj2 (id));
-  return r;
-}
+  obj_ptr
+  create (unsigned int id)
+  {
+    obj_ptr r (new obj (id));
+    return r;
+  }
 
-lazy_auto_ptr<obj2>
-create (database& db, unsigned int id)
-{
-  lazy_auto_ptr<obj2> r (db, id);
-  return r;
+  lazy_obj_ptr
+  create (database& db, unsigned int id)
+  {
+    lazy_obj_ptr r (db, id);
+    return r;
+  }
 }
 
 int
@@ -45,8 +48,7 @@ main (int argc, char* argv[])
     // Raw.
     //
     {
-      typedef cont1 cont;
-      typedef obj1 obj;
+      using namespace test1;
 
       // persist
       //
@@ -141,28 +143,31 @@ main (int argc, char* argv[])
       }
     }
 
-    // Auto pointer.
+    // std::auto_ptr/std::unique_ptr
     //
     {
-      typedef cont2 cont;
-      typedef obj2 obj;
+      using namespace test2;
 
       // persist
       //
       {
-        auto_ptr<obj> o1 (new obj (1));
+        obj_ptr o1 (new obj (1));
         transaction t (db->begin ());
         db->persist (*o1);
         t.commit ();
       }
 
-      auto_ptr<cont> c1 (new cont (1));
-      auto_ptr<cont> c2 (new cont (2));
+      cont_ptr c1 (new cont (1));
+      cont_ptr c2 (new cont (2));
 
-      lazy_auto_ptr<obj> lo1 = create (*db, 1);
+      lazy_obj_ptr lo1 = create (*db, 1);
       lo1 = create (*db, 1);
 
+#ifdef HAVE_CXX11
+      c1->o = std::move (lo1);
+#else
       c1->o = lo1;
+#endif
       c2->o = create (2);
 
       {
@@ -181,7 +186,7 @@ main (int argc, char* argv[])
       {
         session s;
         transaction t (db->begin ());
-        auto_ptr<cont> c (db->load<cont> (1));
+        cont_ptr c (db->load<cont> (1));
         obj* o (db->load<obj> (1));
 
         // Not loaded.
@@ -202,7 +207,7 @@ main (int argc, char* argv[])
         // Load.
         //
         cont* cl (o->c.load ());
-        const auto_ptr<obj>& ol (c->o.load ());
+        const obj_ptr& ol (c->o.load ());
 
         assert (cl == c.get ());
         assert (ol.get () == o);
@@ -215,7 +220,7 @@ main (int argc, char* argv[])
       {
         // No session.
         transaction t (db->begin ());
-        auto_ptr<cont> c (db->load<cont> (1));
+        cont_ptr c (db->load<cont> (1));
 
         assert (!c->o.loaded ());
         c->o.load ();
@@ -233,7 +238,7 @@ main (int argc, char* argv[])
     //
 #if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     {
-      using namespace shared;
+      using namespace test3;
 
       // persist
       //

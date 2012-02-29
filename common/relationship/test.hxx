@@ -118,9 +118,17 @@ operator== (const obj1_map& x, const obj1_map& y)
   return true;
 }
 
-// auto_ptr
+// auto_ptr/unique_ptr
 //
-#pragma db object pointer(std::auto_ptr<obj2>)
+struct obj2;
+
+#ifdef HAVE_CXX11
+typedef std::unique_ptr<obj2> obj2_ptr;
+#else
+typedef std::auto_ptr<obj2> obj2_ptr;
+#endif
+
+#pragma db object pointer(obj2_ptr)
 struct obj2
 {
   obj2 () {}
@@ -137,6 +145,23 @@ operator== (const obj2& x, const obj2& y)
 {
   return x.id == y.id && x.str == y.str;
 }
+
+#ifdef HAVE_CXX11
+typedef std::vector<obj2_ptr> obj2_vec;
+
+inline bool
+operator== (const obj2_vec& x, const obj2_vec& y)
+{
+  if (x.size () != y.size ())
+    return false;
+
+  for (obj2_vec::size_type i (0); i < x.size (); ++i)
+    if (!(x[i] ? (y[i] && *x[i] == *y[i]) : !y[i]))
+      return false;
+
+  return true;
+}
+#endif
 
 // shared_ptr
 //
@@ -215,7 +240,12 @@ struct aggr
   unsigned long id;
 
   obj1* o1;
-  std::auto_ptr<obj2> o2;
+
+  obj2_ptr o2; // std::auto_ptr or std::unique_ptr
+#ifdef HAVE_CXX11
+  obj2_vec v2;
+#endif
+
 #if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
   obj3_ptr o3;
   comp c;
@@ -240,6 +270,9 @@ operator== (const aggr& x, const aggr& y)
     x.id == y.id &&
     (x.o1 ? (y.o1 && *x.o1 == *y.o1) : !y.o1) &&
     (x.o2.get () ? (y.o2.get () && *x.o2 == *y.o2) : !y.o2.get ()) &&
+#ifdef HAVE_CXX11
+    x.v2 == y.v2 &&
+#endif
 #if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     (x.o3.get () ? (y.o3.get () && *x.o3 == *y.o3) : !y.o3.get ()) &&
     x.c == y.c &&
