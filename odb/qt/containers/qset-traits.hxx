@@ -42,7 +42,7 @@ namespace odb
       {
         value_type v;
         more = f.load_all (v);
-        c.insert (v);
+        c.insert (v); //@@ Use std::move in C++11.
       }
     }
 

@@ -45,7 +45,7 @@ namespace odb
         key_type k;
         value_type v;
         more = f.load_all (k, v);
-        c.insert (k, v);
+        c.insert (k, v); // @@ Use std::move in C++11.
       }
     }
 
@@ -101,7 +101,7 @@ namespace odb
         key_type k;
         value_type v;
         more = f.load_all (k, v);
-        c.insert (k, v);
+        c.insert (k, v); //@@ Use std::move in C++11.
       }
     }
 
