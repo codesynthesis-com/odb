@@ -5,7 +5,7 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_TR1_MEMORY
+#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
 
 #include <string>
 #include <memory> // std::auto_ptr
@@ -14,7 +14,7 @@
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
 
-#ifdef HAVE_TR1_MEMORY
+#if !defined(HAVE_CXX11) && defined(HAVE_TR1_MEMORY)
 #  include <odb/tr1/memory.hxx>
 #endif
 
@@ -26,8 +26,16 @@ using odb::nullable;
 
 typedef nullable<std::string> nullable_string;
 
-#ifdef HAVE_TR1_MEMORY
-typedef std::tr1::shared_ptr<std::string> tr1_nullable_string;
+#ifdef HAVE_CXX11
+typedef std::unique_ptr<int> num_uptr;
+typedef std::unique_ptr<std::string> str_uptr;
+typedef std::shared_ptr<std::string> str_sptr;
+#else
+typedef std::auto_ptr<int> num_uptr;
+typedef std::auto_ptr<std::string> str_uptr;
+#  ifdef HAVE_TR1_MEMORY
+typedef std::tr1::shared_ptr<std::string> str_sptr;
+#  endif
 #endif
 
 #pragma db object table("obj")
@@ -36,20 +44,20 @@ struct object
   #pragma db id auto
   unsigned long id_;
 
-  std::auto_ptr<int> num;
+  num_uptr num;
 
   #pragma db null
-  std::auto_ptr<std::string> str;
+  str_uptr str;
 
   nullable_string nstr;
   std::vector<nullable_string> nstrs;
 
-#ifdef HAVE_TR1_MEMORY
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
   #pragma db null
-  tr1_nullable_string tr1_str;
+  str_sptr sstr;
 
   #pragma db value_null
-  std::vector<tr1_nullable_string> tr1_strs;
+  std::vector<str_sptr> sstrs;
 #endif
 };
 
@@ -92,15 +100,27 @@ operator== (const comp2& x, const comp2& y)
   return x.str == y.str && x.num == y.num && x.strs == y.strs;
 }
 
+struct comp3;
+
+#ifdef HAVE_CXX11
+typedef std::unique_ptr<comp1> comp1_uptr;
+typedef std::unique_ptr<comp2> comp2_uptr;
+typedef std::unique_ptr<comp3> comp3_uptr;
+#else
+typedef std::auto_ptr<comp1> comp1_uptr;
+typedef std::auto_ptr<comp2> comp2_uptr;
+typedef std::auto_ptr<comp3> comp3_uptr;
+#endif
+
 #pragma db object
 struct comp_object
 {
   #pragma db id auto
   unsigned long id_;
 
-  std::auto_ptr<comp1> c1;           // Wrapped comp value.
+  comp1_uptr                    c1;  // Wrapped comp value.
   std::vector<nullable<comp1> > vc1; // Container of wrapped comp values.
-  std::auto_ptr<comp2> c2;           // Container inside wrapped comp value.
+  comp2_uptr                    c2;  // Container inside wrapped comp value.
 };
 
 // This one is just a compilation test to cover more convolute cases.
@@ -108,7 +128,7 @@ struct comp_object
 #pragma db value
 struct comp3: comp2
 {
-  std::auto_ptr<comp1> c1;
+  comp1_uptr c1;
   std::vector<nullable<comp1> > vc1;
 };
 
@@ -118,18 +138,26 @@ struct comp_object2
   #pragma db id auto
   unsigned long id_;
 
-  std::auto_ptr<comp3> c3;
+  comp3_uptr c3;
 };
 
 //
 // Containers.
 //
 
+#ifdef HAVE_CXX11
+typedef std::unique_ptr<std::vector<int>> nums_uptr;
+typedef std::unique_ptr<std::vector<std::string>> strs_uptr;
+#else
+typedef std::auto_ptr<std::vector<int> > nums_uptr;
+typedef std::auto_ptr<std::vector<std::string> > strs_uptr;
+#endif
+
 #pragma db value
 struct cont_comp
 {
   int num;
-  std::auto_ptr<std::vector<std::string> > strs;
+  strs_uptr strs;
 };
 
 inline bool
@@ -144,8 +172,8 @@ struct cont_object
   #pragma db id auto
   unsigned long id_;
 
-  std::auto_ptr<std::vector<int> > vi; // Wrapped container.
-  cont_comp c;                         // Wrapped container in comp value.
+  nums_uptr nums; // Wrapped container.
+  cont_comp c;    // Wrapped container in comp value.
 };
 
 #endif // TEST_HXX

@@ -36,9 +36,9 @@ main (int argc, char* argv[])
       o.num.reset (new int (123));
       o.nstrs.push_back (nullable_string ());
       o.nstrs.push_back (nullable_string ("123"));
-#ifdef HAVE_TR1_MEMORY
-      o.tr1_strs.push_back (tr1_nullable_string ());
-      o.tr1_strs.push_back (tr1_nullable_string (new string ("123")));
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
+      o.sstrs.push_back (str_sptr ());
+      o.sstrs.push_back (str_sptr (new string ("123")));
 #endif
 
       transaction t (db->begin ());
@@ -56,10 +56,10 @@ main (int argc, char* argv[])
       assert (o->nstr.null ());
       assert (o->nstrs[0].null ());
       assert (o->nstrs[1].get () == "123");
-#ifdef HAVE_TR1_MEMORY
-      assert (!o->tr1_str);
-      assert (!o->tr1_strs[0]);
-      assert (*o->tr1_strs[1] == "123");
+#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
+      assert (!o->sstr);
+      assert (!o->sstrs[0]);
+      assert (*o->sstrs[1] == "123");
 #endif
     }
 
@@ -102,10 +102,10 @@ main (int argc, char* argv[])
     {
       cont_object co;
 
-      co.vi.reset (new vector<int>);
-      co.vi->push_back (1);
-      co.vi->push_back (2);
-      co.vi->push_back (3);
+      co.nums.reset (new vector<int>);
+      co.nums->push_back (1);
+      co.nums->push_back (2);
+      co.nums->push_back (3);
 
       co.c.num = 123;
       co.c.strs.reset (new vector<string>);
@@ -124,7 +124,7 @@ main (int argc, char* argv[])
         auto_ptr<cont_object> o (db->load<cont_object> (id));
         t.commit ();
 
-        assert (*o->vi == *co.vi);
+        assert (*o->nums == *co.nums);
         assert (o->c == co.c);
       }
     }
