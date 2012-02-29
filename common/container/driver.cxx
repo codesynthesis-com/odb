@@ -38,6 +38,23 @@ main (int argc, char* argv[])
       empty.num = 0;
       empty.str = "";
 
+#ifdef HAVE_CXX11
+      // array
+      //
+      empty.na[0] = 123;
+      empty.na[1] = 234;
+      empty.na[2] = 345;
+
+      empty.sa[0] = "aaa";
+      empty.sa[1] = "bbbb";
+      empty.sa[2] = "ccccc";
+
+      empty.ca[0] = comp (123, "aaa");
+      empty.ca[1] = comp (234, "bbbb");
+      empty.ca[2] = comp (345, "ccccc");
+#endif
+
+
       //
       // med
       //
@@ -88,6 +105,58 @@ main (int argc, char* argv[])
 
       med.csm[comp (123, "aaa")] = "aaa";
       med.csm[comp (234, "bbbb")] = "bbbb";
+
+#ifdef HAVE_CXX11
+      // array
+      //
+      med.na[0] = 123;
+      med.na[1] = 234;
+      med.na[2] = 345;
+
+      med.sa[0] = "aaa";
+      med.sa[1] = "bbbb";
+      med.sa[2] = "ccccc";
+
+      med.ca[0] = comp (123, "aaa");
+      med.ca[1] = comp (234, "bbbb");
+      med.ca[2] = comp (345, "ccccc");
+
+      // forward_list
+      //
+      med.nfl.push_front (234);
+      med.nfl.push_front (123);
+
+      med.sfl.push_front ("bbbb");
+      med.sfl.push_front ("aaa");
+
+      med.cfl.push_front (comp (234, "bbbb"));
+      med.cfl.push_front (comp (123, "aaa"));
+
+      // unordered_set
+      //
+      med.nus.insert (123);
+      med.nus.insert (234);
+
+      med.sus.insert ("aaa");
+      med.sus.insert ("bbbb");
+
+      med.cus.insert (comp (123, "aaa"));
+      med.cus.insert (comp (234, "bbbb"));
+
+      // unordered_map
+      //
+      med.nsum[123] = "aaa";
+      med.nsum[234] = "bbbb";
+
+      med.snum["aaa"] = 123;
+      med.snum["bbbb"] = 234;
+
+      med.ncum[123] = comp (123, "aaa");
+      med.ncum[234] = comp (234, "bbbb");
+
+      med.csum[comp (123, "aaa")] = "aaa";
+      med.csum[comp (234, "bbbb")] = "bbbb";
+#endif
 
       //
       // full
@@ -152,6 +221,68 @@ main (int argc, char* argv[])
       full.csm[comp (2345, "bbbbb")] = "bbbbb";
       full.csm[comp (3456, "cccccc")] = "cccccc";
 
+#ifdef HAVE_CXX11
+      // array
+      //
+      full.na[0] = 123;
+      full.na[1] = 234;
+      full.na[2] = 345;
+
+      full.sa[0] = "aaa";
+      full.sa[1] = "bbbb";
+      full.sa[2] = "ccccc";
+
+      full.ca[0] = comp (123, "aaa");
+      full.ca[1] = comp (234, "bbbb");
+      full.ca[2] = comp (345, "ccccc");
+
+      // forward_list
+      //
+      full.nfl.push_front (345);
+      full.nfl.push_front (234);
+      full.nfl.push_front (123);
+
+      full.sfl.push_front ("ccccc");
+      full.sfl.push_front ("bbbb");
+      full.sfl.push_front ("aaa");
+
+      full.cfl.push_front (comp (345, "ccccc"));
+      full.cfl.push_front (comp (234, "bbbb"));
+      full.cfl.push_front (comp (123, "aaa"));
+
+      // unordered_set
+      //
+      full.nus.insert (1234);
+      full.nus.insert (2345);
+      full.nus.insert (3456);
+
+      full.sus.insert ("aaaa");
+      full.sus.insert ("bbbbb");
+      full.sus.insert ("cccccc");
+
+      full.cus.insert (comp (1234, "aaaa"));
+      full.cus.insert (comp (2345, "bbbbb"));
+      full.cus.insert (comp (3456, "cccccc"));
+
+      // unordered_map
+      //
+      full.nsum[1234] = "aaaa";
+      full.nsum[2345] = "bbbbb";
+      full.nsum[3456] = "cccccc";
+
+      full.snum["aaaa"] = 1234;
+      full.snum["bbbbb"] = 2345;
+      full.snum["cccccc"] = 3456;
+
+      full.ncum[1234] = comp (1234, "aaaa");
+      full.ncum[2345] = comp (2345, "bbbbb");
+      full.ncum[3456] = comp (3456, "cccccc");
+
+      full.csum[comp (1234, "aaaa")] = "aaaa";
+      full.csum[comp (2345, "bbbbb")] = "bbbbb";
+      full.csum[comp (3456, "cccccc")] = "cccccc";
+#endif
+
       // persist
       //
       {
@@ -182,18 +313,36 @@ main (int argc, char* argv[])
 
       empty.num = 99;
       empty.str = "xx";
+
       empty.nv.push_back (12);
       empty.sv.push_back ("aa");
       empty.cv.push_back (comp (12, "aa"));
       empty.uv.push_back (12);
       empty.sl.push_back ("aa");
+
       empty.ns.insert (12);
       empty.ss.insert ("aa");
       empty.cs.insert (comp (12, "aa"));
+
       empty.nsm[12] = "aa";
       empty.snm["aa"] = 12;
       empty.ncm[12] = comp (12, "aa");
       empty.csm[comp (12, "aa")] = "aa";
+
+#ifdef HAVE_CXX11
+      empty.nfl.push_front (12);
+      empty.sfl.push_front ("aa");
+      empty.cfl.push_front (comp (12, "aa"));
+
+      empty.nus.insert (12);
+      empty.sus.insert ("aa");
+      empty.cus.insert (comp (12, "aa"));
+
+      empty.nsum[12] = "aa";
+      empty.snum["aa"] = 12;
+      empty.ncum[12] = comp (12, "aa");
+      empty.csum[comp (12, "aa")] = "aa";
+#endif
 
       //
       // med
@@ -217,6 +366,21 @@ main (int argc, char* argv[])
       med.snm.clear ();
       med.ncm.clear ();
       med.csm.clear ();
+
+#ifdef HAVE_CXX11
+      med.nfl.clear ();
+      med.sfl.clear ();
+      med.cfl.clear ();
+
+      med.nus.clear ();
+      med.sus.clear ();
+      med.cus.clear ();
+
+      med.nsum.clear ();
+      med.snum.clear ();
+      med.ncum.clear ();
+      med.csum.clear ();
+#endif
 
       //
       // full
@@ -265,6 +429,48 @@ main (int argc, char* argv[])
 
       full.csm[comp (3456, "cccccc")] += "c";
       full.csm[comp (4567, "ddddddd")] = "ddddddd";
+
+#ifdef HAVE_CXX11
+      // array
+      //
+      full.na[0]++;
+      full.sa[0] += 'a';
+      full.ca[0].num++;
+      full.ca[0].str += 'a';
+
+      // forward_list
+      //
+      full.nfl.front ()++;
+      full.nfl.push_front (4567);
+
+      full.sfl.front () += 'a';
+      full.sfl.push_front ("ddddddd");
+
+      full.cfl.front ().num++;
+      full.cfl.front ().str += 'a';
+      full.cfl.push_front (comp (4567, "ddddddd"));
+
+      // unordered_set
+      //
+      full.nus.insert (4567);
+      full.sus.insert ("ddddddd");
+      full.cus.insert (comp (4567, "ddddddd"));
+
+      // unordered_map
+      //
+      full.nsum[3456] += 'c';
+      full.nsum[4567] = "ddddddd";
+
+      full.snum["cccccc"]++;
+      full.snum["ddddddd"] = 4567;
+
+      full.ncum[3456].num++;
+      full.ncum[3456].str += 'c';
+      full.ncum[4567] = comp (4567, "ddddddd");
+
+      full.csum[comp (3456, "cccccc")] += "c";
+      full.csum[comp (4567, "ddddddd")] = "ddddddd";
+#endif
 
       // update
       //
