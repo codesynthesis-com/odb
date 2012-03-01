@@ -18,6 +18,8 @@ namespace odb
 {
   namespace oracle
   {
+    using odb::details::transfer_ptr;
+
     database::
     database (const string& user,
               const string& password,
@@ -25,7 +27,7 @@ namespace odb
               ub2 charset,
               ub2 ncharset,
               OCIEnv* environment,
-              auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : user_ (user),
           password_ (password),
           db_ (db),
@@ -33,7 +35,7 @@ namespace odb
           charset_ (charset),
           ncharset_ (ncharset_),
           environment_ (environment),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       if (environment_ == 0)
       {
@@ -64,7 +66,7 @@ namespace odb
               ub2 charset,
               ub2 ncharset,
               OCIEnv* environment,
-              auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : user_ (user),
           password_ (password),
           service_ (service),
@@ -73,7 +75,7 @@ namespace odb
           charset_ (charset),
           ncharset_ (ncharset),
           environment_ (environment),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       if (environment_ == 0)
       {
@@ -122,12 +124,12 @@ namespace odb
               ub2 charset,
               ub2 ncharset,
               OCIEnv* environment,
-              auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : port_ (0),
           charset_ (charset),
           ncharset_ (ncharset),
           environment_ (environment),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       if (environment_ == 0)
       {
