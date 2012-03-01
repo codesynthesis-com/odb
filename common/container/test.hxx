@@ -182,6 +182,25 @@ struct object
   str_num_umap snum;
   num_comp_umap ncum;
   comp_str_umap csum;
+#else
+  // Dummy containers to get the equivalent DROP TABLE statements.
+  //
+  num_vector na;
+  num_vector sa;
+  num_vector ca;
+
+  num_vector nfl;
+  num_vector sfl;
+  num_vector cfl;
+
+  num_set nus;
+  str_set sus;
+  comp_set cus;
+
+  num_str_map nsum;
+  str_num_map snum;
+  num_comp_map ncum;
+  comp_str_map csum;
 #endif
 
   std::string str;

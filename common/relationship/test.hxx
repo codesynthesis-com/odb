@@ -244,6 +244,10 @@ struct aggr
   obj2_ptr o2; // std::auto_ptr or std::unique_ptr
 #ifdef HAVE_CXX11
   obj2_vec v2;
+#else
+  // Dummy containers to get the equivalent DROP TABLE statements.
+  //
+  std::vector<int> v2;
 #endif
 
 #if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
