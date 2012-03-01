@@ -8,10 +8,12 @@
 #include <odb/pre.hxx>
 
 #include <string>
-#include <memory> // std::auto_ptr
+#include <memory> // std::auto_ptr, std::unique_ptr
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
+#include <odb/details/config.hxx>       // ODB_CXX11
+#include <odb/details/transfer-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
@@ -36,8 +38,8 @@ namespace odb
                 const std::string& host = "",
                 unsigned int port = 0,
                 const std::string& extra_conninfo = "",
-                std::auto_ptr<connection_factory> factory =
-                  std::auto_ptr<connection_factory> (0));
+                details::transfer_ptr<connection_factory> =
+                  details::transfer_ptr<connection_factory> ());
 
       database (const std::string& user,
                 const std::string& password,
@@ -45,13 +47,13 @@ namespace odb
                 const std::string& host = "",
                 const std::string& socket_ext = "",
                 const std::string& extra_conninfo = "",
-                std::auto_ptr<connection_factory> factory =
-                  std::auto_ptr<connection_factory> (0));
+                details::transfer_ptr<connection_factory> =
+                  details::transfer_ptr<connection_factory> ());
 
       explicit
       database (const std::string& conninfo,
-                std::auto_ptr<connection_factory> =
-                  std::auto_ptr<connection_factory> (0));
+                details::transfer_ptr<connection_factory> =
+                  details::transfer_ptr<connection_factory> ());
 
       // Extract the database parameters from the command line. The
       // following options are recognized:
@@ -72,8 +74,8 @@ namespace odb
                 char* argv[],
                 bool erase = false,
                 const std::string& extra_conninfo = "",
-                std::auto_ptr<connection_factory> =
-                  std::auto_ptr<connection_factory> (0));
+                details::transfer_ptr<connection_factory> =
+                  details::transfer_ptr<connection_factory> ());
 
       static void
       print_usage (std::ostream&);
@@ -173,7 +175,12 @@ namespace odb
       std::string socket_ext_;
       std::string extra_conninfo_;
       std::string conninfo_;
+
+#ifdef ODB_CXX11
+      std::unique_ptr<connection_factory> factory_;
+#else
       std::auto_ptr<connection_factory> factory_;
+#endif
     };
   }
 }

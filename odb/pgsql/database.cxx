@@ -17,6 +17,8 @@ namespace odb
 {
   namespace pgsql
   {
+    using odb::details::transfer_ptr;
+
     database::
     database (const string& user,
               const string& password,
@@ -24,14 +26,14 @@ namespace odb
               const string& host,
               unsigned int port,
               const string& extra_conninfo,
-              auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : user_ (user),
           password_ (password),
           db_ (db),
           host_ (host),
           port_ (port),
           extra_conninfo_ (extra_conninfo),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       ostringstream ss;
 
@@ -71,7 +73,7 @@ namespace odb
               const string& host,
               const string& socket_ext,
               const string& extra_conninfo,
-              auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : user_ (user),
           password_ (password),
           db_ (db),
@@ -79,7 +81,7 @@ namespace odb
           port_ (0),
           socket_ext_ (socket_ext),
           extra_conninfo_ (extra_conninfo),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       ostringstream ss;
 
@@ -113,9 +115,8 @@ namespace odb
     }
 
     database::
-    database (const string& conninfo,
-              auto_ptr<connection_factory> factory)
-        : port_ (0), conninfo_ (conninfo), factory_ (factory)
+    database (const string& conninfo, transfer_ptr<connection_factory> factory)
+        : port_ (0), conninfo_ (conninfo), factory_ (factory.transfer ())
     {
       if (factory_.get () == 0)
         factory_.reset (new connection_pool_factory ());
@@ -128,8 +129,8 @@ namespace odb
               char* argv[],
               bool erase,
               const string& extra_conninfo,
-              auto_ptr<connection_factory> factory)
-        : port_ (0), factory_ (factory)
+              transfer_ptr<connection_factory> factory)
+        : port_ (0), factory_ (factory.transfer ())
     {
       using namespace details;
 
