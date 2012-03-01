@@ -3,6 +3,7 @@
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #include <cstdlib> // std::exit
+#include <utility> // std::move
 #include <iostream>
 
 #include <common/config.hxx>
@@ -79,21 +80,44 @@ create_database (int& argc,
   auto_ptr<database> db;
 
 #if defined(DATABASE_MYSQL)
+
+#ifdef HAVE_CXX11
+  unique_ptr<mysql::connection_factory> f;
+#else
   auto_ptr<mysql::connection_factory> f;
+#endif
 
   if (max_connections != 0)
     f.reset (new mysql::connection_pool_factory (max_connections));
 
-  db.reset (new mysql::database (argc, argv, false, "", 0, f));
+  db.reset (new mysql::database (argc, argv, false, "", 0,
+#ifdef HAVE_CXX11
+                                 move (f)
+#else
+                                 f
+#endif
+            ));
+
 #elif defined(DATABASE_SQLITE)
+
+#ifdef HAVE_CXX11
+  unique_ptr<sqlite::connection_factory> f;
+#else
   auto_ptr<sqlite::connection_factory> f;
+#endif
 
   if (max_connections != 0)
     f.reset (new sqlite::connection_pool_factory (max_connections));
 
   db.reset (
     new sqlite::database (
-      argc, argv, false, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, true, f));
+      argc, argv, false, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, true,
+#ifdef HAVE_CXX11
+      move (f)
+#else
+      f
+#endif
+    ));
 
   // Create the database schema. Due to bugs in SQLite foreign key
   // support for DDL statements, we need to temporarily disable
@@ -111,15 +135,33 @@ create_database (int& argc,
 
     c->execute ("PRAGMA foreign_keys=ON");
   }
+
 #elif defined(DATABASE_PGSQL)
+
+#ifdef HAVE_CXX11
+  unique_ptr<pgsql::connection_factory> f;
+#else
   auto_ptr<pgsql::connection_factory> f;
+#endif
 
   if (max_connections != 0)
     f.reset (new pgsql::connection_pool_factory (max_connections));
 
-  db.reset (new pgsql::database (argc, argv, false, "", f));
+  db.reset (new pgsql::database (argc, argv, false, "",
+#ifdef HAVE_CXX11
+                                 move (f)
+#else
+                                 f
+#endif
+            ));
+
 #elif defined(DATABASE_ORACLE)
+
+#ifdef HAVE_CXX11
+  unique_ptr<oracle::connection_factory> f;
+#else
   auto_ptr<oracle::connection_factory> f;
+#endif
 
   if (max_connections != 0)
     f.reset (new oracle::connection_pool_factory (max_connections));
@@ -127,15 +169,32 @@ create_database (int& argc,
   // Set client database character set and client national character set
   // to UTF-8.
   //
-  db.reset (new oracle::database (argc, argv, false, 873, 873, 0, f));
+  db.reset (new oracle::database (argc, argv, false, 873, 873, 0,
+#ifdef HAVE_CXX11
+                                  move (f)
+#else
+                                  f
+#endif
+            ));
 
 #elif defined(DATABASE_MSSQL)
+
+#ifdef HAVE_CXX11
+  unique_ptr<mssql::connection_factory> f;
+#else
   auto_ptr<mssql::connection_factory> f;
+#endif
 
   if (max_connections != 0)
     f.reset (new mssql::connection_pool_factory (max_connections));
 
-  db.reset (new mssql::database (argc, argv, false, "", 0, f));
+  db.reset (new mssql::database (argc, argv, false, "", 0,
+#ifdef HAVE_CXX11
+                                 move (f)
+#else
+                                 f
+#endif
+            ));
 #endif
 
   return db;
