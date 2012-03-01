@@ -2,9 +2,9 @@
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <cassert>
-
 #include <oci.h>
+
+#include <cassert>
 
 #include <odb/tracer.hxx>
 

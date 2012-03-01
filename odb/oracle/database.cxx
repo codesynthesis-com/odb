@@ -2,9 +2,9 @@
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <sstream>
-
 #include <oci.h>
+
+#include <sstream>
 
 #include <odb/oracle/database.hxx>
 #include <odb/oracle/exceptions.hxx>

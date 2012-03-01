@@ -2,10 +2,10 @@
 // copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <oci.h>
+
 #include <cstring> // std::strlen
 #include <cassert>
-
-#include <oci.h>
 
 #include <odb/tracer.hxx>
 #include <odb/exceptions.hxx> // object_not_persistent
