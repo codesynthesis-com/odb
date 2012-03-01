@@ -18,6 +18,8 @@ namespace odb
 {
   namespace mssql
   {
+    using odb::details::transfer_ptr;
+
     database::
     database (const std::string& user,
               const std::string& password,
@@ -26,7 +28,7 @@ namespace odb
               const std::string& driver,
               const std::string& extra_connect_string,
               SQLHENV environment,
-              std::auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : user_ (user),
           password_ (password),
           db_ (db),
@@ -36,7 +38,7 @@ namespace odb
           driver_ (driver),
           extra_connect_string_ (extra_connect_string),
           environment_ (environment),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       init ();
     }
@@ -51,7 +53,7 @@ namespace odb
               const std::string& driver,
               const std::string& extra_connect_string,
               SQLHENV environment,
-              std::auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : user_ (user),
           password_ (password),
           db_ (db),
@@ -62,7 +64,7 @@ namespace odb
           driver_ (driver),
           extra_connect_string_ (extra_connect_string),
           environment_ (environment),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       init ();
     }
@@ -76,7 +78,7 @@ namespace odb
               const std::string& driver,
               const std::string& extra_connect_string,
               SQLHENV environment,
-              std::auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : user_ (user),
           password_ (password),
           db_ (db),
@@ -86,7 +88,7 @@ namespace odb
           driver_ (driver),
           extra_connect_string_ (extra_connect_string),
           environment_ (environment),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       init ();
     }
@@ -94,12 +96,12 @@ namespace odb
     database::
     database (const string& connect_string,
               SQLHENV environment,
-              auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : protocol_ (protocol_auto),
           port_ (0),
           connect_string_ (connect_string),
           environment_ (environment),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       init ();
     }
@@ -110,12 +112,12 @@ namespace odb
               bool erase,
               const std::string& extra_connect_string,
               SQLHENV environment,
-              auto_ptr<connection_factory> factory)
+              transfer_ptr<connection_factory> factory)
         : protocol_ (protocol_auto),
           port_ (0),
           extra_connect_string_ (extra_connect_string),
           environment_ (environment),
-          factory_ (factory)
+          factory_ (factory.transfer ())
     {
       using namespace details;
 
