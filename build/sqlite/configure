@@ -10,12 +10,11 @@
 
 $echo
 $echo "Please enter the SQLite database file name. Note that it WILL"
-$echo "BE MODIFIED by the tests. If you do not specify a name, then a"
-$echo "temporary on-disk database will be created. You can also specify"
-$echo "':memory:' as a file name to use a temporary in-memory database."
+$echo "BE MODIFIED by the tests. You can also specify ':memory:' as a"
+$echo "file name to use a temporary in-memory database."
 $echo
 
-db=`read_value`
+db=`read_value "/tmp/odb-test.db"`
 
 opt=$dcf_root/db.options
 
