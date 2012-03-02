@@ -60,7 +60,7 @@ namespace odb
 
       conninfo_ = ss.str ();
 
-      if (factory_.get () == 0)
+      if (!factory_)
         factory_.reset (new connection_pool_factory ());
 
       factory_->database (*this);
@@ -108,7 +108,7 @@ namespace odb
 
       conninfo_ = ss.str ();
 
-      if (factory_.get () == 0)
+      if (!factory_)
         factory_.reset (new connection_pool_factory ());
 
       factory_->database (*this);
@@ -118,7 +118,7 @@ namespace odb
     database (const string& conninfo, transfer_ptr<connection_factory> factory)
         : port_ (0), conninfo_ (conninfo), factory_ (factory.transfer ())
     {
-      if (factory_.get () == 0)
+      if (!factory_)
         factory_.reset (new connection_pool_factory ());
 
       factory_->database (*this);
@@ -191,7 +191,7 @@ namespace odb
         throw cli_exception (oss.str ());
       }
 
-      if (factory_.get () == 0)
+      if (!factory_)
         factory_.reset (new connection_pool_factory ());
 
       factory_->database (*this);
