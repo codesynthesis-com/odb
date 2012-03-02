@@ -51,7 +51,7 @@ namespace odb
         auto_environment_.reset (environment_);
       }
 
-      if (factory_.get () == 0)
+      if (!factory_)
         factory_.reset (new connection_pool_factory ());
 
       factory_->database (*this);
@@ -111,7 +111,7 @@ namespace odb
 
       db_ = ss.str ();
 
-      if (factory_.get () == 0)
+      if (!factory_)
         factory_.reset (new connection_pool_factory ());
 
       factory_->database (*this);
@@ -210,7 +210,7 @@ namespace odb
         throw cli_exception (oss.str ());
       }
 
-      if (factory_.get () == 0)
+      if (!factory_)
         factory_.reset (new connection_pool_factory ());
 
       factory_->database (*this);
