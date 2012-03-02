@@ -442,7 +442,7 @@ namespace odb
           connect_string_ += extra_connect_string_;
       }
 
-      if (factory_.get () == 0)
+      if (!factory_)
         factory_.reset (new connection_pool_factory ());
 
       factory_->database (*this);
