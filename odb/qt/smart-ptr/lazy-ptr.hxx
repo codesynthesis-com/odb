@@ -167,7 +167,7 @@ public:
   template <class X>
   QLazySharedPointer (database_type&, const QWeakPointer<X>&);
 
-#ifdef ODB_CXX11
+#ifdef ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT
   template <class O = T>
 #else
   template <class O /* = T */>
@@ -339,7 +339,7 @@ public:
   // The objectId() function can only be called when the object is persistent,
   // or: toStrongRef().isNull() XOR loaded() (can use != for XOR).
   //
-#ifdef ODB_CXX11
+#ifdef ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT
   template <class O = T>
 #else
   template <class O /* = T */>
