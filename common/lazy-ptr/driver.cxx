@@ -12,6 +12,7 @@
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
+#include <odb/details/config.hxx> // ODB_CXX11_*
 
 #include <common/common.hxx>
 
@@ -116,7 +117,7 @@ main (int argc, char* argv[])
 
         // Correct object ids.
         //
-#ifdef HAVE_CXX11
+#if defined(HAVE_CXX11) && defined(ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT)
         assert (c->o[0].object_id () == o->id);
         assert (o->c.object_id () == c->id);
 #else
@@ -196,7 +197,7 @@ main (int argc, char* argv[])
 
         // Correct object ids.
         //
-#ifdef HAVE_CXX11
+#if defined(HAVE_CXX11) && defined(ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT)
         assert (c->o.object_id () == o->id);
         assert (o->c.object_id () == c->id);
 #else
@@ -320,7 +321,7 @@ main (int argc, char* argv[])
 
         // Correct object ids.
         //
-#ifdef HAVE_CXX11
+#if defined(HAVE_CXX11) && defined(ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT)
         assert (c->o[0].object_id () == o->id);
         assert (o->c.object_id () == c->id);
 #else
@@ -352,7 +353,7 @@ main (int argc, char* argv[])
         lazy_shared_ptr<obj> l (c->o[1].lock ());
         assert (!l.loaded ());
 
-#ifdef HAVE_CXX11
+#if defined(HAVE_CXX11) && defined(ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT)
         assert (l.object_id () == c->o[1].object_id ());
 #else
         assert (l.object_id<obj> () == c->o[1].object_id<obj> ());

@@ -12,7 +12,8 @@
 
 /* VC++10 has C++11 always enabled.
  */
-#if _MSC_VER >= 1600
+#if (defined(_MSC_VER) && _MSC_VER >= 1600) || \
+    (defined(ODB_MSC_VER) && ODB_MSC_VER >= 1600)
 #  define HAVE_CXX11
 #endif
 

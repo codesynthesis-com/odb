@@ -349,7 +349,7 @@ m4_ifelse(__value__(odb_options),,,
 __file_entry_custom_build__(
 test.hxx,
 odb test.hxx,
-odb.exe __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options), @database@, __value__(database)) -DHAVE_CONFIG_VC_H -I$(SolutionDir)\..\libcommon)) test.hxx,
+odb.exe __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options), @database@, __value__(database)) -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1500 -I$(SolutionDir)\..\libcommon)) test.hxx,
 test-odb.hxx;test-odb.ixx;test-odb.cxx)
 __file_entry__(test-odb.hxx)
 __file_entry__(test-odb.ixx))

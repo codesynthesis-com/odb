@@ -24,5 +24,9 @@ ODB = @ODB@
 ODBFLAGS = @ODBFLAGS@
 ODBCPPFLAGS = @ODBCPPFLAGS@
 
+if HAVE_CXX11
+ODBFLAGS += --std c++11
+endif
+
 test-odb.hxx: test.hxx
 	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options) $<
