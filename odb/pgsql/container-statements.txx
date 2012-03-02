@@ -70,7 +70,9 @@ namespace odb
                    0,
                    sizeof (select_image_truncated_array_));
 
-      for (std::size_t i (0); i < traits::data_column_count; ++i)
+      for (std::size_t i (0);
+           i < traits::data_column_count - traits::id_column_count;
+           ++i)
         data_image_bind_[i + traits::id_column_count].truncated =
           select_image_truncated_array_ + i;
 
