@@ -453,8 +453,8 @@ main (int argc, char* argv[])
       // unordered_set
       //
       full.nus.insert (4567);
-      full.sus.insert ("ddddddd");
-      full.cus.insert (comp (4567, "ddddddd"));
+      full.sus.insert ("ddddddd1"); // 1 is to preserve order in VC++ 10.
+      full.cus.insert (comp (4567, "ddddddd1"));
 
       // unordered_map
       //
@@ -462,14 +462,14 @@ main (int argc, char* argv[])
       full.nsum[4567] = "ddddddd";
 
       full.snum["cccccc"]++;
-      full.snum["ddddddd"] = 4567;
+      full.snum["ddddddd1"] = 4567;
 
       full.ncum[3456].num++;
       full.ncum[3456].str += 'c';
       full.ncum[4567] = comp (4567, "ddddddd");
 
       full.csum[comp (3456, "cccccc")] += "c";
-      full.csum[comp (4567, "ddddddd")] = "ddddddd";
+      full.csum[comp (4567, "ddddddd1")] = "ddddddd";
 #endif
 
       // update
