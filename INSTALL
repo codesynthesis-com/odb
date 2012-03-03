@@ -90,6 +90,12 @@ C++ compiler and compiles with optimization and without debug information:
 
 ./configure CXX=g++-4.5 CXXFLAGS=-O3
 
+If you would like to build the tests in the C++11 mode, then you will need
+to pass the necessary options to turn the C++ compiler into this mode. For
+example:
+
+./configure CXXFLAGS=-std=c++0x
+
 Once configuration is complete, run make to build the tests:
 
 make
@@ -136,7 +142,8 @@ boost\<database>\, and qt\<database>\ directories they are named in
 the form <database>-vc<N>.sln. Here <N> is the version of Visual Studio
 that you are using. Once each solution is open, select the desired build
 configuration (Debug or Release) and platform (Win32 or x64) and build the
-solution.
+solution. Note that with Visual Studio 10 (2010) and later the tests are
+built in the C++11 mode.
 
 Alternatively, you can use the build.bat batch files located in the
 odb-tests\, odb-tests\boost\, and odb-tests\qt\ directories to build all
