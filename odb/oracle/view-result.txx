@@ -24,6 +24,9 @@ namespace odb
       }
 
       delete image_copy_;
+
+      if (!this->end_)
+        statement_->free_result ();
     }
 
     template <typename T>
@@ -87,7 +90,10 @@ namespace odb
       }
 
       if (statement_->fetch () == select_statement::no_data)
+      {
+        statement_->free_result ();
         this->end_ = true;
+      }
       else
       {
         cc.callback = &change_callback;

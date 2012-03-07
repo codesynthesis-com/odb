@@ -192,6 +192,19 @@ namespace odb
       bool done_;
     };
 
+    struct LIBODB_ORACLE_EXPORT auto_result
+    {
+      explicit auto_result (select_statement& s): s_ (s) {}
+      ~auto_result () {s_.free_result ();}
+
+    private:
+      auto_result (const auto_result&);
+      auto_result& operator= (const auto_result&);
+
+    private:
+      select_statement& s_;
+    };
+
     class LIBODB_ORACLE_EXPORT insert_statement: public statement
     {
     public:

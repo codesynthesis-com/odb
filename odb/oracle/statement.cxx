@@ -1337,9 +1337,6 @@ namespace odb
     void select_statement::
     execute ()
     {
-      if (!done_)
-        free_result ();
-
       {
         odb::tracer* t;
         if ((t = conn_.transaction_tracer ()) ||
