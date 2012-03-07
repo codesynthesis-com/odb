@@ -209,6 +209,19 @@ namespace odb
       std::size_t current_row_;
     };
 
+    struct LIBODB_PGSQL_EXPORT auto_result
+    {
+      explicit auto_result (select_statement& s): s_ (s) {}
+      ~auto_result () {s_.free_result ();}
+
+    private:
+      auto_result (const auto_result&);
+      auto_result& operator= (const auto_result&);
+
+    private:
+      select_statement& s_;
+    };
+
     class LIBODB_PGSQL_EXPORT insert_statement: public statement
     {
     public:

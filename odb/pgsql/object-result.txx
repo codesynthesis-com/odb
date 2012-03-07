@@ -20,6 +20,8 @@ namespace odb
     object_result_impl<T>::
     ~object_result_impl ()
     {
+      if (!this->end_)
+        statement_->free_result ();
     }
 
     template <typename T>
@@ -87,7 +89,10 @@ namespace odb
       this->current (pointer_type ());
 
       if (!statement_->next ())
+      {
+        statement_->free_result ();
         this->end_ = true;
+      }
     }
 
     template <typename T>
@@ -146,6 +151,8 @@ namespace odb
     object_result_impl_no_id<T>::
     ~object_result_impl_no_id ()
     {
+      if (!this->end_)
+        statement_->free_result ();
     }
 
     template <typename T>
@@ -207,7 +214,10 @@ namespace odb
       this->current (pointer_type ());
 
       if (!statement_->next ())
+      {
+        statement_->free_result ();
         this->end_ = true;
+      }
     }
 
     template <typename T>
