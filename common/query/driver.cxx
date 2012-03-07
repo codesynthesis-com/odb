@@ -513,6 +513,25 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
+
+    // Test empty result set.
+    //
+    cout << "test 018" << endl;
+    {
+      {
+        transaction t (db->begin ());
+        result r (db->query<person> (query::last_name == "None"));
+        assert (r.empty ());
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        result r (db->query<person> (query::last_name == "None"));
+        assert (r.begin () == r.end ());
+        t.commit ();
+      }
+    }
   }
   catch (const odb::exception& e)
   {

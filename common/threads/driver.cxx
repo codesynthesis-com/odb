@@ -42,7 +42,7 @@ struct task
   {
   }
 
-  void
+  void*
   execute ()
   {
     try
@@ -121,24 +121,31 @@ struct task
         }
       }
     }
+    catch (int)
+    {
+    }
+    /*
     catch (const odb::exception& e)
     {
       cerr << e.what () << endl;
+      return reinterpret_cast<void*> (1);
     }
+    */
+
+    return 0;
   }
 
   static void*
   execute (void* arg)
   {
-    static_cast<task*> (arg)->execute ();
-    return 0;
+    return static_cast<task*> (arg)->execute ();
   }
 
   database& db_;
   unsigned long n_;
 };
 
-void
+bool
 test (int argc, char* argv[], size_t max_connections)
 {
   auto_ptr<database> db (create_database (argc, argv, true, max_connections));
@@ -156,8 +163,11 @@ test (int argc, char* argv[], size_t max_connections)
         new (details::shared) details::thread (&task::execute, t.get ())));
   }
 
+  bool r (true);
+
   for (unsigned long i (0); i < thread_count; ++i)
-    threads[i]->join ();
+    if (threads[i]->join () != 0)
+      r = false;
 
   {
     typedef odb::result<object> result;
@@ -170,6 +180,8 @@ test (int argc, char* argv[], size_t max_connections)
 
     t.commit ();
   }
+
+  return r;
 }
 
 int
@@ -177,10 +189,11 @@ main (int argc, char* argv[])
 {
   try
   {
-    test (argc, argv, 0);
-    test (argc, argv, thread_count - 1);
-    test (argc, argv, thread_count / 2);
-    test (argc, argv, thread_count / 4);
+    if (!(test (argc, argv, 0) &&
+          test (argc, argv, thread_count - 1) &&
+          test (argc, argv, thread_count / 2) &&
+          test (argc, argv, thread_count / 4)))
+      return 1;
   }
   catch (const odb::exception& e)
   {
