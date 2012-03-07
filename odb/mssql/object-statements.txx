@@ -87,6 +87,10 @@ namespace odb
         if (!object_traits::find_ (*this, l.id))
           throw object_not_persistent ();
 
+        // Our find_() version delays result freeing.
+        //
+        auto_result ar (*find_);
+
         object_traits::callback (db, *l.obj, callback_event::pre_load);
 
         // Our calls to init/load below can result in additional delayed
@@ -95,7 +99,7 @@ namespace odb
         //
         object_traits::init (*l.obj, image (), &db);
         find_->stream_result ();
-        find_->free_result (); // Our find_() version delays result freeing.
+        ar.free ();
         object_traits::load_ (*this, *l.obj); // Load containers, etc.
 
         if (!delayed_.empty ())

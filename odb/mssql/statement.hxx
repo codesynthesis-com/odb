@@ -147,7 +147,39 @@ namespace odb
     private:
       binding& result_;
       std::size_t first_long_; // First long data column.
-      bool executed_;
+    };
+
+    struct LIBODB_MSSQL_EXPORT auto_result
+    {
+      explicit auto_result (select_statement& s): s_ (&s) {}
+      ~auto_result () {free ();}
+
+      // Extended interface to support delayed freeing.
+      //
+      auto_result (): s_ (0) {}
+
+      void
+      set (select_statement& s) {s_ = &s;}
+
+      void
+      free ()
+      {
+        if (s_ != 0)
+        {
+          s_->free_result ();
+          s_ = 0;
+        }
+      }
+
+      void
+      release () {s_ = 0;}
+
+    private:
+      auto_result (const auto_result&);
+      auto_result& operator= (const auto_result&);
+
+    private:
+      select_statement* s_;
     };
 
     class LIBODB_MSSQL_EXPORT insert_statement: public statement

@@ -694,13 +694,17 @@ namespace odb
     //
     // select_statement
     //
+    select_statement::
+    ~select_statement ()
+    {
+    }
 
     select_statement::
     select_statement (connection& conn,
                       const string& t,
                       binding& param,
                       binding& result)
-        : statement (conn, t), result_ (result), executed_ (false)
+        : statement (conn, t), result_ (result)
     {
       bind_param (param.bind, param.count);
       first_long_ = bind_result (result.bind, result.count);
@@ -712,7 +716,7 @@ namespace odb
                       binding& param,
                       binding& result,
                       bool ct)
-        : statement (conn, t, ct), result_ (result), executed_ (false)
+        : statement (conn, t, ct), result_ (result)
     {
       bind_param (param.bind, param.count);
       first_long_ = bind_result (result.bind, result.count);
@@ -720,7 +724,7 @@ namespace odb
 
     select_statement::
     select_statement (connection& conn, const string& t, binding& result)
-        : statement (conn, t), result_ (result), executed_ (false)
+        : statement (conn, t), result_ (result)
     {
       first_long_ = bind_result (result.bind, result.count);
     }
@@ -730,38 +734,18 @@ namespace odb
                       const char* t,
                       binding& result,
                       bool ct)
-        : statement (conn, t, ct), result_ (result), executed_ (false)
+        : statement (conn, t, ct), result_ (result)
     {
       first_long_ = bind_result (result.bind, result.count);
-    }
-
-    select_statement::
-    ~select_statement ()
-    {
-      if (executed_)
-      {
-        try
-        {
-          free_result ();
-        }
-        catch (...)
-        {
-        }
-      }
     }
 
     void select_statement::
     execute ()
     {
-      if (executed_)
-        free_result ();
-
       SQLRETURN r (statement::execute ());
 
       if (!SQL_SUCCEEDED (r))
         translate_error (r, conn_, stmt_);
-
-      executed_ = true;
     }
 
     select_statement::result select_statement::
@@ -786,17 +770,16 @@ namespace odb
     void select_statement::
     free_result ()
     {
-      if (executed_)
-      {
-        // If we cannot close the cursor, there is no point in trying again.
-        //
-        executed_ = false;
+      // Use SQLFreeStmt(SQL_CLOSE) instead of SQLCloseCursor() to avoid an
+      // error if a cursor is already closed. This can happens, for example,
+      // if we are trying to close the cursor after the transaction has been
+      // committed (e.g., when destroying the query result) which also closes
+      // the cursor.
+      //
+      SQLRETURN r (SQLFreeStmt (stmt_, SQL_CLOSE));
 
-        SQLRETURN r (SQLCloseCursor (stmt_));
-
-        if (!SQL_SUCCEEDED (r))
-          translate_error (r, conn_, stmt_);
-      }
+      if (!SQL_SUCCEEDED (r))
+        translate_error (r, conn_, stmt_);
     }
 
     //

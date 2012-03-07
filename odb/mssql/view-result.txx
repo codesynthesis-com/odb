@@ -24,6 +24,9 @@ namespace odb
         cc.context = 0;
       }
 
+      if (!this->end_)
+        statement_->free_result ();
+
       delete image_copy_;
     }
 
@@ -92,7 +95,10 @@ namespace odb
       }
 
       if (statement_->fetch () == select_statement::no_data)
+      {
+        statement_->free_result ();
         this->end_ = true;
+      }
       else
       {
         cc.callback = &change_callback;
