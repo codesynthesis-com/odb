@@ -61,17 +61,17 @@ create_database (int& argc,
 {
   if (argc > 1 && argv[1] == string ("--help"))
   {
-    cerr << "Usage: " << argv[0] << " [options]" << endl
+    cout << "Usage: " << argv[0] << " [options]" << endl
          << "Options:" << endl;
 
 #if defined(DATABASE_MYSQL)
-    mysql::database::print_usage (cerr);
+    mysql::database::print_usage (cout);
 #elif defined(DATABASE_SQLITE)
-    sqlite::database::print_usage (cerr);
+    sqlite::database::print_usage (cout);
 #elif defined(DATABASE_PGSQL)
-    pgsql::database::print_usage (cerr);
+    pgsql::database::print_usage (cout);
 #elif defined(DATABASE_ORAClE)
-    oracle::database::print_usage (cerr);
+    oracle::database::print_usage (cout);
 #endif
 
     exit (0);
