@@ -1,4 +1,4 @@
-// file      : odb/mssql/view-result.txx
+// file      : odb/mssql/no-id-object-result.txx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
@@ -6,22 +6,22 @@
 #include <odb/exceptions.hxx> // result_not_cached
 
 #include <odb/mssql/exceptions.hxx> // long_data_reload
-#include <odb/mssql/view-statements.hxx>
+#include <odb/mssql/no-id-object-statements.hxx>
 
 namespace odb
 {
   namespace mssql
   {
     template <typename T>
-    view_result_impl<T>::
-    ~view_result_impl ()
+    no_id_object_result_impl<T>::
+    ~no_id_object_result_impl ()
     {
       change_callback_type& cc (statements_.image ().change_callback_);
 
       if (cc.context == this)
       {
-        cc.callback = 0;
         cc.context = 0;
+        cc.callback = 0;
       }
 
       if (!this->end_)
@@ -31,10 +31,10 @@ namespace odb
     }
 
     template <typename T>
-    view_result_impl<T>::
-    view_result_impl (const query&,
-                      details::shared_ptr<select_statement> statement,
-                      statements_type& statements)
+    no_id_object_result_impl<T>::
+    no_id_object_result_impl (const query&,
+                              details::shared_ptr<select_statement> statement,
+                              statements_type& statements)
         : base_type (statements.connection ().database ()),
           statement_ (statement),
           statements_ (statements),
@@ -44,19 +44,19 @@ namespace odb
     }
 
     template <typename T>
-    void view_result_impl<T>::
-    load (view_type& view)
+    void no_id_object_result_impl<T>::
+    load (object_type& obj)
     {
       if (!can_load_)
         throw long_data_reload ();
 
       odb::database& db (this->database ());
 
-      view_traits::callback (db, view, callback_event::pre_load);
+      object_traits::callback (db, obj, callback_event::pre_load);
 
-      view_traits::init (view,
-                         use_copy_ ? *image_copy_ : statements_.image (),
-                         &db);
+      object_traits::init (obj,
+                           use_copy_ ? *image_copy_ : statements_.image (),
+                           &db);
 
       // If we are using a copy, make sure the callback information for
       // long data also comes from the copy.
@@ -65,17 +65,17 @@ namespace odb
         use_copy_ ? &statements_.image () : 0,
         use_copy_ ? image_copy_ : 0);
 
-      view_traits::callback (db, view, callback_event::post_load);
+      object_traits::callback (db, obj, callback_event::post_load);
     }
 
     template <typename T>
-    void view_result_impl<T>::
+    void no_id_object_result_impl<T>::
     next ()
     {
       can_load_ = true;
       this->current (pointer_type ());
 
-      typename view_traits::image_type& im (statements_.image ());
+      typename object_traits::image_type& im (statements_.image ());
       change_callback_type& cc (im.change_callback_);
 
       if (cc.context == this)
@@ -86,11 +86,11 @@ namespace odb
 
       use_copy_ = false;
 
-      if (im.version != statements_.image_version ())
+      if (im.version != statements_.select_image_version ())
       {
-        binding& b (statements_.image_binding ());
-        view_traits::bind (b.bind, im);
-        statements_.image_version (im.version);
+        binding& b (statements_.select_image_binding ());
+        object_traits::bind (b.bind, im, statement_select);
+        statements_.select_image_version (im.version);
         b.version++;
       }
 
@@ -107,28 +107,29 @@ namespace odb
     }
 
     template <typename T>
-    void view_result_impl<T>::
+    void no_id_object_result_impl<T>::
     cache ()
     {
     }
 
     template <typename T>
-    std::size_t view_result_impl<T>::
+    std::size_t no_id_object_result_impl<T>::
     size ()
     {
       throw result_not_cached ();
     }
 
     template <typename T>
-    void view_result_impl<T>::
+    void no_id_object_result_impl<T>::
     change_callback (void* c)
     {
-      view_result_impl<T>* r (static_cast<view_result_impl<T>*> (c));
+      no_id_object_result_impl<T>* r (
+        static_cast<no_id_object_result_impl<T>*> (c));
 
-      typename view_traits::image_type& im (r->statements_.image ());
+      typename object_traits::image_type im (r->statements_.image ());
 
       if (r->image_copy_ == 0)
-        r->image_copy_ = new typename view_traits::image_type (im);
+        r->image_copy_ = new typename object_traits::image_type (im);
       else
         *r->image_copy_ = im;
 

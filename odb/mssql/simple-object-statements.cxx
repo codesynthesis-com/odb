@@ -1,8 +1,8 @@
-// file      : odb/mssql/object-statements.cxx
+// file      : odb/mssql/simple-object-statements.cxx
 // copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <odb/mssql/object-statements.hxx>
+#include <odb/mssql/simple-object-statements.hxx>
 
 namespace odb
 {
