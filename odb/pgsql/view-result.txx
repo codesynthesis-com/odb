@@ -22,7 +22,7 @@ namespace odb
     view_result_impl<T>::
     view_result_impl (const query&,
                       details::shared_ptr<select_statement> statement,
-                      view_statements<view_type>& statements)
+                      statements_type& statements)
         : base_type (statements.connection ().database ()),
           statement_ (statement),
           statements_ (statements)

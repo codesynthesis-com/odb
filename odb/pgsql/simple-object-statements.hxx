@@ -1,9 +1,9 @@
-// file      : odb/pgsql/object-statements.hxx
+// file      : odb/pgsql/simple-object-statements.hxx
 // copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#ifndef ODB_PGSQL_OBJECT_STATEMENTS_HXX
-#define ODB_PGSQL_OBJECT_STATEMENTS_HXX
+#ifndef ODB_PGSQL_SIMPLE_OBJECT_STATEMENTS_HXX
+#define ODB_PGSQL_SIMPLE_OBJECT_STATEMENTS_HXX
 
 #include <odb/pre.hxx>
 
@@ -18,6 +18,8 @@
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
+#include <odb/pgsql/forward.hxx>
+#include <odb/pgsql/pgsql-types.hxx>
 #include <odb/pgsql/binding.hxx>
 #include <odb/pgsql/statement.hxx>
 #include <odb/pgsql/statements-base.hxx>
@@ -28,24 +30,6 @@ namespace odb
 {
   namespace pgsql
   {
-    template <typename T>
-    class object_statements;
-
-    template <typename T>
-    class object_statements_no_id;
-
-    template <typename T, typename ID = typename object_traits<T>::id_type>
-    struct object_statements_selector
-    {
-      typedef object_statements<T> type;
-    };
-
-    template <typename T>
-    struct object_statements_selector<T, void>
-    {
-      typedef object_statements_no_id<T> type;
-    };
-
     //
     // Implementation for objects with object id.
     //
@@ -75,16 +59,6 @@ namespace odb
         return locked_;
       }
 
-    public:
-      virtual
-      ~object_statements_base ();
-
-    protected:
-      object_statements_base (connection_type& conn)
-        : statements_base (conn), locked_ (false)
-      {
-      }
-
       struct auto_unlock
       {
         // Unlocks the statement on construction and re-locks it on
@@ -100,6 +74,16 @@ namespace odb
       private:
         object_statements_base& s_;
       };
+
+    public:
+      virtual
+      ~object_statements_base ();
+
+    protected:
+      object_statements_base (connection_type& conn)
+        : statements_base (conn), locked_ (false)
+      {
+      }
 
     protected:
       bool locked_;
@@ -142,7 +126,9 @@ namespace odb
       typedef typename object_traits::image_type image_type;
       typedef typename object_traits::id_image_type id_image_type;
 
-      typedef pointer_cache_traits<pointer_type> object_cache_traits;
+      typedef
+      typename object_traits::pointer_cache_traits
+      pointer_cache_traits;
 
       typedef
       typename object_traits::container_statement_cache_type
@@ -196,12 +182,16 @@ namespace odb
 
       // Delayed loading.
       //
+      typedef void (*loader_function) (
+        odb::database&, const id_type&, object_type&);
+
       void
       delay_load (const id_type& id,
                   object_type& obj,
-                  const typename object_cache_traits::position_type& p)
+                  const typename pointer_cache_traits::position_type& p,
+                  loader_function l = 0)
       {
-        delayed_.push_back (delayed_load (id, obj, p));
+        delayed_.push_back (delayed_load (id, obj, p, l));
       }
 
       void
@@ -298,7 +288,6 @@ namespace odb
       persist_statement ()
       {
         if (persist_ == 0)
-        {
           persist_.reset (
             new (details::shared) insert_statement_type (
               conn_,
@@ -310,7 +299,6 @@ namespace odb
               insert_image_native_binding_,
               object_traits::auto_id,
               false));
-        }
 
         return *persist_;
       }
@@ -319,7 +307,6 @@ namespace odb
       find_statement ()
       {
         if (find_ == 0)
-        {
           find_.reset (
             new (details::shared) select_statement_type (
               conn_,
@@ -331,7 +318,6 @@ namespace odb
               id_image_native_binding_,
               select_image_binding_,
               false));
-        }
 
         return *find_;
       }
@@ -340,7 +326,6 @@ namespace odb
       update_statement ()
       {
         if (update_ == 0)
-        {
           update_.reset (
             new (details::shared) update_statement_type (
               conn_,
@@ -351,7 +336,6 @@ namespace odb
               update_image_binding_,
               update_image_native_binding_,
               false));
-        }
 
         return *update_;
       }
@@ -360,18 +344,16 @@ namespace odb
       erase_statement ()
       {
         if (erase_ == 0)
-        {
           erase_.reset (
             new (details::shared) delete_statement_type (
               conn_,
               object_traits::erase_statement_name,
               object_traits::erase_statement,
-              object_traits::erase_statement_types,
+              object_traits::find_statement_types, // The same as find (id).
               id_column_count,
               id_image_binding_,
               id_image_native_binding_,
               false));
-        }
 
         return *erase_;
       }
@@ -380,7 +362,6 @@ namespace odb
       optimistic_erase_statement ()
       {
         if (od_.erase_ == 0)
-        {
           od_.erase_.reset (
             new (details::shared) delete_statement_type (
               conn_,
@@ -391,7 +372,6 @@ namespace odb
               od_.id_image_binding_,
               od_.id_image_native_binding_,
               false));
-        }
 
         return *od_.erase_;
       }
@@ -404,18 +384,7 @@ namespace odb
         return container_statement_cache_;
       }
 
-    private:
-      object_statements (const object_statements&);
-      object_statements& operator= (const object_statements&);
-
-    private:
-      void
-      load_delayed_ ();
-
-      void
-      clear_delayed_ ();
-
-    private:
+    public:
       // select = total
       // insert = total - inverse - managed_optimistic
       // update = total - inverse - managed_optimistic - id - readonly
@@ -437,6 +406,17 @@ namespace odb
         object_traits::managed_optimistic_column_count;
 
     private:
+      object_statements (const object_statements&);
+      object_statements& operator= (const object_statements&);
+
+    private:
+      void
+      load_delayed_ ();
+
+      void
+      clear_delayed_ ();
+
+    protected:
       container_statement_cache_type container_statement_cache_;
 
       image_type image_;
@@ -500,17 +480,21 @@ namespace odb
       //
       struct delayed_load
       {
-        typedef typename object_cache_traits::position_type position_type;
+        typedef typename pointer_cache_traits::position_type position_type;
 
         delayed_load () {}
-        delayed_load (const id_type& i, object_type& o, const position_type& p)
-            : id (i), obj (&o), pos (p)
+        delayed_load (const id_type& i,
+                      object_type& o,
+                      const position_type& p,
+                      loader_function l)
+            : id (i), obj (&o), pos (p), loader (l)
         {
         }
 
         id_type id;
         object_type* obj;
         position_type pos;
+        loader_function loader;
       };
 
       typedef std::vector<delayed_load> delayed_loads;
@@ -538,123 +522,12 @@ namespace odb
         delayed_loads& dl_;
       };
     };
-
-    //
-    // Implementation for objects without object id.
-    //
-
-    template <typename T>
-    class object_statements_no_id: public statements_base
-    {
-    public:
-      typedef T object_type;
-      typedef odb::object_traits<object_type> object_traits;
-      typedef typename object_traits::pointer_type pointer_type;
-      typedef typename object_traits::image_type image_type;
-
-      typedef pgsql::insert_statement insert_statement_type;
-
-    public:
-      object_statements_no_id (connection_type&);
-
-      virtual
-      ~object_statements_no_id ();
-
-      // Object image.
-      //
-      image_type&
-      image () {return image_;}
-
-      // Insert binding.
-      //
-      std::size_t
-      insert_image_version () const { return insert_image_version_;}
-
-      void
-      insert_image_version (std::size_t v) {insert_image_version_ = v;}
-
-      binding&
-      insert_image_binding () {return insert_image_binding_;}
-
-      // Select binding (needed for query support).
-      //
-      std::size_t
-      select_image_version () const { return select_image_version_;}
-
-      void
-      select_image_version (std::size_t v) {select_image_version_ = v;}
-
-      binding&
-      select_image_binding () {return select_image_binding_;}
-
-      bool*
-      select_image_truncated () {return select_image_truncated_;}
-
-      // Statements.
-      //
-      insert_statement_type&
-      persist_statement ()
-      {
-        if (persist_ == 0)
-        {
-          persist_.reset (
-            new (details::shared) insert_statement_type (
-              conn_,
-              object_traits::persist_statement_name,
-              object_traits::persist_statement,
-              object_traits::persist_statement_types,
-              insert_column_count,
-              insert_image_binding_,
-              insert_image_native_binding_,
-              false,
-              false));
-        }
-
-        return *persist_;
-      }
-
-    private:
-      object_statements_no_id (const object_statements_no_id&);
-      object_statements_no_id& operator= (const object_statements_no_id&);
-
-    private:
-      // select = total
-      // insert = total - inverse; inverse == 0 for object without id
-      //
-      static const std::size_t insert_column_count =
-        object_traits::column_count;
-
-      static const std::size_t select_column_count =
-        object_traits::column_count;
-
-    private:
-      image_type image_;
-
-      // Select binding.
-      //
-      std::size_t select_image_version_;
-      binding select_image_binding_;
-      bind select_image_bind_[select_column_count];
-      bool select_image_truncated_[select_column_count];
-
-      // Insert binding.
-      //
-      std::size_t insert_image_version_;
-      binding insert_image_binding_;
-      bind insert_image_bind_[insert_column_count];
-      native_binding insert_image_native_binding_;
-      char* insert_image_values_[insert_column_count];
-      int insert_image_lengths_[insert_column_count];
-      int insert_image_formats_[insert_column_count];
-
-      details::shared_ptr<insert_statement_type> persist_;
-    };
   }
 }
 
-#include <odb/pgsql/object-statements.ixx>
-#include <odb/pgsql/object-statements.txx>
+#include <odb/pgsql/simple-object-statements.ixx>
+#include <odb/pgsql/simple-object-statements.txx>
 
 #include <odb/post.hxx>
 
-#endif // ODB_PGSQL_OBJECT_STATEMENTS_HXX
+#endif // ODB_PGSQL_SIMPLE_OBJECT_STATEMENTS_HXX

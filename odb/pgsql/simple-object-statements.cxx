@@ -1,8 +1,8 @@
-// file      : odb/pgsql/object-statements.cxx
+// file      : odb/pgsql/simple-object-statements.cxx
 // copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <odb/pgsql/object-statements.hxx>
+#include <odb/pgsql/simple-object-statements.hxx>
 
 namespace odb
 {

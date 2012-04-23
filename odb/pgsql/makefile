@@ -4,22 +4,22 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-cxx :=                    \
-auto-handle.cxx           \
-connection.cxx            \
-connection-factory.cxx    \
-database.cxx              \
-error.cxx                 \
-exceptions.cxx            \
-object-statements.cxx     \
-statement.cxx             \
-statements-base.cxx       \
-tracer.cxx                \
-traits.cxx                \
-transaction.cxx           \
-transaction-impl.cxx      \
-query.cxx                 \
-query-const-expr.cxx      \
+cxx :=                       \
+auto-handle.cxx              \
+connection.cxx               \
+connection-factory.cxx       \
+database.cxx                 \
+error.cxx                    \
+exceptions.cxx               \
+query.cxx                    \
+query-const-expr.cxx         \
+simple-object-statements.cxx \
+statement.cxx                \
+statements-base.cxx          \
+tracer.cxx                   \
+traits.cxx                   \
+transaction.cxx              \
+transaction-impl.cxx         \
 details/endian-traits.cxx
 
 cli_tun := details/options.cli

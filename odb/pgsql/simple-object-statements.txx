@@ -1,8 +1,7 @@
-// file      : odb/pgsql/object-statements.txx
+// file      : odb/pgsql/simple-object-statements.txx
 // copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <cstddef> // std::size_t
 #include <cstring> // std::memset
 
 #include <odb/session.hxx>
@@ -111,36 +110,41 @@ namespace odb
       while (!dls.empty ())
       {
         delayed_load l (dls.back ());
-        typename object_cache_traits::insert_guard g (l.pos);
+        typename pointer_cache_traits::insert_guard g (l.pos);
         dls.pop_back ();
 
-        if (!object_traits::find_ (*this, l.id))
-          throw object_not_persistent ();
-
-        object_traits::callback (db, *l.obj, callback_event::pre_load);
-
-        // Our calls to init/load below can result in additional delayed
-        // loads being added to the delayed_ vector. We need to process
-        // those before we call the post callback.
-        //
-        object_traits::init (*l.obj, image (), &db);
-        object_traits::load_ (*this, *l.obj); // Load containers, etc.
-
-        if (!delayed_.empty ())
-          load_delayed_ ();
-
-        // Temporarily unlock the statement for the post_load call so that
-        // it can load objects of this type recursively. This is safe to do
-        // because we have completely loaded the current object. Also the
-        // delayed_ list is clear before the unlock and should be clear on
-        // re-lock (since a callback can only call public API functions
-        // which will make sure all the delayed loads are processed before
-        // returning).
-        //
+        if (l.loader == 0)
         {
-          auto_unlock u (*this);
-          object_traits::callback (db, *l.obj, callback_event::post_load);
+          if (!object_traits::find_ (*this, &l.id))
+            throw object_not_persistent ();
+
+          object_traits::callback (db, *l.obj, callback_event::pre_load);
+
+          // Our calls to init/load below can result in additional delayed
+          // loads being added to the delayed_ vector. We need to process
+          // those before we call the post callback.
+          //
+          object_traits::init (*l.obj, image (), &db);
+          object_traits::load_ (*this, *l.obj); // Load containers, etc.
+
+          if (!delayed_.empty ())
+            load_delayed_ ();
+
+          // Temporarily unlock the statement for the post_load call so that
+          // it can load objects of this type recursively. This is safe to do
+          // because we have completely loaded the current object. Also the
+          // delayed_ list is clear before the unlock and should be clear on
+          // re-lock (since a callback can only call public API functions
+          // which will make sure all the delayed loads are processed before
+          // returning).
+          //
+          {
+            auto_unlock u (*this);
+            object_traits::callback (db, *l.obj, callback_event::post_load);
+          }
         }
+        else
+          l.loader (db, l.id, *l.obj);
 
         g.release ();
       }
@@ -157,47 +161,11 @@ namespace odb
         for (typename delayed_loads::iterator i (delayed_.begin ()),
                e (delayed_.end ()); i != e; ++i)
         {
-          object_cache_traits::erase (i->pos);
+          pointer_cache_traits::erase (i->pos);
         }
       }
 
       delayed_.clear ();
-    }
-
-    //
-    // object_statements_no_id
-    //
-
-    template <typename T>
-    object_statements_no_id<T>::
-    ~object_statements_no_id ()
-    {
-    }
-
-    template <typename T>
-    object_statements_no_id<T>::
-    object_statements_no_id (connection_type& conn)
-        : statements_base (conn),
-          // select
-          select_image_binding_ (select_image_bind_, select_column_count),
-          // insert
-          insert_image_binding_ (insert_image_bind_, insert_column_count),
-          insert_image_native_binding_ (insert_image_values_,
-                                        insert_image_lengths_,
-                                        insert_image_formats_,
-                                        insert_column_count)
-    {
-      image_.version = 0;
-      select_image_version_ = 0;
-      insert_image_version_ = 0;
-
-      std::memset (insert_image_bind_, 0, sizeof (insert_image_bind_));
-      std::memset (select_image_bind_, 0, sizeof (select_image_bind_));
-      std::memset (
-        select_image_truncated_, 0, sizeof (select_image_truncated_));
-
-      for (std::size_t i (0); i < select_column_count; ++i)
-        select_image_bind_[i].truncated = select_image_truncated_ + i;
     }
   }
 }
