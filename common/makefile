@@ -24,6 +24,7 @@ lazy-ptr            \
 lifecycle           \
 no-id               \
 optimistic          \
+polymorphism        \
 pragma              \
 query               \
 readonly            \

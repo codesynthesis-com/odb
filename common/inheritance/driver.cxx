@@ -161,6 +161,23 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
+
+    // views
+    //
+    {
+      typedef odb::query<object2_view> query;
+      typedef odb::result<object2_view> result;
+
+      transaction t (db->begin ());
+
+      result r (db->query<object2_view> (query::num == o2.num_));
+      result::iterator i (r.begin ());
+      assert (i != r.end () &&
+              i->num == o2.num_ && i->id == o2.id_ && i->str == o2.str_);
+      assert (++i == r.end ());
+
+      t.commit ();
+    }
   }
   catch (const odb::exception& e)
   {

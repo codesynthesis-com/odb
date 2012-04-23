@@ -204,8 +204,12 @@ main (int argc, char* argv[])
     // Readonly object.
     //
     {
+      typedef odb::object_traits<simple_object> so_traits;
       typedef odb::object_traits<ro_object> ro_traits;
       typedef odb::object_traits<rw_object> rw_traits;
+
+      assert (so_traits::column_count ==
+              so_traits::id_column_count + so_traits::readonly_column_count);
 
       assert (ro_traits::column_count ==
               ro_traits::id_column_count + ro_traits::readonly_column_count);
@@ -213,6 +217,7 @@ main (int argc, char* argv[])
       assert (rw_traits::column_count !=
               rw_traits::id_column_count + rw_traits::readonly_column_count);
 
+      simple_object so (1, 1);
       ro_object ro_o (1, 1);
       rw_object rw_o (1, 1);
 
@@ -224,6 +229,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
+        db->persist (so);
         db->persist (ro_o);
         db->persist (rw_o);
         t.commit ();
@@ -234,6 +240,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
+        //db->update (so);   // Compile error.
         //db->update (ro_o); // Compile error.
         db->update (rw_o);
         t.commit ();
@@ -241,8 +248,9 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        db->load<ro_object> (1, ro_o);
-        db->load<ro_object> (1, rw_o);
+        db->load (1, so);
+        db->load (1, ro_o);
+        db->load (1, rw_o);
         t.commit ();
       }
 

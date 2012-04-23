@@ -111,8 +111,8 @@ struct employee: person
 #pragma db object pointer(shared_ptr)
 struct employer
 {
-  employer (const std::string& n)
-      : name (n)
+  employer (const std::string& n, shared_ptr<country> nat)
+      : name (n), nationality (nat)
   {
   }
 
@@ -122,6 +122,11 @@ struct employer
 
   #pragma db id
   std::string name;
+
+  // The same member name and type as in person (test JOIN alias).
+  //
+  #pragma db not_null
+  shared_ptr<country> nationality;
 };
 
 #pragma db object pointer(shared_ptr)

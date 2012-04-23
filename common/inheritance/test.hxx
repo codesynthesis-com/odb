@@ -90,7 +90,7 @@ struct object1: base
 #pragma db object
 struct object2: base
 {
-  #pragma db column ("derived_str")
+  #pragma db column("derived_str")
   std::string str_;
 
   bool
@@ -143,6 +143,16 @@ struct object3: abstract_base, id_base
 #pragma db object
 struct empty: base
 {
+};
+
+// View based on the derived object.
+//
+#pragma db view object(object2)
+struct object2_view
+{
+  unsigned int num; // from abstract_base
+  unsigned long id; // from base
+  std::string str;  // from object2, hides one from abstract_base
 };
 
 #endif // TEST_HXX

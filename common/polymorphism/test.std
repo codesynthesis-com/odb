@@ -1,0 +1,36 @@
+base pre_persist 1 const
+base post_persist 1 const
+derived pre_persist 2 const
+derived post_persist 2 const
+base pre_load 0
+base post_load 1
+derived pre_load 0 const
+derived post_load 2 const
+base pre_load 1
+base post_load 1
+derived pre_load 2 const
+derived post_load 2 const
+base pre_load 1
+base post_load 1
+derived pre_load 2 const
+derived post_load 2 const
+base pre_update 1 const
+base post_update 1 const
+derived pre_update 2 const
+derived post_update 2 const
+base pre_load 0
+base post_load 1
+derived pre_load 0 const
+derived post_load 2 const
+base pre_erase 1 const
+base post_erase 1 const
+derived pre_erase 2 const
+derived post_erase 2 const
+derived pre_persist 3 const
+derived post_persist 3 const
+derived pre_persist 4 const
+derived post_persist 4 const
+derived pre_load 0 const
+derived pre_load 0 const
+derived post_load 4 const
+derived post_load 3 const

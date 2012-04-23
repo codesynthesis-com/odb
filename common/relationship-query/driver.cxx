@@ -39,8 +39,8 @@ main (int argc, char* argv[])
       shared_ptr<country> us (new country ("US", "United States"));
       shared_ptr<country> se (new country ("SE", "Sweden"));
 
-      shared_ptr<employer> st (new employer ("Simple Tech, Inc"));
-      shared_ptr<employer> ct (new employer ("Complex Tech, Inc"));
+      shared_ptr<employer> st (new employer ("Simple Tech, Inc", ca));
+      shared_ptr<employer> ct (new employer ("Complex Tech, Inc", us));
 
       // person
       //

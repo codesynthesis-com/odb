@@ -421,7 +421,15 @@ main (int argc, char* argv[])
       ++i;
       assert (i != r.end ());
 
-      auto_ptr<person> joe (db->load<person> (3));
+      {
+        auto_ptr<person> joe (db->load<person> (3));
+      }
+
+      {
+        person p (5, "Peter", "Peterson", 70, false, key3);
+        db->persist (p);
+        db->erase (p);
+      }
 
       // SQL Server does not support re-loading of an object with long data
       // from a query result.
@@ -430,8 +438,10 @@ main (int argc, char* argv[])
       assert (i->last_name_ == "Doe"); // Actual load.
 #endif
 
+      // Overwrite object image again.
+      //
+      auto_ptr<person> joe (db->load<person> (3));
       person p;
-      joe.reset (db->load<person> (3)); // Overwrite object image again.
       i.load (p);
       assert (p.last_name_ == "Doe");
 

@@ -132,6 +132,18 @@ struct container
 
 // Readonly object.
 //
+#pragma db object readonly
+struct simple_object
+{
+  simple_object (unsigned long i, unsigned long x): id (i), sv (x) {}
+  simple_object () {}
+
+  #pragma db id
+  unsigned long id;
+
+  unsigned long sv;
+};
+
 #pragma db object
 struct object
 {
