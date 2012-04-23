@@ -1,22 +1,18 @@
-// file      : odb/oracle/object-result.txx
+// file      : odb/oracle/simple-object-result.txx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <cassert>
 
 #include <odb/callback.hxx>
-#include <odb/exceptions.hxx>
+#include <odb/exceptions.hxx> // result_not_cached
 
-#include <odb/oracle/object-statements.hxx>
+#include <odb/oracle/simple-object-statements.hxx>
 
 namespace odb
 {
   namespace oracle
   {
-    //
-    // object_result_impl
-    //
-
     template <typename T>
     object_result_impl<T>::
     ~object_result_impl ()
@@ -39,7 +35,7 @@ namespace odb
     object_result_impl<T>::
     object_result_impl (const query&,
                         details::shared_ptr<select_statement> statement,
-                        object_statements<object_type>& statements)
+                        statements_type& statements)
         : base_type (statements.connection ().database ()),
           statement_ (statement),
           statements_ (statements),
@@ -55,7 +51,7 @@ namespace odb
       // This is a top-level call so the statements cannot be locked.
       //
       assert (!statements_.locked ());
-      typename object_statements<object_type>::auto_lock l (statements_);
+      typename statements_type::auto_lock l (statements_);
 
       odb::database& db (this->database ());
       object_traits::callback (db, obj, callback_event::pre_load);
@@ -153,7 +149,7 @@ namespace odb
 
     template <typename T>
     void object_result_impl<T>::
-    change_callback (void* c)
+    change_callback (void* c, binding* b)
     {
       object_result_impl<T>* r (static_cast<object_result_impl<T>*> (c));
       typename object_traits::image_type& im (r->statements_.image ());
@@ -163,144 +159,18 @@ namespace odb
       else
         *r->image_copy_ = im;
 
-      // Increment binding version since we may have "stolen" some
-      // descriptors (LOB, date-time) from the image. Re-bind will
-      // reallocate them and update the binding.
+      // Increment image version since we may have "stolen" descriptors
+      // (LOB, date-time) from the image. This will trigger re-bind which
+      // will reallocate them and update the binding. In case this callback
+      // was triggeted as part of a select statement fetch, then it is too
+      // late to update the image version and we also need to update the
+      // image binding.
       //
-      r->statements_.select_image_binding ().version++;
-
-      im.change_callback_.callback = 0;
-      im.change_callback_.context = 0;
-
-      r->use_copy_ = true;
-    }
-
-    //
-    // object_result_impl_no_id
-    //
-
-    template <typename T>
-    object_result_impl_no_id<T>::
-    ~object_result_impl_no_id ()
-    {
-      change_callback_type& cc (statements_.image ().change_callback_);
-
-      if (cc.context == this)
-      {
-        cc.context = 0;
-        cc.callback = 0;
-      }
-
-      delete image_copy_;
-
-      if (!this->end_)
-        statement_->free_result ();
-    }
-
-    template <typename T>
-    object_result_impl_no_id<T>::
-    object_result_impl_no_id (const query&,
-                              details::shared_ptr<select_statement> statement,
-                              object_statements_no_id<object_type>& statements)
-        : base_type (statements.connection ().database ()),
-          statement_ (statement),
-          statements_ (statements),
-          use_copy_ (false),
-          image_copy_ (0)
-    {
-    }
-
-    template <typename T>
-    void object_result_impl_no_id<T>::
-    load (object_type& obj)
-    {
-      odb::database& db (this->database ());
-
-      object_traits::callback (db, obj, callback_event::pre_load);
-
-      object_traits::init (obj,
-                           use_copy_ ? *image_copy_ : statements_.image (),
-                           &db);
-
-      // If we are using a copy, make sure the callback information for
-      // LOB data also comes from the copy.
+      // @@ Would be good to only do this if we actually have descriptors.
       //
-      statement_->stream_result (
-        use_copy_ ? &statements_.image () : 0,
-        use_copy_ ? image_copy_ : 0);
-
-      object_traits::callback (db, obj, callback_event::post_load);
-    }
-
-    template <typename T>
-    void object_result_impl_no_id<T>::
-    next ()
-    {
-      this->current (pointer_type ());
-
-      typename object_traits::image_type& im (statements_.image ());
-      change_callback_type& cc (im.change_callback_);
-
-      if (cc.context == this)
-      {
-        cc.callback = 0;
-        cc.context = 0;
-      }
-
-      use_copy_ = false;
-
-      if (im.version != statements_.select_image_version ())
-      {
-        binding& b (statements_.select_image_binding ());
-        object_traits::bind (b.bind, im, statement_select);
-        statements_.select_image_version (im.version);
-        b.version++;
-      }
-
-      if (statement_->fetch () == select_statement::no_data)
-      {
-        statement_->free_result ();
-        this->end_ = true;
-      }
-      else
-      {
-        cc.callback = &change_callback;
-        cc.context = this;
-      }
-    }
-
-    template <typename T>
-    void object_result_impl_no_id<T>::
-    cache ()
-    {
-    }
-
-    template <typename T>
-    std::size_t object_result_impl_no_id<T>::
-    size ()
-    {
-      throw result_not_cached ();
-    }
-
-    template <typename T>
-    void object_result_impl_no_id<T>::
-    change_callback (void* c)
-    {
-      object_result_impl_no_id<T>* r (
-        static_cast<object_result_impl_no_id<T>*> (c));
-
-      typename object_traits::image_type im (r->statements_.image ());
-
-      if (r->image_copy_ == 0)
-        r->image_copy_ = new typename object_traits::image_type (im);
-      else
-        *r->image_copy_ = im;
-
-      // Increment binding version since we may have "stolen" some
-      // descriptors (LOB, date-time) from the image. Re-bind will
-      // reallocate them and update the binding.
-      //
-      r->statements_.select_image_binding ().version++;
+      im.version++;
+      if (b != 0)
+        b->version++;
 
       im.change_callback_.callback = 0;
       im.change_callback_.context = 0;

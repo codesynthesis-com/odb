@@ -1,26 +1,26 @@
-// file      : odb/oracle/view-result.txx
+// file      : odb/oracle/no-id-object-result.txx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <odb/callback.hxx>
-#include <odb/exceptions.hxx>
+#include <odb/exceptions.hxx> // result_not_cached
 
-#include <odb/oracle/view-statements.hxx>
+#include <odb/oracle/no-id-object-statements.hxx>
 
 namespace odb
 {
   namespace oracle
   {
     template <typename T>
-    view_result_impl<T>::
-    ~view_result_impl ()
+    no_id_object_result_impl<T>::
+    ~no_id_object_result_impl ()
     {
       change_callback_type& cc (statements_.image ().change_callback_);
 
       if (cc.context == this)
       {
-        cc.callback = 0;
         cc.context = 0;
+        cc.callback = 0;
       }
 
       delete image_copy_;
@@ -30,10 +30,10 @@ namespace odb
     }
 
     template <typename T>
-    view_result_impl<T>::
-    view_result_impl (const query&,
-                      details::shared_ptr<select_statement> statement,
-                      statements_type& statements)
+    no_id_object_result_impl<T>::
+    no_id_object_result_impl (const query&,
+                              details::shared_ptr<select_statement> statement,
+                              statements_type& statements)
         : base_type (statements.connection ().database ()),
           statement_ (statement),
           statements_ (statements),
@@ -43,16 +43,16 @@ namespace odb
     }
 
     template <typename T>
-    void view_result_impl<T>::
-    load (view_type& view)
+    void no_id_object_result_impl<T>::
+    load (object_type& obj)
     {
       odb::database& db (this->database ());
 
-      view_traits::callback (db, view, callback_event::pre_load);
+      object_traits::callback (db, obj, callback_event::pre_load);
 
-      view_traits::init (view,
-                         use_copy_ ? *image_copy_ : statements_.image (),
-                         &db);
+      object_traits::init (obj,
+                           use_copy_ ? *image_copy_ : statements_.image (),
+                           &db);
 
       // If we are using a copy, make sure the callback information for
       // LOB data also comes from the copy.
@@ -61,16 +61,16 @@ namespace odb
         use_copy_ ? &statements_.image () : 0,
         use_copy_ ? image_copy_ : 0);
 
-      view_traits::callback (db, view, callback_event::post_load);
+      object_traits::callback (db, obj, callback_event::post_load);
     }
 
     template <typename T>
-    void view_result_impl<T>::
+    void no_id_object_result_impl<T>::
     next ()
     {
       this->current (pointer_type ());
 
-      typename view_traits::image_type& im (statements_.image ());
+      typename object_traits::image_type& im (statements_.image ());
       change_callback_type& cc (im.change_callback_);
 
       if (cc.context == this)
@@ -81,11 +81,11 @@ namespace odb
 
       use_copy_ = false;
 
-      if (im.version != statements_.image_version ())
+      if (im.version != statements_.select_image_version ())
       {
-        binding& b (statements_.image_binding ());
-        view_traits::bind (b.bind, im);
-        statements_.image_version (im.version);
+        binding& b (statements_.select_image_binding ());
+        object_traits::bind (b.bind, im, statement_select);
+        statements_.select_image_version (im.version);
         b.version++;
       }
 
@@ -102,37 +102,38 @@ namespace odb
     }
 
     template <typename T>
-    void view_result_impl<T>::
+    void no_id_object_result_impl<T>::
     cache ()
     {
     }
 
     template <typename T>
-    std::size_t view_result_impl<T>::
+    std::size_t no_id_object_result_impl<T>::
     size ()
     {
       throw result_not_cached ();
     }
 
     template <typename T>
-    void view_result_impl<T>::
-    change_callback (void* c, binding*)
+    void no_id_object_result_impl<T>::
+    change_callback (void* c, binding* b)
     {
-      view_result_impl<T>* r (static_cast<view_result_impl<T>*> (c));
+      no_id_object_result_impl<T>* r (
+        static_cast<no_id_object_result_impl<T>*> (c));
 
-      typename view_traits::image_type& im (r->statements_.image ());
+      typename object_traits::image_type im (r->statements_.image ());
 
       if (r->image_copy_ == 0)
-        r->image_copy_ = new typename view_traits::image_type (im);
+        r->image_copy_ = new typename object_traits::image_type (im);
       else
         *r->image_copy_ = im;
 
       // See comment in simple object_result for details on what's going
-      // on here. Except for views, there is nothing else other than the
-      // select binding, so just incrementing the binding version will
-      // be sufficient.
+      // on here.
       //
-      r->statements_.image_binding ().version++;
+      im.version++;
+      if (b != 0)
+        b->version++;
 
       im.change_callback_.callback = 0;
       im.change_callback_.context = 0;

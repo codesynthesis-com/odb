@@ -1,20 +1,20 @@
-// file      : odb/oracle/view-result.hxx
+// file      : odb/oracle/simple-object-result.hxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#ifndef ODB_ORACLE_VIEW_RESULT_HXX
-#define ODB_ORACLE_VIEW_RESULT_HXX
+#ifndef ODB_ORACLE_SIMPLE_OBJECT_RESULT_HXX
+#define ODB_ORACLE_SIMPLE_OBJECT_RESULT_HXX
 
 #include <odb/pre.hxx>
 
 #include <cstddef> // std::size_t
 
-#include <odb/view-result.hxx>
+#include <odb/simple-object-result.hxx>
 
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/oracle/version.hxx>
-#include <odb/oracle/forward.hxx> // query, view_statements
+#include <odb/oracle/forward.hxx> // query
 #include <odb/oracle/statement.hxx>
 
 namespace odb
@@ -22,28 +22,32 @@ namespace odb
   namespace oracle
   {
     template <typename T>
-    class view_result_impl: public odb::view_result_impl<T>
+    class object_result_impl: public odb::object_result_impl<T>
     {
     public:
-      typedef odb::view_result_impl<T> base_type;
+      typedef odb::object_result_impl<T> base_type;
 
-      typedef typename base_type::view_type view_type;
-      typedef typename base_type::view_traits view_traits;
+      typedef typename base_type::object_type object_type;
+      typedef typename base_type::object_traits object_traits;
+      typedef typename base_type::id_type id_type;
 
       typedef typename base_type::pointer_type pointer_type;
       typedef typename base_type::pointer_traits pointer_traits;
 
-      typedef view_statements<view_type> statements_type;
+      typedef typename object_traits::statements_type statements_type;
 
       virtual
-      ~view_result_impl ();
+      ~object_result_impl ();
 
-      view_result_impl (const query&,
-                        details::shared_ptr<select_statement>,
-                        statements_type&);
+      object_result_impl (const query&,
+                          details::shared_ptr<select_statement>,
+                          statements_type&);
 
       virtual void
-      load (view_type&);
+      load (object_type&, bool fetch);
+
+      virtual id_type
+      load_id ();
 
       virtual void
       next ();
@@ -66,13 +70,13 @@ namespace odb
       details::shared_ptr<select_statement> statement_;
       statements_type& statements_;
       bool use_copy_;
-      typename view_traits::image_type* image_copy_;
+      typename object_traits::image_type* image_copy_;
     };
   }
 }
 
-#include <odb/oracle/view-result.txx>
+#include <odb/oracle/simple-object-result.txx>
 
 #include <odb/post.hxx>
 
-#endif // ODB_ORACLE_VIEW_RESULT_HXX
+#endif // ODB_ORACLE_SIMPLE_OBJECT_RESULT_HXX

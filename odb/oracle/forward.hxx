@@ -38,7 +38,13 @@ namespace odb
     class object_statements;
 
     template <typename T>
-    class object_statements_no_id;
+    class polymorphic_root_object_statements;
+
+    template <typename T>
+    class polymorphic_derived_object_statements;
+
+    template <typename T>
+    class no_id_object_statements;
 
     template <typename T>
     class view_statements;

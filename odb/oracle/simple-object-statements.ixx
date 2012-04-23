@@ -1,4 +1,4 @@
-// file      : odb/oracle/object-statements.ixx
+// file      : odb/oracle/simple-object-statements.ixx
 // copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
@@ -6,7 +6,7 @@ namespace odb
 {
   namespace oracle
   {
-    //
+        //
     // auto_unlock
     //
     inline object_statements_base::auto_unlock::

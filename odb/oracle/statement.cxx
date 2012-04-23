@@ -1389,7 +1389,7 @@ namespace odb
         change_callback* cc (result_.change_callback);
 
         if (cc != 0 && cc->callback != 0)
-          (cc->callback) (cc->context);
+          (cc->callback) (cc->context, &result_);
 
         if (result_version_ != result_.version)
         {

@@ -10,6 +10,7 @@
 #include <odb/details/buffer.hxx>
 
 #include <odb/oracle/version.hxx>
+#include <odb/oracle/forward.hxx> // binding
 #include <odb/oracle/oracle-fwd.hxx>
 
 #include <odb/oracle/details/export.hxx>
@@ -131,7 +132,7 @@ namespace odb
     {
       change_callback (): callback (0), context (0) {};
 
-      void (*callback) (void*);
+      void (*callback) (void*, binding*);
       void* context;
     };
 

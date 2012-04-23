@@ -4,24 +4,24 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-cxx :=                   \
-auto-descriptor.cxx      \
-auto-handle.cxx          \
-connection.cxx           \
-connection-factory.cxx   \
-database.cxx             \
-error.cxx                \
-exceptions.cxx           \
-object-statements.cxx    \
-oracle-types.cxx         \
-query.cxx                \
-query-const-expr.cxx     \
-statement.cxx            \
-statements-base.cxx      \
-tracer.cxx               \
-traits.cxx               \
-transaction.cxx          \
-transaction-impl.cxx     \
+cxx :=                       \
+auto-descriptor.cxx          \
+auto-handle.cxx              \
+connection.cxx               \
+connection-factory.cxx       \
+database.cxx                 \
+error.cxx                    \
+exceptions.cxx               \
+oracle-types.cxx             \
+query.cxx                    \
+query-const-expr.cxx         \
+simple-object-statements.cxx \
+statement.cxx                \
+statements-base.cxx          \
+tracer.cxx                   \
+traits.cxx                   \
+transaction.cxx              \
+transaction-impl.cxx         \
 details/number.cxx
 
 cli_tun := details/options.cli

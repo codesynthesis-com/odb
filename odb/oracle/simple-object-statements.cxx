@@ -1,8 +1,8 @@
-// file      : odb/oracle/object-statements.cxx
+// file      : odb/oracle/simple-object-statements.cxx
 // copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <odb/oracle/object-statements.hxx>
+#include <odb/oracle/simple-object-statements.hxx>
 
 namespace odb
 {
