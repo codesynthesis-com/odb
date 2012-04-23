@@ -72,6 +72,7 @@ operator< (const ncomp& x, const ncomp& y)
 
 // Test object with composite id, container.
 //
+#pragma db namespace table("t1_")
 namespace test1
 {
   #pragma db object
@@ -97,6 +98,7 @@ namespace test1
 // Test to-one and to-many relationships with composite id as well as
 // queries and views.
 //
+#pragma db namespace table("t2_")
 namespace test2
 {
   #pragma db object
@@ -201,11 +203,12 @@ namespace test2
 
 // Test one-to-one(i) relationship with composite id.
 //
+#pragma db namespace table("t3_")
 namespace test3
 {
   struct object2;
 
-  #pragma db object table("test3_object1")
+  #pragma db object
   struct object1
   {
     object1 () {}
@@ -218,7 +221,7 @@ namespace test3
     object2* o2;
   };
 
-  #pragma db object table("test3_object2")
+  #pragma db object
   struct object2
   {
     object2 (): o1 (0) {}
@@ -244,11 +247,12 @@ namespace test3
 
 // Test many-to-one(i) relationship with composite id.
 //
+#pragma db namespace table("t4_")
 namespace test4
 {
   struct object2;
 
-  #pragma db object table("test4_object1")
+  #pragma db object
   struct object1
   {
     object1 () {}
@@ -261,7 +265,7 @@ namespace test4
     object2* o2;
   };
 
-  #pragma db object table("test4_object2")
+  #pragma db object
   struct object2
   {
     object2 () {}
@@ -293,11 +297,12 @@ namespace test4
 
 // Test one-to-many(i) relationship with composite id.
 //
+#pragma db namespace table("t5_")
 namespace test5
 {
   struct object2;
 
-  #pragma db object table("test5_object1")
+  #pragma db object
   struct object1
   {
     object1 () {}
@@ -309,7 +314,7 @@ namespace test5
     object2* o2;
   };
 
-  #pragma db object table("test5_object2")
+  #pragma db object
   struct object2
   {
     object2 () {}
@@ -342,11 +347,12 @@ namespace test5
 
 // Test many-to-many(i) relationship with composite id.
 //
+#pragma db namespace table("t6_")
 namespace test6
 {
   struct object2;
 
-  #pragma db object table("test6_object1")
+  #pragma db object
   struct object1
   {
     object1 () {}
@@ -358,7 +364,7 @@ namespace test6
     std::vector<object2*> o2;
   };
 
-  #pragma db object table("test6_object2")
+  #pragma db object
   struct object2
   {
     object2 () {}
@@ -391,9 +397,10 @@ namespace test6
 
 // Test object with composite id and version (optimistic concurrency).
 //
+#pragma db namespace table("t7_")
 namespace test7
 {
-  #pragma db object optimistic table("test7_object")
+  #pragma db object optimistic
   struct object
   {
     object () {}
