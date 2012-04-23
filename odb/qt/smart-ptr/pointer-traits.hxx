@@ -52,9 +52,23 @@ namespace odb
     }
 
     static unrestricted_pointer_type
-    cast (const pointer_type& p)
+    const_pointer_cast (const pointer_type& p)
     {
       return qSharedPointerConstCast<unrestricted_element_type> (p);
+    }
+
+    template <typename T1>
+    static QSharedPointer<T1>
+    static_pointer_cast (const pointer_type& p)
+    {
+      return qSharedPointerCast<T1> (p);
+    }
+
+    template <typename T1>
+    static QSharedPointer<T1>
+    dynamic_pointer_cast (const pointer_type& p)
+    {
+      return qSharedPointerDynamicCast<T1> (p);
     }
 
   public:
