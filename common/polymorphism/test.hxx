@@ -887,7 +887,7 @@ namespace test10
   struct base: root
   {
     base () {}
-    base (unsigned long i, unsigned long n) : root (i), num (n) {}
+    base (unsigned long i, unsigned long n): root (i), num (n) {}
 
     unsigned long num;
 
@@ -980,6 +980,71 @@ namespace test11
 
       const derived& d (static_cast<const derived&> (b));
       return base::compare (b, false) && dnum == d.dnum && dstr == d.dstr;
+    }
+  };
+}
+
+// Test polymorphic classes with auto id.
+//
+#pragma db namespace table("t12_")
+namespace test12
+{
+  #pragma db object polymorphic
+  struct root
+  {
+    virtual ~root () = 0; // Auto-abstract.
+
+    #pragma db id auto
+    unsigned long id;
+
+    virtual bool
+    compare (const root& r, bool tc = true) const
+    {
+      if (tc && typeid (r) != typeid (root))
+        return false;
+
+      return id == r.id;
+    }
+  };
+
+  inline root::
+  ~root () {}
+
+  inline bool
+  operator== (const root& x, const root& y) {return x.compare (y);}
+
+  #pragma db object
+  struct base: root
+  {
+    base () {}
+    base (unsigned long n): num (n) {}
+
+    unsigned long num;
+
+    virtual bool
+    compare (const root& r, bool tc = true) const
+    {
+      if (tc && typeid (r) != typeid (base))
+        return false;
+
+      const base& b (static_cast<const base&> (r));
+      return root::compare (r, false) && num == b.num;
+    }
+  };
+
+  #pragma db object
+  struct derived: base
+  {
+    derived () {}
+    derived (unsigned long n): base (n) {}
+
+    virtual bool
+    compare (const root& r, bool tc = true) const
+    {
+      if (tc && typeid (r) != typeid (derived))
+        return false;
+
+      return base::compare (r, false);
     }
   };
 }

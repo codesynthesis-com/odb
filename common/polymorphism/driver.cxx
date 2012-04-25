@@ -1821,6 +1821,38 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+    // Test 12: polymorphic objects with auto id.
+    //
+    {
+      using namespace test12;
+
+      base b (1);
+      derived d (2);
+
+      unsigned long id1, id2;
+
+      // Persist.
+      //
+      {
+        transaction t (db->begin ());
+        id1 = db->persist (b);
+        id2 = db->persist (static_cast<root&> (d));
+        t.commit ();
+      }
+
+      // Load.
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<root> pb (db->load<root> (id1));
+        auto_ptr<root> pd (db->load<root> (id2));
+        t.commit ();
+
+        assert (*pb == b);
+        assert (*pd == d);
+      }
+    }
   }
   catch (const odb::exception& e)
   {
