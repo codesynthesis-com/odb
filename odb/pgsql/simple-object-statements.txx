@@ -4,7 +4,6 @@
 
 #include <cstring> // std::memset
 
-#include <odb/session.hxx>
 #include <odb/callback.hxx>
 #include <odb/exceptions.hxx>
 
@@ -154,15 +153,16 @@ namespace odb
     void object_statements<T>::
     clear_delayed_ ()
     {
-      // Remove the objects from the session cache.
+      // Remove the objects from the session cache. This is not the most
+      // efficient way to do this (cache_traits::erase() will check for
+      // a session on every iteration), but the delay vector won't be
+      // empty only if something goes wrong (i.e., we are throwing an
+      // exception).
       //
-      if (session::has_current ())
+      for (typename delayed_loads::iterator i (delayed_.begin ()),
+             e (delayed_.end ()); i != e; ++i)
       {
-        for (typename delayed_loads::iterator i (delayed_.begin ()),
-               e (delayed_.end ()); i != e; ++i)
-        {
-          pointer_cache_traits::erase (i->pos);
-        }
+        pointer_cache_traits::erase (i->pos);
       }
 
       delayed_.clear ();

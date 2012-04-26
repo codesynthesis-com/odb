@@ -5,7 +5,6 @@
 #include <cassert>
 
 #include <odb/callback.hxx>
-#include <odb/cache-traits.hxx>
 #include <odb/exceptions.hxx> // object_not_persistent
 
 #include <odb/pgsql/polymorphic-object-statements.hxx>

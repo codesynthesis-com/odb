@@ -13,7 +13,6 @@
 
 #include <odb/forward.hxx>
 #include <odb/traits.hxx>
-#include <odb/cache-traits.hxx>
 
 #include <odb/details/shared-ptr.hxx>
 
