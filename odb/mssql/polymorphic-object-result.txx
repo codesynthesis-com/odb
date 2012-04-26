@@ -5,7 +5,6 @@
 #include <cassert>
 
 #include <odb/callback.hxx>
-#include <odb/cache-traits.hxx>
 #include <odb/exceptions.hxx> // result_not_cached
 
 #include <odb/mssql/exceptions.hxx> // long_data_reload
