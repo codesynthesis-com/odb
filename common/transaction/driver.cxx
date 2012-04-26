@@ -122,4 +122,14 @@ main (int argc, char* argv[])
     odb_db::transaction& r (odb_db::transaction::current ());
     assert (&t == &r);
   }
+
+  // Transaction restart.
+  //
+  cout << "test 007" << endl;
+  {
+    transaction t (db->begin ());
+    t.commit ();
+    t.reset (db->begin ());
+    t.commit ();
+  }
 }
