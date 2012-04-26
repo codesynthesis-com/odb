@@ -7,12 +7,11 @@
 
 #include <odb/pre.hxx>
 
-#include <memory> // std::auto_ptr
-
 #include <odb/forward.hxx>
 #include <odb/connection.hxx>
 
 #include <odb/details/shared-ptr.hxx>
+#include <odb/details/unique-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
@@ -125,7 +124,7 @@ namespace odb
       // Keep statement_cache_ after handle_ so that it is destroyed before
       // the connection is closed.
       //
-      std::auto_ptr<statement_cache_type> statement_cache_;
+      details::unique_ptr<statement_cache_type> statement_cache_;
     };
   }
 }
