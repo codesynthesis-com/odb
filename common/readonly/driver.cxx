@@ -287,6 +287,30 @@ main (int argc, char* argv[])
 
       assert (*o.pl == 2 && *o.cpl == 2 && *o.pcl == 2 && *o.cpcl == 1);
     }
+
+    // Readonly object with auto id.
+    //
+    {
+      ro_auto o1 (1);
+      ro_auto o2 (2);
+
+      {
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<ro_auto> p1 (db->load<ro_auto> (o1.id));
+        auto_ptr<ro_auto> p2 (db->load<ro_auto> (o2.id));
+        t.commit ();
+
+        assert (p1->num == o1.num);
+        assert (p2->num == o2.num);
+      }
+    }
   }
   catch (const odb::exception& e)
   {

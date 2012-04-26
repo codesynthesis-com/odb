@@ -10,7 +10,7 @@
 
 #include <odb/core.hxx>
 
-// Simple readonly value.
+// Simple readonly object.
 //
 #pragma db object
 struct simple
@@ -207,6 +207,20 @@ struct wrapper
   const std::auto_ptr<unsigned long> cpl;
   std::auto_ptr<const unsigned long> pcl;
   const std::auto_ptr<const unsigned long> cpcl;
+};
+
+// Readonly object with auto id.
+//
+#pragma db object readonly
+struct ro_auto
+{
+  ro_auto (unsigned long n): num (n) {}
+  ro_auto () {}
+
+  #pragma db id auto
+  unsigned long id;
+
+  unsigned long num;
 };
 
 #endif // TEST_HXX
