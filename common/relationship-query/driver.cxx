@@ -9,8 +9,8 @@
 #include <cassert>
 #include <iostream>
 
-#include <odb/session.hxx>
 #include <odb/database.hxx>
+#include <odb/session.hxx>
 #include <odb/transaction.hxx>
 
 #include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY

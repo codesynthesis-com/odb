@@ -10,8 +10,8 @@
 #include <iostream>
 
 #include <odb/database.hxx>
-#include <odb/transaction.hxx>
 #include <odb/session.hxx>
+#include <odb/transaction.hxx>
 
 #include <common/common.hxx>
 

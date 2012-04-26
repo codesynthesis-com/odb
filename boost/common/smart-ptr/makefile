@@ -44,7 +44,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) \
---profile boost/smart-ptr --generate-schema \
+--profile boost/smart-ptr --generate-schema --generate-session \
 --table-prefix boost_smart_ptr_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_boost.l.cpp-options) \

@@ -30,8 +30,6 @@ operator== (const scomp& x, const scomp& y)
   return x.str1 == y.str1 && x.str2 == y.str2 && x.str3 == y.str3;
 }
 
-//@@ tmp?
-//
 inline bool
 operator< (const scomp& x, const scomp& y)
 {
@@ -60,8 +58,6 @@ operator== (const ncomp& x, const ncomp& y)
   return x.num1 == y.num1 && x.num2 == y.num2 && x.num3 == y.num3;
 }
 
-//@@ tmp?
-//
 inline bool
 operator< (const ncomp& x, const ncomp& y)
 {

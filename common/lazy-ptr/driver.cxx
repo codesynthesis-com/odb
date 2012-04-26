@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include <odb/database.hxx>
+#include <odb/session.hxx>
 #include <odb/transaction.hxx>
 #include <odb/details/config.hxx> // ODB_CXX11_*
 

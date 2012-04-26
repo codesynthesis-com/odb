@@ -8,7 +8,7 @@
 #include <memory>
 #include <odb/core.hxx>
 
-#pragma db object pointer (obj1*)
+#pragma db object pointer (obj1*) session
 struct obj1
 {
   obj1 () {}

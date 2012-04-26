@@ -35,7 +35,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) --generate-schema \
---table-prefix lazy_ptr_
+--generate-session --table-prefix lazy_ptr_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 

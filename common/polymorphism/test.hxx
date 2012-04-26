@@ -552,7 +552,7 @@ namespace test7
   using std::tr1::shared_ptr;
 #endif
 
-  #pragma db object polymorphic pointer(shared_ptr)
+  #pragma db object polymorphic pointer(shared_ptr) session
   struct root
   {
     virtual ~root () {}
