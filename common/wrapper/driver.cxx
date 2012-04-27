@@ -128,6 +128,80 @@ main (int argc, char* argv[])
         assert (o->c == co.c);
       }
     }
+
+    // Test 5: composite NULL values.
+    //
+    {
+      using namespace test5;
+
+      using test5::object; //@@ tmp
+
+      object o1, o2;
+
+      o1.v.push_back (nullable<comp> ());
+
+      o2.p.reset (new comp (1, "a"));
+      o2.n = comp (2, "b");
+      o2.v.push_back (comp (3, "c"));
+
+      // Persist.
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        t.commit ();
+      }
+
+      // Load.
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> p1 (db->load<object> (o1.id));
+        auto_ptr<object> p2 (db->load<object> (o2.id));
+        t.commit ();
+
+        assert (p1->p.get () == 0);
+        assert (!p1->n);
+        assert (!p1->v[0]);
+
+        assert (p2->p.get () != 0 && *p2->p == *o2.p);
+        assert (p2->n && *p2->n == *o2.n);
+        assert (p2->v[0] && *p2->v[0] == *o2.v[0]);
+      }
+
+      // Update.
+      //
+      {
+        o1.p.reset (new comp (1, "a"));
+        o1.n = comp (2, "b");
+        o1.v[0] = comp (3, "c");
+
+        o2.p.reset ();
+        o2.n.reset ();
+        o2.v[0].reset ();
+
+        transaction t (db->begin ());
+        db->update (o1);
+        db->update (o2);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> p1 (db->load<object> (o1.id));
+        auto_ptr<object> p2 (db->load<object> (o2.id));
+        t.commit ();
+
+        assert (p1->p.get () != 0 && *p1->p == *o1.p);
+        assert (p1->n && *p1->n == *o1.n);
+        assert (p1->v[0] && *p1->v[0] == *o1.v[0]);
+
+        assert (p2->p.get () == 0);
+        assert (!p2->n);
+        assert (!p2->v[0]);
+      }
+    }
   }
   catch (const odb::exception& e)
   {

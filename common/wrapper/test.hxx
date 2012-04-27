@@ -176,4 +176,58 @@ struct cont_object
   cont_comp c;    // Wrapped container in comp value.
 };
 
+// Test composite NULL values.
+//
+#pragma db namespace table("t5_")
+namespace test5
+{
+  #pragma db value
+  struct base
+  {
+    base () {}
+    base (int n): num (n) {}
+
+    int num;
+  };
+
+  inline bool
+  operator== (const base& x, const base& y)
+  {
+    return x.num == y.num;
+  }
+
+  #pragma db value
+  struct comp: base
+  {
+    comp () {}
+    comp (int n, const std::string s): base (n), str (s), extra (n + 1) {}
+
+    std::string str;
+    base extra;
+
+    odb::nullable<int> always_null;
+  };
+
+  inline bool
+  operator== (const comp& x, const comp& y)
+  {
+    return static_cast<const base&> (x) == y &&
+      x.str == y.str && x.extra == y.extra;
+  }
+
+  #pragma db object
+  struct object
+  {
+    #pragma db id auto
+    unsigned long id;
+
+    #pragma db null
+    std::auto_ptr<comp> p;
+
+    odb::nullable<comp> n;
+
+    std::vector< odb::nullable<comp> > v;
+  };
+}
+
 #endif // TEST_HXX
