@@ -624,6 +624,77 @@ main (int argc, char* argv[])
       }
     }
 
+    // Test 8.
+    //
+    {
+      using namespace test8;
+
+      object2 o2a, o2b;
+      object3 o3;
+
+      o2b.o1 = new object1 (scomp ("222", "aaa", "bbb"), 123);
+      o3.o1.push_back (0);
+      o3.o1.push_back (new object1 (scomp ("333", "aaa", "bbb"), 234));
+
+      // Persist.
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (o2a);
+        db->persist (o2b);
+        db->persist (o2b.o1);
+        db->persist (o3);
+        db->persist (o3.o1[1]);
+        t.commit ();
+      }
+
+      // Load.
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<object2> p2a (db->load<object2> (o2a.id));
+        auto_ptr<object2> p2b (db->load<object2> (o2b.id));
+        auto_ptr<object3> p3 (db->load<object3> (o3.id));
+        t.commit ();
+
+        assert (p2a->o1 == 0);
+        assert (p2b->o1 != 0 && *p2b->o1 == *o2b.o1);
+        assert (p3->o1[0] == 0);
+        assert (p3->o1[1] != 0 && *p3->o1[1] == *o3.o1[1]);
+      }
+
+      // Update.
+      //
+      {
+        object1* o1 (o3.o1[1]);
+
+        o3.o1.clear ();
+        o3.o1.push_back (o2b.o1);
+        o3.o1.push_back (0);
+
+        o2a.o1 = o1;
+        o2b.o1 = 0;
+
+        transaction t (db->begin ());
+        db->update (o2a);
+        db->update (o2b);
+        db->update (o3);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object2> p2a (db->load<object2> (o2a.id));
+        auto_ptr<object2> p2b (db->load<object2> (o2b.id));
+        auto_ptr<object3> p3 (db->load<object3> (o3.id));
+        t.commit ();
+
+        assert (p2a->o1 != 0 && *p2a->o1 == *o2a.o1);
+        assert (p2b->o1 == 0);
+        assert (p3->o1[0] != 0 && *p3->o1[0] == *o3.o1[0]);
+        assert (p3->o1[1] == 0);
+      }
+    }
   }
   catch (const odb::exception& e)
   {

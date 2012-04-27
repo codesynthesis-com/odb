@@ -414,8 +414,60 @@ namespace test7
   inline bool
   operator== (const object& x, const object& y)
   {
-    return x.id == y.id && x.ver == y.ver && x.num == y.num ;
+    return x.id == y.id && x.ver == y.ver && x.num == y.num;
   }
+}
+
+// Test composite NULL pointers.
+//
+#pragma db namespace table("t8_")
+namespace test8
+{
+  #pragma db object
+  struct object1
+  {
+    object1 () {}
+    object1 (scomp const& i, unsigned long n): id (i), num (n) {}
+
+    #pragma db id
+    scomp id;
+
+    unsigned long num;
+  };
+
+  inline bool
+  operator== (const object1& x, const object1& y)
+  {
+    return x.id == y.id && x.num == y.num;
+  }
+
+  #pragma db object
+  struct object2
+  {
+    object2 (): o1 (0) {}
+    ~object2 () {delete o1;}
+
+    #pragma db id auto
+    unsigned long id;
+
+    object1* o1;
+  };
+
+  #pragma db object
+  struct object3
+  {
+    ~object3 ()
+    {
+      for (std::vector<object1*>::iterator i (o1.begin ());
+           i != o1.end (); ++i)
+        delete *i;
+    }
+
+    #pragma db id auto
+    unsigned long id;
+
+    std::vector<object1*> o1;
+  };
 }
 
 #endif // TEST_HXX
