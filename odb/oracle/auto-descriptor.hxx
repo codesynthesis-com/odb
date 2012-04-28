@@ -84,7 +84,7 @@ namespace odb
       ~auto_descriptor ()
       {
         if (d_ != 0)
-          release (d_);
+          this->release (d_);
       }
 
       operator D* () const
@@ -108,7 +108,7 @@ namespace odb
       reset (D* d = 0)
       {
         if (d_ != 0)
-          release (d_);
+          this->release (d_);
 
         d_ = d;
       }
