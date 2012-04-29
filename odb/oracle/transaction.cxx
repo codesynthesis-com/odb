@@ -2,6 +2,8 @@
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <cassert>
+
 #include <odb/oracle/transaction.hxx>
 
 namespace odb
@@ -18,7 +20,7 @@ namespace odb
       // no virtual functions. The former is checked in the tests.
       //
       odb::transaction& b (odb::transaction::current ());
-      dynamic_cast<transaction_impl&> (b.implementation ());
+      assert (dynamic_cast<transaction_impl*> (&b.implementation ()) != 0);
       return reinterpret_cast<transaction&> (b);
     }
   }
