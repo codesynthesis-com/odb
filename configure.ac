@@ -37,10 +37,6 @@ AM_CONDITIONAL([ODB_TESTS_THREADS], [test x$threads != xnone])
 #
 CXX11([HAVE_CXX11], [Compiling in the C++11 mode.])
 
-# Check for TR1 <memory> availability.
-#
-TR1_MEMORY
-
 # Check for the ODB compiler.
 #
 ODB_COMPILER([], [AC_MSG_ERROR([odb compiler is not found; consider setting ODB variable or using --with-odb=DIR])])
@@ -48,6 +44,10 @@ ODB_COMPILER([], [AC_MSG_ERROR([odb compiler is not found; consider setting ODB 
 # Check for the ODB libs.
 #
 LIBODB([], [AC_MSG_ERROR([libodb is not found; consider using --with-libodb=DIR])])
+
+# Check for TR1 <memory> availability (has to be after libodb).
+#
+TR1_MEMORY
 
 # Check for boost.
 #
