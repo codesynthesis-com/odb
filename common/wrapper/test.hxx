@@ -20,46 +20,55 @@
 
 using odb::nullable;
 
+// Test 1: simple values.
 //
-// Simple values.
-//
-
-typedef nullable<std::string> nullable_string;
+#pragma db namespace table("t1_")
+namespace test1
+{
+  typedef nullable<std::string> nullable_string;
 
 #ifdef HAVE_CXX11
-typedef std::unique_ptr<int> num_uptr;
-typedef std::unique_ptr<std::string> str_uptr;
-typedef std::shared_ptr<std::string> str_sptr;
+  typedef std::unique_ptr<int> num_uptr;
+  typedef std::unique_ptr<std::string> str_uptr;
+  typedef std::shared_ptr<std::string> str_sptr;
 #else
-typedef std::auto_ptr<int> num_uptr;
-typedef std::auto_ptr<std::string> str_uptr;
+  typedef std::auto_ptr<int> num_uptr;
+  typedef std::auto_ptr<std::string> str_uptr;
 #  ifdef HAVE_TR1_MEMORY
-typedef std::tr1::shared_ptr<std::string> str_sptr;
+  typedef std::tr1::shared_ptr<std::string> str_sptr;
 #  endif
 #endif
 
-#pragma db object table("obj")
-struct object
-{
-  #pragma db id auto
-  unsigned long id_;
+  #pragma db object table("obj1")
+  struct object1
+  {
+    #pragma db id auto
+    unsigned long id_;
 
-  num_uptr num;
+    num_uptr num;
 
-  #pragma db null
-  str_uptr str;
+    #pragma db null
+    str_uptr str;
 
-  nullable_string nstr;
-  std::vector<nullable_string> nstrs;
+    nullable_string nstr;
+    std::vector<nullable_string> nstrs;
+  };
+
+  #pragma db object
+  struct object2
+  {
+    #pragma db id auto
+    unsigned long id_;
 
 #if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
-  #pragma db null
-  str_sptr sstr;
+    #pragma db null
+    str_sptr sstr;
 
-  #pragma db value_null
-  std::vector<str_sptr> sstrs;
+    #pragma db value_null
+    std::vector<str_sptr> sstrs;
 #endif
-};
+  };
+}
 
 //
 // Composite values.

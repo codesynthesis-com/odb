@@ -27,45 +27,55 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
+    // Test 1: simple values.
     //
-    // Simple values.
-    //
-    unsigned long id;
     {
-      object o;
-      o.num.reset (new int (123));
-      o.nstrs.push_back (nullable_string ());
-      o.nstrs.push_back (nullable_string ("123"));
+      using namespace test1;
+
+      unsigned long id1, id2;
+      {
+        object1 o1;
+        object2 o2;
+
+        o1.num.reset (new int (123));
+        o1.nstrs.push_back (nullable_string ());
+        o1.nstrs.push_back (nullable_string ("123"));
+
 #if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
-      o.sstrs.push_back (str_sptr ());
-      o.sstrs.push_back (str_sptr (new string ("123")));
+        o2.sstrs.push_back (str_sptr ());
+        o2.sstrs.push_back (str_sptr (new string ("123")));
 #endif
 
-      transaction t (db->begin ());
-      id = db->persist (o);
-      t.commit ();
-    }
+        transaction t (db->begin ());
+        id1 = db->persist (o1);
+        id2 = db->persist (o2);
+        t.commit ();
+      }
 
-    {
-      transaction t (db->begin ());
-      auto_ptr<object> o (db->load<object> (id));
-      t.commit ();
+      {
+        transaction t (db->begin ());
+        auto_ptr<object1> o1 (db->load<object1> (id1));
+        auto_ptr<object2> o2 (db->load<object2> (id2));
+        t.commit ();
 
-      assert (*o->num == 123);
-      assert (o->str.get () == 0);
-      assert (o->nstr.null ());
-      assert (o->nstrs[0].null ());
-      assert (o->nstrs[1].get () == "123");
+        assert (*o1->num == 123);
+        assert (o1->str.get () == 0);
+        assert (o1->nstr.null ());
+        assert (o1->nstrs[0].null ());
+        assert (o1->nstrs[1].get () == "123");
+
 #if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
-      assert (!o->sstr);
-      assert (!o->sstrs[0]);
-      assert (*o->sstrs[1] == "123");
+        assert (!o2->sstr);
+        assert (!o2->sstrs[0]);
+        assert (*o2->sstrs[1] == "123");
 #endif
+      }
     }
 
     //
     // Composite values.
     //
+    unsigned long id;
     {
       comp_object co;
 
@@ -133,8 +143,6 @@ main (int argc, char* argv[])
     //
     {
       using namespace test5;
-
-      using test5::object; //@@ tmp
 
       object o1, o2;
 
