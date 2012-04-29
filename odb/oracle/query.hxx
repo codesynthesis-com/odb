@@ -1186,7 +1186,7 @@ namespace odb
     };
 
     template <typename T>
-    struct query_column<T, id_clob>
+    struct query_column<T, id_clob>: lob_query_column
     {
       query_column (const char* table, const char* column)
           : lob_query_column (table, column)
@@ -1195,7 +1195,7 @@ namespace odb
     };
 
     template <typename T>
-    struct query_column<T, id_nclob>
+    struct query_column<T, id_nclob>: lob_query_column
     {
       query_column (const char* table, const char* column)
           : lob_query_column (table, column)

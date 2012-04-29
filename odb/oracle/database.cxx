@@ -33,7 +33,7 @@ namespace odb
           db_ (db),
           port_ (0),
           charset_ (charset),
-          ncharset_ (ncharset_),
+          ncharset_ (ncharset),
           environment_ (environment),
           factory_ (factory.transfer ())
     {
