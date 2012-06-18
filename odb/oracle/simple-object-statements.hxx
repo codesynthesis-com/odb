@@ -29,6 +29,58 @@ namespace odb
 {
   namespace oracle
   {
+    // The container_statement_cache class is only defined (and used) in
+    // the generated source file. However, object_statements may be
+    // referenced from another source file in the case of a polymorphic
+    // hierarchy (though in this case the container statement cache is
+    // not used). As a result, we cannot have a by-value member and
+    // instead will store a pointer and lazily allocate the cache if
+    // and when needed. We will also need to store a pointer to the
+    // deleter function which will be initialized during allocation
+    // (at that point we know that the cache class is defined).
+    //
+    template <typename T>
+    struct container_statement_cache_ptr
+    {
+      typedef oracle::connection connection_type;
+
+      container_statement_cache_ptr (): p_ (0) {}
+      ~container_statement_cache_ptr () {if (p_ != 0) (this->*deleter_) (0);}
+
+      T&
+      get (connection_type& c)
+      {
+        if (p_ == 0)
+          allocate (&c);
+
+        return *p_;
+      }
+
+    private:
+      void
+      allocate (connection_type*);
+
+    private:
+      T* p_;
+      void (container_statement_cache_ptr::*deleter_) (connection_type*);
+    };
+
+    template <typename T>
+    void container_statement_cache_ptr<T>::
+    allocate (connection_type* c)
+    {
+      // To reduce object code size, this function acts as both allocator
+      // and deleter.
+      //
+      if (p_ == 0)
+      {
+        p_ = new T (*c);
+        deleter_ = &container_statement_cache_ptr<T>::allocate;
+      }
+      else
+        delete p_;
+    }
+
     //
     // Implementation for objects with object id.
     //
@@ -357,7 +409,7 @@ namespace odb
       container_statement_cache_type&
       container_statment_cache ()
       {
-        return container_statement_cache_;
+        return container_statement_cache_.get (conn_);
       }
 
     public:
@@ -393,7 +445,8 @@ namespace odb
       clear_delayed_ ();
 
     private:
-      container_statement_cache_type container_statement_cache_;
+      container_statement_cache_ptr<container_statement_cache_type>
+      container_statement_cache_;
 
       image_type image_;
 

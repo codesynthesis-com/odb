@@ -338,7 +338,7 @@ namespace odb
       container_statement_cache_type&
       container_statment_cache ()
       {
-        return container_statement_cache_;
+        return container_statement_cache_.get (conn_);
       }
 
     public:
@@ -370,7 +370,8 @@ namespace odb
       root_statements_type& root_statements_;
       base_statements_type& base_statements_;
 
-      container_statement_cache_type container_statement_cache_;
+      container_statement_cache_ptr<container_statement_cache_type>
+      container_statement_cache_;
 
       image_type image_;
 

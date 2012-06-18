@@ -63,7 +63,6 @@ namespace odb
         : statements_base (conn),
           root_statements_ (conn.statement_cache ().find_object<root_type> ()),
           base_statements_ (conn.statement_cache ().find_object<base_type> ()),
-          container_statement_cache_ (conn),
           insert_image_binding_ (insert_image_bind_, insert_column_count),
           update_image_binding_ (update_image_bind_,
                                  update_column_count + id_column_count)
