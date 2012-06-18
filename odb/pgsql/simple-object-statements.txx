@@ -46,7 +46,6 @@ namespace odb
     object_statements<T>::
     object_statements (connection_type& conn)
         : object_statements_base (conn),
-          container_statement_cache_ (conn),
           // select
           select_image_binding_ (select_image_bind_, select_column_count),
           // insert
