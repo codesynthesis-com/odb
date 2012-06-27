@@ -56,6 +56,7 @@ main (int argc, char* argv[])
 
     o.date = t.date ();
     o.date_time = t;
+    o.date_time_d = QDateTime (QDate (2012, 6, 27), QTime (14, 17, 05, 0));
     o.time = t.time ();
 
     {

@@ -19,6 +19,7 @@ struct object
       id == x.id &&
       date == x.date &&
       date_time == x.date_time &&
+      date_time_d == x.date_time_d &&
       time == x.time;
   }
 
@@ -28,6 +29,7 @@ struct object
     return
       date.isNull () &&
       date_time.isNull () &&
+      date_time_d.isNull () &&
       time.isNull ();
   }
 
@@ -36,6 +38,8 @@ struct object
 
   QDate date;
   QDateTime date_time;
+  #pragma db type("DATE")
+  QDateTime date_time_d;
   QTime time;
 };
 

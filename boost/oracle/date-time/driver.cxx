@@ -53,6 +53,10 @@ main (int argc, char* argv[])
     o.times.push_back (min_date_time);
     o.times.push_back (ptime (max_date_time));
 
+    o.times_d.push_back (ptime (date (2012, 6, 27),
+                                time_duration (14, 17, 05, 0)));
+    o.times_d.push_back (not_a_date_time);
+
     o.durations.push_back (time_duration (1, 2, 3, 123456));
     o.durations.push_back (time_duration (-1, 2, 3));
     o.durations.push_back (not_a_date_time);

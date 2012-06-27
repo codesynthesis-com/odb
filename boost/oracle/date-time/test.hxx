@@ -26,6 +26,7 @@ struct object
       id == x.id &&
       dates == x.dates &&
       times == x.times &&
+      times_d == x.times_d &&
       durations == x.durations;
   }
 
@@ -34,6 +35,8 @@ struct object
 
   std::vector<boost::gregorian::date> dates;
   std::vector<boost::posix_time::ptime> times;
+  #pragma db value_type("DATE")
+  std::vector<boost::posix_time::ptime> times_d;
   std::vector<boost::posix_time::time_duration> durations;
 };
 
