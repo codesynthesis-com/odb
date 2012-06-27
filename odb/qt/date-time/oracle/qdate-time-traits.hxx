@@ -10,6 +10,7 @@
 #include <QtCore/QDateTime>
 
 #include <odb/oracle/traits.hxx>
+#include <odb/oracle/details/date.hxx>
 
 namespace odb
 {
@@ -65,6 +66,60 @@ namespace odb
                  static_cast<ub1> (t.minute ()),
                  static_cast<ub1> (t.second ()),
                  static_cast<ub4> (t.msec () * 1000000));
+        }
+      }
+    };
+
+    template <>
+    struct default_value_traits<QDateTime, id_date>
+    {
+      typedef QDateTime value_type;
+      typedef QDateTime query_type;
+      typedef char* image_type;
+
+      static void
+      set_value (QDateTime& v, const char* b, bool is_null)
+      {
+        if (is_null)
+          // Default constructor creates a null QDateTime.
+          //
+          v = QDateTime ();
+        else
+        {
+          short y;
+          unsigned char m, d, h, minute, s;
+
+          details::get_date (b, y, m, d, h, minute, s);
+
+          v = QDateTime (QDate (static_cast<int> (y),
+                                static_cast<int> (m),
+                                static_cast<int> (d)),
+                         QTime (static_cast<int> (h),
+                                static_cast<int> (minute),
+                                static_cast<int> (s),
+                                0));
+        }
+      }
+
+      static void
+      set_image (char* b, bool& is_null, const QDateTime& v)
+      {
+        if (v.isNull ())
+          is_null = true;
+        else
+        {
+          is_null = false;
+
+          const QDate& d (v.date ());
+          const QTime& t (v.time ());
+
+          details::set_date (b,
+                             static_cast<short> (d.year ()),
+                             static_cast<unsigned char> (d.month ()),
+                             static_cast<unsigned char> (d.day ()),
+                             static_cast<unsigned char> (t.hour ()),
+                             static_cast<unsigned char> (t.minute ()),
+                             static_cast<unsigned char> (t.second ()));
         }
       }
     };
