@@ -30,7 +30,7 @@ equal (const QLazySharedPointer<X>& r) const
   typedef typename odb::object_traits<X>::object_type object_type2;
 
   return i_.database () == r.i_.database () &&
-    objectId<object_type1> () == r.objectId<object_type2> ();
+    objectId<object_type1> () == r.template objectId<object_type2> ();
 }
 
 //
@@ -90,8 +90,8 @@ toStrongRef () const
   else
   {
     if (i_)
-      return QLazySharedPointer<T> (*i_.database (),
-                                    i_.template object_id<T> ());
+      return QLazySharedPointer<T> (
+        *i_.database (), i_.template object_id<T> ());
     else
       return QLazySharedPointer<T> ();
   }

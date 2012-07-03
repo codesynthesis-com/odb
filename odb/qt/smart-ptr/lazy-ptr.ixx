@@ -129,7 +129,7 @@ template <class X>
 inline QLazySharedPointer<X> QLazySharedPointer<T>::
 staticCast () const
 {
-  QLazySharedPointer c (p_.staticCast<X> ());
+  QLazySharedPointer c (p_.template staticCast<X> ());
   c.i_ = i_;
   return c;
 }
@@ -139,7 +139,7 @@ template <class X>
 inline QLazySharedPointer<X> QLazySharedPointer<T>::
 dynamicCast () const
 {
-  QLazySharedPointer<X> c (p_.dynamicCast<X> ());
+  QLazySharedPointer<X> c (p_.template dynamicCast<X> ());
 
   if (c)
     c.i_ = i_;
@@ -152,7 +152,7 @@ template <class X>
 inline QLazySharedPointer<X> QLazySharedPointer<T>::
 constCast () const
 {
-  QLazySharedPointer<X> c (p_.constCast<X> ());
+  QLazySharedPointer<X> c (p_.template constCast<X> ());
   c.i_ = i_;
   return c;
 }
@@ -278,8 +278,9 @@ objectId () const
 {
   typedef typename odb::object_traits<T>::object_type object_type;
 
-  return p_ ?
-    odb::object_traits<object_type>::id (*p_) : i_.template object_id<O> ();
+  return p_
+    ? odb::object_traits<object_type>::id (*p_)
+    : i_.template object_id<O> ();
 }
 
 //
@@ -516,8 +517,9 @@ objectId () const
 
   QSharedPointer<T> sp (p_.toStrongRef ());
 
-  return sp ?
-    odb::object_traits<object_type>::id (*sp) :i_.template object_id<O> ();
+  return sp
+    ? odb::object_traits<object_type>::id (*sp)
+    : i_.template object_id<O> ();
 }
 
 template <class T>
