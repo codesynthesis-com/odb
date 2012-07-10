@@ -19,7 +19,8 @@ namespace odb
       //
       append (c.table (), c.column ());
       append ("=");
-      append<bool, ID> (val_bind<bool> (true, c.prec (), c.scale ()));
+      append<bool, ID> (val_bind<bool> (true, c.prec (), c.scale ()),
+                        c.conversion ());
     }
 
     // query_column
@@ -30,9 +31,9 @@ namespace odb
     {
       query q (table_, column_);
       q += "IN (";
-      q.append<T, ID> (val_bind<T> (v1, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v1, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v2, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v2, prec_, scale_), conversion_);
       q += ")";
       return q;
     }
@@ -43,11 +44,11 @@ namespace odb
     {
       query q (table_, column_);
       q += "IN (";
-      q.append<T, ID> (val_bind<T> (v1, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v1, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v2, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v2, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v3, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v3, prec_, scale_), conversion_);
       q += ")";
       return q;
     }
@@ -58,13 +59,13 @@ namespace odb
     {
       query q (table_, column_);
       q += "IN (";
-      q.append<T, ID> (val_bind<T> (v1, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v1, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v2, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v2, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v3, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v3, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v4, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v4, prec_, scale_), conversion_);
       q += ")";
       return q;
     }
@@ -75,15 +76,15 @@ namespace odb
     {
       query q (table_, column_);
       q += "IN (";
-      q.append<T, ID> (val_bind<T> (v1, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v1, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v2, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v2, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v3, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v3, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v4, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v4, prec_, scale_), conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v5, prec_, scale_));
+      q.append<T, ID> (val_bind<T> (v5, prec_, scale_), conversion_);
       q += ")";
       return q;
     }
@@ -101,7 +102,7 @@ namespace odb
         if (i != begin)
           q += ",";
 
-        q.append<T, ID> (val_bind<T> (*i, prec_, scale_));
+        q.append<T, ID> (val_bind<T> (*i, prec_, scale_), conversion_);
       }
       q += ")";
       return q;
