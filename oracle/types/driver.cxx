@@ -28,7 +28,7 @@ main (int argc, char* argv[])
     // Create an Oracle database instance, setting both the client database
     // and national character set to UTF-8.
     //
-    auto_ptr<database> db (create_database (argc, argv, false));
+    auto_ptr<database> db (create_database (argc, argv));
 
     object o (1);
 

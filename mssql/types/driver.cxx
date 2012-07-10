@@ -25,7 +25,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv, false));
+    auto_ptr<database> db (create_database (argc, argv));
 
     {
       object o (1);
