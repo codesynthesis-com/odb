@@ -23,6 +23,7 @@
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/details/export.hxx>
+#include <odb/pgsql/details/conversion.hxx>
 
 namespace odb
 {
@@ -103,7 +104,7 @@ namespace odb
         clause_part (bool p): kind (boolean), bool_part (p) {}
 
         kind_type kind;
-        std::string part;
+        std::string part; // If kind is param, then part is conversion expr.
         bool bool_part;
       };
 
@@ -146,7 +147,8 @@ namespace odb
       query (val_bind<T> v)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
-        append<T, type_traits<T>::db_type_id> (v);
+        append<T, type_traits<T>::db_type_id> (
+          v, details::conversion<T>::to ());
       }
 
       template <typename T>
@@ -154,7 +156,8 @@ namespace odb
       query (ref_bind<T> r)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
-        append<T, type_traits<T>::db_type_id> (r);
+        append<T, type_traits<T>::db_type_id> (
+          r, details::conversion<T>::to ());
       }
 
       template <database_type_id ID>
@@ -237,7 +240,8 @@ namespace odb
       query&
       operator+= (val_bind<T> v)
       {
-        append<T, type_traits<T>::db_type_id> (v);
+        append<T, type_traits<T>::db_type_id> (
+          v, details::conversion<T>::to ());
         return *this;
       }
 
@@ -245,18 +249,19 @@ namespace odb
       query&
       operator+= (ref_bind<T> r)
       {
-        append<T, type_traits<T>::db_type_id> (r);
+        append<T, type_traits<T>::db_type_id> (
+          r, details::conversion<T>::to ());
         return *this;
       }
 
     public:
       template <typename T, database_type_id ID>
       void
-      append (val_bind<T>);
+      append (val_bind<T>, const char* conv);
 
       template <typename T, database_type_id ID>
       void
-      append (ref_bind<T>);
+      append (ref_bind<T>, const char* conv);
 
       void
       append (const std::string& native);
@@ -266,7 +271,7 @@ namespace odb
 
     private:
       void
-      add (details::shared_ptr<query_param>);
+      add (details::shared_ptr<query_param>, const char* conv);
 
     private:
       typedef std::vector<clause_part> clause_type;
@@ -414,10 +419,11 @@ namespace odb
     template <typename T, database_type_id ID>
     struct query_column
     {
-      // Note that we keep shalow copies of the table and column names.
+      // Note that we keep shallow copies of the table, column, and conversion
+      // expression. The latter can be NULL.
       //
-      query_column (const char* table, const char* column)
-          : table_ (table), column_ (column)
+      query_column (const char* table, const char* column, const char* conv)
+          : table_ (table), column_ (column), conversion_ (conv)
       {
       }
 
@@ -431,6 +437,14 @@ namespace odb
       column () const
       {
         return column_;
+      }
+
+      // Can be NULL.
+      //
+      const char*
+      conversion () const
+      {
+        return conversion_;
       }
 
       // is_null, is_not_null
@@ -485,7 +499,7 @@ namespace odb
       {
         query q (table_, column_);
         q += "=";
-        q.append<T, ID> (v);
+        q.append<T, ID> (v, conversion_);
         return q;
       }
 
@@ -502,7 +516,7 @@ namespace odb
       {
         query q (table_, column_);
         q += "=";
-        q.append<T, ID> (r);
+        q.append<T, ID> (r, conversion_);
         return q;
       }
 
@@ -570,7 +584,7 @@ namespace odb
       {
         query q (table_, column_);
         q += "!=";
-        q.append<T, ID> (v);
+        q.append<T, ID> (v, conversion_);
         return q;
       }
 
@@ -587,7 +601,7 @@ namespace odb
       {
         query q (table_, column_);
         q += "!=";
-        q.append<T, ID> (r);
+        q.append<T, ID> (r, conversion_);
         return q;
       }
 
@@ -655,7 +669,7 @@ namespace odb
       {
         query q (table_, column_);
         q += "<";
-        q.append<T, ID> (v);
+        q.append<T, ID> (v, conversion_);
         return q;
       }
 
@@ -672,7 +686,7 @@ namespace odb
       {
         query q (table_, column_);
         q += "<";
-        q.append<T, ID> (r);
+        q.append<T, ID> (r, conversion_);
         return q;
       }
 
@@ -740,7 +754,7 @@ namespace odb
       {
         query q (table_, column_);
         q += ">";
-        q.append<T, ID> (v);
+        q.append<T, ID> (v, conversion_);
         return q;
       }
 
@@ -757,7 +771,7 @@ namespace odb
       {
         query q (table_, column_);
         q += ">";
-        q.append<T, ID> (r);
+        q.append<T, ID> (r, conversion_);
         return q;
       }
 
@@ -825,7 +839,7 @@ namespace odb
       {
         query q (table_, column_);
         q += "<=";
-        q.append<T, ID> (v);
+        q.append<T, ID> (v, conversion_);
         return q;
       }
 
@@ -842,7 +856,7 @@ namespace odb
       {
         query q (table_, column_);
         q += "<=";
-        q.append<T, ID> (r);
+        q.append<T, ID> (r, conversion_);
         return q;
       }
 
@@ -910,7 +924,7 @@ namespace odb
       {
         query q (table_, column_);
         q += ">=";
-        q.append<T, ID> (v);
+        q.append<T, ID> (v, conversion_);
         return q;
       }
 
@@ -927,7 +941,7 @@ namespace odb
       {
         query q (table_, column_);
         q += ">=";
-        q.append<T, ID> (r);
+        q.append<T, ID> (r, conversion_);
         return q;
       }
 
@@ -1071,6 +1085,7 @@ namespace odb
     private:
       const char* table_;
       const char* column_;
+      const char* conversion_;
     };
 
     // Provide operator+() for using columns to construct native
