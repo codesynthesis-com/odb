@@ -47,8 +47,11 @@ endif
 # Database schema creation.
 #
 ifeq ($(filter $(db_id),sqlite),)
+$(out_base)/.test: schema-extra = \
+$(call message,sql $$1,$(dcf_root)/db-driver $$1,$(src_base)/$1)$(literal_newline)$(literal_tab)
 $(out_base)/.test: schema = \
-$(call message,sql $$1,$(dcf_root)/db-driver $$1,$(out_base)/test.sql)
+$(foreach s,$1,$(call schema-extra,$s))$(call \
+message,sql $$1,$(dcf_root)/db-driver $$1,$(out_base)/test.sql)
 endif
 
 # Dist setup.
