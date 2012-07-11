@@ -42,7 +42,7 @@ operator== (const point& a, const point& b)
 // Map INTEGER[] PostgreSQL type to std::vector<int>. The other half of
 // this mapping is in traits.hxx (value_traits<std::vector<int>, id_string>).
 //
-#pragma db map type("INTEGER *\\[(\\d+)\\]") \
+#pragma db map type("INTEGER *\\[(\\d*)\\]") \
                as("TEXT")                    \
                to("(?)::INTEGER[$1]")        \
                from("(?)::TEXT")
