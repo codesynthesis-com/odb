@@ -2267,7 +2267,8 @@ namespace odb
 namespace odb
 {
   template <typename T>
-  class query<T, mssql::query>: public query_selector<T>::type
+  class query<T, mssql::query>: public mssql::query,
+                                public query_selector<T>::columns_type
   {
   public:
     // We don't define any typedefs here since they may clash with
@@ -2280,44 +2281,44 @@ namespace odb
 
     explicit
     query (bool v)
-        : query_selector<T>::type (v)
+        : mssql::query (v)
     {
     }
 
     explicit
     query (const char* q)
-        : query_selector<T>::type (q)
+        : mssql::query (q)
     {
     }
 
     explicit
     query (const std::string& q)
-        : query_selector<T>::type (q)
+        : mssql::query (q)
     {
     }
 
     template <typename T2>
     explicit
     query (mssql::val_bind<T2> v)
-        : query_selector<T>::type (mssql::query (v))
+        : mssql::query (mssql::query (v))
     {
     }
 
     template <typename T2>
     explicit
     query (mssql::ref_bind<T2> r)
-        : query_selector<T>::type (mssql::query (r))
+        : mssql::query (mssql::query (r))
     {
     }
 
     query (const mssql::query& q)
-        : query_selector<T>::type (q)
+        : mssql::query (q)
     {
     }
 
     template <mssql::database_type_id ID>
     query (const mssql::query_column<bool, ID>& qc)
-        : query_selector<T>::type (qc)
+        : mssql::query (qc)
     {
     }
   };
