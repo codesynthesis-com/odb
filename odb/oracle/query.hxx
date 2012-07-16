@@ -1831,7 +1831,8 @@ namespace odb
 namespace odb
 {
   template <typename T>
-  class query<T, oracle::query>: public query_selector<T>::type
+  class query<T, oracle::query>: public oracle::query,
+                                 public query_selector<T>::columns_type
   {
   public:
     // We don't define any typedefs here since they may clash with
@@ -1844,44 +1845,44 @@ namespace odb
 
     explicit
     query (bool v)
-        : query_selector<T>::type (v)
+        : oracle::query (v)
     {
     }
 
     explicit
     query (const char* q)
-        : query_selector<T>::type (q)
+        : oracle::query (q)
     {
     }
 
     explicit
     query (const std::string& q)
-        : query_selector<T>::type (q)
+        : oracle::query (q)
     {
     }
 
     template <typename T2>
     explicit
     query (oracle::val_bind<T2> v)
-        : query_selector<T>::type (oracle::query (v))
+        : oracle::query (oracle::query (v))
     {
     }
 
     template <typename T2>
     explicit
     query (oracle::ref_bind<T2> r)
-        : query_selector<T>::type (oracle::query (r))
+        : oracle::query (oracle::query (r))
     {
     }
 
     query (const oracle::query& q)
-        : query_selector<T>::type (q)
+        : oracle::query (q)
     {
     }
 
     template <oracle::database_type_id ID>
     query (const oracle::query_column<bool, ID>& qc)
-        : query_selector<T>::type (qc)
+        : oracle::query (qc)
     {
     }
   };
