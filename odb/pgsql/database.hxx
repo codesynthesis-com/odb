@@ -44,8 +44,8 @@ namespace odb
       database (const std::string& user,
                 const std::string& password,
                 const std::string& db,
-                const std::string& host = "",
-                const std::string& socket_ext = "",
+                const std::string& host,
+                const std::string& socket_ext,
                 const std::string& extra_conninfo = "",
                 details::transfer_ptr<connection_factory> =
                   details::transfer_ptr<connection_factory> ());
