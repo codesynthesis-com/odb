@@ -1,11 +1,11 @@
-# file      : oracle/custom/makefile
+# file      : common/circular/multiple/makefile
 # copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
+include $(dir $(lastword $(MAKEFILE_LIST)))../../../build/bootstrap.make
 
 cxx_tun := driver.cxx
-odb_hdr := test.hxx
+odb_hdr := test1.hxx test2.hxx
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
@@ -29,16 +29,19 @@ $(driver): $(cxx_obj) $(common.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
-genf := $(addprefix $(odb_hdr:.hxx=-odb),.hxx .ixx .cxx) $(odb_hdr:.hxx=.sql)
+genf := $(foreach f,$(odb_hdr:.hxx=),$(addprefix $f,-odb.hxx -odb.ixx -odb.cxx .sql))
 gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database oracle --generate-schema \
---generate-query --hxx-prologue '\#include "traits.hxx"' \
---table-prefix oracle_custom_
+$(gen) $(dist): export odb_options += --database $(db_id) --generate-schema \
+--schema-format embedded --generate-query --table-prefix circular_m_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
+
+# Extra dependecy for the ODB-generated code.
+#
+$(gen): $(src_base)/test1.hxx $(src_base)/test2.hxx
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
 
@@ -48,23 +51,24 @@ $(out_base)/: $(driver)
 
 # Dist
 #
+name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
+
+$(dist): db_id := @database@
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
-$(dist): export extra_headers := traits.hxx custom.sql
 $(dist): data_dist := test.std
-$(dist): export name := $(subst /,-,$(subst $(src_root)/oracle/,,$(src_base)))
-$(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
-$(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters
+$(dist): export name := $(name)
+$(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \
+$(call vc10projs,$(name))
 $(dist):
-	$(call dist-data,$(sources) $(headers) $(extra_headers) $(data_dist))
+	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
-	$(call meta-vc9proj,../template/template-vc9.vcproj,$(name)-vc9.vcproj)
-	$(call meta-vc10proj,../template/template-vc10.vcxproj,$(name)-vc10.vcxproj)
+	$(call meta-vc9projs,../template/template,$(name))
+	$(call meta-vc10projs,../template/template,$(name))
 
 # Test.
 #
 $(test): $(driver) $(src_base)/test.std
-	$(call schema,$(src_base)/custom.sql $(out_base)/test.sql)
 	$(call message,test $<,$< --options-file $(dcf_root)/db.options \
 >$(out_base)/test.out)
 	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)

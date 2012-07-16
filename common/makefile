@@ -8,6 +8,8 @@ tests :=            \
 auto                \
 blob                \
 callback            \
+circular/single     \
+circular/multiple   \
 composite           \
 composite-id        \
 const-object        \
