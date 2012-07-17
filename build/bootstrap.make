@@ -44,6 +44,10 @@ clean: $(out_base)/.clean
 
 endif
 
+# By default the ODB header is called test.hxx.
+#
+$(out_base)/.dist: export odb_header_stem := test
+
 # Database schema creation.
 #
 ifeq ($(filter $(db_id),sqlite),)

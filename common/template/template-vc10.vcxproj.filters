@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -11,14 +11,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-__header_filter_entry__(test.hxx)
-__header_filter_entry__(test-odb.hxx)
-__header_filter_entry__(test-odb.ixx)
-__header_filter_entries__(extra_headers)
+__ifelse__(__value__(odb_options),,,
+  __foreach_w__(__f,__path__(odb_header_stem),
+__header_filter_entry__(__f.hxx)
+__header_filter_entry__(__f-odb.hxx)
+__header_filter_entry__(__f-odb.ixx)
+))__header_filter_entries__(extra_headers)
   </ItemGroup>
   <ItemGroup>
 __source_filter_entry__(driver.cxx)
-__source_filter_entry__(test-odb.cxx)
-__source_filter_entries__(extra_sources)
+__ifelse__(__value__(odb_options),,,
+  __foreach_w__(__f,__path__(odb_header_stem),
+__source_filter_entry__(__f-odb.cxx)
+))__source_filter_entries__(extra_sources)
   </ItemGroup>
 </Project>

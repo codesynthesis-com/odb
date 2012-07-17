@@ -154,25 +154,30 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-m4_ifelse(__value__(odb_options),,,
+__ifelse__(__value__(odb_options),,,
 m4_dnl
   <ItemGroup>
-__custom_build_entry__(
-test.hxx,
-odb test.hxx,
-odb.exe --std c++11 __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options), @database@, __value__(database)) -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 -I$(SolutionDir)\..\libcommon)) test.hxx,
-test-odb.hxx;test-odb.ixx;test-odb.cxx)
+  __foreach_w__(__f,__path__(odb_header_stem),
+    __custom_build_entry__(
+__f.hxx,
+odb __f.hxx,
+odb.exe --std c++11 __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options), @database@, __value__(database)) -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 -I$(SolutionDir)\..\libcommon)) __f.hxx,
+__f-odb.hxx;__f-odb.ixx;__f-odb.cxx)
+)
   </ItemGroup>)
   <ItemGroup>
-m4_ifelse(__value__(odb_options),,,
-__header_entry__(test-odb.hxx)
-__header_entry__(test-odb.ixx))
-__header_entries__(extra_headers)
+__ifelse__(__value__(odb_options),,,
+  __foreach_w__(__f,__path__(odb_header_stem),
+__header_entry__(__f-odb.hxx)
+__header_entry__(__f-odb.ixx)
+))__header_entries__(extra_headers)
   </ItemGroup>
   <ItemGroup>
 __source_entry__(driver.cxx)
-m4_ifelse(__value__(odb_options),,,__source_entry__(test-odb.cxx))
-__source_entries__(extra_sources)
+__ifelse__(__value__(odb_options),,,
+  __foreach_w__(__f,__path__(odb_header_stem),
+__source_entry__(__f-odb.cxx)
+))__source_entries__(extra_sources)
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
