@@ -13,7 +13,7 @@ AM_CPPFLAGS += -I'$(builddir)' -I'$(srcdir)'
 TESTS=$(top_builddir)/tester
 TESTS_ENVIRONMENT=top_builddir=$(top_builddir); export top_builddir;
 
-m4_ifelse(__value__(odb_options),,,
+__ifelse__(__value__(odb_options),,,
 
 # ODB compilation.
 #

@@ -11,7 +11,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-m4_ifelse(__value__(odb_options),,,
+__ifelse__(__value__(odb_options),,,
 __header_filter_entry__(test.hxx)
 __header_filter_entry__(test-odb.hxx)
 __header_filter_entry__(test-odb.ixx))
@@ -19,7 +19,7 @@ __header_filter_entries__(extra_headers)
   </ItemGroup>
   <ItemGroup>
 __source_filter_entry__(driver.cxx)
-m4_ifelse(__value__(odb_options),,,__source_filter_entry__(test-odb.cxx))
+__ifelse__(__value__(odb_options),,,__source_filter_entry__(test-odb.cxx))
 __source_filter_entries__(extra_sources)
   </ItemGroup>
 </Project>

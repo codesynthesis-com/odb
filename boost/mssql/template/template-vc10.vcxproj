@@ -154,7 +154,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-m4_ifelse(__value__(odb_options),,,
+__ifelse__(__value__(odb_options),,,
 m4_dnl
   <ItemGroup>
 __custom_build_entry__(
@@ -164,14 +164,14 @@ odb.exe --std c++11 __xml__(__shell_quotes__(__value__(odb_options) -DHAVE_CONFI
 test-odb.hxx;test-odb.ixx;test-odb.cxx)
   </ItemGroup>)
   <ItemGroup>
-m4_ifelse(__value__(odb_options),,,
+__ifelse__(__value__(odb_options),,,
 __header_entry__(test-odb.hxx)
 __header_entry__(test-odb.ixx))
 __header_entries__(extra_headers)
   </ItemGroup>
   <ItemGroup>
 __source_entry__(driver.cxx)
-m4_ifelse(__value__(odb_options),,,__source_entry__(test-odb.cxx))
+__ifelse__(__value__(odb_options),,,__source_entry__(test-odb.cxx))
 __source_entries__(extra_sources)
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
