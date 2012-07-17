@@ -263,7 +263,7 @@ namespace odb
 
             // Add the conversion expression, if any.
             //
-            string::size_type p;
+            string::size_type p (0);
             if (!i->part.empty ())
             {
               p = i->part.find ("(?)");
