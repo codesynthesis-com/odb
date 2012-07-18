@@ -29,24 +29,27 @@ struct object
   #pragma db id
   unsigned long id_;
 
-  #pragma db type ("BOOL")
+  #pragma db type("BOOL")
   bool bool_;
 
-  #pragma db type ("INTEGER")
+  #pragma db type("INTEGER")
   int integer_;
 
-  #pragma db type ("REAL")
+  #pragma db type("REAL")
   double real_;
 
-  #pragma db type ("TEXT")
+  #pragma db type("REAL") null
+  double nan_;
+
+  #pragma db type("TEXT")
   std::string text_;
 
-  #pragma db type ("BLOB")
+  #pragma db type("BLOB")
   std::vector<char> blob_;
 
   // Test NULL value.
   //
-  #pragma db type ("TEXT") null
+  #pragma db type("TEXT") null
   string_ptr null_;
 
   bool
@@ -57,6 +60,7 @@ struct object
       bool_ == y.bool_ &&
       integer_ == y.integer_ &&
       real_ == y.real_ &&
+      nan_ != nan_ &&
       text_ == y.text_ &&
       blob_ == y.blob_ &&
       ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);

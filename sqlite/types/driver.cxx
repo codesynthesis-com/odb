@@ -5,6 +5,7 @@
 // Test SQLite type conversion.
 //
 
+#include <limits>   // std::numeric_limits
 #include <memory>   // std::auto_ptr
 #include <cassert>
 #include <iostream>
@@ -33,6 +34,7 @@ main (int argc, char* argv[])
     o.bool_ = true;
     o.integer_ = -123456;
     o.real_ = 1.123;
+    o.nan_ = numeric_limits<double>::quiet_NaN ();
 
     string long_str (2040, 'l');
 
