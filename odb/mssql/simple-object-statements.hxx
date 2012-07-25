@@ -431,7 +431,7 @@ namespace odb
         (object_traits::auto_id ? id_column_count : 0);
 
       static const std::size_t update_column_count = insert_column_count -
-        (object_traits::auto_id ? 0 : object_traits::id_column_count) -
+        (object_traits::auto_id ? 0 : id_column_count) -
         object_traits::readonly_column_count;
 
     private:
