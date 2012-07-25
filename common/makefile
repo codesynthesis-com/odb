@@ -20,6 +20,7 @@ default             \
 enum                \
 erase-query         \
 include             \
+index               \
 inheritance         \
 inverse             \
 lazy-ptr            \
