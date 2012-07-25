@@ -9,17 +9,35 @@
 #include <cassert>
 #include <iostream>
 
+#include <odb/pgsql/database.hxx>
+#include <odb/pgsql/transaction.hxx>
+
+#include <common/common.hxx>
+
+#include "test.hxx"
+#include "test-odb.hxx"
+
 using namespace std;
+using namespace odb::core;
 
 int
-main ()
+main (int argc, char* argv[])
 {
   try
   {
+    auto_ptr<database> db (create_database (argc, argv));
+
+    //
+    //
     cout << "test 001" << endl;
+    {
+      transaction t (db->begin ());
+      t.commit ();
+    }
   }
-  catch (...)
+  catch (const odb::exception& e)
   {
+    cerr << e.what () << endl;
     return 1;
   }
 }
