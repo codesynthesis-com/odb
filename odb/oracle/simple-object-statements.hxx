@@ -414,21 +414,23 @@ namespace odb
 
     public:
       // select = total
-      // insert = total - inverse - managed_optimistic
+      // insert = total - inverse - managed_optimistic - auto_id
       // update = total - inverse - managed_optimistic - id - readonly
       //
       static const std::size_t select_column_count =
         object_traits::column_count;
 
-      static const std::size_t insert_column_count =
-        object_traits::column_count - object_traits::inverse_column_count -
-        object_traits::managed_optimistic_column_count;
-
-      static const std::size_t update_column_count = insert_column_count -
-        object_traits::id_column_count - object_traits::readonly_column_count;
-
       static const std::size_t id_column_count =
         object_traits::id_column_count;
+
+      static const std::size_t insert_column_count =
+        object_traits::column_count - object_traits::inverse_column_count -
+        object_traits::managed_optimistic_column_count -
+        (object_traits::auto_id ? id_column_count : 0);
+
+      static const std::size_t update_column_count = insert_column_count -
+        (object_traits::auto_id ? 0 : id_column_count) -
+        object_traits::readonly_column_count;
 
       static const std::size_t managed_optimistic_column_count =
         object_traits::managed_optimistic_column_count;
