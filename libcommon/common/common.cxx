@@ -111,7 +111,14 @@ create_database (int& argc,
 
   db.reset (
     new sqlite::database (
-      argc, argv, false, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, true,
+      argc, argv, false,
+      SQLITE_OPEN_READWRITE
+      | SQLITE_OPEN_CREATE
+#ifdef SQLITE_OPEN_URI
+      | SQLITE_OPEN_URI
+#endif
+      ,
+      true,
 #ifdef HAVE_CXX11
       move (f)
 #else
