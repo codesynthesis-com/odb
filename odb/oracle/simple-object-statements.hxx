@@ -462,7 +462,8 @@ namespace odb
       //
       std::size_t insert_image_version_;
       binding insert_image_binding_;
-      bind insert_image_bind_[insert_column_count];
+      bind insert_image_bind_[
+        insert_column_count != 0 ? insert_column_count : 1];
 
       // Update binding. Note that the id suffix is bound to id_image_
       // below instead of image_ which makes this binding effectively
