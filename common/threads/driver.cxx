@@ -121,16 +121,11 @@ struct task
         }
       }
     }
-    catch (int)
-    {
-    }
-    /*
     catch (const odb::exception& e)
     {
       cerr << e.what () << endl;
       return reinterpret_cast<void*> (1);
     }
-    */
 
     return 0;
   }
