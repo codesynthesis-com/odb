@@ -486,11 +486,15 @@ namespace odb
       //
       std::size_t insert_image_version_;
       binding insert_image_binding_;
-      bind insert_image_bind_[insert_column_count];
+      bind insert_image_bind_[
+        insert_column_count != 0 ? insert_column_count : 1];
       native_binding insert_image_native_binding_;
-      char* insert_image_values_[insert_column_count];
-      int insert_image_lengths_[insert_column_count];
-      int insert_image_formats_[insert_column_count];
+      char* insert_image_values_[
+        insert_column_count != 0 ? insert_column_count : 1];
+      int insert_image_lengths_[
+        insert_column_count != 0 ? insert_column_count : 1];
+      int insert_image_formats_[
+        insert_column_count != 0 ? insert_column_count : 1];
 
       // Update binding. Note that the id suffix is bound to id_image_
       // below instead of image_ which makes this binding effectively
