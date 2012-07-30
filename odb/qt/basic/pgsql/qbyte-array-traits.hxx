@@ -73,4 +73,6 @@ namespace odb
   }
 }
 
+#include <odb/post.hxx>
+
 #endif // ODB_QT_BASIC_PGSQL_QBYTE_ARRAY_TRAITS_HXX

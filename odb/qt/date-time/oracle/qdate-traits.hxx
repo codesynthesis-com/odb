@@ -72,4 +72,6 @@ namespace odb
   }
 }
 
+#include <odb/post.hxx>
+
 #endif // ODB_QT_DATE_TIME_ORACLE_QDATE_TRAITS_HXX

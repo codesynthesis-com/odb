@@ -76,4 +76,6 @@ namespace odb
   }
 }
 
+#include <odb/post.hxx>
+
 #endif // ODB_QT_DATE_TIME_MSSQL_QTIME_TRAITS_HXX

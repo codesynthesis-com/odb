@@ -69,4 +69,6 @@ namespace odb
   }
 }
 
+#include <odb/post.hxx>
+
 #endif // ODB_QT_DATE_TIME_PGSQL_QTIME_TRAITS_HXX

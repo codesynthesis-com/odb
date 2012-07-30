@@ -73,4 +73,6 @@ namespace odb
   }
 }
 
+#include <odb/post.hxx>
+
 #endif // ODB_QT_BASIC_SQLITE_QBYTE_ARRAY_TRAITS_HXX
