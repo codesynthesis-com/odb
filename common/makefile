@@ -17,6 +17,7 @@ const-member        \
 container           \
 ctor                \
 default             \
+definition          \
 enum                \
 erase-query         \
 include             \
