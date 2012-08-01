@@ -27,8 +27,12 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
+    // Test basic composite functionality.
+    //
     for (unsigned short i (0); i < 2; ++i)
     {
+      using namespace test1;
+
       person p (1);
       p.name_.first = "Joe";
       p.name_.last = "Dirt";
@@ -125,6 +129,8 @@ main (int argc, char* argv[])
     // Test composite class template instantiation.
     //
     {
+      using namespace test2;
+
       object o (1);
 
       o.comp_.num = 123;
@@ -139,6 +145,33 @@ main (int argc, char* argv[])
       o.vec_.push_back (int_str_pair (123, "abc"));
       o.vec_.push_back (int_str_pair (234, "bcd"));
       o.vec_.push_back (int_str_pair (345, "cde"));
+
+      // persist
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      // load & check
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> o1 (db->load<object> (1));
+        t.commit ();
+
+        assert (o == *o1);
+      }
+    }
+
+    // Test empty column name.
+    //
+    {
+      using namespace test3;
+
+      object o (1);
+      o.c_.str = "abc";
 
       // persist
       //
