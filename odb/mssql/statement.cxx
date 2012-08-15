@@ -666,7 +666,7 @@ namespace odb
             assert (si != SQL_NO_TOTAL);
 
             // Actual amount of data copied to the buffer (appears not to
-            // include the NULL teminator).
+            // include the NULL terminator).
             //
             size = static_cast<size_t> (si);
             c = chunk_last;
