@@ -984,7 +984,7 @@ namespace test11
   };
 }
 
-// Test polymorphic classes with auto id.
+// Test polymorphic classes with private auto id.
 //
 #pragma db namespace table("t12_")
 namespace test12
@@ -994,17 +994,20 @@ namespace test12
   {
     virtual ~root () = 0; // Auto-abstract.
 
-    #pragma db id auto
-    unsigned long id;
-
     virtual bool
     compare (const root& r, bool tc = true) const
     {
       if (tc && typeid (r) != typeid (root))
         return false;
 
-      return id == r.id;
+      return id_ == r.id_;
     }
+
+    unsigned long id () const {return id_;}
+    void id (unsigned long id) {id_ = id;}
+  private:
+    #pragma db id auto access(id)
+    unsigned long id_;
   };
 
   inline root::
