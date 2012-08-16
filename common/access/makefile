@@ -35,7 +35,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) --generate-schema \
---table-prefix access_
+--table-prefix access_ --accessor-regex "/(.+)/Get\u\1/" \
+--modifier-regex "/(.+)/Set\u\1/"
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 

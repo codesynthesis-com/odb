@@ -37,9 +37,10 @@ main (int argc, char* argv[])
       o.i2 (223);
       o.i3 () = 323;
       o.i4 () = 423;
-      o.set_i5 (423);
+      o.set_i5 (523);
       o.s1 ("1bc");
       memcpy (o.b1 (), "123456789012345", 16);
+      o.b2 ("123456789012345");
 
       {
         transaction t (db->begin ());
@@ -217,6 +218,37 @@ main (int argc, char* argv[])
         assert (o1.version () == 2);
         assert (o2.version () == 2);
         assert (o3.version_ == 2);
+      }
+    }
+
+    // Test basic accessor/modifier functionality.
+    //
+    {
+      using namespace test7;
+
+      object o (1);
+      o.i1 () = 123;
+      o.set_i2 (223);
+      o.setI3 (323);
+      o.seti4 (423);
+      o.i5 () = 523;
+      o.i6 () = 623;
+      o.SetI7 (723);
+      memcpy (o.b1 (), "123456789012345", 16);
+      o.b2 ("123456789012345");
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> p (db->load<object> (o.id_));
+        t.commit ();
+
+        assert (o == *p);
       }
     }
   }

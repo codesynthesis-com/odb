@@ -63,21 +63,21 @@ namespace test1
     #pragma db access(i2)
     int i2_;
 
-    // Prefer reference accessor to modifier.
+    // Prefer reference modifier.
     //
   public:
     int i3 () const {return i3_;}
     int& i3 () {return i3_;}
+    void i3 (int i3);
   private:
-    void i3 (int i3) {i3_ = i3;}
     #pragma db access(i3)
     int i3_;
 
-    // Prefer reference accessor to modifier (reverse function order).
+    // Prefer reference modifier (reverse function order).
     //
-    void i4 (int i4) {i4_ = i4;}
   public:
     int i4 () const {return i4_;}
+    void i4 (int i4);
     int& i4 () {return i4_;}
   private:
     #pragma db access(i4)
@@ -110,8 +110,11 @@ namespace test1
   public:
     const char* s1 () const {return s1_.c_str ();}
     void s1 (const char* s1) {s1_ = s1;}
+    //std::string s1 () const {return s1_;}
+    //void s1 (std::string s1) {s1_ = s1;}
   private:
     #pragma db get(s1) set(s1((?).c_str ()))
+    //#pragma db access(s1)
     std::string s1_;
 
     // Array member via ref.
@@ -127,7 +130,7 @@ namespace test1
     //
   public:
     const char* b2 () const {return b2_;}
-    void b2 (char* b2) {std::memcpy (b2_, b2, sizeof (b2_));}
+    void b2 (const char* b2) {std::memcpy (b2_, b2, sizeof (b2_));}
   private:
     #pragma db type(BINARY16_TYPE) access(b2)
     char b2_[16];
@@ -495,6 +498,105 @@ namespace test6
 
     #pragma db version
     const unsigned long version_;
+  };
+}
+
+// Test automatic discovery of accessor/modifier functions.
+//
+#pragma db namespace table("t7_")
+namespace test7
+{
+  #pragma db object
+  struct object
+  {
+    object () {}
+    object (unsigned long id): id_ (id) {}
+
+    #pragma db id
+    unsigned long id_;
+
+  public:
+    int i1 () const {return i1_;}
+    int& i1 () {return i1_;}
+  private:
+    int i1_;
+
+  public:
+    const int& get_i2 () const {return i2_;}
+    void set_i2 (int i2) {i2_ = i2;}
+  private:
+    int i2_;
+
+  public:
+    const int& getI3 () const {return i3_;}
+    void setI3 (const int& i3) {i3_ = i3;}
+  private:
+    int i3_;
+
+  public:
+    int geti4 () const {return i4;}
+    int seti4 (int v) {int r (i4); i4 = v; return r;}
+  private:
+    int i4;
+
+    // Prefer reference modifier.
+    //
+  public:
+    int i5 () const {return i5_;}
+    int& i5 () {return i5_;}
+    void i5 (int i5);
+  private:
+    int i5_;
+
+    // Prefer reference modifier (reverse function order).
+    //
+  public:
+    int i6 () const {return i6_;}
+    void i6 (int i6);
+    int& i6 () {return i6_;}
+  private:
+    int i6_;
+
+    // Custom accessor/modifier regex.
+    //
+  public:
+    int GetI7 () const {return i7_;}
+    void SetI7 (int i7) {i7_ = i7;}
+  private:
+    int i7_;
+
+    // Array member via ref.
+    //
+  public:
+    const char* b1 () const {return b1_;}
+    char* b1 () {return b1_;}
+  private:
+    #pragma db type(BINARY16_TYPE)
+    char b1_[16];
+
+    // Array member via modifier.
+    //
+  public:
+    const char* b2 () const {return b2_;}
+    void b2 (const char* b2) {std::memcpy (b2_, b2, sizeof (b2_));}
+  private:
+    #pragma db type(BINARY16_TYPE)
+    char b2_[16];
+
+  public:
+    bool operator== (const object& o) const
+    {
+      return id_ == o.id_ &&
+        i1_ == o.i1_ &&
+        i2_ == o.i2_ &&
+        i3_ == o.i3_ &&
+        i4  == o.i4  &&
+        i5_ == o.i5_ &&
+        i6_ == o.i6_ &&
+        i7_ == o.i7_ &&
+        std::memcmp (b1_, o.b1_, sizeof (b1_)) == 0 &&
+        std::memcmp (b2_, o.b2_, sizeof (b2_)) == 0;
+    }
   };
 }
 
