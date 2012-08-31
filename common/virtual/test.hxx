@@ -22,7 +22,7 @@ namespace test1
 
     #pragma db transient
     std::string s;
-    #pragma db member(s_) virtual(std::string) access (s)
+    #pragma db member(s_) virtual(std::string) access(s)
 
     bool operator== (const comp& v) const
     {
@@ -133,6 +133,39 @@ namespace test2
   {
     #pragma db column(test2::object1::n)
     unsigned long i;
+  };
+}
+
+// Use virtual data members to implement multi-member composite object id.
+//
+#pragma db namespace table("t3_")
+namespace test3
+{
+  #pragma db value
+  struct name
+  {
+    name () {}
+    name (std::string const& f, std::string const& l)
+        : first (f), last(l) {}
+
+    std::string first;
+    std::string last;
+
+    bool operator< (const name& x) const
+    {
+      return first < x.first || (first == x.first && last < x.last);
+    }
+  };
+
+  #pragma db object transient
+  struct person
+  {
+    std::string first_;
+    std::string last_;
+
+    #pragma db member(name) virtual(name) id                       \
+               get(::test3::name (this.first_, this.last_))        \
+               set(this.first_ = (?).first; this.last_ = (?).last)
   };
 }
 

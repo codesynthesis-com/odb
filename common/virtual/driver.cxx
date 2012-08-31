@@ -119,6 +119,31 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+    // Use virtual data members to implement multi-member composite object id.
+    //
+    {
+      using namespace test3;
+
+      person o;
+      o.first_ = "John";
+      o.last_ = "Doe";
+
+      name id;
+      {
+        transaction t (db->begin ());
+        id = db->persist (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<person> p (db->load<person> (id));
+        t.commit ();
+
+        assert (o.first_ == p->first_ && o.last_ == p->last_);
+      }
+    }
   }
   catch (const odb::exception& e)
   {
