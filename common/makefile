@@ -41,6 +41,7 @@ template            \
 transaction         \
 types               \
 view                \
+virtual             \
 wrapper
 
 thread_tests := threads
