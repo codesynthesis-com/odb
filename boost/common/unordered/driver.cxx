@@ -2,7 +2,7 @@
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test boost container persistence.
+// Test Boost unordered containers persistence.
 //
 
 #include <memory>   // std::auto_ptr
