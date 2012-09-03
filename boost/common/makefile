@@ -5,6 +5,7 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 tests :=      \
+multi-index   \
 optional      \
 smart-ptr     \
 template      \
