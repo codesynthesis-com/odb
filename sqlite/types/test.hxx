@@ -38,7 +38,7 @@ struct object
   #pragma db type("REAL")
   double real_;
 
-  #pragma db type("REAL") null
+  #pragma db type("REAL")
   double nan_;
 
   #pragma db type("TEXT")

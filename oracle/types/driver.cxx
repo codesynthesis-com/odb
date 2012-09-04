@@ -63,6 +63,8 @@ main (int argc, char* argv[])
     o.nvarchar2_ = medium_str;
     o.nclob_.assign (vlong_str.data (), vlong_str.data () + vlong_str.size ());
 
+    o.empty_c_.push_back ("");
+
     o.raw_.assign (long_str.data (), long_str.data () + long_str.size ());
     o.blob_.assign (vlong_str.data (), vlong_str.data () + vlong_str.size ());
 

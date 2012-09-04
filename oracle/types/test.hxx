@@ -175,6 +175,12 @@ struct object
   #pragma db type ("NVARCHAR2(512)")
   std::string nvarchar2_;
 
+  // Oracle treats empty and NULL VARCHAR2 the same. Test that we
+  // handle this.
+  //
+  std::string empty_;
+  std::vector<std::string> empty_c_;
+
   #pragma db type ("RAW(1024)")
   std::vector<char> raw_;
 
@@ -222,6 +228,8 @@ struct object
       varchar2_ == y.varchar2_ &&
       nchar_ == y.nchar_ &&
       nvarchar2_ == y.nvarchar2_ &&
+      empty_ == y.empty_ &&
+      empty_c_ == y.empty_c_ &&
       raw_ == y.raw_ &&
       blob_ == y.blob_ &&
       clob_ == y.clob_ &&
