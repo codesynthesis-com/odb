@@ -9,7 +9,8 @@ multi-index   \
 optional      \
 smart-ptr     \
 template      \
-unordered
+unordered     \
+uuid
 
 all_tests := $(tests)
 build_tests := $(tests)
