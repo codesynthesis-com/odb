@@ -11,3 +11,4 @@
 
 --hxx-prologue '#include <odb/qt/basic/sqlite/qstring-traits.hxx>'
 --hxx-prologue '#include <odb/qt/basic/sqlite/qbyte-array-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/sqlite/quuid-traits.hxx>'

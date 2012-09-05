@@ -11,3 +11,4 @@
 
 --hxx-prologue '#include <odb/qt/basic/pgsql/qstring-traits.hxx>'
 --hxx-prologue '#include <odb/qt/basic/pgsql/qbyte-array-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/pgsql/quuid-traits.hxx>'

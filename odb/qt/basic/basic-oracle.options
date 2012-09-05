@@ -11,3 +11,4 @@
 
 --hxx-prologue '#include <odb/qt/basic/oracle/qstring-traits.hxx>'
 --hxx-prologue '#include <odb/qt/basic/oracle/qbyte-array-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/oracle/quuid-traits.hxx>'

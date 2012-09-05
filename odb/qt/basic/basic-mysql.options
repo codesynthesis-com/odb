@@ -11,3 +11,4 @@
 
 --hxx-prologue '#include <odb/qt/basic/mysql/qstring-traits.hxx>'
 --hxx-prologue '#include <odb/qt/basic/mysql/qbyte-array-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/mysql/quuid-traits.hxx>'
