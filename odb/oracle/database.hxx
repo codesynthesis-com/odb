@@ -46,7 +46,7 @@ namespace odb
       database (const std::string& user,
                 const std::string& password,
                 const std::string& service,
-                const std::string& host = "",
+                const std::string& host,
                 unsigned int port = 0,
                 ub2 charset = 0,
                 ub2 ncharset = 0,
