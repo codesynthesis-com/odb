@@ -119,6 +119,7 @@ create_database (int& argc,
 #endif
       ,
       true,
+      "",
 #ifdef HAVE_CXX11
       move (f)
 #else
