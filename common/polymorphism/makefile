@@ -5,7 +5,8 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 cxx_tun := driver.cxx
-odb_hdr := test.hxx
+odb_hdr := test1.hxx test2.hxx test3.hxx test4.hxx test5.hxx test6.hxx \
+test7.hxx test8.hxx test9.hxx test10.hxx test11.hxx test12.hxx
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
@@ -29,7 +30,7 @@ $(driver): $(cxx_obj) $(common.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
-genf := $(addprefix $(odb_hdr:.hxx=-odb),.hxx .ixx .cxx) $(odb_hdr:.hxx=.sql)
+genf := $(foreach f,$(odb_hdr:.hxx=),$(addprefix $f,-odb.hxx -odb.ixx -odb.cxx .sql))
 gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
@@ -54,6 +55,7 @@ $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
+$(dist): export odb_header_stem := $(basename $(odb_hdr))
 $(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \
 $(call vc10projs,$(name))
 $(dist):
@@ -64,8 +66,9 @@ $(dist):
 
 # Test.
 #
+$(test): schemas := $(addprefix $(out_base)/,$(odb_hdr:.hxx=.sql))
 $(test): $(driver) $(src_base)/test.std
-	$(call schema)
+	$(call schema,$(schemas))
 	$(call message,test $<,$< --options-file $(dcf_root)/db.options \
 >$(out_base)/test.out)
 	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)

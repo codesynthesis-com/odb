@@ -15,8 +15,31 @@
 
 #include <common/common.hxx>
 
-#include "test.hxx"
-#include "test-odb.hxx"
+#include "test1.hxx"
+#include "test2.hxx"
+#include "test3.hxx"
+#include "test4.hxx"
+#include "test5.hxx"
+#include "test6.hxx"
+#include "test7.hxx"
+#include "test8.hxx"
+#include "test9.hxx"
+#include "test10.hxx"
+#include "test11.hxx"
+#include "test12.hxx"
+
+#include "test1-odb.hxx"
+#include "test2-odb.hxx"
+#include "test3-odb.hxx"
+#include "test4-odb.hxx"
+#include "test5-odb.hxx"
+#include "test6-odb.hxx"
+#include "test7-odb.hxx"
+#include "test8-odb.hxx"
+#include "test9-odb.hxx"
+#include "test10-odb.hxx"
+#include "test11-odb.hxx"
+#include "test12-odb.hxx"
 
 using namespace std;
 using namespace odb::core;

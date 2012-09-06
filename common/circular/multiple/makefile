@@ -41,7 +41,7 @@ $(gen): $(common.l.cpp-options)
 
 # Extra dependecy for the ODB-generated code.
 #
-$(gen): $(src_base)/test1.hxx $(src_base)/test2.hxx
+$(gen): $(addprefix $(src_base)/,$(odb_hdr))
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
 
