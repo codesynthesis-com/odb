@@ -9,7 +9,7 @@
 
 #include <odb/core.hxx>
 
-#pragma db object id()
+#pragma db object no_id
 struct object
 {
   object () {}
