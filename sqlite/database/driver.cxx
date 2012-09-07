@@ -2,8 +2,10 @@
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test that database constructors are unambiguous (compilation only).
+// Test that database constructors are unambiguous and some other things.
 //
+
+#include <cassert>
 
 #include <odb/sqlite/database.hxx>
 
@@ -12,6 +14,15 @@ using namespace odb::sqlite;
 int
 main (int argc, char* argv[])
 {
+  // Test UTF-16 to UTF-8 conversion.
+  //
+#ifdef _WIN32
+  {
+    database d (L"t\x00C8st");
+    assert (d.name () == "t\xC3\x88st");
+  }
+#endif
+
   // This code should not execute.
   //
   if (argc != 0)
