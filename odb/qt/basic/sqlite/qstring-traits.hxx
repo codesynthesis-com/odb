@@ -20,6 +20,16 @@ namespace odb
   namespace sqlite
   {
     template <>
+    struct image_traits<QString, id_text>
+    {
+      typedef details::buffer image_type;
+
+      // Use UTF-16 binding for QString.
+      //
+      static const bind::buffer_type bind_value = bind::text16;
+    };
+
+    template <>
     struct default_value_traits <QString, id_text>
     {
     public:
@@ -36,7 +46,8 @@ namespace odb
         if (is_null)
           v = QString ();
         else
-          v = QString::fromUtf8 (b.data (), static_cast<int> (n));
+          v.setUtf16 (reinterpret_cast<const ushort*> (b.data ()),
+                      static_cast<int> (n / 2)); // In characters.
       }
 
       static void
@@ -50,14 +61,12 @@ namespace odb
         else
         {
           is_null = false;
-
-          const QByteArray& a (v.toUtf8 ());
-          n = static_cast<std::size_t> (a.size ());
+          n = static_cast<std::size_t> (v.size ()) * 2; // In bytes.
 
           if (n > b.capacity ())
             b.capacity (n);
 
-          std::memcpy (b.data (), a.data (), n);
+          std::memcpy (b.data (), v.utf16 (), n);
         }
       }
     };
