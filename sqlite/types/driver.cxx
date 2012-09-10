@@ -39,6 +39,9 @@ main (int argc, char* argv[])
     string long_str (2040, 'l');
 
     o.text_ = long_str;
+#ifdef _WIN32
+    o.wtext_ = L"t\x00C8st string";
+#endif
     o.blob_.assign (long_str.c_str (), long_str.c_str () + long_str.size ());
 
     {
@@ -47,8 +50,6 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    //
-    //
     {
       transaction t (db->begin ());
       auto_ptr<object> o1 (db->load<object> (1));
@@ -56,6 +57,18 @@ main (int argc, char* argv[])
 
       assert (o == *o1);
     }
+
+    typedef odb::query<object> query;
+    typedef odb::result<object> result;
+
+#ifdef _WIN32
+    {
+      transaction t (db->begin ());
+      result r (db->query<object> (query::wtext == L"t\x00C8st string"));
+      assert (!r.empty ());
+      t.commit ();
+    }
+#endif
   }
   catch (const odb::exception& e)
   {

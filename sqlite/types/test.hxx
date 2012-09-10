@@ -44,6 +44,10 @@ struct object
   #pragma db type("TEXT")
   std::string text_;
 
+#ifdef _WIN32
+  std::string wtext_;
+#endif
+
   #pragma db type("BLOB")
   std::vector<char> blob_;
 
@@ -55,15 +59,17 @@ struct object
   bool
   operator== (const object& y) const
   {
-    return
-      id_ == y.id_ &&
-      bool_ == y.bool_ &&
-      integer_ == y.integer_ &&
-      real_ == y.real_ &&
-      nan_ != nan_ &&
-      text_ == y.text_ &&
-      blob_ == y.blob_ &&
-      ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);
+    return id_ == y.id_
+      && bool_ == y.bool_
+      && integer_ == y.integer_
+      && real_ == y.real_
+      && nan_ != nan_
+      && text_ == y.text_
+#ifdef _WIN32
+      && wtext_ == y.wtext_
+#endif
+      && blob_ == y.blob_
+      && ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);
   }
 };
 

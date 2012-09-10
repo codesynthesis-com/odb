@@ -32,7 +32,7 @@ main (int argc, char* argv[])
     auto_ptr<database> db (create_database (argc, argv));
 
     object o;
-    o.str = "Constantin Michael";
+    o.str = QString::fromUtf8 ("Constantin Micha\xC3\x88l");
     o.blob = QByteArray ("\0x13\0xDE\0x00\0x00\0x00\0x54\0xF2\0x6A", 8);
 
     // Persist.
