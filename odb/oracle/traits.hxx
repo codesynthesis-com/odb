@@ -7,10 +7,16 @@
 
 #include <odb/pre.hxx>
 
+#include <odb/details/config.hxx> // ODB_CXX11
+
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
 #include <cstring> // std::memcpy, std::memset, std::strlen
+
+#ifdef ODB_CXX11
+#  include <array>
+#endif
 
 #include <odb/traits.hxx>
 #include <odb/wrapper-traits.hxx>
@@ -583,24 +589,24 @@ namespace odb
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<char[n], id_string>: c_string_value_traits
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_string>: c_string_value_traits
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<const char[n], id_string>:
+    template <std::size_t N>
+    struct default_value_traits<const char[N], id_string>:
       c_string_value_traits
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<char[n], id_nstring>: c_string_value_traits
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_nstring>: c_string_value_traits
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<const char[n], id_nstring>:
+    template <std::size_t N>
+    struct default_value_traits<const char[N], id_nstring>:
       c_string_value_traits
     {
     };
@@ -686,7 +692,7 @@ namespace odb
       }
     };
 
-    // char[n] (buffer) specialization for RAW.
+    // char[N] (buffer) specialization for RAW.
     //
     template <std::size_t N>
     struct default_value_traits<char[N], id_raw>
@@ -717,7 +723,7 @@ namespace odb
       }
     };
 
-    // unsigned char[n] (buffer) specialization for RAW.
+    // unsigned char[N] (buffer) specialization for RAW.
     //
     template <std::size_t N>
     struct default_value_traits<unsigned char[N], id_raw>
@@ -750,6 +756,72 @@ namespace odb
         std::memcpy (b, v, n);
       }
     };
+
+#ifdef ODB_CXX11
+    // std::array<char, N> (buffer) specialization for RAW.
+    //
+    template <std::size_t N>
+    struct default_value_traits<std::array<char, N>, id_raw>
+    {
+    public:
+      typedef std::array<char, N> value_type;
+      typedef value_type query_type;
+      typedef char* image_type;
+
+      static void
+      set_value (value_type& v, const char* b, std::size_t n, bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v.data (), b, (n < N ? n : N));
+        else
+          std::memset (v.data (), 0, N);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        n = N < c ? N : c;
+        std::memcpy (b, v.data (), n);
+      }
+    };
+
+    // std::array<unsigned char, N> (buffer) specialization for RAW.
+    //
+    template <std::size_t N>
+    struct default_value_traits<std::array<unsigned char, N>, id_raw>
+    {
+    public:
+      typedef std::array<unsigned char, N> value_type;
+      typedef value_type query_type;
+      typedef char* image_type;
+
+      static void
+      set_value (value_type& v, const char* b, std::size_t n, bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v.data (), b, (n < N ? n : N));
+        else
+          std::memset (v.data (), 0, N);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        n = N < c ? N : c;
+        std::memcpy (b, v.data (), n);
+      }
+    };
+#endif
 
     // std::string specialization for LOBs.
     //
@@ -861,26 +933,26 @@ namespace odb
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<char[n], id_clob>:
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_clob>:
       c_string_lob_value_traits
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<const char[n], id_clob>:
+    template <std::size_t N>
+    struct default_value_traits<const char[N], id_clob>:
       c_string_lob_value_traits
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<char[n], id_nclob>:
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_nclob>:
       c_string_lob_value_traits
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<const char[n], id_nclob>:
+    template <std::size_t N>
+    struct default_value_traits<const char[N], id_nclob>:
       c_string_lob_value_traits
     {
     };
@@ -993,7 +1065,7 @@ namespace odb
                       ub4 capacity);
     };
 
-    // char[n] (buffer) specialization for BLOBs.
+    // char[N] (buffer) specialization for BLOBs.
     //
     template <std::size_t N>
     struct default_value_traits<char[N], id_blob>
@@ -1046,7 +1118,7 @@ namespace odb
                       ub4 capacity);
     };
 
-    // unsigned char[n] (buffer) specialization for BLOBs.
+    // unsigned char[N] (buffer) specialization for BLOBs.
     //
     template <std::size_t N>
     struct default_value_traits<unsigned char[N], id_blob>
@@ -1098,6 +1170,114 @@ namespace odb
                       void* temp_buffer,
                       ub4 capacity);
     };
+
+#ifdef ODB_CXX11
+    // std::array<char, N> (buffer) specialization for BLOBS.
+    //
+    template <std::size_t N>
+    struct default_value_traits<std::array<char, N>, id_blob>
+    {
+    public:
+      typedef std::array<char, N> value_type;
+      typedef value_type query_type;
+      typedef lob_callback image_type;
+
+      static void
+      set_value (value_type& v,
+                 result_callback_type& cb,
+                 void*& context,
+                 bool is_null)
+      {
+        if (!is_null)
+        {
+          cb = &result_callback;
+          context = v.data ();
+        }
+        else
+          std::memset (v.data (), 0, N);
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v.data ();
+      }
+
+      static bool
+      result_callback (void* context,
+                       ub4* position_context,
+                       void* buffer,
+                       ub4 size,
+                       chunk_position);
+
+      static bool
+      param_callback (const void* context,
+                      ub4* position_context,
+                      const void** buffer,
+                      ub4* size,
+                      chunk_position*,
+                      void* temp_buffer,
+                      ub4 capacity);
+    };
+
+    // std::array<unsigned char, N> (buffer) specialization for BLOBS.
+    //
+    template <std::size_t N>
+    struct default_value_traits<std::array<unsigned char, N>, id_blob>
+    {
+    public:
+      typedef std::array<unsigned char, N> value_type;
+      typedef value_type query_type;
+      typedef lob_callback image_type;
+
+      static void
+      set_value (value_type& v,
+                 result_callback_type& cb,
+                 void*& context,
+                 bool is_null)
+      {
+        if (!is_null)
+        {
+          cb = &result_callback;
+          context = v.data ();
+        }
+        else
+          std::memset (v.data (), 0, N);
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v.data ();
+      }
+
+      static bool
+      result_callback (void* context,
+                       ub4* position_context,
+                       void* buffer,
+                       ub4 size,
+                       chunk_position);
+
+      static bool
+      param_callback (const void* context,
+                      ub4* position_context,
+                      const void** buffer,
+                      ub4* size,
+                      chunk_position*,
+                      void* temp_buffer,
+                      ub4 capacity);
+    };
+#endif
 
     //
     // type_traits
@@ -1193,7 +1373,7 @@ namespace odb
       static const database_type_id db_type_id = id_double;
     };
 
-    // String type.
+    // String types.
     //
     template <>
     struct default_type_traits<std::string>
@@ -1207,17 +1387,45 @@ namespace odb
       static const database_type_id db_type_id = id_string;
     };
 
-    template <std::size_t n>
-    struct default_type_traits<char[n]>
+    template <std::size_t N>
+    struct default_type_traits<char[N]>
     {
       static const database_type_id db_type_id = id_string;
     };
 
-    template <std::size_t n>
-    struct default_type_traits<const char[n]>
+    template <std::size_t N>
+    struct default_type_traits<const char[N]>
     {
       static const database_type_id db_type_id = id_string;
     };
+
+    // Binary types. Assume BLOB.
+    //
+    template <>
+    struct default_type_traits<std::vector<char> >
+    {
+      static const database_type_id db_type_id = id_blob;
+    };
+
+    template <>
+    struct default_type_traits<std::vector<unsigned char> >
+    {
+      static const database_type_id db_type_id = id_blob;
+    };
+
+#ifdef ODB_CXX11
+    template <std::size_t N>
+    struct default_type_traits<std::array<char, N> >
+    {
+      static const database_type_id db_type_id = id_blob;
+    };
+
+    template <std::size_t N>
+    struct default_type_traits<std::array<unsigned char, N> >
+    {
+      static const database_type_id db_type_id = id_blob;
+    };
+#endif
   }
 }
 
