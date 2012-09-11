@@ -52,6 +52,72 @@ namespace odb
     }
 
     //
+    // c_array_long_binary_value_traits
+    //
+
+    template <typename C, std::size_t N>
+    void c_array_long_binary_value_traits<C, N>::
+    param_callback (const void* context,
+                    std::size_t*,
+                    const void** buffer,
+                    std::size_t* size,
+                    chunk_type* chunk,
+                    void*,
+                    std::size_t)
+    {
+      *buffer = context;
+      *size = N;
+      *chunk = chunk_one;
+    }
+
+    template <typename C, std::size_t N>
+    void c_array_long_binary_value_traits<C, N>::
+    result_callback (void* context,
+                     std::size_t*,
+                     void** buffer,
+                     std::size_t* size,
+                     chunk_type chunk,
+                     std::size_t size_left,
+                     void* tmp_buf,
+                     std::size_t tmp_capacity)
+    {
+      // The code is similar to the vector<char> specialization.
+      //
+      switch (chunk)
+      {
+      case chunk_null:
+      case chunk_one:
+        {
+          std::memset (context, 0, N);
+          break;
+        }
+      case chunk_first:
+        {
+          assert (size_left != 0);
+
+          *buffer = context;
+          *size = size_left < N ? size_left : N;
+          break;
+        }
+      case chunk_next:
+        {
+          // We can get here if total size is greater than N. There is
+          // no way to stop until we read all the data, so dump the
+          // remainder into the temporary buffer.
+          //
+          *buffer = tmp_buf;
+          *size = tmp_capacity;
+          break;
+        }
+      case chunk_last:
+        {
+          break;
+        }
+      }
+    }
+
+#ifdef ODB_CXX11
+    //
     // array_long_binary_value_traits
     //
 
@@ -115,5 +181,6 @@ namespace odb
         }
       }
     }
+#endif
   }
 }
