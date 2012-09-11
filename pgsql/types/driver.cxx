@@ -61,6 +61,10 @@ main (int argc, char* argv[])
     o.bit_.c = 0;
     o.bit_.d = 1;
 
+    // 6F846D41-C89A-4E4D-B22F-56443CFA543F
+    memcpy (o.uuid_, "\x6F\x84\x6D\x41\xC8\x9A\x4E\x4D\xB2\x2F"
+            "\x56\x44\x3C\xFA\x54\x3F", 16);
+
     o.enum_ = green;
 
     // Persist.

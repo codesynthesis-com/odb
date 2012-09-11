@@ -241,6 +241,9 @@ struct object
   GUID guid_;
 #endif
 
+  #pragma db type ("UNIQUEIDENTIFIER")
+  char uuid_[16];
+
   bool
   operator== (const object& y) const
   {
@@ -301,7 +304,7 @@ struct object
 #ifdef _WIN32
       && std::memcmp (&guid_, &y.guid_, sizeof (guid_)) == 0
 #endif
-      ;
+      && std::memcmp (uuid_, y.uuid_, sizeof (uuid_)) == 0;
   }
 };
 

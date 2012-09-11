@@ -5,6 +5,8 @@
 // Test BLOB mapping.
 //
 
+#include <common/config.hxx> // HAVE_CXX11
+
 #include <memory>   // std::auto_ptr
 #include <cassert>
 #include <iostream>
@@ -47,6 +49,10 @@ main (int argc, char* argv[])
     o.vuc.assign (udata, udata + sizeof (data));
     memcpy (o.c, data, sizeof (data));
     memcpy (o.uc, udata, sizeof (data));
+#ifdef HAVE_CXX11
+    memcpy (o.a.data (), data, sizeof (data));
+    memcpy (o.ua.data (), udata, sizeof (data));
+#endif
     o.cont.push_back (1);
     o.cont.push_back (2);
     o.cont.push_back (3);

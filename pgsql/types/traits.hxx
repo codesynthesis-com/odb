@@ -130,33 +130,6 @@ namespace odb
     };
 
     template <>
-    class value_traits<unsigned char[16], id_uuid>
-    {
-    public:
-      typedef unsigned char* value_type;
-      typedef details::ubuffer query_type;
-      typedef unsigned char* image_type;
-
-      static void
-      set_value (unsigned char v[16],
-                 const unsigned char* i,
-                 bool is_null)
-      {
-        if (!is_null)
-          std::memcpy (v, i, 16);
-        else
-          std::memset (v, 0, 16);
-      }
-
-      static void
-      set_image (unsigned char* i, bool& is_null, const unsigned char v[16])
-      {
-        is_null = false;
-        std::memcpy (i, v, 16);
-      }
-    };
-
-    template <>
     class value_traits<string_ptr, id_string>
     {
     public:

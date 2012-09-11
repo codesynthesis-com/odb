@@ -97,6 +97,8 @@ main (int argc, char* argv[])
       o.guid_.Data3 = 0x4E4D;
       memcpy (&o.guid_.Data4, "\xB2\x2F\x56\x44\x3C\xFA\x54\x3F", 8);
 #endif
+      memcpy (o.uuid_, "\x6F\x84\x6D\x41\xC8\x9A\x4E\x4D\xB2\x2F"
+              "\x56\x44\x3C\xFA\x54\x3F", 16);
 
       // Persist.
       //

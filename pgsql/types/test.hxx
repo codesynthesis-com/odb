@@ -150,7 +150,7 @@ struct object
   // Other types.
   //
   #pragma db type ("UUID")
-  unsigned char uuid_[16];
+  char uuid_[16];
 
   // Test ENUM representation.
   //
