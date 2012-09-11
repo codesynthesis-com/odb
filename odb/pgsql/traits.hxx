@@ -7,10 +7,16 @@
 
 #include <odb/pre.hxx>
 
+#include <odb/details/config.hxx> // ODB_CXX11
+
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
 #include <cstring> // std::memcpy, std::memset, std::strlen
+
+#ifdef ODB_CXX11
+#  include <array>
+#endif
 
 #include <odb/traits.hxx>
 #include <odb/wrapper-traits.hxx>
@@ -441,24 +447,24 @@ namespace odb
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<char[n], id_numeric>: c_string_value_traits
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_numeric>: c_string_value_traits
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<const char[n], id_numeric>:
+    template <std::size_t N>
+    struct default_value_traits<const char[N], id_numeric>:
       c_string_value_traits
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<char[n], id_string>: c_string_value_traits
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_string>: c_string_value_traits
     {
     };
 
-    template <std::size_t n>
-    struct default_value_traits<const char[n], id_string>:
+    template <std::size_t N>
+    struct default_value_traits<const char[N], id_string>:
       c_string_value_traits
     {
     };
@@ -527,7 +533,7 @@ namespace odb
                  const value_type&);
     };
 
-    // char[n] (buffer) specialization.
+    // char[N] (buffer) specialization.
     //
     template <std::size_t N>
     struct default_value_traits<char[N], id_bytea>
@@ -565,7 +571,7 @@ namespace odb
       }
     };
 
-    // unsigned char[n] (buffer) specialization.
+    // unsigned char[N] (buffer) specialization.
     //
     template <std::size_t N>
     struct default_value_traits<unsigned char[N], id_bytea>
@@ -600,6 +606,110 @@ namespace odb
           b.capacity (n);
 
         std::memcpy (b.data (), v, n);
+      }
+    };
+
+#ifdef ODB_CXX11
+    // std::array<char, N> (buffer) specialization.
+    //
+    template <std::size_t N>
+    struct default_value_traits<std::array<char, N>, id_bytea>
+    {
+    public:
+      typedef std::array<char, N> value_type;
+      typedef value_type query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (value_type& v,
+                 const details::buffer& b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v.data (), b.data (), (n < N ? n : N));
+        else
+          std::memset (v.data (), 0, N);
+      }
+
+      static void
+      set_image (details::buffer& b,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        n = N;
+
+        if (n > b.capacity ())
+          b.capacity (n);
+
+        std::memcpy (b.data (), v.data (), n);
+      }
+    };
+
+    // std::array<unsigned char, N> (buffer) specialization.
+    //
+    template <std::size_t N>
+    struct default_value_traits<std::array<unsigned char, N>, id_bytea>
+    {
+    public:
+      typedef std::array<unsigned char, N> value_type;
+      typedef value_type query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (value_type& v,
+                 const details::buffer& b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v.data (), b.data (), (n < N ? n : N));
+        else
+          std::memset (v.data (), 0, N);
+      }
+
+      static void
+      set_image (details::buffer& b,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        is_null = false;
+        n = N;
+
+        if (n > b.capacity ())
+          b.capacity (n);
+
+        std::memcpy (b.data (), v.data (), n);
+      }
+    };
+#endif
+
+    // char[16] specialization for uuid.
+    //
+    template <>
+    struct LIBODB_PGSQL_EXPORT default_value_traits<char[16], id_uuid>
+    {
+      typedef char* value_type;
+      typedef const char* query_type;
+      typedef unsigned char* image_type;
+
+      static void
+      set_value (char* const& v, const unsigned char* i, bool is_null)
+      {
+        if (!is_null)
+          std::memcpy (v, i, 16);
+        else
+          std::memset (v, 0, 16);
+      }
+
+      static void
+      set_image (unsigned char* i, bool& is_null, const char* v)
+      {
+        is_null = false;
+        std::memcpy (i, v, 16);
       }
     };
 
@@ -697,7 +807,7 @@ namespace odb
       static const database_type_id db_type_id = id_double;
     };
 
-    // String type.
+    // String types.
     //
     template <>
     struct default_type_traits<std::string>
@@ -711,17 +821,45 @@ namespace odb
       static const database_type_id db_type_id = id_string;
     };
 
-    template <std::size_t n>
-    struct default_type_traits<char[n]>
+    template <std::size_t N>
+    struct default_type_traits<char[N]>
     {
       static const database_type_id db_type_id = id_string;
     };
 
-    template <std::size_t n>
-    struct default_type_traits<const char[n]>
+    template <std::size_t N>
+    struct default_type_traits<const char[N]>
     {
       static const database_type_id db_type_id = id_string;
     };
+
+    // Binary types.
+    //
+    template <>
+    struct default_type_traits<std::vector<char> >
+    {
+      static const database_type_id db_type_id = id_bytea;
+    };
+
+    template <>
+    struct default_type_traits<std::vector<unsigned char> >
+    {
+      static const database_type_id db_type_id = id_bytea;
+    };
+
+#ifdef ODB_CXX11
+    template <std::size_t N>
+    struct default_type_traits<std::array<char, N> >
+    {
+      static const database_type_id db_type_id = id_bytea;
+    };
+
+    template <std::size_t N>
+    struct default_type_traits<std::array<unsigned char, N> >
+    {
+      static const database_type_id db_type_id = id_bytea;
+    };
+#endif
   }
 }
 
