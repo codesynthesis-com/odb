@@ -35,8 +35,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database oracle --generate-schema \
---generate-query --hxx-prologue '\#include "traits.hxx"' \
---table-prefix oracle_custom_
+--generate-query --hxx-prologue '\#include "traits.hxx"' --sql-interlude \
+"@ $(src_base)/custom.sql" --table-prefix oracle_custom_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
@@ -50,8 +50,8 @@ $(out_base)/: $(driver)
 #
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
-$(dist): export extra_headers := traits.hxx custom.sql
-$(dist): data_dist := test.std
+$(dist): export extra_headers := traits.hxx
+$(dist): data_dist := test.std custom.sql
 $(dist): export name := $(subst /,-,$(subst $(src_root)/oracle/,,$(src_base)))
 $(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
 $(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters
@@ -64,7 +64,7 @@ $(dist):
 # Test.
 #
 $(test): $(driver) $(src_base)/test.std
-	$(call schema,$(src_base)/custom.sql $(out_base)/test.sql)
+	$(call schema)
 	$(call message,test $<,$< --options-file $(dcf_root)/db.options \
 >$(out_base)/test.out)
 	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)

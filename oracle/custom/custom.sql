@@ -1,24 +1,7 @@
 /* This file contains custom type definitions and helper functions.
  */
 
-SET FEEDBACK OFF;
-WHENEVER SQLERROR EXIT FAILURE;
-WHENEVER OSERROR EXIT FAILURE;
-
--- @@ Temporary workaround: we cannot replace a type if there are
---    tables that use it. So need to drop the tables first, then
---    create/replace the type, and then create the tables.
---
---CREATE OR REPLACE TYPE Numbers AS VARRAY(100) OF NUMBER(10);
-
-BEGIN
-  BEGIN
-    EXECUTE IMMEDIATE 'CREATE TYPE Numbers AS VARRAY(100) OF NUMBER(10)';
-  EXCEPTION
-    WHEN OTHERS THEN
-      IF SQLCODE != -955 THEN RAISE; END IF;
-  END;
-END;
+CREATE OR REPLACE TYPE Numbers AS VARRAY(100) OF NUMBER(10);
 /
 
 CREATE OR REPLACE FUNCTION string_to_numbers(in_str IN VARCHAR2) RETURN Numbers
@@ -57,5 +40,3 @@ BEGIN
   RETURN ret;
 END;
 /
-
-EXIT;
