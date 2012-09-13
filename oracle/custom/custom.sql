@@ -25,7 +25,7 @@ CREATE OR REPLACE FUNCTION string_to_numbers(in_str IN VARCHAR2) RETURN Numbers
 IS
   ret          Numbers := Numbers();
   s_pos        NUMBER := 1;
-  e_pos	       NUMBER := 0;
+  e_pos        NUMBER := 0;
 BEGIN
    IF in_str IS NOT NULL THEN
      LOOP
