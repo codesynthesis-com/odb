@@ -11,7 +11,7 @@
 
 # Globbing returns files in alphabetic order.
 #
-for f in `echo *.sql`; do
+for f in `echo test*.sql`; do
   if test -f $f; then
     $top_builddir/db-driver $f
 

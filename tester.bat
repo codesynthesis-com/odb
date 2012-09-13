@@ -26,8 +26,8 @@ if "_%3_" == "_Win32_" (
 
 rem Globbing returns files in alphabetic order.
 rem
-if exist *.sql (
-  for %%f in (*.sql) do (
+if exist test*.sql (
+  for %%f in (test*.sql) do (
     call %topdir%\%1-driver.bat %%f
     if errorlevel 1 goto error
   )
