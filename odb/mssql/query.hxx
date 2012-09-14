@@ -1214,8 +1214,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_bit>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_bit>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -1251,8 +1251,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_tinyint>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_tinyint>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -1288,8 +1288,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_smallint>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_smallint>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -1325,8 +1325,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_int>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_int>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -1362,8 +1362,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_bigint>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_bigint>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -1414,8 +1414,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_decimal>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_decimal>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -1454,8 +1454,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_smallmoney>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_smallmoney>::set_image (image_, is_null, v);
         size_ind_ = 4;
       }
 
@@ -1491,8 +1491,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_money>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_money>::set_image (image_, is_null, v);
         size_ind_ = 8;
       }
 
@@ -1539,8 +1539,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_float4>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_float4>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -1588,8 +1588,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_float8>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_float8>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -1641,10 +1641,10 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
+        bool is_null (false); // Can't be NULL.
         std::size_t size (0);
         value_traits<T, id_string>::set_image (
-          buf_.data (), buf_.capacity (), size, dummy, v);
+          buf_.data (), buf_.capacity (), size, is_null, v);
         size_ind_ = static_cast<SQLLEN> (size);
       }
 
@@ -1695,13 +1695,13 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
+        bool is_null (false); // Can't be NULL.
         std::size_t size (0);
         value_traits<T, id_nstring>::set_image (
           reinterpret_cast<ucs2_char*> (buf_.data ()),
           buf_.capacity (),
           size,
-          dummy,
+          is_null,
           v);
         size_ind_ = static_cast<SQLLEN> (size);
       }
@@ -1751,10 +1751,10 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
+        bool is_null (false); // Can't be NULL.
         std::size_t size (0);
         value_traits<T, id_binary>::set_image (
-          buf_.data (), buf_.capacity (), size, dummy, v);
+          buf_.data (), buf_.capacity (), size, is_null, v);
         size_ind_ = static_cast<SQLLEN> (size);
       }
 
@@ -1844,11 +1844,11 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
+        bool is_null (false); // Can't be NULL.
         value_traits<T, id_long_string>::set_image (
           long_query_param_impl::callback_.callback.param,
           long_query_param_impl::callback_.context.param,
-          dummy,
+          is_null,
           v);
       }
 
@@ -1917,11 +1917,11 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
+        bool is_null (false); // Can't be NULL.
         value_traits<T, id_long_nstring>::set_image (
           long_query_param_impl::callback_.callback.param,
           long_query_param_impl::callback_.context.param,
-          dummy,
+          is_null,
           v);
       }
 
@@ -1988,11 +1988,11 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
+        bool is_null (false); // Can't be NULL.
         value_traits<T, id_long_binary>::set_image (
           long_query_param_impl::callback_.callback.param,
           long_query_param_impl::callback_.context.param,
-          dummy,
+          is_null,
           v);
       }
 
@@ -2028,8 +2028,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_date>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_date>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -2076,8 +2076,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_time>::set_image (image_, scale_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_time>::set_image (image_, scale_, is_null, v);
         size_ind_ = static_cast<SQLLEN> (sizeof (image_));
       }
 
@@ -2125,8 +2125,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_datetime>::set_image (image_, scale_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_datetime>::set_image (image_, scale_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -2174,9 +2174,9 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
+        bool is_null (false); // Can't be NULL.
         value_traits<T, id_datetimeoffset>::set_image (
-          image_, scale_, dummy, v);
+          image_, scale_, is_null, v);
         size_ind_ = static_cast<SQLLEN> (sizeof (image_));
       }
 
@@ -2213,8 +2213,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_uniqueidentifier>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_uniqueidentifier>::set_image (image_, is_null, v);
         size_ind_ = 0;
       }
 
@@ -2250,8 +2250,8 @@ namespace odb
       void
       init (const T& v)
       {
-        bool dummy;
-        value_traits<T, id_rowversion>::set_image (image_, dummy, v);
+        bool is_null (false); // Can't be NULL.
+        value_traits<T, id_rowversion>::set_image (image_, is_null, v);
         size_ind_ = 8;
       }
 
