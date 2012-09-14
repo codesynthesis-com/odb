@@ -58,6 +58,7 @@ $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
+$(dist): export odb_header_stem := $(basename $(odb_hdr))
 $(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \
 $(call vc10projs,$(name))
 $(dist):
