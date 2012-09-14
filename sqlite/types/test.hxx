@@ -45,7 +45,7 @@ struct object
   std::string text_;
 
 #ifdef _WIN32
-  std::string wtext_;
+  std::wstring wtext_;
 #endif
 
   #pragma db type("BLOB")
