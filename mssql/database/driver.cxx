@@ -36,7 +36,7 @@ main (int argc, char* argv[])
   {
     database d1 ("bob", "secret", "db1", "server1", 0);
     database d2 ("bob", "secret", "db1", "server1", 999, "driver1");
-    database d3 ("bob", "secret", "db1", "server1", 0, "driver1", "extra");
+    database d3 ("bob", "secret", "db1", "server1", 999, "driver1", "extra");
   }
 
   {
