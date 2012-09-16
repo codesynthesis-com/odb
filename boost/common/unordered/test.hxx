@@ -30,6 +30,12 @@ operator== (const comp& x, const comp& y)
 }
 
 inline bool
+operator!= (const comp& x, const comp& y)
+{
+  return !(x == y);
+}
+
+inline bool
 operator< (const comp& x, const comp& y)
 {
   return x.num != y.num ? x.num < y.num : x.str < y.str;
