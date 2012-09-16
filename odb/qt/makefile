@@ -62,14 +62,16 @@ $(dist): export headers = $(subst $(src_base)/,,$(shell find $(src_base) \
 $(dist): export options = $(subst $(src_base)/,,$(shell find $(src_base) \
 -name '*.options'))
 $(dist): export extra_dist := libodb-qt-vc9.vcproj \
-libodb-qt-vc10.vcxproj libodb-qt-vc10.vcxproj.filters
+libodb-qt-vc10.vcxproj libodb-qt-vc10.vcxproj.filters \
+libodb-qt-vc11.vcxproj libodb-qt-vc11.vcxproj.filters
 $(dist): export interface_version = $(shell sed -e \
 's/^\([0-9]*\.[0-9]*\).*/\1/' $(src_root)/version)
 
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(options) details/config.h.in)
-	$(call meta-vc9proj,libodb-qt-vc9.vcproj)
-	$(call meta-vc10proj,libodb-qt-vc10.vcxproj)
+	$(call meta-vc9proj,$(src_base)/libodb-qt-vc9.vcproj)
+	$(call meta-vc10proj,$(src_base)/libodb-qt-vc10.vcxproj)
+	$(call meta-vc11proj,$(src_base)/libodb-qt-vc11.vcxproj)
 	$(call meta-automake)
 
 # Clean.
@@ -96,6 +98,7 @@ endif
 $(call include,$(bld_root)/dist.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
+$(call include,$(bld_root)/meta/vc11proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(call include,$(bld_root)/cxx/o-l.make)

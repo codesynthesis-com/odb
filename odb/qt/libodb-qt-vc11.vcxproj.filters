@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{6D8C47F8-5566-11E0-8D23-00E0812AE2E8}</UniqueIdentifier>
+      <Extensions>cxx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8808F89C-5566-11E0-853E-00E0812AE2E8}</UniqueIdentifier>
+      <Extensions>h;hxx;ixx;txx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+__header_filter_entries__(headers)
+  </ItemGroup>
+  <ItemGroup>
+__source_filter_entries__(sources)
+  </ItemGroup>
+</Project>
