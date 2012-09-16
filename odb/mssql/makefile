@@ -96,7 +96,8 @@ $(dist): export headers = $(sort $(headers_dist) $(gen_headers))
 $(dist): gen_dist := $(gen)
 $(dist): data_dist := $(cli_tun) details/config.h.in
 $(dist): export extra_dist := $(data_dist) libodb-mssql-vc9.vcproj \
-libodb-mssql-vc10.vcxproj libodb-mssql-vc10.vcxproj.filters
+libodb-mssql-vc10.vcxproj libodb-mssql-vc10.vcxproj.filters \
+libodb-mssql-vc11.vcxproj libodb-mssql-vc11.vcxproj.filters
 $(dist): export interface_version = $(shell sed -e \
 's/^\([0-9]*\.[0-9]*\).*/\1/' $(src_root)/version)
 
@@ -105,6 +106,7 @@ $(dist): $(gen)
 	$(call dist-data,$(gen_dist),$(dist_prefix)/odb/mssql/details)
 	$(call meta-vc9proj,$(src_base)/libodb-mssql-vc9.vcproj)
 	$(call meta-vc10proj,$(src_base)/libodb-mssql-vc10.vcxproj)
+	$(call meta-vc11proj,$(src_base)/libodb-mssql-vc11.vcxproj)
 	$(call meta-automake)
 
 # Clean.
@@ -132,6 +134,7 @@ endif
 $(call include,$(bld_root)/dist.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
+$(call include,$(bld_root)/meta/vc11proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(call include,$(cli_rules))
