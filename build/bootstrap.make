@@ -83,11 +83,20 @@ $(foreach d,$(databases),$(call \
 meta-vc10proj,$1-vc10.vcxproj,$(if $2,$2,$(notdir \
 $1))-$d-vc10.vcxproj,database,$d)$(literal_newline)$(literal_tab))@:
 
+$(dist): meta-vc11projs = \
+$(foreach d,$(databases),$(call \
+meta-vc11proj,$1-vc11.vcxproj,$(if $2,$2,$(notdir \
+$1))-$d-vc11.vcxproj,database,$d)$(literal_newline)$(literal_tab))@:
+
 # $1 project name without the -vcN.vc[x]proj suffix.
 #
 vc9projs = $(addprefix $1-,$(addsuffix -vc9.vcproj,$(databases)))
+
 vc10projs = $(addprefix $1-,$(addsuffix -vc10.vcxproj,$(databases))) \
 $(addprefix $1-,$(addsuffix -vc10.vcxproj.filters,$(databases)))
+
+vc11projs = $(addprefix $1-,$(addsuffix -vc11.vcxproj,$(databases))) \
+$(addprefix $1-,$(addsuffix -vc11.vcxproj.filters,$(databases)))
 
 # $1 solution name without the -vcN.sln suffix.
 #
@@ -101,8 +110,14 @@ $(foreach d,$(databases),$(call \
 meta-vc10sln,$1-vc10.sln,$1-$d-vc10.sln,-$d-vc10.vcxproj,database,$d)$(literal_newline)\
 $(literal_tab))@:
 
+$(dist): meta-vc11slns = \
+$(foreach d,$(databases),$(call \
+meta-vc11sln,$1-vc11.sln,$1-$d-vc11.sln,-$d-vc11.vcxproj,database,$d)$(literal_newline)\
+$(literal_tab))@:
+
 vc9slns = $(addprefix $1-,$(addsuffix -vc9.sln,$(databases)))
 vc10slns = $(addprefix $1-,$(addsuffix -vc10.sln,$(databases)))
+vc11slns = $(addprefix $1-,$(addsuffix -vc11.sln,$(databases)))
 
 endif
 

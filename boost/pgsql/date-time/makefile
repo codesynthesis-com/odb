@@ -66,12 +66,14 @@ $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std
 $(dist): export name := $(subst /,-,$(subst $(src_root)/boost/pgsql/,,$(src_base)))
 $(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
-$(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters
+$(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters \
+$(name)-vc11.vcxproj $(name)-vc11.vcxproj.filters
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
 	$(call meta-vc9proj,../template/template-vc9.vcproj,$(name)-vc9.vcproj)
 	$(call meta-vc10proj,../template/template-vc10.vcxproj,$(name)-vc10.vcxproj)
+	$(call meta-vc11proj,../template/template-vc11.vcxproj,$(name)-vc11.vcxproj)
 
 # Test.
 #
@@ -107,6 +109,7 @@ endif
 $(call include,$(bld_root)/dist.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
+$(call include,$(bld_root)/meta/vc11proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(call include,$(bld_root)/cxx/standard.make) # cxx_standard

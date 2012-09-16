@@ -85,13 +85,14 @@ $(dist): export headers = $(subst $(src_base)/,,$(shell find $(src_base) \
 -name '*.hxx' -o -name '*.ixx' -o -name '*.txx'))
 $(dist): data_dist := config.h.in config-vc.h
 $(dist): export extra_dist := $(data_dist) $(call vc9projs,libcommon) \
-$(call vc10projs,libcommon)
+$(call vc10projs,libcommon) $(call vc11projs,libcommon)
 
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake)
 	$(call meta-vc9projs,libcommon)
 	$(call meta-vc10projs,libcommon)
+	$(call meta-vc11projs,libcommon)
 
 # Clean.
 #
@@ -117,6 +118,7 @@ endif
 $(call include,$(bld_root)/dist.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
+$(call include,$(bld_root)/meta/vc11proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(call include,$(bld_root)/cxx/cxx-d.make)
