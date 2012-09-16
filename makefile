@@ -14,7 +14,8 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): export dirs := $(dirs)
 $(dist): export docs := LICENSE NCUEL README NEWS version
-$(dist): data_dist := INSTALL libodb-oracle-vc9.sln libodb-oracle-vc10.sln
+$(dist): data_dist := INSTALL libodb-oracle-vc9.sln libodb-oracle-vc10.sln \
+libodb-oracle-vc11.sln
 $(dist): exec_dist := bootstrap
 $(dist): export extra_dist := $(data_dist) $(exec_dist)
 $(dist): export version = $(shell cat $(src_root)/version)
