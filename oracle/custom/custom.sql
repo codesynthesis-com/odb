@@ -1,7 +1,18 @@
 /* This file contains custom type definitions and helper functions.
  */
 
-CREATE OR REPLACE TYPE Numbers AS VARRAY(100) OF NUMBER(10);
+/* For some reason CREATE OR REPLACE TYPE does not work on Oracle 10.2. */
+BEGIN
+  BEGIN
+    EXECUTE IMMEDIATE 'DROP TYPE Numbers';
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -4043 THEN RAISE; END IF;
+  END;
+END;
+/
+
+CREATE TYPE Numbers AS VARRAY(100) OF NUMBER(10);
 /
 
 CREATE OR REPLACE FUNCTION string_to_numbers(in_str IN VARCHAR2) RETURN Numbers
