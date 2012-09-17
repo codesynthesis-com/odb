@@ -5,7 +5,7 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <QUuid>
+#include <QtCore/QUuid>
 
 #include <odb/core.hxx>
 
