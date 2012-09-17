@@ -26,13 +26,13 @@ main (int argc, char* argv[])
   {
     using namespace odb;
 
-    assert (access::container_traits<int_lst>::kind == ck_ordered);
-    assert (access::container_traits<int_vec>::kind == ck_ordered);
-    assert (access::container_traits<int_set>::kind == ck_set);
+    assert (odb::access::container_traits<int_lst>::kind == ck_ordered);
+    assert (odb::access::container_traits<int_vec>::kind == ck_ordered);
+    assert (odb::access::container_traits<int_set>::kind == ck_set);
 
-    assert (access::container_traits<int_lst_set>::kind == ck_ordered);
-    assert (access::container_traits<comp_set_vec>::kind == ck_ordered);
-    assert (access::container_traits<comp_set_set>::kind == ck_set);
+    assert (odb::access::container_traits<int_lst_set>::kind == ck_ordered);
+    assert (odb::access::container_traits<comp_set_vec>::kind == ck_ordered);
+    assert (odb::access::container_traits<comp_set_set>::kind == ck_set);
   }
 
   try
