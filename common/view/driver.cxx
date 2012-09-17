@@ -146,7 +146,6 @@ template <typename V>
 void
 view6_test (const auto_ptr<database>& db, const odb::query<V>& q)
 {
-  typedef odb::query<V> query;
   typedef odb::result<V> result;
   typedef typename result::iterator iterator;
 
@@ -227,7 +226,6 @@ main (int argc, char* argv[])
     // view1
     //
     {
-      typedef odb::query<view1> query;
       typedef odb::result<view1> result;
 
       {
@@ -263,7 +261,6 @@ main (int argc, char* argv[])
     // view1a
     //
     {
-      typedef odb::query<view1a> query;
       typedef odb::result<view1a> result;
 
       {
@@ -315,7 +312,6 @@ main (int argc, char* argv[])
     // view1c
     //
     {
-      typedef odb::query<view1c> query;
       typedef odb::result<view1c> result;
 
       {
@@ -344,7 +340,6 @@ main (int argc, char* argv[])
     // view1d
     //
     {
-      typedef odb::query<view1d> query;
       typedef odb::result<view1d> result;
 
       {
@@ -373,7 +368,6 @@ main (int argc, char* argv[])
     // view3
     //
     {
-      typedef odb::query<view3> query;
       typedef odb::result<const view3> result; // Test const result.
 
       {
@@ -511,7 +505,6 @@ main (int argc, char* argv[])
     // view8
     //
     {
-      typedef odb::query<view8> query;
       typedef odb::result<view8> result;
 
       {
@@ -591,7 +584,6 @@ main (int argc, char* argv[])
     // view11
     //
     {
-      typedef odb::query<view11> query;
       typedef odb::result<view11> result;
 
       {

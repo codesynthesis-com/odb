@@ -129,15 +129,10 @@ main (int argc, char* argv[])
     //
     {
       typedef odb::query<base> b_query;
-      typedef odb::result<base> b_result;
-
       typedef odb::query<object1> o1_query;
-      typedef odb::result<object1> o1_result;
-
       typedef odb::query<object2> o2_query;
-      typedef odb::result<object2> o2_result;
-
       typedef odb::query<reference> r_query;
+
       typedef odb::result<reference> r_result;
 
       transaction t (db->begin ());

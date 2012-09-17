@@ -333,7 +333,6 @@ main (int argc, char* argv[])
         typedef odb::query<base> base_query;
         typedef odb::result<base> base_result;
 
-        typedef odb::query<derived> derived_query;
         typedef odb::result<derived> derived_result;
 
         transaction t (db->begin ());
@@ -477,7 +476,6 @@ main (int argc, char* argv[])
         typedef odb::query<base_view> base_query;
         typedef odb::result<base_view> base_result;
 
-        typedef odb::query<derived_view> derived_query;
         typedef odb::result<derived_view> derived_result;
 
         transaction t (db->begin ());
@@ -706,10 +704,7 @@ main (int argc, char* argv[])
       // Views.
       //
       {
-        typedef odb::query<root_view> root_query;
         typedef odb::result<root_view> root_result;
-
-        typedef odb::query<base_view> base_query;
         typedef odb::result<base_view> base_result;
 
         transaction t (db->begin ());
@@ -953,7 +948,6 @@ main (int argc, char* argv[])
       }
 
       {
-        typedef odb::query<view2> query;
         typedef odb::result<view2> result;
 
         transaction t (db->begin ());

@@ -90,7 +90,6 @@ main (int argc, char* argv[])
     }
 
     {
-      typedef odb::query<table_view> query;
       typedef odb::result<table_view> result;
 
       transaction t (db->begin ());
