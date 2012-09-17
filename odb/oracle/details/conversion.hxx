@@ -1,6 +1,6 @@
 // file      : odb/oracle/details/conversion.hxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
-// license   : GNU GPL v2; see accompanying LICENSE file
+// license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_ORACLE_DETAILS_CONVERSION_HXX
 #define ODB_ORACLE_DETAILS_CONVERSION_HXX
