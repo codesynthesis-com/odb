@@ -10,8 +10,7 @@
 
 enum color {red, green, blue};
 
-typedef unsigned long ulong;
-#pragma db value(ulong) default(0) // @@ Can't do value(unsigned long).
+#pragma db value(unsigned long) default(0)
 
 #pragma db object
 struct object
