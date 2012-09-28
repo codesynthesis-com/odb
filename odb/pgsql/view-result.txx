@@ -25,7 +25,8 @@ namespace odb
                       statements_type& statements)
         : base_type (statements.connection ().database ()),
           statement_ (statement),
-          statements_ (statements)
+          statements_ (statements),
+          count_ (0)
     {
     }
 
@@ -76,7 +77,9 @@ namespace odb
     {
       this->current (pointer_type ());
 
-      if (!statement_->next ())
+      if (statement_->next ())
+        count_++;
+      else
       {
         statement_->free_result ();
         this->end_ = true;
@@ -93,7 +96,7 @@ namespace odb
     std::size_t view_result_impl<T>::
     size ()
     {
-      return statement_->result_size ();
+      return this->end_ ? count_ : statement_->result_size ();
     }
   }
 }

@@ -75,6 +75,7 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       statements_type& statements_;
+      std::size_t count_;
     };
   }
 }
