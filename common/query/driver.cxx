@@ -542,6 +542,51 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+    // Test size() validity at the beginning/middle/end of result set.
+    //
+    cout << "test 019" << endl;
+#if !defined(DATABASE_SQLITE) && \
+    !defined(DATABASE_ORACLE) && \
+    !defined(DATABASE_MSSQL)
+    {
+      {
+        transaction t (db->begin ());
+        result r (db->query<person> ());
+        assert (r.size () == 4);
+        result::iterator i (r.begin ());
+        assert (r.size () == 4);
+        ++i;
+        ++i;
+        ++i;
+        assert (r.size () == 4);
+        ++i;
+        assert (r.size () == 4);
+      }
+
+      {
+        transaction t (db->begin ());
+        result r (db->query<person> (false));
+        result::iterator i (r.begin ());
+        ++i;
+        ++i;
+        r.cache ();
+        assert (r.size () == 4);
+        ++i;
+        assert (r.size () == 4);
+        ++i;
+        assert (r.size () == 4);
+      }
+
+      {
+        transaction t (db->begin ());
+        result r (db->query<person> (query::last_name == "None"));
+        assert (r.size () == 0);
+        for (result::iterator i (r.begin ()); i != r.end (); ++i) ;
+        assert (r.size () == 0);
+      }
+    }
+#endif
   }
   catch (const odb::exception& e)
   {
