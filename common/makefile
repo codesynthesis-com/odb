@@ -32,6 +32,7 @@ lifecycle                \
 no-id                    \
 optimistic               \
 pragma                   \
+prepared                 \
 query                    \
 readonly                 \
 relationship             \
