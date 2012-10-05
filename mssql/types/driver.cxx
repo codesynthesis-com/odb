@@ -127,6 +127,37 @@ main (int argc, char* argv[])
 
         assert (o == *o1);
       }
+
+      // Test short/long data in queries.
+      //
+      typedef odb::query<object> query;
+      typedef odb::result<object> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          result r (db->query<object> (query::svchar == o.svchar_));
+          assert (size (r) == 1);
+        }
+
+        {
+          result r (db->query<object> (query::snvchar == o.snvchar_));
+          assert (size (r) == 1);
+        }
+
+        {
+          result r (db->query<object> (query::mvchar == o.mvchar_));
+          assert (size (r) == 1);
+        }
+
+        {
+          result r (db->query<object> (query::mnvchar == o.mnvchar_));
+          assert (size (r) == 1);
+        }
+
+        t.commit ();
+      }
     }
 
     // Test long NULL data.
