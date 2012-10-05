@@ -1699,11 +1699,11 @@ namespace odb
         std::size_t size (0);
         value_traits<T, id_nstring>::set_image (
           reinterpret_cast<ucs2_char*> (buf_.data ()),
-          buf_.capacity (),
+          buf_.capacity () / 2,
           size,
           is_null,
           v);
-        size_ind_ = static_cast<SQLLEN> (size);
+        size_ind_ = static_cast<SQLLEN> (size * 2);
       }
 
     private:
