@@ -51,8 +51,9 @@ namespace odb
     protected:
       struct unbind
       {
-        oracle::bind* bind;  // Corresponding bind entry.
-        void* value;         // Actual value passed to OCIBindByPos.
+        oracle::bind::buffer_type type; // Bind type.
+        oracle::bind* bind;             // Corresponding bind entry.
+        void* value;                    // Actual value passed to OCIBindByPos.
       };
 
       // Bind parameters for this statement. This function must only

@@ -150,36 +150,30 @@ namespace odb
       for (size_t i (0); i < usize_; ++i)
       {
         ub4 t;
-        bind& b (*udata_[i].bind);
+        bind* b (udata_[i].bind);
 
-        switch (b.type)
+        switch (udata_[i].type)
         {
         case bind::timestamp:
           {
-            datetime* dt (static_cast<datetime*> (b.buffer));
-
-            if (dt->flags & descriptor_cache)
-              dt->descriptor = 0;
+            if (b != 0)
+              static_cast<datetime*> (b->buffer)->descriptor = 0;
 
             t = OCI_DTYPE_TIMESTAMP;
             break;
           }
         case bind::interval_ym:
           {
-            interval_ym* iym (static_cast<interval_ym*> (b.buffer));
-
-            if (iym->flags & descriptor_cache)
-              iym->descriptor = 0;
+            if (b != 0)
+              static_cast<interval_ym*> (b->buffer)->descriptor = 0;
 
             t = OCI_DTYPE_INTERVAL_YM;
             break;
           }
         case bind::interval_ds:
           {
-            interval_ds* ids (static_cast<interval_ds*> (b.buffer));
-
-            if (ids->flags & descriptor_cache)
-              ids->descriptor = 0;
+            if (b != 0)
+              static_cast<interval_ds*> (b->buffer)->descriptor = 0;
 
             t = OCI_DTYPE_INTERVAL_DS;
             break;
@@ -352,7 +346,8 @@ namespace odb
               {
                 unbind& u (udata_[usize_++]);
 
-                u.bind = b;
+                u.type = bind::timestamp;
+                u.bind = (dt->flags & descriptor_cache) ? b : 0;
                 u.value = d;
                 value = &u.value;
               }
@@ -416,7 +411,8 @@ namespace odb
               {
                 unbind& u (udata_[usize_++]);
 
-                u.bind = b;
+                u.type = bind::interval_ym;
+                u.bind = (iym->flags & descriptor_cache) ? b : 0;
                 u.value = d;
                 value = &u.value;
               }
@@ -473,7 +469,8 @@ namespace odb
               {
                 unbind& u (udata_[usize_++]);
 
-                u.bind = b;
+                u.type = bind::interval_ds;
+                u.bind = (ids->flags & descriptor_cache) ? b : 0;
                 u.value = d;
                 value = &u.value;
               }
