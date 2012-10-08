@@ -1,23 +1,22 @@
-// file      : common/polymorphism/test5.hxx
+// file      : common/inheritance/polymorphism/test1.hxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#ifndef TEST5_HXX
-#define TEST5_HXX
+#ifndef TEST1_HXX
+#define TEST1_HXX
 
 #include <string>
 #include <vector>
-#include <memory>
 #include <typeinfo>
 
 #include <odb/core.hxx>
 
-// Test polymorphism and optimistic concurrency.
+// Test basic polymorphism functionality.
 //
-#pragma db namespace table("t5_")
-namespace test5
+#pragma db namespace table("t1_")
+namespace test1
 {
-  #pragma db object polymorphic optimistic pointer(std::auto_ptr)
+  #pragma db object polymorphic
   struct root
   {
     virtual ~root () {}
@@ -26,9 +25,6 @@ namespace test5
 
     #pragma db id
     unsigned long id;
-
-    #pragma db version
-    unsigned long version;
 
     unsigned long num;
     std::vector<std::string> strs;
@@ -39,8 +35,7 @@ namespace test5
       if (tc && typeid (r) != typeid (root))
         return false;
 
-      return id == r.id && version == r.version &&
-        num == r.num && strs == r.strs;
+      return id == r.id && num == r.num && strs == r.strs;
     }
   };
 
@@ -88,6 +83,34 @@ namespace test5
       return base::compare (r, false) && dnum == d.dnum && dstr == d.dstr;
     }
   };
+
+  // Views.
+  //
+  #pragma db view object(root)
+  struct root_view
+  {
+    //#pragma db column(root::typeid_)
+    std::string typeid_; // @@ tmp
+
+    unsigned long num;
+  };
+
+  #pragma db view object(base = b)
+  struct base_view
+  {
+    unsigned long id;
+    unsigned long num;
+    std::string str;
+  };
+
+  #pragma db view object(derived)
+  struct derived_view
+  {
+    unsigned long num;
+    std::string str;
+    unsigned long dnum;
+    std::string dstr;
+  };
 }
 
-#endif // TEST5_HXX
+#endif // TEST1_HXX

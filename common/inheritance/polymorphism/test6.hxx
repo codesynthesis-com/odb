@@ -1,4 +1,4 @@
-// file      : common/polymorphism/test6.hxx
+// file      : common/inheritance/polymorphism/test6.hxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 

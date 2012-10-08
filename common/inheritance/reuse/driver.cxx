@@ -1,8 +1,8 @@
-// file      : common/inheritance/driver.cxx
+// file      : common/inheritance/reuse/driver.cxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test object inheritance.
+// Test reuse object inheritance.
 //
 
 #include <memory>   // std::auto_ptr

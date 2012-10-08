@@ -4,44 +4,45 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
-tests :=            \
-access              \
-auto                \
-blob                \
-callback            \
-circular/single     \
-circular/multiple   \
-composite           \
-composite-id        \
-const-object        \
-const-member        \
-container           \
-ctor                \
-default             \
-definition          \
-enum                \
-erase-query         \
-include             \
-index               \
-inheritance         \
-inverse             \
-lazy-ptr            \
-lifecycle           \
-no-id               \
-optimistic          \
-polymorphism        \
-pragma              \
-query               \
-readonly            \
-relationship        \
-relationship-query  \
-schema              \
-session             \
-template            \
-transaction         \
-types               \
-view                \
-virtual             \
+tests :=                 \
+access                   \
+auto                     \
+blob                     \
+callback                 \
+circular/single          \
+circular/multiple        \
+composite                \
+composite-id             \
+const-object             \
+const-member             \
+container                \
+ctor                     \
+default                  \
+definition               \
+enum                     \
+erase-query              \
+include                  \
+index                    \
+inheritance/polymorphism \
+inheritance/reuse        \
+inheritance/transient    \
+inverse                  \
+lazy-ptr                 \
+lifecycle                \
+no-id                    \
+optimistic               \
+pragma                   \
+query                    \
+readonly                 \
+relationship             \
+relationship-query       \
+schema                   \
+session                  \
+template                 \
+transaction              \
+types                    \
+view                     \
+virtual                  \
 wrapper
 
 thread_tests := threads
