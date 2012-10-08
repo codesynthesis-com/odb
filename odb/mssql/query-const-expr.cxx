@@ -10,6 +10,6 @@ namespace odb
   {
     // Sun CC cannot handle this in query.cxx.
     //
-    const query query::true_expr (true);
+    const query_base query_base::true_expr (true);
   }
 }

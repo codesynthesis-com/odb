@@ -20,10 +20,10 @@ namespace odb
     {
     }
 
-    // query
+    // query_base
     //
-    query::
-    query (const query& q)
+    query_base::
+    query_base (const query_base& q)
         : clause_ (q.clause_),
           parameters_ (q.parameters_),
           bind_ (q.bind_),
@@ -43,8 +43,8 @@ namespace odb
       }
     }
 
-    query& query::
-    operator= (const query& q)
+    query_base& query_base::
+    operator= (const query_base& q)
     {
       if (this != &q)
       {
@@ -61,8 +61,8 @@ namespace odb
       return *this;
     }
 
-    query& query::
-    operator+= (const query& q)
+    query_base& query_base::
+    operator+= (const query_base& q)
     {
       clause_.insert (clause_.end (), q.clause_.begin (), q.clause_.end ());
 
@@ -84,7 +84,7 @@ namespace odb
       return *this;
     }
 
-    void query::
+    void query_base::
     append (const string& q)
     {
       if (!clause_.empty () && clause_.back ().kind == clause_part::native)
@@ -107,7 +107,7 @@ namespace odb
         clause_.push_back (clause_part (clause_part::native, q));
     }
 
-    void query::
+    void query_base::
     append (const char* table, const char* column)
     {
       string s (table);
@@ -117,7 +117,7 @@ namespace odb
       clause_.push_back (clause_part (clause_part::column, s));
     }
 
-    void query::
+    void query_base::
     add (details::shared_ptr<query_param> p, const char* conv)
     {
       clause_.push_back (clause_part (clause_part::param));
@@ -136,7 +136,7 @@ namespace odb
       p->bind (b);
     }
 
-    binding& query::
+    binding& query_base::
     parameters_binding () const
     {
       size_t n (parameters_.size ());
@@ -198,7 +198,7 @@ namespace odb
       return false;
     }
 
-    void query::
+    void query_base::
     optimize ()
     {
       // Remove a single TRUE literal or one that is followe by one of
@@ -218,7 +218,7 @@ namespace odb
       }
     }
 
-    const char* query::
+    const char* query_base::
     clause_prefix () const
     {
       if (!clause_.empty ())
@@ -234,7 +234,7 @@ namespace odb
       return "";
     }
 
-    string query::
+    string query_base::
     clause () const
     {
       string r;
@@ -311,8 +311,8 @@ namespace odb
       return clause_prefix () + r;
     }
 
-    query
-    operator&& (const query& x, const query& y)
+    query_base
+    operator&& (const query_base& x, const query_base& y)
     {
       // Optimize cases where one or both sides are constant truth.
       //
@@ -327,7 +327,7 @@ namespace odb
       if (yt)
         return x;
 
-      query r ("(");
+      query_base r ("(");
       r += x;
       r += ") AND (";
       r += y;
@@ -335,10 +335,10 @@ namespace odb
       return r;
     }
 
-    query
-    operator|| (const query& x, const query& y)
+    query_base
+    operator|| (const query_base& x, const query_base& y)
     {
-      query r ("(");
+      query_base r ("(");
       r += x;
       r += ") OR (";
       r += y;
@@ -346,10 +346,10 @@ namespace odb
       return r;
     }
 
-    query
-    operator! (const query& x)
+    query_base
+    operator! (const query_base& x)
     {
-      query r ("NOT (");
+      query_base r ("NOT (");
       r += x;
       r += ")";
       return r;

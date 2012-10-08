@@ -7,10 +7,13 @@ namespace odb
   namespace mssql
   {
     template <typename T>
-    typename object_traits<T>::statements_type& statement_cache::
+    typename object_traits_impl<T, id_mssql>::statements_type&
+    statement_cache::
     find_object ()
     {
-      typedef typename object_traits<T>::statements_type statements_type;
+      typedef
+      typename object_traits_impl<T, id_mssql>::statements_type
+      statements_type;
 
       map::iterator i (map_.find (&typeid (T)));
 

@@ -14,7 +14,7 @@
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/mssql/version.hxx>
-#include <odb/mssql/forward.hxx> // query
+#include <odb/mssql/forward.hxx> // query_base
 #include <odb/mssql/statement.hxx>
 
 namespace odb
@@ -28,16 +28,17 @@ namespace odb
     public:
       typedef odb::polymorphic_object_result_impl<T> base_type;
 
-      typedef typename base_type::object_type object_type;
-      typedef typename base_type::object_traits object_traits;
       typedef typename base_type::id_type id_type;
-
+      typedef typename base_type::object_type object_type;
       typedef typename base_type::pointer_type pointer_type;
+
+      typedef object_traits_impl<object_type, id_mssql> object_traits;
       typedef typename base_type::pointer_traits pointer_traits;
 
       typedef typename base_type::root_type root_type;
-      typedef typename base_type::root_traits root_traits;
       typedef typename base_type::discriminator_type discriminator_type;
+
+      typedef object_traits_impl<root_type, id_mssql> root_traits;
 
       typedef typename object_traits::image_type image_type;
       typedef typename object_traits::statements_type statements_type;
@@ -45,7 +46,7 @@ namespace odb
       virtual
       ~polymorphic_object_result_impl ();
 
-      polymorphic_object_result_impl (const query&,
+      polymorphic_object_result_impl (const query_base&,
                                       details::shared_ptr<select_statement>,
                                       statements_type&);
 

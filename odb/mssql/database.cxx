@@ -29,7 +29,8 @@ namespace odb
               const std::string& extra_connect_string,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
-        : user_ (user),
+        : odb::database (id_mssql),
+          user_ (user),
           password_ (password),
           db_ (db),
           protocol_ (protocol_auto),
@@ -54,7 +55,8 @@ namespace odb
               const std::string& extra_connect_string,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
-        : user_ (user),
+        : odb::database (id_mssql),
+          user_ (user),
           password_ (password),
           db_ (db),
           protocol_ (protocol),
@@ -79,7 +81,8 @@ namespace odb
               const std::string& extra_connect_string,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
-        : user_ (user),
+        : odb::database (id_mssql),
+          user_ (user),
           password_ (password),
           db_ (db),
           protocol_ (protocol_tcp),
@@ -97,7 +100,8 @@ namespace odb
     database (const string& connect_string,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
-        : protocol_ (protocol_auto),
+        : odb::database (id_mssql),
+          protocol_ (protocol_auto),
           port_ (0),
           connect_string_ (connect_string),
           environment_ (environment),
@@ -113,7 +117,8 @@ namespace odb
               const std::string& extra_connect_string,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
-        : protocol_ (protocol_auto),
+        : odb::database (id_mssql),
+          protocol_ (protocol_auto),
           port_ (0),
           extra_connect_string_ (extra_connect_string),
           environment_ (environment),
