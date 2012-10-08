@@ -570,11 +570,22 @@ main (int argc, char* argv[])
         result::iterator i (r.begin ());
         ++i;
         ++i;
-        r.cache ();
+        r.cache (); // Cache in the middle.
         assert (r.size () == 4);
         ++i;
         assert (r.size () == 4);
         ++i;
+        assert (r.size () == 4);
+      }
+
+      {
+        transaction t (db->begin ());
+        result r (db->query<person> (false));
+        result::iterator i (r.begin ());
+        ++i;
+        ++i;
+        ++i;
+        r.cache (); // Cache at the end.
         assert (r.size () == 4);
       }
 
