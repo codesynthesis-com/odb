@@ -28,7 +28,8 @@ namespace odb
               ub2 ncharset,
               OCIEnv* environment,
               transfer_ptr<connection_factory> factory)
-        : user_ (user),
+        : odb::database (id_oracle),
+          user_ (user),
           password_ (password),
           db_ (db),
           port_ (0),
@@ -67,7 +68,8 @@ namespace odb
               ub2 ncharset,
               OCIEnv* environment,
               transfer_ptr<connection_factory> factory)
-        : user_ (user),
+        : odb::database (id_oracle),
+          user_ (user),
           password_ (password),
           service_ (service),
           host_ (host),
@@ -125,7 +127,8 @@ namespace odb
               ub2 ncharset,
               OCIEnv* environment,
               transfer_ptr<connection_factory> factory)
-        : port_ (0),
+        : odb::database (id_oracle),
+          port_ (0),
           charset_ (charset),
           ncharset_ (ncharset),
           environment_ (environment),

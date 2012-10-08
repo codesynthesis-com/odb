@@ -7,7 +7,7 @@ namespace odb
   namespace oracle
   {
     template <typename T, database_type_id ID>
-    inline void query::
+    inline void query_base::
     append (val_bind<T> v, const char* conv)
     {
       add (
@@ -17,7 +17,7 @@ namespace odb
     }
 
     template <typename T, database_type_id ID>
-    inline void query::
+    inline void query_base::
     append (ref_bind<T> r, const char* conv)
     {
       add (

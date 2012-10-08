@@ -147,7 +147,7 @@ namespace odb
     struct optimistic_data<T, true>
     {
       typedef T object_type;
-      typedef odb::object_traits<object_type> object_traits;
+      typedef object_traits_impl<object_type, id_oracle> object_traits;
 
       optimistic_data (bind*);
 
@@ -170,7 +170,7 @@ namespace odb
     {
     public:
       typedef T object_type;
-      typedef odb::object_traits<object_type> object_traits;
+      typedef object_traits_impl<object_type, id_oracle> object_traits;
       typedef typename object_traits::id_type id_type;
       typedef typename object_traits::pointer_type pointer_type;
       typedef typename object_traits::image_type image_type;

@@ -33,7 +33,7 @@ namespace odb
 
     template <typename T>
     object_result_impl<T>::
-    object_result_impl (const query&,
+    object_result_impl (const query_base&,
                         details::shared_ptr<select_statement> statement,
                         statements_type& statements)
         : base_type (statements.connection ().database ()),
