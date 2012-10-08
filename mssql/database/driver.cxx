@@ -7,7 +7,8 @@
 
 #include <odb/mssql/database.hxx>
 
-using namespace odb::mssql;
+namespace mssql = odb::mssql;
+using namespace mssql;
 
 int
 main (int argc, char* argv[])

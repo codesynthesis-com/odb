@@ -10,7 +10,8 @@
 #include <odb/mysql/database.hxx>
 
 using std::string;
-using namespace odb::mysql;
+namespace mysql = odb::mysql;
+using namespace mysql;
 
 int
 main (int argc, char* argv[])

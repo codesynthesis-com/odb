@@ -9,7 +9,8 @@
 
 #include <odb/sqlite/database.hxx>
 
-using namespace odb::sqlite;
+namespace sqlite = odb::sqlite;
+using namespace sqlite;
 
 int
 main (int argc, char* argv[])

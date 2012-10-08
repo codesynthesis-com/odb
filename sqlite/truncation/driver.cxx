@@ -18,7 +18,8 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb::core;
+namespace sqlite = odb::sqlite;
+using namespace sqlite;
 
 int
 main (int argc, char* argv[])
@@ -33,7 +34,7 @@ main (int argc, char* argv[])
     // Test basic operations.
     //
     {
-      auto_ptr<database> db (create_database (argc, argv));
+      auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
       // Run persist/load so that the initial bindings are established
       // (version == 0).
@@ -98,10 +99,10 @@ main (int argc, char* argv[])
     // Test query.
     //
     {
-      typedef odb::query<object1> query;
-      typedef odb::result<object1> result;
+      auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
-      auto_ptr<database> db (create_database (argc, argv));
+      typedef sqlite::query<object1> query;
+      typedef odb::result<object1> result;
 
       // Run persist/query so that the initial bindings are established
       // (version == 0).

@@ -1,4 +1,4 @@
-// file      : pgsql/template/driver.cxx
+// file      : pgsql/index/driver.cxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
@@ -18,7 +18,8 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb::core;
+namespace pgsql = odb::pgsql;
+using namespace pgsql;
 
 int
 main (int argc, char* argv[])
@@ -27,7 +28,7 @@ main (int argc, char* argv[])
   {
     // This is just a schema creation test.
     //
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
     {
       transaction t (db->begin ());

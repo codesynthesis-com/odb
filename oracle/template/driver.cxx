@@ -18,14 +18,15 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb::core;
+namespace oracle = odb::oracle;
+using namespace oracle;
 
 int
 main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
     //
     //

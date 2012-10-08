@@ -25,6 +25,18 @@ create_database (int& argc,
                  bool create_schema = true,
                  std::size_t max_connections = 0);
 
+template <typename T>
+std::auto_ptr<T>
+create_specific_database (int& argc,
+                          char* argv[],
+                          bool create_schema = true,
+                          std::size_t max_connections = 0)
+{
+  std::auto_ptr<odb::database> r (
+    create_database (argc, argv, create_schema, max_connections));
+  return std::auto_ptr<T> (&dynamic_cast<T&> (*r.release ()));
+}
+
 // This function returns an accurate result only if the result iterator
 // hasn't been advanced.
 //

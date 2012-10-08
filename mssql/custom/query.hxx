@@ -38,18 +38,18 @@ namespace odb
       // is_null, is_not_null
       //
     public:
-      query
+      query_base
       is_null () const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "IS NULL";
         return q;
       }
 
-      query
+      query_base
       is_not_null () const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "IS NOT NULL";
         return q;
       }
@@ -57,63 +57,63 @@ namespace odb
       // =
       //
     public:
-      query
+      query_base
       equal (const point& v) const
       {
         return equal (val_bind<point> (v));
       }
 
-      query
+      query_base
       equal (val_bind<point> v) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += ".STEquals(";
         q.append<point, id_string> (v, conversion_);
         q += ") = 1";
         return q;
       }
 
-      query
+      query_base
       equal (ref_bind<point> r) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += ".STEquals(";
         q.append<point, id_string> (r, conversion_);
         q += ") = 1";
         return q;
       }
 
-      friend query
+      friend query_base
       operator== (const query_column& c, const point& v)
       {
         return c.equal (v);
       }
 
-      friend query
+      friend query_base
       operator== (const point& v, const query_column& c)
       {
         return c.equal (v);
       }
 
-      friend query
+      friend query_base
       operator== (const query_column& c, val_bind<point> v)
       {
         return c.equal (v);
       }
 
-      friend query
+      friend query_base
       operator== (val_bind<point> v, const query_column& c)
       {
         return c.equal (v);
       }
 
-      friend query
+      friend query_base
       operator== (const query_column& c, ref_bind<point> r)
       {
         return c.equal (r);
       }
 
-      friend query
+      friend query_base
       operator== (ref_bind<point> r, const query_column& c)
       {
         return c.equal (r);
@@ -122,10 +122,10 @@ namespace odb
       // Column comparison.
       //
     public:
-      query
+      query_base
       operator== (const query_column<point, id_string>& c) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += ".STEquals(";
         q.append (c.table (), c.column ());
         q += ") = 1";

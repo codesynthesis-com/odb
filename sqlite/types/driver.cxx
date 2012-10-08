@@ -13,21 +13,21 @@
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>
 
-#include <common/buffer.hxx>
 #include <common/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb::core;
+namespace sqlite = odb::sqlite;
+using namespace sqlite;
 
 int
 main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
     object o (1);
 
@@ -58,7 +58,7 @@ main (int argc, char* argv[])
       assert (o == *o1);
     }
 
-    typedef odb::query<object> query;
+    typedef sqlite::query<object> query;
     typedef odb::result<object> result;
 
 #ifdef _WIN32

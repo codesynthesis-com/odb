@@ -18,14 +18,15 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb::core;
+namespace sqlite = odb::sqlite;
+using namespace sqlite;
 
 int
 main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
     object o (1);
     o.nv.push_back ("123");  // INTEGER

@@ -18,7 +18,8 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb::core;
+namespace oracle = odb::oracle;
+using namespace oracle;
 
 int
 main (int argc, char* argv[])
@@ -28,7 +29,7 @@ main (int argc, char* argv[])
     // Create an Oracle database instance, setting both the client database
     // and national character set to UTF-8.
     //
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
     object o (1);
 
@@ -206,7 +207,7 @@ main (int argc, char* argv[])
     // Test image copying with LOB data.
     //
     {
-      typedef odb::query<blob> query;
+      typedef oracle::query<blob> query;
       typedef odb::result<blob> result;
 
       transaction t (db->begin ());
@@ -235,7 +236,7 @@ main (int argc, char* argv[])
     // Test descriptor management in TIMESTAMP and INTERVAL images.
     //
     {
-      typedef odb::query<object> query;
+      typedef oracle::query<object> query;
       typedef odb::result<object> result;
 
       query q (query::timestamp == o.timestamp_ &&

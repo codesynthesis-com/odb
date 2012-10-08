@@ -7,7 +7,8 @@
 
 #include <odb/oracle/database.hxx>
 
-using namespace odb::oracle;
+namespace oracle = odb::oracle;
+using namespace oracle;
 
 int
 main (int argc, char* argv[])

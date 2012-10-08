@@ -10,18 +10,20 @@
 #include <iostream>
 
 #include <odb/pgsql/database.hxx>
+#include <odb/pgsql/transaction.hxx>
 
 #include <common/common.hxx>
 
 using namespace std;
-using namespace odb::core;
+namespace pgsql = odb::pgsql;
+using namespace pgsql;
 
 int
 main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
     // Create the database schema.
     //

@@ -7,7 +7,8 @@
 
 #include <odb/pgsql/database.hxx>
 
-using namespace odb::pgsql;
+namespace pgsql = odb::pgsql;
+using namespace pgsql;
 
 int
 main (int argc, char* argv[])

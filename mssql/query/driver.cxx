@@ -18,14 +18,15 @@
 #include "test-odb.hxx"
 
 using namespace std;
-using namespace odb::core;
+namespace mssql = odb::mssql;
+using namespace mssql;
 
 int
 main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
     {
       object o1;
@@ -63,7 +64,7 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    typedef odb::query<object> query;
+    typedef mssql::query<object> query;
     typedef odb::result<object> result;
 
     {
