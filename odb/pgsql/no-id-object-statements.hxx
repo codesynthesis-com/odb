@@ -34,7 +34,7 @@ namespace odb
     {
     public:
       typedef T object_type;
-      typedef odb::object_traits<object_type> object_traits;
+      typedef object_traits_impl<object_type, id_pgsql> object_traits;
       typedef typename object_traits::pointer_type pointer_type;
       typedef typename object_traits::image_type image_type;
 

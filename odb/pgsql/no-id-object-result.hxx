@@ -14,7 +14,7 @@
 #include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
-#include <odb/pgsql/forward.hxx> // query
+#include <odb/pgsql/forward.hxx> // query_base
 #include <odb/pgsql/statement.hxx>
 
 namespace odb
@@ -28,9 +28,9 @@ namespace odb
       typedef odb::no_id_object_result_impl<T> base_type;
 
       typedef typename base_type::object_type object_type;
-      typedef typename base_type::object_traits object_traits;
-
       typedef typename base_type::pointer_type pointer_type;
+
+      typedef object_traits_impl<object_type, id_pgsql> object_traits;
       typedef typename base_type::pointer_traits pointer_traits;
 
       typedef typename object_traits::statements_type statements_type;
@@ -38,7 +38,7 @@ namespace odb
       virtual
       ~no_id_object_result_impl ();
 
-      no_id_object_result_impl (const query&,
+      no_id_object_result_impl (const query_base&,
                                 details::shared_ptr<select_statement>,
                                 statements_type&);
 

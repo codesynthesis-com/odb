@@ -86,7 +86,7 @@ namespace odb
     template <typename T, database_type_id ID>
     struct query_column;
 
-    class LIBODB_PGSQL_EXPORT query
+    class LIBODB_PGSQL_EXPORT query_base
     {
     public:
       struct clause_part
@@ -108,7 +108,7 @@ namespace odb
         bool bool_part;
       };
 
-      query ()
+      query_base ()
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
       }
@@ -116,27 +116,27 @@ namespace odb
       // True or false literal.
       //
       explicit
-      query (bool v)
+      query_base (bool v)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
         clause_.push_back (clause_part (v));
       }
 
       explicit
-      query (const char* native)
+      query_base (const char* native)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
         clause_.push_back (clause_part (clause_part::native, native));
       }
 
       explicit
-      query (const std::string& native)
+      query_base (const std::string& native)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
         clause_.push_back (clause_part (clause_part::native, native));
       }
 
-      query (const char* table, const char* column)
+      query_base (const char* table, const char* column)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
         append (table, column);
@@ -144,7 +144,7 @@ namespace odb
 
       template <typename T>
       explicit
-      query (val_bind<T> v)
+      query_base (val_bind<T> v)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
         append<T, type_traits<T>::db_type_id> (
@@ -153,7 +153,7 @@ namespace odb
 
       template <typename T>
       explicit
-      query (ref_bind<T> r)
+      query_base (ref_bind<T> r)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
         append<T, type_traits<T>::db_type_id> (
@@ -161,12 +161,12 @@ namespace odb
       }
 
       template <database_type_id ID>
-      query (const query_column<bool, ID>&);
+      query_base (const query_column<bool, ID>&);
 
-      query (const query&);
+      query_base (const query_base&);
 
-      query&
-      operator= (const query&);
+      query_base&
+      operator= (const query_base&);
 
     public:
       std::string
@@ -197,7 +197,7 @@ namespace odb
         return clause_.empty ();
       }
 
-      static const query true_expr;
+      static const query_base true_expr;
 
       bool
       const_true () const
@@ -226,10 +226,10 @@ namespace odb
       }
 
     public:
-      query&
-      operator+= (const query&);
+      query_base&
+      operator+= (const query_base&);
 
-      query&
+      query_base&
       operator+= (const std::string& q)
       {
         append (q);
@@ -237,7 +237,7 @@ namespace odb
       }
 
       template <typename T>
-      query&
+      query_base&
       operator+= (val_bind<T> v)
       {
         append<T, type_traits<T>::db_type_id> (
@@ -246,7 +246,7 @@ namespace odb
       }
 
       template <typename T>
-      query&
+      query_base&
       operator+= (ref_bind<T> r)
       {
         append<T, type_traits<T>::db_type_id> (
@@ -290,114 +290,114 @@ namespace odb
       mutable native_binding native_binding_;
     };
 
-    inline query
-    operator+ (const query& x, const query& y)
+    inline query_base
+    operator+ (const query_base& x, const query_base& y)
     {
-      query r (x);
+      query_base r (x);
       r += y;
       return r;
     }
 
     template <typename T>
-    inline query
-    operator+ (const query& q, val_bind<T> b)
+    inline query_base
+    operator+ (const query_base& q, val_bind<T> b)
     {
-      query r (q);
+      query_base r (q);
       r += b;
       return r;
     }
 
     template <typename T>
-    inline query
-    operator+ (const query& q, ref_bind<T> b)
+    inline query_base
+    operator+ (const query_base& q, ref_bind<T> b)
     {
-      query r (q);
+      query_base r (q);
       r += b;
       return r;
     }
 
     template <typename T>
-    inline query
-    operator+ (val_bind<T> b, const query& q)
+    inline query_base
+    operator+ (val_bind<T> b, const query_base& q)
     {
-      query r;
+      query_base r;
       r += b;
       r += q;
       return r;
     }
 
     template <typename T>
-    inline query
-    operator+ (ref_bind<T> b, const query& q)
+    inline query_base
+    operator+ (ref_bind<T> b, const query_base& q)
     {
-      query r;
+      query_base r;
       r += b;
       r += q;
       return r;
     }
 
-    inline query
-    operator+ (const query& q, const std::string& s)
+    inline query_base
+    operator+ (const query_base& q, const std::string& s)
     {
-      query r (q);
+      query_base r (q);
       r += s;
       return r;
     }
 
-    inline query
-    operator+ (const std::string& s, const query& q)
+    inline query_base
+    operator+ (const std::string& s, const query_base& q)
     {
-      query r (s);
+      query_base r (s);
       r += q;
       return r;
     }
 
     template <typename T>
-    inline query
+    inline query_base
     operator+ (const std::string& s, val_bind<T> b)
     {
-      query r (s);
+      query_base r (s);
       r += b;
       return r;
     }
 
     template <typename T>
-    inline query
+    inline query_base
     operator+ (const std::string& s, ref_bind<T> b)
     {
-      query r (s);
+      query_base r (s);
       r += b;
       return r;
     }
 
     template <typename T>
-    inline query
+    inline query_base
     operator+ (val_bind<T> b, const std::string& s)
     {
-      query r;
+      query_base r;
       r += b;
       r += s;
       return r;
     }
 
     template <typename T>
-    inline query
+    inline query_base
     operator+ (ref_bind<T> b, const std::string& s)
     {
-      query r;
+      query_base r;
       r += b;
       r += s;
       return r;
     }
 
-    LIBODB_PGSQL_EXPORT query
-    operator&& (const query&, const query&);
+    LIBODB_PGSQL_EXPORT query_base
+    operator&& (const query_base&, const query_base&);
 
-    LIBODB_PGSQL_EXPORT query
-    operator|| (const query&, const query&);
+    LIBODB_PGSQL_EXPORT query_base
+    operator|| (const query_base&, const query_base&);
 
-    LIBODB_PGSQL_EXPORT query
-    operator! (const query&);
+    LIBODB_PGSQL_EXPORT query_base
+    operator! (const query_base&);
 
     // query_column
     //
@@ -450,18 +450,18 @@ namespace odb
       // is_null, is_not_null
       //
     public:
-      query
+      query_base
       is_null () const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "IS NULL";
         return q;
       }
 
-      query
+      query_base
       is_not_null () const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "IS NOT NULL";
         return q;
       }
@@ -469,102 +469,102 @@ namespace odb
       // in
       //
     public:
-      query
+      query_base
       in (const T&, const T&) const;
 
-      query
+      query_base
       in (const T&, const T&, const T&) const;
 
-      query
+      query_base
       in (const T&, const T&, const T&, const T&) const;
 
-      query
+      query_base
       in (const T&, const T&, const T&, const T&, const T&) const;
 
       template <typename I>
-      query
+      query_base
       in_range (I begin, I end) const;
 
       // =
       //
     public:
-      query
+      query_base
       equal (const T& v) const
       {
         return equal (val_bind<T> (v));
       }
 
-      query
+      query_base
       equal (val_bind<T> v) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "=";
         q.append<T, ID> (v, conversion_);
         return q;
       }
 
       template <typename T2>
-      query
+      query_base
       equal (val_bind<T2> v) const
       {
         copy_bind<T, T2> c (v.val);
         return equal (c);
       }
 
-      query
+      query_base
       equal (ref_bind<T> r) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "=";
         q.append<T, ID> (r, conversion_);
         return q;
       }
 
-      friend query
+      friend query_base
       operator== (const query_column& c, const T& v)
       {
         return c.equal (v);
       }
 
-      friend query
+      friend query_base
       operator== (const T& v, const query_column& c)
       {
         return c.equal (v);
       }
 
-      friend query
+      friend query_base
       operator== (const query_column& c, val_bind<T> v)
       {
         return c.equal (v);
       }
 
-      friend query
+      friend query_base
       operator== (val_bind<T> v, const query_column& c)
       {
         return c.equal (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator== (const query_column& c, val_bind<T2> v)
       {
         return c.equal (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator== (val_bind<T2> v, const query_column& c)
       {
         return c.equal (v);
       }
 
-      friend query
+      friend query_base
       operator== (const query_column& c, ref_bind<T> r)
       {
         return c.equal (r);
       }
 
-      friend query
+      friend query_base
       operator== (ref_bind<T> r, const query_column& c)
       {
         return c.equal (r);
@@ -573,83 +573,83 @@ namespace odb
       // !=
       //
     public:
-      query
+      query_base
       unequal (const T& v) const
       {
         return unequal (val_bind<T> (v));
       }
 
-      query
+      query_base
       unequal (val_bind<T> v) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "!=";
         q.append<T, ID> (v, conversion_);
         return q;
       }
 
       template <typename T2>
-      query
+      query_base
       unequal (val_bind<T2> v) const
       {
         copy_bind<T, T2> c (v.val);
         return unequal (c);
       }
 
-      query
+      query_base
       unequal (ref_bind<T> r) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "!=";
         q.append<T, ID> (r, conversion_);
         return q;
       }
 
-      friend query
+      friend query_base
       operator!= (const query_column& c, const T& v)
       {
         return c.unequal (v);
       }
 
-      friend query
+      friend query_base
       operator!= (const T& v, const query_column& c)
       {
         return c.unequal (v);
       }
 
-      friend query
+      friend query_base
       operator!= (const query_column& c, val_bind<T> v)
       {
         return c.unequal (v);
       }
 
-      friend query
+      friend query_base
       operator!= (val_bind<T> v, const query_column& c)
       {
         return c.unequal (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator!= (const query_column& c, val_bind<T2> v)
       {
         return c.unequal (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator!= (val_bind<T2> v, const query_column& c)
       {
         return c.unequal (v);
       }
 
-      friend query
+      friend query_base
       operator!= (const query_column& c, ref_bind<T> r)
       {
         return c.unequal (r);
       }
 
-      friend query
+      friend query_base
       operator!= (ref_bind<T> r, const query_column& c)
       {
         return c.unequal (r);
@@ -658,83 +658,83 @@ namespace odb
       // <
       //
     public:
-      query
+      query_base
       less (const T& v) const
       {
         return less (val_bind<T> (v));
       }
 
-      query
+      query_base
       less (val_bind<T> v) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "<";
         q.append<T, ID> (v, conversion_);
         return q;
       }
 
       template <typename T2>
-      query
+      query_base
       less (val_bind<T2> v) const
       {
         copy_bind<T, T2> c (v.val);
         return less (c);
       }
 
-      query
+      query_base
       less (ref_bind<T> r) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "<";
         q.append<T, ID> (r, conversion_);
         return q;
       }
 
-      friend query
+      friend query_base
       operator< (const query_column& c, const T& v)
       {
         return c.less (v);
       }
 
-      friend query
+      friend query_base
       operator< (const T& v, const query_column& c)
       {
         return c.greater (v);
       }
 
-      friend query
+      friend query_base
       operator< (const query_column& c, val_bind<T> v)
       {
         return c.less (v);
       }
 
-      friend query
+      friend query_base
       operator< (val_bind<T> v, const query_column& c)
       {
         return c.greater (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator< (const query_column& c, val_bind<T2> v)
       {
         return c.less (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator< (val_bind<T2> v, const query_column& c)
       {
         return c.greater (v);
       }
 
-      friend query
+      friend query_base
       operator< (const query_column& c, ref_bind<T> r)
       {
         return c.less (r);
       }
 
-      friend query
+      friend query_base
       operator< (ref_bind<T> r, const query_column& c)
       {
         return c.greater (r);
@@ -743,83 +743,83 @@ namespace odb
       // >
       //
     public:
-      query
+      query_base
       greater (const T& v) const
       {
         return greater (val_bind<T> (v));
       }
 
-      query
+      query_base
       greater (val_bind<T> v) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += ">";
         q.append<T, ID> (v, conversion_);
         return q;
       }
 
       template <typename T2>
-      query
+      query_base
       greater (val_bind<T2> v) const
       {
         copy_bind<T, T2> c (v.val);
         return greater (c);
       }
 
-      query
+      query_base
       greater (ref_bind<T> r) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += ">";
         q.append<T, ID> (r, conversion_);
         return q;
       }
 
-      friend query
+      friend query_base
       operator> (const query_column& c, const T& v)
       {
         return c.greater (v);
       }
 
-      friend query
+      friend query_base
       operator> (const T& v, const query_column& c)
       {
         return c.less (v);
       }
 
-      friend query
+      friend query_base
       operator> (const query_column& c, val_bind<T> v)
       {
         return c.greater (v);
       }
 
-      friend query
+      friend query_base
       operator> (val_bind<T> v, const query_column& c)
       {
         return c.less (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator> (const query_column& c, val_bind<T2> v)
       {
         return c.greater (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator> (val_bind<T2> v, const query_column& c)
       {
         return c.less (v);
       }
 
-      friend query
+      friend query_base
       operator> (const query_column& c, ref_bind<T> r)
       {
         return c.greater (r);
       }
 
-      friend query
+      friend query_base
       operator> (ref_bind<T> r, const query_column& c)
       {
         return c.less (r);
@@ -828,83 +828,83 @@ namespace odb
       // <=
       //
     public:
-      query
+      query_base
       less_equal (const T& v) const
       {
         return less_equal (val_bind<T> (v));
       }
 
-      query
+      query_base
       less_equal (val_bind<T> v) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "<=";
         q.append<T, ID> (v, conversion_);
         return q;
       }
 
       template <typename T2>
-      query
+      query_base
       less_equal (val_bind<T2> v) const
       {
         copy_bind<T, T2> c (v.val);
         return less_equal (c);
       }
 
-      query
+      query_base
       less_equal (ref_bind<T> r) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "<=";
         q.append<T, ID> (r, conversion_);
         return q;
       }
 
-      friend query
+      friend query_base
       operator<= (const query_column& c, const T& v)
       {
         return c.less_equal (v);
       }
 
-      friend query
+      friend query_base
       operator<= (const T& v, const query_column& c)
       {
         return c.greater_equal (v);
       }
 
-      friend query
+      friend query_base
       operator<= (const query_column& c, val_bind<T> v)
       {
         return c.less_equal (v);
       }
 
-      friend query
+      friend query_base
       operator<= (val_bind<T> v, const query_column& c)
       {
         return c.greater_equal (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator<= (const query_column& c, val_bind<T2> v)
       {
         return c.less_equal (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator<= (val_bind<T2> v, const query_column& c)
       {
         return c.greater_equal (v);
       }
 
-      friend query
+      friend query_base
       operator<= (const query_column& c, ref_bind<T> r)
       {
         return c.less_equal (r);
       }
 
-      friend query
+      friend query_base
       operator<= (ref_bind<T> r, const query_column& c)
       {
         return c.greater_equal (r);
@@ -913,83 +913,83 @@ namespace odb
       // >=
       //
     public:
-      query
+      query_base
       greater_equal (const T& v) const
       {
         return greater_equal (val_bind<T> (v));
       }
 
-      query
+      query_base
       greater_equal (val_bind<T> v) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += ">=";
         q.append<T, ID> (v, conversion_);
         return q;
       }
 
       template <typename T2>
-      query
+      query_base
       greater_equal (val_bind<T2> v) const
       {
         copy_bind<T, T2> c (v.val);
         return greater_equal (c);
       }
 
-      query
+      query_base
       greater_equal (ref_bind<T> r) const
       {
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += ">=";
         q.append<T, ID> (r, conversion_);
         return q;
       }
 
-      friend query
+      friend query_base
       operator>= (const query_column& c, const T& v)
       {
         return c.greater_equal (v);
       }
 
-      friend query
+      friend query_base
       operator>= (const T& v, const query_column& c)
       {
         return c.less_equal (v);
       }
 
-      friend query
+      friend query_base
       operator>= (const query_column& c, val_bind<T> v)
       {
         return c.greater_equal (v);
       }
 
-      friend query
+      friend query_base
       operator>= (val_bind<T> v, const query_column& c)
       {
         return c.less_equal (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator>= (const query_column& c, val_bind<T2> v)
       {
         return c.greater_equal (v);
       }
 
       template <typename T2>
-      friend query
+      friend query_base
       operator>= (val_bind<T2> v, const query_column& c)
       {
         return c.less_equal (v);
       }
 
-      friend query
+      friend query_base
       operator>= (const query_column& c, ref_bind<T> r)
       {
         return c.greater_equal (r);
       }
 
-      friend query
+      friend query_base
       operator>= (ref_bind<T> r, const query_column& c)
       {
         return c.less_equal (r);
@@ -999,84 +999,84 @@ namespace odb
       //
     public:
       template <typename T2, database_type_id ID2>
-      query
+      query_base
       operator== (const query_column<T2, ID2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (type_instance<T> () == type_instance<T2> ()));
 
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "=";
         q.append (c.table (), c.column ());
         return q;
       }
 
       template <typename T2, database_type_id ID2>
-      query
+      query_base
       operator!= (const query_column<T2, ID2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (type_instance<T> () != type_instance<T2> ()));
 
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "!=";
         q.append (c.table (), c.column ());
         return q;
       }
 
       template <typename T2, database_type_id ID2>
-      query
+      query_base
       operator< (const query_column<T2, ID2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (type_instance<T> () < type_instance<T2> ()));
 
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "<";
         q.append (c.table (), c.column ());
         return q;
       }
 
       template <typename T2, database_type_id ID2>
-      query
+      query_base
       operator> (const query_column<T2, ID2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (type_instance<T> () > type_instance<T2> ()));
 
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += ">";
         q.append (c.table (), c.column ());
         return q;
       }
 
       template <typename T2, database_type_id ID2>
-      query
+      query_base
       operator<= (const query_column<T2, ID2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (type_instance<T> () <= type_instance<T2> ()));
 
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += "<=";
         q.append (c.table (), c.column ());
         return q;
       }
 
       template <typename T2, database_type_id ID2>
-      query
+      query_base
       operator>= (const query_column<T2, ID2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (type_instance<T> () >= type_instance<T2> ()));
 
-        query q (table_, column_);
+        query_base q (table_, column_);
         q += ">=";
         q.append (c.table (), c.column ());
         return q;
@@ -1092,37 +1092,37 @@ namespace odb
     // query fragments (e.g., ORDER BY).
     //
     template <typename T, database_type_id ID>
-    inline query
+    inline query_base
     operator+ (const query_column<T, ID>& c, const std::string& s)
     {
-      query q (c.table (), c.column ());
+      query_base q (c.table (), c.column ());
       q += s;
       return q;
     }
 
     template <typename T, database_type_id ID>
-    inline query
+    inline query_base
     operator+ (const std::string& s, const query_column<T, ID>& c)
     {
-      query q (s);
+      query_base q (s);
       q.append (c.table (), c.column ());
       return q;
     }
 
     template <typename T, database_type_id ID>
-    inline query
-    operator+ (const query_column<T, ID>& c, const query& q)
+    inline query_base
+    operator+ (const query_column<T, ID>& c, const query_base& q)
     {
-      query r (c.table (), c.column ());
+      query_base r (c.table (), c.column ());
       r += q;
       return r;
     }
 
     template <typename T, database_type_id ID>
-    inline query
-    operator+ (const query& q, const query_column<T, ID>& c)
+    inline query_base
+    operator+ (const query_base& q, const query_column<T, ID>& c)
     {
-      query r (q);
+      query_base r (q);
       r.append (c.table (), c.column ());
       return r;
     }
@@ -1758,13 +1758,75 @@ namespace odb
   }
 }
 
-// odb::query specialization for PostgreSQL.
+// odb::pgsql::query and odb::query specialization for PostgreSQL.
 //
 namespace odb
 {
+  namespace pgsql
+  {
+    template <typename T>
+    class query: public query_base,
+                 public query_selector<T, id_pgsql>::columns_type
+    {
+    public:
+      // We don't define any typedefs here since they may clash with
+      // column names defined by our base type.
+      //
+
+      query ()
+      {
+      }
+
+      explicit
+      query (bool v)
+          : query_base (v)
+      {
+      }
+
+      explicit
+      query (const char* q)
+          : query_base (q)
+      {
+      }
+
+      explicit
+      query (const std::string& q)
+          : query_base (q)
+      {
+      }
+
+      template <typename T2>
+      explicit
+      query (val_bind<T2> v)
+          : query_base (v)
+      {
+      }
+
+      template <typename T2>
+      explicit
+      query (ref_bind<T2> r)
+          : query_base (r)
+      {
+      }
+
+      query (const query_base& q)
+          : query_base (q)
+      {
+      }
+
+      template <database_type_id ID>
+      query (const query_column<bool, ID>& qc)
+          : query_base (qc)
+      {
+      }
+    };
+  }
+
+  // Derive odb::query from odb::pgsql::query so that it can be
+  // implicitly converted in pgsql::database::query() calls.
+  //
   template <typename T>
-  class query<T, pgsql::query>: public pgsql::query,
-                                public query_selector<T>::columns_type
+  class query<T, pgsql::query_base>: public pgsql::query<T>
   {
   public:
     // We don't define any typedefs here since they may clash with
@@ -1777,44 +1839,44 @@ namespace odb
 
     explicit
     query (bool v)
-        : pgsql::query (v)
+        : pgsql::query<T> (v)
     {
     }
 
     explicit
     query (const char* q)
-        : pgsql::query (q)
+        : pgsql::query<T> (q)
     {
     }
 
     explicit
     query (const std::string& q)
-        : pgsql::query (q)
+        : pgsql::query<T> (q)
     {
     }
 
     template <typename T2>
     explicit
     query (pgsql::val_bind<T2> v)
-        : pgsql::query (pgsql::query (v))
+        : pgsql::query<T> (v)
     {
     }
 
     template <typename T2>
     explicit
     query (pgsql::ref_bind<T2> r)
-        : pgsql::query (pgsql::query (r))
+        : pgsql::query<T> (r)
     {
     }
 
-    query (const pgsql::query& q)
-        : pgsql::query (q)
+    query (const pgsql::query_base& q)
+        : pgsql::query<T> (q)
     {
     }
 
     template <pgsql::database_type_id ID>
     query (const pgsql::query_column<bool, ID>& qc)
-        : pgsql::query (qc)
+        : pgsql::query<T> (qc)
     {
     }
   };

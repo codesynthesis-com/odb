@@ -20,7 +20,6 @@ namespace odb
     class statement;
     class transaction;
     class tracer;
-    class query;
 
     // Implementation details.
     //
@@ -51,6 +50,8 @@ namespace odb
 
     template <typename T>
     class container_statements;
+
+    class query_base;
   }
 
   namespace details

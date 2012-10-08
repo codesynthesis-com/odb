@@ -27,7 +27,8 @@ namespace odb
               unsigned int port,
               const string& extra_conninfo,
               transfer_ptr<connection_factory> factory)
-        : user_ (user),
+        : odb::database (id_pgsql),
+          user_ (user),
           password_ (password),
           db_ (db),
           host_ (host),
@@ -74,7 +75,8 @@ namespace odb
               const string& socket_ext,
               const string& extra_conninfo,
               transfer_ptr<connection_factory> factory)
-        : user_ (user),
+        : odb::database (id_pgsql),
+          user_ (user),
           password_ (password),
           db_ (db),
           host_ (host),
@@ -116,7 +118,10 @@ namespace odb
 
     database::
     database (const string& conninfo, transfer_ptr<connection_factory> factory)
-        : port_ (0), conninfo_ (conninfo), factory_ (factory.transfer ())
+        : odb::database (id_pgsql),
+          port_ (0),
+          conninfo_ (conninfo),
+          factory_ (factory.transfer ())
     {
       if (!factory_)
         factory_.reset (new connection_pool_factory ());
@@ -130,7 +135,7 @@ namespace odb
               bool erase,
               const string& extra_conninfo,
               transfer_ptr<connection_factory> factory)
-        : port_ (0), factory_ (factory.transfer ())
+        : odb::database (id_pgsql), port_ (0), factory_ (factory.transfer ())
     {
       using namespace details;
 

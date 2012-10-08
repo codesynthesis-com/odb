@@ -26,7 +26,7 @@ namespace odb
     {
     public:
       typedef T view_type;
-      typedef odb::view_traits<view_type> view_traits;
+      typedef view_traits_impl<view_type, id_pgsql> view_traits;
       typedef typename view_traits::pointer_type pointer_type;
       typedef typename view_traits::image_type image_type;
 
