@@ -254,6 +254,21 @@ main (int argc, char* argv[])
         assert (size (r) == 1);
       }
 
+      {
+        // Query temporary.
+        //
+        result r (db->query<object> (
+                    query::timestamp == o.timestamp_ &&
+                    query::interval_ym == o.interval_ym_ &&
+                    query::interval_ds == o.interval_ds_));
+
+        query dummy (query::timestamp == o.timestamp_ &&
+                     query::interval_ym == o.interval_ym_ &&
+                     query::interval_ds == o.interval_ds_);
+
+        assert (size (r) == 1);
+      }
+
       t.commit ();
     }
   }
