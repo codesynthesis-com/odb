@@ -2,6 +2,8 @@
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <odb/oracle/transaction.hxx>
+
 namespace odb
 {
   namespace oracle
@@ -392,6 +394,30 @@ namespace odb
       // here; object_traits::query () does this.
       //
       return query_<T, id_oracle>::call (*this, q);
+    }
+
+    template <typename T>
+    inline prepared_query<T> database::
+    prepare_query (const char* n, const char* q)
+    {
+      return prepare_query<T> (n, oracle::query<T> (q));
+    }
+
+    template <typename T>
+    inline prepared_query<T> database::
+    prepare_query (const char* n, const std::string& q)
+    {
+      return prepare_query<T> (n, oracle::query<T> (q));
+    }
+
+    template <typename T>
+    inline prepared_query<T> database::
+    prepare_query (const char* n, const oracle::query<T>& q)
+    {
+      // Throws if not in transaction.
+      //
+      oracle::connection& c (transaction::current ().connection ());
+      return c.prepare_query (n, q);
     }
   }
 }

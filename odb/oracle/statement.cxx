@@ -192,14 +192,14 @@ namespace odb
     }
 
     statement::
-    statement (connection& conn, const string& text)
+    statement (connection_type& conn, const string& text)
         : conn_ (conn), udata_ (0), usize_ (0)
     {
       init (text.c_str (), text.size ());
     }
 
     statement::
-    statement (connection& conn, const char* text)
+    statement (connection_type& conn, const char* text)
         : conn_ (conn), udata_ (0), usize_ (0)
     {
       init (text, strlen (text));
@@ -1090,14 +1090,14 @@ namespace odb
     //
 
     generic_statement::
-    generic_statement (connection& conn, const string& text)
+    generic_statement (connection_type& conn, const string& text)
         : statement (conn, text), bound_ (false)
     {
       init ();
     }
 
     generic_statement::
-    generic_statement (connection& conn, const char* text)
+    generic_statement (connection_type& conn, const char* text)
         : statement (conn, text), bound_ (false)
     {
       init ();
@@ -1268,7 +1268,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const string& text,
                       binding& param,
                       binding& result,
@@ -1285,7 +1285,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const char* text,
                       binding& param,
                       binding& result,
@@ -1302,7 +1302,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const string& text,
                       binding& result,
                       size_t lob_prefetch_size)
@@ -1317,7 +1317,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const char* text,
                       binding& result,
                       size_t lob_prefetch_size)
@@ -1493,7 +1493,7 @@ namespace odb
     }
 
     insert_statement::
-    insert_statement (connection& conn,
+    insert_statement (connection_type& conn,
                       const string& text,
                       binding& param,
                       bool returning)
@@ -1503,7 +1503,7 @@ namespace odb
     }
 
     insert_statement::
-    insert_statement (connection& conn,
+    insert_statement (connection_type& conn,
                       const char* text,
                       binding& param,
                       bool returning)
@@ -1634,14 +1634,18 @@ namespace odb
     }
 
     update_statement::
-    update_statement (connection& conn, const string& text, binding& param)
+    update_statement (connection_type& conn,
+                      const string& text,
+                      binding& param)
         : statement (conn, text)
     {
       bind_param (param.bind, param.count);
     }
 
     update_statement::
-    update_statement (connection& conn, const char* text, binding& param)
+    update_statement (connection_type& conn,
+                      const char* text,
+                      binding& param)
         : statement (conn, text)
     {
       bind_param (param.bind, param.count);
@@ -1700,14 +1704,18 @@ namespace odb
     }
 
     delete_statement::
-    delete_statement (connection& conn, const string& text, binding& param)
+    delete_statement (connection_type& conn,
+                      const string& text,
+                      binding& param)
         : statement (conn, text)
     {
       bind_param (param.bind, param.count);
     }
 
     delete_statement::
-    delete_statement (connection& conn, const char* text, binding& param)
+    delete_statement (connection_type& conn,
+                      const char* text,
+                      binding& param)
         : statement (conn, text)
     {
       bind_param (param.bind, param.count);

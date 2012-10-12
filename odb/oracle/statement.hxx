@@ -16,6 +16,7 @@
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/binding.hxx>
 #include <odb/oracle/forward.hxx>
+#include <odb/oracle/connection.hxx>
 #include <odb/oracle/oracle-fwd.hxx>
 #include <odb/oracle/auto-handle.hxx>
 
@@ -28,6 +29,8 @@ namespace odb
     class LIBODB_ORACLE_EXPORT statement: public odb::statement
     {
     public:
+      typedef oracle::connection connection_type;
+
       virtual
       ~statement () = 0;
 
@@ -40,9 +43,15 @@ namespace odb
       virtual const char*
       text () const;
 
+      virtual connection_type&
+      connection ()
+      {
+        return conn_;
+      }
+
     protected:
-      statement (connection&, const std::string& text);
-      statement (connection&, const char* text);
+      statement (connection_type&, const std::string& text);
+      statement (connection_type&, const char* text);
 
     private:
       void
@@ -98,7 +107,7 @@ namespace odb
                      void* new_base = 0);
 
     protected:
-      connection& conn_;
+      connection_type& conn_;
       auto_handle<OCIStmt> stmt_;
 
       unbind* udata_;
@@ -111,8 +120,8 @@ namespace odb
       virtual
       ~generic_statement ();
 
-      generic_statement (connection&, const std::string& text);
-      generic_statement (connection&, const char* text);
+      generic_statement (connection_type&, const std::string& text);
+      generic_statement (connection_type&, const char* text);
 
       unsigned long long
       execute ();
@@ -136,24 +145,24 @@ namespace odb
       virtual
       ~select_statement ();
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const std::string& text,
                         binding& param,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const char* text,
                         binding& param,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const std::string& text,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const char* text,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
@@ -212,12 +221,12 @@ namespace odb
       virtual
       ~insert_statement ();
 
-      insert_statement (connection& conn,
+      insert_statement (connection_type& conn,
                         const std::string& text,
                         binding& param,
                         bool returning);
 
-      insert_statement (connection& conn,
+      insert_statement (connection_type& conn,
                         const char* text,
                         binding& param,
                         bool returning);
@@ -272,11 +281,13 @@ namespace odb
       virtual
       ~update_statement ();
 
-      update_statement (connection& conn,
+      update_statement (connection_type& conn,
                         const std::string& text,
                         binding& param);
 
-      update_statement (connection& conn, const char* text, binding& param);
+      update_statement (connection_type& conn,
+                        const char* text,
+                        binding& param);
 
       unsigned long long
       execute ();
@@ -292,11 +303,13 @@ namespace odb
       virtual
       ~delete_statement ();
 
-      delete_statement (connection& conn,
+      delete_statement (connection_type& conn,
                         const std::string& text,
                         binding& param);
 
-      delete_statement (connection& conn, const char* text, binding& param);
+      delete_statement (connection_type& conn,
+                        const char* text,
+                        binding& param);
 
       unsigned long long
       execute ();

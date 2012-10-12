@@ -268,6 +268,22 @@ namespace odb
       result<T>
       query (const oracle::query<T>&);
 
+      // Query preparation.
+      //
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const char*);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const std::string&);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const oracle::query<T>&);
+
+      // Transactions.
+      //
     public:
       virtual transaction_impl*
       begin ();

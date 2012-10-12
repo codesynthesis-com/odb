@@ -16,6 +16,7 @@
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
+#include <odb/oracle/query.hxx>
 #include <odb/oracle/tracer.hxx>
 #include <odb/oracle/transaction-impl.hxx>
 #include <odb/oracle/auto-handle.hxx>
@@ -59,6 +60,21 @@ namespace odb
 
       virtual unsigned long long
       execute (const char* statement, std::size_t length);
+
+      // Query preparation.
+      //
+    public:
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const char*);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const std::string&);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const query<T>&);
 
       // SQL statement tracing.
       //
@@ -137,6 +153,8 @@ namespace odb
     };
   }
 }
+
+#include <odb/oracle/connection.ixx>
 
 #include <odb/post.hxx>
 

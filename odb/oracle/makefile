@@ -13,6 +13,7 @@ database.cxx                 \
 error.cxx                    \
 exceptions.cxx               \
 oracle-types.cxx             \
+prepared-query.cxx           \
 query.cxx                    \
 query-const-expr.cxx         \
 simple-object-statements.cxx \
