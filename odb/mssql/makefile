@@ -11,6 +11,7 @@ connection-factory.cxx       \
 database.cxx                 \
 error.cxx                    \
 exceptions.cxx               \
+prepared-query.cxx           \
 query.cxx                    \
 query-const-expr.cxx         \
 simple-object-statements.cxx \

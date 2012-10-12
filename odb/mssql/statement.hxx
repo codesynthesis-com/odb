@@ -16,6 +16,7 @@
 #include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/binding.hxx>
+#include <odb/mssql/connection.hxx>
 #include <odb/mssql/auto-handle.hxx>
 
 #include <odb/mssql/details/export.hxx>
@@ -29,6 +30,8 @@ namespace odb
     class LIBODB_MSSQL_EXPORT statement: public odb::statement
     {
     public:
+      typedef mssql::connection connection_type;
+
       virtual
       ~statement () = 0;
 
@@ -41,9 +44,15 @@ namespace odb
       virtual const char*
       text () const;
 
+      virtual connection_type&
+      connection ()
+      {
+        return conn_;
+      }
+
     protected:
-      statement (connection&, const std::string& text);
-      statement (connection&, const char* text, bool copy_text);
+      statement (connection_type&, const std::string& text);
+      statement (connection_type&, const char* text, bool copy_text);
 
     private:
       void
@@ -73,7 +82,7 @@ namespace odb
                      void* new_base = 0);
 
     protected:
-      connection& conn_;
+      connection_type& conn_;
       std::string text_copy_;
       const char* text_;
       auto_handle<SQL_HANDLE_STMT> stmt_;
@@ -89,22 +98,22 @@ namespace odb
       // result binding, they should appear last in the statement
       // text.
       //
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const std::string& text,
                         binding& param,
                         binding& result);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const char* text,
                         binding& param,
                         binding& result,
                         bool copy_text = true);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const std::string& text,
                         binding& result);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const char* text,
                         binding& result,
                         bool copy_text = true);
@@ -188,12 +197,12 @@ namespace odb
       virtual
       ~insert_statement ();
 
-      insert_statement (connection& conn,
+      insert_statement (connection_type& conn,
                         const std::string& text,
                         binding& param,
                         bool returning);
 
-      insert_statement (connection& conn,
+      insert_statement (connection_type& conn,
                         const char* text,
                         binding& param,
                         bool returning,
@@ -232,11 +241,11 @@ namespace odb
       virtual
       ~update_statement ();
 
-      update_statement (connection& conn,
+      update_statement (connection_type& conn,
                         const std::string& text,
                         binding& param);
 
-      update_statement (connection& conn,
+      update_statement (connection_type& conn,
                         const char* text,
                         binding& param,
                         bool copy_text = true);
@@ -255,11 +264,11 @@ namespace odb
       virtual
       ~delete_statement ();
 
-      delete_statement (connection& conn,
+      delete_statement (connection_type& conn,
                         const std::string& text,
                         binding& param);
 
-      delete_statement (connection& conn,
+      delete_statement (connection_type& conn,
                         const char* text,
                         binding& param,
                         bool copy_text = true);

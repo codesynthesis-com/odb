@@ -95,14 +95,14 @@ namespace odb
     //
 
     statement::
-    statement (connection& conn, const string& text)
+    statement (connection_type& conn, const string& text)
         : conn_ (conn), text_copy_ (text), text_ (text_copy_.c_str ())
     {
       init (text_copy_.size ());
     }
 
     statement::
-    statement (connection& conn, const char* text, bool copy)
+    statement (connection_type& conn, const char* text, bool copy)
         : conn_ (conn)
     {
       size_t n;
@@ -700,7 +700,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const string& t,
                       binding& param,
                       binding& result)
@@ -711,7 +711,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const char* t,
                       binding& param,
                       binding& result,
@@ -723,14 +723,14 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn, const string& t, binding& result)
+    select_statement (connection_type& conn, const string& t, binding& result)
         : statement (conn, t), result_ (result)
     {
       first_long_ = bind_result (result.bind, result.count);
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const char* t,
                       binding& result,
                       bool ct)
@@ -792,7 +792,7 @@ namespace odb
     }
 
     insert_statement::
-    insert_statement (connection& conn,
+    insert_statement (connection_type& conn,
                       const string& t,
                       binding& param,
                       bool returning)
@@ -805,7 +805,7 @@ namespace odb
     }
 
     insert_statement::
-    insert_statement (connection& conn,
+    insert_statement (connection_type& conn,
                       const char* t,
                       binding& param,
                       bool returning,
@@ -953,14 +953,14 @@ namespace odb
     }
 
     update_statement::
-    update_statement (connection& conn, const string& t, binding& param)
+    update_statement (connection_type& conn, const string& t, binding& param)
         : statement (conn, t)
     {
       bind_param (param.bind, param.count);
     }
 
     update_statement::
-    update_statement (connection& conn,
+    update_statement (connection_type& conn,
                       const char* t,
                       binding& param,
                       bool ct)
@@ -1003,14 +1003,14 @@ namespace odb
     }
 
     delete_statement::
-    delete_statement (connection& conn, const string& t, binding& param)
+    delete_statement (connection_type& conn, const string& t, binding& param)
         : statement (conn, t)
     {
       bind_param (param.bind, param.count);
     }
 
     delete_statement::
-    delete_statement (connection& conn,
+    delete_statement (connection_type& conn,
                       const char* t,
                       binding& param,
                       bool ct)

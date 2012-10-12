@@ -17,6 +17,7 @@
 #include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
+#include <odb/mssql/query.hxx>
 #include <odb/mssql/tracer.hxx>
 #include <odb/mssql/transaction-impl.hxx>
 #include <odb/mssql/auto-handle.hxx>
@@ -59,6 +60,21 @@ namespace odb
 
       virtual unsigned long long
       execute (const char* statement, std::size_t length);
+
+      // Query preparation.
+      //
+    public:
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const char*);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const std::string&);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const query<T>&);
 
       // SQL statement tracing.
       //
@@ -134,6 +150,8 @@ namespace odb
     };
   }
 }
+
+#include <odb/mssql/connection.ixx>
 
 #include <odb/post.hxx>
 

@@ -136,19 +136,12 @@ namespace odb
       p->bind (b);
     }
 
-    binding& query_base::
-    parameters_binding () const
+    void query_base::
+    init_parameters () const
     {
-      size_t n (parameters_.size ());
-      binding& r (binding_);
-
-      if (n == 0)
-        return r;
-
       bool inc_ver (false);
-      bind* b (&bind_[0]);
 
-      for (size_t i (0); i < n; ++i)
+      for (size_t i (0); i < parameters_.size (); ++i)
       {
         query_param& p (*parameters_[i]);
 
@@ -156,16 +149,14 @@ namespace odb
         {
           if (p.init ())
           {
-            p.bind (b + i);
+            p.bind (&bind_[i]);
             inc_ver = true;
           }
         }
       }
 
       if (inc_ver)
-        r.version++;
-
-      return r;
+        binding_.version++;
     }
 
     static bool

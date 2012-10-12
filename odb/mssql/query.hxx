@@ -193,6 +193,11 @@ namespace odb
       const char*
       clause_prefix () const;
 
+      // Initialize the by-reference parameters from bound variables.
+      //
+      void
+      init_parameters () const;
+
       binding&
       parameters_binding () const;
 

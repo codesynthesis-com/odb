@@ -6,6 +6,12 @@ namespace odb
 {
   namespace mssql
   {
+    inline binding& query_base::
+    parameters_binding () const
+    {
+      return binding_;
+    }
+
     template <typename T, database_type_id ID>
     inline void query_base::
     append (val_bind<T> v, const char* conv)
