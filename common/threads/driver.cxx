@@ -96,10 +96,25 @@ struct task
         for (unsigned long j (0); j < sub_iteration_count; ++j)
         {
           typedef odb::query<object> query;
+          typedef odb::prepared_query<object> prep_query;
           typedef odb::result<object> result;
 
           transaction t (db_.begin ());
-          result r (db_.query<object> (query::str == "another value", false));
+
+          { // @@ TMP
+
+          //result r (db_.query<object> (query::str == "another value", false));
+
+          prep_query pq (db_.lookup_query<object> ("object-query"));
+
+          if (!pq)
+          {
+            pq = db_.prepare_query<object> (
+              "object-query", query::str == "another value");
+            db_.cache_query (pq);
+          }
+
+          result r (pq.execute (false));
 
           bool found (false);
           for (result::iterator i (r.begin ()); i != r.end (); ++i)
@@ -111,6 +126,9 @@ struct task
             }
           }
           assert (found);
+
+          } // @@ TMP
+
           t.commit ();
         }
 

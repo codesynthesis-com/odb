@@ -23,4 +23,11 @@ struct person
   unsigned short age_;
 };
 
+#pragma db view object(person)
+struct person_view
+{
+  std::string name;
+  unsigned short age;
+};
+
 #endif // TEST_HXX
