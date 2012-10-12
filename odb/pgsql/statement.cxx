@@ -86,7 +86,7 @@ namespace odb
     }
 
     statement::
-    statement (connection& conn,
+    statement (connection_type& conn,
                const string& name,
                const string& text,
                const Oid* types,
@@ -105,7 +105,7 @@ namespace odb
     }
 
     statement::
-    statement (connection& conn,
+    statement (connection_type& conn,
                const char* name,
                const char* text,
                bool copy,
@@ -393,7 +393,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const std::string& name,
                       const std::string& text,
                       const Oid* types,
@@ -411,7 +411,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const char* name,
                       const char* text,
                       const Oid* types,
@@ -430,7 +430,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const std::string& name,
                       const std::string& text,
                       binding& result)
@@ -444,7 +444,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const char* name,
                       const char* text,
                       binding& result,
@@ -459,7 +459,7 @@ namespace odb
     }
 
     select_statement::
-    select_statement (connection& conn,
+    select_statement (connection_type& conn,
                       const std::string& name,
                       const std::string& text,
                       const Oid* types,
@@ -565,7 +565,7 @@ namespace odb
     }
 
     insert_statement::
-    insert_statement (connection& conn,
+    insert_statement (connection_type& conn,
                       const string& name,
                       const string& text,
                       const Oid* types,
@@ -581,7 +581,7 @@ namespace odb
     }
 
     insert_statement::
-    insert_statement (connection& conn,
+    insert_statement (connection_type& conn,
                       const char* name,
                       const char* text,
                       const Oid* types,
@@ -684,7 +684,7 @@ namespace odb
     }
 
     update_statement::
-    update_statement (connection& conn,
+    update_statement (connection_type& conn,
                       const string& name,
                       const string& text,
                       const Oid* types,
@@ -698,7 +698,7 @@ namespace odb
     }
 
     update_statement::
-    update_statement (connection& conn,
+    update_statement (connection_type& conn,
                       const char* name,
                       const char* text,
                       const Oid* types,
@@ -750,7 +750,7 @@ namespace odb
     }
 
     delete_statement::
-    delete_statement (connection& conn,
+    delete_statement (connection_type& conn,
                       const string& name,
                       const string& text,
                       const Oid* types,
@@ -764,7 +764,7 @@ namespace odb
     }
 
     delete_statement::
-    delete_statement (connection& conn,
+    delete_statement (connection_type& conn,
                       const char* name,
                       const char* text,
                       const Oid* types,
@@ -779,7 +779,7 @@ namespace odb
     }
 
     delete_statement::
-    delete_statement (connection& conn,
+    delete_statement (connection_type& conn,
                       const string& name,
                       const string& text,
                       const Oid* types,

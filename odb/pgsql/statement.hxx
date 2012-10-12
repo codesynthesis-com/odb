@@ -16,6 +16,7 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
 #include <odb/pgsql/pgsql-fwd.hxx> // PGresult
+#include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/auto-handle.hxx>
 
 #include <odb/pgsql/details/export.hxx>
@@ -29,6 +30,8 @@ namespace odb
     class LIBODB_PGSQL_EXPORT statement: public odb::statement
     {
     public:
+      typedef pgsql::connection connection_type;
+
       virtual
       ~statement () = 0;
 
@@ -40,6 +43,12 @@ namespace odb
 
       virtual const char*
       text () const;
+
+      virtual connection_type&
+      connection ()
+      {
+        return conn_;
+      }
 
       void
       deallocate ();
@@ -62,13 +71,13 @@ namespace odb
                    bool truncated = false);
 
     protected:
-      statement (connection&,
+      statement (connection_type&,
                  const std::string& name,
                  const std::string& text,
                  const Oid* types,
                  std::size_t types_count);
 
-      statement (connection&,
+      statement (connection_type&,
                  const char* name,
                  const char* text,
                  bool copy_name_text,
@@ -80,7 +89,7 @@ namespace odb
       init (const Oid* types, std::size_t types_count);
 
     protected:
-      connection& conn_;
+      connection_type& conn_;
 
       std::string name_copy_;
       const char* name_;
@@ -98,7 +107,7 @@ namespace odb
       virtual
       ~select_statement ();
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
                         const Oid* types,
@@ -107,7 +116,7 @@ namespace odb
                         native_binding& native_param,
                         binding& result);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const char* name,
                         const char* stmt,
                         const Oid* types,
@@ -117,18 +126,18 @@ namespace odb
                         binding& result,
                         bool copy_name_text = true);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
                         binding& result);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const char* name,
                         const char* text,
                         binding& result,
                         bool copy_name_text = true);
 
-      select_statement (connection& conn,
+      select_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
                         const Oid* types,
@@ -228,7 +237,7 @@ namespace odb
       virtual
       ~insert_statement ();
 
-      insert_statement (connection& conn,
+      insert_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
                         const Oid* types,
@@ -237,7 +246,7 @@ namespace odb
                         native_binding& native_param,
                         bool returning);
 
-      insert_statement (connection& conn,
+      insert_statement (connection_type& conn,
                         const char* name,
                         const char* text,
                         const Oid* types,
@@ -277,7 +286,7 @@ namespace odb
       virtual
       ~update_statement ();
 
-      update_statement (connection& conn,
+      update_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
                         const Oid* types,
@@ -285,7 +294,7 @@ namespace odb
                         binding& param,
                         native_binding& native_param);
 
-      update_statement (connection& conn,
+      update_statement (connection_type& conn,
                         const char* name,
                         const char* text,
                         const Oid* types,
@@ -312,7 +321,7 @@ namespace odb
       virtual
       ~delete_statement ();
 
-      delete_statement (connection& conn,
+      delete_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
                         const Oid* types,
@@ -320,7 +329,7 @@ namespace odb
                         binding& param,
                         native_binding& native_param);
 
-      delete_statement (connection& conn,
+      delete_statement (connection_type& conn,
                         const char* name,
                         const char* text,
                         const Oid* types,
@@ -329,7 +338,7 @@ namespace odb
                         native_binding& native_param,
                         bool copy_name_text = true);
 
-      delete_statement (connection& conn,
+      delete_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
                         const Oid* types,

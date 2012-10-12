@@ -70,6 +70,9 @@ namespace odb
     connection::
     ~connection ()
     {
+      // Destroy prepared query statements before freeing the connections.
+      //
+      prepared_map_.clear ();
     }
 
     transaction_impl* connection::

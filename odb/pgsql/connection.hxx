@@ -15,6 +15,7 @@
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
+#include <odb/pgsql/query.hxx>
 #include <odb/pgsql/tracer.hxx>
 #include <odb/pgsql/transaction-impl.hxx>
 #include <odb/pgsql/auto-handle.hxx>
@@ -58,6 +59,21 @@ namespace odb
 
       virtual unsigned long long
       execute (const char* statement, std::size_t length);
+
+      // Query preparation.
+      //
+    public:
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const char*);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const std::string&);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const query<T>&);
 
       // SQL statement tracing.
       //
@@ -128,6 +144,8 @@ namespace odb
     };
   }
 }
+
+#include <odb/pgsql/connection.ixx>
 
 #include <odb/post.hxx>
 

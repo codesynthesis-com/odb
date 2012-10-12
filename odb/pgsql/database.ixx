@@ -2,6 +2,8 @@
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <odb/pgsql/transaction.hxx>
+
 namespace odb
 {
   namespace pgsql
@@ -392,6 +394,30 @@ namespace odb
       // here; object_traits::query () does this.
       //
       return query_<T, id_pgsql>::call (*this, q);
+    }
+
+    template <typename T>
+    inline prepared_query<T> database::
+    prepare_query (const char* n, const char* q)
+    {
+      return prepare_query<T> (n, pgsql::query<T> (q));
+    }
+
+    template <typename T>
+    inline prepared_query<T> database::
+    prepare_query (const char* n, const std::string& q)
+    {
+      return prepare_query<T> (n, pgsql::query<T> (q));
+    }
+
+    template <typename T>
+    inline prepared_query<T> database::
+    prepare_query (const char* n, const pgsql::query<T>& q)
+    {
+      // Throws if not in transaction.
+      //
+      pgsql::connection& c (transaction::current ().connection ());
+      return c.prepare_query (n, q);
     }
   }
 }

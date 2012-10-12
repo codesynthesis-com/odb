@@ -222,19 +222,12 @@ namespace odb
       statement::bind_param (native_binding_, binding_);
     }
 
-    native_binding& query_base::
-    parameters_binding () const
+    void query_base::
+    init_parameters () const
     {
-      size_t n (parameters_.size ());
-
-      if (n == 0)
-        return native_binding_;
-
       bool ref (false), inc_ver (false);
-      binding& r (binding_);
-      bind* b (&bind_[0]);
 
-      for (size_t i (0); i < n; ++i)
+      for (size_t i (0); i < parameters_.size (); ++i)
       {
         query_param& p (*parameters_[i]);
 
@@ -244,7 +237,7 @@ namespace odb
 
           if (p.init ())
           {
-            p.bind (b + i);
+            p.bind (&bind_[i]);
             inc_ver = true;
           }
         }
@@ -255,10 +248,8 @@ namespace odb
         statement::bind_param (native_binding_, binding_);
 
         if (inc_ver)
-          r.version++;
+          binding_.version++;
       }
-
-      return native_binding_;
     }
 
     static bool

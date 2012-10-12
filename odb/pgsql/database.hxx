@@ -266,6 +266,20 @@ namespace odb
       result<T>
       query (const pgsql::query<T>&);
 
+      // Query preparation.
+      //
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const char*);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const std::string&);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const pgsql::query<T>&);
+
       // Transactions.
       //
     public:
