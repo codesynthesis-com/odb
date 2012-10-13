@@ -69,7 +69,7 @@ main (int argc, char* argv[])
     typedef odb::prepared_query<person> prep_query;
     typedef odb::result<person> result;
 
-    // Uncached query.
+    // Uncached query in the same transaction.
     //
     {
       transaction t (db->begin ());
@@ -85,6 +85,38 @@ main (int argc, char* argv[])
         result r (pq.execute ());
         assert (size (r) == i);
       }
+
+      age = 90;
+      result r (pq.execute ());
+      result::iterator i (r.begin ());
+      assert (i != r.end () && i->name_ == "John First" && i->age_ == 91);
+      assert (++i == r.end ());
+
+      t.commit ();
+    }
+
+    // Uncached query in multiple transaction.
+    //
+    {
+      connection_ptr c (db->connection ());
+
+      unsigned short age (90);
+      prep_query pq (
+        c->prepare_query<person> (
+          "person-age-query",
+          query::age > query::_ref (age)));
+
+      for (unsigned short i (1); i < 6; ++i, age -= 10)
+      {
+        transaction t (c->begin ());
+
+        result r (pq.execute ());
+        assert (size (r) == i);
+
+        t.commit ();
+      }
+
+      transaction t (c->begin ());
 
       age = 90;
       result r (pq.execute ());
