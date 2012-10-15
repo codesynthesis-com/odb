@@ -21,11 +21,24 @@ namespace odb
     }
 
     template <typename T>
+    void object_result_impl<T>::
+    invalidate ()
+    {
+      if (!this->end_)
+      {
+        statement_->free_result ();
+        this->end_ = true;
+      }
+
+      statement_.reset ();
+    }
+
+    template <typename T>
     object_result_impl<T>::
     object_result_impl (const query_base&,
                         details::shared_ptr<select_statement> statement,
                         statements_type& statements)
-        : base_type (statements.connection ().database ()),
+        : base_type (statements.connection ()),
           statement_ (statement),
           statements_ (statements),
           count_ (0)
@@ -44,11 +57,10 @@ namespace odb
       assert (!statements_.locked ());
       typename statements_type::auto_lock l (statements_);
 
-      odb::database& db (this->database ());
-      object_traits::callback (db, obj, callback_event::pre_load);
+      object_traits::callback (this->db_, obj, callback_event::pre_load);
 
       typename object_traits::image_type& i (statements_.image ());
-      object_traits::init (obj, i, &db);
+      object_traits::init (obj, i, &this->db_);
 
       // Initialize the id image and binding and load the rest of the object
       // (containers, etc).
@@ -67,7 +79,7 @@ namespace odb
       object_traits::load_ (statements_, obj);
       statements_.load_delayed ();
       l.unlock ();
-      object_traits::callback (db, obj, callback_event::post_load);
+      object_traits::callback (this->db_, obj, callback_event::post_load);
     }
 
     template <typename T>

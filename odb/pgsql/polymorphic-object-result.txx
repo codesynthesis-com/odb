@@ -22,11 +22,24 @@ namespace odb
     }
 
     template <typename T>
+    void polymorphic_object_result_impl<T>::
+    invalidate ()
+    {
+      if (!this->end_)
+      {
+        statement_->free_result ();
+        this->end_ = true;
+      }
+
+      statement_.reset ();
+    }
+
+    template <typename T>
     polymorphic_object_result_impl<T>::
     polymorphic_object_result_impl (const query_base&,
                                     details::shared_ptr<select_statement> st,
                                     statements_type& sts)
-        : base_type (sts.connection ().database ()),
+        : base_type (sts.connection ()),
           statement_ (st),
           statements_ (sts),
           count_ (0)
@@ -48,7 +61,6 @@ namespace odb
       assert (!rsts.locked ());
       typename statements_type::auto_lock l (rsts);
 
-      odb::database& db (this->database ());
       typename object_traits::image_type& i (statements_.image ());
       typename root_traits::image_type& ri (rsts.image ());
 
@@ -85,7 +97,8 @@ namespace odb
         // Insert it as a root pointer (for non-unique pointers, rp should
         // still be valid and for unique pointers this is a no-op).
         //
-        ig.reset (object_traits::pointer_cache_traits::insert (db, id, rp));
+        ig.reset (
+          object_traits::pointer_cache_traits::insert (this->db_, id, rp));
 
         pobj = &pointer_traits::get_ref (p);
         current (p);
@@ -106,9 +119,9 @@ namespace odb
       }
 
       callback_event ce (callback_event::pre_load);
-      pi.dispatch (info_type::call_callback, db, pobj, &ce);
+      pi.dispatch (info_type::call_callback, this->db_, pobj, &ce);
 
-      object_traits::init (*pobj, i, &db);
+      object_traits::init (*pobj, i, &this->db_);
 
       // Initialize the id image and binding and load the rest of the object
       // (containers, dynamic part, etc).
@@ -132,14 +145,14 @@ namespace odb
       if (&pi != &object_traits::info)
       {
         std::size_t d (object_traits::depth);
-        pi.dispatch (info_type::call_load, db, pobj, &d);
+        pi.dispatch (info_type::call_load, this->db_, pobj, &d);
       };
 
       rsts.load_delayed ();
       l.unlock ();
 
       ce = callback_event::post_load;
-      pi.dispatch (info_type::call_callback, db, pobj, &ce);
+      pi.dispatch (info_type::call_callback, this->db_, pobj, &ce);
       ig.release ();
     }
 

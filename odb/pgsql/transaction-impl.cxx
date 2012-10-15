@@ -62,6 +62,10 @@ namespace odb
     void transaction_impl::
     commit ()
     {
+      // Invalidate query results.
+      //
+      connection_->invalidate_results ();
+
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
@@ -72,11 +76,19 @@ namespace odb
 
       if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
         translate_error (*connection_, h);
+
+      // Release the connection.
+      //
+      connection_.reset ();
     }
 
     void transaction_impl::
     rollback ()
     {
+      // Invalidate query results.
+      //
+      connection_->invalidate_results ();
+
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
@@ -87,6 +99,10 @@ namespace odb
 
       if (!h || PGRES_COMMAND_OK != PQresultStatus (h))
         translate_error (*connection_, h);
+
+      // Release the connection.
+      //
+      connection_.reset ();
     }
   }
 }

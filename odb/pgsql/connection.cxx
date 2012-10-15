@@ -72,7 +72,8 @@ namespace odb
     {
       // Destroy prepared query statements before freeing the connections.
       //
-      prepared_map_.clear ();
+      recycle ();
+      clear_prepared_map ();
     }
 
     transaction_impl* connection::

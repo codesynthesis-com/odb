@@ -67,6 +67,9 @@ namespace odb
       virtual std::size_t
       size ();
 
+      virtual void
+      invalidate ();
+
       using base_type::current;
 
     private:
