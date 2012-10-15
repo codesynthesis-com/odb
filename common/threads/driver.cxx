@@ -101,10 +101,6 @@ struct task
 
           transaction t (db_.begin ());
 
-          { // @@ TMP
-
-          //result r (db_.query<object> (query::str == "another value", false));
-
           prep_query pq (db_.lookup_query<object> ("object-query"));
 
           if (!pq)
@@ -126,8 +122,6 @@ struct task
             }
           }
           assert (found);
-
-          } // @@ TMP
 
           t.commit ();
         }
