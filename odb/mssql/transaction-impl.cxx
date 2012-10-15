@@ -56,6 +56,10 @@ namespace odb
     void transaction_impl::
     commit ()
     {
+      // Invalidate query results.
+      //
+      connection_->invalidate_results ();
+
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
@@ -68,15 +72,18 @@ namespace odb
       if (!SQL_SUCCEEDED (r))
         translate_error (r, *connection_, true);
 
-      // We cannot release the connection early since we may still need
-      // to free (query) statements.
+      // Release the connection.
       //
-      //connection_.reset ();
+      connection_.reset ();
     }
 
     void transaction_impl::
     rollback ()
     {
+      // Invalidate query results.
+      //
+      connection_->invalidate_results ();
+
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
@@ -91,7 +98,7 @@ namespace odb
 
       // Release the connection.
       //
-      //connection_.reset ();
+      connection_.reset ();
     }
   }
 }

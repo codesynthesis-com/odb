@@ -16,6 +16,13 @@ namespace odb
     view_result_impl<T>::
     ~view_result_impl ()
     {
+      invalidate ();
+    }
+
+    template <typename T>
+    void view_result_impl<T>::
+    invalidate ()
+    {
       change_callback_type& cc (statements_.image ().change_callback_);
 
       if (cc.context == this)
@@ -24,10 +31,16 @@ namespace odb
         cc.context = 0;
       }
 
-      if (!this->end_)
-        statement_->free_result ();
-
       delete image_copy_;
+      image_copy_ = 0;
+
+      if (!this->end_)
+      {
+        statement_->free_result ();
+        this->end_ = true;
+      }
+
+      statement_.reset ();
     }
 
     template <typename T>
@@ -35,7 +48,7 @@ namespace odb
     view_result_impl (const query_base&,
                       details::shared_ptr<select_statement> statement,
                       statements_type& statements)
-        : base_type (statements.connection ().database ()),
+        : base_type (statements.connection ()),
           statement_ (statement),
           statements_ (statements),
           use_copy_ (false),
@@ -50,13 +63,11 @@ namespace odb
       if (!can_load_)
         throw long_data_reload ();
 
-      odb::database& db (this->database ());
-
-      view_traits::callback (db, view, callback_event::pre_load);
+      view_traits::callback (this->db_, view, callback_event::pre_load);
 
       view_traits::init (view,
                          use_copy_ ? *image_copy_ : statements_.image (),
-                         &db);
+                         &this->db_);
 
       // If we are using a copy, make sure the callback information for
       // long data also comes from the copy.
@@ -65,7 +76,7 @@ namespace odb
         use_copy_ ? &statements_.image () : 0,
         use_copy_ ? image_copy_ : 0);
 
-      view_traits::callback (db, view, callback_event::post_load);
+      view_traits::callback (this->db_, view, callback_event::post_load);
     }
 
     template <typename T>

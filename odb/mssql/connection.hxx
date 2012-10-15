@@ -132,6 +132,9 @@ namespace odb
       connection& operator= (const connection&);
 
     private:
+      friend class transaction_impl; // invalidate_results()
+
+    private:
       database_type& db_;
       auto_handle<SQL_HANDLE_DBC> handle_;
 
