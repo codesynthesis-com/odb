@@ -111,6 +111,10 @@ namespace odb
     void transaction_impl::
     commit ()
     {
+      // Invalidate query results.
+      //
+      connection_->invalidate_results ();
+
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
@@ -123,11 +127,19 @@ namespace odb
 
       if (s == OCI_ERROR || s == OCI_INVALID_HANDLE)
         translate_error (*connection_, s);
+
+      // Release the connection.
+      //
+      connection_.reset ();
     }
 
     void transaction_impl::
     rollback ()
     {
+      // Invalidate query results.
+      //
+      connection_->invalidate_results ();
+
       {
         odb::tracer* t;
         if ((t = connection_->tracer ()) || (t = database_.tracer ()))
@@ -140,6 +152,10 @@ namespace odb
 
       if (s == OCI_ERROR || s == OCI_INVALID_HANDLE)
         translate_error (*connection_, s);
+
+      // Release the connection.
+      //
+      connection_.reset ();
     }
   }
 }

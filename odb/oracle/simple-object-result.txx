@@ -17,18 +17,31 @@ namespace odb
     object_result_impl<T>::
     ~object_result_impl ()
     {
+      invalidate ();
+    }
+
+    template <typename T>
+    void object_result_impl<T>::
+    invalidate ()
+    {
       change_callback_type& cc (statements_.image ().change_callback_);
 
       if (cc.context == this)
       {
-        cc.context = 0;
         cc.callback = 0;
+        cc.context = 0;
       }
 
       delete image_copy_;
+      image_copy_ = 0;
 
       if (!this->end_)
+      {
         statement_->free_result ();
+        this->end_ = true;
+      }
+
+      statement_.reset ();
     }
 
     template <typename T>
@@ -36,7 +49,7 @@ namespace odb
     object_result_impl (const query_base&,
                         details::shared_ptr<select_statement> statement,
                         statements_type& statements)
-        : base_type (statements.connection ().database ()),
+        : base_type (statements.connection ()),
           statement_ (statement),
           statements_ (statements),
           use_copy_ (false),
@@ -53,13 +66,12 @@ namespace odb
       assert (!statements_.locked ());
       typename statements_type::auto_lock l (statements_);
 
-      odb::database& db (this->database ());
-      object_traits::callback (db, obj, callback_event::pre_load);
+      object_traits::callback (this->db_, obj, callback_event::pre_load);
 
       typename object_traits::image_type& i (
         use_copy_ ? *image_copy_ : statements_.image ());
 
-      object_traits::init (obj, i, &db);
+      object_traits::init (obj, i, &this->db_);
 
       // If we are using a copy, make sure the callback information for
       // LOB data also comes from the copy.
@@ -85,7 +97,7 @@ namespace odb
       object_traits::load_ (statements_, obj);
       statements_.load_delayed ();
       l.unlock ();
-      object_traits::callback (db, obj, callback_event::post_load);
+      object_traits::callback (this->db_, obj, callback_event::post_load);
     }
 
     template <typename T>

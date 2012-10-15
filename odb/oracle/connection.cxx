@@ -139,7 +139,8 @@ namespace odb
     {
       // Deallocate prepared statements before we close the connection.
       //
-      prepared_map_.clear ();
+      recycle ();
+      clear_prepared_map ();
       statement_cache_.reset ();
     }
 

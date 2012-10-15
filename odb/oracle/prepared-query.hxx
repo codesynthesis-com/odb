@@ -23,6 +23,8 @@ namespace odb
       virtual
       ~prepared_query_impl ();
 
+      prepared_query_impl (odb::connection& c): odb::prepared_query_impl (c) {}
+
       oracle::query_base query;
     };
   }

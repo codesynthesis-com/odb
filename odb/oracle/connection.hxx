@@ -138,6 +138,9 @@ namespace odb
       connection& operator= (const connection&);
 
     private:
+      friend class transaction_impl; // invalidate_results()
+
+    private:
       database_type& db_;
 
       // It is important that the error_ member is declared before the
