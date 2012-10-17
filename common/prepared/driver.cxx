@@ -143,7 +143,6 @@ main (int argc, char* argv[])
             "person-val-age-query",
             query::age > 90);
           db->cache_query (pq);
-          prep_query pq1 (db->lookup_query<person> ("person-val-age-query"));
         }
         else if (i == 2)
         {
