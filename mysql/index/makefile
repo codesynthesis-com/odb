@@ -34,8 +34,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database mysql --generate-schema \
---table-prefix mysql_index_
+$(gen) $(dist): export odb_options += --database mysql --default-database \
+common --generate-schema --table-prefix mysql_index_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 

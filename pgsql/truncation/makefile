@@ -34,8 +34,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database pgsql --generate-query \
---generate-schema --table-prefix pgsql_truncation_
+$(gen) $(dist): export odb_options += --database pgsql --default-database \
+common --generate-schema  --generate-query --table-prefix pgsql_truncation_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 

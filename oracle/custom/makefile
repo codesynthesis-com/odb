@@ -34,9 +34,10 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database oracle --generate-schema \
---generate-query --hxx-prologue '\#include "traits.hxx"' --sql-interlude \
-"@ $(src_base)/custom.sql" --table-prefix oracle_custom_
+$(gen) $(dist): export odb_options += --database oracle --default-database \
+common --generate-schema --generate-query --hxx-prologue \
+'\#include "traits.hxx"' --sql-interlude "@ $(src_base)/custom.sql" \
+--table-prefix oracle_custom_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 

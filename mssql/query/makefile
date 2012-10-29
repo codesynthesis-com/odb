@@ -34,8 +34,9 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database mssql --generate-schema \
---generate-query --mssql-server-version 9.0 --table-prefix mssql_query_
+$(gen) $(dist): export odb_options += --database mssql --default-database \
+common --generate-schema --generate-query --mssql-server-version 9.0 \
+--table-prefix mssql_query_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
