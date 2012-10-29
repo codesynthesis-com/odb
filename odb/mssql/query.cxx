@@ -87,7 +87,8 @@ namespace odb
     void query_base::
     append (const string& q)
     {
-      if (!clause_.empty () && clause_.back ().kind == clause_part::native)
+      if (!clause_.empty () &&
+          clause_.back ().kind == clause_part::kind_native)
       {
         string& s (clause_.back ().part);
 
@@ -104,7 +105,7 @@ namespace odb
         s += q;
       }
       else
-        clause_.push_back (clause_part (clause_part::native, q));
+        clause_.push_back (clause_part (clause_part::kind_native, q));
     }
 
     void query_base::
@@ -114,13 +115,13 @@ namespace odb
       s += '.';
       s += column;
 
-      clause_.push_back (clause_part (clause_part::column, s));
+      clause_.push_back (clause_part (clause_part::kind_column, s));
     }
 
     void query_base::
     add (details::shared_ptr<query_param> p, const char* conv)
     {
-      clause_.push_back (clause_part (clause_part::param));
+      clause_.push_back (clause_part (clause_part::kind_param));
 
       if (conv != 0)
         clause_.back ().part = conv;
@@ -199,12 +200,12 @@ namespace odb
       //
       clause_type::iterator i (clause_.begin ()), e (clause_.end ());
 
-      if (i != e && i->kind == clause_part::boolean && i->bool_part)
+      if (i != e && i->kind == clause_part::kind_bool && i->bool_part)
       {
         clause_type::iterator j (i + 1);
 
         if (j == e ||
-            (j->kind == clause_part::native && check_prefix (j->part)))
+            (j->kind == clause_part::kind_native && check_prefix (j->part)))
           clause_.erase (i);
       }
     }
@@ -216,7 +217,7 @@ namespace odb
       {
         const clause_part& p (clause_.front ());
 
-        if (p.kind == clause_part::native && check_prefix (p.part))
+        if (p.kind == clause_part::kind_native && check_prefix (p.part))
           return "";
 
         return "WHERE ";
@@ -239,7 +240,7 @@ namespace odb
 
         switch (i->kind)
         {
-        case clause_part::column:
+        case clause_part::kind_column:
           {
             if (last != ' ' && last != '(')
               r += ' ';
@@ -247,7 +248,7 @@ namespace odb
             r += i->part;
             break;
           }
-        case clause_part::param:
+        case clause_part::kind_param:
           {
             if (last != ' ' && last != '(')
               r += ' ';
@@ -268,7 +269,7 @@ namespace odb
 
             break;
           }
-        case clause_part::native:
+        case clause_part::kind_native:
           {
             // We don't want extra spaces after '(' as well as before ','
             // and ')'.
@@ -283,7 +284,7 @@ namespace odb
             r += p;
             break;
           }
-        case clause_part::boolean:
+        case clause_part::kind_bool:
           {
             if (last != ' ' && last != '(')
               r += ' ';
