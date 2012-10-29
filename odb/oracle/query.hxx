@@ -110,15 +110,15 @@ namespace odb
       {
         enum kind_type
         {
-          column,
-          param,
-          native,
-          boolean
+          kind_column,
+          kind_param,
+          kind_native,
+          kind_bool
         };
 
         clause_part (kind_type k): kind (k) {}
         clause_part (kind_type k, const std::string& p): kind (k), part (p) {}
-        clause_part (bool p): kind (boolean), bool_part (p) {}
+        clause_part (bool p): kind (kind_bool), bool_part (p) {}
 
         kind_type kind;
         std::string part; // If kind is param, then part is conversion expr.
@@ -143,14 +143,14 @@ namespace odb
       query_base (const char* native)
         : binding_ (0, 0)
       {
-        clause_.push_back (clause_part (clause_part::native, native));
+        clause_.push_back (clause_part (clause_part::kind_native, native));
       }
 
       explicit
       query_base (const std::string& native)
         : binding_ (0, 0)
       {
-        clause_.push_back (clause_part (clause_part::native, native));
+        clause_.push_back (clause_part (clause_part::kind_native, native));
       }
 
       query_base (const char* table, const char* column)
@@ -213,7 +213,7 @@ namespace odb
       const_true () const
       {
         return clause_.size () == 1 &&
-          clause_.front ().kind == clause_part::boolean &&
+          clause_.front ().kind == clause_part::kind_bool &&
           clause_.front ().bool_part;
       }
 
