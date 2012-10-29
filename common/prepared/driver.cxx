@@ -283,13 +283,15 @@ main (int argc, char* argv[])
         "person-params-query-2",
         [] (const char* name, connection& c)
         {
-            auto_ptr<params> p (new params);
-            prepared_query<person> pq (
-              c.prepare_query<person> (
-                name,
-                query::age > query::_ref (p->age) &&
-                query::name != query::_ref (p->name)));
-            c.cache_query (pq, p);
+          typedef odb::query<person> query;
+
+          auto_ptr<params> p (new params);
+          prepared_query<person> pq (
+            c.prepare_query<person> (
+              name,
+              query::age > query::_ref (p->age) &&
+              query::name != query::_ref (p->name)));
+          c.cache_query (pq, p);
         });
 
       for (unsigned int i (1); i < 6; ++i)
