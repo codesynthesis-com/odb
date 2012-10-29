@@ -153,19 +153,20 @@ public:
   //
   void unload () const;
 
-  template <class ID>
-  QLazySharedPointer (database_type&, const ID&);
+  template <class DB, class ID>
+  QLazySharedPointer (DB&, const ID&);
 
-  QLazySharedPointer (database_type&, T*);
+  template <class DB>
+  QLazySharedPointer (DB&, T*);
 
-  template <class Deleter>
-  QLazySharedPointer (database_type&, T*, Deleter);
+  template <class DB, class Deleter>
+  QLazySharedPointer (DB&, T*, Deleter);
 
-  template <class X>
-  QLazySharedPointer (database_type&, const QSharedPointer<X>&);
+  template <class DB, class X>
+  QLazySharedPointer (DB&, const QSharedPointer<X>&);
 
-  template <class X>
-  QLazySharedPointer (database_type&, const QWeakPointer<X>&);
+  template <class DB, class X>
+  QLazySharedPointer (DB&, const QWeakPointer<X>&);
 
 #ifdef ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT
   template <class O = T>
@@ -327,14 +328,14 @@ public:
   void
   unload () const;
 
-  template <class ID>
-  QLazyWeakPointer (database_type&, const ID&);
+  template <class DB, class ID>
+  QLazyWeakPointer (DB&, const ID&);
 
-  template <class X>
-  QLazyWeakPointer (database_type&, const QSharedPointer<X>&);
+  template <class DB, class X>
+  QLazyWeakPointer (DB&, const QSharedPointer<X>&);
 
-  template <class X>
-  QLazyWeakPointer (database_type&, const QWeakPointer<X>&);
+  template <class DB, class X>
+  QLazyWeakPointer (DB&, const QWeakPointer<X>&);
 
   // The objectId() function can only be called when the object is persistent,
   // or: toStrongRef().isNull() XOR loaded() (can use != for XOR).

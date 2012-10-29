@@ -221,47 +221,48 @@ unload () const
 }
 
 template <class T>
-template <class ID>
+template <class DB, class ID>
 inline QLazySharedPointer<T>::
-QLazySharedPointer (database_type& db, const ID& id): i_ (db, id) {}
+QLazySharedPointer (DB& db, const ID& id): i_ (db, id) {}
 
 template <class T>
+template <class DB>
 inline QLazySharedPointer<T>::
-QLazySharedPointer (database_type& db, T* p)
+QLazySharedPointer (DB& db, T* p)
     : p_ (p)
 {
   if (p_)
-    i_.reset (db);
+    i_.reset_db (db);
 }
 
 template <class T>
-template <class Deleter>
+template <class DB, class Deleter>
 inline QLazySharedPointer<T>::
-QLazySharedPointer (database_type& db, T* p, Deleter d)
+QLazySharedPointer (DB& db, T* p, Deleter d)
     : p_ (p, d)
 {
   if (p_)
-    i_.reset (db);
+    i_.reset_db (db);
 }
 
 template <class T>
-template <class Y>
+template <class DB, class Y>
 inline QLazySharedPointer<T>::
-QLazySharedPointer (database_type& db, const QSharedPointer<Y>& r)
+QLazySharedPointer (DB& db, const QSharedPointer<Y>& r)
     : p_ (r)
 {
   if (p_)
-    i_.reset (db);
+    i_.reset_db (db);
 }
 
 template <class T>
-template <class Y>
+template <class DB, class Y>
 inline QLazySharedPointer<T>::
-QLazySharedPointer (database_type& db, const QWeakPointer<Y>& r)
+QLazySharedPointer (DB& db, const QWeakPointer<Y>& r)
     : p_ (r)
 {
   if (p_)
-    i_.reset (db);
+    i_.reset_db (db);
 }
 
 template <class T>
@@ -478,14 +479,14 @@ unload () const
 }
 
 template <class T>
-template <class ID>
+template <class DB, class ID>
 inline QLazyWeakPointer<T>::
-QLazyWeakPointer (database_type& db, const ID& id): i_ (db, id) {}
+QLazyWeakPointer (DB& db, const ID& id): i_ (db, id) {}
 
 template <class T>
-template <class X>
+template <class DB, class X>
 inline QLazyWeakPointer<T>::
-QLazyWeakPointer (database_type& db, const QSharedPointer<X>& r)
+QLazyWeakPointer (DB& db, const QSharedPointer<X>& r)
   : p_ (r)
 {
   typedef typename odb::object_traits<T>::object_type object_type;
@@ -495,9 +496,9 @@ QLazyWeakPointer (database_type& db, const QSharedPointer<X>& r)
 }
 
 template <class T>
-template <class X>
+template <class DB, class X>
 inline QLazyWeakPointer<T>::
-QLazyWeakPointer (database_type& db, const QWeakPointer<X>& r)
+QLazyWeakPointer (DB& db, const QWeakPointer<X>& r)
     : p_ (r)
 {
   typedef typename odb::object_traits<T>::object_type object_type;
