@@ -204,9 +204,9 @@ main (int argc, char* argv[])
     // Readonly object.
     //
     {
-      typedef odb::object_traits_impl<simple_object, odb::id_default> so_traits;
-      typedef odb::object_traits_impl<ro_object, odb::id_default> ro_traits;
-      typedef odb::object_traits_impl<rw_object, odb::id_default> rw_traits;
+      typedef odb::object_traits_impl<simple_object, odb::id_common> so_traits;
+      typedef odb::object_traits_impl<ro_object, odb::id_common> ro_traits;
+      typedef odb::object_traits_impl<rw_object, odb::id_common> rw_traits;
 
       assert (so_traits::column_count ==
               so_traits::id_column_count + so_traits::readonly_column_count);
