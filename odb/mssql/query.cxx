@@ -119,7 +119,7 @@ namespace odb
     }
 
     void query_base::
-    add (details::shared_ptr<query_param> p, const char* conv)
+    append (details::shared_ptr<query_param> p, const char* conv)
     {
       clause_.push_back (clause_part (clause_part::kind_param));
 

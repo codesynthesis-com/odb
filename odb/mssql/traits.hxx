@@ -612,7 +612,6 @@ namespace odb
     {
       public:
       typedef const char* value_type;
-      typedef const char* query_type;
       typedef char* image_type;
 
       static void
@@ -637,17 +636,20 @@ namespace odb
     struct LIBODB_MSSQL_EXPORT default_value_traits<const char*, id_string>:
       c_string_value_traits
     {
+      typedef const char* query_type;
     };
 
     template <std::size_t N>
     struct default_value_traits<char[N], id_string>: c_string_value_traits
     {
+      typedef char query_type[N];
     };
 
     template <std::size_t N>
     struct default_value_traits<const char[N], id_string>:
       c_string_value_traits
     {
+      typedef const char query_type[N];
     };
 
     // std::string specialization for long_string.
@@ -706,7 +708,6 @@ namespace odb
     {
     public:
       typedef const char* value_type;
-      typedef const char* query_type;
       typedef long_callback image_type;
 
       static void
@@ -735,18 +736,21 @@ namespace odb
                                                     id_long_string>:
       c_string_long_value_traits
     {
+      typedef const char* query_type;
     };
 
     template <std::size_t N>
     struct default_value_traits<char[N], id_long_string>:
       c_string_long_value_traits
     {
+      typedef char query_type[N];
     };
 
     template <std::size_t N>
     struct default_value_traits<const char[N], id_long_string>:
       c_string_long_value_traits
     {
+      typedef const char query_type[N];
     };
 
     // std::wstring specialization for nstring.
@@ -829,7 +833,6 @@ namespace odb
     {
     public:
       typedef const wchar_t* value_type;
-      typedef const wchar_t* query_type;
       typedef ucs2_char* image_type;
 
       typedef wstring_functions<> functions;
@@ -856,18 +859,21 @@ namespace odb
                                                     id_nstring>:
       c_wstring_value_traits
     {
+      typedef const wchar_t* query_type;
     };
 
     template <std::size_t N>
     struct default_value_traits<wchar_t[N], id_nstring>:
       c_wstring_value_traits
     {
+      typedef wchar_t query_type[N];
     };
 
     template <std::size_t N>
     struct default_value_traits<const wchar_t[N], id_nstring>:
       c_wstring_value_traits
     {
+      typedef const wchar_t query_type[N];
     };
 
     // std::wstring specialization for long_nstring.
@@ -961,7 +967,6 @@ namespace odb
     struct LIBODB_MSSQL_EXPORT c_wstring_long_value_traits<2>
     {
       typedef const wchar_t* value_type;
-      typedef const wchar_t* query_type;
       typedef long_callback image_type;
 
       static void
@@ -990,7 +995,6 @@ namespace odb
     struct LIBODB_MSSQL_EXPORT c_wstring_long_value_traits<4>
     {
       typedef const wchar_t* value_type;
-      typedef const wchar_t* query_type;
       typedef long_callback image_type;
 
       static void
@@ -1020,18 +1024,21 @@ namespace odb
                                                     id_long_nstring>:
       c_wstring_long_value_traits<>
     {
+      typedef const wchar_t* query_type;
     };
 
     template <std::size_t N>
     struct default_value_traits<wchar_t[N], id_long_nstring>:
       c_wstring_long_value_traits<>
     {
+      typedef wchar_t query_type[N];
     };
 
     template <std::size_t N>
     struct default_value_traits<const wchar_t[N], id_long_nstring>:
       c_wstring_long_value_traits<>
     {
+      typedef const wchar_t query_type[N];
     };
 
     // std::vector (buffer) specialization for binary.
@@ -1095,7 +1102,7 @@ namespace odb
     struct c_array_binary_value_traits
     {
       typedef C* value_type;
-      typedef const C* query_type;
+      typedef C query_type[N];
       typedef char* image_type;
 
       static void
@@ -1283,7 +1290,7 @@ namespace odb
     struct c_array_long_binary_value_traits
     {
       typedef C* value_type;
-      typedef const C* query_type;
+      typedef C query_type[N];
       typedef long_callback image_type;
 
       static void

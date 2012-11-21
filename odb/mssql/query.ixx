@@ -16,7 +16,7 @@ namespace odb
     inline void query_base::
     append (val_bind<T> v, const char* conv)
     {
-      add (
+      append (
         details::shared_ptr<query_param> (
           new (details::shared) query_param_impl<T, ID> (v)),
         conv);
@@ -26,7 +26,7 @@ namespace odb
     inline void query_base::
     append (ref_bind<T> r, const char* conv)
     {
-      add (
+      append (
         details::shared_ptr<query_param> (
           new (details::shared) query_param_impl<T, ID> (r)),
         conv);
