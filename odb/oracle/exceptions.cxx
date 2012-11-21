@@ -58,6 +58,16 @@ namespace odb
     }
 
     //
+    // lob_comparison
+    //
+
+    const char* lob_comparison::
+    what () const throw ()
+    {
+      return "comparison of LOB values in queries not supported";
+    }
+
+    //
     // cli_exception
     //
 

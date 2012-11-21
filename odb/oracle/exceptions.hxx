@@ -83,6 +83,12 @@ namespace odb
       std::string what_;
     };
 
+    struct LIBODB_ORACLE_EXPORT lob_comparison: odb::exception
+    {
+      virtual const char*
+      what () const throw ();
+    };
+
     struct LIBODB_ORACLE_EXPORT cli_exception: odb::exception
     {
       cli_exception (const std::string& what);

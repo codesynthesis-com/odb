@@ -15,6 +15,7 @@ exceptions.cxx               \
 oracle-types.cxx             \
 prepared-query.cxx           \
 query.cxx                    \
+query-dynamic.cxx            \
 query-const-expr.cxx         \
 simple-object-statements.cxx \
 statement.cxx                \
