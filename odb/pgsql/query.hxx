@@ -11,6 +11,7 @@
 #include <vector>
 #include <cstddef> // std::size_t
 
+#include <odb/forward.hxx> // odb::query_column
 #include <odb/query.hxx>
 
 #include <odb/pgsql/version.hxx>
@@ -119,7 +120,7 @@ namespace odb
       query_base (bool v)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
-        clause_.push_back (clause_part (v));
+        append (v);
       }
 
       explicit
@@ -163,6 +164,13 @@ namespace odb
       template <database_type_id ID>
       query_base (const query_column<bool, ID>&);
 
+      // Translate common query representation to PostgreSQL native. Defined
+      // in query-dynamic.cxx
+      //
+      query_base (const odb::query_base&);
+
+      // Copy c-tor and assignment.
+      //
       query_base (const query_base&);
 
       query_base&
@@ -259,6 +267,8 @@ namespace odb
         return *this;
       }
 
+      // Implementation details.
+      //
     public:
       template <typename T, database_type_id ID>
       void
@@ -269,14 +279,25 @@ namespace odb
       append (ref_bind<T>, const char* conv);
 
       void
+      append (details::shared_ptr<query_param>, const char* conv);
+
+      void
+      append (bool v)
+      {
+        clause_.push_back (clause_part (v));
+      }
+
+      void
       append (const std::string& native);
 
       void
-      append (const char* table, const char* column);
+      append (const char* native) // Clashes with append(bool).
+      {
+        append (std::string (native));
+      }
 
-    private:
       void
-      add (details::shared_ptr<query_param>, const char* conv);
+      append (const char* table, const char* column);
 
     private:
       typedef std::vector<clause_part> clause_type;
@@ -406,28 +427,14 @@ namespace odb
 
     // query_column
     //
-
-    template <typename T, typename T2>
-    class copy_bind: public val_bind<T>
-    {
-    public:
-      explicit
-      copy_bind (const T2& v): val_bind<T> (val), val (v) {}
-
-      const T val;
-    };
-
-    template <typename T>
-    const T&
-    type_instance ();
-
-    template <typename T, database_type_id ID>
-    struct query_column
+    struct LIBODB_PGSQL_EXPORT query_column_base
     {
       // Note that we keep shallow copies of the table, column, and conversion
       // expression. The latter can be NULL.
       //
-      query_column (const char* table, const char* column, const char* conv)
+      query_column_base (const char* table,
+                         const char* column,
+                         const char* conv)
           : table_ (table), column_ (column), conversion_ (conv)
       {
       }
@@ -451,6 +458,40 @@ namespace odb
       {
         return conversion_;
       }
+
+    protected:
+      const char* table_;
+      const char* column_;
+      const char* conversion_;
+    };
+
+    template <typename T, typename T2>
+    class copy_bind: public val_bind<T>
+    {
+    public:
+      explicit
+      copy_bind (const T2& v): val_bind<T> (val), val (v) {}
+
+      const T val;
+    };
+
+    template <typename T>
+    const T&
+    type_instance ();
+
+    template <typename T, database_type_id ID>
+    struct query_column: query_column_base
+    {
+      // Note that we keep shallow copies of the table, column, and conversion
+      // expression. The latter can be NULL.
+      //
+      query_column (const char* table, const char* column, const char* conv)
+          : query_column_base (table, column, conv) {}
+
+      // Implementation is in query-dynamic.ixx.
+      //
+      query_column (odb::query_column<T>&,
+                    const char* table, const char* column, const char* conv);
 
       // is_null, is_not_null
       //
@@ -1086,11 +1127,6 @@ namespace odb
         q.append (c.table (), c.column ());
         return q;
       }
-
-    private:
-      const char* table_;
-      const char* column_;
-      const char* conversion_;
     };
 
     // Provide operator+() for using columns to construct native
@@ -1822,6 +1858,11 @@ namespace odb
       template <database_type_id ID>
       query (const query_column<bool, ID>& qc)
           : query_base (qc)
+      {
+      }
+
+      query (const odb::query_base& q)
+          : query_base (q)
       {
       }
     };
