@@ -2376,6 +2376,11 @@ namespace odb
       {
       }
     };
+
+    namespace core
+    {
+      using mssql::query;
+    }
   }
 
   // Derive odb::query from odb::mssql::query so that it can be

@@ -7,16 +7,15 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/forward.hxx>
 #include <odb/connection.hxx>
 
 #include <odb/details/buffer.hxx>
 #include <odb/details/shared-ptr.hxx>
 #include <odb/details/unique-ptr.hxx>
 
-#include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
+#include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/query.hxx>
 #include <odb/mssql/tracer.hxx>
 #include <odb/mssql/transaction-impl.hxx>

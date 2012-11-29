@@ -13,6 +13,13 @@ namespace odb
 {
   namespace mssql
   {
+    namespace core
+    {
+      using namespace odb::common;
+    }
+
+    //
+    //
     class database;
     class connection;
     typedef details::shared_ptr<connection> connection_ptr;
@@ -20,6 +27,15 @@ namespace odb
     class statement;
     class transaction;
     class tracer;
+
+    namespace core
+    {
+      using mssql::database;
+      using mssql::connection;
+      using mssql::connection_ptr;
+      using mssql::transaction;
+      using mssql::statement;
+    }
 
     // Implementation details.
     //

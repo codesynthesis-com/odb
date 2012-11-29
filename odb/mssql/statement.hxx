@@ -10,11 +10,11 @@
 #include <string>
 #include <cstddef>  // std::size_t
 
-#include <odb/forward.hxx>
 #include <odb/statement.hxx>
 
-#include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/version.hxx>
+#include <odb/mssql/forward.hxx>
+#include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/binding.hxx>
 #include <odb/mssql/connection.hxx>
 #include <odb/mssql/auto-handle.hxx>
