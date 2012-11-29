@@ -1937,6 +1937,11 @@ namespace odb
       {
       }
     };
+
+    namespace core
+    {
+      using oracle::query;
+    }
   }
 
   // Derive odb::query from odb::oracle::query so that it can be

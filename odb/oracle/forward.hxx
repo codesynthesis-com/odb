@@ -13,6 +13,13 @@ namespace odb
 {
   namespace oracle
   {
+    namespace core
+    {
+      using namespace odb::common;
+    }
+
+    //
+    //
     class database;
     class connection;
     typedef details::shared_ptr<connection> connection_ptr;
@@ -20,6 +27,15 @@ namespace odb
     class statement;
     class transaction;
     class tracer;
+
+    namespace core
+    {
+      using oracle::database;
+      using oracle::connection;
+      using oracle::connection_ptr;
+      using oracle::transaction;
+      using oracle::statement;
+    }
 
     // Implementation details.
     //

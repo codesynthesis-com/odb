@@ -10,12 +10,11 @@
 #include <string>
 #include <cstddef>  // std::size_t
 
-#include <odb/forward.hxx>
 #include <odb/statement.hxx>
 
 #include <odb/oracle/version.hxx>
-#include <odb/oracle/binding.hxx>
 #include <odb/oracle/forward.hxx>
+#include <odb/oracle/binding.hxx>
 #include <odb/oracle/connection.hxx>
 #include <odb/oracle/oracle-fwd.hxx>
 #include <odb/oracle/auto-handle.hxx>

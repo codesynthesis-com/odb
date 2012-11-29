@@ -13,6 +13,7 @@
 #include <odb/exceptions.hxx>
 
 #include <odb/oracle/version.hxx>
+#include <odb/oracle/forward.hxx>
 #include <odb/oracle/oracle-fwd.hxx>
 #include <odb/oracle/details/export.hxx>
 
@@ -106,6 +107,14 @@ namespace odb
       virtual const char*
       what () const throw ();
     };
+
+    namespace core
+    {
+      using oracle::database_exception;
+      using oracle::lob_comparison;
+      using oracle::cli_exception;
+      using oracle::invalid_oci_handle;
+    }
   }
 }
 
