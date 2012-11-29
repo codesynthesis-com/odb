@@ -10,10 +10,10 @@
 #include <string>
 #include <cstddef>  // std::size_t
 
-#include <odb/forward.hxx>
 #include <odb/statement.hxx>
 
 #include <odb/pgsql/version.hxx>
+#include <odb/pgsql/forward.hxx>
 #include <odb/pgsql/binding.hxx>
 #include <odb/pgsql/pgsql-fwd.hxx> // PGresult
 #include <odb/pgsql/connection.hxx>

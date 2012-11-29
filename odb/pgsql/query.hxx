@@ -1866,6 +1866,11 @@ namespace odb
       {
       }
     };
+
+    namespace core
+    {
+      using pgsql::query;
+    }
   }
 
   // Derive odb::query from odb::pgsql::query so that it can be

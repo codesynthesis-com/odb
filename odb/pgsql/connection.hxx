@@ -7,7 +7,6 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/forward.hxx>
 #include <odb/connection.hxx>
 
 #include <odb/details/shared-ptr.hxx>

@@ -13,6 +13,13 @@ namespace odb
 {
   namespace pgsql
   {
+    namespace core
+    {
+      using namespace odb::common;
+    }
+
+    //
+    //
     class database;
     class connection;
     typedef details::shared_ptr<connection> connection_ptr;
@@ -20,6 +27,15 @@ namespace odb
     class statement;
     class transaction;
     class tracer;
+
+    namespace core
+    {
+      using pgsql::database;
+      using pgsql::connection;
+      using pgsql::connection_ptr;
+      using pgsql::transaction;
+      using pgsql::statement;
+    }
 
     // Implementation details.
     //

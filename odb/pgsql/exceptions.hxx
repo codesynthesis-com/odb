@@ -12,7 +12,7 @@
 #include <odb/exceptions.hxx>
 
 #include <odb/pgsql/version.hxx>
-
+#include <odb/pgsql/forward.hxx>
 #include <odb/pgsql/details/export.hxx>
 
 namespace odb
@@ -60,6 +60,12 @@ namespace odb
     private:
       std::string what_;
     };
+
+    namespace core
+    {
+      using pgsql::database_exception;
+      using pgsql::cli_exception;
+    }
   }
 }
 
