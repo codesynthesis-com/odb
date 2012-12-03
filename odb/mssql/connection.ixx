@@ -22,9 +22,18 @@ namespace odb
 
     template <typename T>
     inline prepared_query<T> connection::
-    prepare_query (const char* n, const query<T>& q)
+    prepare_query (const char* n, const mssql::query_base& q)
     {
       return query_<T, id_mssql>::call (*this, n, q);
+    }
+
+    template <typename T>
+    inline prepared_query<T> connection::
+    prepare_query (const char* n, const odb::query_base& q)
+    {
+      // Translate to native query.
+      //
+      return prepare_query<T> (n, mssql::query_base (q));
     }
   }
 }
