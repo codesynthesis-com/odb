@@ -72,7 +72,11 @@ namespace odb
 
       template <typename T>
       prepared_query<T>
-      prepare_query (const char* name, const query<T>&);
+      prepare_query (const char* name, const pgsql::query_base&);
+
+      template <typename T>
+      prepared_query<T>
+      prepare_query (const char* name, const odb::query_base&);
 
       // SQL statement tracing.
       //
