@@ -335,7 +335,7 @@ namespace odb
     {
       // T is always object_type.
       //
-      return erase_query<T> (oracle::query<T> ());
+      return erase_query<T> (oracle::query_base ());
     }
 
     template <typename T>
@@ -344,7 +344,7 @@ namespace odb
     {
       // T is always object_type.
       //
-      return erase_query<T> (oracle::query<T> (q));
+      return erase_query<T> (oracle::query_base (q));
     }
 
     template <typename T>
@@ -353,12 +353,12 @@ namespace odb
     {
       // T is always object_type.
       //
-      return erase_query<T> (oracle::query<T> (q));
+      return erase_query<T> (oracle::query_base (q));
     }
 
     template <typename T>
     inline unsigned long long database::
-    erase_query (const oracle::query<T>& q)
+    erase_query (const oracle::query_base& q)
     {
       // T is always object_type.
       //
@@ -366,29 +366,38 @@ namespace odb
     }
 
     template <typename T>
+    inline unsigned long long database::
+    erase_query (const odb::query_base& q)
+    {
+      // Translate to native query.
+      //
+      return erase_query<T> (oracle::query_base (q));
+    }
+
+    template <typename T>
     inline result<T> database::
     query ()
     {
-      return query<T> (oracle::query<T> ());
+      return query<T> (oracle::query_base ());
     }
 
     template <typename T>
     inline result<T> database::
     query (const char* q)
     {
-      return query<T> (oracle::query<T> (q));
+      return query<T> (oracle::query_base (q));
     }
 
     template <typename T>
     inline result<T> database::
     query (const std::string& q)
     {
-      return query<T> (oracle::query<T> (q));
+      return query<T> (oracle::query_base (q));
     }
 
     template <typename T>
     inline result<T> database::
-    query (const oracle::query<T>& q)
+    query (const oracle::query_base& q)
     {
       // T is always object_type. We also don't need to check for transaction
       // here; object_traits::query () does this.
@@ -397,27 +406,45 @@ namespace odb
     }
 
     template <typename T>
+    inline result<T> database::
+    query (const odb::query_base& q)
+    {
+      // Translate to native query.
+      //
+      return query<T> (oracle::query_base (q));
+    }
+
+    template <typename T>
     inline prepared_query<T> database::
     prepare_query (const char* n, const char* q)
     {
-      return prepare_query<T> (n, oracle::query<T> (q));
+      return prepare_query<T> (n, oracle::query_base (q));
     }
 
     template <typename T>
     inline prepared_query<T> database::
     prepare_query (const char* n, const std::string& q)
     {
-      return prepare_query<T> (n, oracle::query<T> (q));
+      return prepare_query<T> (n, oracle::query_base (q));
     }
 
     template <typename T>
     inline prepared_query<T> database::
-    prepare_query (const char* n, const oracle::query<T>& q)
+    prepare_query (const char* n, const oracle::query_base& q)
     {
       // Throws if not in transaction.
       //
       oracle::connection& c (transaction::current ().connection ());
-      return c.prepare_query (n, q);
+      return c.prepare_query<T> (n, q);
+    }
+
+    template <typename T>
+    inline prepared_query<T> database::
+    prepare_query (const char* n, const odb::query_base& q)
+    {
+      // Translate to native query.
+      //
+      return prepare_query<T> (n, oracle::query_base (q));
     }
   }
 }
