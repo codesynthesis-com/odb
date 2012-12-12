@@ -36,7 +36,7 @@ namespace test1
     #pragma db index type("UNIQUE") member(i5)
 
     int i6;
-    #pragma db index("i6_index") member(i6)
+    #pragma db index("object_i6_index") member(i6)
 
     int i7;
     int i8;
@@ -47,10 +47,10 @@ namespace test1
   };
 
   #pragma db index(object) member(i7)
-  #pragma db index(object::"i8_index") member(i8)
+  #pragma db index(object::"object_i8_index") member(i8)
 }
 
-#pragma db index(test1::object::"i9_index") member(i9)
+#pragma db index(test1::object::"object_i9_index") member(i9)
 
 // Test composite indexes.
 //
@@ -80,11 +80,11 @@ namespace test2
 
     int i1a;
     int i1b;
-    #pragma db index("i1_i") member(i1a) member(i1b)
+    #pragma db index("object_i1_i") member(i1a) member(i1b)
 
     int i2a;
     int i2b;
-    #pragma db index("i2_i") members(i2a, i2b)
+    #pragma db index("object_i2_i") members(i2a, i2b)
 
     #pragma db index
     comp c1;
@@ -97,11 +97,11 @@ namespace test2
     #pragma db index member(c3.y)
 
     comp c4;
-    #pragma db index("c4_i") members(c4.x, c4.y, c4.n.x)
+    #pragma db index("object_c4_i") members(c4.x, c4.y, c4.n.x)
 
     comp c5;
     int i5;
-    #pragma db index("ci5_i") member(c5) member(i5)
+    #pragma db index("object_ci5_i") member(c5) member(i5)
   };
 }
 
@@ -132,10 +132,10 @@ namespace test3
 
     std::vector<int> v;
     #pragma db index unique member(v.id)
-    #pragma db index("index_index") member(v.index)
+    #pragma db index("object_v_index_index") member(v.index)
 
     comp c;
-    #pragma db index("id_index") member(c.v.id)
+    #pragma db index("object_c_v_id_index") member(c.v.id)
     #pragma db index unique member(c.v.index)
   };
 }
