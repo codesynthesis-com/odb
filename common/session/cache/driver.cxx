@@ -1,8 +1,8 @@
-// file      : common/session/driver.cxx
+// file      : common/session/cache/driver.cxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test session.
+// Test session object cache.
 //
 
 #include <memory>   // std::auto_ptr

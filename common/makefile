@@ -38,7 +38,7 @@ readonly                 \
 relationship             \
 relationship-query       \
 schema                   \
-session                  \
+session/cache            \
 template                 \
 transaction              \
 types                    \

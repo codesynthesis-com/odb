@@ -1,4 +1,4 @@
-// file      : common/session/test.hxx
+// file      : common/session/cache/test.hxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
