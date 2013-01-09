@@ -172,6 +172,7 @@ namespace odb
 
       ce = callback_event::post_load;
       pi.dispatch (info_type::call_callback, this->db_, pobj, &ce);
+      object_traits::pointer_cache_traits::initialize (ig.position ());
       ig.release ();
     }
 
