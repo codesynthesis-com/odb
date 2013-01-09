@@ -47,14 +47,22 @@ virtual                  \
 wrapper
 
 thread_tests := threads
-
-all_tests := $(tests) $(thread_tests)
-build_tests := $(tests) $(thread_tests)
+cxx11_tests  := session/custom
 
 default   := $(out_base)/
 dist      := $(out_base)/.dist
 test      := $(out_base)/.test
 clean     := $(out_base)/.clean
+
+$(default):
+$(call include,$(bld_root)/cxx/standard.make) # cxx_standard
+
+all_tests := $(tests) $(thread_tests) $(cxx11_tests)
+build_tests := $(tests) $(thread_tests)
+
+ifeq ($(cxx_standard),c++11)
+build_tests += $(cxx11_tests)
+endif
 
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(build_tests)))
 
@@ -62,6 +70,7 @@ name := common
 $(dist): name := $(name)
 $(dist): export dirs := $(filter-out include,$(tests))
 $(dist): export thread_dirs := $(thread_tests)
+$(dist): export cxx11_dirs := $(cxx11_tests)
 $(dist): export extra_dist :=  test.bat $(call vc9slns,$(name)) \
 $(call vc10slns,$(name)) $(call vc11slns,$(name))
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
