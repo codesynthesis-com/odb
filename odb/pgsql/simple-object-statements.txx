@@ -108,7 +108,7 @@ namespace odb
       while (!dls.empty ())
       {
         delayed_load l (dls.back ());
-        typename pointer_cache_traits::insert_guard g (l.pos);
+        typename pointer_cache_traits::insert_guard ig (l.pos);
         dls.pop_back ();
 
         if (l.loader == 0)
@@ -144,7 +144,8 @@ namespace odb
         else
           l.loader (db, l.id, *l.obj);
 
-        g.release ();
+        pointer_cache_traits::initialize (ig.position ());
+        ig.release ();
       }
     }
 
@@ -152,11 +153,7 @@ namespace odb
     void object_statements<T>::
     clear_delayed_ ()
     {
-      // Remove the objects from the session cache. This is not the most
-      // efficient way to do this (cache_traits::erase() will check for
-      // a session on every iteration), but the delay vector won't be
-      // empty only if something goes wrong (i.e., we are throwing an
-      // exception).
+      // Remove the objects from the session cache.
       //
       for (typename delayed_loads::iterator i (delayed_.begin ()),
              e (delayed_.end ()); i != e; ++i)
