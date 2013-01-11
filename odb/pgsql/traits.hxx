@@ -41,7 +41,7 @@ namespace odb
       id_integer,
       id_bigint,
 
-      id_numeric,
+      id_numeric,  // Internal PostgreSQL binary representation.
 
       id_real,
       id_double,
@@ -377,9 +377,9 @@ namespace odb
 
     // std::string specialization.
     //
-    class LIBODB_PGSQL_EXPORT string_value_traits
+    template <>
+    struct LIBODB_PGSQL_EXPORT default_value_traits<std::string, id_string>
     {
-    public:
       typedef std::string value_type;
       typedef std::string query_type;
       typedef details::buffer image_type;
@@ -403,18 +403,6 @@ namespace odb
                  const std::string&);
     };
 
-    template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<std::string, id_numeric>:
-      string_value_traits
-    {
-    };
-
-    template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<std::string, id_string>:
-      string_value_traits
-    {
-    };
-
     // const char* specialization
     //
     // Specialization for const char* which only supports initialization
@@ -435,30 +423,10 @@ namespace odb
     };
 
     template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<const char*, id_numeric>:
-      c_string_value_traits
-    {
-      typedef const char* query_type;
-    };
-
-    template <>
     struct LIBODB_PGSQL_EXPORT default_value_traits<const char*, id_string>:
       c_string_value_traits
     {
       typedef const char* query_type;
-    };
-
-    template <std::size_t N>
-    struct default_value_traits<char[N], id_numeric>: c_string_value_traits
-    {
-      typedef char query_type[N];
-    };
-
-    template <std::size_t N>
-    struct default_value_traits<const char[N], id_numeric>:
-      c_string_value_traits
-    {
-      typedef const char query_type[N];
     };
 
     template <std::size_t N>

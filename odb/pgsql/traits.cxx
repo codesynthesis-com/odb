@@ -13,10 +13,10 @@ namespace odb
     using details::buffer;
 
     //
-    // string_value_traits
+    // default_value_traits<std::string, id_string>
     //
 
-    void string_value_traits::
+    void default_value_traits<std::string, id_string>::
     set_image (buffer& b,
                size_t& n,
                bool& is_null,
