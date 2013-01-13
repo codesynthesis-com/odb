@@ -1494,8 +1494,23 @@ namespace odb
           v = 0;
       }
 
-      // There is no set_image() since it is impossible to insert an
-      // explicit value into a rowversion column.
+      static void
+      set_image (unsigned char* i, bool& is_null, unsigned long long v)
+      {
+        is_null = false;
+
+        // The value is in the big-endian format.
+        //
+        const unsigned char* p (reinterpret_cast<const unsigned char*> (&v));
+        i[0] = p[7];
+        i[1] = p[6];
+        i[2] = p[5];
+        i[3] = p[4];
+        i[4] = p[3];
+        i[5] = p[2];
+        i[6] = p[1];
+        i[7] = p[0];
+      }
     };
 
     //
