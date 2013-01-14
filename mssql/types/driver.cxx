@@ -217,6 +217,32 @@ main (int argc, char* argv[])
         assert (o == *p);
       }
     }
+
+    // Test optimistic concurrency using ROWVERSION.
+    //
+    {
+      rowversion o;
+      o.str = "abc";
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        assert (o.version != 0);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<rowversion> p (db->load<rowversion> (o.id_));
+        assert (p->version == o.version);
+        p->str += 'd';
+        db->update (*p);
+        assert (p->version > o.version);
+        db->reload (o);
+        assert (o.version == p->version);
+        t.commit ();
+      }
+    }
   }
   catch (const odb::exception& e)
   {

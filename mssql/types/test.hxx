@@ -369,4 +369,24 @@ struct long_cont
   }
 };
 
+// Test optimistic concurrency using ROWVERSION.
+//
+#pragma db object optimistic
+struct rowversion
+{
+  rowversion (): version (0) {}
+
+  #pragma db id auto
+  unsigned int id_;
+
+  #pragma db version type("ROWVERSION")
+#ifdef _WIN32
+  unsigned __int64 version;
+#else
+  unsigned long long version;
+#endif
+
+  std::string str;
+};
+
 #endif // TEST_HXX
