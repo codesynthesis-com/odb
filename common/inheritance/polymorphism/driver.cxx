@@ -27,6 +27,7 @@
 #include "test10.hxx"
 #include "test11.hxx"
 #include "test12.hxx"
+#include "test13.hxx"
 
 #include "test1-odb.hxx"
 #include "test2-odb.hxx"
@@ -40,6 +41,7 @@
 #include "test10-odb.hxx"
 #include "test11-odb.hxx"
 #include "test12-odb.hxx"
+#include "test13-odb.hxx"
 
 using namespace std;
 using namespace odb::core;
@@ -1869,6 +1871,54 @@ main (int argc, char* argv[])
 
         assert (*pb == b);
         assert (*pd == d);
+      }
+    }
+
+    // Test 13: polymorphic derived without any non-container data members
+    // (which results in an empty SELECT statement).
+    //
+    {
+      using namespace test13;
+
+      base b;
+      b.nums.push_back (123);
+      derived d;
+      d.nums.push_back (123);
+      d.strs.push_back ("abc");
+
+      base1 b1;
+
+      // Persist.
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (b);
+        db->persist (d);
+        db->persist (b1);
+        t.commit ();
+      }
+
+      // Load.
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<root> pbr (db->load<root> (b.id));
+        auto_ptr<root> pdr (db->load<root> (d.id));
+        auto_ptr<base> pdb (db->load<base> (d.id));
+        auto_ptr<root> pb1r (db->load<root> (b1.id));
+        t.commit ();
+
+        base& rb (static_cast<base&> (*pbr));
+        derived& rd1 (static_cast<derived&> (*pdr));
+        derived& rd2 (static_cast<derived&> (*pdb));
+        base1 rb1 (static_cast<base1&> (*pb1r));
+
+        assert (rb.id == b.id && rb.nums == b.nums);
+        assert (rd1.id == d.id && rd1.nums == rd1.nums &&
+                rd1.strs == rd1.strs);
+        assert (rd2.id == d.id && rd2.nums == rd2.nums &&
+                rd2.strs == rd2.strs);
+        assert (rb1.id == b1.id);
       }
     }
   }
