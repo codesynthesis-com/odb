@@ -277,12 +277,15 @@ namespace odb
       insert_statement_type&
       persist_statement ()
       {
+        // Auto id and version are in the root.
+        //
         if (persist_ == 0)
           persist_.reset (
             new (details::shared) insert_statement_type (
               conn_,
               object_traits::persist_statement,
               insert_image_binding_,
+              false,
               false));
 
         return *persist_;
@@ -313,7 +316,8 @@ namespace odb
             new (details::shared) update_statement_type (
               conn_,
               object_traits::update_statement,
-              update_image_binding_));
+              update_image_binding_,
+              false));
 
         return *update_;
       }

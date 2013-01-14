@@ -343,7 +343,8 @@ namespace odb
               conn_,
               object_traits::persist_statement,
               insert_image_binding_,
-              object_traits::auto_id));
+              object_traits::auto_id,
+              object_traits::rowversion));
 
         return *persist_;
       }
@@ -370,7 +371,8 @@ namespace odb
             new (details::shared) update_statement_type (
               conn_,
               object_traits::update_statement,
-              update_image_binding_));
+              update_image_binding_,
+              object_traits::rowversion));
 
         return *update_;
       }

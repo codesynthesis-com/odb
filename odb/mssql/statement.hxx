@@ -200,12 +200,14 @@ namespace odb
       insert_statement (connection_type& conn,
                         const std::string& text,
                         binding& param,
-                        bool returning);
+                        bool returning_id,
+                        bool returning_version);
 
       insert_statement (connection_type& conn,
                         const char* text,
                         binding& param,
-                        bool returning,
+                        bool returning_id,
+                        bool returning_version,
                         bool copy_text = true);
 
       // Return true if successful and false if the row is a duplicate.
@@ -220,6 +222,9 @@ namespace odb
         return id_;
       }
 
+      unsigned long long
+      version ();
+
     private:
       insert_statement (const insert_statement&);
       insert_statement& operator= (const insert_statement&);
@@ -229,10 +234,15 @@ namespace odb
       init_result ();
 
     private:
-      bool returning_;
+      bool returning_id_;
+      bool returning_version_;
       bool batch_;
+
       unsigned long long id_;
       SQLLEN id_size_ind_;
+
+      unsigned char version_[8];
+      SQLLEN version_size_ind_;
     };
 
     class LIBODB_MSSQL_EXPORT update_statement: public statement
@@ -243,19 +253,34 @@ namespace odb
 
       update_statement (connection_type& conn,
                         const std::string& text,
-                        binding& param);
+                        binding& param,
+                        bool returning_version);
 
       update_statement (connection_type& conn,
                         const char* text,
                         binding& param,
+                        bool returning_version,
                         bool copy_text = true);
 
       unsigned long long
       execute ();
 
+      unsigned long long
+      version ();
+
     private:
       update_statement (const update_statement&);
       update_statement& operator= (const update_statement&);
+
+    private:
+      void
+      init_result ();
+
+    private:
+      bool returning_version_;
+
+      unsigned char version_[8];
+      SQLLEN version_size_ind_;
     };
 
     class LIBODB_MSSQL_EXPORT delete_statement: public statement
@@ -282,6 +307,8 @@ namespace odb
     };
   }
 }
+
+#include <odb/mssql/statement.ixx>
 
 #include <odb/post.hxx>
 

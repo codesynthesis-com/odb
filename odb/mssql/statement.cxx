@@ -795,12 +795,15 @@ namespace odb
     insert_statement (connection_type& conn,
                       const string& t,
                       binding& param,
-                      bool returning)
-        : statement (conn, t), returning_ (returning)
+                      bool returning_id,
+                      bool returning_version)
+        : statement (conn, t),
+          returning_id_ (returning_id),
+          returning_version_ (returning_version)
     {
       bind_param (param.bind, param.count);
 
-      if (returning)
+      if (returning_id_ || returning_version_)
         init_result ();
     }
 
@@ -808,13 +811,16 @@ namespace odb
     insert_statement (connection_type& conn,
                       const char* t,
                       binding& param,
-                      bool returning,
+                      bool returning_id,
+                      bool returning_version,
                       bool ct)
-        : statement (conn, t, ct), returning_ (returning)
+        : statement (conn, t, ct),
+          returning_id_ (returning_id),
+          returning_version_ (returning_version)
     {
       bind_param (param.bind, param.count);
 
-      if (returning)
+      if (returning_id_ || returning_version_)
         init_result ();
     }
 
@@ -831,16 +837,35 @@ namespace odb
       batch_ = strstr (text_, "OUTPUT INSERTED.") == 0 &&
         strstr (text_, "output inserted.") == 0;
 
-      SQLRETURN r (
-        SQLBindCol (stmt_,
-                    1,
-                    SQL_C_SBIGINT,
-                    (SQLPOINTER) &id_,
-                    sizeof (id_),
-                    &id_size_ind_));
+      SQLUSMALLINT col (1);
 
-      if (!SQL_SUCCEEDED (r))
-        translate_error (r, conn_, stmt_);
+      if (returning_id_)
+      {
+        SQLRETURN r (
+          SQLBindCol (stmt_,
+                      col++,
+                      SQL_C_SBIGINT,
+                      (SQLPOINTER) &id_,
+                      sizeof (id_),
+                      &id_size_ind_));
+
+        if (!SQL_SUCCEEDED (r))
+          translate_error (r, conn_, stmt_);
+      }
+
+      if (returning_version_)
+      {
+        SQLRETURN r (
+          SQLBindCol (stmt_,
+                      col++,
+                      SQL_C_BINARY,
+                      (SQLPOINTER) &version_,
+                      sizeof (version_),
+                      &version_size_ind_));
+
+        if (!SQL_SUCCEEDED (r))
+          translate_error (r, conn_, stmt_);
+      }
     }
 
     bool insert_statement::
@@ -902,9 +927,10 @@ namespace odb
           translate_error (r, conn_, stmt_);
       }
 
-      // Fetch the row containing the id if this statement is returning.
+      // Fetch the row containing the id/version if this statement is
+      // returning.
       //
-      if (returning_)
+      if (returning_id_ || returning_version_)
       {
         if (batch_)
         {
@@ -953,20 +979,46 @@ namespace odb
     }
 
     update_statement::
-    update_statement (connection_type& conn, const string& t, binding& param)
-        : statement (conn, t)
+    update_statement (connection_type& conn,
+                      const string& t,
+                      binding& param,
+                      bool returning_version)
+        : statement (conn, t), returning_version_ (returning_version)
     {
       bind_param (param.bind, param.count);
+
+      if (returning_version_)
+        init_result ();
     }
 
     update_statement::
     update_statement (connection_type& conn,
                       const char* t,
                       binding& param,
+                      bool returning_version,
                       bool ct)
-        : statement (conn, t, ct)
+        : statement (conn, t, ct),
+          returning_version_ (returning_version)
     {
       bind_param (param.bind, param.count);
+
+      if (returning_version_)
+        init_result ();
+    }
+
+    void update_statement::
+    init_result ()
+    {
+      SQLRETURN r (
+        SQLBindCol (stmt_,
+                    1,
+                    SQL_C_BINARY,
+                    (SQLPOINTER) &version_,
+                    sizeof (version_),
+                    &version_size_ind_));
+
+      if (!SQL_SUCCEEDED (r))
+        translate_error (r, conn_, stmt_);
     }
 
     unsigned long long update_statement::
@@ -989,6 +1041,30 @@ namespace odb
 
       if (!SQL_SUCCEEDED (r))
         translate_error (r, conn_, stmt_);
+
+      // Fetch the row containing the id/version if this statement is
+      // returning.
+      //
+      if (returning_version_)
+      {
+        r = SQLFetch (stmt_);
+
+        if (r != SQL_NO_DATA && !SQL_SUCCEEDED (r))
+          translate_error (r, conn_, stmt_);
+
+        {
+          SQLRETURN r (SQLCloseCursor (stmt_)); // Don't overwrite r.
+
+          if (!SQL_SUCCEEDED (r))
+            translate_error (r, conn_, stmt_);
+        }
+
+        if (r == SQL_NO_DATA)
+          throw database_exception (
+            0,
+            "?????",
+            "result set expected from a statement with the OUTPUT clause");
+      }
 
       return static_cast<unsigned long long> (rows);
     }

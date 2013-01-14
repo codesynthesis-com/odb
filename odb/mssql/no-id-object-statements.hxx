@@ -87,7 +87,8 @@ namespace odb
               conn_,
               object_traits::persist_statement,
               insert_image_binding_,
-              false));
+              false,
+              object_traits::rowversion));
 
         return *persist_;
       }

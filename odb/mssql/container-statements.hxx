@@ -169,7 +169,7 @@ namespace odb
         if (insert_one_ == 0)
           insert_one_.reset (
             new (details::shared) insert_statement_type (
-              conn_, insert_one_text_, data_image_binding_, false));
+              conn_, insert_one_text_, data_image_binding_, false, false));
 
         return *insert_one_;
       }
