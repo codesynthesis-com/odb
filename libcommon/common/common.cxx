@@ -196,7 +196,9 @@ create_database (int& argc,
   if (max_connections != 0)
     f.reset (new mssql::connection_pool_factory (max_connections));
 
-  db.reset (new mssql::database (argc, argv, false, "", 0,
+  db.reset (new mssql::database (argc, argv, false, "",
+                                 mssql::isolation_read_committed, 0,
+
 #ifdef HAVE_CXX11
                                  move (f)
 #else
