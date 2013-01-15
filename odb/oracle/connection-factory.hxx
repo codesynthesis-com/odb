@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <cstddef> // std::size_t
+#include <cassert>
 
 #include <odb/details/mutex.hxx>
 #include <odb/details/condition.hxx>
@@ -88,7 +89,9 @@ namespace odb
             db_ (0),
             cond_ (mutex_)
       {
-        // @@ check min_ <= max_
+        // max_connections == 0 means unlimited.
+        //
+        assert (max_connections == 0 || max_connections >= min_connections);
       }
 
       virtual connection_ptr
