@@ -40,10 +40,20 @@ namespace odb
       protocol_np   // Named pipes.
     };
 
+    enum transaction_isolation
+    {
+      isolation_read_uncommitted,
+      isolation_read_committed,   // SQL Server default.
+      isolation_repeatable_read,
+      isolation_snapshot,
+      isolation_serializable
+    };
+
     class LIBODB_MSSQL_EXPORT database: public odb::database
     {
     public:
       typedef mssql::protocol protocol_type;
+      typedef mssql::transaction_isolation transaction_isolation_type;
 
       // Connect to the specified server using the latest available SQL
       // Server Native Client ODBC driver by default. If user is empty,
@@ -56,6 +66,7 @@ namespace odb
                 const std::string& server,
                 const std::string& driver = "",
                 const std::string& extra_connect_string = "",
+                transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
                 details::transfer_ptr<connection_factory> =
                   details::transfer_ptr<connection_factory> ());
@@ -74,6 +85,7 @@ namespace odb
                 const std::string& instance = "",
                 const std::string& driver = "",
                 const std::string& extra_connect_string = "",
+                transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
                 details::transfer_ptr<connection_factory> =
                   details::transfer_ptr<connection_factory> ());
@@ -88,6 +100,7 @@ namespace odb
                 unsigned int port,
                 const std::string& driver = "",
                 const std::string& extra_connect_string = "",
+                transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
                 details::transfer_ptr<connection_factory> =
                   details::transfer_ptr<connection_factory> ());
@@ -96,6 +109,7 @@ namespace odb
       // conection string.
       //
       database (const std::string& connect_string,
+                transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
                 details::transfer_ptr<connection_factory> =
                   details::transfer_ptr<connection_factory> ());
@@ -119,6 +133,7 @@ namespace odb
                 char* argv[],
                 bool erase = false,
                 const std::string& extra_connect_string = "",
+                transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
                 details::transfer_ptr<connection_factory> =
                   details::transfer_ptr<connection_factory> ());
@@ -408,6 +423,12 @@ namespace odb
         return extra_connect_string_;
       }
 
+      transaction_isolation_type
+      transaction_isolation () const
+      {
+        return transaction_isolation_;
+      }
+
       const std::string&
       connect_string () const
       {
@@ -462,6 +483,7 @@ namespace odb
       std::string server_;
       std::string driver_;
       std::string extra_connect_string_;
+      transaction_isolation_type transaction_isolation_;
       std::string connect_string_;
 
       auto_handle<SQL_HANDLE_ENV> auto_environment_;

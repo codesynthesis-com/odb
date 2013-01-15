@@ -27,6 +27,7 @@ namespace odb
               const std::string& server,
               const std::string& driver,
               const std::string& extra_connect_string,
+              transaction_isolation_type transaction_isolation,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
         : odb::database (id_mssql),
@@ -38,6 +39,7 @@ namespace odb
           server_ (server),
           driver_ (driver),
           extra_connect_string_ (extra_connect_string),
+          transaction_isolation_ (transaction_isolation),
           environment_ (environment),
           factory_ (factory.transfer ())
     {
@@ -53,6 +55,7 @@ namespace odb
               const std::string& instance,
               const std::string& driver,
               const std::string& extra_connect_string,
+              transaction_isolation_type transaction_isolation,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
         : odb::database (id_mssql),
@@ -65,6 +68,7 @@ namespace odb
           port_ (0),
           driver_ (driver),
           extra_connect_string_ (extra_connect_string),
+          transaction_isolation_ (transaction_isolation),
           environment_ (environment),
           factory_ (factory.transfer ())
     {
@@ -79,6 +83,7 @@ namespace odb
               unsigned int port,
               const std::string& driver,
               const std::string& extra_connect_string,
+              transaction_isolation_type transaction_isolation,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
         : odb::database (id_mssql),
@@ -90,6 +95,7 @@ namespace odb
           port_ (port),
           driver_ (driver),
           extra_connect_string_ (extra_connect_string),
+          transaction_isolation_ (transaction_isolation),
           environment_ (environment),
           factory_ (factory.transfer ())
     {
@@ -98,11 +104,13 @@ namespace odb
 
     database::
     database (const string& connect_string,
+              transaction_isolation_type transaction_isolation,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
         : odb::database (id_mssql),
           protocol_ (protocol_auto),
           port_ (0),
+          transaction_isolation_ (transaction_isolation),
           connect_string_ (connect_string),
           environment_ (environment),
           factory_ (factory.transfer ())
@@ -115,12 +123,14 @@ namespace odb
               char* argv[],
               bool erase,
               const std::string& extra_connect_string,
+              transaction_isolation_type transaction_isolation,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
         : odb::database (id_mssql),
           protocol_ (protocol_auto),
           port_ (0),
           extra_connect_string_ (extra_connect_string),
+          transaction_isolation_ (transaction_isolation),
           environment_ (environment),
           factory_ (factory.transfer ())
     {

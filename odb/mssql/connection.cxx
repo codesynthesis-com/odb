@@ -18,6 +18,15 @@ namespace odb
 {
   namespace mssql
   {
+    static const long transaction_isolation_map[] =
+    {
+      SQL_TXN_READ_UNCOMMITTED,
+      SQL_TXN_READ_COMMITTED,
+      SQL_TXN_REPEATABLE_READ,
+      SQL_TXN_SS_SNAPSHOT,
+      SQL_TXN_SERIALIZABLE
+    };
+
     connection::
     connection (database_type& db)
         : odb::connection (db),
@@ -62,6 +71,40 @@ namespace odb
 
       if (!SQL_SUCCEEDED (r))
         translate_error (r, handle_, SQL_HANDLE_DBC);
+
+      // Set transaction isolation level.
+      //
+      transaction_isolation ti (db_.transaction_isolation ());
+      switch (ti)
+      {
+      case isolation_read_committed:
+        {
+          break; // SQL Server default.
+        }
+      case isolation_read_uncommitted:
+      case isolation_repeatable_read:
+      case isolation_serializable:
+        {
+          r = SQLSetConnectAttrA (handle_,
+                                  SQL_ATTR_TXN_ISOLATION,
+                                  (SQLPOINTER) transaction_isolation_map[ti],
+                                  0);
+          if (!SQL_SUCCEEDED (r))
+            translate_error (r, handle_, SQL_HANDLE_DBC);
+          break;
+        }
+      case isolation_snapshot:
+        {
+          r = SQLSetConnectAttrA (handle_,
+                                  SQL_COPT_SS_TXN_ISOLATION,
+                                  (SQLPOINTER) transaction_isolation_map[ti],
+                                  SQL_IS_INTEGER);
+
+          if (!SQL_SUCCEEDED (r))
+            translate_error (r, handle_, SQL_HANDLE_DBC);
+          break;
+        }
+      }
 
       // Connect.
       //

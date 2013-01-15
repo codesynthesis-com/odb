@@ -46,6 +46,14 @@
 #  define SQL_MARS_ENABLED_YES 1L
 #endif
 
+#ifndef SQL_COPT_SS_TXN_ISOLATION
+#  define SQL_COPT_SS_TXN_ISOLATION (SQL_COPT_SS_BASE + 27)
+#endif
+
+#ifndef SQL_TXN_SS_SNAPSHOT
+#  define SQL_TXN_SS_SNAPSHOT 0x00000020L
+#endif
+
 #ifndef SQL_SS_TIME2
 #  define SQL_SS_TIME2           (-154)
 #  define SQL_SS_TIMESTAMPOFFSET (-155)
