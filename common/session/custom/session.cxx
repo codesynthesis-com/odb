@@ -6,33 +6,20 @@
 
 #include "session.hxx"
 
-static session* current_; // Use TLS in multi-threaded applications.
+session* session::current;
 
 session::
 session ()
 {
-  assert (current_ == 0);
-  current_ = this;
+  assert (current == 0);
+  current = this;
 }
 
 session::
 ~session ()
 {
-  assert (current_ == this);
-  current_ = 0;
-}
-
-bool session::
-has_current ()
-{
-  return current_ != 0;
-}
-
-session& session::
-current ()
-{
-  assert (current_ != 0);
-  return *current_;
+  assert (current == this);
+  current = 0;
 }
 
 void session::

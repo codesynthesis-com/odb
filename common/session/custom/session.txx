@@ -12,14 +12,17 @@ insert (odb::database&,
 {
   typedef odb::object_traits<T> object_traits;
 
-  std::shared_ptr<object_map_base>& pm (map_[&typeid (T)]);
+  if (current == 0)
+    return position<T> (); // No session, return empty position.
+
+  std::shared_ptr<object_map_base>& pm (current->map_[&typeid (T)]);
 
   if (!pm)
     pm.reset (new object_map<T>);
 
   object_map<T>& m (static_cast<object_map<T>&> (*pm));
 
-  typename object_map<T>::value_type vt (id, object_state<T> (obj));
+  typename object_map<T>::value_type vt (id, object_data<T> (obj));
   std::pair<typename object_map<T>::iterator, bool> r (m.insert (vt));
 
   // We shall never try to re-insert the same object into the cache.
@@ -30,29 +33,17 @@ insert (odb::database&,
 }
 
 template <typename T>
-void session::
-initialize (const position<T>& p)
-{
-  typedef typename odb::object_traits<T>::pointer_type pointer_type;
-
-  // Make a copy for change tracking. If our object model had a
-  // polymorphic hierarchy, then we would have had to use a
-  // virtual function-based mechanism (e.g., clone()) instead of
-  // the copy constructor since for a polymorphic hierarchy all
-  // the derived objects are stored as pointers to the root object.
-  //
-  p.pos_->second.orig = pointer_type (new T (*p.pos_->second.obj));
-}
-
-template <typename T>
 typename odb::object_traits<T>::pointer_type session::
-find (odb::database&, const typename odb::object_traits<T>::id_type& id) const
+find (odb::database&, const typename odb::object_traits<T>::id_type& id)
 {
   typedef typename odb::object_traits<T>::pointer_type pointer_type;
 
-  type_map::const_iterator ti (map_.find (&typeid (T)));
+  if (current == 0)
+    return pointer_type (); // No session, return NULL pointer.
 
-  if (ti == map_.end ())
+  type_map::const_iterator ti (current->map_.find (&typeid (T)));
+
+  if (ti == current->map_.end ())
     return pointer_type ();
 
   const object_map<T>& m (static_cast<const object_map<T>&> (*ti->second));
@@ -66,11 +57,62 @@ find (odb::database&, const typename odb::object_traits<T>::id_type& id) const
 
 template <typename T>
 void session::
+load (const position<T>& p)
+{
+  typedef typename odb::object_traits<T>::pointer_type pointer_type;
+
+  if (p.map_ == 0)
+    return; // Empty position.
+
+  // Make a copy for change tracking. If our object model had a
+  // polymorphic hierarchy, then we would have had to use a
+  // virtual function-based mechanism (e.g., clone()) instead of
+  // the copy constructor since for a polymorphic hierarchy all
+  // the derived objects are stored as pointers to the root object.
+  //
+  p.pos_->second.orig = pointer_type (new T (*p.pos_->second.obj));
+}
+
+template <typename T>
+void session::
+update (odb::database&, const T& obj)
+{
+  typedef odb::object_traits<T> object_traits;
+  typedef typename object_traits::pointer_type pointer_type;
+
+  if (current == 0)
+    return; // No session.
+
+  // User explicitly updated the object by calling database::update().
+  // Change the state to flushed and reset the original copy (we are
+  // still tracking changes after the update).
+  //
+  type_map::iterator ti (current->map_.find (&typeid (T)));
+
+  if (ti == current->map_.end ())
+    return; // This object is not in the session.
+
+  object_map<T>& m (static_cast<object_map<T>&> (*ti->second));
+  typename object_map<T>::iterator oi (m.find (object_traits::id (obj)));
+
+  if (oi == m.end ())
+    return; // This object is not in the session.
+
+  object_data<T>& d (oi->second);
+  d.orig = pointer_type (new T (*d.obj));
+  d.state = flushed;
+}
+
+template <typename T>
+void session::
 erase (odb::database&, const typename odb::object_traits<T>::id_type& id)
 {
-  type_map::iterator ti (map_.find (&typeid (T)));
+  if (current == 0)
+    return; // No session.
 
-  if (ti == map_.end ())
+  type_map::iterator ti (current->map_.find (&typeid (T)));
+
+  if (ti == current->map_.end ())
     return;
 
   object_map<T>& m (static_cast<object_map<T>&> (*ti->second));
@@ -82,7 +124,7 @@ erase (odb::database&, const typename odb::object_traits<T>::id_type& id)
   m.erase (oi);
 
   if (m.empty ())
-    map_.erase (ti);
+    current->map_.erase (ti);
 }
 
 template <typename T>
@@ -92,13 +134,10 @@ flush (odb::database& db)
   for (typename object_map<T>::iterator i (this->begin ()), e (this->end ());
        i != e; ++i)
   {
-    const T& obj (*i->second.obj);
+    object_data<T>& d (i->second);
 
-    if (obj.changed (*i->second.orig))
-    {
-      db.update (obj);
-      i->second.flushed_ = true;
-    }
+    if (d.state == changed || d.obj->changed (*d.orig))
+      db.update (d.obj); // State changed by the update() notification.
   }
 }
 
@@ -109,10 +148,9 @@ mark ()
   for (typename object_map<T>::iterator i (this->begin ()), e (this->end ());
        i != e; ++i)
   {
-    if (i->second.flushed_)
-    {
-      i->second.orig.reset (new T (*i->second.obj));
-      i->second.flushed_ = false;
-    }
+    object_data<T>& d (i->second);
+
+    if (d.state == flushed)
+      d.state = tracking;
   }
 }

@@ -26,14 +26,13 @@ private:
   session (const session&);
   session& operator= (const session&);
 
-  // Current session interface.
+  // Session for the current thread. This can be implemented in pretty
+  // much any way that makes sense to the application. It can be a global
+  // session as we have here. In multi-threaded applications we could use
+  // TLS instead.
   //
 public:
-  static bool
-  has_current ();
-
-  static session&
-  current ();
+  static session* current;
 
   // Change tracking interface.
   //
@@ -61,23 +60,30 @@ private:
     mark () = 0;
   };
 
+  enum object_state
+  {
+    tracking, // Tracking any modifications by storing the original copy.
+    changed,  // Known to be changed.
+    flushed   // Flushed but not yet committed/rolled back.
+  };
+
   template <typename T>
-  struct object_state
+  struct object_data
   {
     typedef typename odb::object_traits<T>::pointer_type pointer_type;
 
     explicit
-    object_state (pointer_type o): obj (o), flushed_ (false) {}
+    object_data (pointer_type o): obj (o), state (tracking) {}
 
     pointer_type obj;
     pointer_type orig;
-    bool flushed_;
+    object_state state;
   };
 
   template <typename T>
   struct object_map: object_map_base,
                      std::map<typename odb::object_traits<T>::id_type,
-                              object_state<T> >
+                              object_data<T> >
   {
     virtual void
     flush (odb::database&);
@@ -95,37 +101,53 @@ public:
     typedef object_map<T> map;
     typedef typename map::iterator iterator;
 
-    position () {}
+    position (): map_ (0) {}
     position (map& m, const iterator& p): map_ (&m), pos_ (p) {}
 
     map* map_;
     iterator pos_;
   };
 
+  // Cache management.
+  //
   template <typename T>
-  position<T>
+  static position<T>
   insert (odb::database&,
           const typename odb::object_traits<T>::id_type&,
           const typename odb::object_traits<T>::pointer_type&);
 
   template <typename T>
-  static void
-  initialize (const position<T>&);
-
-  template <typename T>
-  typename odb::object_traits<T>::pointer_type
-  find (odb::database&, const typename odb::object_traits<T>::id_type&) const;
-
-  template <typename T>
-  void
-  erase (odb::database&, const typename odb::object_traits<T>::id_type&);
+  static typename odb::object_traits<T>::pointer_type
+  find (odb::database&, const typename odb::object_traits<T>::id_type&);
 
   template <typename T>
   static void
   erase (const position<T>& p)
   {
-    p.map_->erase (p.pos_);
+    if (p.map_ != 0)
+      p.map_->erase (p.pos_);
   }
+
+  // Notifications.
+  //
+  template <typename T>
+  static void
+  persist (const position<T>& p)
+  {
+    load (p);
+  }
+
+  template <typename T>
+  static void
+  load (const position<T>&);
+
+  template <typename T>
+  static void
+  update (odb::database&, const T&);
+
+  template <typename T>
+  static void
+  erase (odb::database&, const typename odb::object_traits<T>::id_type&);
 
 private:
   typedef std::map<const std::type_info*,

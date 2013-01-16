@@ -145,10 +145,10 @@ main (int argc, char* argv[])
       transaction t (db->begin ());
       tracer.count = 0;
       t.tracer (tracer);
-      s.flush (*db); // Flush all the changes.
+      s.flush (*db);
       assert (tracer.count == 2);
       t.commit ();
-      s.mark (); // Mark all the changed objects as unchanged.
+      s.mark ();
     }
 
     {
@@ -158,6 +158,22 @@ main (int argc, char* argv[])
       s.flush (*db);
       assert (tracer.count == 0);
       t.commit ();
+    }
+
+    // Explicit update.
+    //
+    cs->symbol ("CS");
+    st->symbol ("ST");
+
+    {
+      transaction t (db->begin ());
+      db->update (cs);
+      tracer.count = 0;
+      t.tracer (tracer);
+      s.flush (*db);
+      assert (tracer.count == 1);
+      t.commit ();
+      s.mark ();
     }
   }
   catch (const odb::exception& e)
