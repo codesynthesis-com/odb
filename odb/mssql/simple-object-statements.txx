@@ -121,7 +121,7 @@ namespace odb
         else
           l.loader (db, l.id, *l.obj);
 
-        pointer_cache_traits::initialize (ig.position ());
+        pointer_cache_traits::load (ig.position ());
         ig.release ();
       }
     }
