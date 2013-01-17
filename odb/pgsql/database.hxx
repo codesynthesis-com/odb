@@ -303,6 +303,11 @@ namespace odb
       connection ();
 
     public:
+      // Database id constant (useful for meta-programming).
+      //
+      static const odb::database_id database_id = id_pgsql;
+
+    public:
       virtual
       ~database ();
 
