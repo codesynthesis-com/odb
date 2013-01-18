@@ -10,6 +10,7 @@ session* session::current;
 
 session::
 session ()
+    : tran_ (0)
 {
   assert (current == 0);
   current = this;
@@ -18,6 +19,11 @@ session ()
 session::
 ~session ()
 {
+  // Unregister from transaction.
+  //
+  if (tran_ != 0)
+    tran_->unregister (this);
+
   assert (current == this);
   current = 0;
 }
@@ -25,13 +31,27 @@ session::
 void session::
 flush (odb::database& db)
 {
+  bool flushed (false);
+
   for (type_map::iterator i (map_.begin ()), e (map_.end ()); i != e; ++i)
-    i->second->flush (db);
+  {
+    bool r (i->second->flush (db));
+    flushed = flushed || r;
+  }
+
+  // If we flushed anything, then register the post-commit/rollback callback.
+  //
+  if (flushed)
+  {
+    tran_ = &odb::transaction::current ();
+    tran_->register_ (&mark, this, odb::transaction::event_all, 0, &tran_);
+  }
 }
 
 void session::
-mark ()
+mark (unsigned short event, void* key, unsigned long long)
 {
-  for (type_map::iterator i (map_.begin ()), e (map_.end ()); i != e; ++i)
-    i->second->mark ();
+  session& s (*static_cast<session*> (key));
+  for (type_map::iterator i (s.map_.begin ()), e (s.map_.end ()); i != e; ++i)
+    i->second->mark (event);
 }

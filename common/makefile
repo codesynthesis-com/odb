@@ -40,7 +40,8 @@ relationship-query       \
 schema                   \
 session/cache            \
 template                 \
-transaction              \
+transaction/basics       \
+transaction/callback     \
 types                    \
 view                     \
 virtual                  \

@@ -30,15 +30,13 @@ using odb::transaction;
 struct counting_tracer: odb::tracer
 {
   virtual void
-  execute (odb::connection&, const char*)
-  {
-    count++;
-  }
-
+  execute (odb::connection&, const char*) {count++;}
   size_t count;
 };
 
 static counting_tracer tracer;
+
+struct failed {};
 
 int
 main (int argc, char* argv[])
@@ -81,99 +79,138 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    session s;
-    shared_ptr<employer> st, cs;
-    shared_ptr<employee> ste, cse;
-
     {
-      transaction t (db->begin ());
+      session s;
+      shared_ptr<employer> st, cs;
+      shared_ptr<employee> ste, cse;
 
-      st = db->load<employer> ("Simple Tech Ltd");
-      ste = db->load<employee> (st->employees ()[0].object_id ());
+      {
+        transaction t (db->begin ());
 
-      // Test object cache.
+        st = db->load<employer> ("Simple Tech Ltd");
+        ste = db->load<employee> (st->employees ()[0].object_id ());
+
+        // Test object cache.
+        //
+        shared_ptr<employee> e (st->employees ()[0].load ());
+        assert (ste->employer () == st);
+        assert (ste == e);
+
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+
+        cs = db->load<employer> ("Complex Systems Inc");
+        cse = db->load<employee> (cs->employees ()[0].object_id ());
+        cs->employees ()[0].load ();
+
+        t.commit ();
+      }
+
+      cs->symbol ("CSI");
+
+      // Swap employees.
       //
-      shared_ptr<employee> e (st->employees ()[0].load ());
-      assert (ste->employer () == st);
-      assert (ste == e);
+      ste->employer (cs);
+      cse->employer (st);
+      st->employees ()[0] = cse;
+      cs->employees ()[0] = ste;
 
-      t.commit ();
+      {
+        transaction t (db->begin ());
+        tracer.count = 0;
+        t.tracer (tracer);
+        s.flush (*db);
+        assert (tracer.count == 3);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        tracer.count = 0;
+        t.tracer (tracer);
+        s.flush (*db);
+        assert (tracer.count == 0);
+        t.commit ();
+      }
+
+      cs->symbol ("COMP");
+      st->symbol ("SMPL");
+
+      {
+        transaction t (db->begin ());
+        tracer.count = 0;
+        t.tracer (tracer);
+        s.flush (*db);
+        assert (tracer.count == 2);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        tracer.count = 0;
+        t.tracer (tracer);
+        s.flush (*db);
+        assert (tracer.count == 0);
+        t.commit ();
+      }
+
+      // Explicit update.
+      //
+      cs->symbol ("CS");
+      st->symbol ("ST");
+
+      {
+        transaction t (db->begin ());
+        db->update (cs);
+        tracer.count = 0;
+        t.tracer (tracer);
+        s.flush (*db);
+        assert (tracer.count == 1);
+        t.commit ();
+      }
+
+      // Rollback after update.
+      //
+      cs->symbol ("CSI");
+
+      try
+      {
+        transaction t (db->begin ());
+        tracer.count = 0;
+        t.tracer (tracer);
+        s.flush (*db);
+        assert (tracer.count == 1);
+        throw failed ();
+        t.commit ();
+      }
+      catch (const failed&)
+      {
+        transaction t (db->begin ());
+        tracer.count = 0;
+        t.tracer (tracer);
+        s.flush (*db);
+        assert (tracer.count == 1);
+        t.commit ();
+      }
     }
 
-    {
-      transaction t (db->begin ());
-
-      cs = db->load<employer> ("Complex Systems Inc");
-      cse = db->load<employee> (cs->employees ()[0].object_id ());
-      cs->employees ()[0].load ();
-
-      t.commit ();
-    }
-
-    cs->symbol ("CSI");
-
-    // Swap employees.
+    // Test session destruction before transaction is commited.
     //
-    ste->employer (cs);
-    cse->employer (st);
-    st->employees ()[0] = cse;
-    cs->employees ()[0] = ste;
-
     {
       transaction t (db->begin ());
-      tracer.count = 0;
-      t.tracer (tracer);
-      s.flush (*db); // Flush all the changes.
-      assert (tracer.count == 3);
+      {
+        session s;
+        shared_ptr<employer> st (db->load<employer> ("Simple Tech Ltd"));
+        st->symbol ("STL");
+        tracer.count = 0;
+        t.tracer (tracer);
+        s.flush (*db);
+        assert (tracer.count == 1);
+      }
       t.commit ();
-      s.mark (); // Mark all the changed objects as unchanged.
-    }
-
-    {
-      transaction t (db->begin ());
-      tracer.count = 0;
-      t.tracer (tracer);
-      s.flush (*db);
-      assert (tracer.count == 0);
-      t.commit ();
-    }
-
-    cs->symbol ("COMP");
-    st->symbol ("SMPL");
-
-    {
-      transaction t (db->begin ());
-      tracer.count = 0;
-      t.tracer (tracer);
-      s.flush (*db);
-      assert (tracer.count == 2);
-      t.commit ();
-      s.mark ();
-    }
-
-    {
-      transaction t (db->begin ());
-      tracer.count = 0;
-      t.tracer (tracer);
-      s.flush (*db);
-      assert (tracer.count == 0);
-      t.commit ();
-    }
-
-    // Explicit update.
-    //
-    cs->symbol ("CS");
-    st->symbol ("ST");
-
-    {
-      transaction t (db->begin ());
-      db->update (cs);
-      tracer.count = 0;
-      t.tracer (tracer);
-      s.flush (*db);
-      assert (tracer.count == 1);
-      t.commit ();
-      s.mark ();
     }
   }
   catch (const odb::exception& e)

@@ -1,8 +1,8 @@
-// file      : common/transaction/driver.cxx
+// file      : common/transaction/basics/driver.cxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test transaction operations.
+// Test basic transaction operations.
 //
 
 #include <string>

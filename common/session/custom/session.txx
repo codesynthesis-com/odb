@@ -128,9 +128,10 @@ erase (odb::database&, const typename odb::object_traits<T>::id_type& id)
 }
 
 template <typename T>
-void session::object_map<T>::
+bool session::object_map<T>::
 flush (odb::database& db)
 {
+  bool r (false);
   for (typename object_map<T>::iterator i (this->begin ()), e (this->end ());
        i != e; ++i)
   {
@@ -138,12 +139,16 @@ flush (odb::database& db)
 
     if (d.state == changed || d.obj->changed (*d.orig))
       db.update (d.obj); // State changed by the update() notification.
+
+    r = r || d.state == flushed;
   }
+
+  return r;
 }
 
 template <typename T>
 void session::object_map<T>::
-mark ()
+mark (unsigned short event)
 {
   for (typename object_map<T>::iterator i (this->begin ()), e (this->end ());
        i != e; ++i)
@@ -151,6 +156,6 @@ mark ()
     object_data<T>& d (i->second);
 
     if (d.state == flushed)
-      d.state = tracking;
+      d.state = event == odb::transaction::event_commit ? tracking : changed;
   }
 }

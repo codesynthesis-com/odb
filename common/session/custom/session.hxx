@@ -10,6 +10,8 @@
 #include <typeinfo>
 
 #include <odb/database.hxx>
+#include <odb/transaction.hxx>
+
 #include <odb/traits.hxx>            // odb::object_traits
 #include <odb/details/type-info.hxx> // odb::details::type_info_comparator
 
@@ -36,16 +38,12 @@ public:
 
   // Change tracking interface.
   //
-  // Call flush() within a transaction to apply the changes to the
-  // database. Then after successfully committing the transaction,
-  // call mark() to mark all the changed objects as again unchanged.
-  //
 public:
+  // Call flush() within a transaction to apply the changes to the
+  // database.
+  //
   void
   flush (odb::database&);
-
-  void
-  mark ();
 
 private:
   struct object_map_base
@@ -53,11 +51,13 @@ private:
     virtual
     ~object_map_base () {}
 
-    virtual void
+    // Return true we flushed anything.
+    //
+    virtual bool
     flush (odb::database&) = 0;
 
     virtual void
-    mark () = 0;
+    mark (unsigned short event) = 0;
   };
 
   enum object_state
@@ -85,11 +85,11 @@ private:
                      std::map<typename odb::object_traits<T>::id_type,
                               object_data<T> >
   {
-    virtual void
+    virtual bool
     flush (odb::database&);
 
     virtual void
-    mark ();
+    mark (unsigned short event);
   };
 
   // Object cache interface.
@@ -150,10 +150,17 @@ public:
   erase (odb::database&, const typename odb::object_traits<T>::id_type&);
 
 private:
+  // Post-commit/rollback callback.
+  //
+  static void
+  mark (unsigned short event, void* key, unsigned long long);
+
+private:
   typedef std::map<const std::type_info*,
                    std::shared_ptr<object_map_base>,
                    odb::details::type_info_comparator> type_map;
   type_map map_;
+  odb::transaction* tran_;
 };
 
 #include "session.txx"
