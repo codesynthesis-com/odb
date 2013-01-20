@@ -5,15 +5,15 @@
 #include <cassert>
 
 template <typename T>
-typename session::position<T> session::
-insert (odb::database&,
-        const typename odb::object_traits<T>::id_type& id,
-        const typename odb::object_traits<T>::pointer_type& obj)
+typename session::cache_position<T> session::
+_cache_insert (odb::database&,
+               const typename odb::object_traits<T>::id_type& id,
+               const typename odb::object_traits<T>::pointer_type& obj)
 {
   typedef odb::object_traits<T> object_traits;
 
   if (current == 0)
-    return position<T> (); // No session, return empty position.
+    return cache_position<T> (); // No session, return empty position.
 
   std::shared_ptr<object_map_base>& pm (current->map_[&typeid (T)]);
 
@@ -29,12 +29,12 @@ insert (odb::database&,
   //
   assert (r.second);
 
-  return position<T> (m, r.first);
+  return cache_position<T> (m, r.first);
 }
 
 template <typename T>
 typename odb::object_traits<T>::pointer_type session::
-find (odb::database&, const typename odb::object_traits<T>::id_type& id)
+_cache_find (odb::database&, const typename odb::object_traits<T>::id_type& id)
 {
   typedef typename odb::object_traits<T>::pointer_type pointer_type;
 
@@ -57,7 +57,7 @@ find (odb::database&, const typename odb::object_traits<T>::id_type& id)
 
 template <typename T>
 void session::
-load (const position<T>& p)
+_cache_load (const cache_position<T>& p)
 {
   typedef typename odb::object_traits<T>::pointer_type pointer_type;
 
@@ -75,7 +75,7 @@ load (const position<T>& p)
 
 template <typename T>
 void session::
-update (odb::database&, const T& obj)
+_cache_update (odb::database&, const T& obj)
 {
   typedef odb::object_traits<T> object_traits;
   typedef typename object_traits::pointer_type pointer_type;
@@ -105,7 +105,8 @@ update (odb::database&, const T& obj)
 
 template <typename T>
 void session::
-erase (odb::database&, const typename odb::object_traits<T>::id_type& id)
+_cache_erase (odb::database&,
+              const typename odb::object_traits<T>::id_type& id)
 {
   if (current == 0)
     return; // No session.

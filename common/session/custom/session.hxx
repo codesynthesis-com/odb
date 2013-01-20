@@ -96,13 +96,13 @@ private:
   //
 public:
   template <typename T>
-  struct position
+  struct cache_position
   {
     typedef object_map<T> map;
     typedef typename map::iterator iterator;
 
-    position (): map_ (0) {}
-    position (map& m, const iterator& p): map_ (&m), pos_ (p) {}
+    cache_position (): map_ (0) {}
+    cache_position (map& m, const iterator& p): map_ (&m), pos_ (p) {}
 
     map* map_;
     iterator pos_;
@@ -111,18 +111,18 @@ public:
   // Cache management.
   //
   template <typename T>
-  static position<T>
-  insert (odb::database&,
-          const typename odb::object_traits<T>::id_type&,
-          const typename odb::object_traits<T>::pointer_type&);
+  static cache_position<T>
+  _cache_insert (odb::database&,
+                 const typename odb::object_traits<T>::id_type&,
+                 const typename odb::object_traits<T>::pointer_type&);
 
   template <typename T>
   static typename odb::object_traits<T>::pointer_type
-  find (odb::database&, const typename odb::object_traits<T>::id_type&);
+  _cache_find (odb::database&, const typename odb::object_traits<T>::id_type&);
 
   template <typename T>
   static void
-  erase (const position<T>& p)
+  _cache_erase (const cache_position<T>& p)
   {
     if (p.map_ != 0)
       p.map_->erase (p.pos_);
@@ -132,22 +132,23 @@ public:
   //
   template <typename T>
   static void
-  persist (const position<T>& p)
+  _cache_persist (const cache_position<T>& p)
   {
-    load (p);
+    _cache_load (p);
   }
 
   template <typename T>
   static void
-  load (const position<T>&);
+  _cache_load (const cache_position<T>&);
 
   template <typename T>
   static void
-  update (odb::database&, const T&);
+  _cache_update (odb::database&, const T&);
 
   template <typename T>
   static void
-  erase (odb::database&, const typename odb::object_traits<T>::id_type&);
+  _cache_erase (odb::database&,
+                const typename odb::object_traits<T>::id_type&);
 
 private:
   // Post-commit/rollback callback.
