@@ -53,12 +53,13 @@ name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
 $(dist): db_id := @database@
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
+$(dist): export headers := session.hxx session.txx
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
 $(dist): export extra_dist := $(data_dist) $(call vc10projs,$(name)) \
 $(call vc11projs,$(name))
 $(dist):
-	$(call dist-data,$(sources) $(headers) $(data_dist))
+	$(call dist-data,$(sources) $(headers) $(extra_headers) $(data_dist))
 	$(call meta-automake,../../template/Makefile.am)
 	$(call meta-vc10projs,../../template/template,$(name))
 	$(call meta-vc11projs,../../template/template,$(name))
