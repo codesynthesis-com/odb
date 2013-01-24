@@ -69,6 +69,40 @@ main (int argc, char* argv[])
       t.commit ();
     }
 #endif
+
+    // Test char/wchar_t arrays
+    //
+    {
+#ifndef _WIN32
+      char_array o1 (1, "");
+      char_array o2 (2, "1234567890");
+      char_array o3 (3, "12345678901234567");
+#else
+      char_array o1 (1, "", L"");
+      char_array o2 (2, "1234567890", L"123456789\x00C8");
+      char_array o3 (3, "12345678901234567", L"1234567890123456\x00C8");
+#endif
+
+      {
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        db->persist (o3);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<char_array> p1 (db->load<char_array> (1));
+        auto_ptr<char_array> p2 (db->load<char_array> (2));
+        auto_ptr<char_array> p3 (db->load<char_array> (3));
+        t.commit ();
+
+        assert (o1 == *p1);
+        assert (o2 == *p2);
+        assert (o3 == *p3);
+      }
+    }
   }
   catch (const odb::exception& e)
   {

@@ -33,7 +33,8 @@ no-id                    \
 optimistic               \
 pragma                   \
 prepared                 \
-query                    \
+query/basics             \
+query/array              \
 readonly                 \
 relationship             \
 relationship-query       \

@@ -23,7 +23,8 @@ typedef struct _GUID
 #include <string>
 #include <vector>
 #include <memory>   // std::auto_ptr
-#include <cstring>  // std::memcmp
+#include <cstring>  // std::memcmp, std::strncpy, std::str[n]cmp
+#include <cwchar>   // std::wcsncpy, std::wcs[n]cmp
 
 #include <odb/core.hxx>
 
@@ -366,6 +367,106 @@ struct long_cont
   operator== (const long_cont& y) const
   {
     return id_ == y.id_ && v == y.v;
+  }
+};
+
+// Test char/wchar_t arrays.
+//
+#pragma db object
+struct char_array
+{
+  char_array () {}
+  char_array (unsigned long id, const char* s, const wchar_t* ws)
+      : id_ (id)
+  {
+    std::strncpy (s1, s, sizeof (s1));
+    std::strncpy (s2, s, sizeof (s2));
+    s3[0] = c1 = *s;
+
+    std::wcsncpy (ws1, ws, sizeof (ws1) / sizeof(wchar_t));
+    std::wcsncpy (ws2, ws, sizeof (ws2) / sizeof(wchar_t));
+    ws3[0] = wc1 = *ws;
+
+    if (std::strlen (s) == sizeof (s2))
+    {
+      std::memset (ls1, '1', 1025);
+      ls1[1025] = '\0';
+      std::memset (ls2, '2', 1025);
+
+      for (std::size_t i (0); i < 257; ++i)
+      {
+        lws1[i] = L'1';
+        lws2[i] = L'2';
+      }
+      lws1[257] = L'\0';
+    }
+    else
+    {
+      std::strcpy (ls1, s);
+      std::strcpy (ls2, s);
+
+      std::wcscpy (lws1, ws);
+      std::wcscpy (lws2, ws);
+    }
+  }
+
+  #pragma db id
+  unsigned long id_;
+
+  //
+  //
+  char s1[17];
+
+  #pragma db type("CHAR(16)")
+  char s2[16];
+
+  char s3[1];
+  char c1;
+
+  // Long data.
+  //
+  char ls1[1026];
+
+  #pragma db type("CHAR(1025)")
+  char ls2[1025];
+
+  //
+  //
+  wchar_t ws1[17];
+
+  #pragma db type("NCHAR(16)")
+  wchar_t ws2[16];
+
+  wchar_t ws3[1];
+  wchar_t wc1;
+
+  // Long data.
+  //
+  wchar_t lws1[258];
+
+  #pragma db type("NCHAR(257)")
+  wchar_t lws2[257];
+
+  bool
+  operator== (const char_array& y) const
+  {
+    return id_ == y.id_ &&
+
+      std::strcmp (s1, y.s1) == 0 &&
+      std::strncmp (s2, y.s2, sizeof (s2)) == 0 &&
+      s3[0] == y.s3[0] &&
+      c1 == y.c1 &&
+
+      std::strcmp (ls1, y.ls1) == 0 &&
+      std::strncmp (ls2, y.ls2, sizeof (ls2)) == 0 &&
+
+      std::wcscmp (ws1, y.ws1) == 0 &&
+      std::wcsncmp (ws2, y.ws2, sizeof (ws2) / sizeof (wchar_t)) == 0 &&
+      ws3[0] == y.ws3[0] &&
+      wc1 == y.wc1 &&
+
+      std::wcscmp (lws1, y.lws1) == 0 &&
+      std::wcsncmp (lws2, y.lws2, sizeof (lws2) / sizeof (wchar_t)) == 0;
   }
 };
 

@@ -11,7 +11,7 @@ size_available ();
 
 template <typename T>
 std::size_t
-size (odb::result<T>& r)
+size (odb::result<T> r)
 {
   if (size_available ())
     return r.size ();

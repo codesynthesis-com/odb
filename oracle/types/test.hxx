@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <memory>   // std::auto_ptr
+#include <cstring> // std::strncpy, std::str[n]cmp
 
 #include <odb/core.hxx>
 
@@ -101,14 +102,8 @@ typedef std::vector<std::string> strings;
 #pragma db object
 struct object
 {
-  object (unsigned int id)
-      : id_ (id)
-  {
-  }
-
-  object ()
-  {
-  }
+  object () {}
+  object (unsigned long id): id_ (id) {}
 
   #pragma db id
   unsigned int id_;
@@ -166,13 +161,13 @@ struct object
   #pragma db type ("CHAR(13)")
   std::string char_;
 
-  #pragma db type ("VARCHAR2(512)")
+  #pragma db type ("VARCHAR2(512)") null
   std::string varchar2_;
 
   #pragma db type ("NCHAR(8)")
   std::string nchar_;
 
-  #pragma db type ("NVARCHAR2(512)")
+  #pragma db type ("NVARCHAR2(512)") null
   std::string nvarchar2_;
 
   // Oracle treats empty and NULL VARCHAR2 the same. Test that we
@@ -299,6 +294,45 @@ struct blob
   operator== (const blob& y) const
   {
     return id_ == y.id_ && value_ == y.value_;
+  }
+};
+
+// Test char array.
+//
+#pragma db object
+struct char_array
+{
+  char_array () {}
+  char_array (unsigned long id, const char* s)
+      : id_ (id)
+  {
+    std::strncpy (s1, s, sizeof (s1));
+    std::strncpy (s2, s, sizeof (s2));
+    s3[0] = c1 = *s;
+  }
+
+  #pragma db id
+  unsigned long id_;
+
+  char s1[17];
+
+  #pragma db type("CHAR(16)") null
+  char s2[16];
+
+  #pragma db null
+  char s3[1];
+
+  #pragma db null
+  char c1;
+
+  bool
+  operator== (const char_array& y) const
+  {
+    return id_ == y.id_ &&
+      std::strcmp (s1, y.s1) == 0 &&
+      std::strncmp (s2, y.s2, sizeof (s2)) == 0 &&
+      s3[0] == y.s3[0] &&
+      c1 == y.c1;
   }
 };
 

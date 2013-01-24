@@ -38,11 +38,11 @@ create_specific_database (int& argc,
 }
 
 // This function returns an accurate result only if the result iterator
-// hasn't been advanced.
+// hasn't been advanced and after the call the result is no longer valid.
 //
 template <typename T>
 std::size_t
-size (odb::result<T>&);
+size (odb::result<T>);
 
 #include <common/common.txx>
 

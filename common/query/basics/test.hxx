@@ -1,4 +1,4 @@
-// file      : common/query/test.hxx
+// file      : common/query/basics/test.hxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 

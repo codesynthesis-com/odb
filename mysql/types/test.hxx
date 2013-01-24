@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 #include <memory>  // std::auto_ptr
+#include <cstring> // std::strncpy, std::str[n]cmp
 
 #include <odb/core.hxx>
 
@@ -87,14 +88,8 @@ enum color {red, green, blue};
 #pragma db object
 struct object
 {
-  object (unsigned long id)
-      : id_ (id)
-  {
-  }
-
-  object ()
-  {
-  }
+  object () {}
+  object (unsigned long id): id_ (id) {}
 
   #pragma db id
   unsigned long id_;
@@ -271,6 +266,42 @@ struct object
       enum_str_ == y.enum_str_ &&
       set_ == y.set_ &&
       ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);
+  }
+};
+
+// Test char array.
+//
+#pragma db object
+struct char_array
+{
+  char_array () {}
+  char_array (unsigned long id, const char* s)
+      : id_ (id)
+  {
+    std::strncpy (s1, s, sizeof (s1));
+    std::strncpy (s2, s, sizeof (s2));
+    s3[0] = c1 = *s;
+  }
+
+  #pragma db id
+  unsigned long id_;
+
+  char s1[17];
+
+  #pragma db type("CHAR(16)")
+  char s2[16];
+
+  char s3[1];
+  char c1;
+
+  bool
+  operator== (const char_array& y) const
+  {
+    return id_ == y.id_ &&
+      std::strcmp (s1, y.s1) == 0 &&
+      std::strncmp (s2, y.s2, sizeof (s2)) == 0 &&
+      s3[0] == y.s3[0] &&
+      c1 == y.c1;
   }
 };
 

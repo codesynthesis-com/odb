@@ -9,6 +9,11 @@
 #include <string>
 #include <vector>
 #include <memory>  // std::auto_ptr
+#include <cstring> // std::strncpy, std::str[n]cmp
+
+#ifdef _WIN32
+#  include <cwchar> // std::wcsncpy, std::wcs[n]cmp
+#endif
 
 #include <odb/core.hxx>
 
@@ -17,14 +22,8 @@ typedef std::auto_ptr<std::string> string_ptr;
 #pragma db object
 struct object
 {
-  object (unsigned long id)
-      : id_ (id)
-  {
-  }
-
-  object ()
-  {
-  }
+  object () {}
+  object (unsigned long id): id_ (id) {}
 
   #pragma db id
   unsigned long id_;
@@ -38,8 +37,7 @@ struct object
   #pragma db type("REAL")
   double real_;
 
-  #pragma db type("REAL")
-  double nan_;
+  double nan_; // Represented in SQLite as NULL.
 
   #pragma db type("TEXT")
   std::string text_;
@@ -70,6 +68,58 @@ struct object
 #endif
       && blob_ == y.blob_
       && ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);
+  }
+};
+
+// Test char/wchar_t arrays.
+//
+#pragma db object
+struct char_array
+{
+  char_array () {}
+  char_array (unsigned long id
+              , const char* s
+#ifdef _WIN32
+              , const wchar_t* ws
+#endif
+  )
+      : id_ (id)
+  {
+    std::strncpy (s1, s, sizeof (s1));
+    s2[0] = c1 = *s;
+
+#ifdef _WIN32
+    std::wcsncpy (ws1, ws, sizeof (ws1) / 2);
+    ws2[0] = wc1 = *ws;
+#endif
+  }
+
+  #pragma db id
+  unsigned long id_;
+
+  char s1[17];
+  char s2[1];
+  char c1;
+
+#ifdef _WIN32
+  wchar_t ws1[17];
+  wchar_t ws2[1];
+  wchar_t wc1;
+#endif
+
+  bool
+  operator== (const char_array& y) const
+  {
+    return id_ == y.id_
+      && std::strncmp (s1, y.s1, sizeof (s1)) == 0
+      && s2[0] == y.s2[0]
+      && c1 == y.c1
+#ifdef _WIN32
+      && std::wcsncmp (ws1, y.ws1, sizeof (ws1) / 2) == 0
+      && ws2[0] == y.ws2[0]
+      && wc1 == y.wc1
+#endif
+      ;
   }
 };
 

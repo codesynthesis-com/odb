@@ -1,8 +1,8 @@
-// file      : common/query/driver.cxx
+// file      : common/query/basics/driver.cxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test query support.
+// Test basic query support.
 //
 
 #include <memory>   // std::auto_ptr

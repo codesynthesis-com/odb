@@ -218,6 +218,53 @@ main (int argc, char* argv[])
       }
     }
 
+    // Test char/wchar_t arrays.
+    //
+    {
+      char_array o1 (1, "", L"");
+      char_array o2 (2, "1234567890", L"12345678\x1FFF\xD7FF");
+      char_array o3 (3, "1234567890123456", L"12345678901234\x1FFF\xD7FF");
+
+      {
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        db->persist (o3);
+        t.commit ();
+      }
+
+      // SQL Server returns padded values for CHAR(N)/NCHAR(N).
+      //
+      memcpy (o1.s2, "                ", 16);
+      o1.s3[0] = o1.c1 = ' ';
+      memcpy (o2.s2, "1234567890      ", 16);
+
+      memset (o1.ls2, ' ', 1025);
+      memset (o2.ls2 + 10, ' ', 1025 - 10);
+
+      memcpy (o1.ws2, L"                ", 16 * sizeof (wchar_t));
+      o1.ws3[0] = o1.wc1 = L' ';
+      memcpy (o2.ws2, L"12345678\x1FFF\xD7FF      ", 16 * sizeof (wchar_t));
+
+      for (size_t i (0); i < 257; ++i)
+        o1.lws2[i] = L' ';
+
+      for (size_t i (10); i < 257; ++i)
+        o2.lws2[i] = L' ';
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<char_array> p1 (db->load<char_array> (1));
+        auto_ptr<char_array> p2 (db->load<char_array> (2));
+        auto_ptr<char_array> p3 (db->load<char_array> (3));
+        t.commit ();
+
+        assert (o1 == *p1);
+        assert (o2 == *p2);
+        assert (o3 == *p3);
+      }
+    }
+
     // Test optimistic concurrency using ROWVERSION.
     //
     {

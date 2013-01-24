@@ -272,6 +272,39 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
+
+    // Test char array.
+    //
+    {
+      char_array o1 (1, "");
+      char_array o2 (2, "1234567890");
+      char_array o3 (3, "1234567890123456");
+
+      {
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        db->persist (o3);
+        t.commit ();
+      }
+
+      // Oracle returns padded values for CHAR(N) unless they are
+      // empty (represented as NULL).
+      //
+      memcpy (o2.s2, "1234567890      ", 16);
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<char_array> p1 (db->load<char_array> (1));
+        auto_ptr<char_array> p2 (db->load<char_array> (2));
+        auto_ptr<char_array> p3 (db->load<char_array> (3));
+        t.commit ();
+
+        assert (o1 == *p1);
+        assert (o2 == *p2);
+        assert (o3 == *p3);
+      }
+    }
   }
   catch (const odb::exception& e)
   {
