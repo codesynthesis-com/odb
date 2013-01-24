@@ -53,8 +53,7 @@ namespace odb
       chunk_type,            // The position of this chunk; chunk_first means
                              // this is the first call, chunk_last means there
                              // is no more data, chunk_null means this value is
-                             // NULL, and chunk_one means the value is empty
-                             // (in this case *total_size is 0).
+                             // NULL, and chunk_one means the value is empty.
       std::size_t size_left, // Contains the amount of data left or 0 if this
                              // information is not available.
       void* temp_buffer,     // A temporary buffer that may be used by the

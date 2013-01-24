@@ -38,37 +38,94 @@ namespace odb
     // 0. As a result, for scale, the not specific special value will
     // be 0xFFFF (USHORT_MAX).
     //
-
     template <typename T>
-    class val_bind
+    struct val_bind
     {
-    public:
-      explicit
-      val_bind (const T& v, unsigned short p = 0, unsigned short s = 0xFFFF)
-          : val (v), prec (p), scale (s)
-      {
-      }
+      typedef const T& type;
 
-      const T& val;
+      explicit
+      val_bind (type v, unsigned short p = 0, unsigned short s = 0xFFFF)
+          : val (v), prec (p), scale (s) {}
+
+      type val;
+
+      unsigned short prec;
+      unsigned short scale;
+    };
+
+    template <typename T, std::size_t N>
+    struct val_bind<T[N]>
+    {
+      typedef const T* type;
+
+      explicit
+      val_bind (type v, unsigned short p = 0, unsigned short s = 0xFFFF)
+          : val (v), prec (p), scale (s) {}
+
+      type val;
 
       unsigned short prec;
       unsigned short scale;
     };
 
     template <typename T>
-    class ref_bind
+    struct ref_bind
     {
-    public:
-      explicit
-      ref_bind (const T& r, unsigned short p = 0, unsigned short s = 0xFFFF)
-          : ref (r) , prec (p), scale (s)
-      {
-      }
+      typedef const T& type;
 
-      const T& ref;
+      explicit
+      ref_bind (type r, unsigned short p = 0, unsigned short s = 0xFFFF)
+          : ref (r), prec (p), scale (s) {}
+
+      const void*
+      ptr () const {return &ref;}
+
+      type ref;
 
       unsigned short prec;
       unsigned short scale;
+    };
+
+    template <typename T, std::size_t N>
+    struct ref_bind<T[N]>
+    {
+      typedef const T* type;
+
+      explicit
+      ref_bind (type r, unsigned short p = 0, unsigned short s = 0xFFFF)
+          : ref (r), prec (p), scale (s) {}
+
+      // Allow implicit conversion from decayed ref_bind's.
+      //
+      ref_bind (ref_bind<T*> r): ref (r.ref), prec (r.prec), scale (r.scale) {}
+      ref_bind (ref_bind<const T*> r)
+          : ref (r.ref), prec (r.prec), scale (r.scale) {}
+
+      const void*
+      ptr () const {return ref;}
+
+      type ref;
+
+      unsigned short prec;
+      unsigned short scale;
+    };
+
+    template <typename T, database_type_id ID>
+    struct val_bind_typed: val_bind<T>
+    {
+      explicit
+      val_bind_typed (typename val_bind<T>::type v,
+                      unsigned short p = 0,
+                      unsigned short s = 0xFFFF): val_bind<T> (v, p, s) {}
+    };
+
+    template <typename T, database_type_id ID>
+    struct ref_bind_typed: ref_bind<T>
+    {
+      explicit
+      ref_bind_typed (typename ref_bind<T>::type r,
+                      unsigned short p = 0,
+                      unsigned short s = 0xFFFF): ref_bind<T> (r, p, s) {}
     };
 
     struct LIBODB_MSSQL_EXPORT query_param: details::shared_base
@@ -166,8 +223,15 @@ namespace odb
       query_base (val_bind<T> v)
         : binding_ (0, 0)
       {
-        append<T, type_traits<T>::db_type_id> (
-          v, details::conversion<T>::to ());
+        *this += v;
+      }
+
+      template <typename T, database_type_id ID>
+      explicit
+      query_base (val_bind_typed<T, ID> v)
+        : binding_ (0, 0)
+      {
+        *this += v;
       }
 
       template <typename T>
@@ -175,8 +239,15 @@ namespace odb
       query_base (ref_bind<T> r)
         : binding_ (0, 0)
       {
-        append<T, type_traits<T>::db_type_id> (
-          r, details::conversion<T>::to ());
+        *this += r;
+      }
+
+      template <typename T, database_type_id ID>
+      explicit
+      query_base (ref_bind_typed<T, ID> r)
+        : binding_ (0, 0)
+      {
+        *this += r;
       }
 
       template <database_type_id ID>
@@ -237,11 +308,25 @@ namespace odb
         return val_bind<T> (x, prec, scale);
       }
 
+      template <database_type_id ID, typename T>
+      static val_bind_typed<T, ID>
+      _val (const T& x, unsigned short prec = 0, unsigned short scale = 0xFFFF)
+      {
+        return val_bind_typed<T, ID> (x, prec, scale);
+      }
+
       template <typename T>
       static ref_bind<T>
       _ref (const T& x, unsigned short prec = 0, unsigned short scale = 0xFFFF)
       {
         return ref_bind<T> (x, prec, scale);
+      }
+
+      template <database_type_id ID, typename T>
+      static ref_bind_typed<T, ID>
+      _ref (const T& x, unsigned short prec = 0, unsigned short scale = 0xFFFF)
+      {
+        return ref_bind_typed<T, ID> (x, prec, scale);
       }
 
     public:
@@ -264,12 +349,34 @@ namespace odb
         return *this;
       }
 
+      template <typename T, database_type_id ID>
+      query_base&
+      operator+= (val_bind_typed<T, ID> v)
+      {
+        // We are not using default type_traits so no default conversion
+        // either.
+        //
+        append<T, ID> (v, 0);
+        return *this;
+      }
+
       template <typename T>
       query_base&
       operator+= (ref_bind<T> r)
       {
         append<T, type_traits<T>::db_type_id> (
           r, details::conversion<T>::to ());
+        return *this;
+      }
+
+      template <typename T, database_type_id ID>
+      query_base&
+      operator+= (ref_bind_typed<T, ID> r)
+      {
+        // We are not using default type_traits so no default conversion
+        // either.
+        //
+        append<T, ID> (r, 0);
         return *this;
       }
 
@@ -334,16 +441,26 @@ namespace odb
 
     template <typename T>
     inline query_base
-    operator+ (const query_base& q, ref_bind<T> b)
+    operator+ (val_bind<T> b, const query_base& q)
+    {
+      query_base r;
+      r += b;
+      r += q;
+      return r;
+    }
+
+    template <typename T, database_type_id ID>
+    inline query_base
+    operator+ (const query_base& q, val_bind_typed<T, ID> b)
     {
       query_base r (q);
       r += b;
       return r;
     }
 
-    template <typename T>
+    template <typename T, database_type_id ID>
     inline query_base
-    operator+ (val_bind<T> b, const query_base& q)
+    operator+ (val_bind_typed<T, ID> b, const query_base& q)
     {
       query_base r;
       r += b;
@@ -353,7 +470,35 @@ namespace odb
 
     template <typename T>
     inline query_base
+    operator+ (const query_base& q, ref_bind<T> b)
+    {
+      query_base r (q);
+      r += b;
+      return r;
+    }
+
+    template <typename T>
+    inline query_base
     operator+ (ref_bind<T> b, const query_base& q)
+    {
+      query_base r;
+      r += b;
+      r += q;
+      return r;
+    }
+
+    template <typename T, database_type_id ID>
+    inline query_base
+    operator+ (const query_base& q, ref_bind_typed<T, ID> b)
+    {
+      query_base r (q);
+      r += b;
+      return r;
+    }
+
+    template <typename T, database_type_id ID>
+    inline query_base
+    operator+ (ref_bind_typed<T, ID> b, const query_base& q)
     {
       query_base r;
       r += b;
@@ -388,16 +533,26 @@ namespace odb
 
     template <typename T>
     inline query_base
-    operator+ (const std::string& s, ref_bind<T> b)
+    operator+ (val_bind<T> b, const std::string& s)
+    {
+      query_base r;
+      r += b;
+      r += s;
+      return r;
+    }
+
+    template <typename T, database_type_id ID>
+    inline query_base
+    operator+ (const std::string& s, val_bind_typed<T, ID> b)
     {
       query_base r (s);
       r += b;
       return r;
     }
 
-    template <typename T>
+    template <typename T, database_type_id ID>
     inline query_base
-    operator+ (val_bind<T> b, const std::string& s)
+    operator+ (val_bind_typed<T, ID> b, const std::string& s)
     {
       query_base r;
       r += b;
@@ -407,7 +562,35 @@ namespace odb
 
     template <typename T>
     inline query_base
+    operator+ (const std::string& s, ref_bind<T> b)
+    {
+      query_base r (s);
+      r += b;
+      return r;
+    }
+
+    template <typename T>
+    inline query_base
     operator+ (ref_bind<T> b, const std::string& s)
+    {
+      query_base r;
+      r += b;
+      r += s;
+      return r;
+    }
+
+    template <typename T, database_type_id ID>
+    inline query_base
+    operator+ (const std::string& s, ref_bind_typed<T, ID> b)
+    {
+      query_base r (s);
+      r += b;
+      return r;
+    }
+
+    template <typename T, database_type_id ID>
+    inline query_base
+    operator+ (ref_bind_typed<T, ID> b, const std::string& s)
     {
       query_base r;
       r += b;
@@ -482,23 +665,11 @@ namespace odb
       unsigned short scale_;
     };
 
-    template <typename T, typename T2>
-    class copy_bind: public val_bind<T>
-    {
-    public:
-      explicit
-      copy_bind (const T2& v): val_bind<T> (val), val (v) {}
-
-      const T val;
-    };
-
-    template <typename T>
-    const T&
-    type_instance ();
-
     template <typename T, database_type_id ID>
     struct query_column: query_column_base
     {
+      typedef typename decay_traits<T>::type decayed_type;
+
       // Note that we keep shalow copies of the table, column, and conversion
       // expression. The latter can be NULL.
       //
@@ -541,16 +712,17 @@ namespace odb
       //
     public:
       query_base
-      in (const T&, const T&) const;
+      in (decayed_type, decayed_type) const;
 
       query_base
-      in (const T&, const T&, const T&) const;
+      in (decayed_type, decayed_type, decayed_type) const;
 
       query_base
-      in (const T&, const T&, const T&, const T&) const;
+      in (decayed_type, decayed_type, decayed_type, decayed_type) const;
 
       query_base
-      in (const T&, const T&, const T&, const T&, const T&) const;
+      in (decayed_type, decayed_type, decayed_type, decayed_type,
+          decayed_type) const;
 
       template <typename I>
       query_base
@@ -560,7 +732,7 @@ namespace odb
       //
     public:
       query_base
-      equal (const T& v) const
+      equal (decayed_type v) const
       {
         return equal (val_bind<T> (v));
       }
@@ -581,8 +753,7 @@ namespace odb
       query_base
       equal (val_bind<T2> v) const
       {
-        copy_bind<T, T2> c (v.val);
-        return equal (c);
+        return equal (val_bind<T> (decayed_type (v.val)));;
       }
 
       query_base
@@ -598,13 +769,13 @@ namespace odb
       }
 
       friend query_base
-      operator== (const query_column& c, const T& v)
+      operator== (const query_column& c, decayed_type v)
       {
         return c.equal (v);
       }
 
       friend query_base
-      operator== (const T& v, const query_column& c)
+      operator== (decayed_type v, const query_column& c)
       {
         return c.equal (v);
       }
@@ -651,7 +822,7 @@ namespace odb
       //
     public:
       query_base
-      unequal (const T& v) const
+      unequal (decayed_type v) const
       {
         return unequal (val_bind<T> (v));
       }
@@ -672,8 +843,7 @@ namespace odb
       query_base
       unequal (val_bind<T2> v) const
       {
-        copy_bind<T, T2> c (v.val);
-        return unequal (c);
+        return unequal (val_bind<T> (decayed_type (v.val)));
       }
 
       query_base
@@ -689,13 +859,13 @@ namespace odb
       }
 
       friend query_base
-      operator!= (const query_column& c, const T& v)
+      operator!= (const query_column& c, decayed_type v)
       {
         return c.unequal (v);
       }
 
       friend query_base
-      operator!= (const T& v, const query_column& c)
+      operator!= (decayed_type v, const query_column& c)
       {
         return c.unequal (v);
       }
@@ -742,7 +912,7 @@ namespace odb
       //
     public:
       query_base
-      less (const T& v) const
+      less (decayed_type v) const
       {
         return less (val_bind<T> (v));
       }
@@ -763,8 +933,7 @@ namespace odb
       query_base
       less (val_bind<T2> v) const
       {
-        copy_bind<T, T2> c (v.val);
-        return less (c);
+        return less (val_bind<T> (decayed_type (v.val)));
       }
 
       query_base
@@ -780,13 +949,13 @@ namespace odb
       }
 
       friend query_base
-      operator< (const query_column& c, const T& v)
+      operator< (const query_column& c, decayed_type v)
       {
         return c.less (v);
       }
 
       friend query_base
-      operator< (const T& v, const query_column& c)
+      operator< (decayed_type v, const query_column& c)
       {
         return c.greater (v);
       }
@@ -833,7 +1002,7 @@ namespace odb
       //
     public:
       query_base
-      greater (const T& v) const
+      greater (decayed_type v) const
       {
         return greater (val_bind<T> (v));
       }
@@ -854,8 +1023,7 @@ namespace odb
       query_base
       greater (val_bind<T2> v) const
       {
-        copy_bind<T, T2> c (v.val);
-        return greater (c);
+        return greater (val_bind<T> (decayed_type (v.val)));
       }
 
       query_base
@@ -871,13 +1039,13 @@ namespace odb
       }
 
       friend query_base
-      operator> (const query_column& c, const T& v)
+      operator> (const query_column& c, decayed_type v)
       {
         return c.greater (v);
       }
 
       friend query_base
-      operator> (const T& v, const query_column& c)
+      operator> (decayed_type v, const query_column& c)
       {
         return c.less (v);
       }
@@ -924,7 +1092,7 @@ namespace odb
       //
     public:
       query_base
-      less_equal (const T& v) const
+      less_equal (decayed_type v) const
       {
         return less_equal (val_bind<T> (v));
       }
@@ -945,8 +1113,7 @@ namespace odb
       query_base
       less_equal (val_bind<T2> v) const
       {
-        copy_bind<T, T2> c (v.val);
-        return less_equal (c);
+        return less_equal (val_bind<T> (decayed_type (v.val)));
       }
 
       query_base
@@ -962,13 +1129,13 @@ namespace odb
       }
 
       friend query_base
-      operator<= (const query_column& c, const T& v)
+      operator<= (const query_column& c, decayed_type v)
       {
         return c.less_equal (v);
       }
 
       friend query_base
-      operator<= (const T& v, const query_column& c)
+      operator<= (decayed_type v, const query_column& c)
       {
         return c.greater_equal (v);
       }
@@ -1015,7 +1182,7 @@ namespace odb
       //
     public:
       query_base
-      greater_equal (const T& v) const
+      greater_equal (decayed_type v) const
       {
         return greater_equal (val_bind<T> (v));
       }
@@ -1036,8 +1203,7 @@ namespace odb
       query_base
       greater_equal (val_bind<T2> v) const
       {
-        copy_bind<T, T2> c (v.val);
-        return greater_equal (c);
+        return greater_equal (val_bind<T> (decayed_type (v.val)));
       }
 
       query_base
@@ -1053,13 +1219,13 @@ namespace odb
       }
 
       friend query_base
-      operator>= (const query_column& c, const T& v)
+      operator>= (const query_column& c, decayed_type v)
       {
         return c.greater_equal (v);
       }
 
       friend query_base
-      operator>= (const T& v, const query_column& c)
+      operator>= (decayed_type v, const query_column& c)
       {
         return c.less_equal (v);
       }
@@ -1111,7 +1277,8 @@ namespace odb
       {
         // We can compare columns only if we can compare their C++ types.
         //
-        (void) (sizeof (type_instance<T> () == type_instance<T2> ()));
+        (void) (sizeof (decay_traits<T>::instance () ==
+                        decay_traits<T2>::instance ()));
 
         query_base q (table_, column_);
         q += "=";
@@ -1125,7 +1292,8 @@ namespace odb
       {
         // We can compare columns only if we can compare their C++ types.
         //
-        (void) (sizeof (type_instance<T> () != type_instance<T2> ()));
+        (void) (sizeof (decay_traits<T>::instance () !=
+                        decay_traits<T2>::instance ()));
 
         query_base q (table_, column_);
         q += "!=";
@@ -1139,7 +1307,8 @@ namespace odb
       {
         // We can compare columns only if we can compare their C++ types.
         //
-        (void) (sizeof (type_instance<T> () < type_instance<T2> ()));
+        (void) (sizeof (decay_traits<T>::instance () <
+                        decay_traits<T2>::instance ()));
 
         query_base q (table_, column_);
         q += "<";
@@ -1153,7 +1322,8 @@ namespace odb
       {
         // We can compare columns only if we can compare their C++ types.
         //
-        (void) (sizeof (type_instance<T> () > type_instance<T2> ()));
+        (void) (sizeof (decay_traits<T>::instance () >
+                        decay_traits<T2>::instance ()));
 
         query_base q (table_, column_);
         q += ">";
@@ -1167,7 +1337,8 @@ namespace odb
       {
         // We can compare columns only if we can compare their C++ types.
         //
-        (void) (sizeof (type_instance<T> () <= type_instance<T2> ()));
+        (void) (sizeof (decay_traits<T>::instance () <=
+                        decay_traits<T2>::instance ()));
 
         query_base q (table_, column_);
         q += "<=";
@@ -1181,7 +1352,8 @@ namespace odb
       {
         // We can compare columns only if we can compare their C++ types.
         //
-        (void) (sizeof (type_instance<T> () >= type_instance<T2> ()));
+        (void) (sizeof (decay_traits<T>::instance () >=
+                        decay_traits<T2>::instance ()));
 
         query_base q (table_, column_);
         q += ">=";
@@ -1239,7 +1411,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_bit>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -1259,7 +1431,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_bit>::set_image (image_, is_null, v);
@@ -1276,7 +1448,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_tinyint>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -1296,7 +1468,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_tinyint>::set_image (image_, is_null, v);
@@ -1313,7 +1485,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_smallint>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -1333,7 +1505,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_smallint>::set_image (image_, is_null, v);
@@ -1350,7 +1522,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_int>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -1370,7 +1542,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_int>::set_image (image_, is_null, v);
@@ -1387,7 +1559,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_bigint>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -1407,7 +1579,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_bigint>::set_image (image_, is_null, v);
@@ -1425,7 +1597,7 @@ namespace odb
     struct query_param_impl<T, id_decimal>: query_param
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref),
+          : query_param (r.ptr ()),
             prec_ (r.prec != 0 ? r.prec : 18), // Default is 18.
             scale_ (r.scale != 0xFFFF ? r.scale : 0) // Default is 0.
       {
@@ -1459,7 +1631,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_decimal>::set_image (image_, is_null, v);
@@ -1479,7 +1651,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_smallmoney>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -1499,7 +1671,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_smallmoney>::set_image (image_, is_null, v);
@@ -1516,7 +1688,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_money>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -1536,7 +1708,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_money>::set_image (image_, is_null, v);
@@ -1554,7 +1726,7 @@ namespace odb
     struct query_param_impl<T, id_float4>: query_param
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref),
+          : query_param (r.ptr ()),
             prec_ (r.prec != 0 ? r.prec : 24)
       {
       }
@@ -1584,7 +1756,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_float4>::set_image (image_, is_null, v);
@@ -1603,7 +1775,7 @@ namespace odb
     struct query_param_impl<T, id_float8>: query_param
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref),
+          : query_param (r.ptr ()),
             prec_ (r.prec != 0 ? r.prec : 53)
       {
       }
@@ -1633,7 +1805,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_float8>::set_image (image_, is_null, v);
@@ -1652,7 +1824,7 @@ namespace odb
     struct query_param_impl<T, id_string>: query_param
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref),
+          : query_param (r.ptr ()),
             // Default to short data max (1024).
             buf_ (r.prec != 0 ? r.prec : 1024)
       {
@@ -1686,7 +1858,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         std::size_t size (0);
@@ -1706,7 +1878,7 @@ namespace odb
     struct query_param_impl<T, id_nstring>: query_param
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref),
+          : query_param (r.ptr ()),
             // Precision is in 2-byte chars. Default to short data max (1024).
             buf_ (r.prec != 0 ? r.prec * 2 : 1024)
       {
@@ -1740,7 +1912,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         std::size_t size (0);
@@ -1764,7 +1936,7 @@ namespace odb
     struct query_param_impl<T, id_binary>: query_param
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref),
+          : query_param (r.ptr ()),
             // Default to short data max (1024).
             buf_ (r.prec != 0 ? r.prec : 1024)
       {
@@ -1796,7 +1968,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         std::size_t size (0);
@@ -1838,7 +2010,7 @@ namespace odb
                                                 long_query_param_impl
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref), prec_ (r.prec)
+          : query_param (r.ptr ()), prec_ (r.prec)
       {
       }
 
@@ -1889,7 +2061,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_long_string>::set_image (
@@ -1911,7 +2083,7 @@ namespace odb
                                                 long_query_param_impl
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref), prec_ (r.prec)
+          : query_param (r.ptr ()), prec_ (r.prec)
       {
       }
 
@@ -1962,7 +2134,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_long_nstring>::set_image (
@@ -1984,7 +2156,7 @@ namespace odb
                                                 long_query_param_impl
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref), prec_ (r.prec)
+          : query_param (r.ptr ()), prec_ (r.prec)
       {
       }
 
@@ -2033,7 +2205,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_long_binary>::set_image (
@@ -2053,7 +2225,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_date>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -2073,7 +2245,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_date>::set_image (image_, is_null, v);
@@ -2091,7 +2263,7 @@ namespace odb
     struct query_param_impl<T, id_time>: query_param
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref),
+          : query_param (r.ptr ()),
             scale_ (r.scale != 0xFFFF ? r.scale : 7) // Default is 7.
       {
       }
@@ -2121,7 +2293,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_time>::set_image (image_, scale_, is_null, v);
@@ -2140,7 +2312,7 @@ namespace odb
     struct query_param_impl<T, id_datetime>: query_param
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref),
+          : query_param (r.ptr ()),
             scale_ (r.scale != 0xFFFF ? r.scale : 7) // Default to datetime2/7.
       {
       }
@@ -2170,7 +2342,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_datetime>::set_image (image_, scale_, is_null, v);
@@ -2189,7 +2361,7 @@ namespace odb
     struct query_param_impl<T, id_datetimeoffset>: query_param
     {
       query_param_impl (ref_bind<T> r)
-          : query_param (&r.ref),
+          : query_param (r.ptr ()),
             scale_ (r.scale != 0xFFFF ? r.scale : 7) // Default is 7.
       {
       }
@@ -2219,7 +2391,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_datetimeoffset>::set_image (
@@ -2238,7 +2410,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_uniqueidentifier>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -2258,7 +2430,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_uniqueidentifier>::set_image (image_, is_null, v);
@@ -2275,7 +2447,7 @@ namespace odb
     template <typename T>
     struct query_param_impl<T, id_rowversion>: query_param
     {
-      query_param_impl (ref_bind<T> r) : query_param (&r.ref) {}
+      query_param_impl (ref_bind<T> r) : query_param (r.ptr ()) {}
       query_param_impl (val_bind<T> v) : query_param (0) {init (v.val);}
 
       virtual bool
@@ -2295,7 +2467,7 @@ namespace odb
 
     private:
       void
-      init (const T& v)
+      init (typename decay_traits<T>::type v)
       {
         bool is_null (false); // Can't be NULL.
         value_traits<T, id_rowversion>::set_image (image_, is_null, v);

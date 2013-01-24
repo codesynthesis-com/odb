@@ -602,7 +602,7 @@ namespace odb
       }
     };
 
-    // const char* specialization for string.
+    // char*/const char* specialization for string.
     //
     // Specialization for const char* which only supports initialization
     // of an image from the value but not the other way around. This way
@@ -633,23 +633,118 @@ namespace odb
     };
 
     template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<char*, id_string>:
+      c_string_value_traits {};
+
+    template <>
     struct LIBODB_MSSQL_EXPORT default_value_traits<const char*, id_string>:
-      c_string_value_traits
+      c_string_value_traits {};
+
+    // char[N] specialization.
+    //
+    struct LIBODB_MSSQL_EXPORT c_array_value_traits_base
     {
-      typedef const char* query_type;
+      static void
+      set_value (char* const& v,
+                 const char* b,
+                 std::size_t n,
+                 bool is_null,
+                 std::size_t N);
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const char* v,
+                 std::size_t N);
     };
 
     template <std::size_t N>
-    struct default_value_traits<char[N], id_string>: c_string_value_traits
+    struct default_value_traits<char[N], id_string>
     {
+      typedef char* value_type;
       typedef char query_type[N];
+      typedef details::buffer image_type;
+
+      static void
+      set_value (char* const& v,
+                 const char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        c_array_value_traits_base::set_value (v, b, n, is_null, N);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const char* v)
+      {
+        c_array_value_traits_base::set_image (b, c, n, is_null, v, N);
+      }
     };
 
+    // std::array<char, N> (string) specialization.
+    //
+#ifdef ODB_CXX11
     template <std::size_t N>
-    struct default_value_traits<const char[N], id_string>:
-      c_string_value_traits
+    struct default_value_traits<std::array<char, N>, id_string>
     {
-      typedef const char query_type[N];
+      typedef std::array<char, N> value_type;
+      typedef std::array<char, N> query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (value_type& v,
+                 const char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        c_array_value_traits_base::set_value (v.data (), b, n, is_null, N);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        c_array_value_traits_base::set_image (b, c, n, is_null, v.data (), N);
+      }
+    };
+#endif
+
+    // char specialization.
+    //
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<char, id_string>
+    {
+      typedef char value_type;
+      typedef char query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (char& v,
+                 const char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        c_array_value_traits_base::set_value (&v, b, n, is_null, 1);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 char v)
+      {
+        c_array_value_traits_base::set_image (b, c, n, is_null, &v, 1);
+      }
     };
 
     // std::string specialization for long_string.
@@ -702,7 +797,7 @@ namespace odb
                        std::size_t tmp_capacity);
     };
 
-    // const char* specialization for long_string.
+    // char*/const char* specialization for long_string.
     //
     class LIBODB_MSSQL_EXPORT c_string_long_value_traits
     {
@@ -732,26 +827,112 @@ namespace odb
     };
 
     template <>
-    struct LIBODB_MSSQL_EXPORT default_value_traits<const char*,
-                                                    id_long_string>:
-      c_string_long_value_traits
+    struct LIBODB_MSSQL_EXPORT default_value_traits<
+      char*, id_long_string>: c_string_long_value_traits {};
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<
+      const char*, id_long_string>: c_string_long_value_traits {};
+
+    // char[N] specialization for long_string.
+    //
+    template <std::size_t N>
+    struct c_array_long_value_traits_base
     {
-      typedef const char* query_type;
+      static void
+      set_value (char* const& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        cb = &result_callback;
+        context = v;
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const char* v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
     };
 
     template <std::size_t N>
-    struct default_value_traits<char[N], id_long_string>:
-      c_string_long_value_traits
+    struct default_value_traits<char[N], id_long_string>
     {
+      typedef char* value_type;
       typedef char query_type[N];
+      typedef long_callback image_type;
+
+      static void
+      set_value (char* const& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        c_array_long_value_traits_base<N>::set_value (v, cb, context);
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const char* v)
+      {
+        c_array_long_value_traits_base<N>::set_image (cb, context, is_null, v);
+      }
     };
 
+    // std::array<char, N> (long_string) specialization.
+    //
+#ifdef ODB_CXX11
     template <std::size_t N>
-    struct default_value_traits<const char[N], id_long_string>:
-      c_string_long_value_traits
+    struct default_value_traits<std::array<char, N>, id_long_string>
     {
-      typedef const char query_type[N];
+      typedef std::array<char, N> value_type;
+      typedef std::array<char, N> query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_value (value_type& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        c_array_long_value_traits_base<N>::set_value (v.data (), cb, context);
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        c_array_long_value_traits_base<N>::set_image (
+          cb, context, is_null, v.data ());
+      }
     };
+#endif
 
     // std::wstring specialization for nstring.
     //
@@ -770,6 +951,13 @@ namespace odb
         for (std::size_t i (0); i < n; ++i)
           b[i] = static_cast<ucs2_char> (s[i]);
       }
+
+      static void
+      assign (wchar_t* s, const ucs2_char* b, std::size_t n)
+      {
+        for (std::size_t i (0); i < n; ++i)
+          s[i] = static_cast<wchar_t> (b[i]);
+      }
     };
 
     template <>
@@ -784,9 +972,19 @@ namespace odb
       static void
       assign (ucs2_char* b, const wchar_t* s, std::size_t n)
       {
-        if (n != 0)
-          std::memcpy (b, s, n * sizeof (ucs2_char));
+        std::memcpy (b, s, n * sizeof (ucs2_char));
       }
+
+      // On Windows ucs2_char is wchar_t which makes this function
+      // the same as the one above.
+      //
+#ifndef _WIN32
+      static void
+      assign (wchar_t* s, const ucs2_char* b, std::size_t n)
+      {
+        std::memcpy (s, b, n * sizeof (ucs2_char));
+      }
+#endif
     };
 
     template <>
@@ -823,11 +1021,12 @@ namespace odb
         if (n > c)
           n = c;
 
-        functions::assign (b, v.c_str (), n);
+        if (n != 0)
+          functions::assign (b, v.c_str (), n);
       }
     };
 
-    // const wchar_t* specialization for nstring.
+    // wchar_t*/const wchar_t* specialization for nstring.
     //
     class LIBODB_MSSQL_EXPORT c_wstring_value_traits
     {
@@ -850,30 +1049,126 @@ namespace odb
         if (n > c)
           n = c;
 
-        functions::assign (b, v, n);
+        if (n != 0)
+          functions::assign (b, v, n);
       }
     };
 
     template <>
-    struct LIBODB_MSSQL_EXPORT default_value_traits<const wchar_t*,
-                                                    id_nstring>:
-      c_wstring_value_traits
+    struct LIBODB_MSSQL_EXPORT default_value_traits<wchar_t*, id_nstring>:
+      c_wstring_value_traits {};
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<
+      const wchar_t*, id_nstring>: c_wstring_value_traits {};
+
+    // wchar_t[N] specialization.
+    //
+    struct LIBODB_MSSQL_EXPORT c_warray_value_traits_base
     {
-      typedef const wchar_t* query_type;
+      typedef wstring_functions<> functions;
+
+      static void
+      set_value (wchar_t* const& v,
+                 const ucs2_char* b,
+                 std::size_t n,
+                 bool is_null,
+                 std::size_t N);
+
+      static void
+      set_image (ucs2_char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const wchar_t* v,
+                 std::size_t N);
     };
 
     template <std::size_t N>
-    struct default_value_traits<wchar_t[N], id_nstring>:
-      c_wstring_value_traits
+    struct default_value_traits<wchar_t[N], id_nstring>
     {
+      typedef wchar_t* value_type;
       typedef wchar_t query_type[N];
+      typedef details::buffer image_type;
+
+      static void
+      set_value (wchar_t* const& v,
+                 const ucs2_char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        c_warray_value_traits_base::set_value (v, b, n, is_null, N);
+      }
+
+      static void
+      set_image (ucs2_char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const wchar_t* v)
+      {
+        c_warray_value_traits_base::set_image (b, c, n, is_null, v, N);
+      }
     };
 
+    // std::array<wchar_t, N> (string) specialization.
+    //
+#ifdef ODB_CXX11
     template <std::size_t N>
-    struct default_value_traits<const wchar_t[N], id_nstring>:
-      c_wstring_value_traits
+    struct default_value_traits<std::array<wchar_t, N>, id_nstring>
     {
-      typedef const wchar_t query_type[N];
+      typedef std::array<wchar_t, N> value_type;
+      typedef std::array<wchar_t, N> query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (value_type& v,
+                 const ucs2_char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        c_warray_value_traits_base::set_value (v.data (), b, n, is_null, N);
+      }
+
+      static void
+      set_image (ucs2_char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        c_warray_value_traits_base::set_image (b, c, n, is_null, v.data (), N);
+      }
+    };
+#endif
+
+    // wchar_t specialization.
+    //
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<wchar_t, id_nstring>
+    {
+      typedef wchar_t value_type;
+      typedef wchar_t query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (wchar_t& v,
+                 const ucs2_char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        c_warray_value_traits_base::set_value (&v, b, n, is_null, 1);
+      }
+
+      static void
+      set_image (ucs2_char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 wchar_t v)
+      {
+        c_warray_value_traits_base::set_image (b, c, n, is_null, &v, 1);
+      }
     };
 
     // std::wstring specialization for long_nstring.
@@ -958,7 +1253,7 @@ namespace odb
       }
     };
 
-    // const wchar_t* specialization for long_nstring.
+    // wchar_t*/const wchar_t* specialization for long_nstring.
     //
     template <std::size_t = sizeof (wchar_t)>
     struct c_wstring_long_value_traits;
@@ -1020,26 +1315,162 @@ namespace odb
 #endif
 
     template <>
-    struct LIBODB_MSSQL_EXPORT default_value_traits<const wchar_t*,
-                                                    id_long_nstring>:
-      c_wstring_long_value_traits<>
-    {
-      typedef const wchar_t* query_type;
-    };
+    struct LIBODB_MSSQL_EXPORT default_value_traits<
+      wchar_t*, id_long_nstring>: c_wstring_long_value_traits<> {};
+
+    template <>
+    struct LIBODB_MSSQL_EXPORT default_value_traits<
+      const wchar_t*, id_long_nstring>: c_wstring_long_value_traits<> {};
+
+    // char[N] specialization for long_nstring.
+    //
+    template <std::size_t N, std::size_t = sizeof (wchar_t)>
+    struct c_warray_long_value_traits_base;
 
     template <std::size_t N>
-    struct default_value_traits<wchar_t[N], id_long_nstring>:
-      c_wstring_long_value_traits<>
+    struct c_warray_long_value_traits_base<N, 2>
     {
+      static void
+      set_value (wchar_t* const& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        cb = &result_callback;
+        context = v;
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const wchar_t* v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+    };
+
+#ifndef _WIN32
+    template <std::size_t N>
+    struct c_warray_long_value_traits_base<N, 4>
+    {
+      static void
+      set_value (wchar_t* const& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        cb = &result_callback;
+        context = v;
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const wchar_t* v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+    };
+#endif
+
+    template <std::size_t N>
+    struct default_value_traits<wchar_t[N], id_long_nstring>
+    {
+      typedef wchar_t* value_type;
       typedef wchar_t query_type[N];
+      typedef long_callback image_type;
+
+      static void
+      set_value (wchar_t* const& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        c_warray_long_value_traits_base<N>::set_value (v, cb, context);
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const wchar_t* v)
+      {
+        c_warray_long_value_traits_base<N>::set_image (
+          cb, context, is_null, v);
+      }
     };
 
+    // std::array<wchar_t, N> (long_nstring) specialization.
+    //
+#ifdef ODB_CXX11
     template <std::size_t N>
-    struct default_value_traits<const wchar_t[N], id_long_nstring>:
-      c_wstring_long_value_traits<>
+    struct default_value_traits<std::array<wchar_t, N>, id_long_nstring>
     {
-      typedef const wchar_t query_type[N];
+      typedef std::array<wchar_t, N> value_type;
+      typedef std::array<wchar_t, N> query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_value (value_type& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        c_warray_long_value_traits_base<N>::set_value (
+          v.data (), cb, context);
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        c_warray_long_value_traits_base<N>::set_image (
+          cb, context, is_null, v.data ());
+      }
     };
+#endif
 
     // std::vector (buffer) specialization for binary.
     //
@@ -1289,10 +1720,6 @@ namespace odb
     template <typename C, std::size_t N>
     struct c_array_long_binary_value_traits
     {
-      typedef C* value_type;
-      typedef C query_type[N];
-      typedef long_callback image_type;
-
       static void
       set_value (C* const& v,
                  result_callback_type& cb,
@@ -1337,21 +1764,27 @@ namespace odb
     struct default_value_traits<char[N], id_long_binary>:
       c_array_long_binary_value_traits<char, N>
     {
+      typedef char* value_type;
+      typedef char query_type[N];
+      typedef long_callback image_type;
     };
 
     template <std::size_t N>
     struct default_value_traits<unsigned char[N], id_long_binary>:
       c_array_long_binary_value_traits<unsigned char, N>
     {
+      typedef unsigned char* value_type;
+      typedef unsigned char query_type[N];
+      typedef long_callback image_type;
     };
 
 #ifdef ODB_CXX11
     // std::array (buffer) specialization for long_binary.
     //
-    template <typename C, std::size_t N>
-    struct array_long_binary_value_traits
+    template <std::size_t N>
+    struct default_value_traits<std::array<char, N>, id_long_binary>
     {
-      typedef std::array<C, N> value_type;
+      typedef std::array<char, N> value_type;
       typedef value_type query_type;
       typedef long_callback image_type;
 
@@ -1360,8 +1793,8 @@ namespace odb
                  result_callback_type& cb,
                  void*& context)
       {
-        cb = &result_callback;
-        context = v.data ();
+        c_array_long_binary_value_traits<char, N>::set_value (
+          v.data (), cb, context);
       }
 
       static void
@@ -1370,41 +1803,36 @@ namespace odb
                  bool& is_null,
                  const value_type& v)
       {
-        is_null = false;
-        cb = &param_callback;
-        context = v.data ();
+        c_array_long_binary_value_traits<char, N>::set_image (
+          cb, context, is_null, v.data ());
+      }
+    };
+
+    template <std::size_t N>
+    struct default_value_traits<std::array<unsigned char, N>, id_long_binary>
+    {
+      typedef std::array<unsigned char, N> value_type;
+      typedef value_type query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_value (value_type& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        c_array_long_binary_value_traits<unsigned char, N>::set_value (
+          v.data (), cb, context);
       }
 
       static void
-      param_callback (const void* context,
-                      std::size_t* position,
-                      const void** buffer,
-                      std::size_t* size,
-                      chunk_type* chunk,
-                      void* tmp_buffer,
-                      std::size_t tmp_capacity);
-
-      static void
-      result_callback (void* context,
-                       std::size_t* position,
-                       void** buffer,
-                       std::size_t* size,
-                       chunk_type chunk,
-                       std::size_t size_left,
-                       void* tmp_buffer,
-                       std::size_t tmp_capacity);
-    };
-
-    template <std::size_t N>
-    struct default_value_traits<std::array<char, N>, id_long_binary>:
-      array_long_binary_value_traits<char, N>
-    {
-    };
-
-    template <std::size_t N>
-    struct default_value_traits<std::array<unsigned char, N>, id_long_binary>:
-      array_long_binary_value_traits<unsigned char, N>
-    {
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        c_array_long_binary_value_traits<unsigned char, N>::set_image (
+          cb, context, is_null, v.data ());
+      }
     };
 #endif
 
@@ -1616,6 +2044,12 @@ namespace odb
     };
 
     template <>
+    struct default_type_traits<char*>
+    {
+      static const database_type_id db_type_id = id_long_string;
+    };
+
+    template <>
     struct default_type_traits<const char*>
     {
       static const database_type_id db_type_id = id_long_string;
@@ -1624,19 +2058,28 @@ namespace odb
     template <std::size_t N>
     struct default_type_traits<char[N]>
     {
-      static const database_type_id db_type_id = id_long_string;
+      // Use short string by default to minimize code bloat. Can
+      // always be overridden with _val()/_ref().
+      //
+      static const database_type_id db_type_id = id_string;
     };
 
-    template <std::size_t N>
-    struct default_type_traits<const char[N]>
+    template <>
+    struct default_type_traits<char>
     {
-      static const database_type_id db_type_id = id_long_string;
+      static const database_type_id db_type_id = id_string;
     };
 
     // Wide string types.
     //
     template <>
     struct default_type_traits<std::wstring>
+    {
+      static const database_type_id db_type_id = id_long_nstring;
+    };
+
+    template <>
+    struct default_type_traits<wchar_t*>
     {
       static const database_type_id db_type_id = id_long_nstring;
     };
@@ -1650,17 +2093,26 @@ namespace odb
     template <std::size_t N>
     struct default_type_traits<wchar_t[N]>
     {
-      static const database_type_id db_type_id = id_long_nstring;
+      // Use short string by default to minimize code bloat. Can
+      // always be overridden with _val()/_ref().
+      //
+      static const database_type_id db_type_id = id_nstring;
     };
 
-    template <std::size_t N>
-    struct default_type_traits<const wchar_t[N]>
+    template <>
+    struct default_type_traits<wchar_t>
     {
-      static const database_type_id db_type_id = id_long_nstring;
+      static const database_type_id db_type_id = id_nstring;
     };
 
     // Binary types.
     //
+    template <std::size_t N>
+    struct default_type_traits<unsigned char[N]>
+    {
+      static const database_type_id db_type_id = id_long_binary;
+    };
+
     template <>
     struct default_type_traits<std::vector<char> >
     {

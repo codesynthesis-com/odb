@@ -13,9 +13,54 @@ namespace odb
   namespace mssql
   {
     //
+    // c_array_value_traits_base
+    //
+    void c_array_value_traits_base::
+    set_value (char* const& v,
+               const char* b,
+               size_t n,
+               bool is_null,
+               size_t N)
+    {
+      if (!is_null)
+      {
+        n = n < N ? n : N;
+
+        if (n != 0)
+          memcpy (v, b, n);
+      }
+      else
+        n = 0;
+
+      if (n != N) // Append '\0' if there is space.
+        v[n] = '\0';
+    }
+
+    void c_array_value_traits_base::
+    set_image (char* b,
+               size_t c,
+               size_t& n,
+               bool& is_null,
+               const char* v,
+               size_t N)
+    {
+      is_null = false;
+
+      // Figure out the length. We cannot use strlen since it may
+      // not be 0-terminated (strnlen is not standard).
+      //
+      for (n = 0; n != N && v[n] != '\0'; ++n);
+
+      if (n > c)
+        n = c;
+
+      if (n != 0)
+        memcpy (b, v, n);
+    }
+
+    //
     // default_value_traits<std::string, id_long_string>
     //
-
     void default_value_traits<string, id_long_string>::
     param_callback (const void* context,
                     size_t*,
@@ -141,7 +186,6 @@ namespace odb
     //
     // c_long_string_value_traits
     //
-
     void c_string_long_value_traits::
     param_callback (const void* context,
                     size_t*,
@@ -157,9 +201,54 @@ namespace odb
     }
 
     //
+    // c_warray_value_traits_base
+    //
+    void c_warray_value_traits_base::
+    set_value (wchar_t* const& v,
+               const ucs2_char* b,
+               size_t n,
+               bool is_null,
+               size_t N)
+    {
+      if (!is_null)
+      {
+        n = n < N ? n : N;
+
+        if (n != 0)
+          functions::assign (v, b, n);
+      }
+      else
+        n = 0;
+
+      if (n != N) // Append '\0' if there is space.
+        v[n] = L'\0';
+    }
+
+    void c_warray_value_traits_base::
+    set_image (ucs2_char* b,
+               size_t c,
+               size_t& n,
+               bool& is_null,
+               const wchar_t* v,
+               size_t N)
+    {
+      is_null = false;
+
+      // Figure out the length. We cannot use wcslen since it may
+      // not be 0-terminated (wcsnlen is not standard).
+      //
+      for (n = 0; n != N && v[n] != L'\0'; ++n);
+
+      if (n > c)
+        n = c;
+
+      if (n != 0)
+        functions::assign (b, v, n);
+    }
+
+    //
     // wstring_long_value_traits<2>
     //
-
     void wstring_long_value_traits<2>::
     param_callback (const void* context,
                     size_t*,
@@ -234,7 +323,6 @@ namespace odb
     //
     // wstring_long_value_traits<4>
     //
-
 #ifndef _WIN32
     void wstring_long_value_traits<4>::
     param_callback (const void* context,
@@ -332,7 +420,6 @@ namespace odb
     //
     // c_wstring_long_value_traits<2>
     //
-
     void c_wstring_long_value_traits<2>::
     param_callback (const void* context,
                     size_t*,
@@ -350,7 +437,6 @@ namespace odb
     //
     // c_wstring_long_value_traits<4>
     //
-
 #ifndef _WIN32
     void c_wstring_long_value_traits<4>::
     param_callback (const void* context,
@@ -397,7 +483,6 @@ namespace odb
     //
     // default_value_traits<std::vector<char>, id_long_binary>
     //
-
     void default_value_traits<std::vector<char>, id_long_binary>::
     param_callback (const void* context,
                     size_t*,
@@ -466,7 +551,6 @@ namespace odb
     //
     // default_value_traits<std::vector<unsigned char>, id_long_binary>
     //
-
     void default_value_traits<std::vector<unsigned char>, id_long_binary>::
     param_callback (const void* context,
                     size_t*,
