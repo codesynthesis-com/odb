@@ -11,9 +11,54 @@ namespace odb
   namespace oracle
   {
     //
+    // c_array_value_traits_base
+    //
+    void c_array_value_traits_base::
+    set_value (char* const& v,
+               const char* b,
+               size_t n,
+               bool is_null,
+               size_t N)
+    {
+      if (!is_null)
+      {
+        n = n < N ? n : N;
+
+        if (n != 0)
+          memcpy (v, b, n);
+      }
+      else
+        n = 0;
+
+      if (n != N) // Append '\0' if there is space.
+        v[n] = '\0';
+    }
+
+    void c_array_value_traits_base::
+    set_image (char* b,
+               size_t c,
+               size_t& n,
+               bool& is_null,
+               const char* v,
+               size_t N)
+    {
+      is_null = false;
+
+      // Figure out the length. We cannot use strlen since it may
+      // not be 0-terminated (strnlen is not standard).
+      //
+      for (n = 0; n != N && v[n] != '\0'; ++n);
+
+      if (n > c)
+        n = c;
+
+      if (n != 0)
+        memcpy (b, v, n);
+    }
+
+    //
     // string_lob_value_traits
     //
-
     bool string_lob_value_traits::
     result_callback (void* c, ub4*, void* b, ub4 s, chunk_position p)
     {
@@ -58,31 +103,8 @@ namespace odb
     }
 
     //
-    // c_string_lob_value_traits
-    //
-
-    bool c_string_lob_value_traits::
-    param_callback (const void* c,
-                    ub4*,
-                    const void** b,
-                    ub4* s,
-                    chunk_position* p,
-                    void*,
-                    ub4)
-    {
-      const char* v (static_cast<const char*> (c));
-
-      *p = chunk_one;
-      *s = static_cast<ub4> (strlen (v));
-      *b = v;
-
-      return true;
-    }
-
-    //
     // default_value_traits<std::vector<char>, id_blob>
     //
-
     bool default_value_traits<std::vector<char>, id_blob>::
     result_callback (void* c, ub4*, void* b, ub4 s, chunk_position p)
     {
@@ -131,7 +153,6 @@ namespace odb
     //
     // default_value_traits<std::vector<unsigned char>, id_blob>
     //
-
     bool default_value_traits<std::vector<unsigned char>, id_blob>::
     result_callback (void* c, ub4*, void* b, ub4 s, chunk_position p)
     {

@@ -546,7 +546,7 @@ namespace odb
     {
     };
 
-    // const char* specialization.
+    // char*/const char* specialization.
     //
     // Specialization for const char* which only supports initialization
     // of an image from the value but not the other way around. This way
@@ -577,44 +577,150 @@ namespace odb
     };
 
     template <>
+    struct LIBODB_ORACLE_EXPORT default_value_traits<char*, id_string>:
+      c_string_value_traits {};
+
+    template <>
+    struct LIBODB_ORACLE_EXPORT default_value_traits<char*, id_nstring>:
+      c_string_value_traits {};
+
+    template <>
     struct LIBODB_ORACLE_EXPORT default_value_traits<const char*, id_string>:
-      c_string_value_traits
-    {
-      typedef const char* query_type;
-    };
+      c_string_value_traits {};
 
     template <>
     struct LIBODB_ORACLE_EXPORT default_value_traits<const char*, id_nstring>:
-      c_string_value_traits
+      c_string_value_traits {};
+
+    // char[N] specializations.
+    //
+    struct LIBODB_ORACLE_EXPORT c_array_value_traits_base
     {
-      typedef const char* query_type;
+      static void
+      set_value (char* const& v,
+                 const char* b,
+                 std::size_t n,
+                 bool is_null,
+                 std::size_t N);
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const char* v,
+                 std::size_t N);
     };
 
     template <std::size_t N>
-    struct default_value_traits<char[N], id_string>: c_string_value_traits
+    struct c_array_value_traits
     {
+      typedef char* value_type;
       typedef char query_type[N];
+      typedef details::buffer image_type;
+
+      static void
+      set_value (char* const& v,
+                 const char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        c_array_value_traits_base::set_value (v, b, n, is_null, N);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const char* v)
+      {
+        c_array_value_traits_base::set_image (b, c, n, is_null, v, N);
+      }
     };
 
     template <std::size_t N>
-    struct default_value_traits<const char[N], id_string>:
-      c_string_value_traits
+    struct default_value_traits<char[N], id_string>:
+      c_array_value_traits<N> {};
+
+    template <std::size_t N>
+    struct default_value_traits<char[N], id_nstring>:
+      c_array_value_traits<N> {};
+
+    // std::array<char, N> (string) specialization.
+    //
+#ifdef ODB_CXX11
+    template <std::size_t N>
+    struct std_array_value_traits
     {
-      typedef const char query_type[N];
+      typedef std::array<char, N> value_type;
+      typedef std::array<char, N> query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (value_type& v,
+                 const char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        c_array_value_traits_base::set_value (v.data (), b, n, is_null, N);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 const value_type& v)
+      {
+        c_array_value_traits_base::set_image (b, c, n, is_null, v.data (), N);
+      }
     };
 
     template <std::size_t N>
-    struct default_value_traits<char[N], id_nstring>: c_string_value_traits
-    {
-      typedef char query_type[N];
-    };
+    struct default_value_traits<std::array<char, N>, id_string>:
+      std_array_value_traits<N> {};
 
     template <std::size_t N>
-    struct default_value_traits<const char[N], id_nstring>:
-      c_string_value_traits
+    struct default_value_traits<std::array<char, N>, id_nstring>:
+      std_array_value_traits<N> {};
+#endif
+
+    // char specialization.
+    //
+    struct LIBODB_ORACLE_EXPORT char_value_traits
     {
-      typedef const char query_type[N];
+      typedef char value_type;
+      typedef char query_type;
+      typedef details::buffer image_type;
+
+      static void
+      set_value (char& v,
+                 const char* b,
+                 std::size_t n,
+                 bool is_null)
+      {
+        c_array_value_traits_base::set_value (&v, b, n, is_null, 1);
+      }
+
+      static void
+      set_image (char* b,
+                 std::size_t c,
+                 std::size_t& n,
+                 bool& is_null,
+                 char v)
+      {
+        c_array_value_traits_base::set_image (b, c, n, is_null, &v, 1);
+      }
     };
+
+    template <>
+    struct LIBODB_ORACLE_EXPORT default_value_traits<char, id_string>:
+      char_value_traits {};
+
+    template <>
+    struct LIBODB_ORACLE_EXPORT default_value_traits<char, id_nstring>:
+      char_value_traits {};
 
     // std::vector<char> (buffer) specialization for RAW.
     //
@@ -890,81 +996,6 @@ namespace odb
     struct LIBODB_ORACLE_EXPORT default_value_traits<std::string, id_nclob>:
       string_lob_value_traits
     {
-    };
-
-    // const char* specialization for LOBs.
-    //
-    // Specialization for const char* which only supports initialization
-    // of an image from the value but not the other way around. This way
-    // we can pass such values to the queries.
-    //
-    class LIBODB_ORACLE_EXPORT c_string_lob_value_traits
-    {
-    public:
-      typedef const char* value_type;
-      typedef lob_callback image_type;
-
-      static void
-      set_image (param_callback_type& cb,
-                 const void*& context,
-                 bool& is_null,
-                 const char* v)
-      {
-        is_null = false;
-        cb = &param_callback;
-        context = v;
-      }
-
-      static bool
-      param_callback (const void* context,
-                      ub4* position_context,
-                      const void** buffer,
-                      ub4* size,
-                      chunk_position*,
-                      void* temp_buffer,
-                      ub4 capacity);
-    };
-
-    template <>
-    struct LIBODB_ORACLE_EXPORT default_value_traits<const char*, id_clob>:
-      c_string_lob_value_traits
-    {
-      typedef const char* query_type;
-    };
-
-    template <>
-    struct LIBODB_ORACLE_EXPORT default_value_traits<const char*, id_nclob>:
-      c_string_lob_value_traits
-    {
-      typedef const char* query_type;
-    };
-
-    template <std::size_t N>
-    struct default_value_traits<char[N], id_clob>:
-      c_string_lob_value_traits
-    {
-      typedef char query_type[N];
-    };
-
-    template <std::size_t N>
-    struct default_value_traits<const char[N], id_clob>:
-      c_string_lob_value_traits
-    {
-      typedef const char query_type[N];
-    };
-
-    template <std::size_t N>
-    struct default_value_traits<char[N], id_nclob>:
-      c_string_lob_value_traits
-    {
-      typedef char query_type[N];
-    };
-
-    template <std::size_t N>
-    struct default_value_traits<const char[N], id_nclob>:
-      c_string_lob_value_traits
-    {
-      typedef const char query_type[N];
     };
 
     // std::vector<char> (buffer) specialization for BLOBs.
@@ -1392,6 +1423,12 @@ namespace odb
     };
 
     template <>
+    struct default_type_traits<char*>
+    {
+      static const database_type_id db_type_id = id_string;
+    };
+
+    template <>
     struct default_type_traits<const char*>
     {
       static const database_type_id db_type_id = id_string;
@@ -1403,37 +1440,44 @@ namespace odb
       static const database_type_id db_type_id = id_string;
     };
 
-    template <std::size_t N>
-    struct default_type_traits<const char[N]>
+    template <>
+    struct default_type_traits<char>
     {
       static const database_type_id db_type_id = id_string;
     };
 
-    // Binary types. Assume BLOB.
+    // Binary types. Assume RAW since LOBs cannot be compared in
+    // Oracle and this is only used in queries.
     //
+    template <std::size_t N>
+    struct default_type_traits<unsigned char[N]>
+    {
+      static const database_type_id db_type_id = id_raw;
+    };
+
     template <>
     struct default_type_traits<std::vector<char> >
     {
-      static const database_type_id db_type_id = id_blob;
+      static const database_type_id db_type_id = id_raw;
     };
 
     template <>
     struct default_type_traits<std::vector<unsigned char> >
     {
-      static const database_type_id db_type_id = id_blob;
+      static const database_type_id db_type_id = id_raw;
     };
 
 #ifdef ODB_CXX11
     template <std::size_t N>
     struct default_type_traits<std::array<char, N> >
     {
-      static const database_type_id db_type_id = id_blob;
+      static const database_type_id db_type_id = id_raw;
     };
 
     template <std::size_t N>
     struct default_type_traits<std::array<unsigned char, N> >
     {
-      static const database_type_id db_type_id = id_blob;
+      static const database_type_id db_type_id = id_raw;
     };
 #endif
   }
