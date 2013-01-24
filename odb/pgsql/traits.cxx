@@ -15,7 +15,6 @@ namespace odb
     //
     // default_value_traits<std::string, id_string>
     //
-
     void default_value_traits<std::string, id_string>::
     set_image (buffer& b,
                size_t& n,
@@ -35,7 +34,6 @@ namespace odb
     //
     // c_string_value_traits
     //
-
     void c_string_value_traits::
     set_image (buffer& b,
                size_t& n,
@@ -53,9 +51,53 @@ namespace odb
     }
 
     //
+    // c_array_value_traits_base
+    //
+    void c_array_value_traits_base::
+    set_value (char* const& v,
+               const details::buffer& b,
+               size_t n,
+               bool is_null,
+               size_t N)
+    {
+      if (!is_null)
+      {
+        n = n < N ? n : N;
+
+        if (n != 0)
+          memcpy (v, b.data (), n);
+      }
+      else
+        n = 0;
+
+      if (n != N) // Append '\0' if there is space.
+        v[n] = '\0';
+    }
+
+    void c_array_value_traits_base::
+    set_image (details::buffer& b,
+               size_t& n,
+               bool& is_null,
+               const char* v,
+               size_t N)
+    {
+      is_null = false;
+
+      // Figure out the length. We cannot use strlen since it may
+      // not be 0-terminated (strnlen is not standard).
+      //
+      for (n = 0; n != N && v[n] != '\0'; ++n);
+
+      if (n > b.capacity ())
+        b.capacity (n);
+
+      if (n != 0)
+        memcpy (b.data (), v, n);
+    }
+
+    //
     // default_value_traits<vector<char>, id_bytea>
     //
-
     void default_value_traits<vector<char>, id_bytea>::
     set_image (details::buffer& b,
                size_t& n,
@@ -77,7 +119,6 @@ namespace odb
     //
     // default_value_traits<vector<unsigned char>, id_bytea>
     //
-
     void default_value_traits<vector<unsigned char>, id_bytea>::
     set_image (details::buffer& b,
                size_t& n,

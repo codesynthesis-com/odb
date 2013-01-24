@@ -26,7 +26,7 @@ namespace odb
     //
     template <typename T, database_type_id ID>
     query_base query_column<T, ID>::
-    in (const T& v1, const T& v2) const
+    in (decayed_type v1, decayed_type v2) const
     {
       query_base q (table_, column_);
       q += "IN (";
@@ -39,7 +39,7 @@ namespace odb
 
     template <typename T, database_type_id ID>
     query_base query_column<T, ID>::
-    in (const T& v1, const T& v2, const T& v3) const
+    in (decayed_type v1, decayed_type v2, decayed_type v3) const
     {
       query_base q (table_, column_);
       q += "IN (";
@@ -54,7 +54,8 @@ namespace odb
 
     template <typename T, database_type_id ID>
     query_base query_column<T, ID>::
-    in (const T& v1, const T& v2, const T& v3, const T& v4) const
+    in (decayed_type v1, decayed_type v2, decayed_type v3,
+        decayed_type v4) const
     {
       query_base q (table_, column_);
       q += "IN (";
@@ -71,7 +72,8 @@ namespace odb
 
     template <typename T, database_type_id ID>
     query_base query_column<T, ID>::
-    in (const T& v1, const T& v2, const T& v3, const T& v4, const T& v5) const
+    in (decayed_type v1, decayed_type v2, decayed_type v3, decayed_type v4,
+        decayed_type v5) const
     {
       query_base q (table_, column_);
       q += "IN (";
