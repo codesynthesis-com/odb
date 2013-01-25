@@ -2064,6 +2064,16 @@ namespace odb
       static const database_type_id db_type_id = id_string;
     };
 
+#ifdef ODB_CXX11
+    template <std::size_t N>
+    struct default_type_traits<std::array<char, N> >
+    {
+      // Ditto.
+      //
+      static const database_type_id db_type_id = id_string;
+    };
+#endif
+
     template <>
     struct default_type_traits<char>
     {
@@ -2099,6 +2109,16 @@ namespace odb
       static const database_type_id db_type_id = id_nstring;
     };
 
+#ifdef ODB_CXX11
+    template <std::size_t N>
+    struct default_type_traits<std::array<wchar_t, N> >
+    {
+      // Ditto.
+      //
+      static const database_type_id db_type_id = id_nstring;
+    };
+#endif
+
     template <>
     struct default_type_traits<wchar_t>
     {
@@ -2126,12 +2146,6 @@ namespace odb
     };
 
 #ifdef ODB_CXX11
-    template <std::size_t N>
-    struct default_type_traits<std::array<char, N> >
-    {
-      static const database_type_id db_type_id = id_long_binary;
-    };
-
     template <std::size_t N>
     struct default_type_traits<std::array<unsigned char, N> >
     {
