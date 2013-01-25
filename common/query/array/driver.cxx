@@ -24,19 +24,14 @@ using namespace odb::core;
 
 #if defined(DATABASE_MYSQL)
 const odb::mysql::database_type_id bt = odb::mysql::id_blob;
-const odb::mysql::database_type_id st = odb::mysql::id_string;
 #elif defined(DATABASE_SQLITE)
 const odb::sqlite::database_type_id bt = odb::sqlite::id_blob;
-const odb::sqlite::database_type_id st = odb::sqlite::id_text;
 #elif defined(DATABASE_PGSQL)
 const odb::pgsql::database_type_id bt = odb::pgsql::id_bytea;
-const odb::pgsql::database_type_id st = odb::pgsql::id_string;
 #elif defined(DATABASE_ORACLE)
 const odb::oracle::database_type_id bt = odb::oracle::id_raw;
-const odb::oracle::database_type_id st = odb::oracle::id_string;
 #elif defined(DATABASE_MSSQL)
 const odb::mssql::database_type_id bt = odb::mssql::id_binary;
-const odb::mssql::database_type_id st = odb::mssql::id_string;
 #else
 #  error unknown database
 #endif
@@ -134,8 +129,8 @@ main (int argc, char* argv[])
       assert (size (db->query<object> (query::a == a)) == 1);
       assert (size (db->query<object> (query::a == query::_val (a))) == 1);
       assert (size (db->query<object> (query::a == query::_ref (a))) == 1);
-      assert (size (db->query<object> ("a = " + query::_val<st> (a))) == 1);
-      assert (size (db->query<object> ("a = " + query::_ref<st> (a))) == 1);
+      assert (size (db->query<object> ("a = " + query::_val (a))) == 1);
+      assert (size (db->query<object> ("a = " + query::_ref (a))) == 1);
 #endif
 
       // char
