@@ -9,11 +9,11 @@
 #include <QtCore/QByteArray>
 #include <QtCore/QUuid>
 
-// Map QString to MySQL TEXT for non-id and to VARCHAR(256) for id members.
+// Map QString to MySQL TEXT for non-id and to VARCHAR(255) for id members.
 // MySQL cannot have primary key of the TEXT type. Allow NULL values by
 // default as QString provides a null representation.
 //
-#pragma db value(QString) type("TEXT") id_type("VARCHAR(256)") null
+#pragma db value(QString) type("TEXT") id_type("VARCHAR(255)") null
 
 // Map QByteArray to MySQL BLOB by default. Allow NULL values by default as
 // QByteArray provides a null representation.
