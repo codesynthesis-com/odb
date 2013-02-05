@@ -41,7 +41,7 @@ namespace odb
           v.setDate (0, 0, 0);
         else
           v = QDate::fromString (
-            QString::fromAscii (i.data (), static_cast<int> (n)),
+            QString::fromLatin1 (i.data (), static_cast<int> (n)),
             "yyyy-MM-dd");
       }
 

@@ -41,7 +41,7 @@ namespace odb
           v.setHMS (24, 0, 0);
         else
           v = QTime::fromString (
-            QString::fromAscii (i.data (), static_cast<int> (n)),
+            QString::fromLatin1 (i.data (), static_cast<int> (n)),
             "HH:mm:ss.zzz");
       }
 

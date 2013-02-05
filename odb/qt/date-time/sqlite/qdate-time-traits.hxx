@@ -40,7 +40,7 @@ namespace odb
           v = QDateTime ();
         else
           v = QDateTime::fromString (
-            QString::fromAscii (i.data (), static_cast<int> (n)),
+            QString::fromLatin1 (i.data (), static_cast<int> (n)),
             "yyyy-MM-ddTHH:mm:ss.zzz");
       }
 
