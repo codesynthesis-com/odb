@@ -45,36 +45,41 @@ namespace odb
       typedef oracle::connection connection_type;
 
       container_statement_cache_ptr (): p_ (0) {}
-      ~container_statement_cache_ptr () {if (p_ != 0) (this->*deleter_) (0);}
+      ~container_statement_cache_ptr ()
+      {
+        if (p_ != 0)
+          (this->*deleter_) (0, 0);
+      }
 
       T&
-      get (connection_type& c)
+      get (connection_type& c, binding& id)
       {
         if (p_ == 0)
-          allocate (&c);
+          allocate (&c, &id);
 
         return *p_;
       }
 
     private:
       void
-      allocate (connection_type*);
+      allocate (connection_type*, binding*);
 
     private:
       T* p_;
-      void (container_statement_cache_ptr::*deleter_) (connection_type*);
+      void (container_statement_cache_ptr::*deleter_) (
+        connection_type*, binding*);
     };
 
     template <typename T>
     void container_statement_cache_ptr<T>::
-    allocate (connection_type* c)
+    allocate (connection_type* c, binding* id)
     {
       // To reduce object code size, this function acts as both allocator
       // and deleter.
       //
       if (p_ == 0)
       {
-        p_ = new T (*c);
+        p_ = new T (*c, *id);
         deleter_ = &container_statement_cache_ptr<T>::allocate;
       }
       else
@@ -409,7 +414,7 @@ namespace odb
       container_statement_cache_type&
       container_statment_cache ()
       {
-        return container_statement_cache_.get (conn_);
+        return container_statement_cache_.get (conn_, id_image_binding_);
       }
 
     public:
