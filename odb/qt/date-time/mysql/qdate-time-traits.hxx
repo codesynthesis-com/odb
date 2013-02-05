@@ -50,6 +50,7 @@ namespace odb
             throw odb::qt::date_time::value_out_of_range ();
 
           is_null = false;
+          i.neg = false;
 
           const QDate& d (v.date ());
           i.year = static_cast<unsigned int> (d.year ());
@@ -99,6 +100,7 @@ namespace odb
             throw odb::qt::date_time::value_out_of_range ();
 
           is_null = false;
+          i.neg = false;
 
           const QDate& d (v.date ());
           i.year = static_cast<unsigned int> (d.year ());

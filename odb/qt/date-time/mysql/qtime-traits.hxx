@@ -45,8 +45,8 @@ namespace odb
         else
         {
           is_null = false;
-
           i.neg = false;
+
           i.day = 0;
 
           i.hour = static_cast<unsigned int> (v.hour ());

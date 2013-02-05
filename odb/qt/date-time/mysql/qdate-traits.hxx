@@ -47,6 +47,7 @@ namespace odb
         else
         {
           is_null = false;
+          i.neg = false;
 
           i.year = static_cast<unsigned int> (v.year ());
           i.month = static_cast<unsigned int> (v.month ());
