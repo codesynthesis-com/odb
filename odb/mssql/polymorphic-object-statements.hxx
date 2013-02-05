@@ -102,7 +102,8 @@ namespace odb
               this->conn_,
               object_traits::find_discriminator_statement,
               discriminator_id_image_binding_,
-              discriminator_image_binding_));
+              discriminator_image_binding_,
+              false));
 
         return *find_discriminator_;
       }
@@ -286,6 +287,7 @@ namespace odb
               object_traits::persist_statement,
               insert_image_binding_,
               false,
+              false,
               false));
 
         return *persist_;
@@ -303,7 +305,8 @@ namespace odb
               conn_,
               object_traits::find_statements[i],
               root_statements_.id_image_binding (),
-              select_image_bindings_[i]));
+              select_image_bindings_[i],
+              false));
 
         return *p;
       }
@@ -317,6 +320,7 @@ namespace odb
               conn_,
               object_traits::update_statement,
               update_image_binding_,
+              false,
               false));
 
         return *update_;
@@ -330,7 +334,8 @@ namespace odb
             new (details::shared) delete_statement_type (
               conn_,
               object_traits::erase_statement,
-              root_statements_.id_image_binding ()));
+              root_statements_.id_image_binding (),
+              false));
 
         return *erase_;
       }
@@ -340,7 +345,7 @@ namespace odb
       container_statement_cache_type&
       container_statment_cache ()
       {
-        return container_statement_cache_.get (conn_);
+        return container_statement_cache_.get (conn_, id_image_binding ());
       }
 
     public:

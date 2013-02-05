@@ -45,36 +45,41 @@ namespace odb
       typedef mssql::connection connection_type;
 
       container_statement_cache_ptr (): p_ (0) {}
-      ~container_statement_cache_ptr () {if (p_ != 0) (this->*deleter_) (0);}
+      ~container_statement_cache_ptr ()
+      {
+        if (p_ != 0)
+          (this->*deleter_) (0, 0);
+      }
 
       T&
-      get (connection_type& c)
+      get (connection_type& c, binding& id)
       {
         if (p_ == 0)
-          allocate (&c);
+          allocate (&c, &id);
 
         return *p_;
       }
 
     private:
       void
-      allocate (connection_type*);
+      allocate (connection_type*, binding*);
 
     private:
       T* p_;
-      void (container_statement_cache_ptr::*deleter_) (connection_type*);
+      void (container_statement_cache_ptr::*deleter_) (
+        connection_type*, binding*);
     };
 
     template <typename T>
     void container_statement_cache_ptr<T>::
-    allocate (connection_type* c)
+    allocate (connection_type* c, binding* id)
     {
       // To reduce object code size, this function acts as both allocator
       // and deleter.
       //
       if (p_ == 0)
       {
-        p_ = new T (*c);
+        p_ = new T (*c, *id);
         deleter_ = &container_statement_cache_ptr<T>::allocate;
       }
       else
@@ -344,7 +349,8 @@ namespace odb
               object_traits::persist_statement,
               insert_image_binding_,
               object_traits::auto_id,
-              object_traits::rowversion));
+              object_traits::rowversion,
+              false));
 
         return *persist_;
       }
@@ -358,7 +364,8 @@ namespace odb
               conn_,
               object_traits::find_statement,
               id_image_binding_,
-              select_image_binding_));
+              select_image_binding_,
+              false));
 
         return *find_;
       }
@@ -372,7 +379,8 @@ namespace odb
               conn_,
               object_traits::update_statement,
               update_image_binding_,
-              object_traits::rowversion));
+              object_traits::rowversion,
+              false));
 
         return *update_;
       }
@@ -385,7 +393,8 @@ namespace odb
             new (details::shared) delete_statement_type (
               conn_,
               object_traits::erase_statement,
-              id_image_binding_));
+              id_image_binding_,
+              false));
 
         return *erase_;
       }
@@ -399,7 +408,8 @@ namespace odb
             new (details::shared) delete_statement_type (
               conn_,
               object_traits::optimistic_erase_statement,
-              od_.id_image_binding_));
+              od_.id_image_binding_,
+              false));
         }
 
         return *od_.erase_;
@@ -410,7 +420,7 @@ namespace odb
       container_statement_cache_type&
       container_statment_cache ()
       {
-        return container_statement_cache_.get (conn_);
+        return container_statement_cache_.get (conn_, id_image_binding_);
       }
 
     public:
