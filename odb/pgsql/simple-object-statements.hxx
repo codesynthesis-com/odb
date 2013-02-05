@@ -45,36 +45,43 @@ namespace odb
       typedef pgsql::connection connection_type;
 
       container_statement_cache_ptr (): p_ (0) {}
-      ~container_statement_cache_ptr () {if (p_ != 0) (this->*deleter_) (0);}
+      ~container_statement_cache_ptr ()
+      {
+        if (p_ != 0)
+          (this->*deleter_) (0, 0, 0, 0);
+      }
 
       T&
-      get (connection_type& c)
+      get (connection_type& c,
+           binding& id, native_binding& idn, const Oid* idt)
       {
         if (p_ == 0)
-          allocate (&c);
+          allocate (&c, &id, &idn, idt);
 
         return *p_;
       }
 
     private:
       void
-      allocate (connection_type*);
+      allocate (connection_type*, binding*, native_binding*, const Oid*);
 
     private:
       T* p_;
-      void (container_statement_cache_ptr::*deleter_) (connection_type*);
+      void (container_statement_cache_ptr::*deleter_) (
+        connection_type*, binding*, native_binding*, const Oid*);
     };
 
     template <typename T>
     void container_statement_cache_ptr<T>::
-    allocate (connection_type* c)
+    allocate (connection_type* c,
+              binding* id, native_binding* idn, const Oid* idt)
     {
       // To reduce object code size, this function acts as both allocator
       // and deleter.
       //
       if (p_ == 0)
       {
-        p_ = new T (*c);
+        p_ = new T (*c, *id, *idn, idt);
         deleter_ = &container_statement_cache_ptr<T>::allocate;
       }
       else
@@ -432,7 +439,11 @@ namespace odb
       container_statement_cache_type&
       container_statment_cache ()
       {
-        return container_statement_cache_.get (conn_);
+        return container_statement_cache_.get (
+          conn_,
+          id_image_binding_,
+          id_image_native_binding_,
+          object_traits::find_statement_types);
       }
 
     public:

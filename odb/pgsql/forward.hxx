@@ -67,6 +67,9 @@ namespace odb
     template <typename T>
     class container_statements;
 
+    template <typename T>
+    class smart_container_statements;
+
     class query_base;
   }
 

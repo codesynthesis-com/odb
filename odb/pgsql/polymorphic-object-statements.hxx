@@ -378,7 +378,11 @@ namespace odb
       container_statement_cache_type&
       container_statment_cache ()
       {
-        return container_statement_cache_.get (conn_);
+        return container_statement_cache_.get (
+          conn_,
+          root_statements_.id_image_binding (),
+          root_statements_.id_image_native_binding (),
+          object_traits::find_statement_types);
       }
 
     public:
