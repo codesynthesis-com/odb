@@ -1,8 +1,8 @@
-// file      : common/container/driver.cxx
+// file      : common/container/basics/driver.cxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test container persistence.
+// Test basic container persistence.
 //
 
 #include <memory>   // std::auto_ptr

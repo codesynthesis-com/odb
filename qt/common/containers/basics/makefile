@@ -1,8 +1,8 @@
-# file      : qt/common/containers/makefile
+# file      : qt/common/containers/basics/makefile
 # copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-include $(dir $(lastword $(MAKEFILE_LIST)))../../../build/bootstrap.make
+include $(dir $(lastword $(MAKEFILE_LIST)))../../../../build/bootstrap.make
 
 cxx_tun := driver.cxx
 odb_hdr := test.hxx
@@ -45,7 +45,7 @@ $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database $(db_id) \
 --profile qt/containers --profile qt/basic --generate-schema \
---table-prefix qt_cont_
+--table-prefix qt_cont_bs_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_qt.l.cpp-options) \
 $(qt_core.l.cpp-options)
@@ -69,10 +69,10 @@ $(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \
 $(call vc10projs,$(name)) $(call vc11projs,$(name))
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
-	$(call meta-automake,../template/Makefile.am)
-	$(call meta-vc9projs,../template/template,$(name))
-	$(call meta-vc10projs,../template/template,$(name))
-	$(call meta-vc11projs,../template/template,$(name))
+	$(call meta-automake,../../template/Makefile.am)
+	$(call meta-vc9projs,../../template/template,$(name))
+	$(call meta-vc10projs,../../template/template,$(name))
+	$(call meta-vc11projs,../../template/template,$(name))
 
 # Test.
 #

@@ -1,8 +1,8 @@
-// file      : qt/common/containers/driver.cxx
+// file      : qt/common/containers/basics/driver.cxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test Qt containers persistence.
+// Test basic Qt containers persistence.
 //
 
 #include <memory>   // std::auto_ptr

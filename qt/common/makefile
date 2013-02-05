@@ -4,10 +4,11 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-tests :=      \
-basic         \
-containers    \
-smart-ptr     \
+tests :=                   \
+basic                      \
+containers/basics          \
+containers/change-tracking \
+smart-ptr                  \
 template
 
 all_tests := $(tests)

@@ -4,48 +4,49 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
-tests :=                 \
-access                   \
-auto                     \
-blob                     \
-callback                 \
-circular/single          \
-circular/multiple        \
-composite                \
-composite-id             \
-const-object             \
-const-member             \
-container                \
-ctor                     \
-default                  \
-definition               \
-enum                     \
-erase-query              \
-include                  \
-index                    \
-inheritance/polymorphism \
-inheritance/reuse        \
-inheritance/transient    \
-inverse                  \
-lazy-ptr                 \
-lifecycle                \
-no-id                    \
-optimistic               \
-pragma                   \
-prepared                 \
-query/basics             \
-query/array              \
-readonly                 \
-relationship             \
-relationship-query       \
-schema                   \
-session/cache            \
-template                 \
-transaction/basics       \
-transaction/callback     \
-types                    \
-view                     \
-virtual                  \
+tests :=                  \
+access                    \
+auto                      \
+blob                      \
+callback                  \
+circular/single           \
+circular/multiple         \
+composite                 \
+composite-id              \
+const-object              \
+const-member              \
+container/basics          \
+container/change-tracking \
+ctor                      \
+default                   \
+definition                \
+enum                      \
+erase-query               \
+include                   \
+index                     \
+inheritance/polymorphism  \
+inheritance/reuse         \
+inheritance/transient     \
+inverse                   \
+lazy-ptr                  \
+lifecycle                 \
+no-id                     \
+optimistic                \
+pragma                    \
+prepared                  \
+query/basics              \
+query/array               \
+readonly                  \
+relationship              \
+relationship-query        \
+schema                    \
+session/cache             \
+template                  \
+transaction/basics        \
+transaction/callback      \
+types                     \
+view                      \
+virtual                   \
 wrapper
 
 thread_tests := threads

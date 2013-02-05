@@ -1,4 +1,4 @@
-// file      : qt/common/containers/test.hxx
+// file      : qt/common/containers/basics/test.hxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
