@@ -18,6 +18,7 @@ namespace odb
   {
   public:
     static const container_kind kind = ck_ordered;
+    static const bool smart = false;
 
     typedef QVector<T> container_type;
 
@@ -34,7 +35,7 @@ namespace odb
       // QVector.
       //
       for (index_type i (0), n (c.size ()); i < n; ++i)
-        f.insert_one (i, c[i]);
+        f.insert (i, c[i]);
     }
 
     static void
@@ -46,23 +47,23 @@ namespace odb
       {
         index_type dummy;
         c.append (value_type ());
-        more = f.load_all (dummy, c.back ());
+        more = f.select (dummy, c.back ());
       }
     }
 
     static void
     update (const container_type& c, const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
 
       for (index_type i (0), n (c.size ()); i < n; ++i)
-        f.insert_one (i, c[i]);
+        f.insert (i, c[i]);
     }
 
     static void
     erase (const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
     }
   };
 }

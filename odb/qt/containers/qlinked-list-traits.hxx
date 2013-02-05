@@ -17,7 +17,8 @@ namespace odb
   class access::container_traits<QLinkedList<T> >
   {
   public:
-    static container_kind const kind = ck_ordered;
+    static const container_kind kind = ck_ordered;
+    static const bool smart = false;
 
     typedef QLinkedList<T> container_type;
 
@@ -33,7 +34,7 @@ namespace odb
       index_type i (0);
       for (typename container_type::const_iterator j (c.begin ()),
              e (c.end ()); j != e; ++j)
-        f.insert_one (i++, *j);
+        f.insert (i++, *j);
     }
 
     static void
@@ -45,25 +46,25 @@ namespace odb
       {
         index_type dummy;
         c.append (value_type ());
-        more = f.load_all (dummy, c.back ());
+        more = f.select (dummy, c.back ());
       }
     }
 
     static void
     update (const container_type& c, const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
 
       index_type i (0);
       for (typename container_type::const_iterator j (c.begin ()),
              e (c.end ()); j != e; ++j)
-        f.insert_one (i++, *j);
+        f.insert (i++, *j);
     }
 
     static void
     erase (const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
     }
   };
 }

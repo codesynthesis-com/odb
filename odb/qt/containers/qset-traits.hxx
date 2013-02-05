@@ -18,6 +18,7 @@ namespace odb
   {
   public:
     static const container_kind kind = ck_set;
+    static const bool smart = false;
 
     typedef QSet<T> container_type;
     typedef T value_type;
@@ -30,7 +31,7 @@ namespace odb
     {
       for (typename container_type::const_iterator i (c.begin ()),
              e (c.end ()); i != e; ++i)
-        f.insert_one (*i);
+        f.insert (*i);
     }
 
     static void
@@ -41,7 +42,7 @@ namespace odb
       while (more)
       {
         value_type v;
-        more = f.load_all (v);
+        more = f.select (v);
         c.insert (v); //@@ Use std::move in C++11.
       }
     }
@@ -49,17 +50,17 @@ namespace odb
     static void
     update (const container_type& c, const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
 
       for (typename container_type::const_iterator i (c.begin ()),
              e (c.end ()); i != e; ++i)
-        f.insert_one (*i);
+        f.insert (*i);
     }
 
     static void
     erase (const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
     }
   };
 }

@@ -18,7 +18,8 @@ namespace odb
   class access::container_traits<QHash<Key, T> >
   {
   public:
-    static container_kind const kind = ck_map;
+    static const container_kind kind = ck_map;
+    static const bool smart = false;
 
     typedef QHash<Key, T> container_type;
     typedef Key key_type;
@@ -32,7 +33,7 @@ namespace odb
     {
       for (typename container_type::const_iterator i (c.begin ()),
              e (c.end ()); i != e; ++i)
-        f.insert_one (i.key (), i.value ());
+        f.insert (i.key (), i.value ());
     }
 
     static void
@@ -44,7 +45,7 @@ namespace odb
       {
         key_type k;
         value_type v;
-        more = f.load_all (k, v);
+        more = f.select (k, v);
         c.insert (k, v); // @@ Use std::move in C++11.
       }
     }
@@ -52,17 +53,17 @@ namespace odb
     static void
     update (const container_type& c, const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
 
       for (typename container_type::const_iterator i (c.begin ()),
              e (c.end ()); i != e; ++i)
-        f.insert_one (i.key (), i.value ());
+        f.insert (i.key (), i.value ());
     }
 
     static void
     erase (const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
     }
   };
 
@@ -74,7 +75,8 @@ namespace odb
   class access::container_traits<QMultiHash<Key, T> >
   {
   public:
-    static container_kind const kind = ck_multimap;
+    static const container_kind kind = ck_multimap;
+    static const bool smart = false;
 
     typedef QMultiHash<Key, T> container_type;
     typedef Key key_type;
@@ -88,7 +90,7 @@ namespace odb
     {
       for (typename container_type::const_iterator i (c.begin ()),
              e (c.end ()); i != e; ++i)
-        f.insert_one (i.key (), i.value ());
+        f.insert (i.key (), i.value ());
     }
 
     static void
@@ -100,7 +102,7 @@ namespace odb
       {
         key_type k;
         value_type v;
-        more = f.load_all (k, v);
+        more = f.select (k, v);
         c.insert (k, v); //@@ Use std::move in C++11.
       }
     }
@@ -108,17 +110,17 @@ namespace odb
     static void
     update (const container_type& c, const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
 
       for (typename container_type::const_iterator i (c.begin ()),
              e (c.end ()); i != e; ++i)
-        f.insert_one (i.key (), i.value ());
+        f.insert (i.key (), i.value ());
     }
 
     static void
     erase (const functions& f)
     {
-      f.delete_all ();
+      f.delete_ ();
     }
   };
 }
