@@ -32,8 +32,8 @@ fi
 save_LIBS="$LIBS"
 LIBS="-lodb-pgsql $LIBS"
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <odb/pgsql/exceptions.hxx>
 
 void
@@ -61,7 +61,7 @@ main ()
   const char* m (g ());
   return m != 0;
 }
-]]),
+])],
 [libodb_pgsql_found=yes])
 
 if test x"$libodb_pgsql_found" = xno; then

@@ -31,8 +31,8 @@ fi
 save_LIBS="$LIBS"
 LIBS="-lodb $LIBS"
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <odb/exception.hxx>
 
 void
@@ -60,7 +60,7 @@ main ()
   const char* m (g ());
   return m != 0;
 }
-]]),
+])],
 [libodb_found=yes])
 
 if test x"$libodb_found" = xno; then

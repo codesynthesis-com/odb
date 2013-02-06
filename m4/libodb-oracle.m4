@@ -32,8 +32,8 @@ fi
 save_LIBS="$LIBS"
 LIBS="-lodb-oracle $LIBS"
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <odb/oracle/exceptions.hxx>
 
 void
@@ -61,7 +61,7 @@ main ()
   const char* m (g ());
   return m != 0;
 }
-]]),
+])],
 [libodb_oracle_found=yes])
 
 if test x"$libodb_oracle_found" = xno; then

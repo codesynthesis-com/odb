@@ -16,8 +16,8 @@ AC_MSG_CHECKING([for QtCore])
 # test allows the user to override the QtCore library name (e.g.,
 # QtCored4) via the LIBS variable.
 #
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <string>
 #include <QtCore/QString>
 
@@ -28,7 +28,7 @@ main ()
   std::string ss (qs.toStdString ());
   return ss.size () != 0;
 }
-]]),
+])],
 [
 libqt_found=yes
 ])
@@ -40,8 +40,8 @@ if test x"$libqt_found" = xno; then
   save_LIBS="$LIBS"
   LIBS="-lQtCore $LIBS"
 
-  CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+  CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <string>
 #include <QtCore/QString>
 
@@ -52,7 +52,7 @@ main ()
   std::string ss (qs.toStdString ());
   return ss.size () != 0;
 }
-]]),
+])],
 [
 libqt_found=yes
 ])
@@ -69,8 +69,8 @@ if test x"$libqt_found" = xno; then
   save_LIBS="$LIBS"
   LIBS="-framework QtCore $LIBS"
 
-  CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+  CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <string>
 #include <QtCore/QString>
 
@@ -81,7 +81,7 @@ main ()
   std::string ss (qs.toStdString ());
   return ss.size () != 0;
 }
-]]),
+])],
 [
 libqt_found=yes
 ])
@@ -98,8 +98,8 @@ if test x"$libqt_found" = xno; then
   save_LIBS="$LIBS"
   LIBS="-lQtCore4 $LIBS"
 
-  CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+  CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <string>
 #include <QtCore/QString>
 
@@ -110,7 +110,7 @@ main ()
   std::string ss (qs.toStdString ());
   return ss.size () != 0;
 }
-]]),
+])],
 [
 libqt_found=yes
 ])
@@ -136,8 +136,8 @@ if test x"$libqt_found" = xno; then
       CPPFLAGS="$CPPFLAGS $save_CPPFLAGS"
       LIBS="$LIBS $save_LIBS"
 
-      CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+      CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <string>
 #include <QtCore/QString>
 
@@ -148,7 +148,7 @@ main ()
   std::string ss (qs.toStdString ());
   return ss.size () != 0;
 }
-]]),
+])],
 [
 libqt_found=yes
 ])

@@ -14,8 +14,8 @@ tr1_memory=no
 
 AC_MSG_CHECKING([for TR1 <memory>])
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <odb/tr1/memory.hxx>
 
 int
@@ -24,7 +24,7 @@ main ()
   std::tr1::shared_ptr<int> p (new int (10));
   *p = 11;
 }
-]]),
+])],
 [tr1_memory=yes])
 
 if test x"$tr1_memory" = xyes; then

@@ -32,8 +32,8 @@ fi
 save_LIBS="$LIBS"
 LIBS="-lodb-qt $LIBS"
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <odb/qt/exception.hxx>
 
 void
@@ -61,7 +61,7 @@ main ()
   const char* m (g ());
   return m != 0;
 }
-]]),
+])],
 [libodb_qt_found=yes])
 
 if test x"$libodb_qt_found" = xno; then

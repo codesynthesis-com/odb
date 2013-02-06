@@ -32,8 +32,8 @@ fi
 save_LIBS="$LIBS"
 LIBS="-lodb-mssql $LIBS"
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <odb/mssql/exceptions.hxx>
 
 void
@@ -61,7 +61,7 @@ main ()
   const char* m (g ());
   return m != 0;
 }
-]]),
+])],
 [libodb_mssql_found=yes])
 
 if test x"$libodb_mssql_found" = xno; then

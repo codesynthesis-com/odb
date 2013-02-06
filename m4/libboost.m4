@@ -28,8 +28,8 @@ if test x"$libboost_dir" != x; then
   LDFLAGS="$LDFLAGS -L$abs_libboost_dir/stage/lib"
 fi
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <boost/version.hpp>
 
 #ifndef BOOST_VERSION
@@ -40,7 +40,7 @@ int
 main ()
 {
 }
-]]),
+])],
 [
 libboost_found=yes
 ])
@@ -113,8 +113,8 @@ dnl
 dnl LIBBOOST_SMART_PTR([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 dnl
 AC_DEFUN([LIBBOOST_SMART_PTR], [
-LIBBOOST_HEADER_LIB([smart_ptr],
-AC_LANG_SOURCE([[
+LIBBOOST_HEADER_LIB([smart_ptr],[
+AC_LANG_SOURCE([
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
@@ -124,7 +124,7 @@ main ()
   boost::shared_ptr<int> sp (new int (10));
   boost::weak_ptr<int> wp (sp);
 }
-]]),
+])],
 [$1],
 [$2])
 ])dnl
@@ -132,8 +132,8 @@ dnl
 dnl LIBBOOST_UNORDERED([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 dnl
 AC_DEFUN([LIBBOOST_UNORDERED], [
-LIBBOOST_HEADER_LIB([unordered],
-AC_LANG_SOURCE([[
+LIBBOOST_HEADER_LIB([unordered],[
+AC_LANG_SOURCE([
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 
@@ -146,7 +146,7 @@ main ()
   s.insert (1);
   return m.find (1) != m.end ();
 }
-]]),
+])],
 [$1],
 [$2])
 ])dnl
@@ -154,13 +154,13 @@ dnl
 dnl LIBBOOST_SYSTEM([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 dnl
 AC_DEFUN([LIBBOOST_SYSTEM], [
-LIBBOOST_LIB([system],
-AC_LANG_SOURCE([[
+LIBBOOST_LIB([system],[
+AC_LANG_SOURCE([
 int
 main ()
 {
 }
-]]),
+])],
 [$1],
 [$2])
 ])dnl
@@ -168,8 +168,8 @@ dnl
 dnl LIBBOOST_DATE_TIME([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 dnl
 AC_DEFUN([LIBBOOST_DATE_TIME], [
-LIBBOOST_LIB([date_time],
-AC_LANG_SOURCE([[
+LIBBOOST_LIB([date_time],[
+AC_LANG_SOURCE([
 #include <boost/date_time/gregorian/gregorian.hpp>
 
 int
@@ -179,7 +179,7 @@ main ()
   const char* s (m.as_short_string ());
   return s == 0;
 }
-]]),
+])],
 [$1],
 [$2])
 ])dnl

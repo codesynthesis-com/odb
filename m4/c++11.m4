@@ -13,8 +13,8 @@ cxx11=no
 
 AC_MSG_CHECKING([whether we are in C++11 mode])
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <memory>
 
 int
@@ -23,7 +23,7 @@ main ()
   std::shared_ptr<int> p (new int (10));
   *p = 11;
 }
-]]),
+])],
 [cxx11=yes])
 
 if test x"$cxx11" = xyes; then
