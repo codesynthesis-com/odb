@@ -18,8 +18,8 @@ AC_MSG_CHECKING([for libpq])
 save_LIBS="$LIBS"
 LIBS="-lpq $LIBS"
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <libpq-fe.h>
 
 int
@@ -30,7 +30,7 @@ main ()
   PQfinish (conn);
   return 0;
 }
-]]),
+])],
 [
 libpq_found=yes
 ])
@@ -48,8 +48,8 @@ if test x"$libpq_found" = xno; then
       CPPFLAGS=-I`$pg_config --includedir`
       CPPFLAGS="$CPPFLAGS $save_CPPFLAGS"
 
-      CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+      CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <libpq-fe.h>
 
 int
@@ -60,7 +60,7 @@ main ()
   PQfinish (conn);
   return 0;
 }
-]]),
+])],
 [
 libpq_found=yes
 ])

@@ -36,8 +36,8 @@ if test x$threads = xcheck; then
         #
         AC_MSG_CHECKING([for __thread keyword])
 
-        CXX_LIBTOOL_LINK_IFELSE(
-          AC_LANG_SOURCE([[
+        CXX_LIBTOOL_LINK_IFELSE([
+          AC_LANG_SOURCE([
             __thread int tls_var;
 
             int
@@ -45,7 +45,7 @@ if test x$threads = xcheck; then
             {
               tls_var = 0;
             }
-          ]]),
+          ])],
           [threads_thread_keyword=yes])
 
         AC_MSG_RESULT([$threads_thread_keyword])
