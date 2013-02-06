@@ -32,8 +32,8 @@ if test x"$oci_dir" != x; then
     LDFLAGS="$LDFLAGS -L$oci_dir"
     LIBS="-lclntsh $LIBS"
 
-    CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+    CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <oci.h>
 
 int
@@ -44,7 +44,7 @@ main ()
   OCIHandleFree (env, OCI_HTYPE_ENV);
   return 0;
 }
-]]),
+])],
 [
 oci_found=yes
 ])
@@ -63,8 +63,8 @@ fi
 
 if test x"$oci_found" = xno; then
 
-  CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+  CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <oci.h>
 
 int
@@ -75,7 +75,7 @@ main ()
   OCIHandleFree (env, OCI_HTYPE_ENV);
   return 0;
 }
-]]),
+])],
 [
 oci_found=yes
 ])
@@ -95,8 +95,8 @@ if test x"$oci_found" = xno; then
     LDFLAGS="$LDFLAGS -L$ORACLE_HOME/lib"
     LIBS="-lclntsh $LIBS"
 
-    CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+    CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #include <oci.h>
 
 int
@@ -107,7 +107,7 @@ main ()
   OCIHandleFree (env, OCI_HTYPE_ENV);
   return 0;
 }
-]]),
+])],
 [
 oci_found=yes
 ])
