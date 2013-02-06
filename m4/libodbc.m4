@@ -20,8 +20,8 @@ case $host_os in
     ;;
 esac
 
-CXX_LIBTOOL_LINK_IFELSE(
-AC_LANG_SOURCE([[
+CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
 #ifdef _WIN32
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
@@ -52,7 +52,7 @@ main ()
   SQLAllocHandle (SQL_HANDLE_STMT, conn, &stmt);
   SQLPrepareA (stmt, (SQLCHAR*) "SELECT 1", SQL_NTS);
 }
-]]),
+])],
 [
 libodbc_found=yes
 ])
