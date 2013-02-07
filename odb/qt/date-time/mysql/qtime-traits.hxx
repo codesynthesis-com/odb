@@ -47,11 +47,15 @@ namespace odb
           is_null = false;
           i.neg = false;
 
+          i.year = 0;
+          i.month = 0;
           i.day = 0;
 
           i.hour = static_cast<unsigned int> (v.hour ());
           i.minute = static_cast<unsigned int> (v.minute ());
           i.second = static_cast<unsigned int> (v.second ());
+
+          i.second_part = 0;
         }
       }
     };

@@ -52,6 +52,11 @@ namespace odb
           i.year = static_cast<unsigned int> (v.year ());
           i.month = static_cast<unsigned int> (v.month ());
           i.day = static_cast<unsigned int> (v.day ());
+
+          i.hour = 0;
+          i.minute = 0;
+          i.second = 0;
+          i.second_part = 0;
         }
       }
     };

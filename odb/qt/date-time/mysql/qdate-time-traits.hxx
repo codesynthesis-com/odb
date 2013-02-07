@@ -61,6 +61,8 @@ namespace odb
           i.hour = static_cast<unsigned int> (t.hour ());
           i.minute = static_cast<unsigned int> (t.minute ());
           i.second = static_cast<unsigned int> (t.second ());
+
+          i.second_part = 0;
         }
       }
     };
@@ -111,6 +113,8 @@ namespace odb
           i.hour = static_cast<unsigned int> (t.hour ());
           i.minute = static_cast<unsigned int> (t.minute ());
           i.second = static_cast<unsigned int> (t.second ());
+
+          i.second_part = 0;
         }
       }
     };
