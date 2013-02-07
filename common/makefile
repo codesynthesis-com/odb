@@ -39,7 +39,8 @@ query/array               \
 readonly                  \
 relationship              \
 relationship-query        \
-schema                    \
+schema/namespace          \
+schema/embedded/order     \
 session/cache             \
 template                  \
 transaction/basics        \

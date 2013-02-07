@@ -1,8 +1,8 @@
-// file      : common/schema/driver.cxx
+// file      : common/schema/namespace/driver.cxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test various aspects of database schema.
+// Test database schemas (aka database namespaces).
 //
 
 #include <memory>   // std::auto_ptr
