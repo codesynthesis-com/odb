@@ -22,7 +22,7 @@ namespace odb
     {
       enum buffer_type
       {
-        boolean,  // Buffer is a bool; size, capacity, truncated are unused.
+        boolean_, // Buffer is a bool; size, capacity, truncated are unused.
         smallint, // Buffer is short; size, capacity, truncated are unused.
         integer,  // Buffer is int; size, capacity, truncated are unused.
         bigint,   // Buffer is long long; size, capacity, truncated are unused.

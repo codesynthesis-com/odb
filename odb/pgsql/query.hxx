@@ -1355,7 +1355,7 @@ namespace odb
       virtual void
       bind (bind_type* b)
       {
-        b->type = bind::boolean;
+        b->type = bind::boolean_;
         b->buffer = &image_;
       }
 

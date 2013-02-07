@@ -191,7 +191,7 @@ namespace odb
 
         switch (current_bind.type)
         {
-        case bind::boolean:
+        case bind::boolean_:
           {
             l = sizeof (bool);
             break;
@@ -295,7 +295,7 @@ namespace odb
 
         switch (b.type)
         {
-        case bind::boolean:
+        case bind::boolean_:
           {
             *static_cast<bool*> (b.buffer) =
               *reinterpret_cast<const bool*> (v);
