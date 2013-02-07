@@ -99,20 +99,21 @@ vc11projs = $(addprefix $1-,$(addsuffix -vc11.vcxproj,$(databases))) \
 $(addprefix $1-,$(addsuffix -vc11.vcxproj.filters,$(databases)))
 
 # $1 solution name without the -vcN.sln suffix.
+# $2 extra project suffix in addition to -<db>-vcN.vcproj (optional)
 #
 $(dist): meta-vc9slns = \
 $(foreach d,$(databases),$(call \
-meta-vc9sln,$1-vc9.sln,$1-$d-vc9.sln,-$d-vc9.vcproj,database,$d)$(literal_newline)\
+meta-vc9sln,$1-vc9.sln,$1-$d-vc9.sln,$2-$d-vc9.vcproj,database,$d)$(literal_newline)\
 $(literal_tab))@:
 
 $(dist): meta-vc10slns = \
 $(foreach d,$(databases),$(call \
-meta-vc10sln,$1-vc10.sln,$1-$d-vc10.sln,-$d-vc10.vcxproj,database,$d)$(literal_newline)\
+meta-vc10sln,$1-vc10.sln,$1-$d-vc10.sln,$2-$d-vc10.vcxproj,database,$d)$(literal_newline)\
 $(literal_tab))@:
 
 $(dist): meta-vc11slns = \
 $(foreach d,$(databases),$(call \
-meta-vc11sln,$1-vc11.sln,$1-$d-vc11.sln,-$d-vc11.vcxproj,database,$d)$(literal_newline)\
+meta-vc11sln,$1-vc11.sln,$1-$d-vc11.sln,$2-$d-vc11.vcxproj,database,$d)$(literal_newline)\
 $(literal_tab))@:
 
 vc9slns = $(addprefix $1-,$(addsuffix -vc9.sln,$(databases)))

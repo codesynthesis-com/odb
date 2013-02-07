@@ -61,15 +61,21 @@ $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std
 $(dist): export name := $(subst /,-,$(subst $(src_root)/qt/mysql/,,$(src_base)))
-$(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
-$(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters \
-$(name)-vc11.vcxproj $(name)-vc11.vcxproj.filters
+$(dist): export extra_dist := $(data_dist) \
+$(name)-qt4-vc9.vcproj $(name)-qt5-vc9.vcproj \
+$(name)-qt4-vc10.vcxproj $(name)-qt4-vc10.vcxproj.filters \
+$(name)-qt5-vc10.vcxproj $(name)-qt5-vc10.vcxproj.filters \
+$(name)-qt4-vc11.vcxproj $(name)-qt4-vc11.vcxproj.filters \
+$(name)-qt5-vc11.vcxproj $(name)-qt5-vc11.vcxproj.filters
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
-	$(call meta-vc9proj,../template/template-vc9.vcproj,$(name)-vc9.vcproj)
-	$(call meta-vc10proj,../template/template-vc10.vcxproj,$(name)-vc10.vcxproj)
-	$(call meta-vc11proj,../template/template-vc11.vcxproj,$(name)-vc11.vcxproj)
+	$(call meta-vc9proj,../template/template-qt4-vc9.vcproj,$(name)-qt4-vc9.vcproj)
+	$(call meta-vc9proj,../template/template-qt5-vc9.vcproj,$(name)-qt5-vc9.vcproj)
+	$(call meta-vc10proj,../template/template-qt4-vc10.vcxproj,$(name)-qt4-vc10.vcxproj)
+	$(call meta-vc10proj,../template/template-qt5-vc10.vcxproj,$(name)-qt5-vc10.vcxproj)
+	$(call meta-vc11proj,../template/template-qt4-vc11.vcxproj,$(name)-qt4-vc11.vcxproj)
+	$(call meta-vc11proj,../template/template-qt5-vc11.vcxproj,$(name)-qt5-vc11.vcxproj)
 
 # Test.
 #

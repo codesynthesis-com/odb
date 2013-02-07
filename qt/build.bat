@@ -6,7 +6,7 @@ rem license   : GNU GPL v2; see accompanying LICENSE file
 rem
 rem Build Qt tests using the VC++ batch mode compilation.
 rem
-rem build.bat database vc-version conf plat [/Build|/Clean|/Rebuild]
+rem build.bat database qt-version vc-version conf plat [/Build|/Clean|/Rebuild]
 rem
 rem conf: {Debug,Release}|all
 rem plat: {Win32,x64}|all
@@ -20,25 +20,38 @@ if "_%1_" == "__" (
 )
 
 if "_%2_" == "__" (
+  echo no Qt version specified
+  goto usage
+)
+
+if "_%3_" == "__" (
   echo no VC++ version specified
   goto usage
 )
 
-if "_%~3_" == "__" (
+if "_%~4_" == "__" (
   echo no configuration specified
   goto usage
 )
 
-if "_%~4_" == "__" (
+if "_%~5_" == "__" (
   echo no platform specified
   goto usage
 )
 
 set "failed="
 
-if "_%2_" == "_9_" set "vcver=9"
-if "_%2_" == "_10_" set "vcver=10"
-if "_%2_" == "_11_" set "vcver=11"
+if "_%2_" == "_4_" set "qtver=4"
+if "_%2_" == "_5_" set "qtver=5"
+
+if "_%qtver%_" == "__" (
+  echo unknown Qt version %2
+  goto usage
+)
+
+if "_%3_" == "_9_" set "vcver=9"
+if "_%3_" == "_10_" set "vcver=10"
+if "_%3_" == "_11_" set "vcver=11"
 
 if "_%vcver%_" == "__" (
   echo unknown VC++ version %2
@@ -76,14 +89,14 @@ goto :eof
 for %%d in (%1) do (
   for %%c in (%confs%) do (
       for %%p in (%plats%) do (
-        call :run_build %%d/qt-%%d-vc%vcver%.sln %%c %%p
+        call :run_build %%d/qt-%%d-qt%qtver%-vc%vcver%.sln %%c %%p
     )
   )
 )
 
 for %%c in (%confs%) do (
   for %%p in (%plats%) do (
-    call :run_build common/qt-common-%1-vc%vcver%.sln %%c %%p
+    call :run_build common/qt-common-qt%qtver%-%1-vc%vcver%.sln %%c %%p
   )
 )
 
@@ -96,7 +109,7 @@ goto end
 
 :usage
 echo.
-echo usage: build.bat database vc-version conf plat [action]
+echo usage: build.bat database qt-version vc-version conf plat [action]
 echo   valid configurations are: {Debug,Release}|all
 echo   valid platforms are: {Win32,x64}|all
 echo   valid actions are: /Build (default), /Clean, and /Rebuild

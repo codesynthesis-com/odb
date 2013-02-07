@@ -24,14 +24,20 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(build_tests)))
 name := qt-common
 $(dist): name := $(name)
 $(dist): export dirs := $(tests)
-$(dist): export extra_dist :=  test.bat $(call vc9slns,$(name)) \
-$(call vc10slns,$(name)) $(call vc11slns,$(name))
+$(dist): export extra_dist :=  test.bat \
+$(call vc9slns,$(name)-qt4) $(call vc9slns,$(name)-qt5) \
+$(call vc10slns,$(name)-qt4) $(call vc10slns,$(name)-qt5) \
+$(call vc11slns,$(name)-qt4) $(call vc11slns,$(name)-qt5)
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call meta-automake)
-	$(call meta-vc9slns,$(name))
-	$(call meta-vc10slns,$(name))
-	$(call meta-vc11slns,$(name))
-	$(call meta-vctest,$(name)-mysql-vc10.sln,test.bat)
+	$(call meta-vc9slns,$(name)-qt4,-qt4)
+	$(call meta-vc9slns,$(name)-qt5,-qt5)
+	$(call meta-vc10slns,$(name)-qt4,-qt4)
+	$(call meta-vc10slns,$(name)-qt5,-qt5)
+	$(call meta-vc11slns,$(name)-qt4,-qt4)
+	$(call meta-vc11slns,$(name)-qt5,-qt5)
+        # Can't have Qt-version specific tests.
+	$(call meta-vctest,$(name)-qt4-mysql-vc10.sln,test.bat)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(build_tests)))
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(all_tests)))
