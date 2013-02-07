@@ -35,7 +35,9 @@ main (int argc, char* argv[])
     string short_str (13, 's');
     string medium_str (150, 'm');
     string long_str (20000, 'v');
-    string unicode_str ("a \xD5\x95 \xEA\xAA\xAA \xF2\xAA\xAA\xAA");
+    // Oracle UTF-8 support is limited to 3-byte sequences.
+    //
+    string unicode_str ("a \xD5\x95 \xEA\xAA\xAA \xE2\x82\xAC bcdef");
 
     object o;
 
@@ -43,8 +45,10 @@ main (int argc, char* argv[])
     o.varchar2 = QString::fromStdString (medium_str);
     o.clob = QString::fromStdString (long_str);
 
-    o.nchar= QString::fromStdString (unicode_str);
-    o.nvarchar2 = QString::fromStdString (unicode_str);
+    // fromStdString() assumes ASCII in Qt4 and UTF-8 in Qt5.
+    //
+    o.nchar= QString::fromUtf8 (unicode_str.c_str (), unicode_str.size ());
+    o.nvarchar2 = QString::fromUtf8 (unicode_str.c_str (), unicode_str.size ());
     o.nclob = QString::fromStdString (long_str);
 
     o.raw = QByteArray ("\0x13\0xDE\0x00\0x00\0x00\0x54\0xF2\0x6A", 8);
@@ -63,10 +67,9 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      object* ol = db->load<object> (o.varchar2);
+      std::auto_ptr<object> p (db->load<object> (o.varchar2));
       t.commit ();
-
-      assert (*ol == o);
+      assert (*p == o);
     }
   }
   catch (const odb::exception& e)
