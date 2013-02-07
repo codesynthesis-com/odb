@@ -47,10 +47,10 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      object* ol = db->load<object> (o.str);
+      auto_ptr<object> p (db->load<object> (o.str));
       t.commit ();
 
-      assert (*ol == o);
+      assert (*p == o);
     }
   }
   catch (const odb::exception& e)

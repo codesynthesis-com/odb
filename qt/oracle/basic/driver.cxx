@@ -67,7 +67,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      std::auto_ptr<object> p (db->load<object> (o.varchar2));
+      auto_ptr<object> p (db->load<object> (o.varchar2));
       t.commit ();
       assert (*p == o);
     }
