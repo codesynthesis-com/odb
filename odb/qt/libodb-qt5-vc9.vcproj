@@ -66,8 +66,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb-d.lib QtCored4.lib"
-				OutputFile="$(OutDir)\bin\odb-qt-d-__value__(interface_version)-vc9.dll"
+				AdditionalDependencies="odb-d.lib QtCored5.lib"
+				OutputFile="$(OutDir)\bin\odb-qt5-d-__value__(interface_version)-vc9.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -144,8 +144,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb-d.lib QtCored4.lib"
-				OutputFile="$(OutDir)\bin64\odb-qt-d-__value__(interface_version)-vc9.dll"
+				AdditionalDependencies="odb-d.lib QtCored5.lib"
+				OutputFile="$(OutDir)\bin64\odb-qt5-d-__value__(interface_version)-vc9.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -222,8 +222,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb.lib QtCore4.lib"
-				OutputFile="$(OutDir)\bin\odb-qt-__value__(interface_version)-vc9.dll"
+				AdditionalDependencies="odb.lib QtCore5.lib"
+				OutputFile="$(OutDir)\bin\odb-qt5-__value__(interface_version)-vc9.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -303,8 +303,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="odb.lib QtCore4.lib"
-				OutputFile="$(OutDir)\bin64\odb-qt-__value__(interface_version)-vc9.dll"
+				AdditionalDependencies="odb.lib QtCore5.lib"
+				OutputFile="$(OutDir)\bin64\odb-qt5-__value__(interface_version)-vc9.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
