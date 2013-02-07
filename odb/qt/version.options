@@ -2,6 +2,11 @@
 # copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
+# Include the config file first so that it can do its thing before we
+# include any Qt headers.
+#
+--odb-prologue '#include <odb/qt/details/config.hxx>'
+
 # Make sure the options files as seen by the ODB compiler and header
 # files as seen by the C++ compiler have the same Qt interface version.
 #
