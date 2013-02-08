@@ -40,6 +40,7 @@ readonly                  \
 relationship              \
 relationship-query        \
 schema/namespace          \
+schema/embedded/basics    \
 schema/embedded/order     \
 session/cache             \
 template                  \

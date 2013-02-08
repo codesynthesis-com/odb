@@ -1,8 +1,8 @@
-// file      : common/schema/embedded/order/driver.cxx
+// file      : common/schema/embedded/basics/driver.cxx
 // copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test statement execution order in embedded schemas.
+// Test basic embedded schema functionality.
 //
 
 #include <memory>   // std::auto_ptr
@@ -16,11 +16,8 @@
 #include <common/config.hxx> // DATABASE_XXX
 #include <common/common.hxx>
 
-#include "test1.hxx"
-#include "test2.hxx"
-
-#include "test1-odb.hxx"
-#include "test2-odb.hxx"
+#include "test.hxx"
+#include "test-odb.hxx"
 
 using namespace std;
 using namespace odb::core;
@@ -43,8 +40,12 @@ main (int argc, char* argv[])
       c->execute ("PRAGMA foreign_keys=OFF");
 #endif
 
+      assert (schema_catalog::exists (*db, "test"));
+      assert (!schema_catalog::exists (*db, "test1"));
+      assert (!schema_catalog::exists (*db, ""));
+
       transaction t (c->begin ());
-      schema_catalog::create_schema (*db);
+      schema_catalog::create_schema (*db, "test");
       t.commit ();
 
 #if defined(DATABASE_SQLITE)
