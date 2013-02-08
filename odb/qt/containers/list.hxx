@@ -107,7 +107,7 @@ public:
   // the elements as modified.
   //
   base_iterator_type mbegin ();
-  base_iterator_type modifybegin () {return mbegin ();}
+  base_iterator_type modifyBegin () {return mbegin ();}
   base_iterator_type mend () {return l_.end ();}
   base_iterator_type modifyEnd () {return mend ();}
 
