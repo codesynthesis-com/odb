@@ -147,10 +147,10 @@ struct object_view
   std::string str;
 };
 
-#pragma db view table(DB_SCHEMA."schema_object_1")
+#pragma db view table(DB_SCHEMA."schema_ns_object_1")
 struct table_view
 {
-  #pragma db column(DB_SCHEMA."schema_object_1"."str")
+  #pragma db column(DB_SCHEMA."schema_ns_object_1"."str")
   std::string str;
 };
 

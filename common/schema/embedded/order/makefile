@@ -63,10 +63,10 @@ $(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \
 $(call vc10projs,$(name)) $(call vc11projs,$(name))
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
-	$(call meta-automake,../../../../template/Makefile.am)
-	$(call meta-vc9projs,../../../../template/template,$(name))
-	$(call meta-vc10projs,../../../../template/template,$(name))
-	$(call meta-vc11projs,../../../../template/template,$(name))
+	$(call meta-automake,../../../template/Makefile.am)
+	$(call meta-vc9projs,../../../template/template,$(name))
+	$(call meta-vc10projs,../../../template/template,$(name))
+	$(call meta-vc11projs,../../../template/template,$(name))
 
 # Test.
 #
