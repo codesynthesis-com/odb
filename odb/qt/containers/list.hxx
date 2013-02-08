@@ -122,10 +122,10 @@ public:
   int count() const {return l_.count ();}
   int length() const {return l_.length ();}
   //T& first();
-  T& modify_first();
+  T& modifyFirst();
   const T& first() const {return l_.first ();}
   //T& last();
-  T& modify_last();
+  T& modifyLast();
   const T& last() const {return l_.last ();}
   void removeFirst();
   void removeLast();
@@ -140,10 +140,10 @@ public:
   void push_back(const T &t) {append(t);}
   void push_front(const T &t) {prepend(t);}
   //T& front();
-  T& modify_front() {return modify_first ();}
+  T& modify_front() {return modifyFirst ();}
   const T& front() const {return l_.front ();}
   //T& back();
-  T& modify_back() {return modify_last ();}
+  T& modify_back() {return modifyLast ();}
   const T& back() const {return l_.back ();}
   void pop_front() {removeFirst();}
   void pop_back() {removeLast();}

@@ -257,7 +257,7 @@ erase (iterator f, iterator l)
 
 template <typename T>
 inline T& QOdbList<T>::
-modify_first ()
+modifyFirst ()
 {
   T& r (l_.first ());
   if (_tracking ())
@@ -267,7 +267,7 @@ modify_first ()
 
 template <typename T>
 inline T& QOdbList<T>::
-modify_last ()
+modifyLast ()
 {
   T& r (l_.last ());
   if (_tracking ())
