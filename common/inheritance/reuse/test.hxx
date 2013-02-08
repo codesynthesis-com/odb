@@ -9,16 +9,18 @@
 #include <vector>
 
 #include <odb/core.hxx>
+#include <odb/vector.hxx>
 
 #pragma db value
 struct comp_base
 {
   std::vector<unsigned char> bools;
+  odb::vector<unsigned char> obools;
 
   bool
   operator== (const comp_base& y) const
   {
-    return bools == y.bools;
+    return bools == y.bools && obools == y.obools;
   }
 };
 
@@ -29,6 +31,7 @@ struct comp: comp_base
   std::string str;
 
   std::vector<unsigned int> nums;
+  odb::vector<unsigned int> onums;
 
   bool
   operator== (const comp& y) const
@@ -37,7 +40,8 @@ struct comp: comp_base
       static_cast<const comp_base&> (*this) == y &&
       num == y.num &&
       str == y.str &&
-      nums == y.nums;
+      nums == y.nums &&
+      onums == y.onums;
   }
 };
 
@@ -50,6 +54,7 @@ struct abstract_base
   std::string str_;
 
   std::vector<std::string> strs_;
+  odb::vector<std::string> ostrs_;
 
   bool
   operator== (const abstract_base& y) const
@@ -58,7 +63,8 @@ struct abstract_base
       comp_ == y.comp_ &&
       num_ == y.num_ &&
       str_ == y.str_ &&
-      strs_ == y.strs_;
+      strs_ == y.strs_ &&
+      ostrs_ == y.ostrs_;
   }
 };
 

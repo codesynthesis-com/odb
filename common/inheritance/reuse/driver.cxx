@@ -29,51 +29,73 @@ main (int argc, char* argv[])
 
     base b;
     b.comp_.bools.push_back (true);
+    b.comp_.obools.push_back (true);
     b.comp_.num = 10;
     b.comp_.str = "comp bbb";
     b.comp_.nums.push_back (101);
     b.comp_.nums.push_back (102);
+    b.comp_.onums.push_back (101);
+    b.comp_.onums.push_back (102);
     b.num_ = 0;
     b.str_ = "bbb";
     b.strs_.push_back ("bbb one");
     b.strs_.push_back ("bbb two");
+    b.ostrs_.push_back ("bbb one");
+    b.ostrs_.push_back ("bbb two");
 
     object1 o1;
     o1.comp_.bools.push_back (false);
+    o1.comp_.obools.push_back (false);
     o1.comp_.num = 11;
     o1.comp_.str = "comp o1o1o1";
     o1.comp_.nums.push_back (111);
     o1.comp_.nums.push_back (112);
+    o1.comp_.onums.push_back (111);
+    o1.comp_.onums.push_back (112);
     static_cast<base&> (o1).num_ = 1;
     o1.num1_ = 21;
     o1.str_ = "base o1o1o1";
     o1.strs_.push_back ("base o1o1o1 one");
     o1.strs_.push_back ("base o1o1o1 two");
+    o1.ostrs_.push_back ("base o1o1o1 one");
+    o1.ostrs_.push_back ("base o1o1o1 two");
 
     object2 o2;
     o2.comp_.bools.push_back (true);
     o2.comp_.bools.push_back (false);
+    o2.comp_.obools.push_back (true);
+    o2.comp_.obools.push_back (false);
     o2.comp_.num = 12;
     o2.comp_.str = "comp o2o2o2";
     o2.comp_.nums.push_back (121);
     o2.comp_.nums.push_back (122);
+    o2.comp_.onums.push_back (121);
+    o2.comp_.onums.push_back (122);
     o2.num_ = 2;
     static_cast<base&> (o2).str_ = "base o2o2o2";
     o2.str_ = "o2o2o2";
     o2.strs_.push_back ("base o2o2o2 one");
     o2.strs_.push_back ("base o2o2o2 two");
+    o2.ostrs_.push_back ("base o2o2o2 one");
+    o2.ostrs_.push_back ("base o2o2o2 two");
 
     object3 o3;
     o3.comp_.bools.push_back (false);
     o3.comp_.bools.push_back (false);
+    o3.comp_.obools.push_back (false);
+    o3.comp_.obools.push_back (false);
     o3.comp_.num = 13;
     o3.comp_.str = "comp o3o3o3";
     o3.comp_.nums.push_back (131);
     o3.comp_.nums.push_back (132);
+    o3.comp_.onums.push_back (131);
+    o3.comp_.onums.push_back (132);
     o3.num_ = 3;
     o3.str_ = "base o3o3o3";
     o3.strs_.push_back ("base o3o3o3 one");
     o3.strs_.push_back ("base o3o3o3 two");
+    o3.ostrs_.push_back ("base o3o3o3 one");
+    o3.ostrs_.push_back ("base o3o3o3 two");
 
     reference r;
     r.o1_ = &o1;
@@ -81,14 +103,20 @@ main (int argc, char* argv[])
     empty e;
     e.comp_.bools.push_back (true);
     e.comp_.bools.push_back (true);
+    e.comp_.obools.push_back (true);
+    e.comp_.obools.push_back (true);
     e.comp_.num = 14;
     e.comp_.str = "comp eee";
     e.comp_.nums.push_back (141);
     e.comp_.nums.push_back (142);
+    e.comp_.onums.push_back (141);
+    e.comp_.onums.push_back (142);
     e.num_ = 4;
     e.str_ = "base eee";
     e.strs_.push_back ("base eee one");
     e.strs_.push_back ("base eee two");
+    e.ostrs_.push_back ("base eee one");
+    e.ostrs_.push_back ("base eee two");
 
     // persist
     //
@@ -123,6 +151,19 @@ main (int argc, char* argv[])
       assert (e == *le);
 
       delete lr->o1_;
+    }
+
+    // update
+    //
+    {
+      transaction t (db->begin ());
+      db->update (b);
+      db->update (o1);
+      db->update (o2);
+      db->update (o3);
+      db->update (r);
+      db->update (e);
+      t.commit ();
     }
 
     // query
@@ -171,6 +212,19 @@ main (int argc, char* argv[])
               i->num == o2.num_ && i->id == o2.id_ && i->str == o2.str_);
       assert (++i == r.end ());
 
+      t.commit ();
+    }
+
+    // erase
+    //
+    {
+      transaction t (db->begin ());
+      db->erase (b);
+      db->erase (o1);
+      db->erase (o2);
+      db->erase (o3);
+      db->erase (r);
+      db->erase (e);
       t.commit ();
     }
   }
