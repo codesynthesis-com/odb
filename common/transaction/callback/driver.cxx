@@ -27,15 +27,22 @@ struct callback
   register_ (transaction& t)
   {
     t_ = &t;
-    t.register_ (&func, this, transaction::event_all, v_, &t_);
+    t.callback_register (&func, this, transaction::event_all, v_, &t_);
   }
 
   void
   unregister ()
   {
     cout << "  unregister callback " << v_ << endl;
-    t_->unregister (this);
+    t_->callback_unregister (this);
     t_ = 0;
+  }
+
+  void
+  update (unsigned short v)
+  {
+    v_ = v;
+    t_->callback_update (this, transaction::event_all, v_, &t_);
   }
 
 private:
@@ -87,10 +94,10 @@ fill (transaction& t)
   // 20 is from odb/transaction.hxx.
   //
   for (size_t i (0); i < 20; ++i)
-    t.register_ (&dummy_func,
-                 reinterpret_cast<void*> (i),
-                 transaction::event_all,
-                 i);
+    t.callback_register (&dummy_func,
+                         reinterpret_cast<void*> (i),
+                         transaction::event_all,
+                         i);
 }
 
 int
@@ -150,7 +157,7 @@ main (int argc, char* argv[])
         if (i == 2) fill (t);
         callback c1 (1, t);
         c1.unregister ();
-        t.unregister (&c1); // Test unregistering non-registered key.
+        t.callback_unregister (&c1); // Test unregistering non-registered key.
         t.commit ();
       }
 
@@ -195,12 +202,22 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
         if (i == 2) fill (t);
         callback c1 (1, t);
-        t.register_ (&throw_func, 0);
+        t.callback_register (&throw_func, 0);
         callback c2 (2, t);
         t.commit ();
       }
       catch (const failed&)
       {
+      }
+
+      // Test callback_update().
+      //
+      {
+        transaction t (db->begin ());
+        if (i == 2) fill (t);
+        callback c (1, t);
+        c.update (2);
+        t.commit ();
       }
     }
   }

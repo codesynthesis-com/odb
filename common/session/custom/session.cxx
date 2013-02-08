@@ -22,7 +22,7 @@ session::
   // Unregister from transaction.
   //
   if (tran_ != 0)
-    tran_->unregister (this);
+    tran_->callback_unregister (this);
 
   assert (current == this);
   current = 0;
@@ -44,7 +44,8 @@ flush (odb::database& db)
   if (flushed)
   {
     tran_ = &odb::transaction::current ();
-    tran_->register_ (&mark, this, odb::transaction::event_all, 0, &tran_);
+    tran_->callback_register (
+      &mark, this, odb::transaction::event_all, 0, &tran_);
   }
 }
 

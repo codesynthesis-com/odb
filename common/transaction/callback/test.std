@@ -15,6 +15,7 @@ test 1/002
   callback 3 commit
 test 1/003
   callback 1 commit
+  callback 2 commit
 test 2/001
   callback 1 commit
   callback 1 rollback
@@ -32,3 +33,4 @@ test 2/002
   callback 3 commit
 test 2/003
   callback 1 commit
+  callback 2 commit
