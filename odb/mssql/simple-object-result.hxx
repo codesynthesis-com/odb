@@ -1,5 +1,5 @@
 // file      : odb/mssql/simple-object-result.hxx
-// copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_MSSQL_SIMPLE_OBJECT_RESULT_HXX

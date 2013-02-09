@@ -1,5 +1,5 @@
 # file      : odb/mssql/Makefile.am
-# copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 # license   : ODB NCUEL; see accompanying LICENSE file
 
 lib_LTLIBRARIES = libodb-mssql.la
