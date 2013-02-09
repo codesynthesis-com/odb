@@ -127,15 +127,22 @@ endif
 # To do this we make the object files ($2) depend in order-only on
 # generated files ($3).
 #
+# Also make generated files depend on config.h so that we don't get
+# annoying noise during dependency auto-generation.
+#
 ifeq ($(cxx_id),generic)
 
 define include-dep
-$(if $2,$(eval $2: | $3))
+$(if $2,$(eval $2: | $3)) \
+$(if $(and $3,$(subst $(out_root)/libcommon/common/config.h,,$3)),$(eval \
+$3: $(out_root)/libcommon/common/config.h))
 endef
 
 else
 
 define include-dep
+$(if $(and $3,$(subst $(out_root)/libcommon/common/config.h,,$3)),$(eval \
+$3: $(out_root)/libcommon/common/config.h)) \
 $(call -include,$1)
 endef
 
