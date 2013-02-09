@@ -1,5 +1,5 @@
 // file      : odb/qt/smart-ptr/lazy-ptr.txx
-// copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 template <class T>

@@ -1,5 +1,5 @@
 // file      : odb/qt/basic/mssql/uuid-traits.hxx
-// copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_QT_BASIC_MSSQL_UUID_TRAITS_HXX

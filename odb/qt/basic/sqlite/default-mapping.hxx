@@ -1,5 +1,5 @@
 // file      : odb/qt/basic/sqlite/default-mapping.hxx
-// copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_QT_BASIC_SQLITE_DEFAULT_MAPPING_HXX

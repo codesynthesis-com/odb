@@ -1,5 +1,5 @@
 // file      : odb/qt/lazy-ptr.hxx
-// copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2013 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_QT_LAZY_PTR_HXX
