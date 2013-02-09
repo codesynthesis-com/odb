@@ -175,7 +175,7 @@ namespace odb
                      void* tmp_buf,
                      std::size_t tmp_capacity)
     {
-      wchar_t* p (static_cast<char*> (context));
+      wchar_t* p (static_cast<wchar_t*> (context));
 
       switch (chunk)
       {
