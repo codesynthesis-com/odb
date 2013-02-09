@@ -1,5 +1,5 @@
 // file      : odb/oracle/tracer.hxx
-// copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_ORACLE_TRACER_HXX

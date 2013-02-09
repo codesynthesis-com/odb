@@ -1,5 +1,5 @@
 // file      : odb/oracle/connection.ixx
-// copyright : Copyright (c) 2005-2012 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2013 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 namespace odb

@@ -1,5 +1,5 @@
 # file      : build/import/libodb-oracle/stub.make
-# copyright : Copyright (c) 2009-2012 Code Synthesis Tools CC
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 # license   : ODB NCUEL; see accompanying LICENSE file
 
 $(call include-once,$(scf_root)/import/libodb-oracle/configuration-rules.make,$(dcf_root))
