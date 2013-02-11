@@ -329,6 +329,41 @@ namespace odb
         return ref_bind_typed<T, ID> (x, prec, scale);
       }
 
+      // Some compilers (notably VC++), when deducing const T& from const
+      // array do not strip const from the array type. As a result, in the
+      // above signatures we get, for example, T = const char[4] instead
+      // of T = char[4], which is what we want. So to "fix" such compilers,
+      // we will have to provide the following specializations of the above
+      // functions.
+      //
+      template <typename T, std::size_t N>
+      static val_bind<T[N]>
+      _val (const T (&x) [N], unsigned short p = 0, unsigned short s = 0xFFFF)
+      {
+        return val_bind<T[N]> (x, p, s);
+      }
+
+      template <database_type_id ID, typename T, std::size_t N>
+      static val_bind_typed<T[N], ID>
+      _val (const T (&x) [N], unsigned short p = 0, unsigned short s = 0xFFFF)
+      {
+        return val_bind_typed<T[N], ID> (x, p, s);
+      }
+
+      template <typename T, std::size_t N>
+      static ref_bind<T[N]>
+      _ref (const T (&x) [N], unsigned short p = 0, unsigned short s = 0xFFFF)
+      {
+        return ref_bind<T[N]> (x, p, s);
+      }
+
+      template <database_type_id ID, typename T, std::size_t N>
+      static ref_bind_typed<T[N], ID>
+      _ref (const T (&x) [N], unsigned short p = 0, unsigned short s = 0xFFFF)
+      {
+        return ref_bind_typed<T[N], ID> (x, p, s);
+      }
+
     public:
       query_base&
       operator+= (const query_base&);
