@@ -558,6 +558,7 @@ main (int argc, char* argv[])
 
     // Armed swap.
     //
+#if QT_VERSION >= 0x040800
     {
       object c (o);
 
@@ -588,6 +589,7 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+#endif
 
     // Armed move.
     //
