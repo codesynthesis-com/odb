@@ -54,17 +54,17 @@ if "_%3_" == "_10_" set "vcver=10"
 if "_%3_" == "_11_" set "vcver=11"
 
 if "_%vcver%_" == "__" (
-  echo unknown VC++ version %2
+  echo unknown VC++ version %3
   goto usage
 )
 
-set "confs=%~3"
-set "plats=%~4"
+set "confs=%~4"
+set "plats=%~5"
 
-if "_%confs%_" == "_all_" set "confs=__path__(configurations)"
-if "_%plats%_" == "_all_" set "plats=__path__(platforms)"
+if "_%confs%_" == "_all_" set "confs=Debug Release"
+if "_%plats%_" == "_all_" set "plats=Win32 x64"
 
-set "action=%5"
+set "action=%6"
 if "_%action%_" == "__" set "action=/Build"
 
 set "devenv=%DEVENV%"
