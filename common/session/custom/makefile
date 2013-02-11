@@ -54,6 +54,7 @@ $(dist): db_id := @database@
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): export extra_headers := session.hxx session.txx
+$(dist): export extra_sources := $(filter-out driver.cxx,$(cxx_tun))
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
 $(dist): export extra_dist := $(data_dist) $(call vc10projs,$(name)) \
