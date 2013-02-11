@@ -952,12 +952,17 @@ namespace odb
           b[i] = static_cast<ucs2_char> (s[i]);
       }
 
+      // Even though this is not used when ucs2_char == wchar_t, the
+      // compiler will still compile the signatures and complain.
+      //
+#ifndef _WIN32
       static void
       assign (wchar_t* s, const ucs2_char* b, std::size_t n)
       {
         for (std::size_t i (0); i < n; ++i)
           s[i] = static_cast<wchar_t> (b[i]);
       }
+#endif
     };
 
     template <>
