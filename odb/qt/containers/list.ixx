@@ -48,6 +48,7 @@ operator= (base_list_type&& x)
 }
 #endif
 
+#if QT_VERSION >= 0x040800
 template <typename T>
 inline void QOdbList<T>::
 swap (QOdbList<T>& x)
@@ -55,6 +56,7 @@ swap (QOdbList<T>& x)
   l_.swap (x.l_);
   vector_base::swap (x);
 }
+#endif
 
 template <typename T>
 inline void QOdbList<T>::

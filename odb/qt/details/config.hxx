@@ -15,7 +15,7 @@
 // Qt profile), we are going to define __PIE__ ourselves just to silence
 // Qt. We also want to try to minimize this to cases where it is actually
 // necessary. To achieve this, we need to include the Qt config file without
-// including <QtGlobals>, which is where the test for PIC/PIE is. While
+// including <QtGlobal>, which is where the test for PIC/PIE is. While
 // newer versions of Qt (from 4.7) have <QtConfig>, to support older
 // versions we will include qconfig.h directly. This file appears to be
 // present in all the versions starting with Qt 4.0.

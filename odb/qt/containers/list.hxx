@@ -8,6 +8,7 @@
 #include <odb/pre.hxx>
 #include <odb/details/config.hxx> // ODB_CXX11
 
+#include <QtCore/QtGlobal> // QT_VERSION
 #include <QtCore/QList>
 
 #ifdef ODB_CXX11
@@ -39,7 +40,10 @@ public:
   QOdbList(const QOdbList &x): vector_base (x), l_ (x.l_) {}
   // ~QOdbList();
   QOdbList &operator=(const QOdbList &l);
+
+#if QT_VERSION >= 0x040800
   void swap(QOdbList &other);
+#endif
 
 #ifdef ODB_CXX11
   QOdbList(QOdbList &&x): vector_base (std::move (x)), l_ (std::move (x.l_)) {}
