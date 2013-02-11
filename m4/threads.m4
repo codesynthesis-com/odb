@@ -22,7 +22,16 @@ if test x$threads = xcheck; then
           CXXFLAGS="$CXXFLAGS -mthreads"
           ;;
       esac
-      threads=win32
+
+      # Newer versions of GCC can be configured to use either Win32 or POSIX
+      # threads. It appears that -mthreads should be used in both cases but
+      # if the model is POSIX then GCC will also link -lpthread by default.
+      # Use that fact to test which model we have.
+      #
+      AC_TRY_LINK([#include <pthread.h>],
+                  [pthread_create(0,0,0,0);],
+		  [threads=posix],
+                  [threads=win32])
       ;;
     *)
       ACX_PTHREAD
