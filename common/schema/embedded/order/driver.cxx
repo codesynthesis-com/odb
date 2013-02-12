@@ -37,9 +37,13 @@ main (int argc, char* argv[])
     {
       connection_ptr c (db->connection ());
 
-      // Temporarily disable foreign key constraints for SQLite.
+      // Temporarily disable foreign key constraints for MySQL and SQLite.
+      // For MySQL we can actually create the tables in any order. It is
+      // dropping them that's the problem (there is no IF EXISTS).
       //
-#if defined(DATABASE_SQLITE)
+#if defined(DATABASE_MYSQL)
+      c->execute ("SET FOREIGN_KEY_CHECKS=0");
+#elif defined(DATABASE_SQLITE)
       c->execute ("PRAGMA foreign_keys=OFF");
 #endif
 
@@ -47,7 +51,9 @@ main (int argc, char* argv[])
       schema_catalog::create_schema (*db);
       t.commit ();
 
-#if defined(DATABASE_SQLITE)
+#if defined(DATABASE_MYSQL)
+      c->execute ("SET FOREIGN_KEY_CHECKS=1");
+#elif defined(DATABASE_SQLITE)
       c->execute ("PRAGMA foreign_keys=ON");
 #endif
     }
