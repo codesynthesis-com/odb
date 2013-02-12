@@ -47,8 +47,10 @@ main (int argc, char* argv[])
 
     // fromStdString() assumes ASCII in Qt4 and UTF-8 in Qt5.
     //
-    o.nchar= QString::fromUtf8 (unicode_str.c_str (), unicode_str.size ());
-    o.nvarchar2 = QString::fromUtf8 (unicode_str.c_str (), unicode_str.size ());
+    o.nchar= QString::fromUtf8 (unicode_str.c_str (),
+                                static_cast<int> (unicode_str.size ()));
+    o.nvarchar2 = QString::fromUtf8 (unicode_str.c_str (),
+                                     static_cast<int> (unicode_str.size ()));
     o.nclob = QString::fromStdString (long_str);
 
     o.raw = QByteArray ("\0x13\0xDE\0x00\0x00\0x00\0x54\0xF2\0x6A", 8);
