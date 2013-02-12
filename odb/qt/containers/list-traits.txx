@@ -17,6 +17,7 @@ namespace odb
       for (std::size_t i (0), n (impl.size ()); i < n; ++i)
       {
         vector_impl::element_state_type s (impl.state (i));
+        index_type ii (static_cast<index_type> (i));
 
         switch (s)
         {
@@ -26,19 +27,19 @@ namespace odb
           }
         case vector_impl::state_inserted:
           {
-            f.insert (i, c[static_cast<index_type> (i)]);
+            f.insert (ii, c[ii]);
             u = u || true;
             break;
           }
         case vector_impl::state_updated:
           {
-            f.update (i, c[static_cast<index_type> (i)]);
+            f.update (ii, c[ii]);
             u = u || true;
             break;
           }
         case vector_impl::state_erased:
           {
-            f.delete_ (i); // Delete from i onwards.
+            f.delete_ (ii); // Delete from i onwards.
             u = u || true;
             break;
           }
