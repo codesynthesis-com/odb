@@ -69,7 +69,7 @@ namespace test4
   struct view2
   {
     #pragma db column("min(" + base2::num + ")")
-    std::size_t min_num;
+    unsigned long min_num;
   };
 }
 
