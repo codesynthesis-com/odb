@@ -58,8 +58,9 @@ static counting_tracer tr;
 // complete std::vector interface.
 //
 
-#if defined (HAVE_CXX11)
-#if defined (__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 7
+#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
+#if !defined (HAVE_CXX11) || \
+  (defined (__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 7)
 struct item {};
 template class odb::vector<item>;
 template class odb::vector_iterator<odb::vector<item>,
@@ -101,9 +102,11 @@ main (int argc, char* argv[])
       if (i != ov.end ())
         i = ov.end ();
 
+#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
       vector::const_reverse_iterator j (ov.rbegin ());
       if (j != ov.rend ())
         j = ov.rend ();
+#endif
     }
 
     auto_ptr<database> db (create_database (argc, argv));
@@ -369,16 +372,23 @@ main (int argc, char* argv[])
 
     {
       o.s.begin ().modify () += 'a';
+#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
       o.s.rbegin ().modify () += 'c';
+#endif
 
       transaction t (db->begin ());
       tr.reset (t);
       db->update (o);
+#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
       assert (tr.u == 3 && tr.t == 3);
+#else
+      assert (tr.u == 2 && tr.t == 2);
+#endif
       assert (*db->load<object> ("1") == o);
       t.commit ();
     }
 
+#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
     {
       (o.s.rbegin () + 1).modify (1) += 'a';
       (o.s.rbegin () + 1).modify (-1) += 'c';
@@ -390,6 +400,7 @@ main (int argc, char* argv[])
       assert (*db->load<object> ("1") == o);
       t.commit ();
     }
+#endif
 
     {
       o.s.mbegin ();
