@@ -105,6 +105,8 @@ namespace odb
     //
     // default_value_traits<std::vector<char>, id_blob>
     //
+    // std::vector has to be qualified for Sun CC.
+    //
     bool default_value_traits<std::vector<char>, id_blob>::
     result_callback (void* c, ub4*, void* b, ub4 s, chunk_position p)
     {
@@ -152,6 +154,8 @@ namespace odb
 
     //
     // default_value_traits<std::vector<unsigned char>, id_blob>
+    //
+    // std::vector has to be qualified for Sun CC.
     //
     bool default_value_traits<std::vector<unsigned char>, id_blob>::
     result_callback (void* c, ub4*, void* b, ub4 s, chunk_position p)
