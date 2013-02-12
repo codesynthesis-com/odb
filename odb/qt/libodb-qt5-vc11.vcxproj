@@ -97,7 +97,7 @@
       <DisableSpecificWarnings>4355;4800;4290;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>odb-d.lib;QtCored5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odb-d.lib;Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(TargetPath)</OutputFile>
@@ -115,7 +115,7 @@
       <DisableSpecificWarnings>4355;4800;4290;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>odb-d.lib;QtCored5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odb-d.lib;Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(TargetPath)</OutputFile>
@@ -135,7 +135,7 @@
       <DisableSpecificWarnings>4355;4800;4290;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>odb.lib;QtCore5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odb.lib;Qt5Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -157,7 +157,7 @@
       <DisableSpecificWarnings>4355;4800;4290;4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>odb.lib;QtCore5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odb.lib;Qt5Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
