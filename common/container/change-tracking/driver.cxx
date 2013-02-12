@@ -102,7 +102,10 @@ main (int argc, char* argv[])
       if (i != ov.end ())
         i = ov.end ();
 
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
+      // Things are just really borken in Sun CC, no matter which STL
+      // you use.
+      //
+#ifndef __SUNPRO_CC
       vector::const_reverse_iterator j (ov.rbegin ());
       if (j != ov.rend ())
         j = ov.rend ();
