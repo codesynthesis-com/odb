@@ -65,7 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib\common-d.lib odb-sqlite-d.lib odb-qt-d.lib odb-d.lib QtCored5.lib"
+				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib\common-d.lib odb-sqlite-d.lib odb-qt-d.lib odb-d.lib Qt5Cored.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -141,7 +141,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib\common.lib odb-sqlite.lib odb-qt.lib odb.lib QtCore5.lib"
+				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib\common.lib odb-sqlite.lib odb-qt.lib odb.lib Qt5Core.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -219,7 +219,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib64\common-d.lib odb-sqlite-d.lib odb-qt-d.lib odb-d.lib QtCored5.lib"
+				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib64\common-d.lib odb-sqlite-d.lib odb-qt-d.lib odb-d.lib Qt5Cored.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -296,7 +296,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib64\common.lib odb-sqlite.lib odb-qt.lib odb.lib QtCore5.lib"
+				AdditionalDependencies="$(SolutionDir)\..\..\libcommon\lib64\common.lib odb-sqlite.lib odb-qt.lib odb.lib Qt5Core.lib"
 				OutputFile="$(OutDir)\driver.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"

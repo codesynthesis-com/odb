@@ -97,7 +97,7 @@
       <DisableSpecificWarnings>4068;4355;4800;4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib\common-d.lib;odb-mssql-d.lib;odb-qt-d.lib;odb-d.lib;QtCored5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib\common-d.lib;odb-mssql-d.lib;odb-qt-d.lib;odb-d.lib;Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -113,7 +113,7 @@
       <DisableSpecificWarnings>4068;4355;4800;4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib64\common-d.lib;odb-mssql-d.lib;odb-qt-d.lib;odb-d.lib;QtCored5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib64\common-d.lib;odb-mssql-d.lib;odb-qt-d.lib;odb-d.lib;Qt5Cored.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -131,7 +131,7 @@
       <DisableSpecificWarnings>4068;4355;4800;4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib\common.lib;odb-mssql.lib;odb-qt.lib;odb.lib;QtCore5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib\common.lib;odb-mssql.lib;odb-qt.lib;odb.lib;Qt5Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -151,7 +151,7 @@
       <DisableSpecificWarnings>4068;4355;4800;4290;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib64\common.lib;odb-mssql.lib;odb-qt.lib;odb.lib;QtCore5.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)\..\..\libcommon\lib64\common.lib;odb-mssql.lib;odb-qt.lib;odb.lib;Qt5Core.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
