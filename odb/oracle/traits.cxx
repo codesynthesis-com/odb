@@ -47,7 +47,7 @@ namespace odb
       // Figure out the length. We cannot use strlen since it may
       // not be 0-terminated (strnlen is not standard).
       //
-      for (n = 0; n != N && v[n] != '\0'; ++n);
+      for (n = 0; n != N && v[n] != '\0'; ++n) ;
 
       if (n > c)
         n = c;
