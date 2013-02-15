@@ -96,7 +96,7 @@ fi
 AC_MSG_CHECKING([for pgsql database host])
 AC_ARG_WITH(
   [pgsql-host],
-  [AC_HELP_STRING([--with-pgsql-host=HOST], [PostgreSQL database host (localhost by default)])],
+  [AC_HELP_STRING([--with-pgsql-host=HOST], [PostgreSQL database host (local host by default)])],
   [case $withval in
      yes)
        pgsql_host=
