@@ -763,6 +763,47 @@ namespace odb
       query_base
       in_range (I begin, I end) const;
 
+      // like
+      //
+    public:
+      query_base
+      like (decayed_type pattern) const
+      {
+        return like (val_bind<T> (pattern));
+      }
+
+      query_base
+      like (val_bind<T> pattern) const;
+
+      template <typename T2>
+      query_base
+      like (val_bind<T2> pattern) const
+      {
+        return like (val_bind<T> (decayed_type (pattern.val)));
+      }
+
+      query_base
+      like (ref_bind<T> pattern) const;
+
+      query_base
+      like (decayed_type pattern, decayed_type escape) const
+      {
+        return like (val_bind<T> (pattern), escape);
+      }
+
+      query_base
+      like (val_bind<T> pattern, decayed_type escape) const;
+
+      template <typename T2>
+      query_base
+      like (val_bind<T2> pattern, decayed_type escape) const
+      {
+        return like (val_bind<T> (decayed_type (pattern.val)), escape);
+      }
+
+      query_base
+      like (ref_bind<T> pattern, decayed_type escape) const;
+
       // =
       //
     public:

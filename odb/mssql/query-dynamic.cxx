@@ -110,6 +110,22 @@ namespace odb
           q += ")";
           break;
         }
+      case part::op_like:
+        {
+          translate (q, s, p - 2); // column
+          q += "LIKE";
+          translate (q, s, p - 1); // pattern
+          break;
+        }
+      case part::op_like_escape:
+        {
+          translate (q, s, p - 3); // column
+          q += "LIKE";
+          translate (q, s, p - 2); // pattern
+          q += "ESCAPE";
+          translate (q, s, p - 1); // escape
+          break;
+        }
       case part::op_eq:
       case part::op_ne:
       case part::op_lt:

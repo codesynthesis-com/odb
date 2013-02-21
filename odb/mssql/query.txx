@@ -6,6 +6,7 @@ namespace odb
 {
   namespace mssql
   {
+    //
     // query_base
     //
 
@@ -23,7 +24,11 @@ namespace odb
                         c.conversion ());
     }
 
+    //
     // query_column
+    //
+
+    // in
     //
     template <typename T, database_type_id ID>
     query_base query_column<T, ID>::
@@ -108,6 +113,52 @@ namespace odb
       }
 
       q += ")";
+      return q;
+    }
+
+    // like
+    //
+    template <typename T, database_type_id ID>
+    query_base query_column<T, ID>::
+    like (val_bind<T> p) const
+    {
+      query_base q (table_, column_);
+      q += "LIKE";
+      q.append<T, ID> (p, conversion_);
+      return q;
+    }
+
+    template <typename T, database_type_id ID>
+    query_base query_column<T, ID>::
+    like (ref_bind<T> p) const
+    {
+      query_base q (table_, column_);
+      q += "LIKE";
+      q.append<T, ID> (p, conversion_);
+      return q;
+    }
+
+    template <typename T, database_type_id ID>
+    query_base query_column<T, ID>::
+    like (val_bind<T> p, decayed_type e) const
+    {
+      query_base q (table_, column_);
+      q += "LIKE";
+      q.append<T, ID> (p, conversion_);
+      q += "ESCAPE";
+      q.append<T, ID> (val_bind<T> (e), conversion_);
+      return q;
+    }
+
+    template <typename T, database_type_id ID>
+    query_base query_column<T, ID>::
+    like (ref_bind<T> p, decayed_type e) const
+    {
+      query_base q (table_, column_);
+      q += "LIKE";
+      q.append<T, ID> (p, conversion_);
+      q += "ESCAPE";
+      q.append<T, ID> (val_bind<T> (e), conversion_);
       return q;
     }
   }
