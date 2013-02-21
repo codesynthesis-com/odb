@@ -247,6 +247,9 @@ main (int argc, char* argv[])
       db->query<person> (query::first_name.in ("John", "Jane"));
       db->query<person> (query::first_name.in_range (names, names_end));
 
+      db->query<person> (query::first_name.like ("J%"));
+      db->query<person> (query::first_name.like ("J%!%", "!"));
+
       // Query operators.
       //
       db->query<person> (query::age == 30 && query::last_name == "Doe");
@@ -598,6 +601,35 @@ main (int argc, char* argv[])
       }
     }
 #endif
+
+    // Test like.
+    //
+    cout << "test 020" << endl;
+    {
+      transaction t (db->begin ());
+
+      result r (db->query<person> (query::first_name.like ("Jo%")));
+      print (r);
+
+      r = db->query<person> (!query::first_name.like ("Jo%"));
+      print (r);
+
+      r = db->query<person> (query::first_name.like ("Jo!%", "!"));
+      print (r);
+
+      // In Oracle one can only escape special characters (% and _).
+      //
+#if defined(DATABASE_ORACLE)
+      string v ("Ja%");
+#else
+      string v ("!Ja%");
+#endif
+
+      r = db->query<person> (query::first_name.like (query::_ref (v), "!"));
+      print (r);
+
+      t.commit ();
+    }
   }
   catch (const odb::exception& e)
   {
