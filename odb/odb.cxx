@@ -246,12 +246,32 @@ main (int argc, char* argv[])
     {
       path file (ODB_DEFAULT_OPTIONS_FILE);
 
-      // If the path is relative, then use the driver's path as a base.
+      // If the path is relative, then use the driver's path as a base. If
+      // the file is not found in that directory, then also try outer
+      // directory (so that we can find /etc if driver is in /usr/bin).
       //
       if (file.relative ())
       {
-        path dp (driver_path (path (argv[0])));
-        file = dp.directory () / file;
+        path dd (driver_path (path (argv[0])).directory ());
+
+        for (path d (dd);; d = d.directory ())
+        {
+          path f (d / file);
+          // Check that the file exist without checking for permissions, etc.
+          //
+          struct stat s;
+          if (stat (f.string ().c_str (), &s) == 0 && S_ISREG (s.st_mode))
+          {
+            file = f;
+            break;
+          }
+
+          if (d.root ())
+            break;
+        }
+
+        if (file.relative ())
+          file = dd / file;
       }
 
       int ac (3);
