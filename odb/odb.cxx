@@ -1179,11 +1179,24 @@ profile_paths (strings const& sargs, char const* name)
     else if (a == "-isystem"   ||
              a == "-iquote"    ||
              a == "-idirafter" ||
+             a == "-isysroot"  ||
              a == "-framework")
     {
       args.push_back (a);
-      args.push_back (*(++i));
+
+      if (++i == end)
+      {
+        cerr << name << ": error: expected argument for the " << a
+             << " option" << endl;
+        throw profile_failure ();
+      }
+
+      args.push_back (*i);
     }
+    // --sysroot
+    //
+    else if (a.compare (0, 10, "--sysroot=") == 0)
+      args.push_back (a);
     // -std
     //
     else if (a.compare (0, 5, "-std=") == 0)
