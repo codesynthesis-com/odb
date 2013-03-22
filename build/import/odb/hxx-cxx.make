@@ -32,19 +32,19 @@ ifeq ($(out_base),$(src_base))
 
 $(odb_pattern): $(src_base)/%.$(cxx_h_suffix)
 	$(call message,odb $<,$(odb) $(cpp_options) \
-$(call expand-cpp-options,$^) $(cxx_pp_extra_options) $(odb_options) \
+$(call odb-expand-cpp-options,$^) $(cxx_pp_extra_options) $(odb_options) \
 --output-dir $(dir $@) $<)
 
 else
 
 $(odb_pattern): $(src_base)/%.$(cxx_h_suffix) | $$(dir $$@).
 	$(call message,odb $<,$(odb) $(cpp_options) \
-$(call expand-cpp-options,$^) $(cxx_pp_extra_options) $(odb_options) \
+$(call odb-expand-cpp-options,$^) $(cxx_pp_extra_options) $(odb_options) \
 --output-dir $(dir $@) $<)
 
 $(odb_pattern): $(out_base)/%.$(cxx_h_suffix) | $$(dir $$@).
 	$(call message,odb $<,$(odb) $(cpp_options) \
-$(call expand-cpp-options,$^) $(cxx_pp_extra_options) $(odb_options) \
+$(call odb-expand-cpp-options,$^) $(cxx_pp_extra_options) $(odb_options) \
 --output-dir $(dir $@) $<)
 endif
 
