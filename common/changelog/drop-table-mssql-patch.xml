@@ -1,0 +1,11 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" version="1">
+  <model version="2">
+    <table name="object1">
+      <column name="id" type="INT" null="false"/>
+      <column name="num" type="INT" null="false"/>
+      <primary-key>
+        <column name="id"/>
+      </primary-key>
+    </table>
+  </model>
+</changelog>

@@ -9,6 +9,7 @@ access                    \
 auto                      \
 blob                      \
 callback                  \
+changelog                 \
 circular/single           \
 circular/multiple         \
 composite                 \
@@ -54,6 +55,8 @@ wrapper
 thread_tests := threads
 cxx11_tests  := session/custom
 
+no_dist_tests := changelog include
+
 default   := $(out_base)/
 dist      := $(out_base)/.dist
 test      := $(out_base)/.test
@@ -73,7 +76,7 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(build_tests)))
 
 name := common
 $(dist): name := $(name)
-$(dist): export dirs := $(filter-out include,$(tests))
+$(dist): export dirs := $(filter-out $(no_dist_tests),$(tests))
 $(dist): export thread_dirs := $(thread_tests)
 $(dist): export cxx11_dirs := $(cxx11_tests)
 $(dist): export extra_dist :=  test.bat $(call vc9slns,$(name)) \
