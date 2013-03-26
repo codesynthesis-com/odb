@@ -4,7 +4,13 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-odb_hdr := model.hxx add-table.hxx drop-table.hxx
+odb_hdr :=       \
+model.hxx        \
+add-table.hxx    \
+drop-table.hxx   \
+add-column.hxx   \
+drop-column.hxx  \
+alter-column.hxx
 
 common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
 
