@@ -1,0 +1,16 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" version="1">
+  <model version="2">
+    <table name="object">
+      <column name="id" type="INTEGER" null="false"/>
+      <column name="x" type="INTEGER" null="false"/>
+      <column name="y" type="INTEGER" null="false"/>
+      <primary-key auto="true">
+        <column name="id"/>
+      </primary-key>
+      <index name="xy_i" type="UNIQUE">
+        <column name="x"/>
+        <column name="y" options="DESC"/>
+      </index>
+    </table>
+  </model>
+</changelog>
