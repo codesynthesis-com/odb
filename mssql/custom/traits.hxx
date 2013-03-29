@@ -12,12 +12,71 @@
 
 #include <odb/mssql/traits.hxx>
 
-#include "test.hxx" // point
+#include "test.hxx" // variant, point
 
 namespace odb
 {
   namespace mssql
   {
+    template <>
+    class value_traits<variant, id_long_string>
+    {
+    public:
+      typedef variant value_type;
+      typedef variant query_type;
+      typedef long_callback image_type;
+
+      static void
+      set_value (variant& v,
+                 result_callback_type& cb,
+                 void*& context)
+      {
+        cb = &result_callback;
+        context = &v;
+      }
+
+      static void
+      set_image (param_callback_type& cb,
+                 const void*& context,
+                 bool& is_null,
+                 const variant& v)
+      {
+        is_null = false;
+        cb = &param_callback;
+        context = &v;
+      }
+
+      static void
+      param_callback (const void* context,
+                      std::size_t* position,
+                      const void** buffer,
+                      std::size_t* size,
+                      chunk_type* chunk,
+                      void* tmp_buffer,
+                      std::size_t tmp_capacity);
+
+      static void
+      result_callback (void* context,
+                       std::size_t* position,
+                       void** buffer,
+                       std::size_t* size,
+                       chunk_type chunk,
+                       std::size_t size_left,
+                       void* tmp_buffer,
+                       std::size_t tmp_capacity);
+    };
+
+    template <>
+    struct type_traits<variant>
+    {
+      static const database_type_id db_type_id = id_long_string;
+
+      struct conversion
+      {
+        static const char* to () {return "dbo.string_to_variant((?))";}
+      };
+    };
+
 #if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
     template <>
     class value_traits<point, id_string>

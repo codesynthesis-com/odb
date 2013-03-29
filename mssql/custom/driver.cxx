@@ -30,6 +30,10 @@ main (int argc, char* argv[])
 
     object o (1);
 
+    o.v = variant (123);
+    o.vv.push_back (variant (string (1024, 'a')));
+    o.vv.push_back (variant (123));
+
 #if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
     o.p = point (1.1111, 2222222222.2);
     o.pv.push_back (point (1.1234, 2.2345));
@@ -64,6 +68,13 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
+
+      // Variant comparison.
+      //
+      {
+        result r (db->query<object> (query::v == o.v));
+        assert (!r.empty ());
+      }
 
 #if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
       // Point comparison.

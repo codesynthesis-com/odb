@@ -4,7 +4,7 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
-cxx_tun := driver.cxx
+cxx_tun := driver.cxx traits.cxx
 odb_hdr := test.hxx
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
@@ -37,7 +37,7 @@ $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database mssql --default-database \
 common --generate-schema --generate-query --hxx-prologue \
 '\#include "traits.hxx"' --hxx-prologue '\#include "query.hxx"' \
---table-prefix mssql_custom_
+--sql-interlude ":r $(src_base)/custom.sql" --table-prefix mssql_custom_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
@@ -52,7 +52,7 @@ $(out_base)/: $(driver)
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): export extra_headers := traits.hxx query.hxx
-$(dist): data_dist := test.std
+$(dist): data_dist := test.std custom.sql
 $(dist): export name := $(subst /,-,$(subst $(src_root)/mssql/,,$(src_base)))
 $(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
 $(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters \

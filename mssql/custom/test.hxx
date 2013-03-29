@@ -10,6 +10,46 @@
 
 #include <odb/core.hxx>
 
+// Map SQL Server SQL_VARIANT type to our variant C++ class that is capable
+// of storing either an integer or a string (QVariant and boost::variant
+// would be natural alternatives to our own type). The SQL Server functions
+// that are used in the 'to' and 'from' expressions below are defined in
+// the custom.sql file. The other half of this mapping is in traits.hxx
+// (value_traits<variant, id_long_string>).
+//
+#pragma db map type("SQL_VARIANT")                \
+               as("VARCHAR(max)")                 \
+               to("dbo.string_to_variant((?))")   \
+               from("dbo.variant_to_string((?))")
+
+#pragma db value type("SQL_VARIANT")
+struct variant
+{
+  variant (unsigned long v = 0): val_type (type_int), int_val (v) {}
+  variant (const std::string& v): val_type (type_str), str_val (v) {}
+
+  enum {type_int, type_str} val_type;
+  unsigned long int_val;
+  std::string str_val;
+};
+
+inline bool
+operator== (const variant& a, const variant& b)
+{
+  if (a.val_type != b.val_type)
+    return false;
+
+  switch (a.val_type)
+  {
+  case variant::type_int:
+    return a.int_val == b.int_val;
+  case variant::type_str:
+    return a.str_val == b.str_val;
+  }
+
+  return false;
+}
+
 #if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
 // Map GEOMETRY SQL Server type to the point C++ struct. The other half
 // of this mapping is in traits.hxx (value_traits<point, id_string>).
@@ -55,6 +95,9 @@ struct object
   #pragma db id
   unsigned long id;
 
+  variant v;
+  std::vector<variant> vv;
+
 #if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
   point p;
   std::vector<point> pv;
@@ -67,6 +110,7 @@ struct object
   operator== (const object& y) const
   {
     return id == y.id
+      && vv == y.vv
 #if !defined(MSSQL_SERVER_VERSION) || MSSQL_SERVER_VERSION >= 1000
       && p == y.p
       && pv == y.pv
