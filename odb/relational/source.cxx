@@ -581,10 +581,11 @@ traverse_object (type& c)
 
         os << strlit (" FROM " + qtable) << endl;
 
-        if (poly_derived)
+        if (d != 1)
         {
-          instance<polymorphic_object_joins> j (c, d);
-          j->traverse (c);
+          size_t d1 (d - 1); //@@ (im)perfect forward.
+          instance<polymorphic_object_joins> j (c, d1);
+          j->traverse (polymorphic_base (c));
         }
 
         bool f (false); // @@ (im)perfect forwarding
@@ -809,10 +810,11 @@ traverse_object (type& c)
 
     os << strlit (" FROM " + qtable) << endl;
 
-    if (poly_derived)
+    if (poly_depth != 1)
     {
-      instance<polymorphic_object_joins> j (c, poly_depth);
-      j->traverse (c);
+      size_t d (poly_depth - 1); //@@ (im)perfect forward.
+      instance<polymorphic_object_joins> j (c, d);
+      j->traverse (polymorphic_base (c));
     }
 
     if (id != 0)
@@ -3240,9 +3242,10 @@ traverse_view (type& c)
 
           if (poly_depth != 1)
           {
+            size_t d (poly_depth - 1); //@@ (im)perfect forward.
             instance<polymorphic_object_joins> j (
-              o, poly_depth, i->alias, "r += ", ";");
-            j->traverse (o);
+              o, d, i->alias, "r += ", ";");
+            j->traverse (polymorphic_base (o));
           }
 
           os << endl;
@@ -3277,9 +3280,10 @@ traverse_view (type& c)
 
           if (poly_depth != 1)
           {
+            size_t d (poly_depth - 1); //@@ (im)perfect forward.
             instance<polymorphic_object_joins> j (
-              o, poly_depth, i->alias, "r += ", ";");
-            j->traverse (o);
+              o, d, i->alias, "r += ", ";");
+            j->traverse (polymorphic_base (o));
           }
 
           os << endl;
@@ -3653,9 +3657,10 @@ traverse_view (type& c)
 
         if (poly_depth != 1)
         {
+          size_t d (poly_depth - 1); //@@ (im)perfect forward.
           instance<polymorphic_object_joins> j (
-            o, poly_depth, i->alias, "r += ", ";");
-          j->traverse (o);
+            o, d, i->alias, "r += ", ";");
+          j->traverse (polymorphic_base (o));
         }
 
         os << endl;

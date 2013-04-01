@@ -142,7 +142,15 @@ namespace relational
         //
         if (im != 0)
         {
-          semantics::data_member& id (*id_member (c));
+          bool poly (polymorphic (c) != 0);
+
+          // In a polymorphic hierarchy the inverse member can be in
+          // the base class, in which case we should use that table.
+          //
+          semantics::class_& imc (
+            poly ? dynamic_cast<semantics::class_&> (im->scope ()) : c);
+
+          semantics::data_member& id (*id_member (imc));
           semantics::type& idt (utype (id));
 
           if (container (*im))
@@ -158,10 +166,10 @@ namespace relational
             string table;
 
             if (!table_name_.empty ())
-              table = table_qname (*im, table_prefix (c));
+              table = table_qname (*im, table_prefix (imc));
 
             instance<object_columns> oc (table, sk_, sc_);
-            oc->traverse (*im, idt, "id", "object_id", &c);
+            oc->traverse (*im, idt, "id", "object_id", &imc);
           }
           else
           {
@@ -177,7 +185,7 @@ namespace relational
             // it is not; if table_name_ is empty then we are generating a
             // container table where we don't qualify columns with tables.
             //
-            string table;
+            string alias;
 
             if (!table_name_.empty ())
             {
@@ -198,10 +206,18 @@ namespace relational
                 n = column_name (m, key_prefix_, default_name_, dummy);
               }
 
-              table = quote_id (compose_name (column_prefix_.prefix, n));
+              alias = compose_name (column_prefix_.prefix, n);
+
+              if (poly)
+              {
+                qname const& table (table_name (imc));
+                alias = quote_id (alias + "_" + table.uname ());
+              }
+              else
+                alias = quote_id (alias);
             }
 
-            instance<object_columns> oc (table, sk_, sc_);
+            instance<object_columns> oc (alias, sk_, sc_);
             oc->traverse (id);
           }
         }
@@ -465,27 +481,18 @@ namespace relational
             prefix_ (prefix),
             suffix_ (suffix)
       {
+        // Get the table and id columns.
+        //
+        table_ = alias_.empty ()
+          ? table_qname (obj)
+          : quote_id (alias_ + "_" + table_name (obj).uname ());
+
+        cols_->traverse (*id_member (obj));
       }
 
       virtual void
       traverse_object (semantics::class_& c)
       {
-        if (&c == &obj_)
-        {
-          // Get the table and id columns.
-          //
-          table_ = alias_.empty ()
-            ? table_qname (c)
-            : quote_id (alias_ + "_" + table_name (c).uname ());
-
-          cols_->traverse (*id_member (c));
-
-          if (--depth_ != 0)
-            inherits (c);
-          return;
-        }
-
-        semantics::class_* poly_root ();
         std::ostringstream cond;
 
         qname table (table_name (c));
@@ -513,7 +520,7 @@ namespace relational
 
         os << prefix_ << strlit (line) << suffix_;
 
-        if (&c != polymorphic (c) && --depth_ != 0)
+        if (--depth_ != 0)
           inherits (c);
       }
 
@@ -610,18 +617,23 @@ namespace relational
 
         semantics::class_* poly_root (polymorphic (c));
         bool poly (poly_root != 0);
-        bool poly_derived (poly && poly_root != &c);
 
-        bool obj_joined (false);
+        semantics::class_* joined_obj (0);
 
         if (semantics::data_member* im = inverse (m, key_prefix_))
         {
+          // In a polymorphic hierarchy the inverse member can be in
+          // the base class, in which case we should use that table.
+          //
+          semantics::class_& imc (
+            poly ? dynamic_cast<semantics::class_&> (im->scope ()) : c);
+
           if (container (*im))
           {
             // This container is a direct member of the class so the table
             // prefix is just the class table name.
             //
-            t = table_qname (*im, table_prefix (c));
+            t = table_qname (*im, table_prefix (imc));
 
             // Container's value is our id.
             //
@@ -644,6 +656,9 @@ namespace relational
             //
             if (query_)
             {
+              // Here we can use the most derived class instead of the
+              // one containing the inverse member.
+              //
               qname const& table (table_name (c));
 
               dt = quote_id (table);
@@ -666,12 +681,12 @@ namespace relational
                   t << '.' << quote_id (i->name);
               }
 
-              obj_joined = true;
+              joined_obj = &c;
             }
           }
           else
           {
-            qname const& table (table_name (c));
+            qname const& table (table_name (imc));
 
             t = quote_id (table);
             a = quote_id (poly ? alias + "_" + table.uname () : alias);
@@ -682,7 +697,6 @@ namespace relational
             for (object_columns_list::iterator b (id_cols->begin ()), i (b),
                    j (id_cols_->begin ()); i != id_cols->end (); ++i, ++j)
             {
-
               if (i != b)
                 cond << " AND ";
 
@@ -690,7 +704,11 @@ namespace relational
                 table_ << '.' << quote_id (j->name);
             }
 
-            obj_joined = true;
+            // If we are generating query, JOIN base/derived classes so
+            // that we can use their data in the WHERE clause.
+            //
+            if (query_)
+              joined_obj = &imc;
           }
         }
         else if (query_)
@@ -720,7 +738,7 @@ namespace relational
               table_ << '.' << quote_id (j->name);
           }
 
-          obj_joined = true;
+          joined_obj = &c;
         }
 
         if (!t.empty ())
@@ -754,14 +772,31 @@ namespace relational
           os << strlit (line) << endl;
         }
 
-        // If we joined the object and it is a derived type in a
-        // polymorphic hierarchy, then join its bases as well.
+        // If we joined the object that is part of a polymorphic type
+        // hierarchy, then we may need join its bases as well as its
+        // derived types.
         //
-        if (obj_joined && poly_derived)
+        if (joined_obj != 0 && poly)
         {
-          size_t depth (polymorphic_depth (c));
-          instance<polymorphic_object_joins> t (c, depth, alias);
-          t->traverse (c);
+          size_t depth (polymorphic_depth (*joined_obj));
+
+          // Join "up" (derived).
+          //
+          if (joined_obj != &c)
+          {
+            size_t d (polymorphic_depth (c) - depth); //@@ (im)perfect forward.
+            instance<polymorphic_object_joins> t (*joined_obj, d, alias);
+            t->traverse (c);
+          }
+
+          // Join "down" (base).
+          //
+          if (joined_obj != poly_root)
+          {
+            size_t d (depth - 1); //@@ (im)perfect forward.
+            instance<polymorphic_object_joins> t (*joined_obj, d, alias);
+            t->traverse (polymorphic_base (*joined_obj));
+          }
         }
       }
 
@@ -1958,6 +1993,14 @@ namespace relational
           if (inverse)
           {
             semantics::class_* c (object_pointer (vt));
+
+            // In a polymorphic hierarchy the inverse member can be in
+            // the base class, in which case we should use that class
+            // for the table name, etc.
+            //
+            if (polymorphic (*c))
+              c = &dynamic_cast<semantics::class_&> (im->scope ());
+
             semantics::data_member& inv_id (*id_member (*c));
 
             qname inv_table;                            // Other table name.
