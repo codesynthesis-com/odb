@@ -28,6 +28,7 @@
 #include "test11.hxx"
 #include "test12.hxx"
 #include "test13.hxx"
+#include "test14.hxx"
 
 #include "test1-odb.hxx"
 #include "test2-odb.hxx"
@@ -42,6 +43,7 @@
 #include "test11-odb.hxx"
 #include "test12-odb.hxx"
 #include "test13-odb.hxx"
+#include "test14-odb.hxx"
 
 using namespace std;
 using namespace odb::core;
@@ -1919,6 +1921,85 @@ main (int argc, char* argv[])
         assert (rd2.id == d.id && rd2.nums == rd2.nums &&
                 rd2.strs == rd2.strs);
         assert (rb1.id == b1.id);
+      }
+    }
+
+    // Test 14: inverse pointer in polymorphic base.
+    //
+    {
+      using namespace test14;
+
+      derived d;
+      d.num = 123;
+
+      d.o1 = new object1;
+      d.o2 = new object2;
+      d.o3.push_back (new object3);
+      d.o4.push_back (new object4);
+
+      // Persist.
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (d.o1);
+        db->persist (d.o2);
+        db->persist (d.o3[0]);
+        db->persist (d.o4[0]);
+        db->persist (d);
+        t.commit ();
+      }
+
+      // Load.
+      //
+      {
+        session s;
+
+        transaction t (db->begin ());
+        object1* p1 (db->load<object1> (d.o1->id));
+        object2* p2 (db->load<object2> (d.o2->id));
+        object3* p3 (db->load<object3> (d.o3[0]->id));
+        object4* p4 (db->load<object4> (d.o4[0]->id));
+        t.commit ();
+
+        assert (p1->d->num = d.num);
+        assert (p2->d[0]->num = d.num);
+        assert (p3->d[0]->num = d.num);
+        assert (p4->d->num = d.num);
+        delete p1->d;
+      }
+
+      // Query.
+      //
+      {
+        typedef odb::query<object1> query;
+        typedef odb::result<object1> result;
+
+        session s;
+        transaction t (db->begin ());
+
+        result r (db->query<object1> (query::d->num == d.num));
+        result::iterator i (r.begin ()), e (r.end ());
+
+        assert (i != e && i->d->num == d.num);
+        delete i.load ()->d;
+        assert (++i == e);
+        t.commit ();
+      }
+
+      {
+        typedef odb::query<object4> query;
+        typedef odb::result<object4> result;
+
+        session s;
+        transaction t (db->begin ());
+
+        result r (db->query<object4> (query::d->num == d.num));
+        result::iterator i (r.begin ()), e (r.end ());
+
+        assert (i != e && i->d->num == d.num);
+        delete i.load ()->d;
+        assert (++i == e);
+        t.commit ();
       }
     }
   }
