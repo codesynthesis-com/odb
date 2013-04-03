@@ -93,6 +93,12 @@ for %%c in (%confs%) do (
   )
 )
 
+for %%c in (%confs%) do (
+  for %%p in (%plats%) do (
+    call :run_build evolution/evolution-%1-vc%vcver%.sln %%c %%p
+  )
+)
+
 if not "_%failed%_" == "__" goto error
 
 echo.

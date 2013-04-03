@@ -1,0 +1,142 @@
+# file      : evolution/template/makefile
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
+
+cxx_tun := driver.cxx
+odb_hdr := test1.hxx test2.hxx
+cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
+cxx_od  := $(cxx_obj:.o=.o.d)
+
+common.l             := $(out_root)/libcommon/common/common.l
+common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
+
+driver  := $(out_base)/driver
+dist    := $(out_base)/.dist
+test    := $(out_base)/.test
+clean   := $(out_base)/.clean
+
+# Import.
+#
+$(call import,\
+  $(scf_root)/import/odb/stub.make,\
+  odb: odb,odb-rules: odb_rules)
+
+# Build.
+#
+$(driver): $(cxx_obj) $(common.l)
+$(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
+$(cxx_obj) $(cxx_od): $(common.l.cpp-options)
+
+genf1 := test1-odb.hxx test1-odb.ixx test1-odb.cxx test1.sql model.xml
+gen1  := $(addprefix $(out_base)/,$(genf1))
+
+genf2 := test2-odb.hxx test2-odb.ixx test2-odb.cxx test2.sql \
+test2-002-pre.sql test2-002-post.sql test2-003-pre.sql test2-003-post.sql
+gen2  := $(addprefix $(out_base)/,$(genf2))
+
+genf := $(genf1) $(genf2)
+gen  := $(gen1) $(gen2)
+
+$(gen): $(odb)
+$(gen): odb := $(odb)
+$(gen) $(dist): odb_common_options = --database $(db_id) --generate-query \
+--generate-schema --omit-create --at-once --table-prefix evo_template_ #@@ CHANGE THIS
+$(gen1) $(dist): export odb_options1 = $(odb_common_options) --schema-name \
+test1 --init-changelog --suppress-migration
+$(gen2) $(dist): export odb_options2 = $(odb_common_options) --schema-name \
+test2
+$(gen1): odb_options += $(odb_options1) --changelog $(out_base)/model.xml
+$(gen2): odb_options += $(odb_options2) --changelog $(out_base)/model.xml
+$(gen): cpp_options := -I$(src_base)
+$(gen): $(common.l.cpp-options)
+
+$(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
+
+# Make sure test2.hxx is compiled before test1.hxx since they share the
+# changelog. Also add dependency on model.hxx
+#
+$(gen2): $(gen1)
+$(gen): $(src_base)/model.hxx
+
+# Alias for default target.
+#
+$(out_base)/: $(driver)
+
+# Dist
+#
+name := $(subst /,-,$(subst $(src_root)/evolution/,,$(src_base)))
+
+$(dist): db_id := @database@
+$(dist): sources := $(cxx_tun)
+$(dist): headers := $(odb_hdr)
+$(dist): export extra_headers := model.hxx
+$(dist): export name := $(name)
+$(dist): export extra_dist := $(call vc9projs,$(name)) \
+$(call vc10projs,$(name)) $(call vc11projs,$(name))
+$(dist):
+	$(call dist-data,$(sources) $(headers) $(extra_headers))
+	$(call meta-automake,../template/Makefile.am)
+	$(call meta-vc9projs,../template/template,$(name))
+	$(call meta-vc10projs,../template/template,$(name))
+	$(call meta-vc11projs,../template/template,$(name))
+
+# Test.
+#
+$(test): $(driver)
+        # Drop everything.
+	$(call schema,$(out_base)/test1.sql)
+	$(call schema,$(out_base)/test2.sql)
+        # Base schema (-post is always empty).
+	$(call schema,$(out_base)/test2-002-pre.sql)
+	$(call message,test $< base,$< --options-file $(dcf_root)/db.options 1)
+        # Migration.
+	$(call schema,$(out_base)/test2-003-pre.sql)
+	$(call message,test $< migration,$< --options-file $(dcf_root)/db.options 2)
+	$(call schema,$(out_base)/test2-003-post.sql)
+        # Current schema.
+	$(call message,test $< current,$< --options-file $(dcf_root)/db.options 3)
+
+# Clean.
+#
+$(clean):                            \
+  $(driver).o.clean                  \
+  $(addsuffix .cxx.clean,$(cxx_obj)) \
+  $(addsuffix .cxx.clean,$(cxx_od))  \
+  $(addprefix $(out_base)/,$(odb_hdr:.hxx=-odb.cxx.hxx.clean))
+	$(call message,,rm -f $(out_base)/model.xml)   # Changelog.
+	$(call message,,rm -f $(out_base)/test2-*.sql) # Migration files.
+
+# Generated .gitignore.
+#
+ifeq ($(out_base),$(src_base))
+$(driver): | $(out_base)/.gitignore
+
+$(out_base)/.gitignore: files := driver $(genf)
+$(clean): $(out_base)/.gitignore.clean
+
+$(call include,$(bld_root)/git/gitignore.make)
+endif
+
+# How to.
+#
+$(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc9proj.make)
+$(call include,$(bld_root)/meta/vc10proj.make)
+$(call include,$(bld_root)/meta/vc11proj.make)
+$(call include,$(bld_root)/meta/automake.make)
+
+$(call include,$(bld_root)/cxx/standard.make) # cxx_standard
+ifdef cxx_standard
+$(gen): odb_options += --std $(cxx_standard)
+$(call include,$(odb_rules))
+endif
+
+$(call include,$(bld_root)/cxx/cxx-d.make)
+$(call include,$(bld_root)/cxx/cxx-o.make)
+$(call include,$(bld_root)/cxx/o-e.make)
+
+# Dependencies.
+#
+$(call import,$(src_root)/libcommon/makefile)

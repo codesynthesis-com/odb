@@ -2,7 +2,7 @@
 # copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-SUBDIRS = libcommon common
+SUBDIRS = libcommon common evolution
 
 if ODB_TESTS_BOOST
 SUBDIRS += boost

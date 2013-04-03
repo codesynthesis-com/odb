@@ -38,8 +38,8 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb) FORCE # Force regeneration even if up to date.
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database $(db_id) \
---generate-schema-only --schema-format sql --changelog-dir $(out_base)
+$(gen): export odb_options += --database $(db_id) --generate-schema-only \
+--schema-format sql --suppress-migration --changelog-dir $(out_base)
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
@@ -47,6 +47,7 @@ ifdef STEP
 
 ifeq ($(STEP),1)
 $(gen): cpp_options += -DBVER=1 -DCVER=1 # Initialize.
+$(gen): odb_options += --init-changelog  # Suppress notice.
 else ifeq ($(STEP),2)
 $(gen): cpp_options += -DBVER=1 -DCVER=2 # Diff.
 else ifeq ($(STEP),3)

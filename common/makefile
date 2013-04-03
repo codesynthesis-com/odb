@@ -79,7 +79,7 @@ $(dist): name := $(name)
 $(dist): export dirs := $(filter-out $(no_dist_tests),$(tests))
 $(dist): export thread_dirs := $(thread_tests)
 $(dist): export cxx11_dirs := $(cxx11_tests)
-$(dist): export extra_dist :=  test.bat $(call vc9slns,$(name)) \
+$(dist): export extra_dist := test.bat $(call vc9slns,$(name)) \
 $(call vc10slns,$(name)) $(call vc11slns,$(name))
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call meta-automake)

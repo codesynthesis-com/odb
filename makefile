@@ -4,8 +4,8 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))build/bootstrap.make
 
-all_dirs := libcommon common mysql sqlite pgsql oracle mssql boost qt
-dirs := common boost qt
+all_dirs := libcommon common evolution mysql sqlite pgsql oracle mssql boost qt
+dirs := common evolution boost qt
 dirs += $(db_id)
 
 default := $(out_base)/
