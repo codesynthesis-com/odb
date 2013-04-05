@@ -30,9 +30,6 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     odb::nullable<std::string> str;
 
     unsigned long num;
-
-    #pragma db null
-    unsigned long dummy; // Test multiple ALTER COLUMN clauses.
 #else
     // Use nullable to be able to access during migration.
     //
@@ -41,7 +38,11 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 
     odb::nullable<unsigned long> num;
 
-    unsigned long dummy;
+    // Test adding NOT NULL column. It should be added NULL in pre
+    // and then converted to NOT NULL in post.
+    //
+    #pragma db not_null
+    odb::nullable<unsigned long> num1;
 #endif
   };
 }

@@ -63,11 +63,13 @@ main (int argc, char* argv[])
 
           assert (!p->str);
           assert (p->num && *p->num == 123);
+          assert (!p->num1);
 
           // Migration.
           //
           p->str = "abc";
           p->num.reset ();
+          p->num1 = 123;
           db->update (*p);
 
           t.commit ();
@@ -93,12 +95,25 @@ main (int argc, char* argv[])
         try
         {
           object o2 (2);
+          o2.num1 = 234; // str is NULL
 
           transaction t (db->begin ());
           db->persist (o2);
           assert (false);
         }
         catch (const odb::exception& ) {}
+
+        try
+        {
+          object o3 (3);
+          o3.str = "bcd"; // num1 is NULL
+
+          transaction t (db->begin ());
+          db->persist (o3);
+          assert (false);
+        }
+        catch (const odb::exception& ) {}
+
         break;
       }
     default:
