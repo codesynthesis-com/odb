@@ -4,11 +4,13 @@
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
-tests :=   \
-add-table  \
-drop-table \
-add-index  \
-drop-index \
+tests :=    \
+add-table   \
+drop-table  \
+add-column  \
+drop-column \
+add-index   \
+drop-index  \
 template
 
 default   := $(out_base)/
