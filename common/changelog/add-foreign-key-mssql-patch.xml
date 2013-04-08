@@ -6,7 +6,7 @@
       <primary-key auto="true">
         <column name="id"/>
       </primary-key>
-      <foreign-key name="object_o1_fk" deferred="true">
+      <foreign-key name="object_o1_fk" deferrable="DEFERRED">
         <column name="o1"/>
         <references table="object1">
           <column name="id"/>

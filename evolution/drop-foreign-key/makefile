@@ -1,4 +1,4 @@
-# file      : evolution/drop-table/makefile
+# file      : evolution/drop-foreign-key/makefile
 # copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
@@ -42,7 +42,8 @@ gen  := $(gen1) $(gen2)
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): odb_common_options = --database $(db_id) --generate-query \
---generate-schema --omit-create --at-once --table-prefix evo_drop_t_
+--generate-schema --omit-create --at-once --fkeys-deferrable-mode \
+not_deferrable --table-prefix evo_drop_fk_
 $(gen1) $(dist): export odb_options1 = $(odb_common_options) --schema-name \
 test1 --init-changelog --suppress-migration
 $(gen2) $(dist): export odb_options2 = $(odb_common_options) --schema-name \

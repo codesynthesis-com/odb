@@ -2,7 +2,7 @@
   <changeset version="2">
     <alter-table name="object">
       <add-column name="o1" type="INT" null="true"/>
-      <add-foreign-key name="object_o1_fk" deferred="true">
+      <add-foreign-key name="object_o1_fk" deferrable="DEFERRED">
         <column name="o1"/>
         <references table="object1">
           <column name="id"/>
