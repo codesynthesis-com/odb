@@ -14,6 +14,7 @@ add-foreign-key  \
 drop-foreign-key \
 add-index        \
 drop-index       \
+combined         \
 template
 
 default   := $(out_base)/
