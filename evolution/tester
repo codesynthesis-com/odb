@@ -14,8 +14,8 @@ if test -f test1.sql; then
   #
 
   # Drop everything.
-  $top_builddir/db-driver test1.sql || exit 1
   $top_builddir/db-driver test2.sql || exit 1
+  $top_builddir/db-driver test1.sql || exit 1
 
   # Base schema (-post is always empty).
   $top_builddir/db-driver test2-002-pre.sql || exit 1

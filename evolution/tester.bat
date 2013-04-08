@@ -28,10 +28,10 @@ if exist test*.sql (
 
   rem Drop everything.
   rem
-  call %topdir%\%1-driver.bat test1.sql
+  call %topdir%\%1-driver.bat test2.sql
   if errorlevel 1 goto error
 
-  call %topdir%\%1-driver.bat test2.sql
+  call %topdir%\%1-driver.bat test1.sql
   if errorlevel 1 goto error
 
   rem Base schema (-post is always empty).

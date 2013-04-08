@@ -87,8 +87,8 @@ $(dist):
 #
 $(test): $(driver)
         # Drop everything.
-	$(call schema,$(out_base)/test1.sql)
 	$(call schema,$(out_base)/test2.sql)
+	$(call schema,$(out_base)/test1.sql)
         # Base schema (-post is always empty).
 	$(call schema,$(out_base)/test2-002-pre.sql)
 	$(call message,test $< base,$< --options-file $(dcf_root)/db.options 1)
