@@ -29,15 +29,16 @@ $(driver): $(cxx_obj) $(common.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
-genf1 := test1-odb.hxx test1-odb.ixx test1-odb.cxx test1.sql model.xml
+genf1 := test1-odb.hxx test1-odb.ixx test1-odb.cxx model.xml
 gen1  := $(addprefix $(out_base)/,$(genf1))
 
-genf2 := test2-odb.hxx test2-odb.ixx test2-odb.cxx test2.sql \
-test2-002-pre.sql test2-002-post.sql test2-003-pre.sql test2-003-post.sql
+genf2 := test2-odb.hxx test2-odb.ixx test2-odb.cxx
 gen2  := $(addprefix $(out_base)/,$(genf2))
 
 genf := $(genf1) $(genf2)
 gen  := $(gen1) $(gen2)
+gens := test1.sql test2.sql test2-002-pre.sql test2-002-post.sql \
+test2-003-pre.sql test2-003-post.sql
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
@@ -114,7 +115,7 @@ $(clean):                            \
 ifeq ($(out_base),$(src_base))
 $(driver): | $(out_base)/.gitignore
 
-$(out_base)/.gitignore: files := driver $(genf)
+$(out_base)/.gitignore: files := driver $(genf) $(gens)
 $(clean): $(out_base)/.gitignore.clean
 
 $(call include,$(bld_root)/git/gitignore.make)

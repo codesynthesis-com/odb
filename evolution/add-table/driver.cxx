@@ -11,6 +11,7 @@
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
+#include <odb/schema-catalog.hxx>
 
 #include <common/common.hxx>
 
@@ -27,7 +28,8 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_database (argc, argv, false));
+    bool embedded (schema_catalog::exists (*db, "test2"));
 
     // 1 - base version
     // 2 - migration
@@ -40,6 +42,15 @@ main (int argc, char* argv[])
     case 1:
       {
         using namespace v2;
+
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::create_schema (*db, "test2");
+          schema_catalog::create_schema (*db, "test1");
+          schema_catalog::migrate_schema (*db, 2, "test2");
+          t.commit ();
+        }
 
         object o (1);
         o.str = "abc";
@@ -55,6 +66,13 @@ main (int argc, char* argv[])
       {
         using namespace v3;
 
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_pre (*db, 3, "test2");
+          t.commit ();
+        }
+
         object1 o1;
         o1.nums.push_back (1);
         o1.nums.push_back (2);
@@ -67,6 +85,12 @@ main (int argc, char* argv[])
           t.commit ();
         }
 
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_post (*db, 3, "test2");
+          t.commit ();
+        }
         break;
       }
     case 3:

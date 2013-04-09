@@ -11,7 +11,9 @@
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
+#include <odb/schema-catalog.hxx>
 
+#include <common/config.hxx>  // DATABASE_XXX
 #include <common/common.hxx>
 
 #include "test1.hxx"
@@ -27,7 +29,8 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_database (argc, argv, false));
+    bool embedded (schema_catalog::exists (*db, "test2"));
 
     // 1 - base version
     // 2 - migration
@@ -41,6 +44,15 @@ main (int argc, char* argv[])
       {
         using namespace v2;
 
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::create_schema (*db, "test2");
+          schema_catalog::create_schema (*db, "test1");
+          schema_catalog::migrate_schema (*db, 2, "test2");
+          t.commit ();
+        }
+
         object o (1);
 
         {
@@ -53,6 +65,20 @@ main (int argc, char* argv[])
     case 2:
       {
         using namespace v3;
+
+#ifdef DATABASE_SQLITE
+        // In SQLite we can only add foreign keys inline in the column
+        // definition.
+        //
+        db->connection ()->execute ("PRAGMA foreign_keys=OFF");
+#endif
+
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_pre (*db, 3, "test2");
+          t.commit ();
+        }
 
         // Both pointers are now NULL.
         //
@@ -83,6 +109,12 @@ main (int argc, char* argv[])
           t.commit ();
         }
 
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_post (*db, 3, "test2");
+          t.commit ();
+        }
         break;
       }
     case 3:
@@ -113,6 +145,7 @@ main (int argc, char* argv[])
 
         // As well as the NOT NULL.
         //
+#ifndef DATABASE_SQLITE
         try
         {
           object o (3);
@@ -123,6 +156,7 @@ main (int argc, char* argv[])
           assert (false);
         }
         catch (const odb::exception& ) {}
+#endif
         break;
       }
     default:

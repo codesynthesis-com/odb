@@ -12,6 +12,8 @@
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
 
+#include <common/config.hxx> // DATABASE_XXX
+
 #pragma db model version(1, MODEL_VERSION)
 
 #define MODEL_NAMESPACE_IMPL(V) v##V
@@ -45,13 +47,15 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 #endif
     unsigned long dui;
 
-    // Alter table drop foreign key.
+    // Alter table drop foreign key. Not supported by SQLite.
     //
+#ifndef DATABASE_SQLITE
 #if MODEL_VERSION == 2
     object1* dfk;
 #else
     #pragma db null
     unsigned long dfk;
+#endif
 #endif
 
     // Add table.
@@ -68,16 +72,22 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 
     odb::nullable<unsigned long> ac2;
 
-    #pragma db not_null // Initially added as NULL, converted to NOT NULL.
+    // Initially added as NULL, converted to NOT NULL. Not supported by SQLite.
+    //
+#ifndef DATABASE_SQLITE
+    #pragma db not_null
     odb::nullable<unsigned long> ac3;
 #endif
+#endif
 
-    // Alter column NULL.
+    // Alter column NULL. Not supported by SQLite.
     //
+#ifndef DATABASE_SQLITE
 #if MODEL_VERSION == 2
     unsigned long acn;
 #else
     odb::nullable<unsigned long> acn;
+#endif
 #endif
 
     //
@@ -112,26 +122,32 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     std::vector<unsigned long> dt;
 #endif
 
-    // Drop column.
+    // Drop column. Not supported by SQLite.
     //
+#ifndef DATABASE_SQLITE
 #if MODEL_VERSION == 2
     unsigned long dc;
 #endif
+#endif
 
-    // Alter column NOT NULL.
+    // Alter column NOT NULL. Not supported by SQLite.
     //
+#ifndef DATABASE_SQLITE
 #if MODEL_VERSION == 3
     #pragma db not_null
 #endif
     odb::nullable<unsigned long> acnn;
+#endif
 
-    // Alter table add foreign key.
+    // Alter table add foreign key. Not supported by SQLite.
     //
+#ifndef DATABASE_SQLITE
 #if MODEL_VERSION == 2
     #pragma db null
     unsigned long afk;
 #else
     object1* afk;
+#endif
 #endif
 
     // Add unique index.
@@ -142,12 +158,17 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     unsigned long aui;
 
   public:
+#ifndef DATABASE_SQLITE
 #if MODEL_VERSION == 2
+
     object (std::string id = ""): id_ (id), dfk (0) {}
     ~object () {delete dfk;}
 #else
     object (std::string id = ""): id_ (id), afk (0) {}
     ~object () {delete afk;}
+#endif
+#else
+    object (std::string id = ""): id_ (id) {}
 #endif
   };
 }

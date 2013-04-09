@@ -11,6 +11,8 @@
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
 
+#include <common/config.hxx> // DATABASE_XXX
+
 #pragma db model version(1, MODEL_VERSION)
 
 #define MODEL_NAMESPACE_IMPL(V) v##V
@@ -26,6 +28,9 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     #pragma db id
     unsigned long id_;
 
+    // SQLite doesn't support altering of columns.
+    //
+#ifndef DATABASE_SQLITE
 #if MODEL_VERSION == 2
     odb::nullable<std::string> str;
 
@@ -43,6 +48,7 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     //
     #pragma db not_null
     odb::nullable<unsigned long> num1;
+#endif
 #endif
   };
 }

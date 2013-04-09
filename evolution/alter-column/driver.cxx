@@ -11,6 +11,7 @@
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
+#include <odb/schema-catalog.hxx>
 
 #include <common/common.hxx>
 
@@ -27,7 +28,12 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_database (argc, argv, false));
+
+    // SQLite doesn't support altering of columns.
+    //
+#ifndef DATABASE_SQLITE
+    bool embedded (schema_catalog::exists (*db, "test2"));
 
     // 1 - base version
     // 2 - migration
@@ -40,6 +46,15 @@ main (int argc, char* argv[])
     case 1:
       {
         using namespace v2;
+
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::create_schema (*db, "test2");
+          schema_catalog::create_schema (*db, "test1");
+          schema_catalog::migrate_schema (*db, 2, "test2");
+          t.commit ();
+        }
 
         object o (1);
         o.num = 123;
@@ -54,6 +69,13 @@ main (int argc, char* argv[])
     case 2:
       {
         using namespace v3;
+
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_pre (*db, 3, "test2");
+          t.commit ();
+        }
 
         // NULL is already in effect; NOT NULL is not yet.
         //
@@ -72,6 +94,13 @@ main (int argc, char* argv[])
           p->num1 = 123;
           db->update (*p);
 
+          t.commit ();
+        }
+
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_post (*db, 3, "test2");
           t.commit ();
         }
         break;
@@ -122,6 +151,7 @@ main (int argc, char* argv[])
         return 1;
       }
     }
+#endif // DATABASE_SQLITE
   }
   catch (const odb::exception& e)
   {

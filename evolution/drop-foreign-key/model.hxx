@@ -10,6 +10,8 @@
 
 #include <odb/core.hxx>
 
+#include <common/config.hxx> // DATABASE_XXX
+
 #pragma db model version(1, MODEL_VERSION)
 
 #define MODEL_NAMESPACE_IMPL(V) v##V
@@ -23,6 +25,9 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     #pragma db id
     unsigned long id_;
 
+    // SQLite doesn't support dropping of foreign keys.
+    //
+#ifndef DATABASE_SQLITE
 #if MODEL_VERSION == 2
     object* o1;
     object* o2;
@@ -37,6 +42,7 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     unsigned long o2;
 
     object (unsigned long id = 0): id_ (id) {}
+#endif
 #endif
   };
 }

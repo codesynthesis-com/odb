@@ -48,7 +48,11 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 #else
     object1* o1;
 
+    // There is no support for changing a column to NOT NULL in SQLite.
+    //
+#ifndef ODB_DATABASE_SQLITE
     #pragma db not_null
+#endif
     object2* o2;
 
     object (unsigned long id = 0): id_ (id), o1 (0), o2 (0) {}

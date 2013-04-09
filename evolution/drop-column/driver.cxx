@@ -11,6 +11,7 @@
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
+#include <odb/schema-catalog.hxx>
 
 #include <common/common.hxx>
 
@@ -27,7 +28,12 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_database (argc, argv, false));
+
+    // SQLite doesn't support dropping of columns.
+    //
+#ifndef DATABASE_SQLITE
+    bool embedded (schema_catalog::exists (*db, "test2"));
 
     // 1 - base version
     // 2 - migration
@@ -40,6 +46,15 @@ main (int argc, char* argv[])
     case 1:
       {
         using namespace v2;
+
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::create_schema (*db, "test2");
+          schema_catalog::create_schema (*db, "test1");
+          schema_catalog::migrate_schema (*db, 2, "test2");
+          t.commit ();
+        }
 
         object o (1);
         o.str = "abc";
@@ -56,6 +71,13 @@ main (int argc, char* argv[])
       {
         using namespace v2; // @@ soft delete
 
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_pre (*db, 3, "test2");
+          t.commit ();
+        }
+
         // Things are still there.
         //
         {
@@ -65,6 +87,13 @@ main (int argc, char* argv[])
           assert (p->str == "abc");
           assert (p->num == 123);
 
+          t.commit ();
+        }
+
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_post (*db, 3, "test2");
           t.commit ();
         }
         break;
@@ -88,6 +117,7 @@ main (int argc, char* argv[])
         return 1;
       }
     }
+#endif // DATABASE_SQLITE
   }
   catch (const odb::exception& e)
   {

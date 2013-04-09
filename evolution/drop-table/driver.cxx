@@ -11,6 +11,7 @@
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
+#include <odb/schema-catalog.hxx>
 
 #include <common/common.hxx>
 
@@ -27,7 +28,8 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    auto_ptr<database> db (create_database (argc, argv, false));
+    bool embedded (schema_catalog::exists (*db, "test2"));
 
     // 1 - base version
     // 2 - migration
@@ -40,6 +42,15 @@ main (int argc, char* argv[])
     case 1:
       {
         using namespace v2;
+
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::create_schema (*db, "test2");
+          schema_catalog::create_schema (*db, "test1");
+          schema_catalog::migrate_schema (*db, 2, "test2");
+          t.commit ();
+        }
 
         object1 o1;
         o1.o = new object (1);
@@ -60,6 +71,13 @@ main (int argc, char* argv[])
       {
         using namespace v2; // @@ v3; soft immediate drop
 
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_pre (*db, 3, "test2");
+          t.commit ();
+        }
+
         // Both object and object1 are still there so we can migrate the data.
         //
         typedef odb::query<object1> query;
@@ -79,6 +97,12 @@ main (int argc, char* argv[])
           t.commit ();
         }
 
+        if (embedded)
+        {
+          transaction t (db->begin ());
+          schema_catalog::migrate_schema_pre (*db, 3, "test2");
+          t.commit ();
+        }
         break;
       }
     case 3:
