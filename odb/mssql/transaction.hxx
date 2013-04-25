@@ -28,7 +28,9 @@ namespace odb
       typedef mssql::connection connection_type;
 
       explicit
-      transaction (transaction_impl*);
+      transaction (transaction_impl*, bool make_current = true);
+
+      transaction ();
 
       // Return the database this transaction is on.
       //
