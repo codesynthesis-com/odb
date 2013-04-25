@@ -7,6 +7,8 @@
 
 #include <odb/mssql/mssql.hxx>
 #include <odb/mssql/database.hxx>
+#include <odb/mssql/statement.hxx>
+#include <odb/mssql/transaction.hxx>
 #include <odb/mssql/exceptions.hxx>
 #include <odb/mssql/error.hxx>
 
@@ -21,12 +23,12 @@ namespace odb
     using odb::details::transfer_ptr;
 
     database::
-    database (const std::string& user,
-              const std::string& password,
-              const std::string& db,
-              const std::string& server,
-              const std::string& driver,
-              const std::string& extra_connect_string,
+    database (const string& user,
+              const string& password,
+              const string& db,
+              const string& server,
+              const string& driver,
+              const string& extra_connect_string,
               transaction_isolation_type transaction_isolation,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
@@ -47,14 +49,14 @@ namespace odb
     }
 
     database::
-    database (const std::string& user,
-              const std::string& password,
-              const std::string& db,
+    database (const string& user,
+              const string& password,
+              const string& db,
               protocol_type protocol,
-              const std::string& host,
-              const std::string& instance,
-              const std::string& driver,
-              const std::string& extra_connect_string,
+              const string& host,
+              const string& instance,
+              const string& driver,
+              const string& extra_connect_string,
               transaction_isolation_type transaction_isolation,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
@@ -76,13 +78,13 @@ namespace odb
     }
 
     database::
-    database (const std::string& user,
-              const std::string& password,
-              const std::string& db,
-              const std::string& host,
+    database (const string& user,
+              const string& password,
+              const string& db,
+              const string& host,
               unsigned int port,
-              const std::string& driver,
-              const std::string& extra_connect_string,
+              const string& driver,
+              const string& extra_connect_string,
               transaction_isolation_type transaction_isolation,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
@@ -122,7 +124,7 @@ namespace odb
     database (int& argc,
               char* argv[],
               bool erase,
-              const std::string& extra_connect_string,
+              const string& extra_connect_string,
               transaction_isolation_type transaction_isolation,
               SQLHENV environment,
               transfer_ptr<connection_factory> factory)
@@ -464,7 +466,7 @@ namespace odb
     }
 
     void database::
-    print_usage (std::ostream& os)
+    print_usage (ostream& os)
     {
       details::options::print_usage (os);
     }
@@ -485,6 +487,86 @@ namespace odb
     {
       connection_ptr c (factory_->connect ());
       return c.release ();
+    }
+
+    const database::schema_version_info& database::
+    load_schema_version (const string& name) const
+    {
+      schema_version_info& svi (schema_version_map_[name]);
+
+      // Construct the SELECT statement text.
+      //
+      string text ("SELECT [version], [migration] FROM ");
+
+      if (!svi.version_table.empty ())
+        text += svi.version_table; // Already quoted.
+      else if (!schema_version_table_.empty ())
+        text += schema_version_table_; // Already quoted.
+      else
+        text += "[schema_version]";
+
+      text += " WHERE [name] = ?";
+
+      // Bind parameters and results.
+      //
+      SQLLEN psize[1] = {static_cast<SQLLEN> (name.size ())};
+      bind pbind[1] = {
+        {bind::string, const_cast<char*> (name.c_str ()), &psize[0], 0}};
+      binding param (pbind, 1);
+      param.version++;
+
+      signed char migration;
+      SQLLEN rsize[2];
+      bind rbind[2] = {{bind::bigint, &svi.version, &rsize[0], 0},
+                       {bind::bit, &migration, &rsize[1], 0}};
+      binding result (rbind, 2);
+      result.version++;
+
+      // If we are not in transaction, start one.
+      //
+      transaction t;
+      if (!transaction::has_current ())
+        t.reset (factory_->connect ()->begin (), false);
+
+      mssql::connection& c (t.finalized ()
+                            ? transaction::current ().connection ()
+                            : t.connection ());
+      try
+      {
+        select_statement st (c, text.c_str (), param, result, false);
+        st.execute ();
+        auto_result ar (st);
+
+        switch (st.fetch ())
+        {
+        case select_statement::success:
+          {
+            svi.migration = migration != 0;
+            assert (st.fetch () == select_statement::no_data);
+            break;
+          }
+        case select_statement::no_data:
+          {
+            svi.version = 0; // No schema.
+            break;
+          }
+        }
+      }
+      catch (const database_exception& e)
+      {
+        // Detect the case where there is no version table. The SQL Server-
+        // specific error code (208) seems to be too generic.
+        //
+        if (e.begin ()->sqlstate () == "42S02")
+          svi.version = 0; // No schema.
+        else
+          throw;
+      }
+
+      if (!t.finalized ())
+        t.commit ();
+
+      return svi;
     }
   }
 }
