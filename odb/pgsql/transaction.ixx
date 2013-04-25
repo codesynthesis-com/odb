@@ -10,8 +10,14 @@ namespace odb
   namespace pgsql
   {
     inline transaction::
-    transaction (transaction_impl* impl)
-        : odb::transaction (impl)
+    transaction (transaction_impl* impl, bool make_current)
+        : odb::transaction (impl, make_current)
+    {
+    }
+
+    inline transaction::
+    transaction ()
+        : odb::transaction ()
     {
     }
 
