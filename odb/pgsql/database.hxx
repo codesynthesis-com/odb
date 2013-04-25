@@ -302,6 +302,12 @@ namespace odb
       connection_ptr
       connection ();
 
+      // Database schema version.
+      //
+    protected:
+      virtual const schema_version_info&
+      load_schema_version (const std::string& schema_name) const;
+
     public:
       // Database id constant (useful for meta-programming).
       //

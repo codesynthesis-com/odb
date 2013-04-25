@@ -4,10 +4,13 @@
 
 #include <sstream>
 
+#include <odb/pgsql/traits.hxx>
 #include <odb/pgsql/database.hxx>
-#include <odb/pgsql/exceptions.hxx>
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/connection-factory.hxx>
+#include <odb/pgsql/statement.hxx>
+#include <odb/pgsql/transaction.hxx>
+#include <odb/pgsql/exceptions.hxx>
 
 #include <odb/pgsql/details/options.hxx>
 
@@ -224,6 +227,109 @@ namespace odb
     {
       connection_ptr c (factory_->connect ());
       return c.release ();
+    }
+
+    const database::schema_version_info& database::
+    load_schema_version (const string& name) const
+    {
+      schema_version_info& svi (schema_version_map_[name]);
+
+      // Construct the SELECT statement text.
+      //
+      string text ("SELECT \"version\", \"migration\" FROM ");
+
+      if (!svi.version_table.empty ())
+        text += svi.version_table; // Already quoted.
+      else if (!schema_version_table_.empty ())
+        text += schema_version_table_; // Already quoted.
+      else
+        text += "\"schema_version\"";
+
+      text += " WHERE \"name\" = $1";
+
+      // Bind parameters and results.
+      //
+      size_t psize[1] = {name.size ()};
+      bool pnull[1] = {false};
+      bind pbind[1] = {{bind::text,
+                        const_cast<char*> (name.c_str ()),
+                        &psize[0],
+                        psize[0],
+                        &pnull[0],
+                        0}};
+      binding param (pbind, 1);
+      param.version++;
+
+      unsigned int param_types[1] = {text_oid};
+
+      char* values[1];
+      int lengths[1];
+      int formats[1];
+      native_binding nparam (values, lengths, formats, 1);
+
+      long long version;
+      bool rnull[2];
+      bind rbind[2] = {{bind::bigint, &version, 0, 0, &rnull[0], 0},
+                       {bind::boolean_, &svi.migration, 0, 0, &rnull[1], 0}};
+      binding result (rbind, 2);
+      result.version++;
+
+      // If we are not in transaction, PostgreSQL will start an implicit one
+      // which suits us just fine.
+      //
+      connection_ptr cp;
+      if (!transaction::has_current ())
+        cp = factory_->connect ();
+
+      pgsql::connection& c (
+        cp != 0 ? *cp : transaction::current ().connection ());
+
+      try
+      {
+        select_statement st (c,
+                             "odb_database_schema_version",
+                             text.c_str (),
+                             param_types,
+                             1,
+                             param,
+                             nparam,
+                             result,
+                             false);
+        st.execute ();
+        auto_result ar (st);
+
+        switch (st.fetch ())
+        {
+        case select_statement::success:
+          {
+            value_traits<unsigned long long, id_bigint>::set_value (
+              svi.version, version, rnull[0]);
+            assert (st.fetch () == select_statement::no_data);
+            break;
+          }
+        case select_statement::no_data:
+          {
+            svi.version = 0; // No schema.
+            break;
+          }
+        case select_statement::truncated:
+          {
+            assert (false);
+            break;
+          }
+        }
+      }
+      catch (const database_exception& e)
+      {
+        // Detect the case where there is no version table.
+        //
+        if (e.sqlstate () == "42P01")
+          svi.version = 0; // No schema.
+        else
+          throw;
+      }
+
+      return svi;
     }
   }
 }
