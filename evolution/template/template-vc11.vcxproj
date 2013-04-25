@@ -169,20 +169,29 @@ __custom_build_entry__(
 test2.hxx,
 odb test2.hxx,
 odb.exe --std c++11 __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options2), @database@, __value__(database)) --changelog model.xml -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1700 -I$(SolutionDir)\..\libcommon)) test2.hxx,
-test2-odb.hxx;test2-odb.ixx;test2-odb.cxx;test2.sql;test2-002-pre.sql;test2-002-post.sql;test2-003-pre.sql;test2-003-post.sql,
-model.xml;model.hxx)
+test2-odb.hxx;test2-odb.ixx;test2-odb.cxx;test2.sql;model.xml,
+test1-odb.hxx;model.hxx)
+__custom_build_entry__(
+test3.hxx,
+odb test3.hxx,
+odb.exe --std c++11 __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options3), @database@, __value__(database)) --changelog model.xml -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1700 -I$(SolutionDir)\..\libcommon)) test3.hxx,
+test3-odb.hxx;test3-odb.ixx;test3-odb.cxx;test3.sql;test3-002-pre.sql;test3-002-post.sql;test3-003-pre.sql;test3-003-post.sql,
+test2-odb.hxx;model.hxx)
   </ItemGroup>
   <ItemGroup>
 __header_entry__(test1-odb.hxx)
 __header_entry__(test1-odb.ixx)
 __header_entry__(test2-odb.hxx)
 __header_entry__(test2-odb.ixx)
+__header_entry__(test3-odb.hxx)
+__header_entry__(test3-odb.ixx)
 __header_entries__(extra_headers)
   </ItemGroup>
   <ItemGroup>
 __source_entry__(driver.cxx)
 __source_entry__(test1-odb.cxx)
 __source_entry__(test2-odb.cxx)
+__source_entry__(test3-odb.cxx)
 __source_entries__(extra_sources)
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

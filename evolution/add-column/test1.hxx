@@ -5,8 +5,6 @@
 #ifndef TEST1_HXX
 #define TEST1_HXX
 
-#define MODEL_VERSION 2
-#include "model.hxx"
-#undef MODEL_VERSION
+#pragma db model version(1, 1)
 
 #endif // TEST1_HXX

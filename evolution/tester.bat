@@ -28,15 +28,21 @@ if exist test*.sql (
 
   rem Drop everything.
   rem
+  call %topdir%\%1-driver.bat test3.sql
+  if errorlevel 1 goto error
+
   call %topdir%\%1-driver.bat test2.sql
   if errorlevel 1 goto error
 
   call %topdir%\%1-driver.bat test1.sql
   if errorlevel 1 goto error
 
-  rem Base schema (-post is always empty).
+  rem Base schema.
   rem
-  call %topdir%\%1-driver.bat test2-002-pre.sql
+  call %topdir%\%1-driver.bat test3-002-pre.sql
+  if errorlevel 1 goto error
+
+  call %topdir%\%1-driver.bat test3-002-post.sql
   if errorlevel 1 goto error
 
   %dir%\driver.exe --options-file %topdir%\%1.options 1
@@ -44,13 +50,13 @@ if exist test*.sql (
 
   rem Migration.
   rem
-  call %topdir%\%1-driver.bat test2-003-pre.sql
+  call %topdir%\%1-driver.bat test3-003-pre.sql
   if errorlevel 1 goto error
 
   %dir%\driver.exe --options-file %topdir%\%1.options 2
   if errorlevel 1 goto error
 
-  call %topdir%\%1-driver.bat test2-003-post.sql
+  call %topdir%\%1-driver.bat test3-003-post.sql
   if errorlevel 1 goto error
 
   rem Current schema.

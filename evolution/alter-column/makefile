@@ -5,7 +5,7 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 cxx_tun := driver.cxx
-odb_hdr := test1.hxx test2.hxx
+odb_hdr := test1.hxx test2.hxx test3.hxx
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
@@ -29,36 +29,41 @@ $(driver): $(cxx_obj) $(common.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
-genf1 := test1-odb.hxx test1-odb.ixx test1-odb.cxx model.xml
+genf1 := test1-odb.hxx test1-odb.ixx test1-odb.cxx
 gen1  := $(addprefix $(out_base)/,$(genf1))
 
 genf2 := test2-odb.hxx test2-odb.ixx test2-odb.cxx
 gen2  := $(addprefix $(out_base)/,$(genf2))
 
-genf := $(genf1) $(genf2)
-gen  := $(gen1) $(gen2)
-gens := test1.sql test2.sql test2-002-pre.sql test2-002-post.sql \
-test2-003-pre.sql test2-003-post.sql
+genf3 := test3-odb.hxx test3-odb.ixx test3-odb.cxx
+gen3  := $(addprefix $(out_base)/,$(genf3))
+
+genf := $(genf1) $(genf2) $(genf3)
+gen  := $(gen1) $(gen2) $(gen3)
+gens := test1.sql test2.sql test3.sql test3-002-pre.sql test3-002-post.sql \
+test3-003-pre.sql test3-003-post.sql
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): odb_common_options = --database $(db_id) --generate-query \
---generate-schema --omit-create --at-once --table-prefix evo_alter_c_
-$(gen1) $(dist): export odb_options1 = $(odb_common_options) --schema-name \
-test1 --init-changelog --suppress-migration
-$(gen2) $(dist): export odb_options2 = $(odb_common_options) --schema-name \
-test2
+--generate-schema --at-once --table-prefix evo_alter_c_
+$(gen1) $(dist): export odb_options1 = $(odb_common_options) --init-changelog
+$(gen2) $(dist): export odb_options2 = $(odb_common_options) --omit-create \
+--schema-name 2 --suppress-migration
+$(gen3) $(dist): export odb_options3 = $(odb_common_options) --omit-create
 $(gen1): odb_options += $(odb_options1) --changelog $(out_base)/model.xml
 $(gen2): odb_options += $(odb_options2) --changelog $(out_base)/model.xml
+$(gen3): odb_options += $(odb_options3) --changelog $(out_base)/model.xml
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
 
-# Make sure test2.hxx is compiled before test1.hxx since they share the
+# Make sure testN.hxx are compiled serially since they share the
 # changelog. Also add dependency on model.hxx
 #
 $(gen2): $(gen1)
+$(gen3): $(gen2)
 $(gen): $(src_base)/model.hxx
 
 # Alias for default target.
@@ -87,15 +92,17 @@ $(dist):
 #
 $(test): $(driver)
         # Drop everything.
+	$(call schema,$(out_base)/test3.sql)
 	$(call schema,$(out_base)/test2.sql)
 	$(call schema,$(out_base)/test1.sql)
-        # Base schema (-post is always empty).
-	$(call schema,$(out_base)/test2-002-pre.sql)
+        # Base schema.
+	$(call schema,$(out_base)/test3-002-pre.sql)
+	$(call schema,$(out_base)/test3-002-post.sql)
 	$(call message,test $< base,$< --options-file $(dcf_root)/db.options 1)
         # Migration.
-	$(call schema,$(out_base)/test2-003-pre.sql)
+	$(call schema,$(out_base)/test3-003-pre.sql)
 	$(call message,test $< migration,$< --options-file $(dcf_root)/db.options 2)
-	$(call schema,$(out_base)/test2-003-post.sql)
+	$(call schema,$(out_base)/test3-003-post.sql)
         # Current schema.
 	$(call message,test $< current,$< --options-file $(dcf_root)/db.options 3)
 
@@ -107,14 +114,14 @@ $(clean):                            \
   $(addsuffix .cxx.clean,$(cxx_od))  \
   $(addprefix $(out_base)/,$(odb_hdr:.hxx=-odb.cxx.hxx.clean))
 	$(call message,,rm -f $(out_base)/model.xml)   # Changelog.
-	$(call message,,rm -f $(out_base)/test2-*.sql) # Migration files.
+	$(call message,,rm -f $(out_base)/test3-*.sql) # Migration files.
 
 # Generated .gitignore.
 #
 ifeq ($(out_base),$(src_base))
 $(driver): | $(out_base)/.gitignore
 
-$(out_base)/.gitignore: files := driver $(genf) $(gens)
+$(out_base)/.gitignore: files := driver model.xml $(genf) $(gens)
 $(clean): $(out_base)/.gitignore.clean
 
 $(call include,$(bld_root)/git/gitignore.make)

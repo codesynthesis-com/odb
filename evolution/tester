@@ -14,17 +14,19 @@ if test -f test1.sql; then
   #
 
   # Drop everything.
+  $top_builddir/db-driver test3.sql || exit 1
   $top_builddir/db-driver test2.sql || exit 1
   $top_builddir/db-driver test1.sql || exit 1
 
-  # Base schema (-post is always empty).
-  $top_builddir/db-driver test2-002-pre.sql || exit 1
+  # Base schema.
+  $top_builddir/db-driver test3-002-pre.sql || exit 1
+  $top_builddir/db-driver test3-002-post.sql || exit 1
   ./driver --options-file "$top_builddir/db.options" 1 || exit 1
 
   # Migration.
-  $top_builddir/db-driver test2-003-pre.sql || exit 1
+  $top_builddir/db-driver test3-003-pre.sql || exit 1
   ./driver --options-file "$top_builddir/db.options" 2 || exit 1
-  $top_builddir/db-driver test2-003-post.sql || exit 1
+  $top_builddir/db-driver test3-003-post.sql || exit 1
 
   # Current schema.
   ./driver --options-file "$top_builddir/db.options" 3 || exit 1

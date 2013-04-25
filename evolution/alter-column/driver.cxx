@@ -15,10 +15,10 @@
 
 #include <common/common.hxx>
 
-#include "test1.hxx"
 #include "test2.hxx"
-#include "test1-odb.hxx"
+#include "test3.hxx"
 #include "test2-odb.hxx"
+#include "test3-odb.hxx"
 
 using namespace std;
 using namespace odb::core;
@@ -33,7 +33,7 @@ main (int argc, char* argv[])
     // SQLite doesn't support altering of columns.
     //
 #ifndef DATABASE_SQLITE
-    bool embedded (schema_catalog::exists (*db, "test2"));
+    bool embedded (schema_catalog::exists (*db));
 
     // 1 - base version
     // 2 - migration
@@ -50,9 +50,10 @@ main (int argc, char* argv[])
         if (embedded)
         {
           transaction t (db->begin ());
-          schema_catalog::create_schema (*db, "test2");
-          schema_catalog::create_schema (*db, "test1");
-          schema_catalog::migrate_schema (*db, 2, "test2");
+          schema_catalog::drop_schema (*db);
+          schema_catalog::drop_schema (*db, "2");
+          schema_catalog::create_schema (*db, "", false);
+          schema_catalog::migrate_schema (*db, 2);
           t.commit ();
         }
 
@@ -73,7 +74,7 @@ main (int argc, char* argv[])
         if (embedded)
         {
           transaction t (db->begin ());
-          schema_catalog::migrate_schema_pre (*db, 3, "test2");
+          schema_catalog::migrate_schema_pre (*db, 3);
           t.commit ();
         }
 
@@ -100,7 +101,7 @@ main (int argc, char* argv[])
         if (embedded)
         {
           transaction t (db->begin ());
-          schema_catalog::migrate_schema_post (*db, 3, "test2");
+          schema_catalog::migrate_schema_post (*db, 3);
           t.commit ();
         }
         break;

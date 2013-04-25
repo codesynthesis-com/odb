@@ -34,16 +34,27 @@ test1-odb.hxx: test1.hxx
 # test2.hxx
 #
 driver_SOURCES += test2.hxx
-nodist_driver_SOURCES += test2-odb.cxx
-BUILT_SOURCES += test2-odb.hxx
-CLEANFILES += test2-odb.hxx test2-odb.ixx test2-odb.cxx test2.sql \
-test2-002-pre.sql test2-002-post.sql test2-003-pre.sql test2-003-post.sql
+nodist_driver_SOURCES = test2-odb.cxx
+BUILT_SOURCES = test2-odb.hxx
+CLEANFILES = test2-odb.hxx test2-odb.ixx test2-odb.cxx test2.sql
 
 test2-odb.hxx: test2.hxx
 	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options2) --changelog model.xml $<
 
-# Make sure test2.hxx is compiled before test1.hxx since they share the
+# test3.hxx
+#
+driver_SOURCES += test3.hxx
+nodist_driver_SOURCES += test3-odb.cxx
+BUILT_SOURCES += test3-odb.hxx
+CLEANFILES += test3-odb.hxx test3-odb.ixx test3-odb.cxx test3.sql \
+test3-002-pre.sql test3-002-post.sql test3-003-pre.sql test3-003-post.sql
+
+test3-odb.hxx: test3.hxx
+	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options3) --changelog model.xml $<
+
+# Make sure testN.hxx are compiled serially since they share the
 # changelog. Also add dependency on model.hxx
 #
 test2-odb.hxx: test1-odb.hxx
-test1-odb.hxx test2-odb.hxx: model.hxx
+test3-odb.hxx: test2-odb.hxx
+test1-odb.hxx test2-odb.hxx test3-odb.hxx: model.hxx

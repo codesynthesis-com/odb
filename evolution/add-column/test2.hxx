@@ -5,7 +5,7 @@
 #ifndef TEST2_HXX
 #define TEST2_HXX
 
-#define MODEL_VERSION 3
+#define MODEL_VERSION 2
 #include "model.hxx"
 #undef MODEL_VERSION
 

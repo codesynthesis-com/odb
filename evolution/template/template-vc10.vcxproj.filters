@@ -17,12 +17,16 @@ __header_filter_entry__(test1-odb.ixx)
 __header_filter_entry__(test2.hxx)
 __header_filter_entry__(test2-odb.hxx)
 __header_filter_entry__(test2-odb.ixx)
+__header_filter_entry__(test3.hxx)
+__header_filter_entry__(test3-odb.hxx)
+__header_filter_entry__(test3-odb.ixx)
 __header_filter_entries__(extra_headers)
   </ItemGroup>
   <ItemGroup>
 __source_filter_entry__(driver.cxx)
 __source_filter_entry__(test1-odb.cxx)
 __source_filter_entry__(test2-odb.cxx)
+__source_filter_entry__(test3-odb.cxx)
 __source_filter_entries__(extra_sources)
   </ItemGroup>
 </Project>
