@@ -17,6 +17,7 @@ drop-index       \
 combined         \
 embedded         \
 version          \
+data             \
 template
 
 default   := $(out_base)/
