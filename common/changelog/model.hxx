@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#pragma db model version(1, 1, true)
+#pragma db model version(1, 1, open)
 
 #pragma db value
 struct value

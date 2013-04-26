@@ -5,7 +5,7 @@
 #ifndef ADD_INDEX_HXX
 #define ADD_INDEX_HXX
 
-#pragma db model version(BVER, CVER, true)
+#pragma db model version(BVER, CVER, open)
 
 #pragma db object
 struct object

@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#pragma db model version(BVER, CVER, true)
+#pragma db model version(BVER, CVER, open)
 
 struct object1;
 

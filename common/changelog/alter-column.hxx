@@ -5,7 +5,7 @@
 #ifndef ALTER_COLUMN_HXX
 #define ALTER_COLUMN_HXX
 
-#pragma db model version(BVER, CVER, true)
+#pragma db model version(BVER, CVER, open)
 
 #pragma db object
 struct object

@@ -5,7 +5,7 @@
 #ifndef ADD_FOREIGN_KEY_HXX
 #define ADD_FOREIGN_KEY_HXX
 
-#pragma db model version(BVER, CVER, true)
+#pragma db model version(BVER, CVER, open)
 
 struct object1;
 
