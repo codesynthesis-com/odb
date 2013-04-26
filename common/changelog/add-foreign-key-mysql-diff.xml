@@ -12,13 +12,13 @@
   </changeset>
 
   <model version="1">
-    <table name="object">
+    <table name="object" options="ENGINE=InnoDB">
       <column name="id" type="INT" null="false"/>
       <primary-key auto="true">
         <column name="id"/>
       </primary-key>
     </table>
-    <table name="object1">
+    <table name="object1" options="ENGINE=InnoDB">
       <column name="id" type="INT" null="false"/>
       <primary-key>
         <column name="id"/>

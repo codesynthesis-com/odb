@@ -1,6 +1,6 @@
 <changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="mysql" version="1">
   <changeset version="2">
-    <add-table name="object">
+    <add-table name="object" options="ENGINE=InnoDB">
       <column name="id" type="INT" null="false"/>
       <column name="num" type="INT" null="false"/>
       <column name="o1" type="INT" null="true"/>
@@ -14,7 +14,7 @@
         </references>
       </foreign-key>
     </add-table>
-    <add-table name="object_nums">
+    <add-table name="object_nums" options="ENGINE=InnoDB">
       <column name="object_id" type="INT" null="false"/>
       <column name="index" type="BIGINT UNSIGNED" null="false"/>
       <column name="value" type="INT" null="false"/>
@@ -34,7 +34,7 @@
   </changeset>
 
   <model version="1">
-    <table name="object1">
+    <table name="object1" options="ENGINE=InnoDB">
       <column name="id" type="INT" null="false"/>
       <column name="num" type="INT" null="false"/>
       <primary-key>
