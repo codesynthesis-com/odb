@@ -1,4 +1,4 @@
-<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" version="1">
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="oracle" version="1">
   <changeset version="2">
     <alter-table name="object">
       <drop-column name="num"/>

@@ -1,4 +1,4 @@
-<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" version="1">
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="mysql" version="1">
   <model version="1">
     <table name="object">
       <column name="id" type="INT" null="false"/>

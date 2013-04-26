@@ -1,4 +1,4 @@
-<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" version="1">
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="sqlite" version="1">
   <model version="2">
     <table name="object1">
       <column name="id" type="INTEGER" null="false"/>
