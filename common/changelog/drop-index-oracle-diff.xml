@@ -9,7 +9,7 @@
     <table name="object">
       <column name="id" type="NUMBER(10)" null="false"/>
       <column name="num" type="NUMBER(10)" null="false"/>
-      <primary-key auto="true">
+      <primary-key auto="true" sequence="object_seq">
         <column name="id"/>
       </primary-key>
       <index name="object_num_i">
