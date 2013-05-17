@@ -2772,7 +2772,7 @@ handle_pragma_qualifier (cxx_lexer& l, string p)
         if (scope == 0)
           return; // Diagnostics has already been issued.
 
-        scope = TREE_TYPE (scope);
+        scope = TYPE_MAIN_VARIANT (TREE_TYPE (scope));
 
         if (tt != CPP_EOF)
         {
