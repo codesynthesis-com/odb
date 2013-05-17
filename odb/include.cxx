@@ -70,7 +70,7 @@ namespace
 
   struct class_: traversal::class_, context
   {
-    class_ (include_map& map): trailing_ (false), map_ (map) {}
+    class_ (include_map& map): main_file_loc_ (0), map_ (map) {}
 
     virtual void
     traverse (type& c)
@@ -122,7 +122,8 @@ namespace
         //
         if (f == unit.file ())
         {
-          trailing_ = true;
+          if (main_file_loc_ == 0)
+            main_file_loc_ = l;
           return;
         }
       }
@@ -144,7 +145,7 @@ namespace
           if (map_.find (f) == map_.end ())
           {
             includes& i (map_[f]);
-            i.trailing = trailing_;
+            i.trailing = (main_file_loc_ != 0 && l > main_file_loc_);
             i.map[lm] = include_directive ();
           }
         }
@@ -152,7 +153,7 @@ namespace
     }
 
   private:
-    bool trailing_;
+    location_t main_file_loc_;
     include_map& map_;
   };
 
