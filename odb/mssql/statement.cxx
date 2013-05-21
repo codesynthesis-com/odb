@@ -1042,8 +1042,9 @@ namespace odb
       if (!SQL_SUCCEEDED (r))
         translate_error (r, conn_, stmt_);
 
-      // Fetch the row containing the id/version if this statement is
-      // returning.
+      // Fetch the row containing the version if this statement is
+      // returning. We still need to close the cursor even if we
+      // haven't updated any rows.
       //
       if (returning_version_)
       {
@@ -1059,7 +1060,7 @@ namespace odb
             translate_error (r, conn_, stmt_);
         }
 
-        if (r == SQL_NO_DATA)
+        if (rows != 0 && r == SQL_NO_DATA)
           throw database_exception (
             0,
             "?????",
