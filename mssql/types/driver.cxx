@@ -9,6 +9,7 @@
 #include <cassert>
 #include <iostream>
 
+#include <odb/exceptions.hxx>
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/transaction.hxx>
 
@@ -285,8 +286,17 @@ main (int argc, char* argv[])
         p->str += 'd';
         db->update (*p);
         assert (p->version > o.version);
+        o.str += 'D';
+        try
+        {
+          db->update (o);
+          assert (false);
+        }
+        catch (const odb::object_changed&) {}
         db->reload (o);
         assert (o.version == p->version);
+        o.str += 'D';
+        db->update (o);
         t.commit ();
       }
     }
