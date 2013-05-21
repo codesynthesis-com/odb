@@ -153,6 +153,12 @@ public:
   //
   void unload () const;
 
+  // Get the underlying eager pointer. If this is an unloaded pointer
+  // to a persistent object, then the returned pointer will be NULL.
+  //
+  QSharedPointer<T>
+  getEager () const;
+
   template <class DB, class ID>
   QLazySharedPointer (DB&, const ID&);
 
@@ -327,6 +333,12 @@ public:
   //
   void
   unload () const;
+
+  // Get the underlying eager pointer. If this is an unloaded pointer
+  // to a persistent object, then the returned pointer will be NULL.
+  //
+  QWeakPointer<T>
+  getEager () const;
 
   template <class DB, class ID>
   QLazyWeakPointer (DB&, const ID&);

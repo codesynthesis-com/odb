@@ -221,6 +221,13 @@ unload () const
 }
 
 template <class T>
+inline QSharedPointer<T> QLazySharedPointer<T>::
+getEager () const
+{
+  return p_;
+}
+
+template <class T>
 template <class DB, class ID>
 inline QLazySharedPointer<T>::
 QLazySharedPointer (DB& db, const ID& id): i_ (db, id) {}
@@ -477,6 +484,13 @@ unload () const
   // With weak pointer we always keep i_ up to date.
   //
   p_.clear ();
+}
+
+template <class T>
+inline QWeakPointer<T> QLazyWeakPointer<T>::
+getEager () const
+{
+  return p_;
 }
 
 template <class T>
