@@ -199,7 +199,7 @@ template <class T>
 inline QSharedPointer<T> QLazySharedPointer<T>::
 load () const
 {
-  if (!loaded ())
+  if (!p_ && i_)
     p_ = i_.template load<T> (true); // Reset id.
 
   return p_;
@@ -461,11 +461,12 @@ load () const
 {
   QSharedPointer<T> r (p_.toStrongRef ());
 
-  if (r || !i_)
-    return r;
+  if (!r && i_)
+  {
+    r = i_.template load<T> (false); // Keep id.
+    p_ = r;
+  }
 
-  r = i_.template load<T> (false); // Keep id.
-  p_ = r;
   return r;
 }
 
