@@ -835,22 +835,31 @@ traverse (type& c)
     //
     if (!ext.empty ())
     {
-      os << "#ifdef " << ext << endl
-         << endl;
+      bool has_ptr (has_a (c, test_pointer | exclude_base));
+      bool reuse_abst (abstract (c) && !polymorphic (c));
 
-      if (has_a (c, test_pointer | exclude_base))
+      if (has_ptr || !reuse_abst)
       {
-        bool true_ (true); //@@ (im)perfect forwarding.
-        bool false_ (false);
+        os << "#ifdef " << ext << endl
+           << endl;
 
-        instance<query_columns_base> t (c, false_, true_);
-        t->traverse (c);
+        if (has_ptr)
+        {
+          bool true_ (true); //@@ (im)perfect forwarding.
+          bool false_ (false);
+
+          instance<query_columns_base> t (c, false_, true_);
+          t->traverse (c);
+        }
+
+        // Don't generate it for reuse-abstract classes.
+        //
+        if (!reuse_abst)
+          generate_inst (c);
+
+        os << "#endif // " << ext << endl
+           << endl;
       }
-
-      generate_inst (c);
-
-      os << "#endif // " << ext << endl
-         << endl;
     }
   }
   else
@@ -877,9 +886,10 @@ traverse (type& c)
       t->traverse (c);
     }
 
-    // Explicit template instantiations.
+    // Explicit template instantiations. Don't generate it for reuse-
+    // abstract classes.
     //
-    if (multi_dynamic)
+    if (multi_dynamic && (!abstract (c) || polymorphic (c)))
       generate_inst (c);
   }
 }
