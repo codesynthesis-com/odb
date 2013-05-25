@@ -310,20 +310,23 @@ traverse_object (type& c)
     pointer_query_columns_type_->traverse (c);
   }
 
-  // We don't need to generate object_traits_impl for reuse-abstract
-  // objects.
-  //
-  if (reuse_abst)
-    return;
-
   // object_traits_impl
   //
   os << "template <>" << endl
      << "class " << exp << "access::object_traits_impl< " << type << ", " <<
     "id_common >:" << endl
      << "  public access::object_traits< " << type << " >"
-     << "{"
-     << "public:" << endl;
+     << "{";
+
+  // We don't need to generate anything else for reuse-abstract objects.
+  //
+  if (reuse_abst)
+  {
+    os << "};";
+    return;
+  }
+
+  os << "public:" << endl;
 
   if (options.generate_query ())
   {
