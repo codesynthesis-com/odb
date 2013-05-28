@@ -355,8 +355,8 @@ generate (options const& ops,
                         ops.odb_file_suffix ()[database::common] +
                         ops.hxx_suffix ());
 
-              hxx << "#include " << ctx->process_include_path (n) << endl
-                  << endl;
+              ctx->os << "#include " << ctx->process_include_path (n) << endl
+                      << endl;
             }
 
             relational::header::generate ();
