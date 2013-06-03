@@ -9,8 +9,8 @@ ifndef %foreign%
 
 disfigure::
 	$(call message,rm $$1,rm -f $$1,$(dcf_root)/configuration-dynamic.make)
-	$(call message,rm $$1,rm -f $$1,$(dcf_root)/db.options)
-	$(call message,rm $$1,rm -f $$1,$(dcf_root)/db-driver)
+	$(call message,rm $$1,rm -f $$1,$(dcf_root)/*.options)
+	$(call message,rm $$1,rm -f $$1,$(dcf_root)/*-driver)
 
 endif
 

@@ -44,8 +44,8 @@ $echo
 
 port=`read_value ""`
 
-opt=$dcf_root/db.options
-drv=$dcf_root/db-driver
+opt=$dcf_root/pgsql.options
+drv=$dcf_root/pgsql-driver
 
 echo "--user '$user'"    >$opt
 echo "--database '$db'" >>$opt

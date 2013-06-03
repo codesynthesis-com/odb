@@ -19,8 +19,8 @@
 # Generated build system files.
 #
 *-dynamic.make
-build/db.options
-build/db-driver
+build/*.options
+build/*-driver
 
 # Generated .gitignore files.
 #

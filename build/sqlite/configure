@@ -16,6 +16,6 @@ $echo
 
 db=`read_value "/tmp/odb-test.db"`
 
-opt=$dcf_root/db.options
+opt=$dcf_root/sqlite.options
 
 echo "--database '$db'" >$opt

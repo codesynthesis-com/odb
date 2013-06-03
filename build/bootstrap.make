@@ -52,7 +52,7 @@ $(out_base)/.dist: export odb_header_stem := test
 #
 ifeq ($(filter $(db_id),sqlite),)
 $(out_base)/.test: schema-body = \
-$(call message,sql $$1,$(dcf_root)/db-driver $$1,$1)$(literal_newline)$(literal_tab)
+$(call message,sql $$1,$(dcf_root)/$(db_id)-driver $$1,$1)$(literal_newline)$(literal_tab)
 $(out_base)/.test: schema = \
 $(foreach s,$(if $1,$1,$(out_base)/test.sql),$(call schema-body,$s))@:
 endif

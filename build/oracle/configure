@@ -55,8 +55,8 @@ $echo
 
 service=`read_value ""`
 
-opt=$dcf_root/db.options
-drv=$dcf_root/db-driver
+opt=$dcf_root/oracle.options
+drv=$dcf_root/oracle-driver
 
 if [ -n "$user" ]; then
 echo "--user '$user'"        >$opt

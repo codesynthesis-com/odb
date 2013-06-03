@@ -39,8 +39,8 @@ $echo
 
 server=`read_value ""`
 
-opt=$dcf_root/db.options
-drv=$dcf_root/db-driver
+opt=$dcf_root/mssql.options
+drv=$dcf_root/mssql-driver
 
 echo "--user '$user'"        >$opt
 echo "--password '$passwd'" >>$opt

@@ -90,11 +90,11 @@ $(dist):
 #
 $(test): $(driver)
         # Base schema.
-	$(call message,test $< base,$< --options-file $(dcf_root)/db.options 1)
+	$(call message,test $< base,$< --options-file $(dcf_root)/$(db_id).options 1)
         # Migration.
-	$(call message,test $< migration,$< --options-file $(dcf_root)/db.options 2)
+	$(call message,test $< migration,$< --options-file $(dcf_root)/$(db_id).options 2)
         # Current schema.
-	$(call message,test $< current,$< --options-file $(dcf_root)/db.options 3)
+	$(call message,test $< current,$< --options-file $(dcf_root)/$(db_id).options 3)
 
 # Clean.
 #

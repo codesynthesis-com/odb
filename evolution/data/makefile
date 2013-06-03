@@ -96,13 +96,13 @@ $(test): $(driver)
         # Base schema.
 	$(call schema,$(out_base)/test3-002-pre.sql)
 	$(call schema,$(out_base)/test3-002-post.sql)
-	$(call message,test $< base,$< --options-file $(dcf_root)/db.options 1)
+	$(call message,test $< base,$< --options-file $(dcf_root)/$(db_id).options 1)
         # Migration.
 	$(call schema,$(out_base)/test3-003-pre.sql)
-	$(call message,test $< migration,$< --options-file $(dcf_root)/db.options 2)
+	$(call message,test $< migration,$< --options-file $(dcf_root)/$(db_id).options 2)
 	$(call schema,$(out_base)/test3-003-post.sql)
         # Current schema.
-	$(call message,test $< current,$< --options-file $(dcf_root)/db.options 3)
+	$(call message,test $< current,$< --options-file $(dcf_root)/$(db_id).options 3)
 
 # Clean.
 #
