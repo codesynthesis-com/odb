@@ -46,10 +46,10 @@ fi
 #
 AC_CONFIG_COMMANDS([sqlite.options],
  [
-   rm -f db.options
+   rm -f sqlite.options
 
    if test x$sqlite_db_set = xyes; then
-     echo "--database '$sqlite_db'" >>db.options
+     echo "--database '$sqlite_db'" >>sqlite.options
    fi
  ],
  [

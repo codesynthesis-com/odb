@@ -149,42 +149,42 @@ fi
 #
 AC_CONFIG_COMMANDS([pgsql.options],
  [
-   rm -f db.options
-   echo '#! /bin/sh' >db-driver
+   rm -f pgsql.options
+   echo '#! /bin/sh' >pgsql-driver
 
-   echo 'opt=' >>db-driver
+   echo 'opt=' >>pgsql-driver
 
    if test x$pgsql_user_set = xyes; then
-     echo "--username '$pgsql_user'" >>db.options
-     echo 'opt="$opt --username='"$pgsql_user"'"' >>db-driver
+     echo "--username '$pgsql_user'" >>pgsql.options
+     echo 'opt="$opt --username='"$pgsql_user"'"' >>pgsql-driver
    fi
 
    if test x$pgsql_db_set = xyes; then
-     echo "--dbname '$pgsql_db'" >>db.options
-     echo 'opt="$opt --dbname='"$pgsql_db"'"' >>db-driver
+     echo "--dbname '$pgsql_db'" >>pgsql.options
+     echo 'opt="$opt --dbname='"$pgsql_db"'"' >>pgsql-driver
    fi
 
    if test x$pgsql_host_set = xyes; then
-     echo "--host '$pgsql_host'" >>db.options
-     echo 'opt="$opt --host='"$pgsql_host"'"' >>db-driver
+     echo "--host '$pgsql_host'" >>pgsql.options
+     echo 'opt="$opt --host='"$pgsql_host"'"' >>pgsql-driver
    fi
 
    if test x$pgsql_port_set = xyes; then
-     echo "--port '$pgsql_port'" >>db.options
-     echo 'opt="$opt --port='"$pgsql_port"'"' >>db-driver
+     echo "--port '$pgsql_port'" >>pgsql.options
+     echo 'opt="$opt --port='"$pgsql_port"'"' >>pgsql-driver
    fi
 
-   echo 'opt="$opt --quiet"' >>db-driver
-   echo 'PGOPTIONS=--client-min-messages=warning' >>db-driver
-   echo 'export PGOPTIONS' >>db-driver
+   echo 'opt="$opt --quiet"' >>pgsql-driver
+   echo 'PGOPTIONS=--client-min-messages=warning' >>pgsql-driver
+   echo 'export PGOPTIONS' >>pgsql-driver
 
-   echo 'if test x$[]1 != x; then' >>db-driver
-   echo "  exec $pgsql_client "'$opt --set ON_ERROR_STOP=1 -f $[]1' >>db-driver
-   echo "else" >>db-driver
-   echo "  exec $pgsql_client "'$opt' >>db-driver
-   echo "fi" >>db-driver
+   echo 'if test x$[]1 != x; then' >>pgsql-driver
+   echo "  exec $pgsql_client "'$opt --set ON_ERROR_STOP=1 -f $[]1' >>pgsql-driver
+   echo "else" >>pgsql-driver
+   echo "  exec $pgsql_client "'$opt' >>pgsql-driver
+   echo "fi" >>pgsql-driver
 
-   chmod +x db-driver
+   chmod +x pgsql-driver
  ],
  [
   pgsql_client="$pgsql_client"

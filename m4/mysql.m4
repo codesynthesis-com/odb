@@ -203,48 +203,48 @@ fi
 #
 AC_CONFIG_COMMANDS([mysql.options],
  [
-   rm -f db.options
-   echo '#! /bin/sh' >db-driver
+   rm -f mysql.options
+   echo '#! /bin/sh' >mysql-driver
 
-   echo 'opt=' >>db-driver
+   echo 'opt=' >>mysql-driver
 
    if test x$mysql_user_set = xyes; then
-     echo "--user '$mysql_user'" >>db.options
-     echo 'opt="$opt --user='"$mysql_user"'"' >>db-driver
+     echo "--user '$mysql_user'" >>mysql.options
+     echo 'opt="$opt --user='"$mysql_user"'"' >>mysql-driver
    fi
 
    if test x$mysql_password_set = xyes; then
-     echo "--password '$mysql_password'" >>db.options
-     echo 'opt="$opt --password='"$mysql_password"'"' >>db-driver
+     echo "--password '$mysql_password'" >>mysql.options
+     echo 'opt="$opt --password='"$mysql_password"'"' >>mysql-driver
    fi
 
    if test x$mysql_db_set = xyes; then
-     echo "--database '$mysql_db'" >>db.options
-     echo 'opt="$opt --database='"$mysql_db"'"' >>db-driver
+     echo "--database '$mysql_db'" >>mysql.options
+     echo 'opt="$opt --database='"$mysql_db"'"' >>mysql-driver
    fi
 
    if test x$mysql_host_set = xyes; then
-     echo "--host '$mysql_host'" >>db.options
-     echo 'opt="$opt --host='"$mysql_host"'"' >>db-driver
+     echo "--host '$mysql_host'" >>mysql.options
+     echo 'opt="$opt --host='"$mysql_host"'"' >>mysql-driver
    fi
 
    if test x$mysql_port_set = xyes; then
-     echo "--port '$mysql_port'" >>db.options
-     echo 'opt="$opt --port='"$mysql_port"'"' >>db-driver
+     echo "--port '$mysql_port'" >>mysql.options
+     echo 'opt="$opt --port='"$mysql_port"'"' >>mysql-driver
    fi
 
    if test x$mysql_socket_set = xyes; then
-     echo "--socket '$mysql_socket'" >>db.options
-     echo 'opt="$opt --socket='"$mysql_socket"'"' >>db-driver
+     echo "--socket '$mysql_socket'" >>mysql.options
+     echo 'opt="$opt --socket='"$mysql_socket"'"' >>mysql-driver
    fi
 
-   echo 'if test x$[]1 != x; then' >>db-driver
-   echo "  exec $mysql_client "'$opt <$[]1' >>db-driver
-   echo "else" >>db-driver
-   echo "  exec $mysql_client "'$opt' >>db-driver
-   echo "fi" >>db-driver
+   echo 'if test x$[]1 != x; then' >>mysql-driver
+   echo "  exec $mysql_client "'$opt <$[]1' >>mysql-driver
+   echo "else" >>mysql-driver
+   echo "  exec $mysql_client "'$opt' >>mysql-driver
+   echo "fi" >>mysql-driver
 
-   chmod +x db-driver
+   chmod +x mysql-driver
  ],
  [
   mysql_client="$mysql_client"

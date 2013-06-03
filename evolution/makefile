@@ -33,7 +33,7 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(build_tests)))
 name := evolution
 $(dist): name := $(name)
 $(dist): data_dist := tester.bat
-$(dist): exec_dist := tester
+$(dist): exec_dist := tester.in
 $(dist): export dirs := $(filter-out $(no_dist_tests),$(tests))
 $(dist): export extra_dist := $(data_dist) $(exec_dist) test.bat \
 $(call vc9slns,$(name)) $(call vc10slns,$(name)) $(call vc11slns,$(name))

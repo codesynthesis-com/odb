@@ -9,11 +9,14 @@
 # data files, if any, are in $srcdir.
 #
 
+db_driver="$top_builddir/@database@-driver"
+db_options="$top_builddir/@database@.options"
+
 # Globbing returns files in alphabetic order.
 #
 for f in `echo test*.sql`; do
   if test -f $f; then
-    $top_builddir/db-driver $f
+    $db_driver $f
 
     if test $? -ne 0; then
       exit 1
@@ -21,10 +24,10 @@ for f in `echo test*.sql`; do
   fi
 done
 
-echo ./driver --options-file "$top_builddir/db.options"
+echo ./driver --options-file "$db_options"
 
 if test -f "$srcdir/test.std"; then
-  ./driver --options-file "$top_builddir/db.options" >test.out
+  ./driver --options-file "$db_options" >test.out
 
   if test $? -ne 0; then
     exit 1
@@ -35,5 +38,5 @@ if test -f "$srcdir/test.std"; then
   rm -f test.out
   exit $r
 else
-  ./driver --options-file "$top_builddir/db.options"
+  ./driver --options-file "$db_options"
 fi

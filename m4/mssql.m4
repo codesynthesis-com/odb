@@ -176,39 +176,39 @@ fi
 #
 AC_CONFIG_COMMANDS([mssql.options],
  [
-   rm -f db.options
-   echo '#! /bin/sh' >db-driver
+   rm -f mssql.options
+   echo '#! /bin/sh' >mssql-driver
 
-   echo 'opt=' >>db-driver
+   echo 'opt=' >>mssql-driver
 
    if test x$mssql_user_set = xyes; then
-     echo "--user '$mssql_user'" >>db.options
-     echo 'opt="$opt -U '"$mssql_user"'"' >>db-driver
+     echo "--user '$mssql_user'" >>mssql.options
+     echo 'opt="$opt -U '"$mssql_user"'"' >>mssql-driver
 
-     echo "--password '$mssql_password'" >>db.options
-     echo 'opt="$opt -P '"$mssql_password"'"' >>db-driver
+     echo "--password '$mssql_password'" >>mssql.options
+     echo 'opt="$opt -P '"$mssql_password"'"' >>mssql-driver
    fi
 
    if test x$mssql_db_set = xyes; then
-     echo "--database '$mssql_db'" >>db.options
-     echo 'opt="$opt -d '"$mssql_db"'"' >>db-driver
+     echo "--database '$mssql_db'" >>mssql.options
+     echo 'opt="$opt -d '"$mssql_db"'"' >>mssql-driver
    fi
 
-   echo "--server '$mssql_server'" >>db.options
-   echo 'opt="$opt -S '"$mssql_server"'"' >>db-driver
+   echo "--server '$mssql_server'" >>mssql.options
+   echo 'opt="$opt -S '"$mssql_server"'"' >>mssql-driver
 
    if test x$mssql_driver_set = xyes; then
-     echo "--driver '$mssql_driver'" >>db.options
+     echo "--driver '$mssql_driver'" >>mssql.options
    fi
 
-   echo 'opt="$opt -x -r -b"' >>db-driver
-   echo 'if test x$[]1 != x; then' >>db-driver
-   echo "  exec $mssql_client "'$opt -i $[]1' >>db-driver
-   echo "else" >>db-driver
-   echo "  exec $mssql_client "'$opt' >>db-driver
-   echo "fi" >>db-driver
+   echo 'opt="$opt -x -r -b"' >>mssql-driver
+   echo 'if test x$[]1 != x; then' >>mssql-driver
+   echo "  exec $mssql_client "'$opt -i $[]1' >>mssql-driver
+   echo "else" >>mssql-driver
+   echo "  exec $mssql_client "'$opt' >>mssql-driver
+   echo "fi" >>mssql-driver
 
-   chmod +x db-driver
+   chmod +x mssql-driver
  ],
  [
   mssql_client="$mssql_client"

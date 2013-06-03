@@ -180,47 +180,47 @@ fi
 #
 AC_CONFIG_COMMANDS([oracle.options],
  [
-   rm -f db.options
-   echo '#! /bin/sh' >db-driver
+   rm -f oracle.options
+   echo '#! /bin/sh' >oracle-driver
 
-   echo 'conn_str=' >>db-driver
+   echo 'conn_str=' >>oracle-driver
 
    if test x$oracle_user_set = xyes; then
-     echo "--user '$oracle_user'" >>db.options
-     echo 'conn_str="'"$oracle_user"'"' >>db-driver
+     echo "--user '$oracle_user'" >>oracle.options
+     echo 'conn_str="'"$oracle_user"'"' >>oracle-driver
    fi
 
    if test x$oracle_password_set = xyes; then
-     echo "--password '$oracle_password'" >>db.options
-     echo 'conn_str="$conn_str/'"$oracle_password"'"' >>db-driver
+     echo "--password '$oracle_password'" >>oracle.options
+     echo 'conn_str="$conn_str/'"$oracle_password"'"' >>oracle-driver
    fi
 
    if test x$oracle_host_set = xyes; then
-     echo "--host '$oracle_host'" >>db.options
-     echo 'conn_str="$conn_str@//'"$oracle_host"'"' >>db-driver
+     echo "--host '$oracle_host'" >>oracle.options
+     echo 'conn_str="$conn_str@//'"$oracle_host"'"' >>oracle-driver
 
      if test x$oracle_port_set = xyes; then
-       echo "--port '$oracle_port'" >>db.options
-       echo 'conn_str="$conn_str:'"$oracle_port"'"' >>db-driver
+       echo "--port '$oracle_port'" >>oracle.options
+       echo 'conn_str="$conn_str:'"$oracle_port"'"' >>oracle-driver
      fi
    fi
 
    if test x$oracle_service != x; then
      if test x$oracle_host_set = xno; then
-       echo 'conn_str="$conn_str@"' >>db-driver
+       echo 'conn_str="$conn_str@"' >>oracle-driver
      fi
 
-     echo "--service '$oracle_service'" >>db.options
-     echo 'conn_str="$conn_str/'"$oracle_service"'"' >>db-driver
+     echo "--service '$oracle_service'" >>oracle.options
+     echo 'conn_str="$conn_str/'"$oracle_service"'"' >>oracle-driver
    fi
 
-   echo 'if test x$[]1 != x; then' >>db-driver
-   echo "  exec $oracle_client -L -S "'$conn_str @$[]1' >>db-driver
-   echo "else" >>db-driver
-   echo "  exec $oracle_client -L -S "'$conn_str' >>db-driver
-   echo "fi" >>db-driver
+   echo 'if test x$[]1 != x; then' >>oracle-driver
+   echo "  exec $oracle_client -L -S "'$conn_str @$[]1' >>oracle-driver
+   echo "else" >>oracle-driver
+   echo "  exec $oracle_client -L -S "'$conn_str' >>oracle-driver
+   echo "fi" >>oracle-driver
 
-   chmod +x db-driver
+   chmod +x oracle-driver
  ],
  [
   oracle_client="$oracle_client"
