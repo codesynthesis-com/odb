@@ -66,8 +66,7 @@ $(dist):
 # Test.
 #
 $(test): $(driver) $(src_base)/test.std
-	$(call schema)
-	$(call message,test $<,$< --options-file $(dcf_root)/$(db_id).options \
+	$(call message,test $<,$< --options-file $(dcf_root)/sqlite.options \
 >$(out_base)/test.out)
 	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)
 	$(call message,,rm -f $(out_base)/test.out)
