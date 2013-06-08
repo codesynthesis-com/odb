@@ -208,6 +208,16 @@ namespace relational
 
         if (m.count ("polymorphic-ref"))
         {
+          // Copy the column name from the root's id member, if specified.
+          //
+          {
+            semantics::class_& r (*object_pointer (t));
+            semantics::data_member& id (*id_member (r));
+
+            if (id.count ("column"))
+              m.set ("column", id.get<table_column> ("column"));
+          }
+
           m.set ("not-null", true);
           m.set ("deferred", false);
           m.set ("on-delete", sema_rel::foreign_key::cascade);
