@@ -1234,22 +1234,35 @@ namespace relational
           if (!vq.literal.empty ())
           {
             string q (upcase (vq.literal));
-            vq.kind = (q.compare (0, 7, "SELECT ") == 0)
-              ? view_query::complete
-              : view_query::condition;
+
+            if (q.compare (0, 7, "SELECT ") == 0)
+              vq.kind = view_query::complete_select;
+            else if (q.compare (0, 5, "EXEC ") == 0 ||
+                     q.compare (0, 5, "CALL ") == 0 ||
+                     q.compare (0, 8, "EXECUTE ") == 0)
+              vq.kind = view_query::complete_execute;
+            else
+              vq.kind = view_query::condition;
           }
           else if (!vq.expr.empty ())
           {
             // If the first token in the expression is a string and
-            // it starts with "SELECT " or is equal to "SELECT", then
-            // we have a complete query.
+            // it starts with "SELECT " or is equal to "SELECT" or
+            // one of the stored procedure call keywords, then we
+            // have a complete query.
             //
             if (vq.expr.front ().type == CPP_STRING)
             {
               string q (upcase (vq.expr.front ().literal));
-              vq.kind = (q.compare (0, 7, "SELECT ") == 0 || q == "SELECT")
-                ? view_query::complete
-                : view_query::condition;
+
+              if (q.compare (0, 7, "SELECT ") == 0 || q == "SELECT")
+                vq.kind = view_query::complete_select;
+              else if (q.compare (0, 5, "EXEC ") == 0 || q == "EXEC" ||
+                       q.compare (0, 5, "CALL ") == 0 || q == "CALL" ||
+                       q.compare (0, 8, "EXECUTE ") == 0 || q == "EXECUTE")
+                vq.kind = view_query::complete_execute;
+              else
+                vq.kind = view_query::condition;
             }
             else
               vq.kind = view_query::condition;

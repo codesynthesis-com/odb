@@ -3873,7 +3873,8 @@ namespace relational
                             semantics::scope& start_scope,
                             location_t loc,
                             string const& prag,
-                            bool* placeholder = 0);
+                            bool* placeholder = 0,
+                            bool predicate = true);
       //
       // composite
       //

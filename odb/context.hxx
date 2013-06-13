@@ -178,7 +178,8 @@ struct view_query
   enum kind_type
   {
     runtime,
-    complete,
+    complete_select,  // SELECT query.
+    complete_execute, // Stored procedure call.
     condition
   };
 

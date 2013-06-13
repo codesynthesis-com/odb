@@ -3079,11 +3079,13 @@ traverse_view (type& c)
        << "query_statement (const query_base_type& q)"
        << "{";
 
-    if (vq.kind == view_query::complete)
+    if (vq.kind == view_query::complete_select ||
+        vq.kind == view_query::complete_execute)
     {
       os << "query_base_type r (" << endl;
 
       bool ph (false);
+      bool pred (vq.kind == view_query::complete_select);
 
       if (!vq.literal.empty ())
       {
@@ -3099,9 +3101,21 @@ traverse_view (type& c)
         if (p != string::npos)
         {
           ph = true;
-          os << strlit (string (vq.literal, 0, p + 1)) << " +" << endl
-             << "(q.empty () ? query_base_type::true_expr : q) +" << endl
-             << strlit (string (vq.literal, p + 2));
+          // For the SELECT query we keep the parenthesis in (?) and
+          // also handle the case where the query expression is empty.
+          //
+          if (pred)
+            os << strlit (string (vq.literal, 0, p + 1)) << " +" << endl
+               << "(q.empty () ? query_base_type::true_expr : q) +" << endl
+               << strlit (string (vq.literal, p + 2));
+          else
+          {
+            os << strlit (string (vq.literal, 0, p)) << " + q";
+
+            p += 3;
+            if (p != vq.literal.size ())
+              os << strlit (string (vq.literal, p));
+          }
         }
         else
           os << strlit (vq.literal);
@@ -3115,7 +3129,7 @@ traverse_view (type& c)
         //
         os << "// From " << location_string (vq.loc, true) << endl
            << translate_expression (
-             c, vq.expr, scope, vq.loc, "query", &ph).value;
+             c, vq.expr, scope, vq.loc, "query", &ph, pred).value;
       }
 
       os << ");";
@@ -4237,7 +4251,8 @@ namespace relational
                           semantics::scope& scope,
                           location_t loc,
                           string const& prag,
-                          bool* placeholder)
+                          bool* placeholder,
+                          bool predicate)
     {
       // This code is similar to translate() from context.cxx.
       //
@@ -4432,8 +4447,19 @@ namespace relational
 
                 if (tt == CPP_CLOSE_PAREN)
                 {
-                  r +=  "q.empty () ? query_base_type::true_expr : q";
                   *placeholder = true;
+
+                  // Predicate is true if this is a SELECT statement clause.
+                  // Otherwise it is a stored procedure parameters.
+                  //
+                  if (predicate)
+                    r +=  "q.empty () ? query_base_type::true_expr : q";
+                  else
+                  {
+                    r.resize (r.size () - 1); // Remove opening paren.
+                    r += "q";
+                    break; // Skip the closing paren as well.
+                  }
                 }
                 else
                 {
