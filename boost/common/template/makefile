@@ -43,12 +43,13 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database $(db_id) \
---profile boost/version --generate-schema \
---table-prefix boost_template_ #@@ CHANGE table prefix, boost/version
+$(gen) $(dist): export odb_options += --generate-schema \
+--profile boost/version --table-prefix boost_template_ #@@ CHANGE prefix, profile
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_boost.l.cpp-options) \
 $(boost.l.cpp-options)
+
+$(gen): odb_options += --database $(db_id)
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
 
@@ -60,7 +61,6 @@ $(out_base)/: $(driver)
 #
 name := $(subst /,-,$(subst $(src_root)/boost/common/,,$(src_base)))
 
-$(dist): db_id := @database@
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std

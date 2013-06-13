@@ -35,8 +35,7 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database $(db_id) \
---table-prefix include_
+$(gen): odb_options += --database $(db_id) --table-prefix include_
 $(gen): cpp_options := -I$(out_base) -I$(src_base)/.. -I$(src_base)/../..
 $(gen): $(common.l.cpp-options)
 

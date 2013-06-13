@@ -32,7 +32,6 @@ $(out_base)/: $(driver)
 #
 name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
 
-$(dist): db_id := @database@
 $(dist): sources := $(cxx_tun)
 $(dist): data_dist := test.std
 $(dist): export name := $(name)

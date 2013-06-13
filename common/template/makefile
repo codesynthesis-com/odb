@@ -34,10 +34,12 @@ gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database $(db_id) --generate-schema \
+$(gen) $(dist): export odb_options += --generate-schema \
 --table-prefix template_ #@@ CHANGE THIS
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
+
+$(gen): odb_options += --database $(db_id)
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
 
@@ -49,7 +51,6 @@ $(out_base)/: $(driver)
 #
 name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
 
-$(dist): db_id := @database@
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std

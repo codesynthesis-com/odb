@@ -45,9 +45,10 @@ test3-003-pre.sql test3-003-post.sql
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): odb_common_options = --database $(db_id) --generate-query \
+$(gen) $(dist): odb_common_options = --generate-query \
 --generate-schema --at-once --fkeys-deferrable-mode not_deferrable \
 --table-prefix evo_add_fk_
+$(gen): odb_common_options += --database $(db_id)
 $(gen1) $(dist): export odb_options1 = $(odb_common_options) --init-changelog
 $(gen2) $(dist): export odb_options2 = $(odb_common_options) --omit-create \
 --schema-name 2 --suppress-migration
@@ -75,7 +76,7 @@ $(out_base)/: $(driver)
 #
 name := $(subst /,-,$(subst $(src_root)/evolution/,,$(src_base)))
 
-$(dist): db_id := @database@
+
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): export extra_headers := model.hxx

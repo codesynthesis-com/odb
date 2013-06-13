@@ -29,7 +29,7 @@ BUILT_SOURCES = test1-odb.hxx
 CLEANFILES = test1-odb.hxx test1-odb.ixx test1-odb.cxx test1.sql model.xml
 
 test1-odb.hxx: test1.hxx
-	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options1) --changelog model.xml $<
+	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) --database @database@ __value__(odb_options1) --changelog model.xml $<
 
 # test2.hxx
 #
@@ -39,7 +39,7 @@ BUILT_SOURCES = test2-odb.hxx
 CLEANFILES = test2-odb.hxx test2-odb.ixx test2-odb.cxx test2.sql
 
 test2-odb.hxx: test2.hxx
-	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options2) --changelog model.xml $<
+	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) --database @database@ __value__(odb_options2) --changelog model.xml $<
 
 # test3.hxx
 #
@@ -50,7 +50,7 @@ CLEANFILES += test3-odb.hxx test3-odb.ixx test3-odb.cxx test3.sql \
 test3-002-pre.sql test3-002-post.sql test3-003-pre.sql test3-003-post.sql
 
 test3-odb.hxx: test3.hxx
-	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options3) --changelog model.xml $<
+	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) --database @database@ __value__(odb_options3) --changelog model.xml $<
 
 # Make sure testN.hxx are compiled serially since they share the
 # changelog. Also add dependency on model.hxx

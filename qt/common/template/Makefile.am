@@ -29,4 +29,4 @@ ODBFLAGS += --std c++11
 endif
 
 test-odb.hxx: test.hxx
-	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options) $<
+	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) --database @database@ __value__(odb_options) $<

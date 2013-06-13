@@ -165,7 +165,7 @@ m4_dnl
     __custom_build_entry__(
 __f.hxx,
 odb __f.hxx,
-odb.exe --std c++11 __xml__(__shell_quotes__(m4_patsubst(__value__(odb_options), @database@, __value__(database)) -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 -I$(SolutionDir)\..\libcommon)) __f.hxx,
+odb.exe --std c++11 --database __value__(database) __xml__(__shell_quotes__(__value__(odb_options) -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 -I$(SolutionDir)\..\libcommon)) __f.hxx,
 __f-odb.hxx;__f-odb.ixx;__f-odb.cxx)
 )
   </ItemGroup>)

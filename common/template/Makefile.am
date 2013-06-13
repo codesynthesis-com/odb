@@ -35,6 +35,6 @@ BUILT_SOURCES += __f-odb.hxx
 CLEANFILES += __f-odb.hxx __f-odb.ixx __f-odb.cxx
 
 __f-odb.hxx: __f.hxx
-	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS)  __value__(odb_options) $<
+	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) --database @database@ __value__(odb_options) $<
 
 ))
