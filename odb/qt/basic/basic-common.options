@@ -1,0 +1,5 @@
+# file      : odb/qt/basic/basic-common.options
+# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile qt/version
