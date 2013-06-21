@@ -6,10 +6,6 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
 dirs := common
 
-default   := $(out_base)/
-dist      := $(out_base)/.dist
-clean     := $(out_base)/.clean
-
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): export dirs := $(dirs)

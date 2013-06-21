@@ -6,12 +6,12 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 
 all_dirs := common mysql sqlite pgsql oracle mssql
 dirs := common
-dirs += $(db_id)
 
-default := $(out_base)/
-dist    := $(out_base)/.dist
-test    := $(out_base)/.test
-clean   := $(out_base)/.clean
+# Database-specific tests are not run in the multi-database configuration.
+#
+ifneq ($(db_id),common)
+dirs += $(db_id)
+endif
 
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
@@ -21,6 +21,11 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_dirs)))
 	$(call meta-automake)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(dirs)))
+
+ifeq ($(db_id),common)
+$(foreach d,$(databases),$(eval $(call db-test-dir,$d,$(dirs))))
+endif
+
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(all_dirs)))
 
 $(call include,$(bld_root)/dist.make)

@@ -18,6 +18,8 @@ $echo "configuring '$project_name'"
 $echo
 $echo
 
+databases="mysql sqlite pgsql oracle mssql"
+
 $echo
 $echo "Please select the database you would like to use:"
 $echo
@@ -26,10 +28,19 @@ $echo "(2) SQLite"
 $echo "(3) PostgreSQL"
 $echo "(4) Oracle"
 $echo "(5) Microsoft SQL Server"
+$echo "(6) Dynamic multi-database support (all above databases)"
 $echo
 
-db_id=`read_option "mysql sqlite pgsql oracle mssql"`
+db_id=`read_option "$databases common"`
 
 echo "db_id := $db_id" >$1
 
-source $scf_root/$db_id/configure
+if [ $db_id != "common" ]; then
+  source $scf_root/$db_id/configure
+else
+  # For multi-database support we configure every database.
+  #
+  for db in $databases; do
+    source $scf_root/$db/configure
+  done
+fi

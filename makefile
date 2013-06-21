@@ -5,13 +5,14 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))build/bootstrap.make
 
 all_dirs := libcommon common evolution mysql sqlite pgsql oracle mssql boost qt
-dirs := common evolution boost qt
-dirs += $(db_id)
+dirs := common boost qt
 
-default := $(out_base)/
-dist    := $(out_base)/.dist
-test    := $(out_base)/.test
-clean   := $(out_base)/.clean
+# Evolution and database-specific tests are not run in the multi-database
+# configuration.
+#
+ifneq ($(db_id),common)
+dirs += evolution $(db_id)
+endif
 
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
@@ -32,6 +33,11 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_dirs)))
 	$(call meta-autoconf)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(dirs)))
+
+ifeq ($(db_id),common)
+$(foreach d,$(databases),$(eval $(call db-test-dir,$d,$(dirs))))
+endif
+
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(all_dirs)))
 
 $(call include,$(bld_root)/dist.make)

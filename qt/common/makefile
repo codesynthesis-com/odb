@@ -14,11 +14,6 @@ template
 all_tests := $(tests)
 build_tests := $(tests)
 
-default   := $(out_base)/
-dist      := $(out_base)/.dist
-test      := $(out_base)/.test
-clean     := $(out_base)/.clean
-
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(build_tests)))
 
 name := qt-common
@@ -40,6 +35,11 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call meta-vctest,$(name)-qt4-mysql-vc10.sln,test.bat)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(build_tests)))
+
+ifeq ($(db_id),common)
+$(foreach d,$(databases),$(eval $(call db-test-dir,$d,$(tests))))
+endif
+
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(all_tests)))
 
 $(call include,$(bld_root)/meta/vc9sln.make)

@@ -26,6 +26,8 @@
 #    define BINARY16_TYPE "RAW(16)"
 #  elif defined(ODB_DATABASE_MSSQL)
 #    define BINARY16_TYPE "BINARY(16)"
+#  elif defined(ODB_DATABASE_COMMON)
+#    define BINARY16_TYPE ""
 #  else
 #    error unknown database
 #  endif

@@ -6,16 +6,21 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 cxx_tun := driver.cxx
 odb_hdr := test1.hxx test2.hxx test3.hxx
-cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
+genf1   := test1-odb.hxx test1-odb.ixx test1-odb.cxx
+gen1    := $(addprefix $(out_base)/,$(genf1))
+genf2   := test2-odb.hxx test2-odb.ixx test2-odb.cxx
+gen2    := $(addprefix $(out_base)/,$(genf2))
+genf3   := test3-odb.hxx test3-odb.ixx test3-odb.cxx
+gen3    := $(addprefix $(out_base)/,$(genf3))
+genf    := $(genf1) $(genf2) $(genf3)
+gen     := $(gen1) $(gen2) $(gen3)
+gens    := test1.sql test2.sql test3.sql test3-002-pre.sql test3-002-post.sql \
+test3-003-pre.sql test3-003-post.sql
+cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o)) $(filter %.o,$(gen:.cxx=.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
 common.l             := $(out_root)/libcommon/common/common.l
 common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
-
-driver  := $(out_base)/driver
-dist    := $(out_base)/.dist
-test    := $(out_base)/.test
-clean   := $(out_base)/.clean
 
 # Import.
 #
@@ -28,20 +33,6 @@ $(call import,\
 $(driver): $(cxx_obj) $(common.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
-
-genf1 := test1-odb.hxx test1-odb.ixx test1-odb.cxx
-gen1  := $(addprefix $(out_base)/,$(genf1))
-
-genf2 := test2-odb.hxx test2-odb.ixx test2-odb.cxx
-gen2  := $(addprefix $(out_base)/,$(genf2))
-
-genf3 := test3-odb.hxx test3-odb.ixx test3-odb.cxx
-gen3  := $(addprefix $(out_base)/,$(genf3))
-
-genf := $(genf1) $(genf2) $(genf3)
-gen  := $(gen1) $(gen2) $(gen3)
-gens := test1.sql test2.sql test3.sql test3-002-pre.sql test3-002-post.sql \
-test3-003-pre.sql test3-003-post.sql
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
@@ -75,7 +66,6 @@ $(out_base)/: $(driver)
 # Dist
 #
 name := $(subst /,-,$(subst $(src_root)/evolution/,,$(src_base)))
-
 
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
@@ -114,7 +104,7 @@ $(clean):                            \
   $(driver).o.clean                  \
   $(addsuffix .cxx.clean,$(cxx_obj)) \
   $(addsuffix .cxx.clean,$(cxx_od))  \
-  $(addprefix $(out_base)/,$(odb_hdr:.hxx=-odb.cxx.hxx.clean))
+  $(addsuffix .hxx.clean,$(filter %.cxx,$(gen)))
 	$(call message,,rm -f $(out_base)/model.xml)   # Changelog.
 	$(call message,,rm -f $(out_base)/test3-*.sql) # Migration files.
 

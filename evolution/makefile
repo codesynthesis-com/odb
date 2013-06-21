@@ -20,11 +20,6 @@ version          \
 data             \
 template
 
-default   := $(out_base)/
-dist      := $(out_base)/.dist
-test      := $(out_base)/.test
-clean     := $(out_base)/.clean
-
 all_tests := $(tests)
 build_tests := $(tests)
 

@@ -20,20 +20,25 @@
 #endif
 
 LIBCOMMON_EXPORT std::auto_ptr<odb::database>
-create_database (int& argc,
+create_database (int argc,
                  char* argv[],
                  bool create_schema = true,
-                 std::size_t max_connections = 0);
+                 std::size_t max_connections = 0,
+                 odb::database_id db = odb::id_common);
 
 template <typename T>
 std::auto_ptr<T>
-create_specific_database (int& argc,
+create_specific_database (int argc,
                           char* argv[],
                           bool create_schema = true,
                           std::size_t max_connections = 0)
 {
   std::auto_ptr<odb::database> r (
-    create_database (argc, argv, create_schema, max_connections));
+    create_database (argc, argv,
+                     create_schema,
+                     max_connections,
+                     T::database_id));
+
   return std::auto_ptr<T> (&dynamic_cast<T&> (*r.release ()));
 }
 

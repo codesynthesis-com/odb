@@ -14,6 +14,7 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
+#include <common/config.hxx> // DATABASE_*
 #include <common/common.hxx>
 
 #include "test.hxx"
@@ -204,6 +205,7 @@ main (int argc, char* argv[])
     // Readonly object.
     //
     {
+#ifndef DATABASE_COMMON
       typedef odb::object_traits_impl<simple_object, odb::id_common> so_traits;
       typedef odb::object_traits_impl<ro_object, odb::id_common> ro_traits;
       typedef odb::object_traits_impl<rw_object, odb::id_common> rw_traits;
@@ -216,6 +218,7 @@ main (int argc, char* argv[])
 
       assert (rw_traits::column_count !=
               rw_traits::id_column_count + rw_traits::readonly_column_count);
+#endif
 
       simple_object so (1, 1);
       ro_object ro_o (1, 1);

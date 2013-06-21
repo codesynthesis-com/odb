@@ -6,80 +6,26 @@
 #include <utility> // std::move
 #include <iostream>
 
-#include <common/config.hxx>
-
 #include <odb/database.hxx>
 
-#if defined(DATABASE_MYSQL)
-#  include <odb/mysql/database.hxx>
-#  include <odb/mysql/connection-factory.hxx>
-#elif defined(DATABASE_SQLITE)
-#  include <odb/connection.hxx>
-#  include <odb/transaction.hxx>
-#  include <odb/schema-catalog.hxx>
-#  include <odb/sqlite/database.hxx>
-#  include <odb/sqlite/connection-factory.hxx>
-#elif defined(DATABASE_PGSQL)
-#  include <odb/pgsql/database.hxx>
-#  include <odb/pgsql/connection-factory.hxx>
-#elif defined(DATABASE_ORACLE)
-#  include <odb/oracle/database.hxx>
-#  include <odb/oracle/connection-factory.hxx>
-#elif defined(DATABASE_MSSQL)
-#  include <odb/mssql/database.hxx>
-#  include <odb/mssql/connection-factory.hxx>
-#else
-#  error unknown database
-#endif
-
+#include <common/config.hxx>
 #include <common/common.hxx>
 
 using namespace std;
 using namespace odb::core;
 
-#if defined(DATABASE_MYSQL)
-namespace mysql = odb::mysql;
-#elif defined(DATABASE_SQLITE)
-namespace sqlite = odb::sqlite;
-#elif defined(DATABASE_PGSQL)
-namespace pgsql = odb::pgsql;
-#elif defined(DATABASE_ORACLE)
-namespace oracle = odb::oracle;
-#elif defined(DATABASE_MSSQL)
-namespace mssql = odb::mssql;
-#endif
 
-auto_ptr<database>
-create_database (int& argc,
-                 char* argv[],
-#if defined(DATABASE_SQLITE)
-                 bool schema,
-#else
-                 bool,
-#endif
-                 size_t max_connections)
+// MySQL.
+//
+#if defined(DATABASE_MYSQL) || defined(DATABASE_COMMON)
+
+#include <odb/mysql/database.hxx>
+#include <odb/mysql/connection-factory.hxx>
+
+static auto_ptr<database>
+create_mysql_database (int& argc, char* argv[], bool, size_t max_connections)
 {
-  if (argc > 1 && argv[1] == string ("--help"))
-  {
-    cout << "Usage: " << argv[0] << " [options]" << endl
-         << "Options:" << endl;
-
-#if defined(DATABASE_MYSQL)
-    mysql::database::print_usage (cout);
-#elif defined(DATABASE_SQLITE)
-    sqlite::database::print_usage (cout);
-#elif defined(DATABASE_PGSQL)
-    pgsql::database::print_usage (cout);
-#elif defined(DATABASE_ORAClE)
-    oracle::database::print_usage (cout);
-#endif
-
-    exit (0);
-  }
-
-  auto_ptr<database> db;
-
-#if defined(DATABASE_MYSQL)
+  namespace mysql = odb::mysql;
 
 #ifdef HAVE_CXX11
   unique_ptr<mysql::connection_factory> f;
@@ -90,15 +36,35 @@ create_database (int& argc,
   if (max_connections != 0)
     f.reset (new mysql::connection_pool_factory (max_connections));
 
-  db.reset (new mysql::database (argc, argv, false, "", 0,
+  return auto_ptr<database> (
+    new mysql::database (argc, argv, false, "", 0,
 #ifdef HAVE_CXX11
-                                 move (f)
+                         move (f)
 #else
-                                 f
+                         f
 #endif
-            ));
+    ));
+}
+#endif // MySQL
 
-#elif defined(DATABASE_SQLITE)
+
+// SQLite.
+//
+#if defined(DATABASE_SQLITE) || defined(DATABASE_COMMON)
+
+#include <odb/connection.hxx>
+#include <odb/transaction.hxx>
+#include <odb/schema-catalog.hxx>
+#include <odb/sqlite/database.hxx>
+#include <odb/sqlite/connection-factory.hxx>
+
+static auto_ptr<database>
+create_sqlite_database (int& argc,
+                        char* argv[],
+                        bool schema,
+                        size_t max_connections)
+{
+  namespace sqlite = odb::sqlite;
 
 #ifdef HAVE_CXX11
   unique_ptr<sqlite::connection_factory> f;
@@ -109,7 +75,7 @@ create_database (int& argc,
   if (max_connections != 0)
     f.reset (new sqlite::connection_pool_factory (max_connections));
 
-  db.reset (
+  auto_ptr<database> db (
     new sqlite::database (
       argc, argv, false,
       SQLITE_OPEN_READWRITE
@@ -144,7 +110,22 @@ create_database (int& argc,
     c->execute ("PRAGMA foreign_keys=ON");
   }
 
-#elif defined(DATABASE_PGSQL)
+  return db;
+}
+#endif // SQLite
+
+
+// PostgreSQL.
+//
+#if defined(DATABASE_PGSQL) || defined(DATABASE_COMMON)
+
+#include <odb/pgsql/database.hxx>
+#include <odb/pgsql/connection-factory.hxx>
+
+static auto_ptr<database>
+create_pgsql_database (int& argc, char* argv[], bool, size_t max_connections)
+{
+  namespace pgsql = odb::pgsql;
 
 #ifdef HAVE_CXX11
   unique_ptr<pgsql::connection_factory> f;
@@ -155,15 +136,29 @@ create_database (int& argc,
   if (max_connections != 0)
     f.reset (new pgsql::connection_pool_factory (max_connections));
 
-  db.reset (new pgsql::database (argc, argv, false, "",
+  return auto_ptr<database> (
+    new pgsql::database (argc, argv, false, "",
 #ifdef HAVE_CXX11
-                                 move (f)
+                         move (f)
 #else
-                                 f
+                         f
 #endif
-            ));
+    ));
+}
+#endif // PostgreSQL
 
-#elif defined(DATABASE_ORACLE)
+
+// Oracle.
+//
+#if defined(DATABASE_ORACLE) || defined(DATABASE_COMMON)
+
+#include <odb/oracle/database.hxx>
+#include <odb/oracle/connection-factory.hxx>
+
+static auto_ptr<database>
+create_oracle_database (int& argc, char* argv[], bool, size_t max_connections)
+{
+  namespace oracle = odb::oracle;
 
 #ifdef HAVE_CXX11
   unique_ptr<oracle::connection_factory> f;
@@ -177,15 +172,28 @@ create_database (int& argc,
   // Set client database character set and client national character set
   // to UTF-8.
   //
-  db.reset (new oracle::database (argc, argv, false, 873, 873, 0,
+  return auto_ptr<database> (
+    new oracle::database (argc, argv, false, 873, 873, 0,
 #ifdef HAVE_CXX11
-                                  move (f)
+                          move (f)
 #else
-                                  f
+                          f
 #endif
-            ));
+    ));
+}
+#endif // Oracle
 
-#elif defined(DATABASE_MSSQL)
+// SQL Server.
+//
+#if defined(DATABASE_MSSQL) || defined(DATABASE_COMMON)
+
+#include <odb/mssql/database.hxx>
+#include <odb/mssql/connection-factory.hxx>
+
+static auto_ptr<database>
+create_mssql_database (int& argc, char* argv[], bool, size_t max_connections)
+{
+  namespace mssql = odb::mssql;
 
 #ifdef HAVE_CXX11
   unique_ptr<mssql::connection_factory> f;
@@ -196,18 +204,147 @@ create_database (int& argc,
   if (max_connections != 0)
     f.reset (new mssql::connection_pool_factory (max_connections));
 
-  db.reset (new mssql::database (argc, argv, false, "",
-                                 mssql::isolation_read_committed, 0,
+  return auto_ptr<database> (
+    new mssql::database (argc, argv, false, "",
+                         mssql::isolation_read_committed, 0,
 
 #ifdef HAVE_CXX11
-                                 move (f)
+                         move (f)
 #else
-                                 f
+                         f
 #endif
-            ));
+    ));
+}
+#endif // SQL Server
+
+//
+//
+auto_ptr<database>
+create_database (int argc,
+                 char* argv[],
+                 bool schema,
+                 size_t max_connections,
+#if defined(DATABASE_COMMON)
+                 odb::database_id db
+#else
+                 odb::database_id
+#endif
+)
+{
+  char** argp (argv + 1); // Position of the next argument.
+  int argn (argc - 1);    // Number of arguments left.
+
+#if defined(DATABASE_COMMON)
+  // Figure out which database we are creating. We may be given the
+  // database name as a program argument or as an id.
+  //
+  if (db == odb::id_common && argn != 0)
+  {
+    string s (*argp);
+
+    if (s == "mysql")
+      db = odb::id_mysql;
+    else if (s == "sqlite")
+      db = odb::id_sqlite;
+    else if (s == "pgsql")
+      db = odb::id_pgsql;
+    else if (s == "oracle")
+      db = odb::id_oracle;
+    else if (s == "mssql")
+      db = odb::id_mssql;
+
+    if (db != odb::id_common)
+    {
+      argp++;
+      argn--;
+    }
+  }
+
+  if (db == odb::id_common)
+  {
+    cerr << "Usage: " << argv[0] << " <db> [options]" << endl;
+    exit (1);
+  }
 #endif
 
-  return db;
+  if (argn != 0 && *argp == string ("--help"))
+  {
+#if defined(DATABASE_COMMON)
+    cout << "Usage: " << argv[0] << " <db> [options]" << endl;
+#else
+    cout << "Usage: " << argv[0] << " [options]" << endl;
+#endif
+
+    cout << "Options:" << endl;
+
+#if defined(DATABASE_MYSQL)
+    odb::mysql::database::print_usage (cout);
+#elif defined(DATABASE_SQLITE)
+    odb::sqlite::database::print_usage (cout);
+#elif defined(DATABASE_PGSQL)
+    odb::pgsql::database::print_usage (cout);
+#elif defined(DATABASE_ORACLE)
+    odb::oracle::database::print_usage (cout);
+#elif defined(DATABASE_MSSQL)
+    odb::mssql::database::print_usage (cout);
+#elif defined(DATABASE_COMMON)
+    switch (db)
+    {
+    case odb::id_mysql:
+      odb::mysql::database::print_usage (cout);
+      break;
+    case odb::id_sqlite:
+      odb::sqlite::database::print_usage (cout);
+      break;
+    case odb::id_pgsql:
+      odb::pgsql::database::print_usage (cout);
+      break;
+    case odb::id_oracle:
+      odb::oracle::database::print_usage (cout);
+      break;
+    case odb::id_mssql:
+      odb::mssql::database::print_usage (cout);
+      break;
+    case odb::id_common:
+      assert (false);
+    }
+#else
+#  error unknown database
+#endif
+
+    exit (0);
+  }
+
+#if defined(DATABASE_MYSQL)
+  return create_mysql_database (argc, argv, schema, max_connections);
+#elif defined(DATABASE_SQLITE)
+  return create_sqlite_database (argc, argv, schema, max_connections);
+#elif defined(DATABASE_PGSQL)
+  return create_pgsql_database (argc, argv, schema, max_connections);
+#elif defined(DATABASE_ORACLE)
+  return create_oracle_database (argc, argv, schema, max_connections);
+#elif defined(DATABASE_MSSQL)
+  return create_mssql_database (argc, argv, schema, max_connections);
+#elif defined(DATABASE_COMMON)
+  switch (db)
+  {
+  case odb::id_mysql:
+    return create_mysql_database (argc, argv, schema, max_connections);
+  case odb::id_sqlite:
+    return create_sqlite_database (argc, argv, schema, max_connections);
+  case odb::id_pgsql:
+    return create_pgsql_database (argc, argv, schema, max_connections);
+  case odb::id_oracle:
+    return create_oracle_database (argc, argv, schema, max_connections);
+  case odb::id_mssql:
+    return create_mssql_database (argc, argv, schema, max_connections);
+  case odb::id_common:
+    assert (false);
+  }
+  return auto_ptr<database> ();
+#else
+#  error unknown database
+#endif
 }
 
 bool
@@ -215,7 +352,8 @@ size_available ()
 {
 #if defined(DATABASE_SQLITE) || \
     defined(DATABASE_ORACLE) || \
-    defined(DATABASE_MSSQL)
+    defined(DATABASE_MSSQL)  || \
+    defined(DATABASE_COMMON)
   return false;
 #else
   return true;

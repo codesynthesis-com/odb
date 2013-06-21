@@ -15,7 +15,6 @@
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/config.hxx> // DATABASE_XXX
 #include <common/common.hxx>
 
 #include "test1.hxx"
@@ -43,21 +42,19 @@ main (int argc, char* argv[])
       // For these databases this is the only way to drop circularly-
       // dependant tables.
       //
-#if defined(DATABASE_MYSQL)
-      c->execute ("SET FOREIGN_KEY_CHECKS=0");
-#elif defined(DATABASE_SQLITE)
-      c->execute ("PRAGMA foreign_keys=OFF");
-#endif
+      if (db->id () == odb::id_mysql)
+        c->execute ("SET FOREIGN_KEY_CHECKS=0");
+      else if (db->id () == odb::id_sqlite)
+        c->execute ("PRAGMA foreign_keys=OFF");
 
       transaction t (c->begin ());
       schema_catalog::create_schema (*db);
       t.commit ();
 
-#if defined(DATABASE_MYSQL)
-      c->execute ("SET FOREIGN_KEY_CHECKS=1");
-#elif defined(DATABASE_SQLITE)
-      c->execute ("PRAGMA foreign_keys=ON");
-#endif
+      if (db->id () == odb::id_mysql)
+        c->execute ("SET FOREIGN_KEY_CHECKS=1");
+      else if (db->id () == odb::id_sqlite)
+        c->execute ("PRAGMA foreign_keys=ON");
     }
 
     query<base> bq (query<base>::d->id != 0);

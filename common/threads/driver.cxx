@@ -17,10 +17,10 @@
 #include <odb/details/shared-ptr.hxx>
 #include <odb/details/thread.hxx>
 
-#include <common/config.hxx> // DATABASE_SQLITE
+#include <common/config.hxx> // DATABASE_*
 #include <common/common.hxx>
 
-#ifdef DATABASE_SQLITE
+#if defined(DATABASE_SQLITE) || defined(DATABASE_COMMON)
 #  include <odb/sqlite/database.hxx>
 #endif
 
@@ -70,7 +70,7 @@ struct task
         {
           try
           {
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) && !defined(DATABASE_COMMON)
             transaction t (db_.begin ());
 #else
             // SQLite has a peculiar table locking mode (shared cache)
@@ -79,10 +79,16 @@ struct task
             // perspective. One way to work around this problem is to
             // start a "write" transaction as such right away.
             //
-            transaction t (
-              static_cast<odb::sqlite::database&> (db_).begin_immediate ());
-#endif
+            transaction t;
 
+            if (db_.id () != odb::id_sqlite)
+              t.reset (db_.begin ());
+            else
+            {
+              t.reset (
+                static_cast<odb::sqlite::database&> (db_).begin_immediate ());
+            }
+#endif
             auto_ptr<object> o (db_.load<object> (id));
             assert (o->str_ == "first object");
             o->str_ = "another value";

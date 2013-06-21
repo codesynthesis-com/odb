@@ -13,7 +13,6 @@
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/config.hxx> // DATABASE_XXX
 #include <common/common.hxx>
 
 #include "test.hxx"
@@ -36,9 +35,8 @@ main (int argc, char* argv[])
 
       // Temporarily disable foreign key constraints for SQLite.
       //
-#if defined(DATABASE_SQLITE)
-      c->execute ("PRAGMA foreign_keys=OFF");
-#endif
+      if (db->id () == odb::id_sqlite)
+        c->execute ("PRAGMA foreign_keys=OFF");
 
       assert (schema_catalog::exists (*db, "test"));
       assert (!schema_catalog::exists (*db, "test1"));
@@ -48,9 +46,8 @@ main (int argc, char* argv[])
       schema_catalog::create_schema (*db, "test");
       t.commit ();
 
-#if defined(DATABASE_SQLITE)
-      c->execute ("PRAGMA foreign_keys=ON");
-#endif
+      if (db->id () == odb::id_sqlite)
+        c->execute ("PRAGMA foreign_keys=ON");
     }
   }
   catch (const odb::exception& e)

@@ -9,11 +9,6 @@ basic      \
 date-time  \
 template
 
-default   := $(out_base)/
-dist      := $(out_base)/.dist
-test      := $(out_base)/.test
-clean     := $(out_base)/.clean
-
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(tests)))
 
 $(dist): name := qt-oracle

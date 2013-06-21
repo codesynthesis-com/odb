@@ -32,6 +32,7 @@ const odb::pgsql::database_type_id bt = odb::pgsql::id_bytea;
 const odb::oracle::database_type_id bt = odb::oracle::id_raw;
 #elif defined(DATABASE_MSSQL)
 const odb::mssql::database_type_id bt = odb::mssql::id_binary;
+#elif defined(DATABASE_COMMON)
 #else
 #  error unknown database
 #endif
@@ -66,57 +67,78 @@ main (int argc, char* argv[])
 
       // string
       //
+#ifndef DATABASE_COMMON
       assert (size (db->query<object> (query::s == "abc")) == 1);
       assert (size (db->query<object> (query::s == query::_val ("bcd"))) == 1);
       assert (size (db->query<object> ("s = " + query::_val ("bcd"))) == 1);
       assert (size (db->query<object> ("s = " + query::_ref ("bcd"))) == 1);
+#endif
 
       {
         char a[] = "bcd";
         char* ra = a;
+#ifndef DATABASE_COMMON
         assert (size (db->query<object> (query::s == a)) == 1);
         assert (size (db->query<object> (query::s == query::_val (a))) == 1);
+#endif
         assert (size (db->query<object> (query::s == query::_ref (ra))) == 1);
+#ifndef DATABASE_COMMON
         assert (size (db->query<object> ("s = " + query::_val (a))) == 1);
         assert (size (db->query<object> ("s = " + query::_ref (a))) == 1);
+#endif
       }
 
       {
         const char a[] = "bcd";
         const char* ra = a;
+#ifndef DATABASE_COMMON
         assert (size (db->query<object> (query::s == a)) == 1);
         assert (size (db->query<object> (query::s == query::_val (a))) == 1);
+#endif
         assert (size (db->query<object> (query::s == query::_ref (ra))) == 1);
+#ifndef DATABASE_COMMON
         assert (size (db->query<object> ("s = " + query::_val (a))) == 1);
         assert (size (db->query<object> ("s = " + query::_ref (a))) == 1);
+#endif
       }
 
       {
         const char* p = "cde";
+#ifndef DATABASE_COMMON
         assert (size (db->query<object> (query::s == p)) == 1);
         assert (size (db->query<object> (query::s == query::_val (p))) == 1);
+#endif
         assert (size (db->query<object> (query::s == query::_ref (p))) == 1);
+#ifndef DATABASE_COMMON
         assert (size (db->query<object> ("s = " + query::_val (p))) == 1);
         assert (size (db->query<object> ("s = " + query::_ref (p))) == 1);
+#endif
       }
 
       {
         char a[] = "cde";
         char* p = a;
+#ifndef DATABASE_COMMON
         assert (size (db->query<object> (query::s == p)) == 1);
         assert (size (db->query<object> (query::s == query::_val (p))) == 1);
+#endif
         assert (size (db->query<object> (query::s == query::_ref (p))) == 1);
+#ifndef DATABASE_COMMON
         assert (size (db->query<object> ("s = " + query::_val (p))) == 1);
         assert (size (db->query<object> ("s = " + query::_ref (p))) == 1);
+#endif
       }
 
+#ifndef DATABASE_COMMON
       string s ("abc");
       //assert (size (db->query<object> (query::s == s)) == 1);
       assert (size (db->query<object> (query::s == s.c_str ())) == 1);
       //assert (size (db->query<object> (query::s == query::_val (s))) == 1);
       assert (size (db->query<object> (query::s == query::_val (s.c_str ()))) == 1);
+
       assert (size (db->query<object> ("s = " + query::_val (s))) == 1);
       assert (size (db->query<object> ("s = " + query::_ref (s))) == 1);
+#endif
 
       assert (size (db->query<object> (query::s == query::s1)) == 3);
 
@@ -126,11 +148,15 @@ main (int argc, char* argv[])
       array<char, 17> a;
       strcpy (a.data (), "abc");
 
+#ifndef DATABASE_COMMON
       assert (size (db->query<object> (query::a == a)) == 1);
       assert (size (db->query<object> (query::a == query::_val (a))) == 1);
+#endif
       assert (size (db->query<object> (query::a == query::_ref (a))) == 1);
+#ifndef DATABASE_COMMON
       assert (size (db->query<object> ("a = " + query::_val (a))) == 1);
       assert (size (db->query<object> ("a = " + query::_ref (a))) == 1);
+#endif
 #endif
 
       // char
@@ -141,18 +167,26 @@ main (int argc, char* argv[])
       assert (size (db->query<object> (query::c == query::_val (c))) == 1);
       assert (size (db->query<object> (query::c == query::_ref (c))) == 1);
 
+#ifndef DATABASE_COMMON
       assert (size (db->query<object> ("c = " + query::_val ('c'))) == 1);
       assert (size (db->query<object> ("c = " + query::_ref (c))) == 1);
+#endif
 
       assert (size (db->query<object> (query::c == query::c1)) == 3);
 
       // buffer
       //
+#ifndef DATABASE_COMMON
       assert (size (db->query<object> (query::b == buf)) == 3);
       assert (size (db->query<object> (query::b == query::_val (buf))) == 3);
+#endif
+
       assert (size (db->query<object> (query::b == query::_ref (buf))) == 3);
+
+#ifndef DATABASE_COMMON
       assert (size (db->query<object> ("b = " + query::_val<bt> (buf))) == 3);
       assert (size (db->query<object> ("b = " + query::_ref<bt> (buf))) == 3);
+#endif
 
       t.commit ();
     }

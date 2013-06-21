@@ -58,11 +58,11 @@ view2_test (const auto_ptr<database>& db)
   }
 
   {
-#ifndef DATABASE_ORACLE
-    result r (db->query<V> ("age < 31"));
-#else
-    result r (db->query<V> ("\"age\" < 31"));
-#endif
+    result r;
+    if (db->id () != odb::id_oracle)
+      r = db->query<V> ("age < 31");
+    else
+      r = db->query<V> ("\"age\" < 31");
 
     iterator i (r.begin ());
     assert (i != r.end ());
@@ -90,11 +90,11 @@ view4_test (const auto_ptr<database>& db)
   transaction t (db->begin ());
 
   {
-#ifndef DATABASE_ORACLE
-    result r (db->query<V> ((query::person::age > 30) + "ORDER BY age"));
-#else
-    result r (db->query<V> ((query::person::age > 30) + "ORDER BY \"age\""));
-#endif
+    result r;
+    if (db->id () != odb::id_oracle)
+      r = db->query<V> ((query::person::age > 30) + "ORDER BY age");
+    else
+      r = db->query<V> ((query::person::age > 30) + "ORDER BY \"age\"");
 
     iterator i (r.begin ());
 
@@ -237,20 +237,22 @@ main (int argc, char* argv[])
         }
 
         {
-#ifndef DATABASE_ORACLE
-          result r (db->query<view1> ("ORDER BY age"));
-#else
-          result r (db->query<view1> ("ORDER BY \"age\""));
-#endif
+          result r;
+          if (db->id () != odb::id_oracle)
+            r = db->query<view1> ("ORDER BY age");
+          else
+            r = db->query<view1> ("ORDER BY \"age\"");
+
           assert (size (r) == 4);
         }
 
         {
-#ifndef DATABASE_ORACLE
-          result r (db->query<view1> ("age < 31 ORDER BY age"));
-#else
-          result r (db->query<view1> ("\"age\" < 31 ORDER BY \"age\""));
-#endif
+          result r;
+          if (db->id () != odb::id_oracle)
+            r = db->query<view1> ("age < 31 ORDER BY age");
+          else
+            r = db->query<view1> ("\"age\" < 31 ORDER BY \"age\"");
+
           view1_check (r);
         }
 
@@ -289,6 +291,9 @@ main (int argc, char* argv[])
           t.commit ();
         }
 
+        // No native parameter support in dynamic multi-database mode.
+        //
+#ifndef DATABASE_COMMON
         {
           transaction t (db->begin ());
 
@@ -306,6 +311,7 @@ main (int argc, char* argv[])
 
           t.commit ();
         }
+#endif
       }
     }
 
@@ -317,20 +323,15 @@ main (int argc, char* argv[])
       {
         transaction t (db->begin ());
 
-#ifndef DATABASE_ORACLE
-        result r (
-          db->query<view1c> (
-            "SELECT first, last, age "
-            "FROM t_view_person "
-            "WHERE age < 31 ORDER BY age"));
-#else
-        result r (
-          db->query<view1c> (
-            "SELECT \"first\", \"last\", \"age\" "
-            "FROM \"t_view_person\" "
-            "WHERE \"age\" < 31 ORDER BY \"age\""));
-#endif
-
+        result r;
+        if (db->id () != odb::id_oracle)
+          r = db->query<view1c> ("SELECT first, last, age "
+                                 "FROM t_view_person "
+                                 "WHERE age < 31 ORDER BY age");
+        else
+          r = db->query<view1c> ("SELECT \"first\", \"last\", \"age\" "
+                                 "FROM \"t_view_person\" "
+                                 "WHERE \"age\" < 31 ORDER BY \"age\"");
         view1_check (r);
 
         t.commit ();
@@ -346,11 +347,12 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
 
         {
-#ifndef DATABASE_ORACLE
-          result r (db->query<view1d> ("age < 31 ORDER BY age"));
-#else
-          result r (db->query<view1d> ("\"age\" < 31 ORDER BY \"age\""));
-#endif
+          result r;
+          if (db->id () != odb::id_oracle)
+            r = db->query<view1d> ("age < 31 ORDER BY age");
+          else
+            r = db->query<view1d> ("\"age\" < 31 ORDER BY \"age\"");
+
           view1_check (r);
         }
 
@@ -466,11 +468,15 @@ main (int argc, char* argv[])
     view6_test<view6b> (
       db, odb::query<view6b>::employer::name == "Simple Tech, Inc");
 
+    // No native parameter support in dynamic multi-database mode.
+    //
+#ifndef DATABASE_COMMON
     view6_test<view6c> (
 #ifndef DATABASE_ORACLE
       db, "e.name = " + odb::query<view6c>::_val ("Simple Tech, Inc"));
 #else
       db, "\"e\".\"name\" = " + odb::query<view6c>::_val ("Simple Tech, Inc"));
+#endif
 #endif
 
     // view7

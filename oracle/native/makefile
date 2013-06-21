@@ -11,11 +11,6 @@ cxx_od  := $(cxx_obj:.o=.o.d)
 common.l             := $(out_root)/libcommon/common/common.l
 common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
 
-driver  := $(out_base)/driver
-dist    := $(out_base)/.dist
-test    := $(out_base)/.test
-clean   := $(out_base)/.clean
-
 # Build.
 #
 $(driver): $(cxx_obj) $(common.l)
@@ -45,11 +40,7 @@ $(dist):
 
 # Test.
 #
-$(test): $(driver) $(src_base)/test.std
-	$(call message,test $<,$< --options-file $(dcf_root)/oracle.options \
->$(out_base)/test.out)
-	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)
-	$(call message,,rm -f $(out_base)/test.out)
+$(eval $(call test-schemaless-rule))
 
 # Clean.
 #

@@ -57,10 +57,7 @@ cxx11_tests  := session/custom
 
 no_dist_tests := changelog include
 
-default   := $(out_base)/
-dist      := $(out_base)/.dist
-test      := $(out_base)/.test
-clean     := $(out_base)/.clean
+no_multi_tests := changelog include
 
 $(default):
 $(call include,$(bld_root)/cxx/standard.make) # cxx_standard
@@ -70,6 +67,10 @@ build_tests := $(tests) $(thread_tests)
 
 ifeq ($(cxx_standard),c++11)
 build_tests += $(cxx11_tests)
+endif
+
+ifeq ($(db_id),common)
+build_tests := $(filter-out $(no_multi_tests),$(build_tests))
 endif
 
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(build_tests)))
@@ -89,6 +90,11 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call meta-vctest,$(name)-mysql-vc10.sln,test.bat)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(build_tests)))
+
+ifeq ($(db_id),common)
+$(foreach d,$(databases),$(eval $(call db-test-dir,$d,$(build_tests))))
+endif
+
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(all_tests)))
 
 $(call include,$(bld_root)/meta/vc9sln.make)

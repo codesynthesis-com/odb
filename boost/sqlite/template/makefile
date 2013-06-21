@@ -6,16 +6,13 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../build/bootstrap.make
 
 cxx_tun := driver.cxx
 odb_hdr := test.hxx
-cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
+genf    := $(call odb-gen,$(odb_hdr))
+gen     := $(addprefix $(out_base)/,$(genf))
+cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o)) $(filter %.o,$(gen:.cxx=.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
 common.l             := $(out_root)/libcommon/common/common.l
 common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
-
-driver  := $(out_base)/driver
-dist    := $(out_base)/.dist
-test    := $(out_base)/.test
-clean   := $(out_base)/.clean
 
 # Import.
 #
@@ -41,9 +38,6 @@ $(driver): $(cxx_obj) $(odb_boost.l) $(common.l) $(boost_date_time.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options) $(odb_boost.l.cpp-options) \
 $(boost.l.cpp-options)
-
-genf := $(addprefix $(odb_hdr:.hxx=-odb),.hxx .ixx .cxx) $(odb_hdr:.hxx=.sql)
-gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
@@ -77,12 +71,7 @@ $(dist):
 
 # Test.
 #
-$(test): $(driver) $(src_base)/test.std
-	$(call schema)
-	$(call message,test $<,$< --options-file $(dcf_root)/$(db_id).options \
->$(out_base)/test.out)
-	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)
-	$(call message,,rm -f $(out_base)/test.out)
+$(eval $(call test-schemaless-rule))
 
 # Clean.
 #
@@ -90,7 +79,7 @@ $(clean):                            \
   $(driver).o.clean                  \
   $(addsuffix .cxx.clean,$(cxx_obj)) \
   $(addsuffix .cxx.clean,$(cxx_od))  \
-  $(addprefix $(out_base)/,$(odb_hdr:.hxx=-odb.cxx.hxx.clean))
+  $(addsuffix .hxx.clean,$(filter %.cxx,$(gen)))
 	$(call message,,rm -f $(out_base)/test.out)
 
 # Generated .gitignore.

@@ -92,6 +92,8 @@ struct type
 #  define DB_SCHEMA ""
 #elif defined(ODB_DATABASE_MSSQL)
 #  define DB_SCHEMA "dbo"
+#elif defined(ODB_DATABASE_COMMON)
+#  define DB_SCHEMA "dummy"
 #else
 #  error unknown database
 #endif

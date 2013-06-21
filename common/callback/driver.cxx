@@ -13,7 +13,6 @@
 #include <odb/transaction.hxx>
 
 #include <common/common.hxx>
-#include <common/config.hxx>  // DATABASE_XXX
 
 #include "test.hxx"
 #include "test-odb.hxx"

@@ -46,6 +46,8 @@ struct object
 #    pragma db type("VARCHAR(16)")
 #  elif defined(ODB_DATABASE_SQLITE)
 #    pragma db type("TEXT")
+#  elif defined(ODB_DATABASE_COMMON)
+#    pragma db type("DYMMU") // Necessary to make it a value.
 #  else
 #    error unknown database
 #  endif
@@ -67,6 +69,7 @@ struct object
 #    pragma db type("RAW(16)")
 #  elif defined(ODB_DATABASE_MSSQL)
 #    pragma db type("BINARY(16)")
+#  elif defined(ODB_DATABASE_COMMON)
 #  else
 #    error unknown database
 #  endif

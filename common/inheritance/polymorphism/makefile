@@ -8,16 +8,13 @@ cxx_tun := driver.cxx
 odb_hdr := test1.hxx test2.hxx test3.hxx test4.hxx test5.hxx test6.hxx \
 test7.hxx test8.hxx test9.hxx test10.hxx test11.hxx test12.hxx test13.hxx \
 test14.hxx
-cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o) $(odb_hdr:.hxx=-odb.o))
+genf    := $(call odb-gen,$(odb_hdr))
+gen     := $(addprefix $(out_base)/,$(genf))
+cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o)) $(filter %.o,$(gen:.cxx=.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
 common.l             := $(out_root)/libcommon/common/common.l
 common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
-
-driver  := $(out_base)/driver
-dist    := $(out_base)/.dist
-test    := $(out_base)/.test
-clean   := $(out_base)/.clean
 
 # Import.
 #
@@ -31,9 +28,6 @@ $(driver): $(cxx_obj) $(common.l)
 $(cxx_obj) $(cxx_od): cpp_options := -I$(out_base) -I$(src_base)
 $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
-genf := $(foreach f,$(odb_hdr:.hxx=),$(addprefix $f,-odb.hxx -odb.ixx -odb.cxx .sql))
-gen  := $(addprefix $(out_base)/,$(genf))
-
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --generate-schema --generate-query \
@@ -41,7 +35,11 @@ $(gen) $(dist): export odb_options += --generate-schema --generate-query \
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
+ifneq ($(db_id),common)
 $(gen): odb_options += --database $(db_id)
+else
+$(gen): odb_options += --multi-database dynamic
+endif
 
 $(call include-dep,$(cxx_od),$(cxx_obj),$(gen))
 
@@ -69,13 +67,11 @@ $(dist):
 
 # Test.
 #
-$(test): schemas := $(addprefix $(out_base)/,$(odb_hdr:.hxx=.sql))
-$(test): $(driver) $(src_base)/test.std
-	$(call schema,$(schemas))
-	$(call message,test $<,$< --options-file $(dcf_root)/$(db_id).options \
->$(out_base)/test.out)
-	$(call message,,diff -u $(src_base)/test.std $(out_base)/test.out)
-	$(call message,,rm -f $(out_base)/test.out)
+ifneq ($(db_id),common)
+$(eval $(call test-rule,,$(filter %.sql,$(gen))))
+else
+$(foreach d,$(databases),$(eval $(call test-rule,$d,$(filter %.sql,$(gen)))))
+endif
 
 # Clean.
 #
@@ -83,7 +79,7 @@ $(clean):                            \
   $(driver).o.clean                  \
   $(addsuffix .cxx.clean,$(cxx_obj)) \
   $(addsuffix .cxx.clean,$(cxx_od))  \
-  $(addprefix $(out_base)/,$(odb_hdr:.hxx=-odb.cxx.hxx.clean))
+  $(addsuffix .hxx.clean,$(filter %.cxx,$(gen)))
 	$(call message,,rm -f $(out_base)/test.out)
 
 # Generated .gitignore.

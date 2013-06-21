@@ -12,7 +12,6 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/config.hxx> // DATABASE_XXX
 #include <common/common.hxx>
 
 #include "test.hxx"
@@ -62,13 +61,14 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-#ifndef DATABASE_ORACLE
-      assert (db->erase_query<object> (
-                "erase_query_object.id < 3") == 2);
-#else
-      assert (db->erase_query<object> (
-                "\"erase_query_object\".\"id\" < 3") == 2);
-#endif
+
+      if (db->id () != odb::id_oracle)
+        assert (db->erase_query<object> (
+                  "erase_query_object.id < 3") == 2);
+      else
+        assert (db->erase_query<object> (
+                  "\"erase_query_object\".\"id\" < 3") == 2);
+
       db->erase_query<object> ();
       t.commit ();
     }
@@ -162,13 +162,13 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-#ifndef DATABASE_ORACLE
-      assert (db->execute ("SELECT * FROM erase_query_object_v "
-                           "WHERE object_id = 1") == 0);
-#else
-      assert (db->execute ("SELECT * FROM \"erase_query_object_v\" "
-                           "WHERE \"object_id\" = 1") == 0);
-#endif
+
+      if (db->id () != odb::id_oracle)
+        assert (db->execute ("SELECT * FROM erase_query_object_v "
+                             "WHERE object_id = 1") == 0);
+      else
+        assert (db->execute ("SELECT * FROM \"erase_query_object_v\" "
+                             "WHERE \"object_id\" = 1") == 0);
       t.commit ();
     }
   }

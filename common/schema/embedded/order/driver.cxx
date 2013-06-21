@@ -13,7 +13,6 @@
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/config.hxx> // DATABASE_XXX
 #include <common/common.hxx>
 
 #include "test1.hxx"
@@ -31,6 +30,7 @@ main (int argc, char* argv[])
   try
   {
     auto_ptr<database> db (create_database (argc, argv, false));
+    odb::database_id db_id (db->id ());
 
     // Create the database schema.
     //
@@ -41,21 +41,19 @@ main (int argc, char* argv[])
       // For MySQL we can actually create the tables in any order. It is
       // dropping them that's the problem (there is no IF EXISTS).
       //
-#if defined(DATABASE_MYSQL)
-      c->execute ("SET FOREIGN_KEY_CHECKS=0");
-#elif defined(DATABASE_SQLITE)
-      c->execute ("PRAGMA foreign_keys=OFF");
-#endif
+      if (db_id == odb::id_mysql)
+        c->execute ("SET FOREIGN_KEY_CHECKS=0");
+      else if (db_id == odb::id_sqlite)
+        c->execute ("PRAGMA foreign_keys=OFF");
 
       transaction t (c->begin ());
       schema_catalog::create_schema (*db);
       t.commit ();
 
-#if defined(DATABASE_MYSQL)
-      c->execute ("SET FOREIGN_KEY_CHECKS=1");
-#elif defined(DATABASE_SQLITE)
-      c->execute ("PRAGMA foreign_keys=ON");
-#endif
+      if (db_id == odb::id_mysql)
+        c->execute ("SET FOREIGN_KEY_CHECKS=1");
+      else if (db_id == odb::id_sqlite)
+        c->execute ("PRAGMA foreign_keys=ON");
     }
   }
   catch (const odb::exception& e)

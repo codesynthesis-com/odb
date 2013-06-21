@@ -15,13 +15,10 @@ add-index.hxx        \
 drop-index.hxx       \
 add-foreign-key.hxx  \
 drop-foreign-key.hxx 
+genf := $(call odb-gen,$(odb_hdr))
+gen  := $(addprefix $(out_base)/,$(genf))
 
 common.l.cpp-options := $(out_root)/libcommon/common/common.l.cpp-options
-
-default := $(out_base)/
-dist    := $(out_base)/.dist
-test    := $(out_base)/.test
-clean   := $(out_base)/.clean
 
 # Import.
 #
@@ -32,9 +29,6 @@ $(call import,\
 # Build.
 #
 $(default):
-
-genf := $(foreach f,$(odb_hdr:.hxx=-odb),$(addprefix $f,.hxx .ixx .cxx))
-gen  := $(addprefix $(out_base)/,$(genf))
 
 $(gen): $(odb) FORCE # Force regeneration even if up to date.
 $(gen): odb := $(odb)
@@ -81,7 +75,7 @@ $(test): | $(out_base)/.
 # Clean.
 #
 $(clean): changelogs := $(addprefix $(out_base)/,$(odb_hdr:.hxx=.xml))
-$(clean): $(addprefix $(out_base)/,$(odb_hdr:.hxx=-odb.cxx.hxx.clean))
+$(clean): $(addsuffix .hxx.clean,$(filter %.cxx,$(gen)))
 	$(call message,,rm -f $(changelogs))
 
 # Generated .gitignore.

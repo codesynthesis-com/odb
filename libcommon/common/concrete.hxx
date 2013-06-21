@@ -44,6 +44,15 @@ namespace odb_db = odb::oracle;
 
 namespace odb_db = odb::mssql;
 
+#elif defined(DATABASE_COMMON)
+
+// Fallback to common interface.
+//
+#include <odb/database.hxx>
+#include <odb/transaction.hxx>
+
+namespace odb_db = odb;
+
 #endif
 
 #endif // LIBCOMMON_COMMON_CONCRETE_HXX

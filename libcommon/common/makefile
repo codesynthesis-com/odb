@@ -12,10 +12,6 @@ cxx_od    := $(cxx_obj:.o=.o.d)
 common.l             := $(out_base)/common.l
 common.l.cpp-options := $(out_base)/common.l.cpp-options
 
-default := $(out_base)/
-dist    := $(out_base)/.dist
-clean   := $(out_base)/.clean
-
 # Import.
 #
 $(call import,\
@@ -23,9 +19,47 @@ $(call import,\
   l: odb.l,cpp-options: odb.l.cpp-options)
 
 ifdef db_id
+ifneq ($(db_id),common)
 $(call import,\
   $(scf_root)/import/libodb-$(db_id)/stub.make,\
   l: odb_db.l,cpp-options: odb_db.l.cpp-options)
+else
+# Import all database runtimes.
+#
+$(call import,\
+  $(scf_root)/import/libodb-mysql/stub.make,\
+  l: odb_mysql.l,cpp-options: odb_mysql.l.cpp-options)
+
+$(call import,\
+  $(scf_root)/import/libodb-sqlite/stub.make,\
+  l: odb_sqlite.l,cpp-options: odb_sqlite.l.cpp-options)
+
+$(call import,\
+  $(scf_root)/import/libodb-pgsql/stub.make,\
+  l: odb_pgsql.l,cpp-options: odb_pgsql.l.cpp-options)
+
+$(call import,\
+  $(scf_root)/import/libodb-oracle/stub.make,\
+  l: odb_oracle.l,cpp-options: odb_oracle.l.cpp-options)
+
+$(call import,\
+  $(scf_root)/import/libodb-mssql/stub.make,\
+  l: odb_mssql.l,cpp-options: odb_mssql.l.cpp-options)
+
+odb_db.l :=     \
+$(odb_mysql.l)  \
+$(odb_sqlite.l) \
+$(odb_pgsql.l)  \
+$(odb_oracle.l) \
+$(odb_mssql.l)
+
+odb_db.l.cpp-options :=     \
+$(odb_mysql.l.cpp-options)  \
+$(odb_sqlite.l.cpp-options) \
+$(odb_pgsql.l.cpp-options)  \
+$(odb_oracle.l.cpp-options) \
+$(odb_mssql.l.cpp-options)
+endif
 endif
 
 ifeq ($(odb_db.l.cpp-options),)
@@ -62,6 +96,8 @@ else ifeq ($(db_id),oracle)
 	@echo '#define DATABASE_ORACLE 1'                               >>$@
 else ifeq ($(db_id),mssql)
 	@echo '#define DATABASE_MSSQL 1'                                >>$@
+else ifeq ($(db_id),common)
+	@echo '#define DATABASE_COMMON 1'                               >>$@
 endif
 ifeq ($(cxx_standard),c++11)
 	@echo '#define HAVE_CXX11 1'                                    >>$@

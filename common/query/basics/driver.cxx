@@ -48,6 +48,7 @@ main (int argc, char* argv[])
   try
   {
     auto_ptr<database> db (create_database (argc, argv));
+    odb::database_id db_id (db->id ());
 
     typedef odb::query<person> query;
     typedef odb::result<person> result;
@@ -70,8 +71,13 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
+    //
+    // Native queries.
+    //
+
     // Compilation tests.
     //
+#ifndef DATABASE_COMMON
     if (false)
     {
       string name;
@@ -92,6 +98,7 @@ main (int argc, char* argv[])
       query q1 (query::_val (name));
       q1 += " = first";
     }
+#endif
 
     // Select-all query.
     //
@@ -139,11 +146,13 @@ main (int argc, char* argv[])
     cout << "test 003" << endl;
     {
       transaction t (db->begin ());
-#ifndef DATABASE_ORACLE
-      result r (db->query<person> ("age >= 30 AND last = 'Doe'"));
-#else
-      result r (db->query<person> ("\"age\" >= 30 AND \"last\" = 'Doe'"));
-#endif
+
+      result r;
+      if (db_id != odb::id_oracle)
+        r = db->query<person> ("age >= 30 AND last = 'Doe'");
+      else
+        r = db->query<person> ("\"age\" >= 30 AND \"last\" = 'Doe'");
+
       print (r);
       t.commit ();
     }
@@ -156,16 +165,22 @@ main (int argc, char* argv[])
 
       const char* name = "Doe";
 
-#ifndef DATABASE_ORACLE
+#if defined(DATABASE_COMMON)
       result r (
         db->query<person> (
-          "age >= " + query::_ref (30) + "AND" +
-          "last = " + query::_val (name)));
+          query::age >= query::_val (30) &&
+          query::last_name == query::_val (name)));
+
+#elif defined(DATABASE_ORACLE)
+      result r (
+        db->query<person> (
+          "\"age\" >= " + query::_val (30) + "AND" +
+          "\"last\" = " + query::_val (name)));
 #else
       result r (
         db->query<person> (
-          "\"age\" >= " + query::_ref (30) + "AND" +
-          "\"last\" = " + query::_val (name)));
+          "age >= " + query::_val (30) + "AND" +
+          "last = " + query::_val (name)));
 #endif
 
       print (r);
@@ -181,12 +196,15 @@ main (int argc, char* argv[])
       string name;
       unsigned short age;
 
-#ifndef DATABASE_ORACLE
-      query q ("age >= " + query::_ref (age) + "AND" +
-               "last = " + query::_ref (name));
-#else
+#if defined(DATABASE_COMMON)
+      query q (query::age >= query::_ref (age) &&
+               query::last_name == query::_ref (name));
+#elif defined(DATABASE_ORACLE)
       query q ("\"age\" >= " + query::_ref (age) + "AND" +
                "\"last\" = " + query::_ref (name));
+#else
+      query q ("age >= " + query::_ref (age) + "AND" +
+               "last = " + query::_ref (name));
 #endif
 
       name = "Doe";
@@ -232,7 +250,9 @@ main (int argc, char* argv[])
       //db->query<person> (query::age == query::_ref (name));
       db->query<person> (query::last_name == "Doe");
       db->query<person> (query::last_name == name);
+#ifndef DATABASE_COMMON
       db->query<person> (query::last_name == query::_val ("Doe"));
+#endif
       db->query<person> (query::last_name == query::_val (name));
       db->query<person> (query::last_name == query::_ref (name));
       //db->query<person> (query::last_name == 30);
@@ -437,9 +457,8 @@ main (int argc, char* argv[])
       // SQL Server does not support re-loading of an object with long data
       // from a query result.
       //
-#ifndef DATABASE_MSSQL
-      assert (i->last_name_ == "Doe"); // Actual load.
-#endif
+      if (db_id != odb::id_mssql)
+        assert (i->last_name_ == "Doe"); // Actual load.
 
       // Overwrite object image again.
       //
@@ -470,18 +489,22 @@ main (int argc, char* argv[])
       result r;
       result::iterator i;
 
+      // ==
+      //
+
       // Oracle does not support LOB comparisons.
       //
 #ifndef DATABASE_ORACLE
-      // ==
-      //
-      r = db->query<person> (query::public_key == key2);
+      if (db_id != odb::id_oracle)
+      {
+        r = db->query<person> (query::public_key == key2);
 
-      i = r.begin ();
-      assert (i != r.end ());
+        i = r.begin ();
+        assert (i != r.end ());
 
-      assert (*i->public_key_ == key2);
-      assert (++i == r.end ());
+        assert (*i->public_key_ == key2);
+        assert (++i == r.end ());
+      }
 #endif
 
       // is_null
@@ -549,9 +572,9 @@ main (int argc, char* argv[])
     // Test size() validity at the beginning/middle/end of result set.
     //
     cout << "test 019" << endl;
-#if !defined(DATABASE_SQLITE) && \
-    !defined(DATABASE_ORACLE) && \
-    !defined(DATABASE_MSSQL)
+    if (db_id != odb::id_sqlite &&
+        db_id != odb::id_oracle &&
+        db_id != odb::id_mssql)
     {
       {
         transaction t (db->begin ());
@@ -600,7 +623,6 @@ main (int argc, char* argv[])
         assert (r.size () == 0);
       }
     }
-#endif
 
     // Test like.
     //
@@ -619,11 +641,11 @@ main (int argc, char* argv[])
 
       // In Oracle one can only escape special characters (% and _).
       //
-#if defined(DATABASE_ORACLE)
-      string v ("Ja%");
-#else
-      string v ("!Ja%");
-#endif
+      string v;
+      if (db_id != odb::id_oracle)
+        v = "!Ja%";
+      else
+        v = "Ja%";
 
       r = db->query<person> (query::first_name.like (query::_ref (v), "!"));
       print (r);
