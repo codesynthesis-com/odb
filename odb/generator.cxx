@@ -321,18 +321,20 @@ generate (options const& ops,
       for (paths::const_iterator i (inputs.begin ()); i != inputs.end (); ++i)
         hxx << "#include " <<
           ctx->process_include_path (i->leaf ().string ()) << endl;
+
       hxx << endl;
+
+      // There are no -odb.hxx includes if we are generating code for
+      // everything.
+      //
+      if (!ops.at_once ())
+        if (include::generate (true))
+          hxx << endl;
 
       {
         // We don't want to indent prologues/epilogues.
         //
         ind_filter ind (ctx->os);
-
-        // There are no -odb.hxx includes if we are generating code for
-        // everything.
-        //
-        if (!ops.at_once ())
-          include::generate (true);
 
         switch (db)
         {
@@ -526,6 +528,12 @@ generate (options const& ops,
 
       cxx << "#include " << ctx->process_include_path (hxx_name) << endl;
 
+      // There are no -odb.hxx includes if we are generating code for
+      // everything.
+      //
+      if (!ops.at_once ())
+        include::generate (false);
+
       if (!impl_guard.empty ())
         cxx << "#undef " << impl_guard << endl;
 
@@ -535,12 +543,6 @@ generate (options const& ops,
         // We don't want to indent prologues/epilogues.
         //
         ind_filter ind (ctx->os);
-
-        // There are no -odb.hxx includes if we are generating code for
-        // everything.
-        //
-        if (!ops.at_once ())
-          include::generate (false);
 
         switch (db)
         {

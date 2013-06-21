@@ -7,7 +7,7 @@
 
 namespace include
 {
-  void
+  bool
   generate (bool header);
 }
 

@@ -177,22 +177,26 @@ private:
   bool ptr_;
 };
 
-// Generate explicit instantiations of base classes (reuse inheritance).
+// Generate explicit instantiations of base classes.
 //
 struct query_columns_base_insts: traversal::class_, virtual context
 {
   typedef query_columns_base_insts base;
 
-  query_columns_base_insts (bool ptr, bool decl, string const& alias);
+  query_columns_base_insts (bool test_ptr,
+                            bool decl,
+                            string const& alias,
+                            bool poly); // Traverse polymorphic bases.
   query_columns_base_insts (query_columns_base_insts const&);
 
   virtual void
   traverse (type&);
 
 private:
-  bool ptr_;
+  bool test_ptr_;
   bool decl_;
   string alias_;
+  bool poly_;
   traversal::inherits inherits_;
 };
 

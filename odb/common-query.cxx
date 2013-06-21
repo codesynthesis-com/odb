@@ -336,23 +336,23 @@ generate_inst (semantics::data_member& m, semantics::class_& c)
   string name (public_name (m));
   string const& fq_name (class_fq_name (c));
 
-  // If the pointed-to class has no pointers of its own then
-  // pointer_query_columns just derives from query_columns and
-  // that's what we need to instantiate.
-  //
-  bool has_ptr (has_a (c, test_pointer | include_base));
   string alias (scope_ + "::" + name + "_alias_");
 
   // Instantiate base [pointer_]query_columns.
   //
   {
-    instance<query_columns_base_insts> b (has_ptr, inst_, alias);
+    instance<query_columns_base_insts> b (true, inst_, alias, true);
     traversal::inherits i (*b);
     inherits (c, i);
   }
 
+  // If the pointed-to class has no pointers of its own then
+  // pointer_query_columns just derives from query_columns and
+  // that's what we need to instantiate.
+  //
   inst_header (inst_);
-  os << (has_ptr ? "pointer_" : "") << "query_columns<" << endl
+  os << (has_a (c, test_pointer | include_base) ? "pointer_" : "") <<
+    "query_columns<" << endl
      << "  " << fq_name << "," << endl
      << "  id_" << db << "," << endl
      << "  " << alias << " >;"
@@ -486,9 +486,14 @@ bool query_columns::
 traverse_column (semantics::data_member& m, string const& column, bool)
 {
   semantics::names* hint;
-  semantics::type& t (utype (m, hint));
+  semantics::type* t (&utype (m, hint));
 
-  column_common (m, t.fq_name (hint), column);
+  // Unwrap it if it is a wrapper.
+  //
+  if (semantics::type* wt = wrapper (*t, hint))
+    t = &utype (*wt, hint);
+
+  column_common (m, t->fq_name (hint), column);
 
   if (decl_)
   {
@@ -685,8 +690,11 @@ traverse (type& c)
 //
 
 query_columns_base_insts::
-query_columns_base_insts (bool ptr, bool decl, string const& alias)
-    : ptr_ (ptr), decl_ (decl), alias_ (alias)
+query_columns_base_insts (bool test_ptr,
+                          bool decl,
+                          string const& alias,
+                          bool poly)
+    : test_ptr_ (test_ptr), decl_ (decl), alias_ (alias), poly_ (poly)
 {
   *this >> inherits_ >> *this;
 }
@@ -694,7 +702,10 @@ query_columns_base_insts (bool ptr, bool decl, string const& alias)
 query_columns_base_insts::
 query_columns_base_insts (query_columns_base_insts const& x)
     : context (), // @@ -Wextra
-      ptr_ (x.ptr_), decl_ (x.decl_), alias_ (x.alias_)
+      test_ptr_ (x.test_ptr_),
+      decl_ (x.decl_),
+      alias_ (x.alias_),
+      poly_ (x.poly_)
 {
   *this >> inherits_ >> *this;
 }
@@ -702,21 +713,46 @@ query_columns_base_insts (query_columns_base_insts const& x)
 void query_columns_base_insts::
 traverse (type& c)
 {
-  // We are only interested in reuse inheritance.
-  //
-  if (!object (c) || polymorphic (c))
+  if (!object (c))
     return;
+
+  bool poly (polymorphic (c));
+  if (poly && (poly != poly_))
+    return;
+
+  bool ptr (has_a (c, test_pointer | include_base));
+
+  string old_alias;
+  if (poly)
+  {
+    old_alias = alias_;
+    alias_ += "::base_traits";
+  }
 
   // Instantiate bases recursively.
   //
   inherits (c, inherits_);
 
   inst_header (decl_);
-  os << (ptr_ ? "pointer_query_columns" : "query_columns") << "<" << endl
+  os << (test_ptr_ && ptr ? "pointer_query_columns" : "query_columns") <<
+    "<" << endl
      << "  " << class_fq_name (c) << "," << endl
      << "  id_" << db << "," << endl
      << "  " << alias_ << " >;"
      << endl;
+
+  if (!test_ptr_ && ptr)
+  {
+    inst_header (decl_);
+    os << "pointer_query_columns<" << endl
+       << "  " << class_fq_name (c) << "," << endl
+       << "  id_" << db << "," << endl
+       << "  " << alias_ << " >;"
+       << endl;
+  }
+
+  if (poly)
+    alias_ = old_alias;
 }
 
 // query_columns_type
@@ -940,13 +976,16 @@ generate_inst (type& c)
   //
   // 3. The query_columns class for the table itself.
   //
+  // We also need to repeat these steps for pointer_query_columns
+  // since it is used by views.
+  //
   string alias ("access::object_traits_impl< " + type + ", id_" +
                 db.string () + " >");
 
   // 1
   //
   {
-    instance<query_columns_base_insts> b (false, inst_, alias);
+    instance<query_columns_base_insts> b (false, inst_, alias, false);
     traversal::inherits i (*b);
     inherits (c, i);
   }
@@ -963,6 +1002,16 @@ generate_inst (type& c)
      << "  id_" << db << "," << endl
      << "  " << alias << " >;"
      << endl;
+
+  if (has_a (c, test_pointer | exclude_base))
+  {
+    inst_header (inst_);
+    os << "pointer_query_columns<" << endl
+       << "  " << type << "," << endl
+       << "  id_" << db << "," << endl
+       << "  " << alias << " >;"
+       << endl;
+  }
 }
 
 // view_query_columns_type
@@ -1172,7 +1221,7 @@ generate_inst (type& c)
       continue; // Skip tables.
 
     if (i->alias.empty ())
-      continue;
+      continue; // Instantiated by object.
 
     semantics::class_& o (*i->obj);
     qname const& t (table_name (o));
@@ -1183,32 +1232,26 @@ generate_inst (type& c)
     //
     if (polymorphic (o) || t.qualified () || i->alias != t.uname ())
     {
-
       string const& otype (class_fq_name (o));
-
-      // If the pointed-to class has no pointers of its own then
-      // pointer_query_columns just derives from query_columns and
-      // that's what we need to instantiate.
-      //
-      bool has_ptr (has_a (o, test_pointer | include_base));
-
       string alias ("odb::alias_traits<\n"
                     "    " + otype + ",\n"
                     "    id_" + db.string () + ",\n"
                     "    " + traits + "::" + i->alias + "_tag>");
 
-
-
       // Instantiate base [pointer_]query_columns.
       //
       {
-        instance<query_columns_base_insts> b (has_ptr, decl_, alias);
+        instance<query_columns_base_insts> b (true, decl_, alias, true);
         traversal::inherits i (*b);
         inherits (o, i);
       }
 
+      // If the pointed-to class has no pointers of its own then
+      // pointer_query_columns just derives from query_columns and
+      // that's what we need to instantiate.
+      //
       inst_header (decl_);
-      os << (has_ptr ? "pointer_" : "") <<
+      os << (has_a (o, test_pointer | include_base) ? "pointer_" : "") <<
         "query_columns<" << endl
          << "  " << otype << "," << endl
          << "  id_" << db << "," << endl

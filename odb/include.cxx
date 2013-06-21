@@ -486,9 +486,11 @@ namespace
 
 namespace include
 {
-  void
+  bool
   generate (bool header)
   {
+    bool r (false);
+
     // We do the same include directive collection and processing
     // twice, once for the header file and once for the source file.
     // If that proves to be too slow, we will need to do it only once
@@ -695,8 +697,10 @@ namespace include
 
       char o (inc->type_ == include_directive::quote ? '"' : '<');
       ctx.os << "#include " << ctx.process_include_path (
-        f.string (), false, o) << endl
-             << endl;
+        f.string (), false, o) << endl;
+      r = true;
     }
+
+    return r;
   }
 }
