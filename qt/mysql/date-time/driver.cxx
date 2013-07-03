@@ -35,6 +35,29 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
+    mysql_version v;
+    {
+      transaction t (db->begin ());
+      db->query<mysql_version> ().begin ().load (v);
+      t.commit ();
+    }
+
+    // If we are running against MySQL 5.6.4 or later alter the tables
+    // to allow sub-second precision.
+    //
+    bool fs (v.major > 5 ||
+             (v.major == 5 && (v.minor > 6 ||
+                               (v.minor == 6 && v.release >= 4))));
+    if (fs)
+    {
+      transaction t (db->begin ());
+      db->execute ("ALTER TABLE `qt_mysql_dt_object`"               \
+                   "  MODIFY COLUMN `date_time` DATETIME(3),"       \
+                   "  MODIFY COLUMN `timestamp` TIMESTAMP(3) NULL," \
+                   "  MODIFY COLUMN `time` TIME(3)");
+      t.commit ();
+    }
+
     //
     // Check valid dates and times.
     //
@@ -61,14 +84,15 @@ main (int argc, char* argv[])
     //
 
     // Create a QDateTime containing the current date and time
-    // but with the milliseconds zeroed. MySQL does not currently
-    // support millisecond times.
+    // but with the milliseconds zeroed. MySQL prior to 5.6.4
+    // does not support sub-second prevision.
     //
     QDateTime t (QDateTime::currentDateTime ());
 
-    t.setTime (QTime (t.time ().hour (),
-                      t.time ().minute (),
-                      t.time ().second ()));
+    if (!fs)
+      t.setTime (QTime (t.time ().hour (),
+                        t.time ().minute (),
+                        t.time ().second ()));
 
     o.date = t.date ();
     o.date_time = t;

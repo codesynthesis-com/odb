@@ -37,8 +37,8 @@ $(qt_core.l.cpp-options)
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --database mysql --profile qt/date-time \
---generate-schema --table-prefix qt_mysql_dt_
+$(gen) $(dist): export odb_options += --database mysql --generate-schema \
+--generate-query --profile qt/date-time --table-prefix qt_mysql_dt_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options) $(odb_qt.l.cpp-options) \
 $(qt_core.l.cpp-options)

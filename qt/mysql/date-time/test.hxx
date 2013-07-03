@@ -51,4 +51,21 @@ struct object
   QTime time;
 };
 
+// MySQL server version view.
+//
+#pragma db view query(                                                  \
+  "SELECT "                                                             \
+  "CAST(SUBSTRING_INDEX(@@version, '.', 1) AS UNSIGNED),"               \
+  "CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(@@version, '.', 2), '.', -1) AS UNSIGNED)," \
+  "CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(@@version, '-', 1), '.', -1) AS UNSIGNED)," \
+  "@@protocol_version")
+struct mysql_version
+{
+  unsigned int major;
+  unsigned int minor;
+  unsigned int release;
+
+  unsigned int protocol;
+};
+
 #endif // TEST_HXX

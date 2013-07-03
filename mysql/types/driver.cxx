@@ -28,6 +28,16 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_specific_database<database> (argc, argv));
 
+    mysql_version v;
+    {
+      transaction t (db->begin ());
+      db->query<mysql_version> ().begin ().load (v);
+      t.commit ();
+    }
+
+    //cerr << "MySQL " << v.major << '.' << v.minor << '.' << v.release
+    //     << " protocol " << v.protocol << endl;
+
     object o (1);
 
     o.bool_ = true;
@@ -52,6 +62,25 @@ main (int argc, char* argv[])
     o.date_time_ = date_time (false, 2010, 8, 29, 12, 26, 59);
     o.timestamp_ = date_time (false, 2010, 8, 29, 12, 26, 59);
     o.year_ = 2010;
+
+    // If we are running against MySQL 5.6.4 or later, add fractional
+    // seconds and also alter the table to allow sub-second precision.
+    //
+    if (v.major > 5 ||
+        (v.major == 5 && (v.minor > 6 ||
+                          (v.minor == 6 && v.release >= 4))))
+    {
+      o.time_.microseconds = 123456;
+      o.date_time_.microseconds = 234567;
+      o.timestamp_.microseconds = 345678;
+
+      transaction t (db->begin ());
+      db->execute ("ALTER TABLE `mysql_types_object`"           \
+                   "  MODIFY COLUMN `time` TIME(6),"            \
+                   "  MODIFY COLUMN `date_time` DATETIME(6),"   \
+                   "  MODIFY COLUMN `timestamp` TIMESTAMP(6)");
+      t.commit ();
+    }
 
     string short_str (128, 's');
     string medium_str (250, 'm');

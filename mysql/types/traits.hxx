@@ -35,6 +35,7 @@ namespace odb
           v.hour = i.hour;
           v.minute = i.minute;
           v.second = i.second;
+          v.microseconds = static_cast<unsigned int> (i.second_part);
         }
         else
           v = date_time ();
@@ -51,7 +52,7 @@ namespace odb
         i.hour = v.hour;
         i.minute = v.minute;
         i.second = v.second;
-        i.second_part = 0;
+        i.second_part = v.microseconds;
       }
     };
 

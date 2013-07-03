@@ -27,14 +27,16 @@ struct date_time
              unsigned int d,
              unsigned int h,
              unsigned int min,
-             unsigned int sec)
+             unsigned int sec,
+             unsigned int msec = 0)
       : negative (n),
         year (y),
         month (m),
         day (d),
         hour (h),
         minute (min),
-        second (sec)
+        second (sec),
+        microseconds (msec)
   {
   }
 
@@ -48,7 +50,8 @@ struct date_time
       day == y.day &&
       hour == y.hour &&
       minute == y.minute &&
-      second == y.second;
+      second == y.second &&
+      microseconds == y.microseconds;
   }
 
   bool negative;
@@ -58,6 +61,7 @@ struct date_time
   unsigned int hour;
   unsigned int minute;
   unsigned int second;
+  unsigned int microseconds;
 };
 
 struct bitfield
@@ -303,6 +307,23 @@ struct char_array
       s3[0] == y.s3[0] &&
       c1 == y.c1;
   }
+};
+
+// MySQL server version view.
+//
+#pragma db view query(                                                  \
+  "SELECT "                                                             \
+  "CAST(SUBSTRING_INDEX(@@version, '.', 1) AS UNSIGNED),"               \
+  "CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(@@version, '.', 2), '.', -1) AS UNSIGNED)," \
+  "CAST(SUBSTRING_INDEX(SUBSTRING_INDEX(@@version, '-', 1), '.', -1) AS UNSIGNED)," \
+  "@@protocol_version")
+struct mysql_version
+{
+  unsigned int major;
+  unsigned int minor;
+  unsigned int release;
+
+  unsigned int protocol;
 };
 
 #endif // TEST_HXX

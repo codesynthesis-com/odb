@@ -37,6 +37,35 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
+    mysql_version v;
+    {
+      transaction t (db->begin ());
+      db->query<mysql_version> ().begin ().load (v);
+      t.commit ();
+    }
+
+    // If we are running against MySQL 5.6.4 or later alter the tables
+    // to allow sub-second precision.
+    //
+    bool fs (v.major > 5 ||
+             (v.major == 5 && (v.minor > 6 ||
+                               (v.minor == 6 && v.release >= 4))));
+    if (fs)
+    {
+      transaction t (db->begin ());
+
+      db->execute ("ALTER TABLE `boost_mysql_dt_object_durations`"  \
+                   "  MODIFY COLUMN `value` TIME(6)");
+
+      db->execute ("ALTER TABLE `boost_mysql_dt_object_times`"      \
+                   "  MODIFY COLUMN `value` DATETIME(6)");
+
+      db->execute ("ALTER TABLE `boost_mysql_dt_object_timestamps`" \
+                   "  MODIFY COLUMN `value` TIMESTAMP(6) NULL");
+
+      t.commit ();
+    }
+
     object o;
 
     // Test all valid date-time mappings.
@@ -46,13 +75,16 @@ main (int argc, char* argv[])
     o.dates.push_back (date (max_date_time));
     o.dates.push_back (date (min_date_time));
 
-    o.times.push_back (second_clock::local_time ());
+    if (fs)
+      o.times.push_back (microsec_clock::local_time ());
+    else
+      o.times.push_back (second_clock::local_time ());
     o.times.push_back (not_a_date_time);
     o.times.push_back (min_date_time);
 
-    // MySQL time interface does not support fraction seconds. Construct
-    // with zero fractional seconds so that comparison test does not
-    // fail for invalid reasons.
+    // MySQL prior to 5.6.4 does not support fraction seconds. Construct
+    // with zero fractional seconds so that comparison test does not fail
+    // for invalid reasons.
     //
     o.times.push_back (
       ptime (
@@ -62,10 +94,15 @@ main (int argc, char* argv[])
           ptime (max_date_time).time_of_day ().minutes (),
           ptime (max_date_time).time_of_day ().seconds ())));
 
-    o.timestamps.push_back (second_clock::local_time ());
+    if (fs)
+      o.timestamps.push_back (microsec_clock::local_time ());
+    else
+      o.timestamps.push_back (second_clock::local_time ());
     o.timestamps.push_back (not_a_date_time);
 
     o.durations.push_back (time_duration (1, 2, 3));
+    if (fs)
+      o.durations.back () += time_duration (microseconds (123456));
     o.durations.push_back (time_duration (-1, 2, 3));
     o.durations.push_back (not_a_date_time);
 
