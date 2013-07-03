@@ -32,9 +32,12 @@ namespace odb
           //
           v.setHMS (24, 0, 0);
         else
+          // Since MySQL 5.6.4, the microseconds part is no longer ignored.
+          //
           v.setHMS (static_cast<int> (i.hour),
                     static_cast<int> (i.minute),
-                    static_cast<int> (i.second));
+                    static_cast<int> (i.second),
+                    static_cast<int> (i.second_part / 1000));
       }
 
       static void
@@ -54,8 +57,7 @@ namespace odb
           i.hour = static_cast<unsigned int> (v.hour ());
           i.minute = static_cast<unsigned int> (v.minute ());
           i.second = static_cast<unsigned int> (v.second ());
-
-          i.second_part = 0;
+          i.second_part = static_cast<unsigned long> (v.msec ()) * 1000;
         }
       }
     };

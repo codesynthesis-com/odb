@@ -30,12 +30,15 @@ namespace odb
           //
           v = QDateTime ();
         else
+          // Since MySQL 5.6.4, the microseconds part is no longer ignored.
+          //
           v = QDateTime (QDate (static_cast<int> (i.year),
                                 static_cast<int> (i.month),
                                 static_cast<int> (i.day)),
                          QTime (static_cast<int> (i.hour),
                                 static_cast<int> (i.minute),
-                                static_cast<int> (i.second)));
+                                static_cast<int> (i.second),
+                                static_cast<int> (i.second_part / 1000)));
       }
 
       static void
@@ -61,8 +64,7 @@ namespace odb
           i.hour = static_cast<unsigned int> (t.hour ());
           i.minute = static_cast<unsigned int> (t.minute ());
           i.second = static_cast<unsigned int> (t.second ());
-
-          i.second_part = 0;
+          i.second_part = static_cast<unsigned long> (t.msec ()) * 1000;
         }
       }
     };
@@ -82,12 +84,15 @@ namespace odb
           //
           v = QDateTime ();
         else
+          // Since MySQL 5.6.4, the microseconds part is no longer ignored.
+          //
           v = QDateTime (QDate (static_cast<int> (i.year),
                                 static_cast<int> (i.month),
                                 static_cast<int> (i.day)),
                          QTime (static_cast<int> (i.hour),
                                 static_cast<int> (i.minute),
-                                static_cast<int> (i.second)));
+                                static_cast<int> (i.second),
+                                static_cast<int> (i.second_part / 1000)));
       }
 
       static void
@@ -113,8 +118,7 @@ namespace odb
           i.hour = static_cast<unsigned int> (t.hour ());
           i.minute = static_cast<unsigned int> (t.minute ());
           i.second = static_cast<unsigned int> (t.second ());
-
-          i.second_part = 0;
+          i.second_part = static_cast<unsigned long> (t.msec ()) * 1000;
         }
       }
     };
