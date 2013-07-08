@@ -34,9 +34,9 @@ test1-odb.hxx: test1.hxx
 # test2.hxx
 #
 driver_SOURCES += test2.hxx
-nodist_driver_SOURCES = test2-odb.cxx
-BUILT_SOURCES = test2-odb.hxx
-CLEANFILES = test2-odb.hxx test2-odb.ixx test2-odb.cxx test2.sql
+nodist_driver_SOURCES += test2-odb.cxx
+BUILT_SOURCES += test2-odb.hxx
+CLEANFILES += test2-odb.hxx test2-odb.ixx test2-odb.cxx test2.sql
 
 test2-odb.hxx: test2.hxx
 	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) --database @database@ __value__(odb_options2) --changelog model.xml $<
