@@ -158,19 +158,19 @@
 __custom_build_entry__(
 test1.hxx,
 odb test1.hxx,
-odb.exe --std c++11 --database __value__(database) __xml__(__shell_quotes__(__value__(odb_options1) --changelog model.xml -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 -I$(SolutionDir)\..\libcommon)) test1.hxx,
+odb.exe --std c++11 --database __value__(database) __xml__(__shell_quotes__(__value__(odb_options1) --changelog model.xml -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 __upcase__(-Ddatabase_)__upcase__(__value__(database)) -I$(SolutionDir)\..\libcommon)) test1.hxx,
 test1-odb.hxx;test1-odb.ixx;test1-odb.cxx;test1.sql;model.xml,
 model.hxx)
 __custom_build_entry__(
 test2.hxx,
 odb test2.hxx,
-odb.exe --std c++11 --database __value__(database) __xml__(__shell_quotes__(__value__(odb_options2) --changelog model.xml -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 -I$(SolutionDir)\..\libcommon)) test2.hxx,
+odb.exe --std c++11 --database __value__(database) __xml__(__shell_quotes__(__value__(odb_options2) --changelog model.xml -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 __upcase__(-Ddatabase_)__upcase__(__value__(database)) -I$(SolutionDir)\..\libcommon)) test2.hxx,
 test2-odb.hxx;test2-odb.ixx;test2-odb.cxx;test2.sql;model.xml,
 test1-odb.hxx;model.hxx)
 __custom_build_entry__(
 test3.hxx,
 odb test3.hxx,
-odb.exe --std c++11 --database __value__(database) __xml__(__shell_quotes__(__value__(odb_options3) --changelog model.xml -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 -I$(SolutionDir)\..\libcommon)) test3.hxx,
+odb.exe --std c++11 --database __value__(database) __xml__(__shell_quotes__(__value__(odb_options3) --changelog model.xml -DHAVE_CONFIG_VC_H -DODB_MSC_VER=1600 __upcase__(-Ddatabase_)__upcase__(__value__(database)) -I$(SolutionDir)\..\libcommon)) test3.hxx,
 test3-odb.hxx;test3-odb.ixx;test3-odb.cxx;test3.sql;test3-002-pre.sql;test3-002-post.sql;test3-003-pre.sql;test3-003-post.sql,
 test2-odb.hxx;model.hxx)
   </ItemGroup>
