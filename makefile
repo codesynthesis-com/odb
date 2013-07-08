@@ -14,8 +14,8 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): export dirs := $(dirs)
 $(dist): export docs := NCUEL LICENSE README NEWS version
-$(dist): data_dist := INSTALL libodb-mssql-vc9.sln libodb-mssql-vc10.sln \
-libodb-mssql-vc11.sln
+$(dist): data_dist := INSTALL libodb-mssql-vc8.sln libodb-mssql-vc9.sln \
+libodb-mssql-vc10.sln libodb-mssql-vc11.sln
 $(dist): exec_dist := bootstrap
 $(dist): export extra_dist := $(data_dist) $(exec_dist)
 $(dist): export version = $(shell cat $(src_root)/version)
