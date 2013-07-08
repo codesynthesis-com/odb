@@ -231,7 +231,7 @@ create_database (int argc,
 #endif
 )
 {
-  char** argp (argv + 1); // Position of the next argument.
+  char** argp = argv + 1; // Position of the next argument. Assignment for VC8.
   int argn (argc - 1);    // Number of arguments left.
 
 #if defined(DATABASE_COMMON)

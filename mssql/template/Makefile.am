@@ -31,5 +31,5 @@ ODBFLAGS += --std c++11
 endif
 
 test-odb.hxx: test.hxx
-	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) __value__(odb_options) $<
+	$(ODB) $(AM_CPPFLAGS) $(ODBCPPFLAGS) $(CPPFLAGS) $(ODBFLAGS) m4_patsubst(__value__(odb_options), __value__(src_base), $(srcdir)) $<
 )

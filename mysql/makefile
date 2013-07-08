@@ -17,9 +17,11 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(tests)))
 
 $(dist): name := mysql
 $(dist): export dirs := $(tests)
-$(dist): export extra_dist := $(name)-vc9.sln $(name)-vc10.sln $(name)-vc11.sln test.bat
+$(dist): export extra_dist := $(name)-vc8.sln $(name)-vc9.sln \
+$(name)-vc10.sln $(name)-vc11.sln test.bat
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(tests)))
 	$(call meta-automake)
+	$(call meta-vc8sln,$(name)-vc8.sln)
 	$(call meta-vc9sln,$(name)-vc9.sln)
 	$(call meta-vc10sln,$(name)-vc10.sln)
 	$(call meta-vc11sln,$(name)-vc11.sln)
@@ -28,6 +30,7 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(tests)))
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(tests)))
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(tests)))
 
+$(call include,$(bld_root)/meta/vc8sln.make)
 $(call include,$(bld_root)/meta/vc9sln.make)
 $(call include,$(bld_root)/meta/vc10sln.make)
 $(call include,$(bld_root)/meta/vc11sln.make)

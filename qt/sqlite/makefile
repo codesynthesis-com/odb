@@ -14,11 +14,13 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(tests)))
 $(dist): name := qt-sqlite
 $(dist): export dirs := $(tests)
 $(dist): export extra_dist := test.bat \
+$(name)-qt4-vc8.sln \
 $(name)-qt4-vc9.sln $(name)-qt5-vc9.sln \
 $(name)-qt4-vc10.sln $(name)-qt5-vc10.sln \
 $(name)-qt4-vc11.sln $(name)-qt5-vc11.sln
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(tests)))
 	$(call meta-automake)
+	$(call meta-vc8sln,$(name)-qt4-vc8.sln,,-qt4-vc8.vcproj)
 	$(call meta-vc9sln,$(name)-qt4-vc9.sln,,-qt4-vc9.vcproj)
 	$(call meta-vc9sln,$(name)-qt5-vc9.sln,,-qt5-vc9.vcproj)
 	$(call meta-vc10sln,$(name)-qt4-vc10.sln,,-qt4-vc10.vcxproj)
@@ -31,6 +33,7 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(tests)))
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(tests)))
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(tests)))
 
+$(call include,$(bld_root)/meta/vc8sln.make)
 $(call include,$(bld_root)/meta/vc9sln.make)
 $(call include,$(bld_root)/meta/vc10sln.make)
 $(call include,$(bld_root)/meta/vc11sln.make)

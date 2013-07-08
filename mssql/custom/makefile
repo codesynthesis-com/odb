@@ -46,14 +46,17 @@ $(out_base)/: $(driver)
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): export extra_headers := traits.hxx query.hxx
+$(dist): export extra_sources := $(filter-out driver.cxx,$(cxx_tun))
 $(dist): data_dist := test.std custom.sql
 $(dist): export name := $(subst /,-,$(subst $(src_root)/mssql/,,$(src_base)))
-$(dist): export extra_dist := $(data_dist) $(name)-vc9.vcproj \
+$(dist): export extra_dist := $(data_dist) \
+$(name)-vc8.vcproj $(name)-vc9.vcproj \
 $(name)-vc10.vcxproj $(name)-vc10.vcxproj.filters \
 $(name)-vc11.vcxproj $(name)-vc11.vcxproj.filters
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(extra_headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
+	$(call meta-vc8proj,../template/template-vc8.vcproj,$(name)-vc8.vcproj)
 	$(call meta-vc9proj,../template/template-vc9.vcproj,$(name)-vc9.vcproj)
 	$(call meta-vc10proj,../template/template-vc10.vcxproj,$(name)-vc10.vcxproj)
 	$(call meta-vc11proj,../template/template-vc11.vcxproj,$(name)-vc11.vcxproj)
@@ -85,6 +88,7 @@ endif
 # How to.
 #
 $(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc8proj.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/vc11proj.make)

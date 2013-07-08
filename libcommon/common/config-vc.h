@@ -10,7 +10,7 @@
 
 #define HAVE_TR1_MEMORY
 
-/* VC++10 has C++11 always enabled.
+/* VC++10 and later has C++11 always enabled.
  */
 #if (defined(_MSC_VER) && _MSC_VER >= 1600) || \
     (defined(ODB_MSC_VER) && ODB_MSC_VER >= 1600)

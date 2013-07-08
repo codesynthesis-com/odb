@@ -150,6 +150,11 @@ endif
 # $1 project template without the -vcN.vc[x]proj suffix.
 # $2 project name without the -vcN.vc[x]proj suffix.
 #
+$(dist): meta-vc8projs = \
+$(foreach d,$(databases),$(call \
+meta-vc8proj,$1-vc8.vcproj,$(if $2,$2,$(notdir \
+$1))-$d-vc8.vcproj,database,$d)$(literal_newline)$(literal_tab))@:
+
 $(dist): meta-vc9projs = \
 $(foreach d,$(databases),$(call \
 meta-vc9proj,$1-vc9.vcproj,$(if $2,$2,$(notdir \
@@ -167,6 +172,8 @@ $1))-$d-vc11.vcxproj,database,$d)$(literal_newline)$(literal_tab))@:
 
 # $1 project name without the -vcN.vc[x]proj suffix.
 #
+vc8projs = $(addprefix $1-,$(addsuffix -vc8.vcproj,$(databases)))
+
 vc9projs = $(addprefix $1-,$(addsuffix -vc9.vcproj,$(databases)))
 
 vc10projs = $(addprefix $1-,$(addsuffix -vc10.vcxproj,$(databases))) \
@@ -178,6 +185,11 @@ $(addprefix $1-,$(addsuffix -vc11.vcxproj.filters,$(databases)))
 # $1 solution name without the -vcN.sln suffix.
 # $2 extra project suffix in addition to -<db>-vcN.vcproj (optional)
 #
+$(dist): meta-vc8slns = \
+$(foreach d,$(databases),$(call \
+meta-vc8sln,$1-vc8.sln,$1-$d-vc8.sln,$2-$d-vc8.vcproj,database,$d)$(literal_newline)\
+$(literal_tab))@:
+
 $(dist): meta-vc9slns = \
 $(foreach d,$(databases),$(call \
 meta-vc9sln,$1-vc9.sln,$1-$d-vc9.sln,$2-$d-vc9.vcproj,database,$d)$(literal_newline)\
@@ -193,6 +205,7 @@ $(foreach d,$(databases),$(call \
 meta-vc11sln,$1-vc11.sln,$1-$d-vc11.sln,$2-$d-vc11.vcxproj,database,$d)$(literal_newline)\
 $(literal_tab))@:
 
+vc8slns = $(addprefix $1-,$(addsuffix -vc8.sln,$(databases)))
 vc9slns = $(addprefix $1-,$(addsuffix -vc9.sln,$(databases)))
 vc10slns = $(addprefix $1-,$(addsuffix -vc10.sln,$(databases)))
 vc11slns = $(addprefix $1-,$(addsuffix -vc11.sln,$(databases)))

@@ -56,6 +56,7 @@ $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std
 $(dist): export name := $(subst /,-,$(subst $(src_root)/qt/mssql/,,$(src_base)))
 $(dist): export extra_dist := $(data_dist) \
+$(name)-qt4-vc8.vcproj \
 $(name)-qt4-vc9.vcproj $(name)-qt5-vc9.vcproj \
 $(name)-qt4-vc10.vcxproj $(name)-qt4-vc10.vcxproj.filters \
 $(name)-qt5-vc10.vcxproj $(name)-qt5-vc10.vcxproj.filters \
@@ -64,6 +65,7 @@ $(name)-qt5-vc11.vcxproj $(name)-qt5-vc11.vcxproj.filters
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
+	$(call meta-vc8proj,../template/template-qt4-vc8.vcproj,$(name)-qt4-vc8.vcproj)
 	$(call meta-vc9proj,../template/template-qt4-vc9.vcproj,$(name)-qt4-vc9.vcproj)
 	$(call meta-vc9proj,../template/template-qt5-vc9.vcproj,$(name)-qt5-vc9.vcproj)
 	$(call meta-vc10proj,../template/template-qt4-vc10.vcxproj,$(name)-qt4-vc10.vcxproj)
@@ -98,6 +100,7 @@ endif
 # How to.
 #
 $(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc8proj.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/vc11proj.make)

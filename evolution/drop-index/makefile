@@ -70,11 +70,12 @@ $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): export extra_headers := model.hxx
 $(dist): export name := $(name)
-$(dist): export extra_dist := $(call vc9projs,$(name)) \
-$(call vc10projs,$(name)) $(call vc11projs,$(name))
+$(dist): export extra_dist := $(call vc8projs,$(name)) \
+$(call vc9projs,$(name)) $(call vc10projs,$(name)) $(call vc11projs,$(name))
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(extra_headers))
 	$(call meta-automake,../template/Makefile.am)
+	$(call meta-vc8projs,../template/template,$(name))
 	$(call meta-vc9projs,../template/template,$(name))
 	$(call meta-vc10projs,../template/template,$(name))
 	$(call meta-vc11projs,../template/template,$(name))
@@ -121,6 +122,7 @@ endif
 # How to.
 #
 $(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc8proj.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/vc11proj.make)

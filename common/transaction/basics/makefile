@@ -30,11 +30,12 @@ name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
 $(dist): sources := $(cxx_tun)
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
-$(dist): export extra_dist := $(data_dist) $(call vc9projs,$(name)) \
-$(call vc10projs,$(name)) $(call vc11projs,$(name))
+$(dist): export extra_dist := $(data_dist) $(call vc8projs,$(name)) \
+$(call vc9projs,$(name)) $(call vc10projs,$(name)) $(call vc11projs,$(name))
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../../template/Makefile.am)
+	$(call meta-vc8projs,../../template/template,$(name))
 	$(call meta-vc9projs,../../template/template,$(name))
 	$(call meta-vc10projs,../../template/template,$(name))
 	$(call meta-vc11projs,../../template/template,$(name))
@@ -69,6 +70,7 @@ endif
 # How to.
 #
 $(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc8proj.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/vc11proj.make)

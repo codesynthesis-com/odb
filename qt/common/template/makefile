@@ -64,12 +64,14 @@ $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
 $(dist): export extra_dist := $(data_dist) \
+$(call vc8projs,$(name)-qt4) \
 $(call vc9projs,$(name)-qt4) $(call vc9projs,$(name)-qt5) \
 $(call vc10projs,$(name)-qt4) $(call vc10projs,$(name)-qt5) \
 $(call vc11projs,$(name)-qt4) $(call vc11projs,$(name)-qt5)
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
+	$(call meta-vc8projs,../template/template-qt4,$(name)-qt4)
 	$(call meta-vc9projs,../template/template-qt4,$(name)-qt4)
 	$(call meta-vc9projs,../template/template-qt5,$(name)-qt5)
 	$(call meta-vc10projs,../template/template-qt4,$(name)-qt4)
@@ -108,6 +110,7 @@ endif
 # How to.
 #
 $(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc8proj.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/vc11proj.make)

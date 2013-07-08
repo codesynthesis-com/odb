@@ -20,11 +20,13 @@ name := qt-common
 $(dist): name := $(name)
 $(dist): export dirs := $(tests)
 $(dist): export extra_dist :=  test.bat \
+$(call vc9slns,$(name)-qt4) \
 $(call vc9slns,$(name)-qt4) $(call vc9slns,$(name)-qt5) \
 $(call vc10slns,$(name)-qt4) $(call vc10slns,$(name)-qt5) \
 $(call vc11slns,$(name)-qt4) $(call vc11slns,$(name)-qt5)
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call meta-automake)
+	$(call meta-vc8slns,$(name)-qt4,-qt4)
 	$(call meta-vc9slns,$(name)-qt4,-qt4)
 	$(call meta-vc9slns,$(name)-qt5,-qt5)
 	$(call meta-vc10slns,$(name)-qt4,-qt4)
@@ -42,6 +44,7 @@ endif
 
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(all_tests)))
 
+$(call include,$(bld_root)/meta/vc8sln.make)
 $(call include,$(bld_root)/meta/vc9sln.make)
 $(call include,$(bld_root)/meta/vc10sln.make)
 $(call include,$(bld_root)/meta/vc11sln.make)
