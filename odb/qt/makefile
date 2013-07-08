@@ -62,6 +62,7 @@ $(dist): export headers = $(subst $(src_base)/,,$(shell find $(src_base) \
 $(dist): export options = $(subst $(src_base)/,,$(shell find $(src_base) \
 -name '*.options'))
 $(dist): export extra_dist := \
+libodb-qt4-vc8.vcproj \
 libodb-qt4-vc9.vcproj \
 libodb-qt5-vc9.vcproj \
 libodb-qt4-vc10.vcxproj libodb-qt4-vc10.vcxproj.filters \
@@ -73,6 +74,7 @@ $(dist): export interface_version = $(shell sed -e \
 
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(options) details/config.h.in)
+	$(call meta-vc8proj,$(src_base)/libodb-qt4-vc8.vcproj)
 	$(call meta-vc9proj,$(src_base)/libodb-qt4-vc9.vcproj)
 	$(call meta-vc9proj,$(src_base)/libodb-qt5-vc9.vcproj)
 	$(call meta-vc10proj,$(src_base)/libodb-qt4-vc10.vcxproj)
@@ -103,6 +105,7 @@ endif
 # How to.
 #
 $(call include,$(bld_root)/dist.make)
+$(call include,$(bld_root)/meta/vc8proj.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/vc11proj.make)

@@ -16,6 +16,7 @@ $(dist): export dirs := $(dirs)
 $(dist): export docs := GPLv2 LICENSE README NEWS version
 $(dist): export options := odb/qt.options
 $(dist): data_dist := INSTALL \
+libodb-qt4-vc8.sln \
 libodb-qt4-vc9.sln libodb-qt4-vc10.sln libodb-qt4-vc11.sln \
 libodb-qt5-vc9.sln libodb-qt5-vc10.sln libodb-qt5-vc11.sln
 $(dist): exec_dist := bootstrap
