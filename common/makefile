@@ -43,6 +43,8 @@ relationship-query        \
 schema/namespace          \
 schema/embedded/basics    \
 schema/embedded/order     \
+section/basics            \
+section/polymorphism      \
 session/cache             \
 template                  \
 transaction/basics        \
