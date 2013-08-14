@@ -5,6 +5,34 @@
 namespace odb
 {
   template <typename V>
+  bool access::container_traits<QOdbList<V> >::
+  changed (const container_type& c)
+  {
+    // Because modifications can cancel each other (e.g., push and pop),
+    // it is tricky to keep track of whether there are any changes in
+    // the container. Instead, we are just going to examine each element
+    // just like update().
+    //
+
+    // We should either be tracking or summarily changed.
+    //
+    if (c._tracking ())
+    {
+      const vector_impl& impl (c._impl ());
+
+      for (std::size_t i (0), n (impl.size ()); i < n; ++i)
+      {
+        if (impl.state (i) != vector_impl::state_unchanged)
+          return true;
+      }
+    }
+    else
+      return true;
+
+    return false;
+  }
+
+  template <typename V>
   void access::container_traits<QOdbList<V> >::
   update (const container_type& c, const functions& f)
   {

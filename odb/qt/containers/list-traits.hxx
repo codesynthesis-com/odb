@@ -64,6 +64,9 @@ namespace odb
       c._start ();
     }
 
+    static bool
+    changed (const container_type&);
+
     static void
     update (const container_type&, const functions&);
 
