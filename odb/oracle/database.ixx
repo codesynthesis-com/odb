@@ -108,6 +108,13 @@ namespace odb
     }
 
     template <typename T>
+    inline void database::
+    load (T& obj, section& s)
+    {
+      return load_<T, id_oracle> (obj, s);
+    }
+
+    template <typename T>
     inline typename object_traits<T>::pointer_type database::
     find (const typename object_traits<T>::id_type& id)
     {
@@ -245,6 +252,13 @@ namespace odb
     update (const typename object_traits<T>::pointer_type& pobj)
     {
       update_<T, id_oracle> (pobj);
+    }
+
+    template <typename T>
+    inline void database::
+    update (const T& obj, const section& s)
+    {
+      update_<T, id_oracle> (obj, s);
     }
 
     template <typename T>

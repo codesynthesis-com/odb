@@ -25,7 +25,6 @@ namespace odb
             object_traits::id_column_count +
             object_traits::managed_optimistic_column_count)
     {
-      id_image_version_ = 0;
     }
 
     //

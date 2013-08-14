@@ -29,58 +29,59 @@ namespace odb
 {
   namespace oracle
   {
-    // The container_statement_cache class is only defined (and used) in
+    // The extra_statement_cache class is only defined (and used) in
     // the generated source file. However, object_statements may be
     // referenced from another source file in the case of a polymorphic
-    // hierarchy (though in this case the container statement cache is
+    // hierarchy (though in this case the extra statement cache is
     // not used). As a result, we cannot have a by-value member and
     // instead will store a pointer and lazily allocate the cache if
     // and when needed. We will also need to store a pointer to the
     // deleter function which will be initialized during allocation
     // (at that point we know that the cache class is defined).
     //
-    template <typename T>
-    struct container_statement_cache_ptr
+    template <typename T, typename I>
+    struct extra_statement_cache_ptr
     {
+      typedef I image_type;
       typedef oracle::connection connection_type;
 
-      container_statement_cache_ptr (): p_ (0) {}
-      ~container_statement_cache_ptr ()
+      extra_statement_cache_ptr (): p_ (0) {}
+      ~extra_statement_cache_ptr ()
       {
         if (p_ != 0)
-          (this->*deleter_) (0, 0);
+          (this->*deleter_) (0, 0, 0, 0);
       }
 
       T&
-      get (connection_type& c, binding& id)
+      get (connection_type& c, image_type& im, binding& id, binding* idv)
       {
         if (p_ == 0)
-          allocate (&c, &id);
+          allocate (&c, &im, &id, (idv != 0 ? idv : &id));
 
         return *p_;
       }
 
     private:
       void
-      allocate (connection_type*, binding*);
+      allocate (connection_type*, image_type*, binding*, binding*);
 
     private:
       T* p_;
-      void (container_statement_cache_ptr::*deleter_) (
-        connection_type*, binding*);
+      void (extra_statement_cache_ptr::*deleter_) (
+        connection_type*, image_type*, binding*, binding*);
     };
 
-    template <typename T>
-    void container_statement_cache_ptr<T>::
-    allocate (connection_type* c, binding* id)
+    template <typename T, typename I>
+    void extra_statement_cache_ptr<T, I>::
+    allocate (connection_type* c, image_type* im, binding* id, binding* idv)
     {
       // To reduce object code size, this function acts as both allocator
       // and deleter.
       //
       if (p_ == 0)
       {
-        p_ = new T (*c, *id);
-        deleter_ = &container_statement_cache_ptr<T>::allocate;
+        p_ = new T (*c, *im, *id, *idv);
+        deleter_ = &extra_statement_cache_ptr<T, I>::allocate;
       }
       else
         delete p_;
@@ -156,9 +157,11 @@ namespace odb
 
       optimistic_data (bind*);
 
+      binding*
+      id_image_binding () {return &id_image_binding_;}
+
       // The id + optimistic column binding.
       //
-      std::size_t id_image_version_;
       binding id_image_binding_;
 
       details::shared_ptr<delete_statement> erase_;
@@ -168,6 +171,9 @@ namespace odb
     struct optimistic_data<T, false>
     {
       optimistic_data (bind*) {}
+
+      binding*
+      id_image_binding () {return 0;}
     };
 
     template <typename T>
@@ -186,8 +192,8 @@ namespace odb
       pointer_cache_traits;
 
       typedef
-      typename object_traits::container_statement_cache_type
-      container_statement_cache_type;
+      typename object_traits::extra_statement_cache_type
+      extra_statement_cache_type;
 
       typedef oracle::insert_statement insert_statement_type;
       typedef oracle::select_statement select_statement_type;
@@ -326,14 +332,10 @@ namespace odb
       binding&
       id_image_binding () {return id_image_binding_;}
 
-      // Optimistic id + managed column image binding.
+      // Optimistic id + managed column image binding. It points to
+      // the same suffix as id binding and they are always updated
+      // at the same time.
       //
-      std::size_t
-      optimistic_id_image_version () const {return od_.id_image_version_;}
-
-      void
-      optimistic_id_image_version (std::size_t v) {od_.id_image_version_ = v;}
-
       binding&
       optimistic_id_image_binding () {return od_.id_image_binding_;}
 
@@ -409,36 +411,42 @@ namespace odb
         return *od_.erase_;
       }
 
-      // Container statement cache.
+      // Extra (container, section) statement cache.
       //
-      container_statement_cache_type&
-      container_statment_cache ()
+      extra_statement_cache_type&
+      extra_statement_cache ()
       {
-        return container_statement_cache_.get (conn_, id_image_binding_);
+        return extra_statement_cache_.get (
+          conn_, image_, id_image_binding_, od_.id_image_binding ());
       }
 
     public:
-      // select = total
+      // select = total - separate_load
       // insert = total - inverse - managed_optimistic - auto_id
       // update = total - inverse - managed_optimistic - id - readonly
+      //   - separate_update
       //
-      static const std::size_t select_column_count =
-        object_traits::column_count;
-
       static const std::size_t id_column_count =
         object_traits::id_column_count;
 
+      static const std::size_t managed_optimistic_column_count =
+        object_traits::managed_optimistic_column_count;
+
+      static const std::size_t select_column_count =
+        object_traits::column_count -
+        object_traits::separate_load_column_count;
+
       static const std::size_t insert_column_count =
-        object_traits::column_count - object_traits::inverse_column_count -
+        object_traits::column_count -
+        object_traits::inverse_column_count -
         object_traits::managed_optimistic_column_count -
         (object_traits::auto_id ? id_column_count : 0);
 
-      static const std::size_t update_column_count = insert_column_count -
+      static const std::size_t update_column_count =
+        insert_column_count -
         (object_traits::auto_id ? 0 : id_column_count) -
-        object_traits::readonly_column_count;
-
-      static const std::size_t managed_optimistic_column_count =
-        object_traits::managed_optimistic_column_count;
+        object_traits::readonly_column_count -
+        object_traits::separate_update_column_count;
 
     private:
       object_statements (const object_statements&);
@@ -452,8 +460,11 @@ namespace odb
       clear_delayed_ ();
 
     private:
-      container_statement_cache_ptr<container_statement_cache_type>
-      container_statement_cache_;
+      template <typename T1>
+      friend class polymorphic_derived_object_statements;
+
+      extra_statement_cache_ptr<extra_statement_cache_type, image_type>
+      extra_statement_cache_;
 
       image_type image_;
 

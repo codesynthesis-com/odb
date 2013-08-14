@@ -165,8 +165,8 @@ namespace odb
       base_statements_type;
 
       typedef
-      typename object_traits::container_statement_cache_type
-      container_statement_cache_type;
+      typename object_traits::extra_statement_cache_type
+      extra_statement_cache_type;
 
       typedef oracle::insert_statement insert_statement_type;
       typedef oracle::select_statement select_statement_type;
@@ -273,6 +273,10 @@ namespace odb
       binding&
       id_image_binding () {return root_statements_.id_image_binding ();}
 
+      binding&
+      optimistic_id_image_binding () {
+        return root_statements_.optimistic_id_image_binding ();}
+
       // Statements.
       //
       insert_statement_type&
@@ -333,31 +337,40 @@ namespace odb
         return *erase_;
       }
 
-      // Container statement cache.
+      // Extra (container, section) statement cache.
       //
-      container_statement_cache_type&
-      container_statment_cache ()
+      extra_statement_cache_type&
+      extra_statement_cache ()
       {
-        return container_statement_cache_.get (conn_, id_image_binding ());
+        return extra_statement_cache_.get (
+          conn_,
+          image_,
+          id_image_binding (),
+          &id_image_binding ()); // Note, not id+version.
       }
 
     public:
-      // select = total - id + base::select
+      // select = total - id - separate_load + base::select
       // insert = total - inverse
-      // update = total - inverse - id - readonly
+      // update = total - inverse - id - readonly - separate_update
       //
       static const std::size_t id_column_count =
         object_traits::id_column_count;
 
       static const std::size_t select_column_count =
-        object_traits::column_count - id_column_count +
+        object_traits::column_count -
+        id_column_count -
+        object_traits::separate_load_column_count +
         base_statements_type::select_column_count;
 
       static const std::size_t insert_column_count =
-        object_traits::column_count - object_traits::inverse_column_count;
+        object_traits::column_count -
+        object_traits::inverse_column_count;
 
       static const std::size_t update_column_count = insert_column_count -
-        object_traits::id_column_count - object_traits::readonly_column_count;
+        object_traits::id_column_count -
+        object_traits::readonly_column_count -
+        object_traits::separate_update_column_count;
 
     private:
       polymorphic_derived_object_statements (
@@ -370,8 +383,8 @@ namespace odb
       root_statements_type& root_statements_;
       base_statements_type& base_statements_;
 
-      container_statement_cache_ptr<container_statement_cache_type>
-      container_statement_cache_;
+      extra_statement_cache_ptr<extra_statement_cache_type, image_type>
+      extra_statement_cache_;
 
       image_type image_;
 
