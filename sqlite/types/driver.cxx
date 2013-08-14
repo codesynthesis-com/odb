@@ -58,11 +58,11 @@ main (int argc, char* argv[])
       assert (o == *o1);
     }
 
-    typedef sqlite::query<object> query;
-    typedef odb::result<object> result;
-
 #ifdef _WIN32
     {
+      typedef sqlite::query<object> query;
+      typedef odb::result<object> result;
+
       transaction t (db->begin ());
       result r (db->query<object> (query::wtext == L"t\x00C8st string"));
       assert (!r.empty ());
