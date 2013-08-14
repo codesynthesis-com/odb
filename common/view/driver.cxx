@@ -278,41 +278,40 @@ main (int argc, char* argv[])
     // view1b
     //
     {
-      typedef odb::query<view1b> query;
       typedef odb::result<view1b> result;
 
       {
-        {
-          transaction t (db->begin ());
+        transaction t (db->begin ());
 
-          result r (db->query<view1b> ());
-          view1_check (r);
+        result r (db->query<view1b> ());
+        view1_check (r);
 
-          t.commit ();
-        }
+        t.commit ();
+      }
 
-        // No native parameter support in dynamic multi-database mode.
-        //
+      // No native parameter support in dynamic multi-database mode.
+      //
 #ifndef DATABASE_COMMON
-        {
-          transaction t (db->begin ());
+      {
+        typedef odb::query<view1b> query;
+
+        transaction t (db->begin ());
 
 #ifndef DATABASE_ORACLE
-          result r (db->query<view1b> ("first = " + query::_val ("Jane")));
+        result r (db->query<view1b> ("first = " + query::_val ("Jane")));
 #else
-          result r (db->query<view1b> ("\"first\" = " + query::_val ("Jane")));
+        result r (db->query<view1b> ("\"first\" = " + query::_val ("Jane")));
 #endif
 
-          result::iterator i (r.begin ());
+        result::iterator i (r.begin ());
 
-          assert (i != r.end ());
-          assert (i->first == "Jane" && i->last == "Doe");
-          assert (++i == r.end ());
+        assert (i != r.end ());
+        assert (i->first == "Jane" && i->last == "Doe");
+        assert (++i == r.end ());
 
-          t.commit ();
-        }
-#endif
+        t.commit ();
       }
+#endif
     }
 
     // view1c
