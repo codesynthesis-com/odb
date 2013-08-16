@@ -29,8 +29,11 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     std::string str;
   };
 
-#if MODEL_VERSION == 2
+#if MODEL_VERSION > 1
   #pragma db object
+#if MODEL_VERSION == 3
+  #pragma db deleted(3)
+#endif
   struct object1
   {
     object1 (): o (0) {}

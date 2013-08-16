@@ -70,7 +70,7 @@ main (int argc, char* argv[])
       }
     case 2:
       {
-        using namespace v2; // @@ v3; soft immediate drop
+        using namespace v3;
 
         if (embedded)
         {
