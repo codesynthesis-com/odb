@@ -46,6 +46,7 @@ schema/embedded/order     \
 section/basics            \
 section/polymorphism      \
 session/cache             \
+statement/processing      \
 template                  \
 transaction/basics        \
 transaction/callback      \
