@@ -129,7 +129,7 @@ main (int argc, char* argv[])
 
         // Test the case where there is still no version table.
         //
-        db->schema_version (0, false);
+        db->schema_version_migration (0, false);
 
         {
           transaction t (db->begin ());
