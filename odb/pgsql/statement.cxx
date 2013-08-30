@@ -89,14 +89,24 @@ namespace odb
     statement (connection_type& conn,
                const string& name,
                const string& text,
+               statement_kind sk,
+               const binding* process,
+               bool optimize,
                const Oid* types,
                size_t types_count)
         : conn_ (conn),
           name_copy_ (name), name_ (name_copy_.c_str ()),
-          text_copy_ (text), text_ (text_copy_.c_str ()),
           deallocated_ (false)
     {
-      init (types, types_count);
+      if (process == 0)
+      {
+        text_copy_ = text;
+        text_ = text_copy_.c_str ();
+      }
+      else
+        text_ = text.c_str (); // Temporary, see init().
+
+      init (sk, process, optimize, types, types_count);
 
       //
       // If any code after this line throws, the statement will be leaked
@@ -108,6 +118,9 @@ namespace odb
     statement (connection_type& conn,
                const char* name,
                const char* text,
+               statement_kind sk,
+               const binding* process,
+               bool optimize,
                bool copy,
                const Oid* types,
                size_t types_count)
@@ -117,16 +130,19 @@ namespace odb
       {
         name_copy_ = name;
         name_ = name_copy_.c_str ();
+      }
+      else
+        name_ = name;
+
+      if (process == 0 && copy)
+      {
         text_copy_ = text;
         text_ = text_copy_.c_str ();
       }
       else
-      {
-        name_ = name;
-        text_ = text;
-      }
+        text_ = text; // Potentially temporary, see init().
 
-      init (types, types_count);
+      init (sk, process, optimize, types, types_count);
 
       //
       // If any code after this line throws, the statement will be leaked
@@ -135,8 +151,42 @@ namespace odb
     }
 
     void statement::
-    init (const Oid* types, size_t types_count)
+    init (statement_kind sk,
+          const binding* proc,
+          bool optimize,
+          const Oid* types,
+          size_t types_count)
     {
+      if (proc != 0)
+      {
+        switch (sk)
+        {
+        case statement_select:
+          process_select (text_,
+                          &proc->bind->buffer, proc->count, sizeof (bind),
+                          '"', '"',
+                          optimize,
+                          text_copy_);
+          break;
+        case statement_insert:
+          process_insert (text_,
+                          &proc->bind->buffer, proc->count, sizeof (bind),
+                          '$',
+                          text_copy_);
+          break;
+        case statement_update:
+          process_update (text_,
+                          &proc->bind->buffer, proc->count, sizeof (bind),
+                          '$',
+                          text_copy_);
+          break;
+        case statement_delete:
+          assert (false);
+        }
+
+        text_ = text_copy_.c_str ();
+      }
+
       {
         odb::tracer* t;
         if ((t = conn_.transaction_tracer ()) ||
@@ -396,12 +446,17 @@ namespace odb
     select_statement (connection_type& conn,
                       const std::string& name,
                       const std::string& text,
+                      bool process,
+                      bool optimize,
                       const Oid* types,
                       std::size_t types_count,
                       binding& param,
                       native_binding& native_param,
                       binding& result)
-        : statement (conn, name, text, types, types_count),
+        : statement (conn,
+                     name, text, statement_select,
+                     (process ? &result : 0), optimize,
+                     types, types_count),
           param_ (&param),
           native_param_ (&native_param),
           result_ (result),
@@ -414,13 +469,18 @@ namespace odb
     select_statement (connection_type& conn,
                       const char* name,
                       const char* text,
+                      bool process,
+                      bool optimize,
                       const Oid* types,
                       std::size_t types_count,
                       binding& param,
                       native_binding& native_param,
                       binding& result,
                       bool copy)
-        : statement (conn, name, text, copy, types, types_count),
+        : statement (conn,
+                     name, text, statement_select,
+                     (process ? &result : 0), optimize, copy,
+                     types, types_count),
           param_ (&param),
           native_param_ (&native_param),
           result_ (result),
@@ -433,8 +493,13 @@ namespace odb
     select_statement (connection_type& conn,
                       const std::string& name,
                       const std::string& text,
+                      bool process,
+                      bool optimize,
                       binding& result)
-        : statement (conn, name, text, 0, 0),
+        : statement (conn,
+                     name, text, statement_select,
+                     (process ? &result : 0), optimize,
+                     0, 0),
           param_ (0),
           native_param_ (0),
           result_ (result),
@@ -447,9 +512,14 @@ namespace odb
     select_statement (connection_type& conn,
                       const char* name,
                       const char* text,
+                      bool process,
+                      bool optimize,
                       binding& result,
                       bool copy)
-        : statement (conn, name, text, copy, 0, 0),
+        : statement (conn,
+                     name, text, statement_select,
+                     (process ? &result : 0), optimize, copy,
+                     0, 0),
           param_ (0),
           native_param_ (0),
           result_ (result),
@@ -462,11 +532,16 @@ namespace odb
     select_statement (connection_type& conn,
                       const std::string& name,
                       const std::string& text,
+                      bool process,
+                      bool optimize,
                       const Oid* types,
                       std::size_t types_count,
                       native_binding& native_param,
                       binding& result)
-        : statement (conn, name, text, types, types_count),
+        : statement (conn,
+                     name, text, statement_select,
+                     (process ? &result : 0), optimize,
+                     types, types_count),
           param_ (0),
           native_param_ (&native_param),
           result_ (result),
@@ -568,12 +643,16 @@ namespace odb
     insert_statement (connection_type& conn,
                       const string& name,
                       const string& text,
+                      bool process,
                       const Oid* types,
                       size_t types_count,
                       binding& param,
                       native_binding& native_param,
                       bool returning)
-        : statement (conn, name, text, types, types_count),
+        : statement (conn,
+                     name, text, statement_insert,
+                     (process ? &param : 0), false,
+                     types, types_count),
           param_ (param),
           native_param_ (native_param),
           returning_ (returning)
@@ -584,13 +663,17 @@ namespace odb
     insert_statement (connection_type& conn,
                       const char* name,
                       const char* text,
+                      bool process,
                       const Oid* types,
                       size_t types_count,
                       binding& param,
                       native_binding& native_param,
                       bool returning,
                       bool copy)
-        : statement (conn, name, text, copy, types, types_count),
+        : statement (conn,
+                     name, text, statement_insert,
+                     (process ? &param : 0), false, copy,
+                     types, types_count),
           param_ (param),
           native_param_ (native_param),
           returning_ (returning)
@@ -687,11 +770,15 @@ namespace odb
     update_statement (connection_type& conn,
                       const string& name,
                       const string& text,
+                      bool process,
                       const Oid* types,
                       size_t types_count,
                       binding& param,
                       native_binding& native_param)
-        : statement (conn, name, text, types, types_count),
+        : statement (conn,
+                     name, text, statement_update,
+                     (process ? &param : 0), false,
+                     types, types_count),
           param_ (param),
           native_param_ (native_param)
     {
@@ -701,12 +788,16 @@ namespace odb
     update_statement (connection_type& conn,
                       const char* name,
                       const char* text,
+                      bool process,
                       const Oid* types,
                       size_t types_count,
                       binding& param,
                       native_binding& native_param,
                       bool copy)
-        : statement (conn, name, text, copy, types, types_count),
+        : statement (conn,
+                     name, text, statement_update,
+                     (process ? &param : 0), false, copy,
+                     types, types_count),
           param_ (param),
           native_param_ (native_param)
     {
@@ -757,7 +848,10 @@ namespace odb
                       size_t types_count,
                       binding& param,
                       native_binding& native_param)
-        : statement (conn, name, text, types, types_count),
+        : statement (conn,
+                     name, text, statement_delete,
+                     0, false,
+                     types, types_count),
           param_ (&param),
           native_param_ (native_param)
     {
@@ -772,7 +866,10 @@ namespace odb
                       binding& param,
                       native_binding& native_param,
                       bool copy)
-        : statement (conn, name, text, copy, types, types_count),
+        : statement (conn,
+                     name, text, statement_delete,
+                     0, false, copy,
+                     types, types_count),
           param_ (&param),
           native_param_ (native_param)
     {
@@ -785,7 +882,10 @@ namespace odb
                       const Oid* types,
                       size_t types_count,
                       native_binding& native_param)
-        : statement (conn, name, text, types, types_count),
+        : statement (conn,
+                     name, text, statement_delete,
+                     0, false,
+                     types, types_count),
           param_ (0),
           native_param_ (native_param)
     {

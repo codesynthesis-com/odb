@@ -87,6 +87,7 @@ namespace odb
               conn_,
               object_traits::persist_statement_name,
               object_traits::persist_statement,
+              object_traits::versioned, // Process if versioned.
               object_traits::persist_statement_types,
               insert_column_count,
               insert_image_binding_,

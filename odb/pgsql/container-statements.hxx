@@ -121,6 +121,7 @@ namespace odb
               conn_,
               insert_name_,
               insert_text_,
+              versioned_,   // Process if versioned.
               insert_types_,
               insert_count_,
               insert_image_binding_,
@@ -140,6 +141,8 @@ namespace odb
               conn_,
               select_name_,
               select_text_,
+              versioned_,   // Process if versioned.
+              false,        // Don't optimize.
               id_types_,
               id_binding_.count,
               id_binding_,
@@ -200,6 +203,8 @@ namespace odb
 
       const char* delete_name_;
       const char* delete_text_;
+
+      bool versioned_;
 
       details::shared_ptr<insert_statement_type> insert_;
       details::shared_ptr<select_statement_type> select_;
@@ -313,6 +318,7 @@ namespace odb
               this->conn_,
               update_name_,
               update_text_,
+              this->versioned_,   // Process if versioned.
               update_types_,
               update_count_,
               update_image_binding_,

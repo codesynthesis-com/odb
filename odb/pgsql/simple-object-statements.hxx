@@ -375,6 +375,7 @@ namespace odb
               conn_,
               object_traits::persist_statement_name,
               object_traits::persist_statement,
+              object_traits::versioned, // Process if versioned.
               object_traits::persist_statement_types,
               insert_column_count,
               insert_image_binding_,
@@ -394,6 +395,8 @@ namespace odb
               conn_,
               object_traits::find_statement_name,
               object_traits::find_statement,
+              object_traits::versioned, // Process if versioned.
+              false,                    // Don't optimize.
               object_traits::find_statement_types,
               id_column_count,
               id_image_binding_,
@@ -413,6 +416,7 @@ namespace odb
               conn_,
               object_traits::update_statement_name,
               object_traits::update_statement,
+              object_traits::versioned, // Process if versioned.
               object_traits::update_statement_types,
               update_column_count + id_column_count,
               update_image_binding_,

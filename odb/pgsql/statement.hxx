@@ -71,22 +71,34 @@ namespace odb
                    bool truncated = false);
 
     protected:
+      // We keep two versions to take advantage of std::string COW.
+      //
       statement (connection_type&,
                  const std::string& name,
                  const std::string& text,
+                 statement_kind,
+                 const binding* process,
+                 bool optimize,
                  const Oid* types,
                  std::size_t types_count);
 
       statement (connection_type&,
                  const char* name,
                  const char* text,
+                 statement_kind,
+                 const binding* process,
+                 bool optimize,
                  bool copy_name_text,
                  const Oid* types,
                  std::size_t types_count);
 
     private:
       void
-      init (const Oid* types, std::size_t types_count);
+      init (statement_kind,
+            const binding* process,
+            bool optimize,
+            const Oid* types,
+            std::size_t types_count);
 
     protected:
       connection_type& conn_;
@@ -110,6 +122,8 @@ namespace odb
       select_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
+                        bool process_text,
+                        bool optimize_text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,
@@ -119,6 +133,8 @@ namespace odb
       select_statement (connection_type& conn,
                         const char* name,
                         const char* stmt,
+                        bool process_text,
+                        bool optimize_text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,
@@ -129,17 +145,23 @@ namespace odb
       select_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& result);
 
       select_statement (connection_type& conn,
                         const char* name,
                         const char* text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& result,
                         bool copy_name_text = true);
 
       select_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
+                        bool process_text,
+                        bool optimize_text,
                         const Oid* types,
                         std::size_t types_count,
                         native_binding& native_param,
@@ -240,6 +262,7 @@ namespace odb
       insert_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
+                        bool process_text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,
@@ -249,6 +272,7 @@ namespace odb
       insert_statement (connection_type& conn,
                         const char* name,
                         const char* text,
+                        bool process_text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,
@@ -289,6 +313,7 @@ namespace odb
       update_statement (connection_type& conn,
                         const std::string& name,
                         const std::string& text,
+                        bool process_text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,
@@ -297,6 +322,7 @@ namespace odb
       update_statement (connection_type& conn,
                         const char* name,
                         const char* text,
+                        bool process_text,
                         const Oid* types,
                         std::size_t types_count,
                         binding& param,

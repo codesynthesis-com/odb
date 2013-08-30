@@ -289,6 +289,8 @@ namespace odb
         select_statement st (c,
                              "odb_database_schema_version",
                              text.c_str (),
+                             false,
+                             false,
                              param_types,
                              1,
                              param,

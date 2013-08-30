@@ -106,6 +106,8 @@ namespace odb
 
       this->delete_name_ = traits::delete_name;
       this->delete_text_ = traits::delete_statement;
+
+      this->versioned_ = traits::versioned;
     }
 
     // smart_container_statements_impl

@@ -104,6 +104,8 @@ namespace odb
               conn_,
               traits::select_name,
               traits::select_statement,
+              traits::versioned, // Process if versioned.
+              false,             // Don't optimize.
               id_types_,
               id_column_count,
               id_binding_,
@@ -123,6 +125,7 @@ namespace odb
               conn_,
               traits::update_name,
               traits::update_statement,
+              traits::versioned, // Process if versioned.
               traits::update_types,
               update_column_count + id_column_count +
               managed_optimistic_update_column_count,
