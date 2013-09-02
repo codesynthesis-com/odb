@@ -9,6 +9,7 @@ template      \
 custom        \
 database      \
 native        \
+transaction   \
 truncation    \
 types
 
