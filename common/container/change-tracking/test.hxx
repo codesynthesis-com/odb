@@ -78,4 +78,37 @@ struct inv_object2
   odb::vector<inv_object1*> o1;
 };
 
+// Test read-only values (we still need to include them in the UPDATE
+// statement).
+//
+#pragma db value
+struct ro_value
+{
+  ro_value (int i_ = 0, int j_ = 0): i (i_), j (j_) {}
+
+  #pragma db readonly
+  int i;
+
+  #pragma db readonly
+  int j;
+};
+
+inline bool
+operator== (const ro_value& x, const ro_value& y)
+{
+  return x.i == y.i && x.j == y.j;
+}
+
+#pragma db object
+struct ro_object
+{
+  ro_object () {}
+  ro_object (unsigned long id): id_ (id) {}
+
+  #pragma db id
+  unsigned long id_;
+
+  odb::vector<ro_value> v;
+};
+
 #endif // TEST_HXX

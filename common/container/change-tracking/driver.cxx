@@ -699,6 +699,34 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+    // Test read-only values.
+    {
+      ro_object o (1);
+      o.v.push_back (ro_value (1, 1));
+      o.v.push_back (ro_value (2, 2));
+      o.v.push_back (ro_value (3, 3));
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      o.v.erase (o.v.begin ());
+
+      {
+        transaction t (db->begin ());
+        db->update (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        assert (db->load<ro_object> (1)->v == o.v);
+        t.commit ();
+      }
+    }
   }
   catch (const odb::exception& e)
   {
