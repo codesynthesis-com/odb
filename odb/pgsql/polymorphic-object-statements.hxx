@@ -128,6 +128,18 @@ namespace odb
       virtual
       ~polymorphic_root_object_statements ();
 
+      // Static "override" (statements type).
+      //
+      void
+      load_delayed (const schema_version_migration* svm)
+      {
+        assert (this->locked ());
+
+        if (!this->delayed_.empty ())
+          this->template load_delayed_<polymorphic_root_object_statements> (
+            svm);
+      }
+
     public:
       static const std::size_t id_column_count =
         object_statements<T>::id_column_count;
@@ -205,8 +217,10 @@ namespace odb
       // Delayed loading.
       //
       static void
-      delayed_loader (odb::database&, const id_type&, root_type&);
-
+      delayed_loader (odb::database&,
+                      const id_type&,
+                      root_type&,
+                      const schema_version_migration*);
     public:
       // Root and immediate base statements.
       //

@@ -16,6 +16,7 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx> // query_base
 #include <odb/pgsql/statement.hxx>
+#include <odb/pgsql/traits-calls.hxx>
 
 namespace odb
 {
@@ -40,7 +41,8 @@ namespace odb
 
       no_id_object_result_impl (const query_base&,
                                 details::shared_ptr<select_statement>,
-                                statements_type&);
+                                statements_type&,
+                                const schema_version_migration*);
 
       virtual void
       load (object_type&);
@@ -62,6 +64,7 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       statements_type& statements_;
+      traits_calls<object_type> tc_;
       std::size_t count_;
     };
   }

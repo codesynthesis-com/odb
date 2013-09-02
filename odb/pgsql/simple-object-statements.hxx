@@ -268,9 +268,10 @@ namespace odb
 
       // Delayed loading.
       //
-      typedef void (*loader_function) (
-        odb::database&, const id_type&, object_type&);
-
+      typedef void (*loader_function) (odb::database&,
+                                       const id_type&,
+                                       object_type&,
+                                       const schema_version_migration*);
       void
       delay_load (const id_type& id,
                   object_type& obj,
@@ -281,12 +282,12 @@ namespace odb
       }
 
       void
-      load_delayed ()
+      load_delayed (const schema_version_migration* svm)
       {
         assert (locked ());
 
         if (!delayed_.empty ())
-          load_delayed_ ();
+          load_delayed_<object_statements> (svm);
       }
 
       void
@@ -508,9 +509,10 @@ namespace odb
       object_statements (const object_statements&);
       object_statements& operator= (const object_statements&);
 
-    private:
+    protected:
+      template <typename STS>
       void
-      load_delayed_ ();
+      load_delayed_ (const schema_version_migration*);
 
       void
       clear_delayed_ ();

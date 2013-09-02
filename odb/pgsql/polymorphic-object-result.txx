@@ -38,10 +38,12 @@ namespace odb
     polymorphic_object_result_impl<T>::
     polymorphic_object_result_impl (const query_base&,
                                     details::shared_ptr<select_statement> st,
-                                    statements_type& sts)
+                                    statements_type& sts,
+                                    const schema_version_migration* svm)
         : base_type (sts.connection ()),
           statement_ (st),
           statements_ (sts),
+          tc_ (svm),
           count_ (0)
     {
     }
@@ -121,7 +123,7 @@ namespace odb
       callback_event ce (callback_event::pre_load);
       pi.dispatch (info_type::call_callback, this->db_, pobj, &ce);
 
-      object_traits::init (*pobj, i, &this->db_);
+      tc_.init (*pobj, i, &this->db_);
 
       // Initialize the id image and binding and load the rest of the object
       // (containers, dynamic part, etc).
@@ -148,7 +150,7 @@ namespace odb
         pi.dispatch (info_type::call_load, this->db_, pobj, &d);
       };
 
-      rsts.load_delayed ();
+      rsts.load_delayed (tc_.version ());
       l.unlock ();
 
       ce = callback_event::post_load;
@@ -199,14 +201,16 @@ namespace odb
       typedef object_traits_impl<T, id_pgsql> traits;
 
       static bool
-      rebind (typename traits::statements_type& sts)
+      rebind (typename traits::statements_type& sts,
+              const schema_version_migration* svm)
       {
         typename traits::image_type& im (sts.image ());
 
         if (traits::check_version (sts.select_image_versions (), im))
         {
           binding& b (sts.select_image_binding (traits::depth));
-          traits::bind (b.bind, 0, 0, im, statement_select);
+          traits_calls<T> tc (svm);
+          tc.bind (b.bind, 0, 0, im, statement_select);
           traits::update_version (
             sts.select_image_versions (), im, sts.select_image_bindings ());
           return true;
@@ -224,14 +228,16 @@ namespace odb
       typedef object_traits_impl<R, id_pgsql> traits;
 
       static bool
-      rebind (typename traits::statements_type& sts)
+      rebind (typename traits::statements_type& sts,
+              const schema_version_migration* svm)
       {
         typename traits::image_type& im (sts.image ());
 
         if (im.version != sts.select_image_version ())
         {
           binding& b (sts.select_image_binding ());
-          traits::bind (b.bind, im, statement_select);
+          traits_calls<R> tc (svm);
+          tc.bind (b.bind, im, statement_select);
           sts.select_image_version (im.version);
           b.version++;
           return true;
@@ -250,7 +256,7 @@ namespace odb
       // The image can grow between calls to load() as a result of other
       // statements execution.
       //
-      image_rebind::rebind (statements_);
+      image_rebind::rebind (statements_, tc_.version ());
 
       select_statement::result r (statement_->load ());
 
@@ -258,10 +264,10 @@ namespace odb
       {
         typename object_traits::image_type& im (statements_.image ());
 
-        if (object_traits::grow (im, statements_.select_image_truncated ()))
+        if (tc_.grow (im, statements_.select_image_truncated ()))
           im.version++;
 
-        if (image_rebind::rebind (statements_))
+        if (image_rebind::rebind (statements_, tc_.version ()))
           statement_->reload ();
       }
     }

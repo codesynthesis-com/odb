@@ -8,6 +8,7 @@
 #include <odb/exceptions.hxx>
 
 #include <odb/pgsql/connection.hxx>
+#include <odb/pgsql/traits-calls.hxx>
 
 namespace odb
 {
@@ -96,8 +97,9 @@ namespace odb
     }
 
     template <typename T>
+    template <typename STS>
     void object_statements<T>::
-    load_delayed_ ()
+    load_delayed_ (const schema_version_migration* svm)
     {
       database& db (connection ().database ());
 
@@ -112,7 +114,9 @@ namespace odb
 
         if (l.loader == 0)
         {
-          if (!object_traits::find_ (*this, &l.id))
+          traits_calls<T> tc (svm);
+
+          if (!tc.find_ (static_cast<STS&> (*this), &l.id))
             throw object_not_persistent ();
 
           object_traits::callback (db, *l.obj, callback_event::pre_load);
@@ -121,11 +125,14 @@ namespace odb
           // loads being added to the delayed_ vector. We need to process
           // those before we call the post callback.
           //
-          object_traits::init (*l.obj, image (), &db);
-          object_traits::load_ (*this, *l.obj); // Load containers, etc.
+          tc.init (*l.obj, image (), &db);
+
+          // Load containers, etc.
+          //
+          object_traits::load_ (static_cast<STS&> (*this), *l.obj);
 
           if (!delayed_.empty ())
-            load_delayed_ ();
+            load_delayed_<STS> (svm);
 
           // Temporarily unlock the statement for the post_load call so that
           // it can load objects of this type recursively. This is safe to do
@@ -141,7 +148,7 @@ namespace odb
           }
         }
         else
-          l.loader (db, l.id, *l.obj);
+          l.loader (db, l.id, *l.obj, svm);
 
         pointer_cache_traits::load (ig.position ());
         ig.release ();

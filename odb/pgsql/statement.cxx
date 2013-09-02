@@ -228,7 +228,8 @@ namespace odb
 
         n.formats[i] = 1;
 
-        if (current_bind.is_null != 0 && *current_bind.is_null)
+        if (current_bind.buffer == 0 || // Skip NULL entries.
+            (current_bind.is_null != 0 && *current_bind.is_null))
         {
           n.values[i] = 0;
           n.lengths[i] = 0;
@@ -312,18 +313,17 @@ namespace odb
                  bool truncated)
     {
       bool r (true);
-      int int_row (static_cast<int> (row));
+      int col_count (PQnfields (result));
 
-      // Make sure that the number of columns in the result returned by
-      // the database matches the number that we expect. A common cause
-      // of this assertion is a native view with a number of data members
-      // not matching the number of columns in the SELECT-list.
-      //
-      assert (static_cast<size_t> (PQnfields (result)) == count);
-
-      for (int i (0); i < static_cast<int> (count); ++i)
+      int col (0);
+      for (size_t i (0); i != count && col != col_count; ++i)
       {
         const bind& b (p[i]);
+
+        if (b.buffer == 0) // Skip NULL entries.
+          continue;
+
+        int c (col++);
 
         if (truncated && (b.truncated == 0 || !*b.truncated))
           continue;
@@ -335,13 +335,13 @@ namespace odb
         //
         if (!truncated)
         {
-          *b.is_null = PQgetisnull (result, int_row, i) == 1;
+          *b.is_null = PQgetisnull (result, static_cast<int> (row), c) == 1;
 
           if (*b.is_null)
             continue;
         }
 
-        const char* v (PQgetvalue (result, int_row, i));
+        const char* v (PQgetvalue (result, static_cast<int> (row), c));
 
         switch (b.type)
         {
@@ -349,47 +349,40 @@ namespace odb
           {
             *static_cast<bool*> (b.buffer) =
               *reinterpret_cast<const bool*> (v);
-
             break;
           }
         case bind::smallint:
           {
             *static_cast<short*> (b.buffer) =
               *reinterpret_cast<const short*> (v);
-
             break;
           }
         case bind::integer:
           {
             *static_cast<int*> (b.buffer) = *reinterpret_cast<const int*> (v);
-
             break;
           }
         case bind::bigint:
           {
             *static_cast<long long*> (b.buffer) =
               *reinterpret_cast<const long long*> (v);
-
             break;
           }
         case bind::real:
           {
             *static_cast<float*> (b.buffer) =
               *reinterpret_cast<const float*> (v);
-
             break;
           }
         case bind::double_:
           {
             *static_cast<double*> (b.buffer) =
               *reinterpret_cast<const double*> (v);
-
             break;
           }
         case bind::date:
           {
             *static_cast<int*> (b.buffer) = *reinterpret_cast<const int*> (v);
-
             break;
           }
         case bind::time:
@@ -397,7 +390,6 @@ namespace odb
           {
             *static_cast<long long*> (b.buffer) =
               *reinterpret_cast<const long long*> (v);
-
             break;
           }
         case bind::numeric:
@@ -406,7 +398,8 @@ namespace odb
         case bind::bit:
         case bind::varbit:
           {
-            *b.size = static_cast<size_t> (PQgetlength (result, int_row, i));
+            *b.size = static_cast<size_t> (
+              PQgetlength (result, static_cast<int> (row), c));
 
              if (b.capacity < *b.size)
              {
@@ -418,17 +411,22 @@ namespace odb
              }
 
              memcpy (b.buffer, v, *b.size);
-
              break;
           }
         case bind::uuid:
           {
             memcpy (b.buffer, v, 16);
-
             break;
           }
         }
       }
+
+      // Make sure that the number of columns in the result returned by
+      // the database matches the number that we expect. A common cause
+      // of this assertion is a native view with a number of data members
+      // not matching the number of columns in the SELECT-list.
+      //
+      assert (col == col_count);
 
       return r;
     }
