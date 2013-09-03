@@ -70,7 +70,7 @@ main (int argc, char* argv[])
       }
     case 2:
       {
-        using namespace v2; // @@ soft delete
+        using namespace v3;
 
         if (embedded)
         {
@@ -108,6 +108,7 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
           auto_ptr<object> p (db->load<object> (1));
+          assert (p->str == "");
           t.commit ();
         }
         break;

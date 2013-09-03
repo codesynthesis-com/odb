@@ -31,9 +31,18 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     // SQLite doesn't support dropping of columns.
     //
 #ifndef DATABASE_SQLITE
-#if MODEL_VERSION == 2
+#if MODEL_VERSION >= 2
+
+#if MODEL_VERSION == 3
+    #pragma db deleted(3)
+#endif
     std::string str;
+
+#if MODEL_VERSION == 3
+    #pragma db deleted(3)
+#endif
     unsigned long num;
+
 #endif
 #endif
   };

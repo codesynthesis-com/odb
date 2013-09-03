@@ -394,7 +394,7 @@ struct view6b
 #ifndef ODB_DATABASE_ORACLE
 #  pragma db view table("t_view_person" = "p")                 \
   table("t_view_employer_employees" = "ee": "ee.value = p.id") \
-  table("t_view_employer" = "e": "ee.object_id = e.name")
+  table("t_view_employer" = "e": "\"ee\".\"object_id\" = e.name")
 #else
 #  pragma db view table("t_view_person" = "p")                                \
   table("t_view_employer_employees" = "ee": "\"ee\".\"value\" = \"p\".\"id\"")\

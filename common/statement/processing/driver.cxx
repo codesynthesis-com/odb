@@ -264,7 +264,7 @@ main (int, char* argv[])
                     "SET\n"
                     "[a]=$1\n"
                     "WHERE [id]=$2",
-                    "UPDATE [foo] WHERE [id]=$2",
+                    "",
                     b, 2));
   }
 
@@ -384,6 +384,21 @@ main (int, char* argv[])
   //
   // SELECT
   //
+
+  // Empty.
+  //
+  {
+    void* b[] = {0, 0, 0};
+    assert (select ("SELECT\n"
+                    "[a].[x],\n"
+                    "[t].[y],\n"
+                    "[t].[z]\n"
+                    "FROM [t]\n"
+                    "LEFT JOIN [t1] AS [a] ON [a].[id]=[t].[id]\n"
+                    "WHERE [t].[id]=$1",
+                    "",
+                    b, 3));
+  }
 
   // Fast path.
   //

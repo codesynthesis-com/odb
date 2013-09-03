@@ -16,6 +16,7 @@ add-index        \
 drop-index       \
 combined         \
 embedded         \
+soft-delete      \
 version          \
 data             \
 template
