@@ -187,6 +187,12 @@ namespace odb
         text_ = text_copy_.c_str ();
       }
 
+      if (empty ())
+      {
+        deallocated_ = true;
+        return;
+      }
+
       {
         odb::tracer* t;
         if ((t = conn_.transaction_tracer ()) ||

@@ -50,6 +50,17 @@ namespace odb
         return conn_;
       }
 
+      // A statement can be empty. This is used to handle situations
+      // where a SELECT or UPDATE statement ends up not having any
+      // columns after processing. An empty statement cannot be
+      // executed.
+      //
+      bool
+      empty () const
+      {
+        return *text_ == '\0';
+      }
+
       void
       deallocate ();
 
