@@ -80,6 +80,22 @@ main (int argc, char* argv[])
           object o (1);
           o.str = "abc";
           o.num = 123;
+          o.vec.push_back (123);
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            t.commit ();
+          }
+        }
+
+        // Test container with soft-deleted value member.
+        //
+        {
+          using namespace test5;
+
+          object o (1);
+          o.vec.push_back (value ("abc", 123));
 
           {
             transaction t (db->begin ());
@@ -89,6 +105,23 @@ main (int argc, char* argv[])
         }
 
 #endif // DATABASE_SQLITE
+
+        // Test soft-deleted container member in a non-versioned object.
+        //
+        {
+          using namespace test21;
+
+          object o (1);
+          o.num = 123;
+          o.vec.push_back (123);
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            t.commit ();
+          }
+        }
+
         break;
       }
     case 2:
@@ -125,12 +158,12 @@ main (int argc, char* argv[])
           using namespace test2;
 
           // All the database operations should still include the deleted
-          // member
+          // members.
           //
           {
             transaction t (db->begin ());
             auto_ptr<object> p (db->load<object> (1));
-            assert (p->str == "abc" && p->num == 123);
+            assert (p->str == "abc" && p->num == 123 && p->vec[0] == 123);
             t.commit ();
           }
 
@@ -141,30 +174,77 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             result r (db->query<object> (query::str == "abc"));
             result::iterator i (r.begin ());
-            assert (i != r.end () && i->str == "abc" && i->num == 123);
+            assert (i != r.end () &&
+                    i->str == "abc" && i->num == 123 && i->vec[0] == 123);
             t.commit ();
           }
 
           object o (2);
           o.str = "bcd";
           o.num = 234;
+          o.vec.push_back (234);
 
           {
             transaction t (db->begin ());
             db->persist (o);
             auto_ptr<object> p (db->load<object> (2));
-            assert (p->str == "bcd" && p->num == 234);
+            assert (p->str == "bcd" && p->num == 234 && p->vec[0] == 234);
             t.commit ();
           }
 
           o.str += 'e';
           o.num++;
+          o.vec.modify (0)++;
 
           {
             transaction t (db->begin ());
             db->update (o);
             auto_ptr<object> p (db->load<object> (2));
-            assert (p->str == "bcde" && p->num == 235);
+            assert (p->str == "bcde" && p->num == 235 && p->vec[0] == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (o);
+            t.commit ();
+          }
+        }
+
+        // Test container with soft-deleted value member.
+        //
+        {
+          using namespace test5;
+
+          // All the database operations should still include the deleted
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (1));
+            assert (p->vec[0].str == "abc" && p->vec[0].num == 123);
+            t.commit ();
+          }
+
+          object o (2);
+          o.vec.push_back (value ("bcd", 234));
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->vec[0].str == "bcd" && p->vec[0].num == 234);
+            t.commit ();
+          }
+
+          o.vec.modify (0).str += 'e';
+          o.vec.modify (0).num++;
+
+          {
+            transaction t (db->begin ());
+            db->update (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->vec[0].str == "bcde" && p->vec[0].num == 235);
             t.commit ();
           }
 
@@ -176,6 +256,62 @@ main (int argc, char* argv[])
         }
 
 #endif // DATABASE_SQLITE
+
+        // Test soft-deleted container member in a non-versioned object.
+        //
+        {
+          using namespace test21;
+
+          // All the database operations should still include the deleted
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (1));
+            assert (p->num == 123 && p->vec[0] == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
+            transaction t (db->begin ());
+            result r (db->query<object> (query::num == 123));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->num == 123 && i->vec[0] == 123);
+            t.commit ();
+          }
+
+          object o (2);
+          o.num = 234;
+          o.vec.push_back (234);
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->num == 234 && p->vec[0] == 234);
+            t.commit ();
+          }
+
+          o.num++;
+          o.vec.modify (0)++;
+
+          {
+            transaction t (db->begin ());
+            db->update (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->num == 235 && p->vec[0] == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (o);
+            t.commit ();
+          }
+        }
 
         if (embedded)
         {
@@ -213,12 +349,12 @@ main (int argc, char* argv[])
           using namespace test2;
 
           // Now none of the database operations should include the
-          // deleted member.
+          // deleted members.
           //
           {
             transaction t (db->begin ());
             auto_ptr<object> p (db->load<object> (1));
-            assert (p->str == "" && p->num == 123);
+            assert (p->str == "" && p->num == 123 && p->vec.empty ());
             t.commit ();
           }
 
@@ -229,7 +365,8 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             result r (db->query<object> (query::num == 123));
             result::iterator i (r.begin ());
-            assert (i != r.end () && i->str == "" && i->num == 123);
+            assert (i != r.end () &&
+                    i->str == "" && i->num == 123 && i->vec.empty ());
 
             try
             {
@@ -244,29 +381,31 @@ main (int argc, char* argv[])
           object o (2);
           o.str = "bcd";
           o.num = 234;
+          o.vec.push_back (234);
 
           {
             transaction t (db->begin ());
             db->persist (o);
             auto_ptr<object> p (db->load<object> (2));
-            assert (p->str == "" && p->num == 234);
+            assert (p->str == "" && p->num == 234 && p->vec.empty ());
             t.commit ();
           }
 
           o.str += 'e';
           o.num++;
+          o.vec.modify (0)++;
 
           {
             transaction t (db->begin ());
             db->update (o);
             auto_ptr<object> p (db->load<object> (2));
-            assert (p->str == "" && p->num == 235);
+            assert (p->str == "" && p->num == 235 && p->vec.empty ());
             t.commit ();
           }
 
           {
             transaction t (db->begin ());
-            db->erase (o);
+            db->erase<object> (2);
             t.commit ();
           }
         }
@@ -321,7 +460,108 @@ main (int argc, char* argv[])
           }
         }
 
+        // Test container with soft-deleted value member.
+        //
+        {
+          using namespace test5;
+
+          // Now none of the database operations should include the
+          // deleted members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (1));
+            assert (p->vec[0].str == "" && p->vec[0].num == 123);
+            t.commit ();
+          }
+
+          object o (2);
+          o.vec.push_back (value ("bcd", 234));
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->vec[0].str == "" && p->vec[0].num == 234);
+            t.commit ();
+          }
+
+          o.vec.modify (0).str += 'e';
+          o.vec.modify (0).num++;
+
+          {
+            transaction t (db->begin ());
+            db->update (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->vec[0].str == "" && p->vec[0].num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase<object> (2);
+            t.commit ();
+          }
+        }
+
 #endif // DATABASE_SQLITE
+
+        // Test soft-deleted container member in a non-versioned object.
+        //
+        {
+          using namespace test21;
+
+          // Now none of the database operations should include the
+          // deleted members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (1));
+            assert (p->num == 123 && p->vec.empty ());
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
+            transaction t (db->begin ());
+            result r (db->query<object> (query::num == 123));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->num == 123 && i->vec.empty ());
+            t.commit ();
+          }
+
+          object o (2);
+          o.num = 234;
+          o.vec.push_back (234);
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->num == 234 && p->vec.empty ());
+            t.commit ();
+          }
+
+          o.num++;
+          o.vec.modify (0)++;
+
+          {
+            transaction t (db->begin ());
+            db->update (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->num == 235 && p->vec.empty ());
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase<object> (2);
+            t.commit ();
+          }
+        }
+
         break;
       }
     default:

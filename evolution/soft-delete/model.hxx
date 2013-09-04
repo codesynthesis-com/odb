@@ -9,7 +9,7 @@
 #include <string>
 
 #include <odb/core.hxx>
-#include <odb/nullable.hxx>
+#include <odb/vector.hxx>
 
 #include <common/config.hxx> // DATABASE_XXX
 
@@ -60,10 +60,12 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 
       std::string str;
       unsigned long num;
+      odb::vector<int> vec;
     };
 
 #if MODEL_VERSION == 3
     #pragma db member(object::str) deleted(3)
+    #pragma db member(object::vec) deleted(3)
 #endif
   }
 
@@ -115,8 +117,60 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 #endif
   }
 
+  // Test container with soft-deleted value member.
+  //
+  #pragma db namespace table("t5_")
+  namespace test5
+  {
+    #pragma db value
+    struct value
+    {
+      value () {}
+      value (const std::string& s, unsigned long n): str (s), num (n) {}
+
+      std::string str;
+      unsigned long num;
+    };
+
+    #pragma db object
+    struct object
+    {
+      object (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      odb::vector<value> vec;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(value::str) deleted(3)
+#endif
+  }
+
 #endif // DATABASE_SQLITE
 
+  // Test soft-deleted container member in a non-versioned object.
+  //
+  #pragma db namespace table("t21_")
+  namespace test21
+  {
+    #pragma db object
+    struct object
+    {
+      object (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      unsigned long num;
+      odb::vector<int> vec;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(object::vec) deleted(3)
+#endif
+  }
 }
 
 #undef MODEL_NAMESPACE
