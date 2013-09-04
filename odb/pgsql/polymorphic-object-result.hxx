@@ -81,7 +81,7 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       statements_type& statements_;
-      traits_calls<object_type> tc_;
+      object_traits_calls<object_type> tc_;
       std::size_t count_;
     };
   }

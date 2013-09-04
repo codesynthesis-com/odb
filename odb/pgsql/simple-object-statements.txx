@@ -114,7 +114,7 @@ namespace odb
 
         if (l.loader == 0)
         {
-          traits_calls<T> tc (svm);
+          object_traits_calls<T> tc (svm);
 
           if (!tc.find_ (static_cast<STS&> (*this), &l.id))
             throw object_not_persistent ();

@@ -20,18 +20,22 @@ namespace odb
 {
   namespace pgsql
   {
+    //
+    // object_traits_calls
+    //
+
     template <typename T,
               bool versioned = object_traits_impl<T, id_pgsql>::versioned>
-    struct traits_calls;
+    struct object_traits_calls;
 
     template <typename T>
-    struct traits_calls<T, false>
+    struct object_traits_calls<T, false>
     {
       typedef object_traits_impl<T, id_pgsql> traits;
       typedef typename traits::image_type image_type;
       typedef pgsql::bind bind_type;
 
-      traits_calls (const schema_version_migration*) {}
+      object_traits_calls (const schema_version_migration*) {}
 
       const schema_version_migration*
       version () const {return 0;}
@@ -80,13 +84,13 @@ namespace odb
     };
 
     template <typename T>
-    struct traits_calls<T, true>
+    struct object_traits_calls<T, true>
     {
       typedef object_traits_impl<T, id_pgsql> traits;
       typedef typename traits::image_type image_type;
       typedef pgsql::bind bind_type;
 
-      traits_calls (const schema_version_migration* svm): svm_ (*svm) {}
+      object_traits_calls (const schema_version_migration* svm): svm_ (*svm) {}
 
       const schema_version_migration*
       version () const {return &svm_;}
@@ -131,6 +135,73 @@ namespace odb
       load_ (typename traits::statements_type& sts, T& o, bool reload) const
       {
         return traits::load_ (sts, o, reload, svm_);
+      }
+
+    private:
+      const schema_version_migration& svm_;
+    };
+
+    //
+    // view_traits_calls
+    //
+
+    template <typename T,
+              bool versioned = view_traits_impl<T, id_pgsql>::versioned>
+    struct view_traits_calls;
+
+    template <typename T>
+    struct view_traits_calls<T, false>
+    {
+      typedef view_traits_impl<T, id_pgsql> traits;
+      typedef typename traits::image_type image_type;
+      typedef pgsql::bind bind_type;
+
+      view_traits_calls (const schema_version_migration*) {}
+
+      static bool
+      grow (image_type& i, bool* t)
+      {
+        return traits::grow (i, t);
+      }
+
+      static void
+      bind (bind_type* b, image_type& i)
+      {
+        traits::bind (b, i);
+      }
+
+      static void
+      init (T& o, const image_type& i, odb::database* db)
+      {
+        traits::init (o, i, db);
+      }
+    };
+
+    template <typename T>
+    struct view_traits_calls<T, true>
+    {
+      typedef view_traits_impl<T, id_pgsql> traits;
+      typedef typename traits::image_type image_type;
+      typedef pgsql::bind bind_type;
+
+      view_traits_calls (const schema_version_migration* svm): svm_ (*svm) {}
+
+      bool
+      grow (image_type& i, bool* t) const
+      {
+        return traits::grow (i, t, svm_);
+      }
+
+      void
+      bind (bind_type* b, image_type& i) const
+      {
+        traits::bind (b, i, svm_);
+      }
+
+      void
+      init (T& o, const image_type& i, odb::database* db) const
+      {
+        traits::init (o, i, db, svm_);
       }
 
     private:

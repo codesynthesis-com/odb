@@ -138,7 +138,7 @@ namespace odb
 
       // The same code as in object_statements::load_delayed_().
       //
-      traits_calls<T> tc (svm);
+      object_traits_calls<T> tc (svm);
 
       if (!tc.find_ (sts, &id))
         throw object_not_persistent ();

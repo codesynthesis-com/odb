@@ -9,6 +9,7 @@
 
 #include <cstddef> // std::size_t
 
+#include <odb/schema-version.hxx>
 #include <odb/view-result.hxx>
 
 #include <odb/details/shared-ptr.hxx>
@@ -40,7 +41,8 @@ namespace odb
 
       view_result_impl (const query_base&,
                         details::shared_ptr<select_statement>,
-                        statements_type&);
+                        statements_type&,
+                        const schema_version_migration*);
 
       virtual void
       load (view_type&);
@@ -62,6 +64,7 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       statements_type& statements_;
+      view_traits_calls<view_type> tc_;
       std::size_t count_;
     };
   }

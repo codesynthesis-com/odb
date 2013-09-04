@@ -209,7 +209,7 @@ namespace odb
         if (traits::check_version (sts.select_image_versions (), im))
         {
           binding& b (sts.select_image_binding (traits::depth));
-          traits_calls<T> tc (svm);
+          object_traits_calls<T> tc (svm);
           tc.bind (b.bind, 0, 0, im, statement_select);
           traits::update_version (
             sts.select_image_versions (), im, sts.select_image_bindings ());
@@ -236,7 +236,7 @@ namespace odb
         if (im.version != sts.select_image_version ())
         {
           binding& b (sts.select_image_binding ());
-          traits_calls<R> tc (svm);
+          object_traits_calls<R> tc (svm);
           tc.bind (b.bind, im, statement_select);
           sts.select_image_version (im.version);
           b.version++;
