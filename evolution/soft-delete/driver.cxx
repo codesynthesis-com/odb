@@ -104,6 +104,22 @@ main (int argc, char* argv[])
           }
         }
 
+        // Test view with soft-deleted member.
+        //
+        {
+          using namespace test6;
+
+          object o (1);
+          o.str = "abc";
+          o.num = 123;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            t.commit ();
+          }
+        }
+
 #endif // DATABASE_SQLITE
 
         // Test soft-deleted container member in a non-versioned object.
@@ -251,6 +267,26 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->erase (o);
+            t.commit ();
+          }
+        }
+
+        // Test view with soft-deleted member.
+        //
+        {
+          using namespace test6;
+
+          // All the database operations should still include the deleted
+          // members.
+          //
+          {
+            typedef odb::query<view> query;
+            typedef odb::result<view> result;
+
+            transaction t (db->begin ());
+            result r (db->query<view> (query::str == "abc"));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "abc" && i->num == 123);
             t.commit ();
           }
         }
@@ -500,6 +536,34 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->erase<object> (2);
+            t.commit ();
+          }
+        }
+
+        // Test view with soft-deleted member.
+        //
+        {
+          using namespace test6;
+
+          // Now none of the database operations should include the
+          // deleted members.
+          //
+          {
+            typedef odb::query<view> query;
+            typedef odb::result<view> result;
+
+            transaction t (db->begin ());
+            result r (db->query<view> (query::num == 123));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "" && i->num == 123);
+
+            try
+            {
+              db->query<object> (query::str == "abc"); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+
             t.commit ();
           }
         }

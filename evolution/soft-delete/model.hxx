@@ -148,6 +148,36 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 #endif
   }
 
+  // Test view with soft-deleted member.
+  //
+  #pragma db namespace table("t6_")
+  namespace test6
+  {
+    #pragma db object
+    struct object
+    {
+      object (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      std::string str;
+      unsigned long num;
+    };
+
+    #pragma db view object(object)
+    struct view
+    {
+      std::string str;
+      unsigned long num;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(object::str) deleted(3)
+    #pragma db member(view::str) deleted(3)
+#endif
+  }
+
 #endif // DATABASE_SQLITE
 
   // Test soft-deleted container member in a non-versioned object.
