@@ -139,7 +139,7 @@ namespace odb
         idb.version++;
       }
 
-      object_traits::load_ (statements_, *pobj);
+      tc_.load_ (statements_, *pobj, false);
 
       // Load the dynamic part of the object unless static and dynamic
       // types are the same.

@@ -78,7 +78,7 @@ namespace odb
         idb.version++;
       }
 
-      object_traits::load_ (statements_, obj);
+      tc_.load_ (statements_, obj, false);
       statements_.load_delayed (tc_.version ());
       l.unlock ();
       object_traits::callback (this->db_, obj, callback_event::post_load);

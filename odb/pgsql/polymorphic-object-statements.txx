@@ -145,7 +145,7 @@ namespace odb
 
       object_traits::callback (db, obj, callback_event::pre_load);
       tc.init (obj, sts.image (), &db);
-      object_traits::load_ (sts, obj); // Load containers, etc.
+      tc.load_ (sts, obj, false); // Load containers, etc.
 
       rsts.load_delayed (svm);
 

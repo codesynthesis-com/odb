@@ -10,6 +10,7 @@
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>
+#include <odb/schema-version.hxx>
 #include <odb/traits.hxx>
 
 #include <odb/pgsql/version.hxx>
@@ -60,6 +61,14 @@ namespace odb
       {
         return functions_;
       }
+
+      //
+      //
+      const schema_version_migration&
+      version_migration () const {return *svm_;}
+
+      void
+      version_migration (const schema_version_migration& svm) {svm_ = &svm;}
 
       // Id image binding (external).
       //
@@ -205,6 +214,7 @@ namespace odb
       const char* delete_text_;
 
       bool versioned_;
+      const schema_version_migration* svm_;
 
       details::shared_ptr<insert_statement_type> insert_;
       details::shared_ptr<select_statement_type> select_;

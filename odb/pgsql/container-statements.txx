@@ -24,7 +24,8 @@ namespace odb
           functions_ (this),
           insert_image_binding_ (0, 0),              // Initialized by impl.
           insert_image_native_binding_ (0, 0, 0, 0), // Initialized by impl.
-          select_image_binding_ (0, 0)               // Initialized by impl.
+          select_image_binding_ (0, 0),              // Initialized by impl.
+          svm_ (0)
     {
       functions_.insert_ = &traits::insert;
       functions_.select_ = &traits::select;

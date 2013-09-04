@@ -129,7 +129,7 @@ namespace odb
 
           // Load containers, etc.
           //
-          object_traits::load_ (static_cast<STS&> (*this), *l.obj);
+          tc.load_ (static_cast<STS&> (*this), *l.obj, false);
 
           if (!delayed_.empty ())
             load_delayed_<STS> (svm);

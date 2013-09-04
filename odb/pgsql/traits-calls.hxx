@@ -71,6 +71,12 @@ namespace odb
       {
         return traits::find_ (sts, id);
       }
+
+      static void
+      load_ (typename traits::statements_type& sts, T& o, bool reload)
+      {
+        return traits::load_ (sts, o, reload);
+      }
     };
 
     template <typename T>
@@ -119,6 +125,12 @@ namespace odb
              const typename traits::id_type* id) const
       {
         return traits::find_ (sts, id, svm_);
+      }
+
+      void
+      load_ (typename traits::statements_type& sts, T& o, bool reload) const
+      {
+        return traits::load_ (sts, o, reload, svm_);
       }
 
     private:
