@@ -246,16 +246,6 @@ main (int, char* argv[])
                     b, 2));
   }
 
-  // Empty via statement.
-  //
-  {
-    void* b[] = {argv};
-    assert (update ("UPDATE [foo]\n"
-                    "WHERE [id]=$1",
-                    "UPDATE [foo] WHERE [id]=$1",
-                    b, 1));
-  }
-
   // Empty via bind.
   //
   {

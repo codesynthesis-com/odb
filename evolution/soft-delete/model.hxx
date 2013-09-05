@@ -10,6 +10,7 @@
 
 #include <odb/core.hxx>
 #include <odb/vector.hxx>
+#include <odb/section.hxx>
 
 #include <common/config.hxx> // DATABASE_XXX
 
@@ -178,6 +179,68 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 #endif
   }
 
+  // Test soft-deleted section member.
+  //
+  #pragma db namespace table("t7_")
+  namespace test7
+  {
+    #pragma db object
+    struct object
+    {
+      object (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      #pragma db load(lazy) update(change)
+      odb::section s;
+
+      #pragma db section(s)
+      std::string str;
+
+      unsigned long num;
+
+      #pragma db section(s)
+      odb::vector<int> vec;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(object::s) deleted(3)
+#endif
+  }
+
+  // Test soft-deleted members of a section.
+  //
+  #pragma db namespace table("t8_")
+  namespace test8
+  {
+    #pragma db object
+    struct object
+    {
+      object (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      #pragma db load(lazy) update(change)
+      odb::section s;
+
+      #pragma db section(s)
+      std::string str;
+
+      #pragma db section(s)
+      unsigned long num;
+
+      #pragma db section(s)
+      odb::vector<int> vec;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(object::str) deleted(3)
+    #pragma db member(object::vec) deleted(3)
+#endif
+  }
+
 #endif // DATABASE_SQLITE
 
   // Test soft-deleted container member in a non-versioned object.
@@ -194,6 +257,34 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
       unsigned long id_;
 
       unsigned long num;
+      odb::vector<int> vec;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(object::vec) deleted(3)
+#endif
+  }
+
+  // Test soft-deleted container member in a non-versioned section.
+  //
+  #pragma db namespace table("t22_")
+  namespace test22
+  {
+    #pragma db object
+    struct object
+    {
+      object (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      #pragma db load(lazy) update(change)
+      odb::section s;
+
+      #pragma db section(s)
+      unsigned long num;
+
+      #pragma db section(s)
       odb::vector<int> vec;
     };
 
