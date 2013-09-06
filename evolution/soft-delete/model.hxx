@@ -11,6 +11,7 @@
 #include <odb/core.hxx>
 #include <odb/vector.hxx>
 #include <odb/section.hxx>
+#include <odb/lazy-ptr.hxx>
 
 #include <common/config.hxx> // DATABASE_XXX
 
@@ -51,10 +52,24 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
   #pragma db namespace table("t2_")
   namespace test2
   {
+    struct object;
+
+    #pragma db object
+    struct object1
+    {
+      object1 (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      odb::vector<odb::lazy_ptr<object> > ptrs;
+    };
+
     #pragma db object
     struct object
     {
-      object (unsigned long id = 0): id_ (id) {}
+      object (unsigned long id = 0): id_ (id), ptr (0) {}
+      ~object () {delete ptr;}
 
       #pragma db id
       unsigned long id_;
@@ -62,11 +77,15 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
       std::string str;
       unsigned long num;
       odb::vector<int> vec;
+
+      #pragma db inverse(ptrs)
+      object1* ptr;
     };
 
 #if MODEL_VERSION == 3
     #pragma db member(object::str) deleted(3)
     #pragma db member(object::vec) deleted(3)
+    #pragma db member(object::ptr) deleted(3)
 #endif
   }
 
@@ -238,6 +257,159 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 #if MODEL_VERSION == 3
     #pragma db member(object::str) deleted(3)
     #pragma db member(object::vec) deleted(3)
+#endif
+  }
+
+  // Test basic soft-deleted member logic in polymorphic classes.
+  //
+  #pragma db namespace table("t9_")
+  namespace test9
+  {
+    #pragma db object polymorphic
+    struct base
+    {
+      virtual
+      ~base () {}
+      base (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      std::string bstr;
+    };
+
+    #pragma db object
+    struct object: base
+    {
+      object (unsigned long id = 0): base (id) {}
+
+      std::string dstr;
+      unsigned long num;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(base::bstr) deleted(3)
+    #pragma db member(object::dstr) deleted(3)
+#endif
+  }
+
+  // Test soft-deleted section member in polymorphic classes.
+  //
+  #pragma db namespace table("t10_")
+  namespace test10
+  {
+    #pragma db object polymorphic
+    struct base
+    {
+      virtual
+      ~base () {}
+      base (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      #pragma db load(lazy) update(change)
+      odb::section s;
+
+      #pragma db section(s)
+      std::string bstr;
+    };
+
+    #pragma db object
+    struct object: base
+    {
+      object (unsigned long id = 0): base (id) {}
+
+      #pragma db section(s)
+      std::string dstr;
+
+      unsigned long num;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(base::s) deleted(3)
+#endif
+  }
+
+  // Test soft-deleted members of a section in polymorphic classes.
+  //
+  #pragma db namespace table("t11_")
+  namespace test11
+  {
+    #pragma db object polymorphic
+    struct base
+    {
+      virtual
+      ~base () {}
+      base (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      #pragma db load(lazy) update(change)
+      odb::section s;
+
+      #pragma db section(s)
+      std::string bstr;
+    };
+
+    #pragma db object
+    struct object: base
+    {
+      object (unsigned long id = 0): base (id) {}
+
+      #pragma db section(s)
+      std::string dstr;
+
+      #pragma db section(s)
+      unsigned long num;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(base::bstr) deleted(3)
+    #pragma db member(object::dstr) deleted(3)
+#endif
+  }
+
+  // Test soft-deleted member and optimistic concurrency.
+  //
+  #pragma db namespace table("t12_")
+  namespace test12
+  {
+    #pragma db object optimistic
+    struct object
+    {
+      object (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      #pragma db version mssql:type("ROWVERSION")
+      unsigned long long v_;
+
+      std::string str;
+      unsigned long num;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(object::str) deleted(3)
+#endif
+  }
+
+  // Test soft-deleted member in an object without id.
+  //
+  #pragma db namespace table("t13_")
+  namespace test13
+  {
+    #pragma db object no_id
+    struct object
+    {
+      std::string str;
+      unsigned long num;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(object::str) deleted(3)
 #endif
   }
 

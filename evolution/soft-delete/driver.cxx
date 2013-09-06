@@ -81,10 +81,13 @@ main (int argc, char* argv[])
           o.str = "abc";
           o.num = 123;
           o.vec.push_back (123);
+          o.ptr = new object1 (1);
+          o.ptr->ptrs.push_back (&o);
 
           {
             transaction t (db->begin ());
             db->persist (o);
+            db->persist (*o.ptr);
             t.commit ();
           }
         }
@@ -146,6 +149,98 @@ main (int argc, char* argv[])
           o.str = "abc";
           o.num = 123;
           o.vec.push_back (123);
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            t.commit ();
+          }
+        }
+
+        // Test basic soft-deleted member logic in polymorphic classes.
+        //
+        {
+          // We have to use v3 here because the discriminator includes
+          // the namespace.
+          //
+          using namespace v3::test9;
+
+          object o (1);
+          o.bstr = "ab";
+          o.dstr = "abc";
+          o.num = 123;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted section member in polymorphic classes.
+        //
+        {
+          // We have to use v3 here because the discriminator includes
+          // the namespace.
+          //
+          using namespace v3::test10;
+
+          object o (1);
+          o.bstr = "ab";
+          o.dstr = "abc";
+          o.num = 123;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted members of a section in polymorphic classes.
+        //
+        {
+          // We have to use v3 here because the discriminator includes
+          // the namespace.
+          //
+          using namespace v3::test11;
+
+          object o (1);
+          o.bstr = "ab";
+          o.dstr = "abc";
+          o.num = 123;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member and optimistic concurrency.
+        //
+        {
+          using namespace test12;
+
+          object o (1);
+          o.str = "abc";
+          o.num = 123;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member in an object without id.
+        //
+        {
+          using namespace test13;
+
+          object o;
+          o.str = "abc";
+          o.num = 123;
 
           {
             transaction t (db->begin ());
@@ -229,7 +324,8 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             auto_ptr<object> p (db->load<object> (1));
-            assert (p->str == "abc" && p->num == 123 && p->vec[0] == 123);
+            assert (p->str == "abc" && p->num == 123 &&
+                    p->vec[0] == 123 && p->ptr->id_ == 1);
             t.commit ();
           }
 
@@ -238,10 +334,12 @@ main (int argc, char* argv[])
             typedef odb::result<object> result;
 
             transaction t (db->begin ());
-            result r (db->query<object> (query::str == "abc"));
+            result r (db->query<object> (query::str == "abc" &&
+                                         query::ptr->id == 1));
             result::iterator i (r.begin ());
             assert (i != r.end () &&
-                    i->str == "abc" && i->num == 123 && i->vec[0] == 123);
+                    i->str == "abc" && i->num == 123 &&
+                    i->vec[0] == 123 && i->ptr->id_ == 1);
             t.commit ();
           }
 
@@ -249,24 +347,32 @@ main (int argc, char* argv[])
           o.str = "bcd";
           o.num = 234;
           o.vec.push_back (234);
+          o.ptr = new object1 (2);
+          o.ptr->ptrs.push_back (&o);
 
           {
             transaction t (db->begin ());
             db->persist (o);
+            db->persist (*o.ptr);
             auto_ptr<object> p (db->load<object> (2));
-            assert (p->str == "bcd" && p->num == 234 && p->vec[0] == 234);
+            assert (p->str == "bcd" && p->num == 234 &&
+                    p->vec[0] == 234 && p->ptr->id_ == 2);
             t.commit ();
           }
 
           o.str += 'e';
           o.num++;
           o.vec.modify (0)++;
+          delete o.ptr;
+          o.ptr = 0;
 
           {
             transaction t (db->begin ());
+            db->erase<object1> (2);
             db->update (o);
             auto_ptr<object> p (db->load<object> (2));
-            assert (p->str == "bcde" && p->num == 235 && p->vec[0] == 235);
+            assert (p->str == "bcde" && p->num == 235 &&
+                    p->vec[0] == 235 && p->ptr == 0);
             t.commit ();
           }
 
@@ -467,6 +573,297 @@ main (int argc, char* argv[])
           }
         }
 
+        // Test basic soft-deleted member logic in polymorphic classes.
+        //
+        {
+          using namespace test9;
+
+          // All the database operations should still include the deleted
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (static_cast<object*> (db->load<base> (1)));
+            assert (p->bstr == "ab" && p->dstr == "abc" && p->num == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<base> query;
+            typedef odb::result<base> result;
+
+            transaction t (db->begin ());
+            result r (db->query<base> (query::bstr == "ab"));
+            result::iterator i (r.begin ());
+            assert (i != r.end ());
+            object& o (static_cast<object&> (*i));
+            assert (o.bstr == "ab" && o.dstr == "abc" && o.num == 123);
+            t.commit ();
+          }
+
+          object o (2);
+          o.bstr = "bc";
+          o.dstr = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->bstr == "bc" && p->dstr == "bcd" && p->num == 234);
+            t.commit ();
+          }
+
+          o.bstr += 'd';
+          o.dstr += 'e';
+          o.num++;
+
+          {
+            transaction t (db->begin ());
+            db->update (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->bstr == "bcd" && p->dstr == "bcde" && p->num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (static_cast<base&> (o));
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted section member in polymorphic classes.
+        //
+        {
+          using namespace test10;
+
+          // All the database operations should still include the deleted
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<base> p (db->load<base> (1));
+            db->load (*p, p->s);
+            object& o (static_cast<object&> (*p));
+            assert (o.bstr == "ab" && o.dstr == "abc" && o.num == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<base> query;
+            typedef odb::result<base> result;
+
+            transaction t (db->begin ());
+            result r (db->query<base> (query::bstr == "ab"));
+            result::iterator i (r.begin ());
+            assert (i != r.end ());
+            db->load (*i, i->s);
+            object& o (static_cast<object&> (*i));
+            assert (o.bstr == "ab" && o.dstr == "abc" && o.num == 123);
+            t.commit ();
+          }
+
+          object o (2);
+          o.bstr = "bc";
+          o.dstr = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            db->load (*p, p->s);
+            assert (p->bstr == "bc" && p->dstr == "bcd" && p->num == 234);
+            t.commit ();
+          }
+
+          o.bstr += 'd';
+          o.dstr += 'e';
+          o.num++;
+          o.s.change ();
+
+          {
+            transaction t (db->begin ());
+            db->update (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            db->load (*p, p->s);
+            assert (p->bstr == "bcd" && p->dstr == "bcde" && p->num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (static_cast<base&> (o));
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted members of a section in polymorphic classes.
+        //
+        {
+          using namespace test11;
+
+          // All the database operations should still include the deleted
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<base> p (db->load<base> (1));
+            db->load (*p, p->s);
+            object& o (static_cast<object&> (*p));
+            assert (o.bstr == "ab" && o.dstr == "abc" && o.num == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<base> query;
+            typedef odb::result<base> result;
+
+            transaction t (db->begin ());
+            result r (db->query<base> (query::bstr == "ab"));
+            result::iterator i (r.begin ());
+            assert (i != r.end ());
+            db->load (*i, i->s);
+            object& o (static_cast<object&> (*i));
+            assert (o.bstr == "ab" && o.dstr == "abc" && o.num == 123);
+            t.commit ();
+          }
+
+          object o (2);
+          o.bstr = "bc";
+          o.dstr = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            db->load (*p, p->s);
+            assert (p->bstr == "bc" && p->dstr == "bcd" && p->num == 234);
+            t.commit ();
+          }
+
+          o.bstr += 'd';
+          o.dstr += 'e';
+          o.num++;
+          o.s.change ();
+
+          {
+            transaction t (db->begin ());
+            db->update (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            db->load (*p, p->s);
+            assert (p->bstr == "bcd" && p->dstr == "bcde" && p->num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (static_cast<base&> (o));
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member and optimistic concurrency.
+        //
+        {
+          using namespace test12;
+
+          // All the database operations should still include the deleted
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (1));
+            assert (p->str == "abc" && p->num == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
+            transaction t (db->begin ());
+            result r (db->query<object> (query::str == "abc"));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "abc" && i->num == 123);
+            t.commit ();
+          }
+
+          object o (2);
+          o.str = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->str == "bcd" && p->num == 234);
+            t.commit ();
+          }
+
+          o.str += 'e';
+          o.num++;
+
+          {
+            transaction t (db->begin ());
+            unsigned long long v (o.v_);
+            db->update (o);
+            assert (o.v_ != v);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->str == "bcde" && p->num == 235 && p->v_ == o.v_);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (o);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member in an object without id.
+        //
+        {
+          using namespace test13;
+
+          typedef odb::query<object> query;
+          typedef odb::result<object> result;
+
+          // All the database operations should still include the deleted
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            result r (db->query<object> (query::str == "abc"));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "abc" && i->num == 123);
+            t.commit ();
+          }
+
+          object o;
+          o.str = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+
+            result r (db->query<object> (query::str == "bcd"));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "bcd" && i->num == 234);
+
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase_query<object> (query::str == "bcd");
+            t.commit ();
+          }
+        }
+
 #endif // DATABASE_SQLITE
 
         // Test soft-deleted container member in a non-versioned object.
@@ -627,7 +1024,8 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             auto_ptr<object> p (db->load<object> (1));
-            assert (p->str == "" && p->num == 123 && p->vec.empty ());
+            assert (p->str == "" && p->num == 123 &&
+                    p->vec.empty () && p->ptr == 0);
             t.commit ();
           }
 
@@ -639,7 +1037,8 @@ main (int argc, char* argv[])
             result r (db->query<object> (query::num == 123));
             result::iterator i (r.begin ());
             assert (i != r.end () &&
-                    i->str == "" && i->num == 123 && i->vec.empty ());
+                    i->str == "" && i->num == 123 &&
+                    i->vec.empty () && i->ptr == 0);
 
             try
             {
@@ -655,24 +1054,32 @@ main (int argc, char* argv[])
           o.str = "bcd";
           o.num = 234;
           o.vec.push_back (234);
+          o.ptr = new object1 (2);
+          o.ptr->ptrs.push_back (&o);
 
           {
             transaction t (db->begin ());
             db->persist (o);
+            db->persist (*o.ptr);
             auto_ptr<object> p (db->load<object> (2));
-            assert (p->str == "" && p->num == 234 && p->vec.empty ());
+            assert (p->str == "" && p->num == 234 &&
+                    p->vec.empty () && p->ptr == 0);
             t.commit ();
           }
 
           o.str += 'e';
           o.num++;
           o.vec.modify (0)++;
+          delete o.ptr;
+          o.ptr = 0;
 
           {
             transaction t (db->begin ());
+            db->erase<object1> (2);
             db->update (o);
             auto_ptr<object> p (db->load<object> (2));
-            assert (p->str == "" && p->num == 235 && p->vec.empty ());
+            assert (p->str == "" && p->num == 235 &&
+                    p->vec.empty () && p->ptr == 0);
             t.commit ();
           }
 
@@ -934,6 +1341,381 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->erase<object> (2);
+            t.commit ();
+          }
+        }
+
+        // Test basic soft-deleted member logic in polymorphic classes.
+        //
+        {
+          using namespace test9;
+
+          // Now none of the database operations should include the
+          // deleted members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (static_cast<object*> (db->load<base> (1)));
+            assert (p->bstr == "" && p->dstr == "" && p->num == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<base> query;
+            typedef odb::result<base> result;
+
+            transaction t (db->begin ());
+            result r (db->query<base> (query::id == 1));
+            result::iterator i (r.begin ());
+            assert (i != r.end ());
+            object& o (static_cast<object&> (*i));
+            assert (o.bstr == "" && o.dstr == "" && o.num == 123);
+
+            try
+            {
+              db->query<base> (query::bstr == "ab"); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
+            transaction t (db->begin ());
+            result r (db->query<object> (query::num == 123));
+            result::iterator i (r.begin ());
+            assert (i != r.end () &&
+                    i->bstr == "" && i->dstr == "" && i->num);
+
+            try
+            {
+              db->query<object> (query::dstr == "abc"); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+
+            t.commit ();
+          }
+
+          object o (2);
+          o.bstr = "bc";
+          o.dstr = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->bstr == "" && p->dstr == "" && p->num == 234);
+            t.commit ();
+          }
+
+          o.bstr += 'd';
+          o.dstr += 'e';
+          o.num++;
+
+          {
+            transaction t (db->begin ());
+            db->update (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->bstr == "" && p->dstr == "" && p->num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase<base> (2);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted section member in polymorphic classes.
+        //
+        {
+          using namespace test10;
+
+          // Now none of the database operations should include the
+          // deleted members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<base> p (db->load<base> (1));
+
+            try
+            {
+              db->load (*p, p->s); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+
+            t.commit ();
+          }
+
+          object o (2);
+          o.bstr = "bc";
+          o.dstr = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (static_cast<base&> (o));
+            t.commit ();
+          }
+
+          o.bstr += 'd';
+          o.dstr += 'e';
+          o.num++;
+          o.s.change ();
+
+          {
+            transaction t (db->begin ());
+            db->update (static_cast<base&> (o));
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase<base> (2);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted members of a section in polymorphic classes.
+        //
+        {
+          using namespace test11;
+
+          // Now none of the database operations should include the
+          // deleted members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<base> p (db->load<base> (1));
+            db->load (*p, p->s);
+            object& o (static_cast<object&> (*p));
+            assert (o.bstr == "" && o.dstr == "" && o.num == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<base> query;
+            typedef odb::result<base> result;
+
+            transaction t (db->begin ());
+            result r (db->query<base> (query::id == 1));
+            result::iterator i (r.begin ());
+            db->load (*i, i->s);
+            assert (i != r.end ());
+            object& o (static_cast<object&> (*i));
+            assert (o.bstr == "" && o.dstr == "" && o.num == 123);
+
+            try
+            {
+              db->query<base> (query::bstr == "ab"); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
+            transaction t (db->begin ());
+            result r (db->query<object> (query::num == 123));
+            result::iterator i (r.begin ());
+            db->load (*i, i->s);
+            assert (i != r.end () &&
+                    i->bstr == "" && i->dstr == "" && i->num);
+
+            try
+            {
+              db->query<object> (query::dstr == "abc"); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+
+            t.commit ();
+          }
+
+          object o (2);
+          o.bstr = "bc";
+          o.dstr = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            db->load (*p, p->s);
+            assert (p->bstr == "" && p->dstr == "" && p->num == 234);
+            t.commit ();
+          }
+
+          o.bstr += 'd';
+          o.dstr += 'e';
+          o.num++;
+          o.s.change ();
+
+          {
+            transaction t (db->begin ());
+            db->update (static_cast<base&> (o));
+            auto_ptr<object> p (db->load<object> (2));
+            db->load (*p, p->s);
+            assert (p->bstr == "" && p->dstr == "" && p->num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase<base> (2);
+            t.commit ();
+          }
+
+          // Test empty statement detection in sections.
+          //
+          base b (3);
+          b.bstr = "bc";
+
+          {
+            transaction t (db->begin ());
+            db->persist (b);
+            auto_ptr<base> p (db->load<base> (3));
+            db->load (*p, p->s);
+            assert (p->bstr == "");
+            t.commit ();
+          }
+
+          b.bstr += 'd';
+          b.s.change ();
+
+          {
+            transaction t (db->begin ());
+            db->update (b);
+            auto_ptr<base> p (db->load<base> (3));
+            db->load (*p, p->s);
+            assert (p->bstr == "");
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member and optimistic concurrency.
+        //
+        {
+          using namespace test12;
+
+          // Now none of the database operations should include the
+          // deleted members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (1));
+            assert (p->str == "" && p->num == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
+            transaction t (db->begin ());
+            result r (db->query<object> (query::num == 123));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "" && i->num == 123);
+
+            try
+            {
+              db->query<object> (query::str == "abc"); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+
+            t.commit ();
+          }
+
+          object o (2);
+          o.str = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->str == "" && p->num == 234);
+            t.commit ();
+          }
+
+          o.str += 'e';
+          o.num++;
+
+          {
+            transaction t (db->begin ());
+            unsigned long long v (o.v_);
+            db->update (o);
+            assert (o.v_ != v);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->str == "" && p->num == 235 && p->v_ == o.v_);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase<object> (2);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member in an object without id.
+        //
+        {
+          using namespace test13;
+
+          typedef odb::query<object> query;
+          typedef odb::result<object> result;
+
+          // Now none of the database operations should include the
+          // deleted members.
+          //
+          {
+            transaction t (db->begin ());
+            result r (db->query<object> (query::num == 123));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "" && i->num == 123);
+
+            try
+            {
+              db->query<object> (query::str == "abc"); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+
+            t.commit ();
+          }
+
+          object o;
+          o.str = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+
+            result r (db->query<object> (query::num == 234));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "" && i->num == 234);
+
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase_query<object> (query::num == 234);
             t.commit ();
           }
         }
