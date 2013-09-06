@@ -16,6 +16,7 @@ add-index        \
 drop-index       \
 combined         \
 embedded         \
+soft-add         \
 soft-delete      \
 version          \
 data             \
