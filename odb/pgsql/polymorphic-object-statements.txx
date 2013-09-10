@@ -10,6 +10,7 @@
 #include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/transaction.hxx>
 #include <odb/pgsql/statement-cache.hxx>
+#include <odb/pgsql/traits-calls.hxx>
 
 namespace odb
 {

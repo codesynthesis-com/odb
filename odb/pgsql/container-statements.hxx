@@ -62,7 +62,7 @@ namespace odb
         return functions_;
       }
 
-      //
+      // Schema version.
       //
       const schema_version_migration&
       version_migration () const {return *svm_;}
@@ -328,7 +328,7 @@ namespace odb
               this->conn_,
               update_name_,
               update_text_,
-              this->versioned_,   // Process if versioned.
+              this->versioned_, // Process if versioned.
               update_types_,
               update_count_,
               update_image_binding_,

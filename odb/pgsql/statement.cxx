@@ -187,7 +187,9 @@ namespace odb
         text_ = text_copy_.c_str ();
       }
 
-      if (empty ())
+      // Empty statement.
+      //
+      if (*text_ == '\0')
       {
         deallocated_ = true;
         return;

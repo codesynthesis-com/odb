@@ -9,6 +9,7 @@
 
 #include <cstddef> // std::size_t
 
+#include <odb/schema-version.hxx>
 #include <odb/polymorphic-object-result.hxx>
 
 #include <odb/details/shared-ptr.hxx>

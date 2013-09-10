@@ -289,8 +289,8 @@ namespace odb
         select_statement st (c,
                              "odb_database_schema_version",
                              text.c_str (),
-                             false,
-                             false,
+                             false, // Don't process.
+                             false, // Don't optimize.
                              param_types,
                              1,
                              param,
