@@ -413,6 +413,26 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 #endif
   }
 
+  // Test soft-deleted member in an object with auto id.
+  //
+  #pragma db namespace table("t14_")
+  namespace test14
+  {
+    #pragma db object
+    struct object
+    {
+      std::string str;
+      unsigned long num;
+
+      #pragma db id auto
+      unsigned long id;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(object::str) deleted(3)
+#endif
+  }
+
 #endif // DATABASE_SQLITE
 
   // Test soft-deleted container member in a non-versioned object.

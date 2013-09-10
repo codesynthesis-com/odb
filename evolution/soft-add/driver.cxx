@@ -96,7 +96,7 @@ main (int argc, char* argv[])
 
             try
             {
-              db->query<object> (query::str == "abc"); // No such column.
+              db->query<object> (query::str.is_null ()); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
@@ -881,6 +881,81 @@ main (int argc, char* argv[])
           }
         }
 
+        // Test soft-added member in an object with auto id.
+        //
+        {
+          using namespace test14;
+
+          // None of the database operations should yet include the
+          // added members.
+          //
+          unsigned long id;
+          {
+            object o;
+            o.str = "abc";
+            o.num = 123;
+
+            transaction t (db->begin ());
+            db->persist (o);
+            id = o.id;
+            t.commit ();
+          }
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (id));
+            assert (p->str == "" && p->num == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
+            transaction t (db->begin ());
+            result r (db->query<object> (query::num == 123));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "" && i->num == 123);
+
+            try
+            {
+              db->query<object> (query::str == "abc"); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+
+            t.commit ();
+          }
+
+          object o;
+          o.str = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (o.id));
+            assert (p->str == "" && p->num == 234);
+            t.commit ();
+          }
+
+          o.str += 'e';
+          o.num++;
+
+          {
+            transaction t (db->begin ());
+            db->update (o);
+            auto_ptr<object> p (db->load<object> (o.id));
+            assert (p->str == "" && p->num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase<object> (o.id);
+            t.commit ();
+          }
+        }
+
         // Test soft-added container member in a non-versioned object.
         //
         {
@@ -1055,6 +1130,7 @@ main (int argc, char* argv[])
             auto_ptr<object> p (db->load<object> (1));
             p->str = "abc";
             p->vec.push_back (123);
+            delete p->ptr;
             p->ptr = new object1 (1);
             db->update (*p);
             t.commit ();
@@ -1073,7 +1149,7 @@ main (int argc, char* argv[])
             typedef odb::result<object> result;
 
             transaction t (db->begin ());
-            result r (db->query<object> (query::str == "abc" &&
+            result r (db->query<object> (query::str.is_not_null () &&
                                          query::ptr->id == 1));
             result::iterator i (r.begin ());
             assert (i != r.end () &&
@@ -1676,6 +1752,74 @@ main (int argc, char* argv[])
           }
         }
 
+        // Test soft-added member in an object with auto id.
+        //
+        {
+          using namespace test14;
+
+          typedef odb::query<object> query;
+          typedef odb::result<object> result;
+
+          // All the database operations should now include the added
+          // members.
+          //
+          unsigned long id;
+          {
+            transaction t (db->begin ());
+            result r (db->query<object> (query::num == 123));
+            result::iterator i (r.begin ());
+            assert (i != r.end ());
+            i->str = "abc";
+            db->update (*i);
+            id = i->id;
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (id));
+            assert (p->str == "abc" && p->num == 123);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            result r (db->query<object> (query::str == "abc"));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "abc" && i->num == 123);
+            t.commit ();
+          }
+
+          object o;
+          o.str = "bcd";
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (o.id));
+            assert (p->str == "bcd" && p->num == 234);
+            t.commit ();
+          }
+
+          o.str += 'e';
+          o.num++;
+
+          {
+            transaction t (db->begin ());
+            db->update (o);
+            auto_ptr<object> p (db->load<object> (o.id));
+            assert (p->str == "bcde" && p->num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (o);
+            t.commit ();
+          }
+        }
+
         // Test soft-added container member in a non-versioned object.
         //
         {
@@ -1989,6 +2133,26 @@ main (int argc, char* argv[])
           // members.
           //
           {
+            transaction t (db->begin ());
+            result r (db->query<object> (query::str == "abc"));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->str == "abc" && i->num == 123);
+            t.commit ();
+          }
+        }
+
+        // Test soft-added member in an object with auto id.
+        //
+        {
+          using namespace test14;
+
+          // All the database operations should still include the added
+          // members.
+          //
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
             transaction t (db->begin ());
             result r (db->query<object> (query::str == "abc"));
             result::iterator i (r.begin ());

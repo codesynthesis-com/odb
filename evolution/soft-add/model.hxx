@@ -59,7 +59,11 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     };
 
 #if MODEL_VERSION == 3
-    #pragma db member(object::str) added(3)
+    // Make it a LOB for Oracle and long data for SQL Server.
+    //
+    #pragma db member(object::str) added(3) \
+      oracle:type("CLOB")                   \
+      mssql:type("VARCHAR(max)")
     #pragma db member(object::vec) added(3)
     #pragma db member(object::ptr) added(3)
 #else
@@ -414,7 +418,30 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     };
 
 #if MODEL_VERSION == 3
-    #pragma db member(object::str) added(3) default("abc")
+    #pragma db member(object::str) added(3) default("abc") \
+      mysql:type("VARCHAR(255)")
+#else
+    #pragma db member(object::str) transient
+#endif
+  }
+
+  // Test soft-added member in an object with auto id.
+  //
+  #pragma db namespace table("t14_")
+  namespace test14
+  {
+    #pragma db object
+    struct object
+    {
+      std::string str;
+      unsigned long num;
+
+      #pragma db id auto
+      unsigned long id;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(object::str) added(3)
 #else
     #pragma db member(object::str) transient
 #endif
