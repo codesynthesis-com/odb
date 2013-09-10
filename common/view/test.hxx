@@ -391,14 +391,22 @@ struct view6b
 
 // The same using tables.
 //
-#ifndef ODB_DATABASE_ORACLE
-#  pragma db view table("t_view_person" = "p")                 \
-  table("t_view_employer_employees" = "ee": "ee.value = p.id") \
-  table("t_view_employer" = "e": "\"ee\".\"object_id\" = e.name")
-#else
-#  pragma db view table("t_view_person" = "p")                                \
+#if defined(ODB_DATABASE_ORACLE)
+#pragma db view table("t_view_person" = "p")                                  \
   table("t_view_employer_employees" = "ee": "\"ee\".\"value\" = \"p\".\"id\"")\
   table("t_view_employer" = "e": "\"ee\".\"object_id\" = \"e\".\"name\"")
+#elif defined(ODB_DATABASE_MSSQL)
+#pragma db view table("t_view_person" = "p")                   \
+  table("t_view_employer_employees" = "ee": "ee.value = p.id") \
+  table("t_view_employer" = "e": "[ee].[object_id] = e.name")
+#elif defined(ODB_DATABASE_MYSQL)
+#pragma db view table("t_view_person" = "p")                   \
+  table("t_view_employer_employees" = "ee": "ee.value = p.id") \
+  table("t_view_employer" = "e": "`ee`.`object_id` = e.name")
+#else
+#pragma db view table("t_view_person" = "p")                   \
+  table("t_view_employer_employees" = "ee": "ee.value = p.id") \
+  table("t_view_employer" = "e": "\"ee\".\"object_id\" = e.name")
 #endif
 struct view6c
 {
