@@ -49,10 +49,12 @@ namespace odb
     object_result_impl<T>::
     object_result_impl (const query_base&,
                         details::shared_ptr<select_statement> statement,
-                        statements_type& statements)
+                        statements_type& statements,
+                        const schema_version_migration* svm)
         : base_type (statements.connection ()),
           statement_ (statement),
           statements_ (statements),
+          tc_ (svm),
           use_copy_ (false),
           image_copy_ (0)
     {
@@ -75,7 +77,7 @@ namespace odb
       typename object_traits::image_type& i (
         use_copy_ ? *image_copy_ : statements_.image ());
 
-      object_traits::init (obj, i, &this->db_);
+      tc_.init (obj, i, &this->db_);
 
       // If we are using a copy, make sure the callback information for
       // long data also comes from the copy.
@@ -98,8 +100,8 @@ namespace odb
         idb.version++;
       }
 
-      object_traits::load_ (statements_, obj);
-      statements_.load_delayed ();
+      tc_.load_ (statements_, obj, false);
+      statements_.load_delayed (tc_.version ());
       l.unlock ();
       object_traits::callback (this->db_, obj, callback_event::post_load);
     }
@@ -134,7 +136,7 @@ namespace odb
       if (im.version != statements_.select_image_version ())
       {
         binding& b (statements_.select_image_binding ());
-        object_traits::bind (b.bind, im, statement_select);
+        tc_.bind (b.bind, im, statement_select);
         statements_.select_image_version (im.version);
         b.version++;
       }

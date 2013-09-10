@@ -17,6 +17,7 @@ query-dynamic.cxx            \
 query-const-expr.cxx         \
 simple-object-statements.cxx \
 statement.cxx                \
+statement-processing.cxx     \
 statements-base.cxx          \
 tracer.cxx                   \
 traits.cxx                   \

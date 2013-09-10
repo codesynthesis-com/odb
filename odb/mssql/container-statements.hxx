@@ -10,6 +10,7 @@
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>
+#include <odb/schema-version.hxx>
 #include <odb/traits.hxx>
 
 #include <odb/mssql/version.hxx>
@@ -57,6 +58,14 @@ namespace odb
       {
         return functions_;
       }
+
+      // Schema version.
+      //
+      const schema_version_migration&
+      version_migration () const {return *svm_;}
+
+      void
+      version_migration (const schema_version_migration& svm) {svm_ = &svm;}
 
       // Id image binding (external).
       //
@@ -109,7 +118,13 @@ namespace odb
         if (insert_ == 0)
           insert_.reset (
             new (details::shared) insert_statement_type (
-              conn_, insert_text_, insert_image_binding_, false, false, false));
+              conn_,
+              insert_text_,
+              versioned_,   // Process if versioned.
+              insert_image_binding_,
+              false,
+              false,
+              false));
 
         return *insert_;
       }
@@ -120,7 +135,13 @@ namespace odb
         if (select_ == 0)
           select_.reset (
             new (details::shared) select_statement_type (
-              conn_, select_text_, id_binding_, select_image_binding_, false));
+              conn_,
+              select_text_,
+              versioned_,   // Process if versioned.
+              false,        // Don't optimize.
+              id_binding_,
+              select_image_binding_,
+              false));
 
         return *select_;
       }
@@ -156,6 +177,9 @@ namespace odb
       const char* insert_text_;
       const char* select_text_;
       const char* delete_text_;
+
+      bool versioned_;
+      const schema_version_migration* svm_;
 
       details::shared_ptr<insert_statement_type> insert_;
       details::shared_ptr<select_statement_type> select_;
@@ -259,7 +283,12 @@ namespace odb
         if (update_ == 0)
           update_.reset (
             new (details::shared) update_statement_type (
-              this->conn_, update_text_, update_image_binding_, false, false));
+              this->conn_,
+              update_text_,
+              this->versioned_, // Process if versioned.
+              update_image_binding_,
+              false,
+              false));
 
         return *update_;
       }

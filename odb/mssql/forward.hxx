@@ -43,7 +43,8 @@ namespace odb
     {
       statement_select,
       statement_insert,
-      statement_update
+      statement_update,
+      statement_delete
     };
 
     class binding;

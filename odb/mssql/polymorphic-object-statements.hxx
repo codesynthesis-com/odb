@@ -101,6 +101,8 @@ namespace odb
             new (details::shared) select_statement_type (
               this->conn_,
               object_traits::find_discriminator_statement,
+              false, // Doesn't need to be processed.
+              false, // Don't optimize.
               discriminator_id_image_binding_,
               discriminator_image_binding_,
               false));
@@ -113,6 +115,18 @@ namespace odb
 
       virtual
       ~polymorphic_root_object_statements ();
+
+      // Static "override" (statements type).
+      //
+      void
+      load_delayed (const schema_version_migration* svm)
+      {
+        assert (this->locked ());
+
+        if (!this->delayed_.empty ())
+          this->template load_delayed_<polymorphic_root_object_statements> (
+            svm);
+      }
 
     public:
       static const std::size_t id_column_count =
@@ -185,7 +199,10 @@ namespace odb
       // Delayed loading.
       //
       static void
-      delayed_loader (odb::database&, const id_type&, root_type&);
+      delayed_loader (odb::database&,
+                      const id_type&,
+                      root_type&,
+                      const schema_version_migration*);
 
     public:
       // Root and immediate base statements.
@@ -289,6 +306,7 @@ namespace odb
             new (details::shared) insert_statement_type (
               conn_,
               object_traits::persist_statement,
+              object_traits::versioned, // Process if versioned.
               insert_image_binding_,
               false,
               false,
@@ -308,6 +326,8 @@ namespace odb
             new (details::shared) select_statement_type (
               conn_,
               object_traits::find_statements[i],
+              object_traits::versioned, // Process if versioned.
+              false,                    // Don't optimize.
               root_statements_.id_image_binding (),
               select_image_bindings_[i],
               false));
@@ -323,6 +343,7 @@ namespace odb
             new (details::shared) update_statement_type (
               conn_,
               object_traits::update_statement,
+              object_traits::versioned, // Process if versioned.
               update_image_binding_,
               false,
               false));

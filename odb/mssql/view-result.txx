@@ -47,10 +47,12 @@ namespace odb
     view_result_impl<T>::
     view_result_impl (const query_base&,
                       details::shared_ptr<select_statement> statement,
-                      statements_type& statements)
+                      statements_type& statements,
+                      const schema_version_migration* svm)
         : base_type (statements.connection ()),
           statement_ (statement),
           statements_ (statements),
+          tc_ (svm),
           use_copy_ (false),
           image_copy_ (0)
     {
@@ -65,9 +67,9 @@ namespace odb
 
       view_traits::callback (this->db_, view, callback_event::pre_load);
 
-      view_traits::init (view,
-                         use_copy_ ? *image_copy_ : statements_.image (),
-                         &this->db_);
+      tc_.init (view,
+                use_copy_ ? *image_copy_ : statements_.image (),
+                &this->db_);
 
       // If we are using a copy, make sure the callback information for
       // long data also comes from the copy.
@@ -100,7 +102,7 @@ namespace odb
       if (im.version != statements_.image_version ())
       {
         binding& b (statements_.image_binding ());
-        view_traits::bind (b.bind, im);
+        tc_.bind (b.bind, im);
         statements_.image_version (im.version);
         b.version++;
       }

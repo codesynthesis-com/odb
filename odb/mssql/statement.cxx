@@ -95,19 +95,36 @@ namespace odb
     //
 
     statement::
-    statement (connection_type& conn, const string& text)
-        : conn_ (conn), text_copy_ (text), text_ (text_copy_.c_str ())
+    statement (connection_type& conn,
+               const string& text,
+               statement_kind sk,
+               const binding* process,
+               bool optimize)
+        : conn_ (conn)
     {
-      init (text_copy_.size ());
+      if (process == 0)
+      {
+        text_copy_ = text;
+        text_ = text_copy_.c_str ();
+      }
+      else
+        text_ = text.c_str (); // Temporary, see init().
+
+      init (text.size (), sk, process, optimize);
     }
 
     statement::
-    statement (connection_type& conn, const char* text, bool copy)
+    statement (connection_type& conn,
+               const char* text,
+               statement_kind sk,
+               const binding* process,
+               bool optimize,
+               bool copy)
         : conn_ (conn)
     {
       size_t n;
 
-      if (copy)
+      if (process == 0 && copy)
       {
         text_copy_ = text;
         text_ = text_copy_.c_str ();
@@ -116,15 +133,53 @@ namespace odb
       else
       {
         text_ = text;
-        n = strlen (text_);
+        n = strlen (text_); // Potentially temporary, see init().
       }
 
-      init (n);
+      init (n, sk, process, optimize);
     }
 
     void statement::
-    init (size_t text_size)
+    init (size_t text_size,
+          statement_kind sk,
+          const binding* proc,
+          bool optimize)
     {
+      if (proc != 0)
+      {
+        switch (sk)
+        {
+        case statement_select:
+          process_select (text_,
+                          proc->bind, proc->count,
+                          optimize,
+                          text_copy_);
+          break;
+        case statement_insert:
+          process_insert (text_,
+                          &proc->bind->buffer, proc->count, sizeof (bind),
+                          '?',
+                          text_copy_);
+          break;
+        case statement_update:
+          process_update (text_,
+                          &proc->bind->buffer, proc->count, sizeof (bind),
+                          '?',
+                          text_copy_);
+          break;
+        case statement_delete:
+          assert (false);
+        }
+
+        text_ = text_copy_.c_str ();
+        text_size = text_copy_.size ();
+      }
+
+      // Empty statement.
+      //
+      if (*text_ == '\0')
+        return;
+
       SQLRETURN r;
 
       // Allocate the handle.
@@ -188,10 +243,14 @@ namespace odb
     {
       SQLRETURN r;
 
-      n++; // Parameters are counted from 1.
-
-      for (size_t i (1); i < n; ++i, ++b)
+      SQLUSMALLINT i (0);
+      for (bind* end (b + n); b != end; ++b)
       {
+        if (b->buffer == 0) // Skip NULL entries.
+          continue;
+
+        i++; // Column index is 1-based.
+
         SQLULEN col_size (0);
         SQLSMALLINT digits (0);
         SQLPOINTER buf;
@@ -342,7 +401,7 @@ namespace odb
 
         r = SQLBindParameter (
           stmt_,
-          (SQLUSMALLINT) i,
+          i,
           SQL_PARAM_INPUT,
           c_type_lookup[b->type],
           sql_type_lookup[b->type],
@@ -357,14 +416,18 @@ namespace odb
       }
     }
 
-    size_t statement::
-    bind_result (bind* b, size_t n)
+    SQLUSMALLINT statement::
+    bind_result (bind* b, size_t n, SQLUSMALLINT& long_count)
     {
+      long_count = 0;
       SQLRETURN r;
 
-      size_t i (0);
+      SQLUSMALLINT i (0);
       for (bind* end (b + n); b != end; ++b)
       {
+        if (b->buffer == 0) // Skip NULL entries.
+          continue;
+
         SQLLEN cap (0);
 
         switch (b->type)
@@ -428,6 +491,7 @@ namespace odb
           {
             // Long data is not bound.
             //
+            long_count++;
             continue;
           }
         case bind::date:
@@ -468,7 +532,7 @@ namespace odb
         }
 
         r = SQLBindCol (stmt_,
-                        (SQLUSMALLINT) (i + 1), // Results are counted from 1.
+                        ++i, // Column index is 1-based.
                         c_type_lookup[b->type],
                         (SQLPOINTER) b->buffer,
                         cap,
@@ -476,8 +540,6 @@ namespace odb
 
         if (!SQL_SUCCEEDED (r))
           translate_error (r, conn_, stmt_);
-
-        ++i;
       }
 
       return i;
@@ -557,7 +619,7 @@ namespace odb
     }
 
     void statement::
-    stream_result (bind* b, size_t i, size_t n, void* obase, void* nbase)
+    stream_result (SQLUSMALLINT i, bind* b, size_t n, void* obase, void* nbase)
     {
       details::buffer& tmp_buf (conn_.long_data_buffer ());
 
@@ -568,8 +630,10 @@ namespace odb
 
       for (bind* end (b + n); b != end; ++b)
       {
-        bool char_data;
+        if (b->buffer == 0) // Skip NULL entries.
+          continue;
 
+        bool char_data;
         switch (b->type)
         {
         case bind::long_string:
@@ -612,7 +676,7 @@ namespace odb
         //
         SQLLEN si;
         r = SQLGetData (stmt_,
-                        (SQLUSMALLINT) (i + 1),
+                        ++i,
                         c_type_lookup[b->type],
                         tmp_buf.data (), // Dummy value.
                         0,
@@ -655,7 +719,7 @@ namespace odb
           // contain a valid value.
           //
           r = SQLGetData (stmt_,
-                          (SQLUSMALLINT) (i + 1),
+                          i,
                           c_type_lookup[b->type],
                           (SQLPOINTER) buf,
                           (SQLLEN) size,
@@ -686,8 +750,6 @@ namespace odb
           if (size_left != 0)
             size_left -= size;
         }
-
-        ++i;
       }
     }
 
@@ -701,42 +763,74 @@ namespace odb
 
     select_statement::
     select_statement (connection_type& conn,
-                      const string& t,
+                      const string& text,
+                      bool process,
+                      bool optimize,
                       binding& param,
                       binding& result)
-        : statement (conn, t), result_ (result)
+        : statement (conn,
+                     text, statement_select,
+                     (process ? &result : 0), optimize),
+          result_ (result)
     {
-      bind_param (param.bind, param.count);
-      first_long_ = bind_result (result.bind, result.count);
+      if (!empty ())
+      {
+        bind_param (param.bind, param.count);
+        result_count_ = bind_result (result.bind, result.count, long_count_);
+      }
     }
 
     select_statement::
     select_statement (connection_type& conn,
-                      const char* t,
+                      const char* text,
+                      bool process,
+                      bool optimize,
                       binding& param,
                       binding& result,
-                      bool ct)
-        : statement (conn, t, ct), result_ (result)
+                      bool copy_text)
+        : statement (conn,
+                     text, statement_select,
+                     (process ? &result : 0), optimize,
+                     copy_text),
+          result_ (result)
     {
-      bind_param (param.bind, param.count);
-      first_long_ = bind_result (result.bind, result.count);
-    }
-
-    select_statement::
-    select_statement (connection_type& conn, const string& t, binding& result)
-        : statement (conn, t), result_ (result)
-    {
-      first_long_ = bind_result (result.bind, result.count);
+      if (!empty ())
+      {
+        bind_param (param.bind, param.count);
+        result_count_ = bind_result (result.bind, result.count, long_count_);
+      }
     }
 
     select_statement::
     select_statement (connection_type& conn,
-                      const char* t,
-                      binding& result,
-                      bool ct)
-        : statement (conn, t, ct), result_ (result)
+                      const string& text,
+                      bool process,
+                      bool optimize,
+                      binding& result)
+        : statement (conn,
+                     text, statement_select,
+                     (process ? &result : 0), optimize),
+          result_ (result)
     {
-      first_long_ = bind_result (result.bind, result.count);
+      if (!empty ())
+        result_count_ = bind_result (result.bind, result.count, long_count_);
+    }
+
+    select_statement::
+    select_statement (connection_type& conn,
+                      const char* text,
+                      bool process,
+                      bool optimize,
+                      binding& result,
+                      bool copy_text)
+        : statement (conn,
+                     text, statement_select,
+                     (process ? &result : 0), optimize,
+                     copy_text),
+          result_ (result)
+    {
+      if (!empty ())
+        result_count_ = bind_result (result.bind, result.count, long_count_);
     }
 
     void select_statement::
@@ -746,6 +840,21 @@ namespace odb
 
       if (!SQL_SUCCEEDED (r))
         translate_error (r, conn_, stmt_);
+
+#ifndef NDEBUG
+      SQLSMALLINT cols;
+      r = SQLNumResultCols (stmt_, &cols);
+
+      if (!SQL_SUCCEEDED (r))
+        translate_error (r, conn_, stmt_);
+
+      // Make sure that the number of columns in the result returned by
+      // the database matches the number that we expect. A common cause
+      // of this assertion is a native view with a number of data members
+      // not matching the number of columns in the SELECT-list.
+      //
+      assert (static_cast<SQLUSMALLINT> (cols) == result_count_ + long_count_);
+#endif
     }
 
     select_statement::result select_statement::
@@ -793,11 +902,14 @@ namespace odb
 
     insert_statement::
     insert_statement (connection_type& conn,
-                      const string& t,
+                      const string& text,
+                      bool process,
                       binding& param,
                       bool returning_id,
                       bool returning_version)
-        : statement (conn, t),
+        : statement (conn,
+                     text, statement_insert,
+                     (process ? &param : 0), false),
           returning_id_ (returning_id),
           returning_version_ (returning_version)
     {
@@ -809,12 +921,16 @@ namespace odb
 
     insert_statement::
     insert_statement (connection_type& conn,
-                      const char* t,
+                      const char* text,
+                      bool process,
                       binding& param,
                       bool returning_id,
                       bool returning_version,
-                      bool ct)
-        : statement (conn, t, ct),
+                      bool copy_text)
+        : statement (conn,
+                     text, statement_insert,
+                     (process ? &param : 0), false,
+                     copy_text),
           returning_id_ (returning_id),
           returning_version_ (returning_version)
     {
@@ -980,30 +1096,44 @@ namespace odb
 
     update_statement::
     update_statement (connection_type& conn,
-                      const string& t,
+                      const string& text,
+                      bool process,
                       binding& param,
                       bool returning_version)
-        : statement (conn, t), returning_version_ (returning_version)
+        : statement (conn,
+                     text, statement_update,
+                     (process ? &param : 0), false),
+          returning_version_ (returning_version)
     {
-      bind_param (param.bind, param.count);
+      if (!empty ())
+      {
+        bind_param (param.bind, param.count);
 
-      if (returning_version_)
-        init_result ();
+        if (returning_version_)
+          init_result ();
+      }
     }
 
     update_statement::
     update_statement (connection_type& conn,
-                      const char* t,
+                      const char* text,
+                      bool process,
                       binding& param,
                       bool returning_version,
-                      bool ct)
-        : statement (conn, t, ct),
+                      bool copy_text)
+        : statement (conn,
+                     text, statement_update,
+                     (process ? &param : 0), false,
+                     copy_text),
           returning_version_ (returning_version)
     {
-      bind_param (param.bind, param.count);
+      if (!empty ())
+      {
+        bind_param (param.bind, param.count);
 
-      if (returning_version_)
-        init_result ();
+        if (returning_version_)
+          init_result ();
+      }
     }
 
     void update_statement::
@@ -1080,18 +1210,25 @@ namespace odb
     }
 
     delete_statement::
-    delete_statement (connection_type& conn, const string& t, binding& param)
-        : statement (conn, t)
+    delete_statement (connection_type& conn,
+                      const string& text,
+                      binding& param)
+        : statement (conn,
+                     text, statement_delete,
+                     0, false)
     {
       bind_param (param.bind, param.count);
     }
 
     delete_statement::
     delete_statement (connection_type& conn,
-                      const char* t,
+                      const char* text,
                       binding& param,
-                      bool ct)
-        : statement (conn, t, ct)
+                      bool copy_text)
+        : statement (conn,
+                     text, statement_delete,
+                     0, false,
+                     copy_text)
     {
       bind_param (param.bind, param.count);
     }

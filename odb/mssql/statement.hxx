@@ -50,20 +50,58 @@ namespace odb
         return conn_;
       }
 
+      // A statement can be empty. This is used to handle situations
+      // where a SELECT or UPDATE statement ends up not having any
+      // columns after processing. An empty statement cannot be
+      // executed.
+      //
+      bool
+      empty () const
+      {
+        return stmt_ == 0;
+      }
+
     protected:
-      statement (connection_type&, const std::string& text);
-      statement (connection_type&, const char* text, bool copy_text);
+      // We keep two versions to take advantage of std::string COW.
+      //
+      statement (connection_type&,
+                 const std::string& text,
+                 statement_kind,
+                 const binding* process,
+                 bool optimize);
+
+      statement (connection_type&,
+                 const char* text,
+                 statement_kind,
+                 const binding* process,
+                 bool optimize,
+                 bool copy_text);
 
     private:
       void
-      init (std::size_t text_size);
+      init (std::size_t text_size,
+            statement_kind,
+            const binding* process,
+            bool optimize);
+
+      // Custom implementation for SQL Server that also moves long data
+      // columns to the end.
+      //
+      static void
+      process_select (const char* statement,
+                      const bind*,
+                      std::size_t bind_size,
+                      bool optimize,
+                      std::string& result);
 
     protected:
       void
       bind_param (bind*, std::size_t count);
 
-      std::size_t
-      bind_result (bind*, std::size_t count);
+      // Return the actual number of columns bound.
+      //
+      SQLUSMALLINT
+      bind_result (bind*, std::size_t count, SQLUSMALLINT& long_count);
 
       SQLRETURN
       execute ();
@@ -75,8 +113,8 @@ namespace odb
       // instead of the bound image.
       //
       void
-      stream_result (bind*,
-                     std::size_t start,
+      stream_result (SQLUSMALLINT start_col,
+                     bind*,
                      std::size_t count,
                      void* old_base = 0,
                      void* new_base = 0);
@@ -100,21 +138,29 @@ namespace odb
       //
       select_statement (connection_type& conn,
                         const std::string& text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& param,
                         binding& result);
 
       select_statement (connection_type& conn,
                         const char* text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& param,
                         binding& result,
                         bool copy_text = true);
 
       select_statement (connection_type& conn,
                         const std::string& text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& result);
 
       select_statement (connection_type& conn,
                         const char* text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& result,
                         bool copy_text = true);
 
@@ -135,15 +181,13 @@ namespace odb
       bool
       stream_result (void* old_base = 0, void* new_base = 0)
       {
-        bool ld (first_long_ != result_.count);
-
-        if (ld)
-          statement::stream_result (result_.bind,
-                                    first_long_,
+        if (long_count_ != 0)
+          statement::stream_result (result_count_,
+                                    result_.bind,
                                     result_.count,
                                     old_base,
                                     new_base);
-        return ld;
+        return long_count_ != 0;
       }
 
       void
@@ -155,7 +199,8 @@ namespace odb
 
     private:
       binding& result_;
-      std::size_t first_long_; // First long data column.
+      SQLUSMALLINT result_count_; // Actual number of columns bound.
+      SQLUSMALLINT long_count_;   // Number of long data columns.
     };
 
     struct LIBODB_MSSQL_EXPORT auto_result
@@ -199,12 +244,14 @@ namespace odb
 
       insert_statement (connection_type& conn,
                         const std::string& text,
+                        bool process_text,
                         binding& param,
                         bool returning_id,
                         bool returning_version);
 
       insert_statement (connection_type& conn,
                         const char* text,
+                        bool process_text,
                         binding& param,
                         bool returning_id,
                         bool returning_version,
@@ -253,11 +300,13 @@ namespace odb
 
       update_statement (connection_type& conn,
                         const std::string& text,
+                        bool process,
                         binding& param,
                         bool returning_version);
 
       update_statement (connection_type& conn,
                         const char* text,
+                        bool process,
                         binding& param,
                         bool returning_version,
                         bool copy_text = true);

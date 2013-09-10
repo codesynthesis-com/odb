@@ -9,6 +9,7 @@
 
 #include <cstddef> // std::size_t
 
+#include <odb/schema-version.hxx>
 #include <odb/no-id-object-result.hxx>
 
 #include <odb/details/shared-ptr.hxx>
@@ -16,6 +17,7 @@
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx> // query_base
 #include <odb/mssql/statement.hxx>
+#include <odb/mssql/traits-calls.hxx>
 
 namespace odb
 {
@@ -40,7 +42,8 @@ namespace odb
 
       no_id_object_result_impl (const query_base&,
                                 details::shared_ptr<select_statement>,
-                                statements_type&);
+                                statements_type&,
+                                const schema_version_migration*);
 
       virtual void
       load (object_type&);
@@ -68,6 +71,7 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       statements_type& statements_;
+      object_traits_calls<object_type> tc_;
       bool can_load_;
       bool use_copy_;
       typename object_traits::image_type* image_copy_;
