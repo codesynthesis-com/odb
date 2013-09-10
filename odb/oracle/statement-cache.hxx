@@ -29,7 +29,9 @@ namespace odb
     class LIBODB_ORACLE_EXPORT statement_cache
     {
     public:
-      statement_cache (connection& conn): conn_ (conn) {}
+      statement_cache (connection& conn)
+        : conn_ (conn),
+          version_seq_ (conn.database ().schema_version_sequence ()) {}
 
       template <typename T>
       typename object_traits_impl<T, id_oracle>::statements_type&
@@ -45,6 +47,7 @@ namespace odb
                        details::type_info_comparator> map;
 
       connection& conn_;
+      unsigned int version_seq_;
       map map_;
     };
   }

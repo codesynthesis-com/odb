@@ -86,6 +86,7 @@ namespace odb
             new (details::shared) insert_statement_type (
               conn_,
               object_traits::persist_statement,
+              object_traits::versioned, // Process if versioned.
               insert_image_binding_,
               false));
 

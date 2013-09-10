@@ -52,10 +52,12 @@ namespace odb
     polymorphic_object_result_impl<T>::
     polymorphic_object_result_impl (const query_base&,
                                     details::shared_ptr<select_statement> st,
-                                    statements_type& sts)
+                                    statements_type& sts,
+                                    const schema_version_migration* svm)
         : base_type (sts.connection ()),
           statement_ (st),
           statements_ (sts),
+          tc_ (svm),
           use_copy_ (false),
           image_copy_ (0)
     {
@@ -133,7 +135,7 @@ namespace odb
       callback_event ce (callback_event::pre_load);
       pi.dispatch (info_type::call_callback, this->db_, pobj, &ce);
 
-      object_traits::init (*pobj, i, &this->db_);
+      tc_.init (*pobj, i, &this->db_);
 
       // If we are using a copy, make sure the callback information for
       // LOB data also comes from the copy.
@@ -156,7 +158,7 @@ namespace odb
         idb.version++;
       }
 
-      object_traits::load_ (statements_, *pobj);
+      tc_.load_ (statements_, *pobj, false);
 
       // Load the dynamic part of the object unless static and dynamic
       // types are the same.
@@ -167,7 +169,7 @@ namespace odb
         pi.dispatch (info_type::call_load, this->db_, pobj, &d);
       };
 
-      rsts.load_delayed ();
+      rsts.load_delayed (tc_.version ());
       l.unlock ();
 
       ce = callback_event::post_load;
@@ -210,14 +212,16 @@ namespace odb
       typedef object_traits_impl<T, id_oracle> traits;
 
       static void
-      rebind (typename traits::statements_type& sts)
+      rebind (typename traits::statements_type& sts,
+              const schema_version_migration* svm)
       {
         typename traits::image_type& im (sts.image ());
 
         if (traits::check_version (sts.select_image_versions (), im))
         {
           binding& b (sts.select_image_binding (traits::depth));
-          traits::bind (b.bind, 0, 0, im, statement_select);
+          object_traits_calls<T> tc (svm);
+          tc.bind (b.bind, 0, 0, im, statement_select);
           traits::update_version (
             sts.select_image_versions (), im, sts.select_image_bindings ());
         }
@@ -242,14 +246,16 @@ namespace odb
       typedef object_traits_impl<R, id_oracle> traits;
 
       static void
-      rebind (typename traits::statements_type& sts)
+      rebind (typename traits::statements_type& sts,
+              const schema_version_migration* svm)
       {
         typename traits::image_type& im (sts.image ());
 
         if (im.version != sts.select_image_version ())
         {
           binding& b (sts.select_image_binding ());
-          traits::bind (b.bind, im, statement_select);
+          object_traits_calls<R> tc (svm);
+          tc.bind (b.bind, im, statement_select);
           sts.select_image_version (im.version);
           b.version++;
         }
@@ -278,7 +284,8 @@ namespace odb
       }
 
       use_copy_ = false;
-      polymorphic_image_rebind<object_type, root_type>::rebind (statements_);
+      polymorphic_image_rebind<object_type, root_type>::rebind (
+        statements_, tc_.version ());
 
       if (statement_->fetch () == select_statement::no_data)
       {

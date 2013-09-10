@@ -18,7 +18,8 @@ namespace odb
           id_binding_ (id),
           functions_ (this),
           insert_image_binding_ (0, 0), // Initialized by impl.
-          select_image_binding_ (0, 0)  // Initialized by impl.
+          select_image_binding_ (0, 0), // Initialized by impl.
+          svm_ (0)
     {
       functions_.insert_ = &traits::insert;
       functions_.select_ = &traits::select;
@@ -69,6 +70,8 @@ namespace odb
       this->insert_text_ = traits::insert_statement;
       this->select_text_ = traits::select_statement;
       this->delete_text_ = traits::delete_statement;
+
+      this->versioned_ = traits::versioned;
     }
 
     // smart_container_statements_impl

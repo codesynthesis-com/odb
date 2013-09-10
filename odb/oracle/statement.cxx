@@ -137,6 +137,9 @@ namespace odb
     statement::
     ~statement ()
     {
+      if (empty ())
+        return;
+
       {
         odb::tracer* t;
         if ((t = conn_.transaction_tracer ()) ||
@@ -192,22 +195,73 @@ namespace odb
     }
 
     statement::
-    statement (connection_type& conn, const string& text)
+    statement (connection_type& conn,
+               const string& text,
+               statement_kind sk,
+               const binding* process,
+               bool optimize)
         : conn_ (conn), udata_ (0), usize_ (0)
     {
-      init (text.c_str (), text.size ());
+      init (text.c_str (), text.size (), sk, process, optimize);
     }
 
     statement::
-    statement (connection_type& conn, const char* text)
+    statement (connection_type& conn,
+               const char* text,
+               statement_kind sk,
+               const binding* process,
+               bool optimize)
         : conn_ (conn), udata_ (0), usize_ (0)
     {
-      init (text, strlen (text));
+      init (text, strlen (text), sk, process, optimize);
     }
 
     void statement::
-    init (const char* text, size_t text_size)
+    init (const char* text,
+          size_t text_size,
+          statement_kind sk,
+          const binding* proc,
+          bool optimize)
     {
+      string tmp;
+      if (proc != 0)
+      {
+        switch (sk)
+        {
+        case statement_select:
+          process_select (text,
+                          &proc->bind->buffer, proc->count, sizeof (bind),
+                          '"', '"',
+                          optimize,
+                          tmp,
+                          false); // No AS in JOINs.
+          break;
+        case statement_insert:
+          process_insert (text,
+                          &proc->bind->buffer, proc->count, sizeof (bind),
+                          ':',
+                          tmp);
+          break;
+        case statement_update:
+          process_update (text,
+                          &proc->bind->buffer, proc->count, sizeof (bind),
+                          ':',
+                          tmp);
+          break;
+        case statement_delete:
+        case statement_generic:
+          assert (false);
+        }
+
+        text = tmp.c_str ();
+        text_size = tmp.size ();
+      }
+
+      // Empty statement.
+      //
+      if (*text == '\0')
+        return;
+
       OCIError* err (conn_.error_handle ());
       OCIStmt* handle (0);
 
@@ -254,7 +308,7 @@ namespace odb
       return reinterpret_cast<char*> (s);
     }
 
-    void statement::
+    ub4 statement::
     bind_param (bind* b, size_t n)
     {
       // Figure out how many unbind elements we will need and allocate them.
@@ -264,6 +318,9 @@ namespace odb
 
         for (size_t i (0); i < n; ++i)
         {
+          if (b[i].buffer == 0) // Skip NULL entries.
+            continue;
+
           switch (b[i].type)
           {
           case bind::timestamp:
@@ -301,13 +358,14 @@ namespace odb
       OCIError* err (conn_.error_handle ());
       OCIEnv* env (conn_.database ().environment ());
 
-      // The parameter position in OCIBindByPos is specified as a 1-based
-      // index.
-      //
-      n++;
-
-      for (ub4 i (1); i < n; ++i, ++b)
+      ub4 i (0);
+      for (bind* end (b + n); b != end; ++b)
       {
+        if (b->buffer == 0) // Skip NULL entries.
+          continue;
+
+        i++; // Column index is 1-based.
+
         void* value;
         sb4 capacity;
         ub2* size (0);
@@ -617,9 +675,11 @@ namespace odb
             translate_error (err, r);
         }
       }
+
+      return i;
     }
 
-    void statement::
+    ub4 statement::
     bind_result (bind* b, size_t c, size_t p)
     {
       ODB_POTENTIALLY_UNUSED (p);
@@ -628,8 +688,14 @@ namespace odb
       OCIError* err (conn_.error_handle ());
       OCIEnv* env (conn_.database ().environment ());
 
-      for (size_t i (1); i <= c; ++i, ++b)
+      ub4 i (0);
+      for (bind* end (b + c); b != end; ++b)
       {
+        if (b->buffer == 0) // Skip NULL entries.
+          continue;
+
+        i++; // Column index is 1-based.
+
         void* value;
         sb4 capacity;
         ub2* size (0);
@@ -816,6 +882,8 @@ namespace odb
             translate_error (err, r);
         }
       }
+
+      return i;
     }
 
     void statement::
@@ -826,8 +894,14 @@ namespace odb
       sword r;
       OCIEnv* env (conn_.database ().environment ());
 
-      for (size_t i (1); i <= c; ++i, ++b)
+      ub4 i (0);
+      for (bind* end (b + c); b != end; ++b)
       {
+        if (b->buffer == 0) // Skip NULL entries.
+          continue;
+
+        i++; // Column index is 1-based.
+
         void* value;
 
         switch (b->type)
@@ -971,8 +1045,11 @@ namespace odb
     {
       OCIError* err (conn_.error_handle ());
 
-      for (size_t i (0); i < c; ++i, ++b)
+      for (bind* end (b + c); b != end; ++b)
       {
+        if (b->buffer == 0) // Skip NULL entries.
+          continue;
+
         // Only stream if the bind specifies a LOB type.
         //
         if (b->type == bind::blob ||
@@ -1091,14 +1168,20 @@ namespace odb
 
     generic_statement::
     generic_statement (connection_type& conn, const string& text)
-        : statement (conn, text), bound_ (false)
+        : statement (conn,
+                     text, statement_generic,
+                     0, false),
+          bound_ (false)
     {
       init ();
     }
 
     generic_statement::
     generic_statement (connection_type& conn, const char* text)
-        : statement (conn, text), bound_ (false)
+        : statement (conn,
+                     text, statement_generic,
+                     0, false),
+          bound_ (false)
     {
       init ();
     }
@@ -1270,65 +1353,93 @@ namespace odb
     select_statement::
     select_statement (connection_type& conn,
                       const string& text,
+                      bool process,
+                      bool optimize,
                       binding& param,
                       binding& result,
                       size_t lob_prefetch_size)
-        : statement (conn, text),
+        : statement (conn,
+                     text, statement_select,
+                     (process ? &result : 0), optimize),
           result_ (result),
-          result_version_ (0),
           lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
-      bind_param (param.bind, param.count);
-      bind_result (result.bind, result.count, lob_prefetch_size);
-      result_version_ = result_.version;
+      if (!empty ())
+      {
+        bind_param (param.bind, param.count);
+        result_count_ = bind_result (
+          result.bind, result.count, lob_prefetch_size);
+        result_version_ = result_.version;
+      }
     }
 
     select_statement::
     select_statement (connection_type& conn,
                       const char* text,
+                      bool process,
+                      bool optimize,
                       binding& param,
                       binding& result,
                       size_t lob_prefetch_size)
-        : statement (conn, text),
+        : statement (conn,
+                     text, statement_select,
+                     (process ? &result : 0), optimize),
           result_ (result),
-          result_version_ (0),
           lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
-      bind_param (param.bind, param.count);
-      bind_result (result.bind, result.count, lob_prefetch_size);
-      result_version_ = result_.version;
+      if (!empty ())
+      {
+        bind_param (param.bind, param.count);
+        result_count_ = bind_result (
+          result.bind, result.count, lob_prefetch_size);
+        result_version_ = result_.version;
+      }
     }
 
     select_statement::
     select_statement (connection_type& conn,
                       const string& text,
+                      bool process,
+                      bool optimize,
                       binding& result,
                       size_t lob_prefetch_size)
-        : statement (conn, text),
+        : statement (conn,
+                     text, statement_select,
+                     (process ? &result : 0), optimize),
           result_ (result),
-          result_version_ (0),
           lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
-      bind_result (result.bind, result.count, lob_prefetch_size);
-      result_version_ = result_.version;
+      if (!empty ())
+      {
+        result_count_ = bind_result (
+          result.bind, result.count, lob_prefetch_size);
+        result_version_ = result_.version;
+      }
     }
 
     select_statement::
     select_statement (connection_type& conn,
                       const char* text,
+                      bool process,
+                      bool optimize,
                       binding& result,
                       size_t lob_prefetch_size)
-        : statement (conn, text),
+        : statement (conn,
+                     text, statement_select,
+                     (process ? &result : 0), optimize),
           result_ (result),
-          result_version_ (0),
           lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
-      bind_result (result.bind, result.count, lob_prefetch_size);
-      result_version_ = result_.version;
+      if (!empty ())
+      {
+        result_count_ = bind_result (
+          result.bind, result.count, lob_prefetch_size);
+        result_version_ = result_.version;
+      }
     }
 
     void select_statement::
@@ -1374,7 +1485,7 @@ namespace odb
       // of this assertion is a native view with a number of data members
       // not matching the number of columns in the SELECT-list.
       //
-      assert (n == result_.count);
+      assert (n == result_count_);
 #endif
     }
 
@@ -1495,9 +1606,12 @@ namespace odb
     insert_statement::
     insert_statement (connection_type& conn,
                       const string& text,
+                      bool process,
                       binding& param,
                       bool returning)
-        : statement (conn, text)
+        : statement (conn,
+                     text, statement_insert,
+                     (process ? &param : 0), false)
     {
       init (param, returning);
     }
@@ -1505,9 +1619,12 @@ namespace odb
     insert_statement::
     insert_statement (connection_type& conn,
                       const char* text,
+                      bool process,
                       binding& param,
                       bool returning)
-        : statement (conn, text)
+        : statement (conn,
+                     text, statement_insert,
+                     (process ? &param : 0), false)
     {
       init (param, returning);
     }
@@ -1515,7 +1632,7 @@ namespace odb
     void insert_statement::
     init (binding& param, bool returning)
     {
-      bind_param (param.bind, param.count);
+      ub4 param_count (bind_param (param.bind, param.count));
 
       if (returning)
       {
@@ -1525,7 +1642,7 @@ namespace odb
         sword r (OCIBindByPos (stmt_,
                                &h,
                                err,
-                               param.count + 1,
+                               param_count + 1,
                                0,
 #if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
   || OCI_MAJOR_VERSION > 11
@@ -1636,19 +1753,27 @@ namespace odb
     update_statement::
     update_statement (connection_type& conn,
                       const string& text,
+                      bool process,
                       binding& param)
-        : statement (conn, text)
+        : statement (conn,
+                     text, statement_update,
+                     (process ? &param : 0), false)
     {
-      bind_param (param.bind, param.count);
+      if (!empty ())
+        bind_param (param.bind, param.count);
     }
 
     update_statement::
     update_statement (connection_type& conn,
                       const char* text,
+                      bool process,
                       binding& param)
-        : statement (conn, text)
+        : statement (conn,
+                     text, statement_update,
+                     (process ? &param : 0), false)
     {
-      bind_param (param.bind, param.count);
+      if (!empty ())
+        bind_param (param.bind, param.count);
     }
 
     unsigned long long update_statement::
@@ -1707,7 +1832,9 @@ namespace odb
     delete_statement (connection_type& conn,
                       const string& text,
                       binding& param)
-        : statement (conn, text)
+        : statement (conn,
+                     text, statement_delete,
+                     0, false)
     {
       bind_param (param.bind, param.count);
     }
@@ -1716,7 +1843,9 @@ namespace odb
     delete_statement (connection_type& conn,
                       const char* text,
                       binding& param)
-        : statement (conn, text)
+        : statement (conn,
+                     text, statement_delete,
+                     0, false)
     {
       bind_param (param.bind, param.count);
     }

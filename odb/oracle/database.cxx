@@ -309,7 +309,12 @@ namespace odb
 
       try
       {
-        select_statement st (c, text, param, result);
+        select_statement st (c,
+                             text,
+                             false, // Don't process.
+                             false, // Don't optimize.
+                             param,
+                             result);
         st.execute ();
         auto_result ar (st);
 

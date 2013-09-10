@@ -2,6 +2,8 @@
 // copyright : Copyright (c) 2005-2013 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <odb/oracle/database.hxx>
+
 namespace odb
 {
   namespace oracle
@@ -14,6 +16,16 @@ namespace odb
       typedef
       typename object_traits_impl<T, id_oracle>::statements_type
       statements_type;
+
+      // Clear the cache if the database version has changed. This
+      // makes sure we don't re-use statements that correspond to
+      // the old schema.
+      //
+      if (version_seq_ != conn_.database ().schema_version_sequence ())
+      {
+        map_.clear ();
+        version_seq_ = conn_.database ().schema_version_sequence ();
+      }
 
       map::iterator i (map_.find (&typeid (T)));
 
@@ -31,6 +43,9 @@ namespace odb
     view_statements<T>& statement_cache::
     find_view ()
     {
+      // We don't cache any statements for views so no need to clear
+      // the cache.
+
       map::iterator i (map_.find (&typeid (T)));
 
       if (i != map_.end ())

@@ -243,8 +243,10 @@ namespace odb
 
       // Delayed loading.
       //
-      typedef void (*loader_function) (
-        odb::database&, const id_type&, object_type&);
+      typedef void (*loader_function) (odb::database&,
+                                       const id_type&,
+                                       object_type&,
+                                       const schema_version_migration*);
 
       void
       delay_load (const id_type& id,
@@ -256,12 +258,12 @@ namespace odb
       }
 
       void
-      load_delayed ()
+      load_delayed (const schema_version_migration* svm)
       {
         assert (locked ());
 
         if (!delayed_.empty ())
-          load_delayed_ ();
+          load_delayed_<object_statements> (svm);
       }
 
       void
@@ -349,6 +351,7 @@ namespace odb
             new (details::shared) insert_statement_type (
               conn_,
               object_traits::persist_statement,
+              object_traits::versioned, // Process if versioned.
               insert_image_binding_,
               object_traits::auto_id));
 
@@ -363,6 +366,8 @@ namespace odb
             new (details::shared) select_statement_type (
               conn_,
               object_traits::find_statement,
+              object_traits::versioned, // Process if versioned.
+              false,                    // Don't optimize.
               id_image_binding_,
               select_image_binding_,
               4096));  // Hardcode a 4kB LOB prefetch size.
@@ -378,6 +383,7 @@ namespace odb
             new (details::shared) update_statement_type (
               conn_,
               object_traits::update_statement,
+              object_traits::versioned, // Process if versioned.
               update_image_binding_));
 
         return *update_;
@@ -452,14 +458,15 @@ namespace odb
       object_statements (const object_statements&);
       object_statements& operator= (const object_statements&);
 
-    private:
+    protected:
+      template <typename STS>
       void
-      load_delayed_ ();
+      load_delayed_ (const schema_version_migration*);
 
       void
       clear_delayed_ ();
 
-    private:
+    protected:
       template <typename T1>
       friend class polymorphic_derived_object_statements;
 

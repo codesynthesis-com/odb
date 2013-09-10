@@ -48,13 +48,39 @@ namespace odb
         return conn_;
       }
 
+      // A statement can be empty. This is used to handle situations
+      // where a SELECT or UPDATE statement ends up not having any
+      // columns after processing. An empty statement cannot be
+      // executed.
+      //
+      bool
+      empty () const
+      {
+        return stmt_ == 0;
+      }
+
     protected:
-      statement (connection_type&, const std::string& text);
-      statement (connection_type&, const char* text);
+      // We keep two versions to take advantage of std::string COW.
+      //
+      statement (connection_type&,
+                 const std::string& text,
+                 statement_kind,
+                 const binding* process,
+                 bool optimize);
+
+      statement (connection_type&,
+                 const char* text,
+                 statement_kind,
+                 const binding* process,
+                 bool optimize);
 
     private:
       void
-      init (const char* text, std::size_t text_size);
+      init (const char* text,
+            std::size_t text_size,
+            statement_kind,
+            const binding* process,
+            bool optimize);
 
     protected:
       struct unbind
@@ -66,16 +92,18 @@ namespace odb
 
       // Bind parameters for this statement. This function must only
       // be called once. Multiple calls to it will result in memory
-      // leaks due to lost OCIBind resources.
+      // leaks due to lost OCIBind resources. Return the actual number
+      // of columns bound.
       //
-      void
+      ub4
       bind_param (bind*, std::size_t count);
 
       // Bind results for this statement. This function must only be
       // called once. Multiple calls to it will result in memory leaks
-      // due to lost OCIDefine resources.
+      // due to lost OCIDefine resources. Return the actual number of
+      // columns bound.
       //
-      void
+      ub4
       bind_result (bind*,
                    std::size_t count,
                    std::size_t lob_prefetch_size = 0);
@@ -146,23 +174,31 @@ namespace odb
 
       select_statement (connection_type& conn,
                         const std::string& text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& param,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
 
       select_statement (connection_type& conn,
                         const char* text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& param,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
 
       select_statement (connection_type& conn,
                         const std::string& text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
 
       select_statement (connection_type& conn,
                         const char* text,
+                        bool process_text,
+                        bool optimize_text,
                         binding& result,
                         std::size_t lob_prefetch_size = 0);
 
@@ -197,6 +233,7 @@ namespace odb
     private:
       binding& result_;
       std::size_t result_version_;
+      ub4 result_count_; // Actual number of bound columns.
       const std::size_t lob_prefetch_size_;
       bool done_;
     };
@@ -222,11 +259,13 @@ namespace odb
 
       insert_statement (connection_type& conn,
                         const std::string& text,
+                        bool process_text,
                         binding& param,
                         bool returning);
 
       insert_statement (connection_type& conn,
                         const char* text,
+                        bool process_text,
                         binding& param,
                         bool returning);
 
@@ -282,10 +321,12 @@ namespace odb
 
       update_statement (connection_type& conn,
                         const std::string& text,
+                        bool process_text,
                         binding& param);
 
       update_statement (connection_type& conn,
                         const char* text,
+                        bool process_text,
                         binding& param);
 
       unsigned long long

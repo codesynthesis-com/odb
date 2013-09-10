@@ -46,10 +46,12 @@ namespace odb
     no_id_object_result_impl<T>::
     no_id_object_result_impl (const query_base&,
                               details::shared_ptr<select_statement> statement,
-                              statements_type& statements)
+                              statements_type& statements,
+                              const schema_version_migration* svm)
         : base_type (statements.connection ()),
           statement_ (statement),
           statements_ (statements),
+          tc_ (svm),
           use_copy_ (false),
           image_copy_ (0)
     {
@@ -61,9 +63,9 @@ namespace odb
     {
       object_traits::callback (this->db_, obj, callback_event::pre_load);
 
-      object_traits::init (obj,
-                           use_copy_ ? *image_copy_ : statements_.image (),
-                           &this->db_);
+      tc_.init (obj,
+                use_copy_ ? *image_copy_ : statements_.image (),
+                &this->db_);
 
       // If we are using a copy, make sure the callback information for
       // LOB data also comes from the copy.
@@ -95,7 +97,7 @@ namespace odb
       if (im.version != statements_.select_image_version ())
       {
         binding& b (statements_.select_image_binding ());
-        object_traits::bind (b.bind, im, statement_select);
+        tc_.bind (b.bind, im, statement_select);
         statements_.select_image_version (im.version);
         b.version++;
       }

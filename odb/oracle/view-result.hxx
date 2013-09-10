@@ -9,6 +9,7 @@
 
 #include <cstddef> // std::size_t
 
+#include <odb/schema-version.hxx>
 #include <odb/view-result.hxx>
 
 #include <odb/details/shared-ptr.hxx>
@@ -16,6 +17,7 @@
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx> // query_base, view_statements
 #include <odb/oracle/statement.hxx>
+#include <odb/oracle/traits-calls.hxx>
 
 namespace odb
 {
@@ -40,7 +42,8 @@ namespace odb
 
       view_result_impl (const query_base&,
                         details::shared_ptr<select_statement>,
-                        statements_type&);
+                        statements_type&,
+                        const schema_version_migration*);
 
       virtual void
       load (view_type&);
@@ -68,6 +71,7 @@ namespace odb
     private:
       details::shared_ptr<select_statement> statement_;
       statements_type& statements_;
+      view_traits_calls<view_type> tc_;
       bool use_copy_;
       typename view_traits::image_type* image_copy_;
     };
