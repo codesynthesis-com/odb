@@ -1,6 +1,6 @@
 <changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="sqlite" version="1">
   <model version="2">
-    <table name="object">
+    <table name="object" kind="object">
       <column name="id" type="INTEGER" null="false"/>
       <primary-key auto="true">
         <column name="id"/>

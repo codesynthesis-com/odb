@@ -5,7 +5,7 @@
   </changeset>
 
   <model version="1">
-    <table name="object" options="ENGINE=InnoDB">
+    <table name="object" options="ENGINE=InnoDB" kind="object">
       <column name="id" type="INT" null="false"/>
       <column name="num" type="INT" null="false"/>
       <column name="o1" type="INT" null="true"/>
@@ -36,7 +36,7 @@
         <column name="index"/>
       </index>
     </table>
-    <table name="object1" options="ENGINE=InnoDB">
+    <table name="object1" options="ENGINE=InnoDB" kind="object">
       <column name="id" type="INT" null="false"/>
       <column name="num" type="INT" null="false"/>
       <primary-key>

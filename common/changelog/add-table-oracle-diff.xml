@@ -1,6 +1,6 @@
 <changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="oracle" version="1">
   <changeset version="2">
-    <add-table name="object">
+    <add-table name="object" kind="object">
       <column name="id" type="NUMBER(10)" null="false"/>
       <column name="num" type="NUMBER(10)" null="false"/>
       <column name="o1" type="NUMBER(10)" null="true"/>
@@ -34,7 +34,7 @@
   </changeset>
 
   <model version="1">
-    <table name="object1">
+    <table name="object1" kind="object">
       <column name="id" type="NUMBER(10)" null="false"/>
       <column name="num" type="NUMBER(10)" null="false"/>
       <primary-key>

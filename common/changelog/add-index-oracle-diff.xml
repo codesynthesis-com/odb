@@ -10,7 +10,7 @@
   </changeset>
 
   <model version="1">
-    <table name="object">
+    <table name="object" kind="object">
       <column name="id" type="NUMBER(10)" null="false"/>
       <column name="x" type="NUMBER(10)" null="false"/>
       <primary-key auto="true" sequence="object_seq">

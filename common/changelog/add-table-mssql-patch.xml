@@ -1,13 +1,13 @@
 <changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="mssql" version="1">
   <model version="2">
-    <table name="object1">
+    <table name="object1" kind="object">
       <column name="id" type="INT" null="false"/>
       <column name="num" type="INT" null="false"/>
       <primary-key>
         <column name="id"/>
       </primary-key>
     </table>
-    <table name="object">
+    <table name="object" kind="object">
       <column name="id" type="INT" null="false"/>
       <column name="num" type="INT" null="false"/>
       <column name="o1" type="INT" null="true"/>

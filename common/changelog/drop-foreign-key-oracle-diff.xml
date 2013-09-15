@@ -7,7 +7,7 @@
   </changeset>
 
   <model version="1">
-    <table name="object">
+    <table name="object" kind="object">
       <column name="id" type="NUMBER(10)" null="false"/>
       <column name="o1" type="NUMBER(10)" null="true"/>
       <primary-key auto="true" sequence="object_seq">
@@ -20,7 +20,7 @@
         </references>
       </foreign-key>
     </table>
-    <table name="object1">
+    <table name="object1" kind="object">
       <column name="id" type="NUMBER(10)" null="false"/>
       <primary-key>
         <column name="id"/>

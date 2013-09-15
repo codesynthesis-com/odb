@@ -1,6 +1,6 @@
 <changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="pgsql" version="1">
   <model version="1">
-    <table name="object">
+    <table name="object" kind="object">
       <column name="id" type="INTEGER" null="false"/>
       <column name="num" type="INTEGER" null="true" default="0" options="DUMMY=1"/>
       <column name="v_x" type="INTEGER" null="false"/>
@@ -43,7 +43,7 @@
         <column name="index"/>
       </index>
     </table>
-    <table name="object1">
+    <table name="object1" kind="object">
       <column name="id_x" type="INTEGER" null="false"/>
       <column name="id_y" type="INTEGER" null="false"/>
       <column name="num" type="INTEGER" null="false"/>
