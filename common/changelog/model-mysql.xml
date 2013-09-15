@@ -26,7 +26,7 @@
         <column name="v_y"/>
       </index>
     </table>
-    <table name="object_nums" options="ENGINE=InnoDB">
+    <table name="object_nums" options="ENGINE=InnoDB" kind="container">
       <column name="object_id" type="INT" null="false"/>
       <column name="index" type="BIGINT UNSIGNED" null="false"/>
       <column name="value" type="INT" null="false"/>

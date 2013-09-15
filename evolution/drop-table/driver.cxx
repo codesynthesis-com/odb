@@ -41,8 +41,6 @@ main (int argc, char* argv[])
     {
     case 1:
       {
-        using namespace v2;
-
         if (embedded)
         {
           transaction t (db->begin ());
@@ -53,19 +51,45 @@ main (int argc, char* argv[])
           t.commit ();
         }
 
-        object1 o1;
-        o1.o = new object (1);
-        o1.o->str = "abc";
-        o1.nums.push_back (1);
-        o1.nums.push_back (2);
-        o1.nums.push_back (3);
-
         {
-          transaction t (db->begin ());
-          db->persist (o1.o);
-          db->persist (o1);
-          t.commit ();
+          using namespace v2;
+
+          object1 o1;
+          o1.o = new object (1);
+          o1.o->str = "abc";
+          o1.nums.push_back (1);
+          o1.nums.push_back (2);
+          o1.nums.push_back (3);
+
+          {
+            transaction t (db->begin ());
+            db->persist (o1.o);
+            db->persist (o1);
+            t.commit ();
+          }
         }
+
+        // Polymorphism test.
+        //
+        {
+          // We have to use v3 here because the discriminator includes
+          // the namespace.
+          //
+          using namespace v3;
+
+          base b (123, "abc");
+          derived d1 (234, "bcd");
+          derived d2 (345, "cde");
+
+          {
+            transaction t (db->begin ());
+            db->persist (b);
+            db->persist (d1);
+            db->persist (d2);
+            t.commit ();
+          }
+        }
+
         break;
       }
     case 2:
@@ -104,6 +128,7 @@ main (int argc, char* argv[])
           schema_catalog::migrate_schema_post (*db, 3);
           t.commit ();
         }
+
         break;
       }
     case 3:
@@ -116,6 +141,15 @@ main (int argc, char* argv[])
           transaction t (db->begin ());
           auto_ptr<object> p (db->load<object> (1));
           assert (p->str == "abc");
+          t.commit ();
+        }
+
+        // Polymorphism test.
+        //
+        {
+          transaction t (db->begin ());
+          assert (size (db->query<root> ()) == 1);
+          assert (size (db->query<base> ()) == 1);
           t.commit ();
         }
 

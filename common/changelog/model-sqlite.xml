@@ -26,7 +26,7 @@
         <column name="v_y"/>
       </index>
     </table>
-    <table name="object_nums">
+    <table name="object_nums" kind="container">
       <column name="object_id" type="INTEGER" null="false"/>
       <column name="index" type="INTEGER" null="false"/>
       <column name="value" type="INTEGER" null="false"/>

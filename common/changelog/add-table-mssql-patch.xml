@@ -21,7 +21,7 @@
         </references>
       </foreign-key>
     </table>
-    <table name="object_nums">
+    <table name="object_nums" kind="container">
       <column name="object_id" type="INT" null="false"/>
       <column name="index" type="BIGINT" null="false"/>
       <column name="value" type="INT" null="false"/>

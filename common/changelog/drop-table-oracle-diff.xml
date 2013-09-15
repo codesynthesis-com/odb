@@ -19,7 +19,7 @@
         </references>
       </foreign-key>
     </table>
-    <table name="object_nums">
+    <table name="object_nums" kind="container">
       <column name="object_id" type="NUMBER(10)" null="false"/>
       <column name="index" type="NUMBER(20)" null="false"/>
       <column name="value" type="NUMBER(10)" null="false"/>
