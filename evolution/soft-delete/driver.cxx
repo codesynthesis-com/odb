@@ -14,6 +14,7 @@
 #include <odb/schema-catalog.hxx>
 
 #include <common/common.hxx>
+#include <common/config.hxx> // DATABASE_XXX
 
 #include "test2.hxx"
 #include "test3.hxx"
@@ -67,10 +68,6 @@ main (int argc, char* argv[])
             t.commit ();
           }
         }
-
-        // SQLite doesn't support dropping of columns.
-        //
-#ifndef DATABASE_SQLITE
 
         // Test basic soft-deleted member logic.
         //
@@ -265,8 +262,6 @@ main (int argc, char* argv[])
           }
         }
 
-#endif // DATABASE_SQLITE
-
         // Test soft-deleted container member in a non-versioned object.
         //
         {
@@ -324,10 +319,6 @@ main (int argc, char* argv[])
             t.commit ();
           }
         }
-
-        // SQLite doesn't support dropping of columns.
-        //
-#ifndef DATABASE_SQLITE
 
         // Test basic soft-deleted member logic.
         //
@@ -938,8 +929,6 @@ main (int argc, char* argv[])
           }
         }
 
-#endif // DATABASE_SQLITE
-
         // Test soft-deleted container member in a non-versioned object.
         //
         {
@@ -1083,10 +1072,6 @@ main (int argc, char* argv[])
           catch (const odb::exception&) {}
         }
 
-        // SQLite doesn't support dropping of columns.
-        //
-#ifndef DATABASE_SQLITE
-
         // Test basic soft-deleted member logic.
         //
         {
@@ -1114,13 +1099,18 @@ main (int argc, char* argv[])
                     i->str == "" && i->num == 123 &&
                     i->vec.empty () && i->ptr == 0);
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<object> (query::str.is_null ())) == 1);
+#endif
             t.commit ();
           }
 
@@ -1275,13 +1265,18 @@ main (int argc, char* argv[])
             result::iterator i (r.begin ());
             assert (i != r.end () && i->str == "" && i->num == 123);
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<object> (query::str.is_null ())) == 1);
+#endif
             t.commit ();
           }
         }
@@ -1298,13 +1293,16 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             auto_ptr<object> p (db->load<object> (1));
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->load (*p, p->s); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#endif
             t.commit ();
           }
 
@@ -1364,13 +1362,18 @@ main (int argc, char* argv[])
             db->load (*i, i->s);
             assert (i->str == "" && i->num == 123 && i->vec.empty ());
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<object> (query::str.is_null ())) == 1);
+#endif
             t.commit ();
           }
 
@@ -1445,13 +1448,18 @@ main (int argc, char* argv[])
             object& o (static_cast<object&> (*i));
             assert (o.bstr == "" && o.dstr == "" && o.num == 123);
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<base> (query::bstr == "ab"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<base> (query::bstr.is_null ())) == 1);
+#endif
             t.commit ();
           }
 
@@ -1465,13 +1473,18 @@ main (int argc, char* argv[])
             assert (i != r.end () &&
                     i->bstr == "" && i->dstr == "" && i->num);
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<object> (query::dstr == "abc"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<object> (query::dstr.is_null ())) == 1);
+#endif
             t.commit ();
           }
 
@@ -1519,13 +1532,16 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             auto_ptr<base> p (db->load<base> (1));
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->load (*p, p->s); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#endif
             t.commit ();
           }
 
@@ -1587,13 +1603,18 @@ main (int argc, char* argv[])
             object& o (static_cast<object&> (*i));
             assert (o.bstr == "" && o.dstr == "" && o.num == 123);
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<base> (query::bstr == "ab"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<base> (query::bstr.is_null ())) == 1);
+#endif
             t.commit ();
           }
 
@@ -1608,13 +1629,18 @@ main (int argc, char* argv[])
             assert (i != r.end () &&
                     i->bstr == "" && i->dstr == "" && i->num);
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<object> (query::dstr == "abc"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<object> (query::dstr.is_null ())) == 1);
+#endif
             t.commit ();
           }
 
@@ -1703,13 +1729,18 @@ main (int argc, char* argv[])
             result::iterator i (r.begin ());
             assert (i != r.end () && i->str == "" && i->num == 123);
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<object> (query::str.is_null ())) == 1);
+#endif
             t.commit ();
           }
 
@@ -1762,13 +1793,18 @@ main (int argc, char* argv[])
             result::iterator i (r.begin ());
             assert (i != r.end () && i->str == "" && i->num == 123);
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<object> (query::str.is_null ())) == 1);
+#endif
             t.commit ();
           }
 
@@ -1813,13 +1849,18 @@ main (int argc, char* argv[])
             assert (i != r.end () && i->str == "" && i->num == 123);
             id = i->id;
 
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
               assert (false);
             }
             catch (const odb::exception&) {}
-
+#else
+            assert (size (db->query<object> (query::str.is_null ())) == 1);
+#endif
             t.commit ();
           }
 
@@ -1859,8 +1900,6 @@ main (int argc, char* argv[])
             t.commit ();
           }
         }
-
-#endif // DATABASE_SQLITE
 
         // Test soft-deleted container member in a non-versioned object.
         //

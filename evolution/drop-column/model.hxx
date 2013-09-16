@@ -11,8 +11,6 @@
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
 
-#include <common/config.hxx> // DATABASE_XXX
-
 #pragma db model version(1, MODEL_VERSION)
 
 #define MODEL_NAMESPACE_IMPL(V) v##V
@@ -20,32 +18,42 @@
 
 namespace MODEL_NAMESPACE(MODEL_VERSION)
 {
+  #pragma db value
+  struct value
+  {
+    value (int x_ = 0, int y_ = 0): x (x_), y (y_) {}
+    int x;
+    int y;
+  };
+
+  #pragma db object
+  struct object1
+  {
+    object1 (int x = 0, int y = 0): id (x, y) {}
+
+    #pragma db id
+    value id;
+  };
+
   #pragma db object
   struct object
   {
-    object (unsigned long id = 0): id_ (id) {}
+    object (unsigned long id = 0): id_ (id), ptr (0) {}
+    ~object () {delete ptr;}
 
     #pragma db id
     unsigned long id_;
 
-    // SQLite doesn't support dropping of columns.
-    //
-#ifndef DATABASE_SQLITE
-#if MODEL_VERSION >= 2
-
-#if MODEL_VERSION == 3
-    #pragma db deleted(3)
-#endif
     std::string str;
+    unsigned long num;
+    object1* ptr;
+  };
 
 #if MODEL_VERSION == 3
-    #pragma db deleted(3)
+  #pragma db member(object::str) deleted(3)
+  #pragma db member(object::num) deleted(3)
+  #pragma db member(object::ptr) deleted(3)
 #endif
-    unsigned long num;
-
-#endif
-#endif
-  };
 }
 
 #undef MODEL_NAMESPACE

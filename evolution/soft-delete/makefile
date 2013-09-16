@@ -37,7 +37,7 @@ $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): odb_common_options = --generate-query --generate-prepared \
---generate-schema --at-once --table-prefix evo_soft_d_
+--generate-schema --at-once --sqlite-override-null --table-prefix evo_soft_d_
 $(gen): odb_common_options += --database $(db_id)
 $(gen1) $(dist): export odb_options1 = $(odb_common_options) --init-changelog
 $(gen2) $(dist): export odb_options2 = $(odb_common_options) --omit-create \

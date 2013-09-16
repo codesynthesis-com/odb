@@ -57,13 +57,13 @@ main (int argc, char* argv[])
         o.dui = 1;
         o.anui = 1;
         o.dnui = 1;
+        o.dc = 1;
         o.dt.push_back (1);
         o.aui = 1;
 
 #ifndef DATABASE_SQLITE
         o.dfk = new object1 (1);
         o.acn = 1;
-        o.dc = 1;
         o.acnn.reset ();
         o.afk = 1;
 #endif

@@ -29,10 +29,6 @@ main (int argc, char* argv[])
   try
   {
     auto_ptr<database> db (create_database (argc, argv, false));
-
-    // SQLite doesn't support dropping of columns.
-    //
-#ifndef DATABASE_SQLITE
     bool embedded (schema_catalog::exists (*db));
 
     // 1 - base version
@@ -60,9 +56,11 @@ main (int argc, char* argv[])
         object o (1);
         o.str = "abc";
         o.num = 123;
+        o.ptr = new object1 (1, 2);
 
         {
           transaction t (db->begin ());
+          db->persist (*o.ptr);
           db->persist (o);
           t.commit ();
         }
@@ -87,6 +85,7 @@ main (int argc, char* argv[])
 
           assert (p->str == "abc");
           assert (p->num == 123);
+          assert (p->ptr->id.x == 1 && p->ptr->id.y == 2);
 
           t.commit ();
         }
@@ -108,7 +107,8 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
           auto_ptr<object> p (db->load<object> (1));
-          assert (p->str == "");
+          assert (p->str == "" && p->ptr == 0);
+          db->erase<object1> (value (1, 2)); // SQLite logical delete test.
           t.commit ();
         }
         break;
@@ -119,7 +119,6 @@ main (int argc, char* argv[])
         return 1;
       }
     }
-#endif // DATABASE_SQLITE
   }
   catch (const odb::exception& e)
   {

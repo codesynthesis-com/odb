@@ -122,12 +122,10 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     std::vector<unsigned long> dt;
 #endif
 
-    // Drop column. Not supported by SQLite.
+    // Drop column. Logical drop (set NULL) in SQLite.
     //
-#ifndef DATABASE_SQLITE
 #if MODEL_VERSION == 2
     unsigned long dc;
-#endif
 #endif
 
     // Alter column NOT NULL. Not supported by SQLite.

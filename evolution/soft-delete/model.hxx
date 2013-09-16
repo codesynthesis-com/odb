@@ -13,8 +13,6 @@
 #include <odb/section.hxx>
 #include <odb/lazy-ptr.hxx>
 
-#include <common/config.hxx> // DATABASE_XXX
-
 #pragma db model version(1, MODEL_VERSION)
 
 #define MODEL_NAMESPACE_IMPL(V) v##V
@@ -42,10 +40,6 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     #pragma db object(object) deleted(3)
 #endif
   }
-
-  // SQLite doesn't support dropping of columns.
-  //
-#ifndef DATABASE_SQLITE
 
   // Test basic soft-deleted member logic.
   //
@@ -432,8 +426,6 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     #pragma db member(object::str) deleted(3)
 #endif
   }
-
-#endif // DATABASE_SQLITE
 
   // Test soft-deleted container member in a non-versioned object.
   //
