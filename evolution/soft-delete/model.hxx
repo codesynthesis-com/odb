@@ -7,6 +7,7 @@
 #endif
 
 #include <string>
+#include <memory> // std::auto_ptr
 
 #include <odb/core.hxx>
 #include <odb/vector.hxx>
@@ -424,6 +425,36 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 
 #if MODEL_VERSION == 3
     #pragma db member(object::str) deleted(3)
+#endif
+  }
+
+  // Test summarily deleted composite values.
+  //
+  #pragma db namespace table("t15_")
+  namespace test15
+  {
+    #pragma db value
+    struct value
+    {
+      std::string str;
+      odb::vector<int> vec;
+    };
+
+    #pragma db object
+    struct object
+    {
+      object (unsigned long id = 0): id_ (id) {}
+
+      #pragma db id
+      unsigned long id_;
+
+      std::auto_ptr<value> v;
+      unsigned long num;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(value::str) deleted(3)
+    #pragma db member(value::vec) deleted(3)
 #endif
   }
 

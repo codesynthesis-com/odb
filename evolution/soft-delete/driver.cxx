@@ -262,6 +262,24 @@ main (int argc, char* argv[])
           }
         }
 
+        // Test summarily deleted composite values.
+        //
+        {
+          using namespace test15;
+
+          object o (1);
+          o.v.reset (new value);
+          o.v->str = "abc";
+          o.v->vec.push_back (123);
+          o.num = 123;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            t.commit ();
+          }
+        }
+
         // Test soft-deleted container member in a non-versioned object.
         //
         {
@@ -919,6 +937,70 @@ main (int argc, char* argv[])
             db->update (o);
             auto_ptr<object> p (db->load<object> (o.id));
             assert (p->str == "bcde" && p->num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (o);
+            t.commit ();
+          }
+        }
+
+        // Test summarily deleted composite values.
+        //
+        {
+          using namespace test15;
+
+          // All the database operations should still include the deleted
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (1));
+            assert (p->v->str == "abc" && p->num == 123 &&
+                    p->v->vec[0] == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
+            transaction t (db->begin ());
+            result r (db->query<object> (query::v.str == "abc"));
+            result::iterator i (r.begin ());
+            assert (i != r.end () &&
+                    i->v->str == "abc" && i->num == 123 &&
+                    i->v->vec[0] == 123);
+            t.commit ();
+          }
+
+          object o (2);
+          o.v.reset (new value);
+          o.v->str = "bcd";
+          o.num = 234;
+          o.v->vec.push_back (234);
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->v->str == "bcd" && p->num == 234 &&
+                    p->v->vec[0] == 234);
+            t.commit ();
+          }
+
+          o.v->str += 'e';
+          o.num++;
+          o.v->vec.modify (0)++;
+
+          {
+            transaction t (db->begin ());
+            db->update (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->v->str == "bcde" && p->num == 235 &&
+                    p->v->vec[0] == 235);
             t.commit ();
           }
 
@@ -1897,6 +1979,73 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->erase<object> (o.id);
+            t.commit ();
+          }
+        }
+
+        // Test summarily deleted composite values.
+        //
+        {
+          using namespace test15;
+
+          // Now none of the database operations should include the
+          // deleted members.
+          //
+          {
+            transaction t (db->begin ());
+            auto_ptr<object> p (db->load<object> (1));
+            assert (p->v.get () == 0 && p->num == 123);
+            t.commit ();
+          }
+
+          {
+            typedef odb::query<object> query;
+            typedef odb::result<object> result;
+
+            transaction t (db->begin ());
+            result r (db->query<object> (query::num == 123));
+            result::iterator i (r.begin ());
+            assert (i != r.end () && i->v.get () == 0 && i->num == 123);
+
+            // Logical delete in SQLite.
+            //
+#ifndef DATABASE_SQLITE
+            try
+            {
+              db->query<object> (query::v.str == "abc"); // No such column.
+              assert (false);
+            }
+            catch (const odb::exception&) {}
+#else
+            assert (size (db->query<object> (query::v.str.is_null ())) == 1);
+#endif
+            t.commit ();
+          }
+
+          object o (2);
+          o.num = 234;
+
+          {
+            transaction t (db->begin ());
+            db->persist (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->v.get () == 0 && p->num == 234);
+            t.commit ();
+          }
+
+          o.num++;
+
+          {
+            transaction t (db->begin ());
+            db->update (o);
+            auto_ptr<object> p (db->load<object> (2));
+            assert (p->v.get () == 0 && p->num == 235);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase<object> (2);
             t.commit ();
           }
         }
