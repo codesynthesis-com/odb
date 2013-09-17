@@ -10,7 +10,7 @@ LDADD = $(top_builddir)/libcommon/common/libcommon.la
 AM_CPPFLAGS = -I'$(top_builddir)/libcommon' -I'$(top_srcdir)/libcommon'
 AM_CPPFLAGS += -I'$(builddir)' -I'$(srcdir)'
 
-TESTS=$(top_srcdir)/evolution/tester
+TESTS=$(top_builddir)/evolution/tester
 TESTS_ENVIRONMENT=top_builddir=$(top_builddir); export top_builddir;
 
 ODB = @ODB@
