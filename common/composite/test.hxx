@@ -170,5 +170,53 @@ namespace test3
   }
 }
 
+// Test composite definition inside object.
+//
+#pragma db namespace table("t4_")
+namespace test4
+{
+  #pragma db object
+  struct object
+  {
+    object (unsigned long id = 0): id_ (id) {}
+
+    unsigned long id () const {return id_;}
+
+    void str (const std::string& s) {c_.str = s;}
+    const std::string& str () const {return c_.str;}
+
+    void x (int i) {p_.first = i;}
+    int x () const {return p_.first;}
+
+    void y (int i) {p_.second = i;}
+    int y () const {return p_.second;}
+
+  private:
+    friend class odb::access;
+
+    #pragma db id
+    unsigned long id_;
+
+    #pragma db value
+    struct comp
+    {
+      std::string str;
+    };
+
+    comp c_;
+
+    typedef std::pair<int, int> int_pair;
+    #pragma db value(int_pair)
+
+    int_pair p_;
+  };
+
+  inline bool
+  operator== (const object& x, const object& y)
+  {
+    return x.id () == y.id () && x.str () == y.str () &&
+      x.x () == y.x () && x.y () == y.y ();
+  }
+}
 
 #endif // TEST_HXX

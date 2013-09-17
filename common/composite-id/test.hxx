@@ -470,4 +470,51 @@ namespace test8
   };
 }
 
+// Test composite id definition inside object.
+//
+#pragma db namespace table("t9_")
+namespace test9
+{
+  #pragma db object
+  struct object
+  {
+    object (unsigned long n = 0, const std::string& s = "")
+    {
+      id_.num = n;
+      id_.str = s;
+    }
+
+    unsigned long num () const {return id_.num;}
+    const std::string& str () const {return id_.str;}
+
+    std::vector<int> v;
+
+  private:
+    friend class odb::access;
+
+    #pragma db value
+    struct comp
+    {
+      unsigned long num;
+      std::string str;
+
+      bool
+      operator< (const comp& x) const
+      {
+        return num < x.num || (num == x.num && str < x.str);
+      }
+    };
+
+    #pragma db id
+    comp id_;
+  };
+
+  inline bool
+  operator== (const object& x, const object& y)
+  {
+    return x.num () == y.num () && x.str () == y.str () && x.v == y.v;
+  }
+}
+
+
 #endif // TEST_HXX

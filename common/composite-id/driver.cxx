@@ -695,6 +695,32 @@ main (int argc, char* argv[])
         assert (p3->o1[1] == 0);
       }
     }
+
+    // Test 9.
+    {
+      using namespace test9;
+
+      object o (123, "abc");
+      o.v.push_back (123);
+
+      // persist
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      // load & check
+      //
+      {
+        transaction t (db->begin ());
+        result<object> r (db->query<object> ());
+        result<object>::iterator i (r.begin ());
+        assert (i != r.end () && o == *i && ++i == r.end ());
+        t.commit ();
+      }
+    }
   }
   catch (const odb::exception& e)
   {

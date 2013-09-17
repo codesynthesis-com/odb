@@ -191,6 +191,34 @@ main (int argc, char* argv[])
         assert (o == *o1);
       }
     }
+
+    // Test composite definition inside object.
+    {
+      using namespace test4;
+
+      object o (1);
+      o.str ("abc");
+      o.x (123);
+      o.y (234);
+
+      // persist
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      // load & check
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> o1 (db->load<object> (1));
+        t.commit ();
+
+        assert (o == *o1);
+      }
+    }
   }
   catch (const odb::exception& e)
   {
