@@ -45,7 +45,6 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
           schema_catalog::drop_schema (*db);
-          schema_catalog::drop_schema (*db, "2");
           schema_catalog::create_schema (*db, "", false);
           schema_catalog::migrate_schema (*db, 2);
           t.commit ();

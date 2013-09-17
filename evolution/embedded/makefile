@@ -39,7 +39,7 @@ $(gen) $(dist): odb_common_options = --generate-query \
 $(gen): odb_common_options += --database $(db_id)
 $(gen1) $(dist): export odb_options1 = $(odb_common_options) --init-changelog
 $(gen2) $(dist): export odb_options2 = $(odb_common_options) --omit-create \
---schema-name 2 --suppress-migration
+--suppress-migration
 $(gen3) $(dist): export odb_options3 = $(odb_common_options) --omit-create
 $(gen1): odb_options += $(odb_options1) --changelog $(out_base)/model.xml
 $(gen2): odb_options += $(odb_options2) --changelog $(out_base)/model.xml

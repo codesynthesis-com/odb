@@ -48,7 +48,6 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
           schema_catalog::drop_schema (*db);
-          schema_catalog::drop_schema (*db, "2");
 
           assert (db->schema_version () == 0);
 
