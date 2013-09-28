@@ -79,6 +79,14 @@ main (int argc, char* argv[])
         using namespace v2;
         using namespace v3;
 
+        // Check version information correctness.
+        //
+        assert (schema_catalog::current_version (*db) == 3);
+        assert (schema_catalog::next_version (*db, 0) == 3);
+        assert (schema_catalog::next_version (*db, 1) == 2);
+        assert (schema_catalog::next_version (*db) == 3);
+        assert (schema_catalog::next_version (*db, 3) == 4);
+
         {
           assert (db->schema_version () == 2 && !db->schema_migration ());
 
