@@ -1,4 +1,6 @@
 <changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="mysql" version="1">
+  <changeset version="3"/>
+
   <model version="2">
     <table name="object" options="ENGINE=InnoDB" kind="object">
       <column name="id" type="INT" null="false"/>
