@@ -10,11 +10,14 @@
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>
+#include <odb/schema-version.hxx>
 #include <odb/traits.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/binding.hxx>
 #include <odb/pgsql/statement.hxx>
+#include <odb/pgsql/connection.hxx>
+#include <odb/pgsql/database.hxx>
 #include <odb/pgsql/pgsql-fwd.hxx> // Oid
 #include <odb/pgsql/details/export.hxx>
 
@@ -48,6 +51,15 @@ namespace odb
 
       connection_type&
       connection () {return conn_;}
+
+      const schema_version_migration&
+      version_migration (const char* name = "") const
+      {
+        if (svm_ == 0)
+          svm_ = &conn_.database ().schema_version_migration (name);
+
+        return *svm_;
+      }
 
       image_type&
       image () {return image_;}
@@ -152,6 +164,7 @@ namespace odb
 
     protected:
       connection_type& conn_;
+      mutable const schema_version_migration* svm_;
 
       // These come from object_statements.
       //
