@@ -14,6 +14,7 @@ namespace odb
                         image_type& im,
                         binding& id, binding& idv)
         : conn_ (conn),
+          svm_ (0),
           image_ (im),
           id_binding_ (id),
           idv_binding_ (idv),
