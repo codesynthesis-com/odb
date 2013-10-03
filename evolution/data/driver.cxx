@@ -48,16 +48,15 @@ migrate2 (database& db)
   db.persist (o2);
 }
 
-static const data_migration_entry migrate2_entry (3, &migrate2);
+static const data_migration_entry<3, 1> migrate2_entry (&migrate2);
 
 int
 main (int argc, char* argv[])
 {
-  schema_catalog::data_migration_function (3, &migrate1);
+  schema_catalog::data_migration_function<3, 1> (&migrate1);
 
 #ifdef HAVE_CXX11
-  schema_catalog::data_migration_function (
-    3,
+  schema_catalog::data_migration_function<3, 1> (
     [] (database& db)
     {
       using namespace v2;
