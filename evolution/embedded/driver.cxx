@@ -81,6 +81,7 @@ main (int argc, char* argv[])
 
         // Check version information correctness.
         //
+        assert (schema_catalog::base_version (*db) == 1);
         assert (schema_catalog::current_version (*db) == 3);
         assert (schema_catalog::next_version (*db, 0) == 3);
         assert (schema_catalog::next_version (*db, 1) == 2);
