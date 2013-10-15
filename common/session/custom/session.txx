@@ -10,8 +10,6 @@ _cache_insert (odb::database&,
                const typename odb::object_traits<T>::id_type& id,
                const typename odb::object_traits<T>::pointer_type& obj)
 {
-  typedef odb::object_traits<T> object_traits;
-
   if (current == 0)
     return cache_position<T> (); // No session, return empty position.
 
