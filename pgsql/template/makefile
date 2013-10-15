@@ -6,7 +6,9 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
 
 cxx_tun := driver.cxx
 odb_hdr := test.hxx
-cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o))
+genf    := $(call odb-gen,$(odb_hdr))
+gen     := $(addprefix $(out_base)/,$(genf))
+cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o)) $(filter %.o,$(gen:.cxx=.o))
 cxx_od  := $(cxx_obj:.o=.o.d)
 
 common.l             := $(out_root)/libcommon/common/common.l
