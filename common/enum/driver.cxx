@@ -33,6 +33,13 @@ main (int argc, char* argv[])
     object o;
     o.color_ = green;
     o.taste_ = object::sweet;
+    o.position_ = object::left;
+
+#ifdef HAVE_CXX11_ENUM
+    o.gender_ = object::gender::female;
+    o.scale_ = object::scale::ten;
+    o.yesno_ = object::yesno::yes;
+#endif
 
     {
       transaction t (db->begin ());
@@ -53,9 +60,21 @@ main (int argc, char* argv[])
 
       result r1 (db->query<object> (query::color == blue));
       result r2 (db->query<object> (query::taste == object::sweet));
+      result r3 (db->query<object> (query::position == object::left));
 
       assert (r1.empty ());
       assert (!r2.empty ());
+      assert (!r3.empty ());
+
+#ifdef HAVE_CXX11_ENUM
+      result r4 (db->query<object> (query::gender == object::gender::female));
+      result r5 (db->query<object> (query::scale == object::scale::ten));
+      result r6 (db->query<object> (query::yesno == object::yesno::yes));
+
+      assert (!r4.empty ());
+      assert (!r5.empty ());
+      assert (!r6.empty ());
+#endif
 
       t.commit ();
     }

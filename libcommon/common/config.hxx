@@ -9,6 +9,13 @@
 #  include <common/config-vc.h>
 #else
 #  include <common/config.h>
+
+// GCC supports strongly typed enums from 4.4 (forward -- 4.6),
+// Clang -- 2.9 (3.1).
+//
+#  ifdef HAVE_CXX11
+#    define HAVE_CXX11_ENUM
+#  endif
 #endif
 
 #endif // LIBCOMMON_COMMON_CONFIG_HXX
