@@ -1,6 +1,6 @@
 // file      : odb/oracle/section-statements.hxx
 // copyright : Copyright (c) 2005-2013 Code Synthesis Tools CC
-// license   : GNU GPL v2; see accompanying LICENSE file
+// license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_ORACLE_SECTION_STATEMENTS_HXX
 #define ODB_ORACLE_SECTION_STATEMENTS_HXX
