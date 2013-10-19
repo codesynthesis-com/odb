@@ -1,6 +1,6 @@
 // file      : odb/mssql/statement-processing.cxx
 // copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
-// license   : GNU GPL v2; see accompanying LICENSE file
+// license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <cassert>
 

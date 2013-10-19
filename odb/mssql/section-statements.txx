@@ -1,6 +1,6 @@
 // file      : odb/mssql/section-statements.txx
 // copyright : Copyright (c) 2005-2013 Code Synthesis Tools CC
-// license   : GNU GPL v2; see accompanying LICENSE file
+// license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <cstring> // std::memset
 

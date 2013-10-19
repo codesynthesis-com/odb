@@ -1,6 +1,6 @@
 // file      : odb/mssql/traits-calls.hxx
 // copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
-// license   : GNU GPL v2; see accompanying LICENSE file
+// license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_MSSQL_TRAITS_CALLS_HXX
 #define ODB_MSSQL_TRAITS_CALLS_HXX
