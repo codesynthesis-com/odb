@@ -44,9 +44,7 @@ namespace odb
         select_image_truncated_, 0, sizeof (select_image_truncated_));
       std::memset (update_image_bind_, 0, sizeof (update_image_bind_));
 
-      for (std::size_t i (0);
-           i < select_column_count + managed_optimistic_load_column_count;
-           ++i)
+      for (std::size_t i (0); i < select_bind_count; ++i)
         select_image_bind_[i].truncated = select_image_truncated_ + i;
     }
   }
