@@ -458,10 +458,10 @@ namespace test14
   #pragma db object
   struct object
   {
-    object (int n_ = 999, const std::string& s_ = "xxx")
-        : sb (s_.begin (), s_.end ()), sn (n_), n (n_) {}
+    object (unsigned long id_ = 0, int n_ = 999, const std::string& s_ = "xxx")
+        : id (id_), sb (s_.begin (), s_.end ()), sn (n_), n (n_) {}
 
-    #pragma db id auto
+    #pragma db id
     unsigned long id;
 
     #pragma db load(lazy)

@@ -1125,7 +1125,7 @@ main (int argc, char* argv[])
     {
       using namespace test14;
 
-      object o (123, "\x01\x02\x03\x04\x05");
+      object o (1, 123, "\x01\x02\x03\x04\x05");
 
       {
         transaction t (db->begin ());
