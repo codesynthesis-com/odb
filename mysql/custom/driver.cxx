@@ -32,8 +32,8 @@ main (int argc, char* argv[])
     o.p = point (1.1111, 2222222222.2);
     o.pv.push_back (point (1.1234, 2.2345));
     o.pv.push_back (point (3.3456, 4.4567));
-    // VC8 just cannot roundtrip this.
-#if !defined(_MSC_VER) || _MSC_VER >= 1500
+    // VC just cannot roundtrip this.
+#ifndef _MSC_VER
     o.pv.push_back (point (0.0000001, 0.000000001)); // Scientific notation.
 #endif
 
