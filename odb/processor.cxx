@@ -938,8 +938,39 @@ namespace
         //
         tree type (DECL_ORIGINAL_TYPE (decl));
 
-        semantics::type& wt (
-          dynamic_cast<semantics::type&> (*unit.find (type)));
+        bool qc (CP_TYPE_CONST_P (type));
+        bool qv (CP_TYPE_VOLATILE_P (type));
+        bool qr (CP_TYPE_RESTRICT_P (type));
+
+        type = TYPE_MAIN_VARIANT (type);
+        semantics::type* wt (
+          dynamic_cast<semantics::type*> (unit.find (type)));
+
+        // Object pointers and wrappers often use the same smart
+        // pointers so check if the wrapped type is an object.
+        //
+        if (object (*wt))
+        {
+          t.set ("wrapper", false);
+          return false;
+        }
+
+        if (qc || qv || qr)
+        {
+          for (semantics::type::qualified_iterator i (wt->qualified_begin ());
+               i != wt->qualified_end (); ++i)
+          {
+            semantics::qualifier& q (i->qualifier ());
+
+            if (q.const_ () == qc &&
+                q.volatile_ () == qv &&
+                q.restrict_ () == qr)
+            {
+              wt = &q;
+              break;
+            }
+          }
+        }
 
         // Find the hint.
         //
@@ -955,7 +986,7 @@ namespace
           decl = TYPE_NAME (ot);
         }
 
-        t.set ("wrapper-type", &wt);
+        t.set ("wrapper-type", wt);
         t.set ("wrapper-hint", wh);
       }
       catch (operation_failed const&)
