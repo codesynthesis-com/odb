@@ -1,4 +1,4 @@
-// file      : common/relationship/test.hxx
+// file      : common/relationship/basics/test.hxx
 // copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 

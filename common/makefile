@@ -38,8 +38,9 @@ prepared                  \
 query/basics              \
 query/array               \
 readonly                  \
-relationship              \
-relationship-query        \
+relationship/basics       \
+relationship/on-delete    \
+relationship/query        \
 schema/namespace          \
 schema/embedded/basics    \
 schema/embedded/order     \

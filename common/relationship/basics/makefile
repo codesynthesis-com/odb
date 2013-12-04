@@ -1,8 +1,8 @@
-# file      : common/relationship-query/makefile
+# file      : common/relationship/basics/makefile
 # copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
+include $(dir $(lastword $(MAKEFILE_LIST)))../../../build/bootstrap.make
 
 cxx_tun := driver.cxx
 odb_hdr := test.hxx
@@ -29,7 +29,7 @@ $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --generate-schema --generate-query \
---generate-session --table-prefix relationship_query_
+--table-prefix t_rel_basics_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 

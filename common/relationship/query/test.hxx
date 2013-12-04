@@ -1,4 +1,4 @@
-// file      : common/relationship-query/test.hxx
+// file      : common/relationship-query/query/test.hxx
 // copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
