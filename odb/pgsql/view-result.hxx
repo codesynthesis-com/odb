@@ -17,6 +17,7 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx> // query_base, view_statements
 #include <odb/pgsql/statement.hxx>
+#include <odb/pgsql/traits-calls.hxx>
 
 namespace odb
 {
