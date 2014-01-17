@@ -1227,7 +1227,7 @@ public:
   // extern and export symbols.
   //
   void
-  inst_header (bool decl);
+  inst_header (bool decl, bool omit_exp = false);
 
   // Counts and other information.
   //

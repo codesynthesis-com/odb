@@ -2345,14 +2345,14 @@ strlit (string const& str)
 }
 
 void context::
-inst_header (bool decl)
+inst_header (bool decl, bool omit_exp)
 {
   if (decl && !ext.empty ())
     os << ext << " ";
 
   os << "template struct";
 
-  if (!exp.empty ())
+  if (!omit_exp && !exp.empty ())
   {
     // If we are generating an explicit instantiation directive rather
     // than the extern template declaration, then omit the export symbol

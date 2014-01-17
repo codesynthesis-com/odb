@@ -12,6 +12,16 @@
 // Query-related generators.
 //
 
+struct query_utils: virtual context
+{
+  void
+  inst_query_columns (bool decl, // Extern declaration or instanatiation.
+                      bool ptr,  // pointer_query_columns or query_columns
+                      string const& type,    // Object fq-type.
+                      string const& alias,   // Table alias.
+                      semantics::class_&);   // Traverse for nested structs.
+};
+
 // Generate query tags for pointers in this objects.
 //
 struct query_tags: object_columns_base, virtual context
@@ -75,7 +85,7 @@ protected:
 
 // Generate query columns in the query_columns_base class.
 //
-struct query_columns_base: object_columns_base, virtual context
+struct query_columns_base: object_columns_base, query_utils
 {
   typedef query_columns_base base;
 
@@ -179,7 +189,7 @@ private:
 
 // Generate explicit instantiations of base classes.
 //
-struct query_columns_base_insts: traversal::class_, virtual context
+struct query_columns_base_insts: traversal::class_, query_utils
 {
   typedef query_columns_base_insts base;
 
@@ -203,7 +213,7 @@ private:
 // Generate the query_columns_base/query_columns or pointer_query_columns
 // classes for objects.
 //
-struct query_columns_type: traversal::class_, virtual context
+struct query_columns_type: traversal::class_, query_utils
 {
   typedef query_columns_type base;
 
@@ -237,7 +247,7 @@ public:
 
 // Generate the query_columns class for views.
 //
-struct view_query_columns_type: traversal::class_, virtual context
+struct view_query_columns_type: traversal::class_, query_utils
 {
   typedef view_query_columns_type base;
 
