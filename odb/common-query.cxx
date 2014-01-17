@@ -12,7 +12,7 @@ using namespace std;
 void query_tags::
 traverse (semantics::class_& c)
 {
-  if (object (c))
+  if (object (c) || composite (c))
   {
     object_columns_base::traverse (c);
   }
