@@ -120,8 +120,7 @@ struct query_columns: object_columns_base, virtual context
 {
   typedef query_columns base;
 
-  query_columns (bool ptr);
-  query_columns (bool ptr, semantics::class_&);
+  query_columns (bool decl, bool ptr, semantics::class_&);
 
   virtual void
   column_ctor (string const& type, string const& name, string const& base);
@@ -145,11 +144,12 @@ struct query_columns: object_columns_base, virtual context
   traverse_pointer (semantics::data_member&, semantics::class_&);
 
 protected:
-  bool ptr_;
   bool decl_;
+  bool ptr_;
   string const_;   // Const prefix or empty.
   bool in_ptr_;    // True while we are "inside" an object pointer.
   string fq_name_;
+  bool resue_abstract_;  // Object is reuse-abstract.
   string scope_;
 };
 

@@ -460,14 +460,10 @@ generate_inst (semantics::data_member& m, semantics::class_& c)
 //
 
 query_columns::
-query_columns (bool ptr)
-    : ptr_ (ptr), decl_ (true), in_ptr_ (false)
-{
-}
-
-query_columns::
-query_columns (bool ptr, semantics::class_& c) //@@ context::{cur,top}_object
-    : ptr_ (ptr), decl_ (false), in_ptr_ (false), fq_name_ (class_fq_name (c))
+query_columns (bool decl, bool ptr, semantics::class_& c)
+    : decl_ (decl), ptr_ (ptr), in_ptr_ (false),
+      fq_name_ (class_fq_name (c)),
+      resue_abstract_ (abstract (c) && !polymorphic (c))
 {
 }
 
@@ -495,13 +491,21 @@ traverse_composite (semantics::data_member* m, semantics::class_& c)
 
   if (decl_)
   {
+    os << "// " << name << endl
+       << "//" << endl
+       << "struct ";
+
     // For some bizarre reason VC++ needs the export directive for
     // a type nested in an (exported) template. This appears not
     // to cause any problems for GCC.
     //
-    os << "// " << name << endl
-       << "//" << endl
-       << "struct " << exp << name << suffix;
+    // We only generate the export directive if we are also
+    // explicitly instantiating the query_columns templates.
+    //
+    if (multi_dynamic && !resue_abstract_)
+      os << exp;
+
+    os << name << suffix;
 
     // Derive from the base in query_columns_base. It contains columns
     // data for the pointer members.
@@ -887,7 +891,8 @@ traverse (type& c)
       }
 
       {
-        instance<query_columns> t (ptr_);
+        bool true_ (true);
+        instance<query_columns> t (true_, ptr_, c); //@@ forwarding
         t->traverse (c);
       }
 
@@ -949,7 +954,7 @@ traverse (type& c)
     }
 
     {
-      instance<query_columns> t (ptr_);
+      instance<query_columns> t (decl_, ptr_, c);
       t->traverse (c);
     }
 
@@ -1041,8 +1046,11 @@ generate_impl (type& c)
        << endl;
   }
 
-  instance<query_columns> t (ptr_, c);
-  t->traverse (c);
+  {
+    bool false_ (false);
+    instance<query_columns> t (false_, ptr_, c);
+    t->traverse (c);
+  }
 
   if (!guard.empty ())
     os << "#endif // " << guard << endl
