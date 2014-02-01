@@ -57,7 +57,11 @@ namespace odb
         {
           is_null = false;
 
-          std::string s (v.toString ("HH:mm:ss.zzz").toStdString ());
+          // Cannot use toStdString() here since Qt could have been
+          // configured without the STL compatibility support.
+          //
+          std::string s (
+            v.toString ("HH:mm:ss.zzz").toLatin1 ().constData ());
 
           n = s.size ();
           if (n > i.capacity ())
