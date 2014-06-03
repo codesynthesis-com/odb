@@ -122,7 +122,7 @@ $(dist): export headers = $(subst $(src_base)/,,$(shell find $(src_base) \
 $(dist): data_dist := config.h.in config-vc.h
 $(dist): export extra_dist := $(data_dist) $(call vc8projs,libcommon) \
 $(call vc9projs,libcommon) $(call vc10projs,libcommon) \
-$(call vc11projs,libcommon)
+$(call vc11projs,libcommon) $(call vc12projs,libcommon)
 
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
@@ -131,6 +131,7 @@ $(dist):
 	$(call meta-vc9projs,libcommon)
 	$(call meta-vc10projs,libcommon)
 	$(call meta-vc11projs,libcommon)
+	$(call meta-vc12projs,libcommon)
 
 # Clean.
 #
@@ -158,6 +159,7 @@ $(call include,$(bld_root)/meta/vc8proj.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/vc11proj.make)
+$(call include,$(bld_root)/meta/vc12proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(call include,$(bld_root)/cxx/cxx-d.make)

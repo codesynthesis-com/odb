@@ -55,7 +55,9 @@ $(name)-qt4-vc9.vcproj $(name)-qt5-vc9.vcproj \
 $(name)-qt4-vc10.vcxproj $(name)-qt4-vc10.vcxproj.filters \
 $(name)-qt5-vc10.vcxproj $(name)-qt5-vc10.vcxproj.filters \
 $(name)-qt4-vc11.vcxproj $(name)-qt4-vc11.vcxproj.filters \
-$(name)-qt5-vc11.vcxproj $(name)-qt5-vc11.vcxproj.filters
+$(name)-qt5-vc11.vcxproj $(name)-qt5-vc11.vcxproj.filters \
+$(name)-qt4-vc12.vcxproj $(name)-qt4-vc12.vcxproj.filters \
+$(name)-qt5-vc12.vcxproj $(name)-qt5-vc12.vcxproj.filters
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
@@ -66,6 +68,8 @@ $(dist):
 	$(call meta-vc10proj,../template/template-qt5-vc10.vcxproj,$(name)-qt5-vc10.vcxproj)
 	$(call meta-vc11proj,../template/template-qt4-vc11.vcxproj,$(name)-qt4-vc11.vcxproj)
 	$(call meta-vc11proj,../template/template-qt5-vc11.vcxproj,$(name)-qt5-vc11.vcxproj)
+	$(call meta-vc12proj,../template/template-qt4-vc12.vcxproj,$(name)-qt4-vc12.vcxproj)
+	$(call meta-vc12proj,../template/template-qt5-vc12.vcxproj,$(name)-qt5-vc12.vcxproj)
 
 # Test.
 #
@@ -98,6 +102,7 @@ $(call include,$(bld_root)/meta/vc8proj.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/vc11proj.make)
+$(call include,$(bld_root)/meta/vc12proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(call include,$(bld_root)/cxx/standard.make) # cxx_standard

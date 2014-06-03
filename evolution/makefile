@@ -34,7 +34,7 @@ $(dist): exec_dist := tester.in
 $(dist): export dirs := $(filter-out $(no_dist_tests),$(tests))
 $(dist): export extra_dist := $(data_dist) $(exec_dist) test.bat \
 $(call vc8slns,$(name)) $(call vc9slns,$(name)) $(call vc10slns,$(name)) \
-$(call vc11slns,$(name))
+$(call vc11slns,$(name)) $(call vc12slns,$(name))
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call dist-data,$(data_dist))
 	$(call dist-exec,$(exec_dist))
@@ -43,6 +43,7 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call meta-vc9slns,$(name))
 	$(call meta-vc10slns,$(name))
 	$(call meta-vc11slns,$(name))
+	$(call meta-vc12slns,$(name))
 	$(call meta-vctest,$(name)-mysql-vc10.sln,test.bat)
 
 $(test): $(addprefix $(out_base)/,$(addsuffix /.test,$(build_tests)))
@@ -53,6 +54,7 @@ $(call include,$(bld_root)/meta/vc8sln.make)
 $(call include,$(bld_root)/meta/vc9sln.make)
 $(call include,$(bld_root)/meta/vc10sln.make)
 $(call include,$(bld_root)/meta/vc11sln.make)
+$(call include,$(bld_root)/meta/vc12sln.make)
 $(call include,$(bld_root)/meta/vctest.make)
 $(call include,$(bld_root)/meta/automake.make)
 

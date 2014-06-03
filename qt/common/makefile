@@ -23,7 +23,8 @@ $(dist): export extra_dist :=  test.bat \
 $(call vc9slns,$(name)-qt4) \
 $(call vc9slns,$(name)-qt4) $(call vc9slns,$(name)-qt5) \
 $(call vc10slns,$(name)-qt4) $(call vc10slns,$(name)-qt5) \
-$(call vc11slns,$(name)-qt4) $(call vc11slns,$(name)-qt5)
+$(call vc11slns,$(name)-qt4) $(call vc11slns,$(name)-qt5) \
+$(call vc12slns,$(name)-qt4) $(call vc12slns,$(name)-qt5)
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call meta-automake)
 	$(call meta-vc8slns,$(name)-qt4,-qt4)
@@ -33,6 +34,8 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(all_tests)))
 	$(call meta-vc10slns,$(name)-qt5,-qt5)
 	$(call meta-vc11slns,$(name)-qt4,-qt4)
 	$(call meta-vc11slns,$(name)-qt5,-qt5)
+	$(call meta-vc12slns,$(name)-qt4,-qt4)
+	$(call meta-vc12slns,$(name)-qt5,-qt5)
         # Can't have Qt-version specific tests.
 	$(call meta-vctest,$(name)-qt4-mysql-vc10.sln,test.bat)
 
@@ -48,6 +51,7 @@ $(call include,$(bld_root)/meta/vc8sln.make)
 $(call include,$(bld_root)/meta/vc9sln.make)
 $(call include,$(bld_root)/meta/vc10sln.make)
 $(call include,$(bld_root)/meta/vc11sln.make)
+$(call include,$(bld_root)/meta/vc12sln.make)
 $(call include,$(bld_root)/meta/vctest.make)
 $(call include,$(bld_root)/meta/automake.make)
 

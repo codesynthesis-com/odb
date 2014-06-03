@@ -40,6 +40,7 @@ if "_%2_" == "_8_" set "vcver=8"
 if "_%2_" == "_9_" set "vcver=9"
 if "_%2_" == "_10_" set "vcver=10"
 if "_%2_" == "_11_" set "vcver=11"
+if "_%2_" == "_12_" set "vcver=12"
 
 if "_%vcver%_" == "__" (
   echo unknown VC++ version %2

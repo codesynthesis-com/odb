@@ -17,6 +17,7 @@ $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(dirs)))
 	$(call meta-vc9slns,libcommon)
 	$(call meta-vc10slns,libcommon)
 	$(call meta-vc11slns,libcommon)
+	$(call meta-vc12slns,libcommon)
 
 $(clean): $(addprefix $(out_base)/,$(addsuffix /.clean,$(dirs)))
 
@@ -24,6 +25,7 @@ $(call include,$(bld_root)/meta/vc8sln.make)
 $(call include,$(bld_root)/meta/vc9sln.make)
 $(call include,$(bld_root)/meta/vc10sln.make)
 $(call include,$(bld_root)/meta/vc11sln.make)
+$(call include,$(bld_root)/meta/vc12sln.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(foreach d,$(dirs),$(call import,$(src_base)/$d/makefile))

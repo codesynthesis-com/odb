@@ -67,7 +67,8 @@ $(dist): export extra_dist := $(data_dist) \
 $(call vc8projs,$(name)-qt4) \
 $(call vc9projs,$(name)-qt4) $(call vc9projs,$(name)-qt5) \
 $(call vc10projs,$(name)-qt4) $(call vc10projs,$(name)-qt5) \
-$(call vc11projs,$(name)-qt4) $(call vc11projs,$(name)-qt5)
+$(call vc11projs,$(name)-qt4) $(call vc11projs,$(name)-qt5) \
+$(call vc12projs,$(name)-qt4) $(call vc12projs,$(name)-qt5)
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../template/Makefile.am)
@@ -77,7 +78,9 @@ $(dist):
 	$(call meta-vc10projs,../template/template-qt4,$(name)-qt4)
 	$(call meta-vc10projs,../template/template-qt5,$(name)-qt5)
 	$(call meta-vc11projs,../template/template-qt4,$(name)-qt4)
+	$(call meta-vc12projs,../template/template-qt4,$(name)-qt4)
 	$(call meta-vc11projs,../template/template-qt5,$(name)-qt5)
+	$(call meta-vc12projs,../template/template-qt5,$(name)-qt5)
 
 # Test.
 #
@@ -114,6 +117,7 @@ $(call include,$(bld_root)/meta/vc8proj.make)
 $(call include,$(bld_root)/meta/vc9proj.make)
 $(call include,$(bld_root)/meta/vc10proj.make)
 $(call include,$(bld_root)/meta/vc11proj.make)
+$(call include,$(bld_root)/meta/vc12proj.make)
 $(call include,$(bld_root)/meta/automake.make)
 
 $(call include,$(bld_root)/cxx/standard.make) # cxx_standard
