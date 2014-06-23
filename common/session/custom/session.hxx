@@ -51,7 +51,7 @@ private:
     virtual
     ~object_map_base () {}
 
-    // Return true we flushed anything.
+    // Return true if we flushed anything.
     //
     virtual bool
     flush (odb::database&) = 0;
