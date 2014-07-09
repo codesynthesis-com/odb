@@ -178,7 +178,11 @@ namespace odb
           s.compare (0, (n = 8), "GROUP BY") == 0 ||
           s.compare (0, (n = 8), "group by") == 0 ||
           s.compare (0, (n = 6), "HAVING") == 0 ||
-          s.compare (0, (n = 6), "having") == 0)
+          s.compare (0, (n = 6), "having") == 0 ||
+          s.compare (0, (n = 4), "EXEC") == 0 ||
+          s.compare (0, (n = 4), "exec") == 0 ||
+          s.compare (0, (n = 7), "EXECUTE") == 0 ||
+          s.compare (0, (n = 7), "execute") == 0)
       {
         // It either has to be an exact match, or there should be
         // a whitespace following the keyword.
