@@ -32,6 +32,7 @@ inverse                   \
 lazy-ptr                  \
 lifecycle                 \
 no-id                     \
+object                    \
 optimistic                \
 pragma                    \
 prepared                  \

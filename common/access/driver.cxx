@@ -95,7 +95,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        db->persist (o.p1 ());
+        const object1_ptr& ptr (o.p1 ());
+        db->persist (ptr);
         db->persist (o.p2 ());
         db->persist (o);
         t.commit ();
