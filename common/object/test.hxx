@@ -40,6 +40,11 @@ namespace test1
   {
     int n;
   };
+
+  // Test instantiation in order to "see" id, etc.
+  //
+  typedef base<int> int_base;
+  #pragma db object(int_base)
 }
 
 #endif // TEST_HXX
