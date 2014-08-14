@@ -11,6 +11,7 @@
 #include <cstddef>  // std::size_t
 
 #include <odb/statement.hxx>
+#include <odb/exceptions.hxx>
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
@@ -96,7 +97,8 @@ namespace odb
       // of columns bound.
       //
       ub4
-      bind_param (bind*, std::size_t count);
+      bind_param (bind*, std::size_t count,
+                  size_t batch = 1, std::size_t skip = 0);
 
       // Bind results for this statement. This function must only be
       // called once. Multiple calls to it will result in memory leaks
@@ -139,6 +141,50 @@ namespace odb
 
       unbind* udata_;
       std::size_t usize_;
+    };
+
+    class LIBODB_ORACLE_EXPORT bulk_statement: public statement
+    {
+    public:
+      virtual
+      ~bulk_statement () = 0;
+
+    protected:
+      bulk_statement (connection_type&,
+                      const std::string& text,
+                      statement_kind,
+                      const binding* process,
+                      bool optimize,
+                      std::size_t batch,
+                      sb4* status);
+
+      bulk_statement (connection_type&,
+                      const char* text,
+                      statement_kind,
+                      const binding* process,
+                      bool optimize,
+                      std::size_t batch,
+                      sb4* status);
+
+      // Call OCIStmtExecute() and set up the batch tracking variables (see
+      // below). The ignore_code argument specifies optional error code that
+      // should not be treated as an error.
+      //
+      sword
+      execute (std::size_t n, multiple_exceptions*, sb4 ignore_code = 0);
+
+      static const unsigned long long result_unknown = ~0ULL;
+
+      unsigned long long
+      affected (bool unique);
+
+    protected:
+      auto_handle<OCIError> err1_;
+      sb4* status_;                // Parameter sets status array.
+      std::size_t n_;              // Actual batch size.
+      std::size_t i_;              // Position in result.
+      std::size_t errors_;         // Number of parameter sets that failed.
+      multiple_exceptions* mex_;
     };
 
     class LIBODB_ORACLE_EXPORT generic_statement: public statement
@@ -251,7 +297,7 @@ namespace odb
       select_statement& s_;
     };
 
-    class LIBODB_ORACLE_EXPORT insert_statement: public statement
+    class LIBODB_ORACLE_EXPORT insert_statement: public bulk_statement
     {
     public:
       virtual
@@ -261,66 +307,87 @@ namespace odb
                         const std::string& text,
                         bool process_text,
                         binding& param,
-                        bool returning);
+                        binding* returning);
 
       insert_statement (connection_type& conn,
                         const char* text,
                         bool process_text,
                         binding& param,
-                        bool returning);
+                        binding* returning);
 
-      // Return true if successful and false if the row is a duplicate. All
-      // other errors are reported by throwing exceptions.
+      // Return the number of parameter sets (out of n) that were attempted.
+      //
+      std::size_t
+      execute (std::size_t n, multiple_exceptions& mex)
+      {
+        return execute (n, &mex);
+      }
+
+      // Return true if successful and false if this row is a duplicate.
+      // All other errors are reported via exceptions.
       //
       bool
-      execute ();
+      result (std::size_t i);
 
-      unsigned long long
-      id ();
+      bool
+      execute ()
+      {
+        execute (1, 0);
+        return result (0);
+      }
 
     private:
       insert_statement (const insert_statement&);
       insert_statement& operator= (const insert_statement&);
 
-      // Only OCI versions 11.2 and greater support conversion of the internal
-      // Oracle type NUMBER to an external 64-bit integer type. If we detect
-      // version 11.2 or greater we provide an unsigned long long image.
-      // Otherwise, we revert to using a NUMBER image and manipulate it using
-      // the custom conversion algorithms found in details/number.hxx.
-      //
-    public:
-      struct id_bind_type
-      {
-        union
-        {
-          struct
-          {
-            char buffer[21];
-            ub4 size;
-          } number;
-
-          unsigned long long integer;
-        } id;
-
-        sb2 indicator;
-      };
-
     private:
       void
-      init (binding& param, bool returning);
+      init (binding& param);
+
+      std::size_t
+      execute (std::size_t, multiple_exceptions*);
+
+      void
+      fetch (sword r, sb4 code);
+
+    public: // For odb_oracle_returning_*().
+      binding* ret_;
+      ub4 ret_size_; // You don't want to know (see statement.cxx).
+      ub2* ret_prev_;
 
     private:
-      id_bind_type id_bind_;
+      bool result_;
     };
 
-    class LIBODB_ORACLE_EXPORT update_statement: public statement
+    class LIBODB_ORACLE_EXPORT update_statement: public bulk_statement
     {
     public:
       virtual
       ~update_statement ();
 
+      // OCI does not expose individual affected row counts for batch
+      // operations. Instead, it adds them all up and returns a single
+      // count. This is bad news for us.
+      //
+      // In case of updating by primary key (the affected row count is
+      // either 1 or 0), we can recognize the presumably successful case
+      // where the total affected row count is equal to the batch size
+      // (we can also recognize the "all unsuccessful" case where the
+      // total affected row count is 0). The unique_hint argument in the
+      // constructors below indicates whether this is a "0 or 1" UPDATE
+      // statement.
+      //
+      // In all other situations (provided this is a batch), the result()
+      // function below returns the special result_unknown value.
+      //
       update_statement (connection_type& conn,
                         const std::string& text,
+                        bool process_text,
+                        binding& param);
+
+      update_statement (connection_type& conn,
+                        const std::string& text,
+                        bool unique_hint,
                         bool process_text,
                         binding& param);
 
@@ -329,37 +396,132 @@ namespace odb
                         bool process_text,
                         binding& param);
 
+      update_statement (connection_type& conn,
+                        const char* text,
+                        bool unique_hint,
+                        bool process_text,
+                        binding& param);
+
+      // Return the number of parameter sets (out of n) that were attempted.
+      //
+      std::size_t
+      execute (std::size_t n, multiple_exceptions& mex)
+      {
+        return execute (n, &mex);
+      }
+
+      // Return the number of rows affected (deleted) by the parameter
+      // set. If this is a batch (n > 1 in execute() call above) and it
+      // is impossible to determine the affected row count for each
+      // parameter set, then this function returns result_unknown. All
+      // other errors are reported by throwing exceptions.
+      //
+      using bulk_statement::result_unknown;
+
       unsigned long long
-      execute ();
+      result (std::size_t i);
+
+      unsigned long long
+      execute ()
+      {
+        execute (1, 0);
+        return result (0);
+      }
 
     private:
       update_statement (const update_statement&);
       update_statement& operator= (const update_statement&);
+
+    private:
+      std::size_t
+      execute (std::size_t, multiple_exceptions*);
+
+    private:
+      bool unique_;
+      unsigned long long result_;
     };
 
-    class LIBODB_ORACLE_EXPORT delete_statement: public statement
+    class LIBODB_ORACLE_EXPORT delete_statement: public bulk_statement
     {
     public:
       virtual
       ~delete_statement ();
 
+      // OCI does not expose individual affected row counts for batch
+      // operations. Instead, it adds them all up and returns a single
+      // count. This is bad news for us.
+      //
+      // In case of deleting by primary key (the affected row count is
+      // either 1 or 0), we can recognize the presumably successful case
+      // where the total affected row count is equal to the batch size
+      // (we can also recognize the "all unsuccessful" case where the
+      // total affected row count is 0). The unique_hint argument in the
+      // constructors below indicates whether this is a "0 or 1" DELETE
+      // statement.
+      //
+      // In all other situations (provided this is a batch), the result()
+      // function below returns the special result_unknown value.
+      //
       delete_statement (connection_type& conn,
                         const std::string& text,
+                        binding& param);
+
+      delete_statement (connection_type& conn,
+                        const std::string& text,
+                        bool unique_hint,
                         binding& param);
 
       delete_statement (connection_type& conn,
                         const char* text,
                         binding& param);
 
+      delete_statement (connection_type& conn,
+                        const char* text,
+                        bool unique_hint,
+                        binding& param);
+
+      // Return the number of parameter sets (out of n) that were attempted.
+      //
+      std::size_t
+      execute (std::size_t n, multiple_exceptions& mex)
+      {
+        return execute (n, &mex);
+      }
+
+      // Return the number of rows affected (deleted) by the parameter
+      // set. If this is a batch (n > 1 in execute() call above) and it
+      // is impossible to determine the affected row count for each
+      // parameter set, then this function returns result_unknown. All
+      // other errors are reported by throwing exceptions.
+      //
+      using bulk_statement::result_unknown;
+
       unsigned long long
-      execute ();
+      result (std::size_t i);
+
+      unsigned long long
+      execute ()
+      {
+        execute (1, 0);
+        return result (0);
+      }
 
     private:
       delete_statement (const delete_statement&);
       delete_statement& operator= (const delete_statement&);
+
+    private:
+      std::size_t
+      execute (std::size_t, multiple_exceptions*);
+
+    private:
+      bool unique_;
+      unsigned long long result_;
     };
   }
 }
+
+#include <odb/oracle/statement.ixx>
 
 #include <odb/post.hxx>
 

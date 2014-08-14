@@ -19,7 +19,8 @@ namespace odb
   namespace oracle
   {
     static void
-    translate_error (void* h, ub4 htype, sword r, connection* conn)
+    translate_error (void* h, ub4 htype, sword r, connection* conn,
+                     size_t pos, multiple_exceptions* mex)
     {
       assert (r != OCI_SUCCESS && r != OCI_SUCCESS_WITH_INFO);
 
@@ -186,25 +187,33 @@ namespace odb
         dbe.append (e, b);
       }
 
-      throw dbe;
+      if (mex == 0)
+        throw dbe;
+      else
+        // It could be that some of these errors are fatal. I guess we
+        // will just have to learn from experience which ones are. The
+        // client code can always treat specific error codes as fatal.
+        //
+        mex->insert (pos, dbe);
     }
 
     void
-    translate_error (OCIError* h, sword r)
+    translate_error (OCIError* h, sword r, connection* c,
+                     size_t pos, multiple_exceptions* mex)
     {
-      translate_error (h, OCI_HTYPE_ERROR, r, 0);
+      translate_error (h, OCI_HTYPE_ERROR, r, c, pos, mex);
     }
 
     void
     translate_error (connection& c, sword r)
     {
-      translate_error (c.error_handle (), OCI_HTYPE_ERROR, r, &c);
+      translate_error (c.error_handle (), OCI_HTYPE_ERROR, r, &c, 0, 0);
     }
 
     void
     translate_error (OCIEnv* h)
     {
-      translate_error (h, OCI_HTYPE_ENV, OCI_ERROR, 0);
+      translate_error (h, OCI_HTYPE_ENV, OCI_ERROR, 0, 0, 0);
     }
   }
 }

@@ -306,7 +306,7 @@ namespace odb
               object_traits::persist_statement,
               object_traits::versioned, // Process if versioned.
               insert_image_binding_,
-              false));
+              0));
 
         return *persist_;
       }
@@ -366,6 +366,7 @@ namespace odb
         return extra_statement_cache_.get (
           conn_,
           image_,
+          id_image (),
           id_image_binding (),
           &id_image_binding ()); // Note, not id+version.
       }
@@ -404,8 +405,9 @@ namespace odb
       root_statements_type& root_statements_;
       base_statements_type& base_statements_;
 
-      extra_statement_cache_ptr<extra_statement_cache_type, image_type>
-      extra_statement_cache_;
+      extra_statement_cache_ptr<extra_statement_cache_type,
+                                image_type,
+                                id_image_type> extra_statement_cache_;
 
       image_type image_;
 

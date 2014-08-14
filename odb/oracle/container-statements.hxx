@@ -122,7 +122,7 @@ namespace odb
               insert_text_,
               versioned_,   // Process if versioned.
               insert_image_binding_,
-              false));
+              0));
 
         return *insert_;
       }

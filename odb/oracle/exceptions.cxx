@@ -57,6 +57,12 @@ namespace odb
       return what_.c_str ();
     }
 
+    database_exception* database_exception::
+    clone () const
+    {
+      return new database_exception (*this);
+    }
+
     //
     // lob_comparison
     //
@@ -65,6 +71,12 @@ namespace odb
     what () const throw ()
     {
       return "comparison of LOB values in queries not supported";
+    }
+
+    lob_comparison* lob_comparison::
+    clone () const
+    {
+      return new lob_comparison (*this);
     }
 
     //
@@ -88,6 +100,12 @@ namespace odb
       return what_.c_str ();
     }
 
+    cli_exception* cli_exception::
+    clone () const
+    {
+      return new cli_exception (*this);
+    }
+
     //
     // invalid_oci_handle
     //
@@ -96,6 +114,12 @@ namespace odb
     what () const throw ()
     {
       return "invalid oci handle passed or unable to allocate handle";
+    }
+
+    invalid_oci_handle* invalid_oci_handle::
+    clone () const
+    {
+      return new invalid_oci_handle (*this);
     }
   }
 }

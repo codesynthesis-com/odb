@@ -76,6 +76,9 @@ namespace odb
       virtual const char*
       what () const throw ();
 
+      virtual database_exception*
+      clone () const;
+
       void
       append (sb4 error, const std::string& message);
 
@@ -88,6 +91,9 @@ namespace odb
     {
       virtual const char*
       what () const throw ();
+
+      virtual lob_comparison*
+      clone () const;
     };
 
     struct LIBODB_ORACLE_EXPORT cli_exception: odb::exception
@@ -98,6 +104,9 @@ namespace odb
       virtual const char*
       what () const throw ();
 
+      virtual cli_exception*
+      clone () const;
+
     private:
       std::string what_;
     };
@@ -106,6 +115,9 @@ namespace odb
     {
       virtual const char*
       what () const throw ();
+
+      virtual invalid_oci_handle*
+      clone () const;
     };
 
     namespace core

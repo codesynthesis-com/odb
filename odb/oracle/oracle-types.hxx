@@ -115,7 +115,8 @@ namespace odb
                         // bindings, this is interpreted as the OCIDefine
                         // handle associated with the LOB result parameter.
       ub4 capacity;     // The maximum number of bytes that can be stored in
-                        // the buffer.
+                        // the buffer. For LOBs, it used to store array skip
+                        // size.
       sb2* indicator;   // Pointer to an OCI indicator variable.
 
       lob_callback* callback;

@@ -27,6 +27,13 @@ namespace odb
 
     template <typename T>
     inline typename object_traits<T>::id_type database::
+    persist (const T& obj)
+    {
+      return persist_<const T, id_oracle> (obj);
+    }
+
+    template <typename T>
+    inline typename object_traits<T>::id_type database::
     persist (T* p)
     {
       typedef typename object_traits<T>::pointer_type object_pointer;
@@ -91,6 +98,13 @@ namespace odb
     persist (const typename object_traits<T>::pointer_type& pobj)
     {
       return persist_<T, id_oracle> (pobj);
+    }
+
+    template <typename I>
+    inline void database::
+    persist (I b, I e, bool cont)
+    {
+      persist_<I, id_oracle> (b, e, cont);
     }
 
     template <typename T>
@@ -254,6 +268,13 @@ namespace odb
       update_<T, id_oracle> (pobj);
     }
 
+    template <typename I>
+    inline void database::
+    update (I b, I e, bool cont)
+    {
+      update_<I, id_oracle> (b, e, cont);
+    }
+
     template <typename T>
     inline void database::
     update (const T& obj, const section& s)
@@ -341,6 +362,20 @@ namespace odb
     erase (const typename object_traits<T>::pointer_type& pobj)
     {
       erase_<T, id_oracle> (pobj);
+    }
+
+    template <typename T, typename I>
+    inline void database::
+    erase (I idb, I ide, bool cont)
+    {
+      erase_id_<I, T, id_oracle> (idb, ide, cont);
+    }
+
+    template <typename I>
+    inline void database::
+    erase (I ob, I oe, bool cont)
+    {
+      erase_object_<I, id_oracle> (ob, oe, cont);
     }
 
     template <typename T>

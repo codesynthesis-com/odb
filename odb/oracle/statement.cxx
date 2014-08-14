@@ -4,7 +4,7 @@
 
 #include <oci.h>
 
-#include <cstring> // std::strlen
+#include <cstring> // std::strlen, std::memset
 #include <cassert>
 
 #include <odb/tracer.hxx>
@@ -70,10 +70,18 @@ namespace odb
       SQLT_CLOB         // bind::nclob
     };
 
+    template <typename T>
+    inline T*
+    offset (T* base, size_t count, size_t size)
+    {
+      return reinterpret_cast<T*> (
+        reinterpret_cast<char*> (base) + count * size);
+    }
+
     extern "C" sb4
     odb_oracle_param_callback_proxy (void* context,
                                      OCIBind*,
-                                     ub4,               // iteration
+                                     ub4 it,            // iteration
                                      ub4,               // index
                                      void** buffer,
                                      ub4* size,
@@ -81,15 +89,23 @@ namespace odb
                                      void** indicator)
     {
       bind& b (*static_cast<bind*> (context));
-      lob* l (static_cast<lob*> (b.buffer));
+
+      // Offset the data based on the current iteration and skip size (stored
+      // in capacity).
+      //
+      sb2* ind (offset (b.indicator, it, b.capacity));
 
       // Only call the callback if the parameter is not NULL.
       //
-      if (*b.indicator != -1)
+      if (*ind != -1)
       {
+        lob* l (static_cast<lob*> (offset (b.buffer, it, b.capacity)));
+        lob_callback* cb (
+          static_cast<lob_callback*> (offset (b.callback, it, b.capacity)));
+
         chunk_position pos;
-        if (!(*b.callback->callback.param) (
-              b.callback->context.param,
+        if (!(*cb->callback.param) (
+              cb->context.param,
               &l->position,
               const_cast<const void**> (buffer),
               size,
@@ -125,7 +141,7 @@ namespace odb
       else
         *piece = OCI_ONE_PIECE;
 
-      *indicator = b.indicator;
+      *indicator = ind;
 
       return OCI_CONTINUE;
     }
@@ -321,7 +337,7 @@ namespace odb
     }
 
     ub4 statement::
-    bind_param (bind* b, size_t n)
+    bind_param (bind* b, size_t n, size_t batch, size_t skip)
     {
       // Figure out how many unbind elements we will need and allocate them.
       //
@@ -361,6 +377,11 @@ namespace odb
           }
         }
 
+        // Unbind is only used in queries which means there should be no
+        // batches.
+        //
+        assert (un == 0 || batch == 1);
+
         if (un != 0)
           udata_ = new unbind[un];
       }
@@ -387,186 +408,210 @@ namespace odb
         {
         case bind::timestamp:
           {
-            datetime* dt (static_cast<datetime*> (b->buffer));
-
-            if (dt->descriptor == 0)
+            for (size_t i (0); i != batch; ++i)
             {
-              void* d (0);
-              r = OCIDescriptorAlloc (env,
-                                      &d,
-                                      OCI_DTYPE_TIMESTAMP,
-                                      0,
-                                      0);
+              datetime* dt (
+                static_cast<datetime*> (offset (b->buffer, i, skip)));
 
-              if (r != OCI_SUCCESS)
-                throw invalid_oci_handle ();
+              void* pd (0); // Pointer to descriptor.
 
-              if (dt->flags & descriptor_cache)
+              if (dt->descriptor == 0)
               {
-                dt->descriptor = static_cast<OCIDateTime*> (d);
-                dt->environment = env;
-                dt->error = err;
-              }
+                void* d (0);
+                r = OCIDescriptorAlloc (env,
+                                        &d,
+                                        OCI_DTYPE_TIMESTAMP,
+                                        0,
+                                        0);
 
-              // If the datetime instance is not responsible for the
-              // descriptor, then we have to arrange to have it freed
-              // using the unbind machinery.
-              //
-              if ((dt->flags & descriptor_free) == 0)
-              {
-                unbind& u (udata_[usize_++]);
+                if (r != OCI_SUCCESS)
+                  throw invalid_oci_handle ();
 
-                u.type = bind::timestamp;
-                u.bind = (dt->flags & descriptor_cache) ? b : 0;
-                u.value = d;
-                value = &u.value;
+                if (dt->flags & descriptor_cache)
+                {
+                  dt->descriptor = static_cast<OCIDateTime*> (d);
+                  dt->environment = env;
+                  dt->error = err;
+                }
+
+                // If the datetime instance is not responsible for the
+                // descriptor, then we have to arrange to have it freed
+                // using the unbind machinery.
+                //
+                if ((dt->flags & descriptor_free) == 0)
+                {
+                  unbind& u (udata_[usize_++]);
+
+                  u.type = bind::timestamp;
+                  u.bind = (dt->flags & descriptor_cache) ? b : 0;
+                  u.value = d;
+                  pd = &u.value;
+                }
+                else
+                  pd = &dt->descriptor;
+
+                // Initialize the descriptor from the cached data.
+                //
+                if (b->indicator == 0 || *b->indicator != -1)
+                  r = OCIDateTimeConstruct (env,
+                                            err,
+                                            static_cast<OCIDateTime*> (d),
+                                            dt->year_,
+                                            dt->month_,
+                                            dt->day_,
+                                            dt->hour_,
+                                            dt->minute_,
+                                            dt->second_,
+                                            dt->nanosecond_,
+                                            0,
+                                            0);
+
+                if (r != OCI_SUCCESS)
+                  translate_error (err, r);
               }
               else
-                value = &dt->descriptor;
+                pd = &dt->descriptor;
 
-              // Initialize the descriptor from the cached data.
-              //
-              if (b->indicator == 0 || *b->indicator != -1)
-                r = OCIDateTimeConstruct (env,
-                                          err,
-                                          static_cast<OCIDateTime*> (d),
-                                          dt->year_,
-                                          dt->month_,
-                                          dt->day_,
-                                          dt->hour_,
-                                          dt->minute_,
-                                          dt->second_,
-                                          dt->nanosecond_,
-                                          0,
-                                          0);
-
-              if (r != OCI_SUCCESS)
-                translate_error (err, r);
+              if (i == 0)
+                value = pd;
             }
-            else
-              value = &dt->descriptor;
 
             capacity = static_cast<sb4> (sizeof (OCIDateTime*));
-
             break;
           }
         case bind::interval_ym:
           {
-            interval_ym* iym (static_cast<interval_ym*> (b->buffer));
-
-            if (iym->descriptor == 0)
+            for (size_t i (0); i != batch; ++i)
             {
-              void* d (0);
-              r = OCIDescriptorAlloc (env,
-                                      &d,
-                                      OCI_DTYPE_INTERVAL_YM,
-                                      0,
-                                      0);
+              interval_ym* iym (
+                static_cast<interval_ym*> (offset (b->buffer, i, skip)));
 
-              if (r != OCI_SUCCESS)
-                throw invalid_oci_handle ();
+              void* pd (0); // Pointer to descriptor.
 
-              if (iym->flags & descriptor_cache)
+              if (iym->descriptor == 0)
               {
-                iym->descriptor = static_cast<OCIInterval*> (d);
-                iym->environment = env;
-                iym->error = err;
-              }
+                void* d (0);
+                r = OCIDescriptorAlloc (env,
+                                        &d,
+                                        OCI_DTYPE_INTERVAL_YM,
+                                        0,
+                                        0);
 
-              // If the interval_ym instance is not responsible for the
-              // descriptor, then we have to arrange to have it freed
-              // using the unbind machinery.
-              //
-              if ((iym->flags & descriptor_free) == 0)
-              {
-                unbind& u (udata_[usize_++]);
+                if (r != OCI_SUCCESS)
+                  throw invalid_oci_handle ();
 
-                u.type = bind::interval_ym;
-                u.bind = (iym->flags & descriptor_cache) ? b : 0;
-                u.value = d;
-                value = &u.value;
+                if (iym->flags & descriptor_cache)
+                {
+                  iym->descriptor = static_cast<OCIInterval*> (d);
+                  iym->environment = env;
+                  iym->error = err;
+                }
+
+                // If the interval_ym instance is not responsible for the
+                // descriptor, then we have to arrange to have it freed
+                // using the unbind machinery.
+                //
+                if ((iym->flags & descriptor_free) == 0)
+                {
+                  unbind& u (udata_[usize_++]);
+
+                  u.type = bind::interval_ym;
+                  u.bind = (iym->flags & descriptor_cache) ? b : 0;
+                  u.value = d;
+                  pd = &u.value;
+                }
+                else
+                  pd = &iym->descriptor;
+
+                // Initialize the descriptor from the cached data.
+                //
+                if (b->indicator == 0 || *b->indicator != -1)
+                  r = OCIIntervalSetYearMonth (env,
+                                               err,
+                                               iym->year_,
+                                               iym->month_,
+                                               static_cast<OCIInterval*> (d));
+
+                if (r != OCI_SUCCESS)
+                  translate_error (err, r);
               }
               else
-                value = &iym->descriptor;
+                pd = &iym->descriptor;
 
-              // Initialize the descriptor from the cached data.
-              //
-              if (b->indicator == 0 || *b->indicator != -1)
-                r = OCIIntervalSetYearMonth (env,
-                                             err,
-                                             iym->year_,
-                                             iym->month_,
-                                             static_cast<OCIInterval*> (d));
-
-              if (r != OCI_SUCCESS)
-                translate_error (err, r);
+              if (i == 0)
+                value = pd;
             }
-            else
-              value = &iym->descriptor;
 
             capacity = static_cast<sb4> (sizeof (OCIInterval*));
-
             break;
           }
         case bind::interval_ds:
           {
-            interval_ds* ids (static_cast<interval_ds*> (b->buffer));
-
-            if (ids->descriptor == 0)
+            for (size_t i (0); i != batch; ++i)
             {
-              void* d (0);
-              r = OCIDescriptorAlloc (env,
-                                      &d,
-                                      OCI_DTYPE_INTERVAL_DS,
-                                      0,
-                                      0);
+              interval_ds* ids (
+                static_cast<interval_ds*> (offset (b->buffer, i, skip)));
 
-              if (r != OCI_SUCCESS)
-                throw invalid_oci_handle ();
+              void* pd (0); // Pointer to descriptor.
 
-              if (ids->flags & descriptor_cache)
+              if (ids->descriptor == 0)
               {
-                ids->descriptor = static_cast<OCIInterval*> (d);
-                ids->environment = env;
-                ids->error = err;
-              }
+                void* d (0);
+                r = OCIDescriptorAlloc (env,
+                                        &d,
+                                        OCI_DTYPE_INTERVAL_DS,
+                                        0,
+                                        0);
 
-              // If the interval_ds instance is not responsible for the
-              // descriptor, then we have to arrange to have it freed
-              // using the unbind machinery.
-              //
-              if ((ids->flags & descriptor_free) == 0)
-              {
-                unbind& u (udata_[usize_++]);
+                if (r != OCI_SUCCESS)
+                  throw invalid_oci_handle ();
 
-                u.type = bind::interval_ds;
-                u.bind = (ids->flags & descriptor_cache) ? b : 0;
-                u.value = d;
-                value = &u.value;
+                if (ids->flags & descriptor_cache)
+                {
+                  ids->descriptor = static_cast<OCIInterval*> (d);
+                  ids->environment = env;
+                  ids->error = err;
+                }
+
+                // If the interval_ds instance is not responsible for the
+                // descriptor, then we have to arrange to have it freed
+                // using the unbind machinery.
+                //
+                if ((ids->flags & descriptor_free) == 0)
+                {
+                  unbind& u (udata_[usize_++]);
+
+                  u.type = bind::interval_ds;
+                  u.bind = (ids->flags & descriptor_cache) ? b : 0;
+                  u.value = d;
+                  pd = &u.value;
+                }
+                else
+                  pd = &ids->descriptor;
+
+                // Initialize the descriptor from the cached data.
+                //
+                if (b->indicator == 0 || *b->indicator != -1)
+                  r = OCIIntervalSetDaySecond (env,
+                                               err,
+                                               ids->day_,
+                                               ids->hour_,
+                                               ids->minute_,
+                                               ids->second_,
+                                               ids->nanosecond_,
+                                               static_cast<OCIInterval*> (d));
+
+                if (r != OCI_SUCCESS)
+                  translate_error (err, r);
               }
               else
-                value = &ids->descriptor;
+                pd = &ids->descriptor;
 
-              // Initialize the descriptor from the cached data.
-              //
-              if (b->indicator == 0 || *b->indicator != -1)
-                r = OCIIntervalSetDaySecond (env,
-                                             err,
-                                             ids->day_,
-                                             ids->hour_,
-                                             ids->minute_,
-                                             ids->second_,
-                                             ids->nanosecond_,
-                                             static_cast<OCIInterval*> (d));
-
-              if (r != OCI_SUCCESS)
-                translate_error (err, r);
+              if (i == 0)
+                value = pd;
             }
-            else
-              value = &ids->descriptor;
 
             capacity = static_cast<sb4> (sizeof (OCIInterval*));
-
             break;
           }
         case bind::blob:
@@ -589,7 +634,11 @@ namespace odb
               // However, in Oracle, LOBs cannot be used in queries so we can
               // make an exception here.
               //
-              l->buffer = &lob_buffer;
+              for (size_t i (0); i != batch;)
+              {
+                l->buffer = &lob_buffer;
+                l = static_cast<lob*> (offset (b->buffer, ++i, skip));
+              }
             }
 
             assert (callback);
@@ -602,6 +651,11 @@ namespace odb
             // used with callbacks.
             //
             capacity = 4096;
+
+            // Store skip in capacity so that the callback can offset the
+            // values based on the iteration number.
+            //
+            b->capacity = static_cast<ub4> (skip);
 
             break;
           }
@@ -682,6 +736,23 @@ namespace odb
         {
           r = OCIBindDynamic (
             h, err, b, &odb_oracle_param_callback_proxy, 0, 0);
+
+          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+            translate_error (err, r);
+        }
+
+        // Set array information if we have a batch.
+        //
+        if (batch != 1)
+        {
+          ub4 s (static_cast<ub4> (skip));
+
+          r = OCIBindArrayOfStruct (h,
+                                    err,
+                                    (value != 0 ? s : 0),        // value
+                                    (b->indicator != 0 ? s : 0), // indicator
+                                    (size != 0 ? s : 0),         // length
+                                    0);                          // return code
 
           if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
             translate_error (err, r);
@@ -1175,6 +1246,206 @@ namespace odb
     }
 
     //
+    // bulk_statement
+    //
+
+    bulk_statement::
+    ~bulk_statement () {}
+
+    sword bulk_statement::
+    execute (size_t n, multiple_exceptions* mex, sb4 ignore_code)
+    {
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+          t->execute (conn_, *this);
+      }
+
+      mex_ = mex;
+
+      OCIError* err (conn_.error_handle ());
+
+      // We use OCI_BATCH_ERRORS for n == 1 in order to get the batch
+      // error reporting even for a single parameter set. This makes
+      // it easier to populate mex since otherwise we would have two
+      // cases to worry about: batch and non-batch (statement fails
+      // as a whole).
+      //
+      sword r (OCIStmtExecute (conn_.handle (),
+                               stmt_,
+                               err,
+                               static_cast<ub4> (n),
+                               0,
+                               0,
+                               0,
+                               status_ == 0 ? OCI_DEFAULT : OCI_BATCH_ERRORS));
+
+      // If the statement failed as a whole, assume no parameter sets
+      // were attempted in case of a batch. Otherwise, in the batch
+      // errors mode, all the sets are always attempted (let's hope
+      // this is actually true).
+      //
+      i_ = 0;
+      n_ = (r == OCI_ERROR || r == OCI_INVALID_HANDLE
+            ? (status_ == 0 ? 1 : 0)
+            : n);
+
+      if (mex_ != 0)
+      {
+        mex_->current (i_);
+        mex_->attempted (n_);
+      }
+
+      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+      {
+        if (mex_ != 0)
+          mex_->fatal (true); // An incomplete batch is always fatal.
+
+        return r;
+      }
+
+      // Initialize the batch status array and extract error information
+      // for failed parameter sets.
+      //
+      if (status_ != 0)
+      {
+        sword r; // Our own return code.
+
+        // Clear the status array.
+        //
+        memset (status_, 0, n * sizeof (status_[0]));
+
+        if (err1_ == 0)
+        {
+          OCIError* e (0);
+          r = OCIHandleAlloc (conn_.database ().environment (),
+                              reinterpret_cast<void**> (&e),
+                              OCI_HTYPE_ERROR,
+                              0,
+                              0);
+
+          if (r != OCI_SUCCESS)
+            throw invalid_oci_handle ();
+
+          err1_.reset (e);
+        }
+
+        ub4 errors;
+        r = OCIAttrGet (stmt_,
+                        OCI_HTYPE_STMT,
+                        &errors,
+                        0,
+                        OCI_ATTR_NUM_DML_ERRORS,
+                        err1_);
+
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (err1_, r);
+
+        errors_ = errors;
+
+        if (errors != 0)
+        {
+          auto_handle<OCIError> err2;
+
+          {
+            OCIError* e (0);
+            r = OCIHandleAlloc (conn_.database ().environment (),
+                                reinterpret_cast<void**> (&e),
+                                OCI_HTYPE_ERROR,
+                                0,
+                                0);
+
+            if (r != OCI_SUCCESS)
+              throw invalid_oci_handle ();
+
+            err2.reset (e);
+          }
+
+          for (ub4 i (0); i != errors; ++i)
+          {
+            {
+              OCIError* tmp (err2);
+              r = OCIParamGet (err,                             // from
+                               OCI_HTYPE_ERROR,
+                               err1_,                            // diagnostics
+                               reinterpret_cast<void**> (&tmp), // to
+                               i);
+
+              if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+                translate_error (err1_, r);
+            }
+
+            ub4 row;
+            r = OCIAttrGet (err2,
+                            OCI_HTYPE_ERROR,
+                            &row,
+                            0,
+                            OCI_ATTR_DML_ROW_OFFSET,
+                            err1_);
+
+            if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+              translate_error (err1_, r);
+
+            OCIErrorGet (err2, 1, 0, &status_[row], 0, 0, OCI_HTYPE_ERROR);
+
+            if (status_[row] != ignore_code)
+              translate_error (err2, OCI_ERROR, &conn_, row, mex_);
+          }
+        }
+      }
+
+      return r;
+    }
+
+    unsigned long long bulk_statement::
+    affected (bool unique)
+    {
+      unsigned long long rows;
+      {
+        ub4 n (0);
+        OCIError* err (conn_.error_handle ());
+        sword r (OCIAttrGet (stmt_,
+                             OCI_HTYPE_STMT,
+                             &n,
+                             0,
+                             OCI_ATTR_ROW_COUNT,
+                             err));
+
+        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
+          translate_error (err, r);
+
+        rows = static_cast<unsigned long long> (n);
+      }
+
+      if (n_ > 1) // Batch.
+      {
+        if (rows != 0) // Some rows did get affected.
+        {
+          // Subtract the parameter sets that failed since they haven't
+          // affected any rows.
+          //
+          size_t p (n_ - errors_);
+
+          if (p > 1) // True batch.
+          {
+            if (unique) // Each can affect 0 or 1 row.
+            {
+              rows = (p == static_cast<size_t> (rows)
+                      ? 1
+                      : result_unknown);
+            }
+            else
+              rows = result_unknown;
+          }
+        }
+      }
+
+      return rows;
+    }
+
+    //
     // generic_statement
     //
 
@@ -1559,22 +1830,25 @@ namespace odb
     extern "C" sb4
     odb_oracle_returning_in (void* context,
                              OCIBind*,       // bind
-                             ub4,            // iter
+                             ub4 it,         // iter
                              ub4,            // index
                              void** buffer,
                              ub4* size,
                              ub1* piece,
                              void** indicator)
     {
-      typedef insert_statement::id_bind_type bind;
+      binding& ret (*static_cast<insert_statement*> (context)->ret_);
 
-      bind& b (*static_cast<bind*> (context));
-
+      // Offset the data based on the current iteration and skip size.
+      // The id is always first.
+      //
       *buffer = 0;
       *size = 0;
       *piece = OCI_ONE_PIECE;
-      b.indicator = -1;
-      *indicator = &b.indicator;
+
+      sb2* ind (offset (ret.bind[0].indicator, it, ret.skip));
+      *ind = -1;
+      *indicator = ind;
 
       return OCI_CONTINUE;
     }
@@ -1582,30 +1856,56 @@ namespace odb
     extern "C" sb4
     odb_oracle_returning_out (void* context,
                               OCIBind*,        // bind
-                              ub4,             // iter
+                              ub4 it,          // iter
                               ub4,             // index
                               void** buffer,
                               ub4** size,
-                              ub1*,            // piece
+                              ub1* piece,
                               void** indicator,
                               ub2** rcode)
     {
-      typedef insert_statement::id_bind_type bind;
+      insert_statement& st (*static_cast<insert_statement*> (context));
+      bind& b (st.ret_->bind[0]); // The id is always first.
+      size_t skip (st.ret_->skip);
 
-      bind& b (*static_cast<bind*> (context));
+      // Offset the data based on the current iteration and skip size.
+      //
+      *buffer = offset (b.buffer, it, skip);
 
-#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
-  || OCI_MAJOR_VERSION > 11
-      *buffer = &b.id.integer;
-      **size = sizeof (unsigned long long);
-#else
-      *buffer = b.id.number.buffer;
-      *size = &b.id.number.size;
-      b.id.number.size = 21;
-#endif
+      if (b.type == bind::number)
+      {
+        // So the straightforward way to handle this would have been to
+        // set size to the properly offset pointer to b.size, just like
+        // we do for the buffer and indicator. The problem is that in
+        // OCI size is ub2 everywhere except in the *Dynamic() callbacks.
+        // Here it is expected to be ub4 and, as a result, we cannot use
+        // our ub2 size that we use throughout (I know you are tempted
+        // to just cast ub2* to ub4* and forget about this mess, but,
+        // trust me, this won't end up well).
+        //
+        // So what we will do instead is this: have a temporary ub4 buffer
+        // that we return to OCI so that it can store the size for us. But
+        // the callback can be called multiple times (batch operations) so
+        // on each subsequent call we will have to save the size from the
+        // previous call into our ub2 array. We will also have to handle
+        // the last extracted size after OCIStmtExecute() below. Thanks,
+        // Oracle!
+        //
+        if (st.ret_prev_ != 0)
+          *st.ret_prev_ = static_cast<ub2> (st.ret_size_);
 
-      *indicator = &b.indicator;
+        st.ret_prev_ = offset (b.size, it, skip);
+        *size = &st.ret_size_;
+      }
+
+      // For some reason we have to set the out size to the (presumably)
+      // maximum buffer size.
+      //
+      **size = b.capacity;
+
+      *indicator = offset (b.indicator, it, skip);
       *rcode = 0;
+      *piece = OCI_ONE_PIECE;
 
       return OCI_CONTINUE;
     }
@@ -1620,12 +1920,14 @@ namespace odb
                       const string& text,
                       bool process,
                       binding& param,
-                      bool returning)
-        : statement (conn,
-                     text, statement_insert,
-                     (process ? &param : 0), false)
+                      binding* returning)
+        : bulk_statement (conn,
+                          text, statement_insert,
+                          (process ? &param : 0), false,
+                          param.batch, param.status),
+          ret_ (returning)
     {
-      init (param, returning);
+      init (param);
     }
 
     insert_statement::
@@ -1633,37 +1935,44 @@ namespace odb
                       const char* text,
                       bool process,
                       binding& param,
-                      bool returning)
-        : statement (conn,
-                     text, statement_insert,
-                     (process ? &param : 0), false)
+                      binding* returning)
+        : bulk_statement (conn,
+                          text, statement_insert,
+                          (process ? &param : 0), false,
+                          param.batch, param.status),
+          ret_ (returning)
     {
-      init (param, returning);
+      init (param);
     }
 
     void insert_statement::
-    init (binding& param, bool returning)
+    init (binding& param)
     {
-      ub4 param_count (bind_param (param.bind, param.count));
-
-      if (returning)
+      ub4 param_count (bind_param (param.bind, param.count,
+                                   param.batch, param.skip));
+      if (ret_ != 0)
       {
         OCIError* err (conn_.error_handle ());
         OCIBind* h (0);
 
+        bind* b (ret_->bind);
+
+#if OCI_MAJOR_VERSION < 11 ||                           \
+  (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION < 2)
+        // Assert if a 64 bit integer buffer type is provided and the OCI
+        // version is unable to implicitly convert the NUMBER binary data
+        // to the relevant type.
+        //
+        assert ((b->type != bind::integer && b->type != bind::uinteger) ||
+                b->capacity <= 4);
+#endif
         sword r (OCIBindByPos (stmt_,
                                &h,
                                err,
                                param_count + 1,
                                0,
-#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
-  || OCI_MAJOR_VERSION > 11
-                               sizeof (unsigned long long),
-                               SQLT_UIN,
-#else
-                               21,
-                               SQLT_NUM,
-#endif
+                               b->capacity,
+                               param_sqlt_lookup[b->type],
                                0,
                                0,
                                0,
@@ -1676,9 +1985,9 @@ namespace odb
 
         r = OCIBindDynamic (h,
                             err,
-                            &id_bind_,
+                            this,
                             &odb_oracle_returning_in,
-                            &id_bind_,
+                            this,
                             &odb_oracle_returning_out);
 
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
@@ -1686,71 +1995,47 @@ namespace odb
       }
     }
 
-    bool insert_statement::
-    execute ()
+    size_t insert_statement::
+    execute (size_t n, multiple_exceptions* mex)
     {
-      {
-        odb::tracer* t;
-        if ((t = conn_.transaction_tracer ()) ||
-            (t = conn_.tracer ()) ||
-            (t = conn_.database ().tracer ()))
-          t->execute (conn_, *this);
-      }
-
       OCIError* err (conn_.error_handle ());
 
-      sword r (OCIStmtExecute (conn_.handle (),
-                               stmt_,
-                               err,
-                               1,
-                               0,
-                               0,
-                               0,
-                               OCI_DEFAULT));
+      if (ret_ != 0)
+        ret_prev_ = 0;
 
+      // Ignore ORA-00001 error code, see fetch() below for details.
+      //
+      sword r (bulk_statement::execute (n, mex, (ret_ == 0 ? 1 : 0)));
+
+      // Statement failed as a whole, assume no parameter sets were
+      // attempted in case of a batch.
+      //
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
       {
         sb4 e;
         OCIErrorGet (err, 1, 0, &e, 0, 0, OCI_HTYPE_ERROR);
+        fetch (r, e);
 
-        // The Oracle error code ORA-00001 indicates unique constraint
-        // violation, which covers more than just a duplicate primary key.
-        // Unfortunately, there is nothing more precise that we can use.
-        //
-        if (e == 1)
-          return false;
-        else
-          translate_error (conn_, r);
+        if (result_) // If fetch() hasn't translated the error.
+          translate_error (err, r, &conn_, 0, mex_); // Can return.
+
+        return n_;
       }
 
-      ub4 row_count (0);
-      r = OCIAttrGet (stmt_,
-                      OCI_HTYPE_STMT,
-                      &row_count,
-                      0,
-                      OCI_ATTR_ROW_COUNT,
-                      err);
-
-      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (err, r);
-
-      // The value of the OCI_ATTR_ROW_COUNT attribute associated with an
-      // INSERT statment represents the number of rows inserted.
+      // Store the last returned id size (see odb_oracle_returning_out()
+      // for details).
       //
-      return row_count != 0;
-    }
+      if (ret_ != 0 && ret_prev_ != 0)
+        *ret_prev_ = static_cast<ub2> (ret_size_);
 
-    unsigned long long insert_statement::
-    id ()
-    {
-#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >=2) \
-  || OCI_MAJOR_VERSION > 11
-      return id_bind_.id.integer;
-#else
-      return details::number_to_uint64 (
-        id_bind_.id.number.buffer,
-        static_cast <std::size_t> (id_bind_.id.number.size));
-#endif
+      if (status_ == 0) // Non-batch mode.
+        fetch (OCI_SUCCESS, 0);
+      else
+      {
+        fetch (status_[i_] == 0 ? OCI_SUCCESS : OCI_ERROR, status_[i_]);
+      }
+
+      return n_;
     }
 
     //
@@ -1767,12 +2052,32 @@ namespace odb
                       const string& text,
                       bool process,
                       binding& param)
-        : statement (conn,
-                     text, statement_update,
-                     (process ? &param : 0), false)
+        : bulk_statement (conn,
+                          text, statement_update,
+                          (process ? &param : 0), false,
+                          param.batch, param.status),
+          unique_ (false)
+    {
+      assert (param.batch == 1); // Specify unique_hint explicitly.
+
+      if (!empty ())
+        bind_param (param.bind, param.count, param.batch, param.skip);
+    }
+
+    update_statement::
+    update_statement (connection_type& conn,
+                      const string& text,
+                      bool unique,
+                      bool process,
+                      binding& param)
+        : bulk_statement (conn,
+                          text, statement_update,
+                          (process ? &param : 0), false,
+                          param.batch, param.status),
+          unique_ (unique)
     {
       if (!empty ())
-        bind_param (param.bind, param.count);
+        bind_param (param.bind, param.count, param.batch, param.skip);
     }
 
     update_statement::
@@ -1780,55 +2085,55 @@ namespace odb
                       const char* text,
                       bool process,
                       binding& param)
-        : statement (conn,
-                     text, statement_update,
-                     (process ? &param : 0), false)
+        : bulk_statement (conn,
+                          text, statement_update,
+                          (process ? &param : 0), false,
+                          param.batch, param.status),
+          unique_ (false)
     {
+      assert (param.batch == 1); // Specify unique_hint explicitly.
+
       if (!empty ())
-        bind_param (param.bind, param.count);
+        bind_param (param.bind, param.count, param.batch, param.skip);
     }
 
-    unsigned long long update_statement::
-    execute ()
+    update_statement::
+    update_statement (connection_type& conn,
+                      const char* text,
+                      bool unique,
+                      bool process,
+                      binding& param)
+        : bulk_statement (conn,
+                          text, statement_update,
+                          (process ? &param : 0), false,
+                          param.batch, param.status),
+          unique_ (unique)
     {
+      if (!empty ())
+        bind_param (param.bind, param.count, param.batch, param.skip);
+    }
+
+    size_t update_statement::
+    execute (size_t n, multiple_exceptions* mex)
+    {
+      OCIError* err (conn_.error_handle ());
+      sword r (bulk_statement::execute (n, mex));
+
+      // Statement failed as a whole, assume no parameter sets were
+      // attempted in case of a batch.
+      //
+      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
       {
-        odb::tracer* t;
-        if ((t = conn_.transaction_tracer ()) ||
-            (t = conn_.tracer ()) ||
-            (t = conn_.database ().tracer ()))
-          t->execute (conn_, *this);
+        translate_error (err, r, &conn_, 0, mex_); // Can return.
+        return n_;
       }
 
-      OCIError* err (conn_.error_handle ());
-
-      sword r (OCIStmtExecute (conn_.handle (),
-                               stmt_,
-                               err,
-                               1,
-                               0,
-                               0,
-                               0,
-                               OCI_DEFAULT));
-
-      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_, r);
-
-      ub4 row_count (0);
-      r = OCIAttrGet (stmt_,
-                      OCI_HTYPE_STMT,
-                      &row_count,
-                      0,
-                      OCI_ATTR_ROW_COUNT,
-                      err);
-
-      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (err, r);
-
-      // The value of the OCI_ATTR_ROW_COUNT attribute associated with an
-      // UPDATE statment represents the number of matching rows found. Zero
-      // indicates no match.
+      // Figure out the affected (matched, not necessarily updated)
+      // row count.
       //
-      return static_cast<unsigned long long> (row_count);
+      result_ = affected (unique_);
+
+      return n_;
     }
 
     //
@@ -1844,61 +2149,78 @@ namespace odb
     delete_statement (connection_type& conn,
                       const string& text,
                       binding& param)
-        : statement (conn,
-                     text, statement_delete,
-                     0, false)
+        : bulk_statement (conn,
+                          text, statement_delete,
+                          0, false,
+                          param.batch, param.status),
+          unique_ (false)
     {
-      bind_param (param.bind, param.count);
+      assert (param.batch == 1); // Specify unique_hint explicitly.
+      bind_param (param.bind, param.count, param.batch, param.skip);
+    }
+
+    delete_statement::
+    delete_statement (connection_type& conn,
+                      const string& text,
+                      bool unique,
+                      binding& param)
+        : bulk_statement (conn,
+                          text, statement_delete,
+                          0, false,
+                          param.batch, param.status),
+          unique_ (unique)
+    {
+      bind_param (param.bind, param.count, param.batch, param.skip);
     }
 
     delete_statement::
     delete_statement (connection_type& conn,
                       const char* text,
                       binding& param)
-        : statement (conn,
-                     text, statement_delete,
-                     0, false)
+        : bulk_statement (conn,
+                          text, statement_delete,
+                          0, false,
+                          param.batch, param.status),
+          unique_ (false)
     {
-      bind_param (param.bind, param.count);
+      assert (param.batch == 1); // Specify unique_hint explicitly.
+      bind_param (param.bind, param.count, param.batch, param.skip);
     }
 
-    unsigned long long delete_statement::
-    execute ()
+    delete_statement::
+    delete_statement (connection_type& conn,
+                      const char* text,
+                      bool unique,
+                      binding& param)
+        : bulk_statement (conn,
+                          text, statement_delete,
+                          0, false,
+                          param.batch, param.status),
+          unique_ (unique)
     {
-      {
-        odb::tracer* t;
-        if ((t = conn_.transaction_tracer ()) ||
-            (t = conn_.tracer ()) ||
-            (t = conn_.database ().tracer ()))
-          t->execute (conn_, *this);
-      }
+      bind_param (param.bind, param.count, param.batch, param.skip);
+    }
 
+    size_t delete_statement::
+    execute (size_t n, multiple_exceptions* mex)
+    {
+      sword r (bulk_statement::execute (n, mex));
       OCIError* err (conn_.error_handle ());
 
-      sword r (OCIStmtExecute (conn_.handle (),
-                               stmt_,
-                               err,
-                               1,
-                               0,
-                               0,
-                               0,
-                               OCI_DEFAULT));
-
+      // Statement failed as a whole, assume no parameter sets were
+      // attempted in case of a batch.
+      //
       if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (conn_, r);
+      {
+        translate_error (err, r, &conn_, 0, mex_); // Can return.
+        return n_;
+      }
 
-      ub4 row_count (0);
-      r = OCIAttrGet (stmt_,
-                      OCI_HTYPE_STMT,
-                      &row_count,
-                      0,
-                      OCI_ATTR_ROW_COUNT,
-                      err);
+      // Figure out the affected  row count.
+      //
+      result_ = affected (unique_);
 
-      if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-        translate_error (err, r);
-
-      return static_cast<unsigned long long> (row_count);
+      return n_;
     }
   }
 }
