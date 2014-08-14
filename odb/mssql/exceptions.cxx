@@ -57,6 +57,12 @@ namespace odb
       return what_.c_str ();
     }
 
+    database_exception* database_exception::
+    clone () const
+    {
+      return new database_exception (*this);
+    }
+
     //
     // cli_exception
     //
@@ -78,6 +84,12 @@ namespace odb
       return what_.c_str ();
     }
 
+    cli_exception* cli_exception::
+    clone () const
+    {
+      return new cli_exception (*this);
+    }
+
     //
     // long_data_reload
     //
@@ -87,6 +99,12 @@ namespace odb
     {
       return "attempt to re-load object or view with long data "
         "from query result";
+    }
+
+    long_data_reload* long_data_reload::
+    clone () const
+    {
+      return new long_data_reload (*this);
     }
   }
 }

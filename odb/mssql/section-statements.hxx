@@ -36,6 +36,7 @@ namespace odb
       typedef ST traits;
 
       typedef typename traits::image_type image_type;
+      typedef typename traits::id_image_type id_image_type;
 
       typedef mssql::select_statement select_statement_type;
       typedef mssql::update_statement update_statement_type;
@@ -43,7 +44,7 @@ namespace odb
       typedef mssql::connection connection_type;
 
       section_statements (connection_type&,
-                          image_type&,
+                          image_type&, id_image_type&,
                           binding& id, binding& idv);
 
       connection_type&
@@ -60,6 +61,9 @@ namespace odb
 
       image_type&
       image () {return image_;}
+
+      id_image_type&
+      id_image () {return id_image_;}
 
       const binding&
       id_binding () {return id_binding_;}
@@ -128,7 +132,7 @@ namespace odb
               traits::update_statement,
               traits::versioned, // Process if versioned.
               update_image_binding_,
-              traits::rowversion,
+              (traits::rowversion ? &idv_binding_ : 0),
               false));
 
         return *update_;
@@ -155,6 +159,7 @@ namespace odb
       // These come from object_statements.
       //
       image_type& image_;
+      id_image_type& id_image_;
       binding& id_binding_;
       binding& idv_binding_;
 

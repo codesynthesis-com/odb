@@ -11,6 +11,7 @@
 #include <cstddef>  // std::size_t
 
 #include <odb/statement.hxx>
+#include <odb/exceptions.hxx>
 
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
@@ -126,6 +127,62 @@ namespace odb
       auto_handle<SQL_HANDLE_STMT> stmt_;
     };
 
+    class LIBODB_MSSQL_EXPORT bulk_statement: public statement
+    {
+    public:
+      virtual
+      ~bulk_statement () = 0;
+
+    protected:
+      bulk_statement (connection_type&,
+                      const std::string& text,
+                      statement_kind,
+                      const binding* process,
+                      bool optimize,
+                      std::size_t batch,
+                      std::size_t skip,
+                      SQLUSMALLINT* status);
+
+      bulk_statement (connection_type&,
+                      const char* text,
+                      statement_kind,
+                      const binding* process,
+                      bool optimize,
+                      std::size_t batch,
+                      std::size_t skip,
+                      SQLUSMALLINT* status,
+                      bool copy_text);
+
+      // Call SQLExecute() and set up the batch tracking variables (see
+      // below). Note that this function does not treat SQL_NO_DATA as
+      // an error since for DELETE and UPDATE statements this is a
+      // shortcut notation for zero rows affected.
+      //
+      SQLRETURN
+      execute (std::size_t n, multiple_exceptions*);
+
+      // Return the number of failed parameter sets.
+      //
+      std::size_t
+      extract_errors ();
+
+      static const unsigned long long result_unknown = ~0ULL;
+
+      unsigned long long
+      affected (SQLRETURN, std::size_t errors, bool unique);
+
+    private:
+      void
+      init (std::size_t skip);
+
+    protected:
+      SQLULEN processed_;    // Number of parameter sets processed so far.
+      SQLUSMALLINT* status_; // Parameter sets status array.
+      std::size_t n_;        // Actual batch size.
+      std::size_t i_;        // Position in result.
+      multiple_exceptions* mex_;
+    };
+
     class LIBODB_MSSQL_EXPORT select_statement: public statement
     {
     public:
@@ -237,7 +294,7 @@ namespace odb
       select_statement* s_;
     };
 
-    class LIBODB_MSSQL_EXPORT insert_statement: public statement
+    class LIBODB_MSSQL_EXPORT insert_statement: public bulk_statement
     {
     public:
       virtual
@@ -248,7 +305,8 @@ namespace odb
                         bool process_text,
                         binding& param,
                         bool returning_id,
-                        bool returning_version);
+                        bool returning_version,
+                        binding* returning);
 
       insert_statement (connection_type& conn,
                         const char* text,
@@ -256,22 +314,29 @@ namespace odb
                         binding& param,
                         bool returning_id,
                         bool returning_version,
+                        binding* returning,
                         bool copy_text = true);
 
-      // Return true if successful and false if the row is a duplicate.
+      // Return the number of parameter sets (out of n) that were attempted.
+      //
+      std::size_t
+      execute (std::size_t n, multiple_exceptions& mex)
+      {
+        return execute (n, &mex);
+      }
+
+      // Return true if successful and false if this row is a duplicate.
       // All other errors are reported by throwing exceptions.
       //
       bool
-      execute ();
+      result (std::size_t i);
 
-      unsigned long long
-      id ()
+      bool
+      execute ()
       {
-        return id_;
+        execute (1, 0);
+        return result (0);
       }
-
-      unsigned long long
-      version ();
 
     private:
       insert_statement (const insert_statement&);
@@ -281,42 +346,97 @@ namespace odb
       void
       init_result ();
 
+      std::size_t
+      execute (std::size_t, multiple_exceptions*);
+
+      void
+      fetch (SQLRETURN);
+
     private:
       bool returning_id_;
       bool returning_version_;
-      bool batch_;
+      binding* ret_;
+      bool text_batch_;
 
-      unsigned long long id_;
-      SQLLEN id_size_ind_;
-
-      unsigned char version_[8];
-      SQLLEN version_size_ind_;
+      bool result_;
     };
 
-    class LIBODB_MSSQL_EXPORT update_statement: public statement
+    class LIBODB_MSSQL_EXPORT update_statement: public bulk_statement
     {
     public:
       virtual
       ~update_statement ();
 
+      // SQL Server native client ODBC driver does not expose individual
+      // affected row counts for batch operations, even though it says it
+      // does (SQLGetInfo(SQL_PARAM_ARRAY_ROW_COUNTS) returns SQL_PARC_BATCH).
+      // Instead, it adds them all up and returns a single count. This is
+      // bad news for us.
+      //
+      // In case of updating by primary key (the affected row count is
+      // either 1 or 0), we can recognize the presumably successful case
+      // where the total affected row count is equal to the batch size
+      // (we can also recognize the "all unsuccessful" case where the
+      // total affected row count is 0). The unique_hint argument in the
+      // constructors below indicates whether this is a "0 or 1" UPDATE
+      // statement.
+      //
+      // In all other situations (provided this is a batch), the result()
+      // function below returns the special result_unknown value.
+      //
       update_statement (connection_type& conn,
                         const std::string& text,
                         bool process,
                         binding& param,
-                        bool returning_version);
+                        binding* returning);
+
+      update_statement (connection_type& conn,
+                        const std::string& text,
+                        bool unique_hint,
+                        bool process,
+                        binding& param,
+                        binding* returning);
 
       update_statement (connection_type& conn,
                         const char* text,
                         bool process,
                         binding& param,
-                        bool returning_version,
+                        binding* returning,
                         bool copy_text = true);
 
-      unsigned long long
-      execute ();
+      update_statement (connection_type& conn,
+                        const char* text,
+                        bool unique_hint,
+                        bool process,
+                        binding& param,
+                        binding* returning,
+                        bool copy_text = true);
+
+      // Return the number of parameter sets (out of n) that were attempted.
+      //
+      std::size_t
+      execute (std::size_t n, multiple_exceptions& mex)
+      {
+        return execute (n, &mex);
+      }
+
+      // Return the number of rows affected (deleted) by the parameter
+      // set. If this is a batch (n > 1 in execute() call above) and it
+      // is impossible to determine the affected row count for each
+      // parameter set, then this function returns result_unknown. All
+      // other errors are reported by throwing exceptions.
+      //
+      using bulk_statement::result_unknown;
 
       unsigned long long
-      version ();
+      result (std::size_t i);
+
+      unsigned long long
+      execute ()
+      {
+        execute (1, 0);
+        return result (0);
+      }
 
     private:
       update_statement (const update_statement&);
@@ -324,23 +444,48 @@ namespace odb
 
     private:
       void
-      init_result ();
+      init (binding& param, binding* ret);
+
+      std::size_t
+      execute (std::size_t, multiple_exceptions*);
 
     private:
-      bool returning_version_;
+      bool unique_;
+      bool returning_;
 
-      unsigned char version_[8];
-      SQLLEN version_size_ind_;
+      unsigned long long result_;
     };
 
-    class LIBODB_MSSQL_EXPORT delete_statement: public statement
+    class LIBODB_MSSQL_EXPORT delete_statement: public bulk_statement
     {
     public:
       virtual
       ~delete_statement ();
 
+      // SQL Server native client ODBC driver does not expose individual
+      // affected row counts for batch operations, even though it says it
+      // does (SQLGetInfo(SQL_PARAM_ARRAY_ROW_COUNTS) returns SQL_PARC_BATCH).
+      // Instead, it adds them all up and returns a single count. This is
+      // bad news for us.
+      //
+      // In case of deleting by primary key (the affected row count is
+      // either 1 or 0), we can recognize the presumably successful case
+      // where the total affected row count is equal to the batch size
+      // (we can also recognize the "all unsuccessful" case where the
+      // total affected row count is 0). The unique_hint argument in the
+      // constructors below indicates whether this is a "0 or 1" DELETE
+      // statement.
+      //
+      // In all other situations (provided this is a batch), the result()
+      // function below returns the special result_unknown value.
+      //
       delete_statement (connection_type& conn,
                         const std::string& text,
+                        binding& param);
+
+      delete_statement (connection_type& conn,
+                        const std::string& text,
+                        bool unique_hint,
                         binding& param);
 
       delete_statement (connection_type& conn,
@@ -348,12 +493,49 @@ namespace odb
                         binding& param,
                         bool copy_text = true);
 
+      delete_statement (connection_type& conn,
+                        const char* text,
+                        bool unique_hint,
+                        binding& param,
+                        bool copy_text = true);
+
+      // Return the number of parameter sets (out of n) that were attempted.
+      //
+      std::size_t
+      execute (std::size_t n, multiple_exceptions& mex)
+      {
+        return execute (n, &mex);
+      }
+
+      // Return the number of rows affected (deleted) by the parameter
+      // set. If this is a batch (n > 1 in execute() call above) and it
+      // is impossible to determine the affected row count for each
+      // parameter set, then this function returns result_unknown. All
+      // other errors are reported by throwing exceptions.
+      //
+      using bulk_statement::result_unknown;
+
       unsigned long long
-      execute ();
+      result (std::size_t i);
+
+      unsigned long long
+      execute ()
+      {
+        execute (1, 0);
+        return result (0);
+      }
 
     private:
       delete_statement (const delete_statement&);
       delete_statement& operator= (const delete_statement&);
+
+    private:
+      std::size_t
+      execute (std::size_t, multiple_exceptions*);
+
+    private:
+      bool unique_;
+      unsigned long long result_;
     };
   }
 }

@@ -79,6 +79,9 @@ namespace odb
       virtual const char*
       what () const throw ();
 
+      virtual database_exception*
+      clone () const;
+
     public:
       ~database_exception () throw ();
 
@@ -105,6 +108,9 @@ namespace odb
       virtual const char*
       what () const throw ();
 
+      virtual cli_exception*
+      clone () const;
+
     private:
       std::string what_;
     };
@@ -113,6 +119,9 @@ namespace odb
     {
       virtual const char*
       what () const throw ();
+
+      virtual long_data_reload*
+      clone () const;
     };
 
     namespace core

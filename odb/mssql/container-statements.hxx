@@ -124,6 +124,7 @@ namespace odb
               insert_image_binding_,
               false,
               false,
+              0,
               false));
 
         return *insert_;
@@ -287,7 +288,7 @@ namespace odb
               update_text_,
               this->versioned_, // Process if versioned.
               update_image_binding_,
-              false,
+              0,
               false));
 
         return *update_;

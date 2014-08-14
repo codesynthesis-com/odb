@@ -20,11 +20,14 @@ namespace odb
 
     template <typename T>
     optimistic_data<T, true>::
-    optimistic_data (bind* b)
+    optimistic_data (bind* b, std::size_t skip, SQLUSMALLINT* status)
         : id_image_binding_ (
             b,
             object_traits::id_column_count +
-            object_traits::managed_optimistic_column_count)
+            object_traits::managed_optimistic_column_count,
+            object_traits::batch,
+            skip,
+            status)
     {
     }
 
@@ -43,24 +46,37 @@ namespace odb
     object_statements (connection_type& conn)
         : object_statements_base (conn),
           select_image_binding_ (select_image_bind_, select_column_count),
-          insert_image_binding_ (insert_image_bind_, insert_column_count),
+          insert_image_binding_ (insert_image_bind_,
+                                 insert_column_count,
+                                 object_traits::batch,
+                                 sizeof (images),
+                                 status_),
           update_image_binding_ (update_image_bind_,
                                  update_column_count + id_column_count +
-                                 managed_optimistic_column_count),
+                                 managed_optimistic_column_count,
+                                 object_traits::batch,
+                                 sizeof (images),
+                                 status_),
           id_image_binding_ (update_image_bind_ + update_column_count,
-                             id_column_count),
-          od_ (update_image_bind_ + update_column_count)
+                             id_column_count,
+                             object_traits::batch,
+                             sizeof (images),
+                             status_),
+          od_ (update_image_bind_ + update_column_count,
+               sizeof (images),
+               status_)
     {
-      image_.version = 0;
+      images_[0].obj.version = 0; // @@ TODO [0]
+      images_[0].id.version = 0;  // @@ TODO
+
       select_image_version_ = 0;
       insert_image_version_ = 0;
       update_image_version_ = 0;
       update_id_image_version_ = 0;
-
-      id_image_.version = 0;
       id_image_version_ = 0;
 
-      select_image_binding_.change_callback = image_.change_callback ();
+      select_image_binding_.change_callback =
+        images_[0].obj.change_callback ();
 
       std::memset (insert_image_bind_, 0, sizeof (insert_image_bind_));
       std::memset (update_image_bind_, 0, sizeof (update_image_bind_));

@@ -49,9 +49,9 @@ namespace odb
       // Object image.
       //
       image_type&
-      image ()
+      image (std::size_t i = 0)
       {
-        return image_;
+        return image_[i];
       }
 
       // Insert binding.
@@ -89,7 +89,8 @@ namespace odb
               object_traits::versioned, // Process if versioned.
               insert_image_binding_,
               false,
-              object_traits::rowversion,
+              false,
+              0,
               false));
 
         return *persist_;
@@ -110,7 +111,8 @@ namespace odb
       no_id_object_statements& operator= (const no_id_object_statements&);
 
     private:
-      image_type image_;
+      image_type image_[object_traits::batch];
+      SQLUSMALLINT status_[object_traits::batch];
 
       // Select binding.
       //

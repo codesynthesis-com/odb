@@ -20,7 +20,9 @@ namespace odb
                      SQLHANDLE h,
                      SQLSMALLINT htype,
                      connection* conn,
-                     bool end_tran)
+                     bool end_tran,
+                     size_t pos,
+                     multiple_exceptions* mex)
     {
       // First see if we have one of the errors indicated via the
       // return error code.
@@ -166,14 +168,41 @@ namespace odb
 
       for (SQLSMALLINT i (1);; ++i)
       {
-         r = SQLGetDiagRecA (htype,
-                             h,
-                             i,
-                             (SQLCHAR*) sqlstate,
-                             &native_code,
-                             (SQLCHAR*) msg,
-                             sizeof (msg),
-                             &msg_size);
+        // If this is for a batch, filter out based on row association.
+        // Here we only ignore records that have the associated row
+        // number and this number doesn't match ours. In particular,
+        // this means that all the un-associated records which will be
+        // duplicated for all the failed rows, which seems like the
+        // correct thing to do.
+        //
+        if (mex != 0)
+        {
+          SQLLEN n;
+          r = SQLGetDiagField (htype,
+                               h,
+                               i,
+                               SQL_DIAG_ROW_NUMBER,
+                               &n,
+                               0,
+                               0);
+
+          if (r == SQL_NO_DATA)
+              break;
+          else if (SQL_SUCCEEDED (r) &&
+                   n != SQL_NO_ROW_NUMBER &&
+                   n != SQL_ROW_NUMBER_UNKNOWN &&
+                   n != static_cast<SQLLEN> (pos + 1)) // 1-based
+            continue;
+        }
+
+        r = SQLGetDiagRecA (htype,
+                            h,
+                            i,
+                            (SQLCHAR*) sqlstate,
+                            &native_code,
+                            (SQLCHAR*) msg,
+                            sizeof (msg),
+                            &msg_size);
 
         if (r == SQL_NO_DATA)
           break;
@@ -203,27 +232,36 @@ namespace odb
       if (e.size () == 0)
         e.append (0, "?????", "no diagnostic record (using wrong handle?)");
 
-      throw e;
+      if (mex == 0)
+        throw e;
+      else
+        // It could be that some of these errors are fatal. I guess we
+        // will just have to learn from experience which ones are. The
+        // client code can always treat specific error codes as fatal.
+        //
+        mex->insert (pos, e);
     }
 
     void
     translate_error (SQLRETURN r, connection& c, bool end_tran)
     {
-      translate_error (r, c.handle (), SQL_HANDLE_DBC, &c, end_tran);
+      translate_error (r, c.handle (), SQL_HANDLE_DBC, &c, end_tran, 0, 0);
     }
 
     void
     translate_error (SQLRETURN r,
                      connection& c,
-                     const auto_handle<SQL_HANDLE_STMT>& h)
+                     const auto_handle<SQL_HANDLE_STMT>& h,
+                     size_t pos,
+                     multiple_exceptions* mex)
     {
-      translate_error (r, h, SQL_HANDLE_STMT, &c, false);
+      translate_error (r, h, SQL_HANDLE_STMT, &c, false, pos, mex);
     }
 
     void
     translate_error (SQLRETURN r, SQLHANDLE h, SQLSMALLINT htype)
     {
-      translate_error (r, h, htype, 0, false);
+      translate_error (r, h, htype, 0, false, 0, 0);
     }
   }
 }
