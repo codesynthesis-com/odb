@@ -208,6 +208,11 @@ traverse_object (type& c)
 
   if (!poly_derived && id != 0)
   {
+    if (auto_id)
+      os << "static id_type" << endl
+         << "id (const id_image_type&);"
+         << endl;
+
     if (options.generate_query ())
       os << "static id_type" << endl
          << "id (const image_type&);"

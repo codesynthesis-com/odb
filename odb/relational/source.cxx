@@ -174,10 +174,27 @@ traverse_object (type& c)
   // Functions (abstract and concrete).
   //
 
-  // id (image_type)
+  // id(), version()
   //
   if (!poly_derived && id != 0 && !base_id)
   {
+    // id (id_image_type)
+    //
+    if (auto_id)
+    {
+      os << traits << "::id_type" << endl
+         << traits << "::" << endl
+         << "id (const id_image_type& i)"
+         << "{"
+         << db << "::database* db (0);"
+         << "ODB_POTENTIALLY_UNUSED (db);"
+         << endl
+         << "id_type id;";
+      init_id_value_member_->traverse (*id);
+      os << "return id;"
+         << "}";
+    }
+
     // id (image)
     //
     if (options.generate_query ())

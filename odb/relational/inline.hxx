@@ -217,6 +217,7 @@ namespace relational
         using semantics::data_member;
 
         data_member* id (id_member (c));
+        bool auto_id (id && auto_ (*id));
         bool base_id (id && &id->scope () != &c); // Comes from base.
         data_member* optimistic (context::optimistic (c));
 
@@ -251,6 +252,20 @@ namespace relational
         {
           if (!poly_derived)
           {
+            // id (id_image_type)
+            //
+            if (auto_id)
+            {
+              os << "inline" << endl
+                 << traits << "::id_type" << endl
+                 << traits << "::" << endl
+                 << "id (const id_image_type& i)"
+                 << "{"
+                 << "return object_traits_impl< " << class_fq_name (*base) <<
+                ", id_" << db << " >::id (i);"
+                 << "}";
+            }
+
             // id (image_type)
             //
             if (options.generate_query ())
