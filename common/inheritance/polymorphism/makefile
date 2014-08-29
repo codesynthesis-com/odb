@@ -7,7 +7,7 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../../../build/bootstrap.make
 cxx_tun := driver.cxx
 odb_hdr := test1.hxx test2.hxx test3.hxx test4.hxx test5.hxx test6.hxx \
 test7.hxx test8.hxx test9.hxx test10.hxx test11.hxx test12.hxx test13.hxx \
-test14.hxx
+test14.hxx test15.hxx
 genf    := $(call odb-gen,$(odb_hdr))
 gen     := $(addprefix $(out_base)/,$(genf))
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o)) $(filter %.o,$(gen:.cxx=.o))

@@ -29,6 +29,7 @@
 #include "test12.hxx"
 #include "test13.hxx"
 #include "test14.hxx"
+#include "test15.hxx"
 
 #include "test1-odb.hxx"
 #include "test2-odb.hxx"
@@ -44,6 +45,7 @@
 #include "test12-odb.hxx"
 #include "test13-odb.hxx"
 #include "test14-odb.hxx"
+#include "test15-odb.hxx"
 
 using namespace std;
 using namespace odb::core;
@@ -1998,6 +2000,56 @@ main (int argc, char* argv[])
 
         assert (i != e && i->d->num == d.num);
         delete i.load ()->d;
+        assert (++i == e);
+        t.commit ();
+      }
+    }
+
+    // Test 15: LOB/long data and polymorphism.
+    //
+    {
+      using namespace test15;
+
+      const char data[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B";
+
+      derived d;
+      d.blob.assign (data, data + sizeof (data));
+
+      // Persist.
+      //
+      {
+        transaction t (db->begin ());
+        base* b (&d);
+        db->persist (b);
+        t.commit ();
+      }
+
+      // Load.
+      //
+      {
+        transaction t (db->begin ());
+        auto_ptr<base> pb (db->load<base> (d.id));
+        t.commit ();
+
+        derived* pd (dynamic_cast<derived*> (pb.get ()));
+        assert (pd != 0 && pd->blob == d.blob);
+      }
+
+      // Query.
+      //
+      {
+        typedef odb::result<base> result;
+
+        transaction t (db->begin ());
+
+        result r (db->query<base> ());
+        result::iterator i (r.begin ()), e (r.end ());
+
+        assert (i != e);
+
+        derived* pd (dynamic_cast<derived*> (&*i));
+        assert (pd != 0 && pd->blob == d.blob);
+
         assert (++i == e);
         t.commit ();
       }
