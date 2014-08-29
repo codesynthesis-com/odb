@@ -455,7 +455,7 @@ namespace odb
         if (!is_null)
           v = static_cast<T> (details::number_to_int64 (b, n));
         else
-          v = 0;
+          v = T ();
       }
 
       static void
@@ -475,7 +475,7 @@ namespace odb
         if (!is_null)
           v = static_cast<T> (details::number_to_uint64 (b, n));
         else
-          v = 0;
+          v = T ();
       }
 
       static void
