@@ -204,13 +204,6 @@ namespace odb
       if (!SQL_SUCCEEDED (r))
         translate_error (r, conn_, stmt_);
 
-      // Prepare the statement.
-      //
-      r = SQLPrepareA (stmt_, (SQLCHAR*) text_, (SQLINTEGER) text_size);
-
-      if (!SQL_SUCCEEDED (r))
-        translate_error (r, conn_, stmt_);
-
       {
         odb::tracer* t;
         if ((t = conn_.transaction_tracer ()) ||
@@ -218,11 +211,19 @@ namespace odb
             (t = conn_.database ().tracer ()))
           t->prepare (conn_, *this);
       }
+
+      // Prepare the statement.
+      //
+      r = SQLPrepareA (stmt_, (SQLCHAR*) text_, (SQLINTEGER) text_size);
+
+      if (!SQL_SUCCEEDED (r))
+        translate_error (r, conn_, stmt_);
     }
 
     statement::
     ~statement ()
     {
+      if (stmt_ != 0)
       {
         odb::tracer* t;
         if ((t = conn_.transaction_tracer ()) ||
