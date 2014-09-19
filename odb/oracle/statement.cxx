@@ -137,7 +137,7 @@ namespace odb
     statement::
     ~statement ()
     {
-      if (empty ())
+      if (stmt_ == 0)
         return;
 
       {
@@ -262,6 +262,21 @@ namespace odb
       if (*text == '\0')
         return;
 
+      {
+        odb::tracer* t;
+        if ((t = conn_.transaction_tracer ()) ||
+            (t = conn_.tracer ()) ||
+            (t = conn_.database ().tracer ()))
+        {
+          // Temporarily store the statement text in unbind data so that
+          // text() which may be called by the tracer can access it.
+          //
+          udata_ = reinterpret_cast<unbind*> (const_cast<char*> (text));
+          t->prepare (conn_, *this);
+          udata_ = 0;
+        }
+      }
+
       OCIError* err (conn_.error_handle ());
       OCIStmt* handle (0);
 
@@ -279,19 +294,16 @@ namespace odb
         translate_error (conn_, r);
 
       stmt_.reset (handle, OCI_STRLS_CACHE_DELETE, err);
-
-      {
-        odb::tracer* t;
-        if ((t = conn_.transaction_tracer ()) ||
-            (t = conn_.tracer ()) ||
-            (t = conn_.database ().tracer ()))
-          t->prepare (conn_, *this);
-      }
     }
 
     const char* statement::
     text () const
     {
+      if (stmt_ == 0)
+        // See init() above for details on what's going on here.
+        //
+        return udata_ != 0 ? reinterpret_cast<const char*> (udata_) : "";
+
       OCIError* err (conn_.error_handle ());
 
       OraText* s (0);
