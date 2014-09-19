@@ -66,23 +66,23 @@ namespace odb
     void statement::
     deallocate ()
     {
-      if (deallocated_)
-        return;
-
+      if (!deallocated_)
       {
-        odb::tracer* t;
-        if ((t = conn_.transaction_tracer ()) ||
-            (t = conn_.tracer ()) ||
-            (t = conn_.database ().tracer ()))
-          t->deallocate (conn_, *this);
+        {
+          odb::tracer* t;
+          if ((t = conn_.transaction_tracer ()) ||
+              (t = conn_.tracer ()) ||
+              (t = conn_.database ().tracer ()))
+            t->deallocate (conn_, *this);
+        }
+
+        string s ("deallocate \"");
+        s += name_;
+        s += "\"";
+
+        auto_handle<PGresult> h (PQexec (conn_.handle (), s.c_str ()));
+        deallocated_ = true;
       }
-
-      string s ("deallocate \"");
-      s += name_;
-      s += "\"";
-
-      auto_handle<PGresult> h (PQexec (conn_.handle (), s.c_str ()));
-      deallocated_ = true;
     }
 
     statement::
