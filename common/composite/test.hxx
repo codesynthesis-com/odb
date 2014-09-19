@@ -219,4 +219,33 @@ namespace test4
   }
 }
 
+// Test composite name clashes in query columns (compilation test)
+//
+#pragma db namespace table("t5_")
+namespace test5
+{
+  // Class-member conflict.
+  //
+  #pragma db value
+  struct value {int value_;};
+
+  // Class-class conflict.
+  //
+  #pragma db value
+  struct inner {int value;};
+
+  #pragma db value
+  struct outer {inner value;};
+
+  #pragma db object
+  struct object
+  {
+    #pragma db id
+    int id;
+
+    outer value;
+    test5::value v;
+  };
+}
+
 #endif // TEST_HXX
