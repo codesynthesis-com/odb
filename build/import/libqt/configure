@@ -48,7 +48,13 @@ else
     core_cppflags=`pkg-config --cflags QtCore`
     core_libs=`pkg-config --libs QtCore`
 
+  elif pkg-config --exists Qt5Core; then
+
+    core_cppflags=`pkg-config --cflags Qt5Core`
+    core_libs=`pkg-config --libs Qt5Core`
+
   else
+
     $echo
     $echo "Unable to discover installed 'Qt libraries' using pkg-config."
     $echo "Assuming the C++ compiler will find them automatically."
