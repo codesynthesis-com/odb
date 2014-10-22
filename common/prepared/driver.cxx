@@ -249,7 +249,7 @@ main (int argc, char* argv[])
       }
 
       db->query_factory ("person-params-query",
-                         database::query_factory_type ());
+                         database::query_factory_ptr ());
     }
 
     // Cached query with wildcard factory.
@@ -273,7 +273,7 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
-      db->query_factory ("", database::query_factory_type ());
+      db->query_factory ("", database::query_factory_ptr ());
     }
 
     // Cached query with lambda factory.
@@ -312,7 +312,47 @@ main (int argc, char* argv[])
       }
 
       db->query_factory ("person-params-query-2",
-                         database::query_factory_type ());
+                         database::query_factory_ptr ());
+    }
+
+    // Cached query with lambda factory using closure. Forces nonoptimized
+    // representation of std::function.
+    //
+    {
+      const std::string person_name ("John First");
+
+      db->query_factory (
+        "person-params-query-3",
+        [person_name] (const char* name, connection& c)
+        {
+          typedef odb::query<person> query;
+
+          prepared_query<person> pq (
+            c.prepare_query<person> (
+              name,
+              query::age > 50 && query::name != person_name));
+          c.cache_query (pq);
+        });
+
+      {
+        transaction t (db->begin ());
+
+        prep_query pq (db->lookup_query<person> ("person-params-query-3"));
+        assert (pq);
+
+        result r (pq.execute ());
+        assert (size (r) == 4);
+
+        t.commit ();
+      }
+
+      db->query_factory ("person-params-query-3",
+#ifdef HAVE_CXX11_NULLPTR
+                         nullptr
+#else
+                         database::query_factory_ptr ()
+#endif
+      );
     }
 #endif
 
