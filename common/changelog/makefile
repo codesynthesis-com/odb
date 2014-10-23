@@ -52,7 +52,7 @@ endif
 
 $(default): $(gen)
 else
-$(default): ;@:
+$(default):
 endif
 
 # Dist: not supported.
