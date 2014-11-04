@@ -429,6 +429,126 @@ namespace odb
     }
 
     template <typename T>
+    inline typename object_traits<T>::pointer_type database::
+    query_one ()
+    {
+      return query_one<T> (oracle::query_base ());
+    }
+
+    template <typename T>
+    inline bool database::
+    query_one (T& o)
+    {
+      return query_one<T> (oracle::query_base (), o);
+    }
+
+    template <typename T>
+    inline T database::
+    query_value ()
+    {
+      return query_value<T> (oracle::query_base ());
+    }
+
+    template <typename T>
+    inline typename object_traits<T>::pointer_type database::
+    query_one (const char* q)
+    {
+      return query_one<T> (oracle::query_base (q));
+    }
+
+    template <typename T>
+    inline bool database::
+    query_one (const char* q, T& o)
+    {
+      return query_one<T> (oracle::query_base (q), o);
+    }
+
+    template <typename T>
+    inline T database::
+    query_value (const char* q)
+    {
+      return query_value<T> (oracle::query_base (q));
+    }
+
+    template <typename T>
+    inline typename object_traits<T>::pointer_type database::
+    query_one (const std::string& q)
+    {
+      return query_one<T> (oracle::query_base (q));
+    }
+
+    template <typename T>
+    inline bool database::
+    query_one (const std::string& q, T& o)
+    {
+      return query_one<T> (oracle::query_base (q), o);
+    }
+
+    template <typename T>
+    inline T database::
+    query_value (const std::string& q)
+    {
+      return query_value<T> (oracle::query_base (q));
+    }
+
+    template <typename T>
+    inline typename object_traits<T>::pointer_type database::
+    query_one (const oracle::query_base& q)
+    {
+      // T is always object_type. We also don't need to check for transaction
+      // here; object_traits::query () does this.
+      //
+      return query_one_<T, id_oracle> (q);
+    }
+
+    template <typename T>
+    inline bool database::
+    query_one (const oracle::query_base& q, T& o)
+    {
+      // T is always object_type. We also don't need to check for transaction
+      // here; object_traits::query () does this.
+      //
+      return query_one_<T, id_oracle> (q, o);
+    }
+
+    template <typename T>
+    inline T database::
+    query_value (const oracle::query_base& q)
+    {
+      // T is always object_type. We also don't need to check for transaction
+      // here; object_traits::query () does this.
+      //
+      return query_value_<T, id_oracle> (q);
+    }
+
+    template <typename T>
+    inline typename object_traits<T>::pointer_type database::
+    query_one (const odb::query_base& q)
+    {
+      // Translate to native query.
+      //
+      return query_one<T> (oracle::query_base (q));
+    }
+
+    template <typename T>
+    inline bool database::
+    query_one (const odb::query_base& q, T& o)
+    {
+      // Translate to native query.
+      //
+      return query_one<T> (oracle::query_base (q), o);
+    }
+
+    template <typename T>
+    inline T database::
+    query_value (const odb::query_base& q)
+    {
+      // Translate to native query.
+      //
+      return query_value<T> (oracle::query_base (q));
+    }
+
+    template <typename T>
     inline prepared_query<T> database::
     prepare_query (const char* n, const char* q)
     {
