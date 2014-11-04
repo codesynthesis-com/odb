@@ -348,6 +348,68 @@ namespace odb
       result<T>
       query (const odb::query_base&);
 
+      // Query one API.
+      //
+      template <typename T>
+      typename object_traits<T>::pointer_type
+      query_one ();
+
+      template <typename T>
+      bool
+      query_one (T& object);
+
+      template <typename T>
+      T
+      query_value ();
+
+      template <typename T>
+      typename object_traits<T>::pointer_type
+      query_one (const char*);
+
+      template <typename T>
+      bool
+      query_one (const char*, T& object);
+
+      template <typename T>
+      T
+      query_value (const char*);
+
+      template <typename T>
+      typename object_traits<T>::pointer_type
+      query_one (const std::string&);
+
+      template <typename T>
+      bool
+      query_one (const std::string&, T& object);
+
+      template <typename T>
+      T
+      query_value (const std::string&);
+
+      template <typename T>
+      typename object_traits<T>::pointer_type
+      query_one (const mssql::query_base&);
+
+      template <typename T>
+      bool
+      query_one (const mssql::query_base&, T& object);
+
+      template <typename T>
+      T
+      query_value (const mssql::query_base&);
+
+      template <typename T>
+      typename object_traits<T>::pointer_type
+      query_one (const odb::query_base&);
+
+      template <typename T>
+      bool
+      query_one (const odb::query_base&, T& object);
+
+      template <typename T>
+      T
+      query_value (const odb::query_base&);
+
       // Query preparation.
       //
       template <typename T>
