@@ -38,6 +38,7 @@ pragma                    \
 prepared                  \
 query/basics              \
 query/array               \
+query/one                 \
 readonly                  \
 relationship/basics       \
 relationship/on-delete    \

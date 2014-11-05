@@ -76,6 +76,25 @@ view2_test (const auto_ptr<database>& db)
     assert (i->count == 2);
   }
 
+  {
+    auto_ptr<V> v (db->query_one<V> ());
+    assert (v->count == 4);
+  }
+
+  {
+    auto_ptr<V> v;
+    if (db->id () != odb::id_oracle)
+      v.reset (db->query_one<V> ("age < 31"));
+    else
+      v.reset (db->query_one<V> ("\"age\" < 31"));
+    assert (v->count == 2);
+  }
+
+  {
+    auto_ptr<V> v (db->query_one<V> (query::age < 31));
+    assert (v->count == 2);
+  }
+
   t.commit ();
 }
 

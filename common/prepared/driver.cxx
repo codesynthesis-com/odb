@@ -411,6 +411,46 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
+
+    // Test execute_one() and execute_value().
+    //
+    {
+      transaction t (db->begin ());
+
+      person p ("John Doe", 23);
+      db->persist (p);
+
+      prep_query pq1 (
+        db->prepare_query<person> ("query-1", query::id == p.id_));
+      prep_query pq0 (
+        db->prepare_query<person> ("query-0", query::id == p.id_ + 1));
+
+      {
+        auto_ptr<person> p (pq1.execute_one ());
+        assert (p.get () != 0 && p->name_ == "John Doe");
+      }
+
+      {
+        auto_ptr<person> p (pq0.execute_one ());
+        assert (p.get () == 0);
+      }
+
+      {
+        person p;
+        assert (pq1.execute_one (p) && p.name_ == "John Doe");
+      }
+
+      {
+        person p ("", 0);
+        assert (!pq0.execute_one (p) &&
+                p.id_ == 0 && p.name_.empty () && p.age_ == 0);
+      }
+
+      {
+        person p (pq1.execute_value ());
+        assert (p.name_ == "John Doe");
+      }
+    }
   }
   catch (const odb::exception& e)
   {

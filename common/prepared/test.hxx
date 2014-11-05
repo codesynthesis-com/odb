@@ -12,9 +12,9 @@
 #pragma db object
 struct person
 {
-  person () {}
+  person (): id_ (0) {}
   person (const std::string& name, unsigned short age)
-      : name_ (name), age_ (age) {}
+      : id_ (0), name_ (name), age_ (age) {}
 
   #pragma db id auto
   unsigned long id_;
