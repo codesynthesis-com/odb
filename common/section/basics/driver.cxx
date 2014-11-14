@@ -1273,6 +1273,13 @@ main (int argc, char* argv[])
         db->update (o1, o1.s);
         assert (o.v != o1.v);
 
+        // Double-check object version was updated.
+        //
+        {
+          auto_ptr<object> p1 (db->load<object> (o.id));
+          assert (o1.v == p1->v);
+        }
+
         try
         {
           db->load (*p, p->s);
@@ -1392,6 +1399,13 @@ main (int argc, char* argv[])
 
         db->update (o1, o1.s);
         assert (o.v != o1.v);
+
+        // Double-check object version was updated.
+        //
+        {
+          auto_ptr<object> p1 (db->load<object> (o.id));
+          assert (o1.v == p1->v);
+        }
 
         try
         {

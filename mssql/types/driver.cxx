@@ -269,23 +269,31 @@ main (int argc, char* argv[])
     // Test optimistic concurrency using ROWVERSION.
     //
     {
-      rowversion o;
+      rowversion o (123);
       o.str = "abc";
 
       {
         transaction t (db->begin ());
         db->persist (o);
-        assert (o.version != 0);
+        assert (o.ver != 0);
         t.commit ();
       }
 
       {
         transaction t (db->begin ());
         auto_ptr<rowversion> p (db->load<rowversion> (o.id_));
-        assert (p->version == o.version);
+        assert (p->ver == o.ver);
         p->str += 'd';
         db->update (*p);
-        assert (p->version > o.version);
+        assert (p->ver > o.ver);
+
+        // Double-check object version was updated.
+        //
+        {
+          auto_ptr<rowversion> p1 (db->load<rowversion> (o.id_));
+          assert (p->ver == p1->ver);
+        }
+
         o.str += 'D';
         try
         {
@@ -294,7 +302,40 @@ main (int argc, char* argv[])
         }
         catch (const odb::object_changed&) {}
         db->reload (o);
-        assert (o.version == p->version);
+        assert (o.ver == p->ver);
+        o.str += 'D';
+        db->update (o);
+        t.commit ();
+      }
+    }
+
+    {
+      rowversion_auto o;
+      o.str = "abc";
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        assert (o.ver != 0);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<rowversion_auto> p (db->load<rowversion_auto> (o.id_));
+        assert (p->ver == o.ver);
+        p->str += 'd';
+        db->update (*p);
+        assert (p->ver > o.ver);
+        o.str += 'D';
+        try
+        {
+          db->update (o);
+          assert (false);
+        }
+        catch (const odb::object_changed&) {}
+        db->reload (o);
+        assert (o.ver == p->ver);
         o.str += 'D';
         db->update (o);
         t.commit ();

@@ -34,8 +34,8 @@ private:
 #pragma db object
 struct auto_only
 {
-  #pragma db auto id
-  unsigned long id_;
+  #pragma db auto id pgsql:type("BIGINT")
+  unsigned short id_;
 };
 
 #endif // TEST_HXX

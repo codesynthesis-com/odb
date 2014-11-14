@@ -470,21 +470,40 @@ struct char_array
   }
 };
 
-// Test optimistic concurrency using ROWVERSION.
+// Test optimistic concurrency using ROWVERSION, both with auto and
+// manually-assigned ids.
 //
 #pragma db object optimistic
 struct rowversion
 {
-  rowversion (): version (0) {}
+  rowversion (unsigned int id = 0): id_ (id), ver (0) {}
+
+  #pragma db id
+  unsigned int id_;
+
+  #pragma db version type("ROWVERSION")
+#ifdef _WIN32
+  unsigned __int64 ver;
+#else
+  unsigned long long ver;
+#endif
+
+  std::string str;
+};
+
+#pragma db object optimistic
+struct rowversion_auto
+{
+  rowversion_auto (): ver (0) {}
 
   #pragma db id auto
   unsigned int id_;
 
   #pragma db version type("ROWVERSION")
 #ifdef _WIN32
-  unsigned __int64 version;
+  unsigned __int64 ver;
 #else
-  unsigned long long version;
+  unsigned long long ver;
 #endif
 
   std::string str;

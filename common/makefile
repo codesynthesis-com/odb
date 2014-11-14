@@ -8,6 +8,7 @@ tests :=                  \
 access                    \
 auto                      \
 blob                      \
+bulk                      \
 callback                  \
 changelog                 \
 circular/single           \
@@ -63,7 +64,7 @@ cxx11_tests  := session/custom
 
 no_dist_tests := changelog include
 
-no_multi_tests := changelog include
+no_multi_tests := bulk changelog include
 
 $(default):
 $(call include,$(bld_root)/cxx/standard.make) # cxx_standard
