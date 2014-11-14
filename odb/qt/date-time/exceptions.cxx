@@ -15,6 +15,12 @@ namespace odb
       {
         return "date/time value out of range";
       }
+
+      value_out_of_range* value_out_of_range::
+      clone () const
+      {
+        return new value_out_of_range (*this);
+      }
     }
   }
 }

@@ -20,6 +20,9 @@ namespace odb
       {
         virtual const char*
         what () const throw ();
+
+        virtual value_out_of_range*
+        clone () const;
       };
     }
   }
