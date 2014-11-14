@@ -12939,7 +12939,7 @@ main ()
   {
     transaction t (db.begin ());
     schema_catalog::migrate (db);
-    t.end ();
+    t.commit ();
   }
 
   ...
