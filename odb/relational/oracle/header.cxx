@@ -226,6 +226,28 @@ namespace relational
         member_image_type member_image_type_;
       };
       entry<image_member> image_member_;
+
+      struct class1: relational::class1
+      {
+        class1 (base const& x): base (x) {}
+
+        virtual void
+        object_public_extra_pre (type& c)
+        {
+          bool abst (abstract (c));
+
+          type* poly_root (polymorphic (c));
+          bool poly (poly_root != 0);
+          bool poly_derived (poly && poly_root != &c);
+
+          if (poly_derived || (abst && !poly))
+            return;
+
+          os << "static const std::size_t batch = 1UL;"
+             << endl;
+        }
+      };
+      entry<class1> class1_entry_;
     }
   }
 }

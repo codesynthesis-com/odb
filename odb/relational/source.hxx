@@ -3830,7 +3830,7 @@ namespace relational
           os << "," << endl
              << "  ";
 
-        os << s.member->name () << " (c, im, id, idv";
+        os << s.member->name () << " (c, im, idim, id, idv";
         extra_members ();
         os << ")";
       }
@@ -5319,6 +5319,7 @@ namespace relational
             init_id_image_member_ ("id_", "id"),
             init_version_image_member_ ("version_", "(*v)"),
             init_id_value_member_ ("id"),
+            init_id_value_member_id_image_ ("id", "id_"),
             init_version_value_member_ ("v"),
             init_named_version_value_member_ ("v", "version_"),
             init_discriminator_value_member_ ("d", "", false),
@@ -5344,6 +5345,7 @@ namespace relational
             init_id_image_member_ ("id_", "id"),
             init_version_image_member_ ("version_", "(*v)"),
             init_id_value_member_ ("id"),
+            init_id_value_member_id_image_ ("id", "id_"),
             init_version_value_member_ ("v"),
             init_named_version_value_member_ ("v", "version_"),
             init_discriminator_value_member_ ("d", "", false),
@@ -5500,6 +5502,12 @@ namespace relational
       optimistic_version_increment (semantics::data_member&)
       {
         return "1";
+      }
+
+      virtual bool
+      optimistic_insert_bind_version (semantics::data_member&)
+      {
+        return false;
       }
 
       virtual void
@@ -5752,6 +5760,7 @@ namespace relational
       traversal::names init_value_member_names_;
 
       instance<init_value_member> init_id_value_member_;
+      instance<init_value_member> init_id_value_member_id_image_;
       instance<init_value_member> init_version_value_member_;
       instance<init_value_member> init_named_version_value_member_;
       instance<init_value_member> init_discriminator_value_member_;

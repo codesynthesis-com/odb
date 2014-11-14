@@ -905,7 +905,7 @@ namespace relational
           sql_type t (parse_sql_type (column_type (m), m));
           return t.type != sql_type::ROWVERSION
             ? "1"
-            : "sts.update_statement ().version ()";
+            : "version (sts.id_image ())";
         }
 
         virtual string
@@ -933,7 +933,8 @@ namespace relational
 
       struct class_: relational::class_, statement_columns_common
       {
-        class_ (base const& x): base (x) {}
+        class_ (base const& x):
+            base (x), init_version_value_member_id_image_ ("v", "version_") {}
 
         virtual void
         init_image_pre (type& c)
@@ -1110,7 +1111,9 @@ namespace relational
         optimistic_version_init (semantics::data_member& m)
         {
           sql_type t (parse_sql_type (column_type (m), m));
-          return t.type != sql_type::ROWVERSION ? "1" : "st.version ()";
+          return t.type != sql_type::ROWVERSION
+            ? "1"
+            : "version (sts.id_image ())";
         }
 
         virtual string
@@ -1119,8 +1122,54 @@ namespace relational
           sql_type t (parse_sql_type (column_type (m), m));
           return t.type != sql_type::ROWVERSION
             ? "1"
-            : "sts.update_statement ().version ()";
+            : "version (sts.id_image ())";
         }
+
+        virtual bool
+        optimistic_insert_bind_version (semantics::data_member& m)
+        {
+          sql_type t (parse_sql_type (column_type (m), m));
+          return t.type == sql_type::ROWVERSION;
+        }
+
+        virtual void
+        object_extra (type& c)
+        {
+          bool abst (abstract (c));
+
+          type* poly_root (polymorphic (c));
+          bool poly (poly_root != 0);
+          bool poly_derived (poly && poly_root != &c);
+
+          if (poly_derived || (abst && !poly))
+            return;
+
+          if (semantics::data_member* m = optimistic (c))
+          {
+            sql_type t (parse_sql_type (column_type (*m), *m));
+            if (t.type == sql_type::ROWVERSION)
+            {
+              string const& type (class_fq_name (c));
+              string traits ("access::object_traits_impl< " + type + ", id_" +
+                             db.string () + " >");
+
+              os << traits << "::version_type" << endl
+                 << traits << "::" << endl
+                 << "version (const id_image_type& i)"
+                 << "{"
+                 << "version_type v;";
+              init_version_value_member_id_image_->traverse (*m);
+              os << "return v;"
+                 << "}";
+            }
+          }
+        }
+
+      private:
+        // Go via the dynamic creation to get access to the constructor.
+        //
+        instance<relational::init_value_member>
+          init_version_value_member_id_image_;
       };
       entry<class_> class_entry_;
     }

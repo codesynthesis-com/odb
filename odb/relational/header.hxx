@@ -995,6 +995,8 @@ namespace relational
 
         os << "typedef object_traits_impl<object_type, id_" << db <<
           ">::image_type image_type;"
+           << "typedef object_traits_impl<object_type, id_" << db <<
+          ">::id_image_type id_image_type;"
            << endl;
 
         section_public_extra_pre (s);

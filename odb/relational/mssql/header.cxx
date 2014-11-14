@@ -31,6 +31,11 @@ namespace relational
           if (poly_derived || (abst && !poly))
             return;
 
+          // batch
+          //
+          os << "static const std::size_t batch = 1UL;"
+             << endl;
+
           // rowvesion
           //
           bool rv (false);
@@ -42,6 +47,30 @@ namespace relational
 
           os << "static const bool rowversion = " << rv << ";"
              << endl;
+        }
+
+        virtual void
+        object_public_extra_post (type& c)
+        {
+          bool abst (abstract (c));
+
+          type* poly_root (polymorphic (c));
+          bool poly (poly_root != 0);
+          bool poly_derived (poly && poly_root != &c);
+
+          if (poly_derived || (abst && !poly))
+            return;
+
+          if (semantics::data_member* m = optimistic (c))
+          {
+            sql_type t (parse_sql_type (column_type (*m), *m));
+            if (t.type == sql_type::ROWVERSION)
+            {
+              os << "static version_type" << endl
+                 << "version (const id_image_type&);"
+                 << endl;
+            }
+          }
         }
       };
       entry<class1> class1_entry_;

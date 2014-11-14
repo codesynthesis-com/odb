@@ -125,6 +125,7 @@ traverse_object (type& c)
        << db << "::connection&" << (containers || sections ? " c" : "") <<
       "," << endl
        << "image_type&" << (sections ? " im" : "") << "," << endl
+       << "id_image_type&" << (sections ? " idim" : "") << "," << endl
        << db << "::binding&" << (containers || sections ? " id" : "") <<
       "," << endl
        << db << "::binding&" << (sections ? " idv" : "");
@@ -190,7 +191,7 @@ traverse_object (type& c)
          << "ODB_POTENTIALLY_UNUSED (db);"
          << endl
          << "id_type id;";
-      init_id_value_member_->traverse (*id);
+      init_id_value_member_id_image_->traverse (*id);
       os << "return id;"
          << "}";
     }
@@ -227,7 +228,7 @@ traverse_object (type& c)
     }
   }
 
-  // discriminator()
+  // discriminator(image)
   //
   if (poly && !poly_derived)
   {
@@ -1252,6 +1253,29 @@ traverse_object (type& c)
      << "imb.version++;"
      << "}";
 
+  // Bind id image since that's where the returned id and/or version will
+  // be extracted.
+  //
+  if (!poly_derived)
+  {
+    bool bv (opt != 0 && optimistic_insert_bind_version (*opt));
+    if (bv || auto_id)
+    {
+      os << "{"
+         << "id_image_type& i (sts.id_image ());"
+         << "binding& b (sts.id_image_binding ());"
+         << "if (i.version != sts.id_image_version () || b.version == 0)"
+         << "{"
+         << "bind (b.bind, i);"
+         << "sts.id_image_version (i.version);"
+         << "b.version++;";
+      if (opt != 0)
+        os << "sts.optimistic_id_image_binding ().version++;";
+      os << "}"
+         << "}";
+    }
+  }
+
   os << "insert_statement& st (sts.persist_statement ());"
      << "if (!st.execute ())" << endl
      << "throw object_already_persistent ();"
@@ -1265,7 +1289,7 @@ traverse_object (type& c)
       os << "// From " << location_string (ma.loc, true) << endl;
 
     if (ma.placeholder ())
-      os << ma.translate ("obj", "static_cast< id_type > (st.id ())") << ";"
+      os << ma.translate ("obj", "id (sts.id_image ())") << ";"
          << endl;
     else
     {
@@ -1282,7 +1306,7 @@ traverse_object (type& c)
       if (cast)
         os << ")";
 
-      os << " = static_cast< id_type > (st.id ());"
+      os << " = id (sts.id_image ());"
          << endl;
     }
   }
