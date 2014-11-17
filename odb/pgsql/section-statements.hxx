@@ -36,6 +36,7 @@ namespace odb
       typedef ST traits;
 
       typedef typename traits::image_type image_type;
+      typedef typename traits::id_image_type id_image_type;
 
       typedef pgsql::select_statement select_statement_type;
       typedef pgsql::update_statement update_statement_type;
@@ -44,6 +45,7 @@ namespace odb
 
       section_statements (connection_type&,
                           image_type&,
+                          id_image_type&,
                           binding& id,
                           binding& idv,
                           native_binding& idn,

@@ -93,6 +93,10 @@ namespace odb
 
       template <typename T>
       typename object_traits<T>::id_type
+      persist (const T& object);
+
+      template <typename T>
+      typename object_traits<T>::id_type
       persist (T* obj_ptr);
 
       template <typename T, template <typename> class P>

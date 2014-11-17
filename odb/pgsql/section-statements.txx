@@ -12,6 +12,7 @@ namespace odb
     section_statements<T, ST>::
     section_statements (connection_type& conn,
                         image_type& im,
+                        id_image_type&,
                         binding& id,
                         binding& idv,
                         native_binding& idn,

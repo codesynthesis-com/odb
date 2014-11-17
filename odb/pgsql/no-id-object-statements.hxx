@@ -92,7 +92,7 @@ namespace odb
               insert_column_count,
               insert_image_binding_,
               insert_image_native_binding_,
-              false,
+              0,
               false));
 
         return *persist_;

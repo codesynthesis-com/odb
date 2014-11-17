@@ -39,29 +39,31 @@ namespace odb
     // deleter function which will be initialized during allocation
     // (at that point we know that the cache class is defined).
     //
-    template <typename T, typename I>
+    template <typename T, typename I, typename ID>
     struct extra_statement_cache_ptr
     {
       typedef I image_type;
+      typedef ID id_image_type;
       typedef pgsql::connection connection_type;
 
       extra_statement_cache_ptr (): p_ (0) {}
       ~extra_statement_cache_ptr ()
       {
         if (p_ != 0)
-          (this->*deleter_) (0, 0, 0, 0, 0, 0);
+          (this->*deleter_) (0, 0, 0, 0, 0, 0, 0);
       }
 
       T&
       get (connection_type& c,
            image_type& im,
+           id_image_type& idim,
            binding& id,
            binding* idv,
            native_binding& idn,
            const Oid* idt)
       {
         if (p_ == 0)
-          allocate (&c, &im, &id, (idv != 0 ? idv : &id), &idn, idt);
+          allocate (&c, &im, &idim, &id, (idv != 0 ? idv : &id), &idn, idt);
 
         return *p_;
       }
@@ -69,21 +71,21 @@ namespace odb
     private:
       void
       allocate (connection_type*,
-                image_type*,
+                image_type*, id_image_type*,
                 binding*, binding*, native_binding*, const Oid*);
 
     private:
       T* p_;
       void (extra_statement_cache_ptr::*deleter_) (
         connection_type*,
-        image_type*,
+        image_type*, id_image_type*,
         binding*, binding*, native_binding*, const Oid*);
     };
 
-    template <typename T, typename I>
-    void extra_statement_cache_ptr<T, I>::
+    template <typename T, typename I, typename ID>
+    void extra_statement_cache_ptr<T, I, ID>::
     allocate (connection_type* c,
-              image_type* im,
+              image_type* im, id_image_type* idim,
               binding* id, binding* idv, native_binding* idn, const Oid* idt)
     {
       // To reduce object code size, this function acts as both allocator
@@ -91,8 +93,8 @@ namespace odb
       //
       if (p_ == 0)
       {
-        p_ = new T (*c, *im, *id, *idv, *idn, idt);
-        deleter_ = &extra_statement_cache_ptr<T, I>::allocate;
+        p_ = new T (*c, *im, *idim, *id, *idv, *idn, idt);
+        deleter_ = &extra_statement_cache_ptr<T, I, ID>::allocate;
       }
       else
         delete p_;
@@ -381,7 +383,7 @@ namespace odb
               insert_column_count,
               insert_image_binding_,
               insert_image_native_binding_,
-              object_traits::auto_id,
+              (object_traits::auto_id ? &id_image_binding_ : 0),
               false));
 
         return *persist_;
@@ -471,6 +473,7 @@ namespace odb
         return extra_statement_cache_.get (
           conn_,
           image_,
+          id_image_,
           id_image_binding_,
           od_.id_image_binding (),
           id_image_native_binding_,
@@ -521,8 +524,9 @@ namespace odb
       template <typename T1>
       friend class polymorphic_derived_object_statements;
 
-      extra_statement_cache_ptr<extra_statement_cache_type, image_type>
-      extra_statement_cache_;
+      extra_statement_cache_ptr<extra_statement_cache_type,
+                                image_type,
+                                id_image_type> extra_statement_cache_;
 
       image_type image_;
 

@@ -330,7 +330,7 @@ namespace odb
               insert_column_count,
               insert_image_binding_,
               insert_image_native_binding_,
-              object_traits::auto_id,
+              0,
               false));
 
         return *persist_;
@@ -405,6 +405,7 @@ namespace odb
         return extra_statement_cache_.get (
           conn_,
           image_,
+          id_image (),
           id_image_binding (),
           &id_image_binding (), // Note, not id+version.
           root_statements_.id_image_native_binding (),
@@ -446,8 +447,9 @@ namespace odb
       root_statements_type& root_statements_;
       base_statements_type& base_statements_;
 
-      extra_statement_cache_ptr<extra_statement_cache_type, image_type>
-      extra_statement_cache_;
+      extra_statement_cache_ptr<extra_statement_cache_type,
+                                image_type,
+                                id_image_type> extra_statement_cache_;
 
       image_type image_;
 

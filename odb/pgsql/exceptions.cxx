@@ -41,6 +41,12 @@ namespace odb
       return what_.c_str ();
     }
 
+    database_exception* database_exception::
+    clone () const
+    {
+      return new database_exception (*this);
+    }
+
     //
     // cli_exception
     //
@@ -60,6 +66,12 @@ namespace odb
     what () const throw ()
     {
       return what_.c_str ();
+    }
+
+    cli_exception* cli_exception::
+    clone () const
+    {
+      return new cli_exception (*this);
     }
   }
 }

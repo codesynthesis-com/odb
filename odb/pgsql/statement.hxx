@@ -278,7 +278,7 @@ namespace odb
                         std::size_t types_count,
                         binding& param,
                         native_binding& native_param,
-                        bool returning);
+                        binding* returning);
 
       insert_statement (connection_type& conn,
                         const char* name,
@@ -288,7 +288,7 @@ namespace odb
                         std::size_t types_count,
                         binding& param,
                         native_binding& native_param,
-                        bool returning,
+                        binding* returning,
                         bool copy_name_text = true);
 
       // Return true if successful and false if the row is a duplicate.
@@ -297,12 +297,6 @@ namespace odb
       bool
       execute ();
 
-      unsigned long long
-      id ()
-      {
-        return id_;
-      }
-
     private:
       insert_statement (const insert_statement&);
       insert_statement& operator= (const insert_statement&);
@@ -310,9 +304,7 @@ namespace odb
     private:
       binding& param_;
       native_binding& native_param_;
-
-      bool returning_;
-      unsigned long long id_;
+      binding* returning_;
     };
 
     class LIBODB_PGSQL_EXPORT update_statement: public statement

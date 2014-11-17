@@ -698,7 +698,7 @@ namespace odb
                       size_t types_count,
                       binding& param,
                       native_binding& native_param,
-                      bool returning)
+                      binding* returning)
         : statement (conn,
                      name, text, statement_insert,
                      (process ? &param : 0), false,
@@ -718,7 +718,7 @@ namespace odb
                       size_t types_count,
                       binding& param,
                       native_binding& native_param,
-                      bool returning,
+                      binding* returning,
                       bool copy)
         : statement (conn,
                      name, text, statement_insert,
@@ -767,42 +767,8 @@ namespace odb
         translate_error (conn_, h);
       }
 
-      if (returning_)
-      {
-        // Get the id value that was returned using the RETURNING clause.
-        //
-        const char* v (PQgetvalue (h, 0, 0));
-
-        // While the ODB auto id type can only be INT or BIGINT, handle the
-        // SMALLINT integer in case we are dealing with a custom schema.
-        //
-        switch (PQftype (h, 0))
-        {
-        case int2_oid:
-          {
-            id_ = endian_traits::ntoh (
-              *reinterpret_cast<const unsigned short*> (v));
-            break;
-          }
-        case int4_oid:
-          {
-            id_ = endian_traits::ntoh (
-              *reinterpret_cast<const unsigned int*> (v));
-            break;
-          }
-        case int8_oid:
-          {
-            id_ = endian_traits::ntoh (
-              *reinterpret_cast<const unsigned long long*> (v));
-            break;
-          }
-        default:
-          {
-            assert (false);
-            break;
-          }
-        }
-      }
+      if (returning_ != 0)
+        bind_result (returning_->bind, 1, h, 0, false);
 
       return true;
     }
