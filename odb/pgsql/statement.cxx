@@ -360,20 +360,64 @@ namespace odb
             break;
           }
         case bind::smallint:
-          {
-            *static_cast<short*> (b.buffer) =
-              *reinterpret_cast<const short*> (v);
-            break;
-          }
         case bind::integer:
-          {
-            *static_cast<int*> (b.buffer) = *reinterpret_cast<const int*> (v);
-            break;
-          }
         case bind::bigint:
           {
-            *static_cast<long long*> (b.buffer) =
-              *reinterpret_cast<const long long*> (v);
+            // If we are dealing with a custom schema, we may have a
+            // difference in the integer widths. Note also that we have
+            // to go to our endianness and back in order for casts to
+            // work properly.
+            //
+            long long i;
+
+            switch (PQftype (result, c))
+            {
+            case int2_oid:
+              {
+                i = endian_traits::ntoh (*reinterpret_cast<const short*> (v));
+                break;
+              }
+            case int4_oid:
+              {
+                i = endian_traits::ntoh (*reinterpret_cast<const int*> (v));
+                break;
+              }
+            case int8_oid:
+              {
+                i = endian_traits::ntoh (
+                  *reinterpret_cast<const long long*> (v));
+                break;
+              }
+            default:
+              {
+                assert (false); // Column in the database is not an integer.
+                break;
+              }
+            }
+
+            switch (b.type)
+            {
+            case bind::smallint:
+              {
+                *static_cast<short*> (b.buffer) =
+                  endian_traits::hton (static_cast<short> (i));
+                break;
+              }
+            case bind::integer:
+              {
+                *static_cast<int*> (b.buffer) =
+                  endian_traits::hton (static_cast<int> (i));
+                break;
+              }
+            case bind::bigint:
+              {
+                *static_cast<long long*> (b.buffer) = endian_traits::hton (i);
+                break;
+              }
+            default:
+              break;
+            }
+
             break;
           }
         case bind::real:
