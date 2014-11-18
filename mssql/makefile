@@ -10,6 +10,7 @@ custom        \
 database      \
 native        \
 query         \
+stored-proc   \
 types
 
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(tests)))
