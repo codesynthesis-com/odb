@@ -28,6 +28,7 @@ namespace relational
         insert_send_auto_id (current ().insert_send_auto_id),
         delay_freeing_statement_result (current ().delay_freeing_statement_result),
         need_image_clone (current ().need_image_clone),
+        generate_bulk (current ().generate_bulk),
         global_index (current ().global_index),
         global_fkey (current ().global_fkey),
         bind_vector (data_->bind_vector_),

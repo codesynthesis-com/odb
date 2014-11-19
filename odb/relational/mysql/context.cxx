@@ -84,6 +84,7 @@ namespace relational
       insert_send_auto_id = true;
       delay_freeing_statement_result = false;
       need_image_clone = false;
+      generate_bulk = false;
       global_index = false;
       global_fkey = true;
       data_->bind_vector_ = "MYSQL_BIND*";

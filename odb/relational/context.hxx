@@ -270,6 +270,7 @@ namespace relational
     bool insert_send_auto_id;
     bool delay_freeing_statement_result;
     bool need_image_clone;
+    bool generate_bulk;
 
     bool global_index;
     bool global_fkey;

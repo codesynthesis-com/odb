@@ -1449,6 +1449,173 @@ traverse_object (type& c)
 
   os << "}";
 
+  // persist() bulk
+  //
+  if (c.count ("bulk-persist"))
+  {
+    os << "void " << traits << "::" << endl
+       << "persist (database& db," << endl
+       << (auto_id ? "" : "const ") << "object_type** objs," << endl
+       << "std::size_t n," << endl
+       << "multiple_exceptions& mex)"
+       << "{"
+       << "ODB_POTENTIALLY_UNUSED (db);"
+       << endl
+       << "using namespace " << db << ";"
+       << endl;
+
+    os << db << "::connection& conn (" << endl
+       << db << "::transaction::current ().connection ());"
+       << "statements_type& sts (" << endl
+       << "conn.statement_cache ().find_object<object_type> ());";
+
+    if (versioned ||
+        uss.count (user_sections::count_new |
+                   user_sections::count_all |
+                   user_sections::count_versioned_only) != 0)
+      os << "const schema_version_migration& svm (" <<
+        "sts.version_migration (" << schema_name << "));";
+
+    os << endl;
+
+    os << "for (std::size_t i (0); i != n; ++i)"
+       << "{"
+       << "const object_type& obj (*objs[i]);"
+       << "callback (db, obj, callback_event::pre_persist);"
+      //@@ assumption: generate_grow is false
+      //@@ assumption: insert_send_auto_id is false
+       << "init (sts.image (i), obj, statement_insert" <<
+      (versioned ? ", svm" : "") << ");"
+       << "}";
+
+    //@@ assumption: generate_grow is false
+    os << "binding& imb (sts.insert_image_binding ());"
+       << "if (imb.version == 0)"
+       << "{"
+       << "bind (imb.bind, sts.image (), statement_insert" <<
+      (versioned ? ", svm" : "") << ");"
+       << "imb.version++;"
+       << "}";
+
+    // Bind id image since that's where the returned id and/or version will
+    // be extracted.
+    //
+    bool bv (opt != 0 && optimistic_insert_bind_version (*opt));
+    if (bv || auto_id)
+    {
+      os << "binding& idb (sts.id_image_binding ());"
+        //@@ assumption: generate_grow is false
+         << "if (idb.version == 0)"
+         << "{"
+         << "bind (idb.bind, sts.id_image ());"
+         << "idb.version++;";
+      if (opt != 0)
+        os << "sts.optimistic_id_image_binding ().version++;";
+      os << "}";
+    }
+
+    os << "insert_statement& st (sts.persist_statement ());"
+       << "n = st.execute (n, mex);" // Actual number of rows attempted.
+       << endl;
+
+    os << "for (std::size_t i (0); i != n; ++i)"
+       << "{"
+       << "bool r (st.result (i));" // Sets current in mex.
+       << endl
+       << "if (mex[i] != 0)" << endl // Pending exception for this position.
+       << "continue;"
+       << endl
+       << "if (!r)"
+       << "{"
+       << "mex.insert (i, object_already_persistent ());"
+       << "continue;"
+       << "}"
+       << "if (mex.fatal ())" << endl // Don't do any extra work.
+       << "continue;"
+       << endl
+       << (auto_id ? "" : "const ") << "object_type& obj (*objs[i]);"
+       << endl;
+
+    // Extract auto id.
+    //
+    if (auto_id)
+    {
+      member_access& ma (id->get<member_access> ("set"));
+
+      if (!ma.synthesized)
+        os << "// From " << location_string (ma.loc, true) << endl;
+
+      if (ma.placeholder ())
+        os << ma.translate ("obj", "id (sts.id_image (i))") << ";"
+           << endl;
+      else
+      {
+        // If this member is const and we have a synthesized direct access,
+        // then cast away constness. Otherwise, we assume that the user-
+        // provided expression handles this.
+        //
+        bool cast (ma.direct () && const_type (id->type ()));
+        if (cast)
+          os << "const_cast< id_type& > (" << endl;
+
+        os << ma.translate ("obj");
+
+        if (cast)
+          os << ")";
+
+        os << " = id (sts.id_image (i));"
+           << endl;
+      }
+    }
+
+    // Reset sections: loaded, unchanged.
+    //
+    for (user_sections::iterator i (uss.begin ()); i != uss.end (); ++i)
+    {
+      // Skip special sections.
+      //
+      if (i->special == user_section::special_version)
+        continue;
+
+      data_member& m (*i->member);
+
+      // If the section is soft- added or deleted, check the version.
+      //
+      unsigned long long av (added (m));
+      unsigned long long dv (deleted (m));
+      if (av != 0 || dv != 0)
+      {
+        os << "if (";
+
+        if (av != 0)
+          os << "svm >= schema_version_migration (" << av << "ULL, true)";
+
+        if (av != 0 && dv != 0)
+          os << " &&" << endl;
+
+        if (dv != 0)
+          os << "svm <= schema_version_migration (" << dv << "ULL, true)";
+
+        os << ")" << endl;
+        }
+
+      // Section access is always by reference.
+      //
+      member_access& ma (m.get<member_access> ("get"));
+      if (!ma.synthesized)
+        os << "// From " << location_string (ma.loc, true) << endl;
+
+      os << ma.translate ("obj") << ".reset (true, false);"
+         << endl;
+    }
+
+    os << "callback (db," << endl
+       << (auto_id ? "static_cast<const object_type&> (obj)," : "obj,") << endl
+       << "callback_event::post_persist);"
+       << "}"  // for
+       << "}"; // persist ()
+  }
+
   // update ()
   //
   if (id != 0 && (!readonly || poly))
@@ -2112,6 +2279,110 @@ traverse_object (type& c)
     os << "}";
   }
 
+  // update () bulk
+  //
+  if (id != 0 && !readonly && c.count ("bulk-update"))
+  {
+    os << "void " << traits << "::" << endl
+       << "update (database& db," << endl
+       << "const object_type** objs," << endl
+       << "std::size_t n," << endl
+       << "multiple_exceptions& mex)"
+       << "{"
+       << "ODB_POTENTIALLY_UNUSED (db);"
+       << endl
+       << "using namespace " << db << ";"
+       << "using " << db << "::update_statement;"
+       << endl
+       << db << "::connection& conn (" << endl
+       << db << "::transaction::current ().connection ());"
+       << "statements_type& sts (" << endl
+       << "conn.statement_cache ().find_object<object_type> ());";
+
+    if (versioned)
+      os << "const schema_version_migration& svm (" <<
+        "sts.version_migration (" << schema_name << "));";
+
+    os << endl
+       << "for (std::size_t i (0); i != n; ++i)"
+       << "{"
+       << "const object_type& obj (*objs[i]);"
+       << "callback (db, obj, callback_event::pre_update);";
+
+    if (!id_ma->synthesized)
+      os << "// From " << location_string (id_ma->loc, true) << endl;
+
+    os << "const id_type& id (" << endl
+       << id_ma->translate ("obj") << ");";
+
+    os << "init (sts.id_image (i), id);"
+      //@@ assumption: generate_grow false
+       << "init (sts.image (i), obj, statement_update);"
+       << "}";
+
+    // Update bindings.
+    //
+    os << "binding& idb (sts.id_image_binding ());"
+       << "binding& imb (sts.update_image_binding ());"
+       << endl;
+
+    //@@ assumption: generate_grow false
+    //
+    os << "bool u (false);" // Avoid incrementing version twice.
+       << "if (imb.version == 0)"
+       << "{"
+       << "bind (imb.bind, sts.image (), statement_update" <<
+      (versioned ? ", svm" : "") << ");"
+       << "imb.version++;"
+       << "u = true;"
+       << "}";
+
+    //@@ assumption: generate_grow false
+    //
+    os << "if (idb.version == 0)"
+       << "{"
+       << "bind (idb.bind, sts.id_image ());"
+       << "idb.version++;";
+    if (opt != 0)
+      os << "sts.optimistic_id_image_binding ().version++;";
+    os << endl
+       << "if (!u)" << endl
+       << "imb.version++;"
+       << "}";
+
+    // We don't need the versioned check here since the statement cannot
+    // be empty; otherwise it would have been an empty object which is
+    // illegal.
+    //
+    os << "update_statement& st (sts.update_statement ());"
+       << "n = st.execute (n, mex);"; // Actual number of rows attempted.
+
+    os << endl
+       << "for (std::size_t i (0); i != n; ++i)"
+       << "{"
+       << "unsigned long long r (st.result (i));" // Also sets current in mex.
+       << endl
+       << "if (mex[i] != 0)" << endl // Pending exception from result().
+       << "continue;"
+       << endl
+       << "if (r != 1)"
+       << "{"
+       << "mex.insert (i," << endl
+      //@@ assumption: result_unknown
+       << "(r == update_statement::result_unknown)," << endl
+       << "object_not_persistent ());"
+       << "continue;"
+       << "}"
+       << "if (mex.fatal ())" << endl // Don't do any extra work.
+       << "continue;"
+       << endl
+       << "const object_type& obj (*objs[i]);"
+       << "callback (db, obj, callback_event::post_update);"
+       << "pointer_cache_traits::update (db, obj);"
+       << "}"  // for
+       << "}"; // update()
+  }
+
   // erase (id)
   //
   size_t erase_containers (has_a (c, test_straight_container));
@@ -2243,6 +2514,62 @@ traverse_object (type& c)
     }
 
     os << "}";
+  }
+
+  // erase (id) bulk
+  //
+  if (id != 0 && c.count ("bulk-erase"))
+  {
+    os << "std::size_t " << traits << "::" << endl
+       << "erase (database& db," << endl
+       << "const id_type** ids," << endl
+       << "std::size_t n," << endl
+       << "multiple_exceptions& mex)"
+       << "{"
+       << "using namespace " << db << ";"
+       << endl
+       << "ODB_POTENTIALLY_UNUSED (db);"
+       << endl
+       << db << "::connection& conn (" << endl
+       << db << "::transaction::current ().connection ());"
+       << "statements_type& sts (" << endl
+       << "conn.statement_cache ().find_object<object_type> ());"
+       << endl
+       << "for (std::size_t i (0); i != n; ++i)" << endl
+       << "init (sts.id_image (i), *ids[i]);"
+       << endl
+       << "binding& idb (sts.id_image_binding ());"
+      //@@ assumption: generate_grow false
+       << "if (idb.version == 0)"
+       << "{"
+       << "bind (idb.bind, sts.id_image ());"
+       << "idb.version++;"
+       << (opt != 0 ? "sts.optimistic_id_image_binding ().version++;" : "")
+       << "}"
+       << "delete_statement& st (sts.erase_statement ());"
+       << "n = st.execute (n, mex);" // Set to actual number of rows attempted.
+       << endl
+       << "for (std::size_t i (0); i != n; ++i)"
+       << "{"
+       << "unsigned long long r (st.result (i));" // Sets current in mex.
+       << endl
+       << "if (mex[i] != 0)" << endl // Pending exception from result().
+       << "continue;"
+       << endl
+       << "if (r != 1)"
+       << "{"
+       << "mex.insert (i," << endl
+      //@@ assumption: result_unknown
+       << "(r == delete_statement::result_unknown)," << endl
+       << "object_not_persistent ());"
+       << "continue;"
+       << "}"
+       << "if (mex.fatal ())" << endl // Don't do any extra work.
+       << "continue;"
+       << "pointer_cache_traits::erase (db, *ids[i]);"
+       << "}"  // for
+       << "return n;"
+       << "}"; // erase()
   }
 
   // erase (object)
@@ -2555,6 +2882,39 @@ traverse_object (type& c)
     }
 
     os << "}";
+  }
+
+  // erase (object) bulk
+  //
+  if (id != 0 && c.count ("bulk-erase"))
+  {
+    os << "void " << traits << "::" << endl
+       << "erase (database& db," << endl
+       << "const object_type** objs," << endl
+       << "std::size_t n," << endl
+       << "multiple_exceptions& mex)"
+       << "{"
+       << "id_type a[batch];"
+       << "const id_type* p[batch];"
+       << endl
+       << "for (std::size_t i (0); i != n; ++i)"
+       << "{"
+       << "const object_type& obj (*objs[i]);"
+       << "callback (db, obj, callback_event::pre_erase);"
+       << "a[i] = id (obj);"
+       << "p[i] = a + i;"
+       << "}"
+       << "n = erase (db, p, n, mex);"
+       << endl
+       << "if (mex.fatal ())" << endl // Don't do any extra work.
+       << "return;"
+       << endl
+       << "for (std::size_t i (0); i != n; ++i)"
+       << "{"
+       << "if (mex[i] == 0)" << endl // No pending exception.
+       << "callback (db, *objs[i], callback_event::post_erase);"
+       << "}"  // for
+       << "}"; // erase()
   }
 
   // find (id)

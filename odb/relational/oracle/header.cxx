@@ -243,8 +243,16 @@ namespace relational
           if (poly_derived || (abst && !poly))
             return;
 
-          os << "static const std::size_t batch = 1UL;"
-             << endl;
+          // Bulk operations batch size.
+          //
+          {
+            unsigned long long b (c.count ("bulk")
+                                  ? c.get<unsigned long long> ("bulk")
+                                  : 1);
+
+            os << "static const std::size_t batch = " << b << "UL;"
+               << endl;
+          }
         }
       };
       entry<class1> class1_entry_;

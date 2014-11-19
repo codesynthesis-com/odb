@@ -85,6 +85,7 @@ namespace relational
       insert_send_auto_id = false;
       delay_freeing_statement_result = false;
       need_image_clone = true;
+      generate_bulk = true;
       global_index = true;
       global_fkey = true;
       data_->bind_vector_ = "oracle::bind*";

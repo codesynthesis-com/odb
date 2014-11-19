@@ -387,6 +387,66 @@ namespace relational
 
         names (c, data_member_names_);
 
+        // Validate bulk operation support.
+        //
+        for (bool i (true); i && c.count ("bulk"); i = false)
+        {
+          location_t l (c.get<location_t> ("bulk-location"));
+
+          if (polymorphic (c))
+          {
+            error (l) << "bulk operations on polymorphic objects are "
+              "not supported" << endl;
+            valid_ = false;
+            break;
+          }
+
+          if (has_a (c, test_straight_container))
+          {
+            error (l) << "bulk operations on objects with containers are "
+              "not supported" << endl;
+            valid_ = false;
+            break;
+          }
+
+          if (optimistic (c))
+          {
+            error (l) << "bulk operations on optimistic objects are not "
+              "supported" << endl;
+            valid_ = false;
+            break;
+          }
+
+          bool update (true);
+
+          // If we have a change-updated section, then we cannot generate
+          // the bulk update operation.
+          //
+          user_sections& uss (c.get<user_sections> ("user-sections"));
+
+          for (user_sections::iterator i (uss.begin ());
+               update && i != uss.end ();
+               ++i)
+          {
+            const user_section& s (*i);
+
+            // Skip special sections.
+            //
+            if (s.special != user_section::special_ordinary)
+              continue;
+
+            // Always-updated section still needs a separate statement
+            // (since it may not be loaded).
+            //
+            if (!s.update_empty () && s.update != user_section::update_manual)
+              update = false;
+          }
+
+          c.set ("bulk-persist", true);
+          if (update) c.set ("bulk-update", true);
+          c.set ("bulk-erase", true);
+        }
+
         // Validate indexes.
         //
         {

@@ -494,6 +494,12 @@ traverse_object (type& c)
   os << ");"
      << endl;
 
+  if (c.count ("bulk-persist"))
+    os << "static void" << endl
+       << "persist (database&, " << (auto_id ? "" : "const ") <<
+      "object_type**, std::size_t, multiple_exceptions&);"
+       << endl;
+
   if (id != 0)
   {
     // find (id)
@@ -542,6 +548,12 @@ traverse_object (type& c)
 
       os << ");"
          << endl;
+
+      if (c.count ("bulk-update"))
+        os << "static void" << endl
+           << "update (database&, const object_type**, std::size_t, " <<
+          "multiple_exceptions&);"
+           << endl;
     }
 
     // erase ()
@@ -563,6 +575,19 @@ traverse_object (type& c)
 
     os << ");"
        << endl;
+
+    if (c.count ("bulk-erase"))
+    {
+      os << "static std::size_t" << endl
+         << "erase (database&, const id_type**, std::size_t, " <<
+        "multiple_exceptions&);"
+         << endl;
+
+      os << "static void" << endl
+         << "erase (database&, const object_type**, std::size_t, " <<
+        "multiple_exceptions&);"
+         << endl;
+    }
 
     // Sections.
     //

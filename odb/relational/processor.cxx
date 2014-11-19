@@ -1024,6 +1024,12 @@ namespace relational
       virtual void
       traverse_object (type& c)
       {
+        // Remove the bulk pragma if this database doesn't support bulk
+        // operations.
+        //
+        if (c.count ("bulk") && !generate_bulk)
+          c.remove ("bulk");
+
         // Process indexes. Here we need to do two things: resolve member
         // names to member paths and assign names to unnamed indexes. We
         // are also going to handle the special container indexes.

@@ -378,7 +378,7 @@ check_spec_decl_type (declaration const& d,
     if (tc != RECORD_TYPE)
     {
       error (l) << "name '" << name << "' in db pragma " << p << " does "
-                << "not refer to a data member or class" << endl;
+                << "not refer to a class" << endl;
       return false;
     }
   }
@@ -458,7 +458,8 @@ check_spec_decl_type (declaration const& d,
            p == "optimistic" ||
            p == "polymorphic" ||
            p == "definition" ||
-           p == "sectionable")
+           p == "sectionable" ||
+           p == "bulk")
   {
     if (tc != RECORD_TYPE)
     {
@@ -1470,6 +1471,48 @@ handle_pragma (cxx_lexer& l,
     }
 
     val = tl;
+
+    if (l.next (tl, &tn) != CPP_CLOSE_PAREN)
+    {
+      error (l) << "')' expected at the end of db pragma " << p << endl;
+      return;
+    }
+
+    tt = l.next (tl, &tn);
+  }
+  else if (p == "bulk")
+  {
+    // bulk (batch-size)
+    //
+
+    // Make sure we've got the correct declaration type.
+    //
+    if (decl && !check_spec_decl_type (decl, decl_name, p, loc))
+      return;
+
+    if (l.next (tl, &tn) != CPP_OPEN_PAREN)
+    {
+      error (l) << "'(' expected after db pragma " << p << endl;
+      return;
+    }
+
+    // base
+    //
+    if (l.next (tl, &tn) != CPP_NUMBER || TREE_CODE (tn) != INTEGER_CST)
+    {
+      error (l) << "unsigned integer expected as batch size" << endl;
+      return;
+    }
+
+    unsigned long long b (integer (tn));
+
+    if (b == 0 || b == 1)
+    {
+      error (l) << "batch size has to be greater than 1" << endl;
+      return;
+    }
+
+    val = b;
 
     if (l.next (tl, &tn) != CPP_CLOSE_PAREN)
     {
