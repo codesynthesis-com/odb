@@ -201,6 +201,7 @@ namespace odb
       binding& result_;
       SQLUSMALLINT result_count_; // Actual number of columns bound.
       SQLUSMALLINT long_count_;   // Number of long data columns.
+      SQLUSMALLINT columns_;      // Number of columns in result set.
     };
 
     struct LIBODB_MSSQL_EXPORT auto_result

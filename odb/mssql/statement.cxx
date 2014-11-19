@@ -862,16 +862,19 @@ namespace odb
       // Skip result sets that have no columns. These seem to be added
       // by DML statements that don't produce any result (e.g., EXEC).
       //
-      SQLSMALLINT cols (0);
-
-      while (cols == 0)
+      for (columns_ = 0; columns_ == 0;)
       {
-        r = SQLNumResultCols (stmt_, &cols);
+        {
+          SQLSMALLINT c;
+          r = SQLNumResultCols (stmt_, &c);
 
-        if (!SQL_SUCCEEDED (r))
-          translate_error (r, conn_, stmt_);
+          if (!SQL_SUCCEEDED (r))
+            translate_error (r, conn_, stmt_);
 
-        if (cols == 0)
+          columns_ = static_cast<SQLUSMALLINT> (c);
+        }
+
+        if (columns_ == 0)
         {
           r = SQLMoreResults (stmt_);
 
@@ -887,7 +890,7 @@ namespace odb
       // of this assertion is a native view with a number of data members
       // not matching the number of columns in the SELECT-list.
       //
-      assert (static_cast<SQLUSMALLINT> (cols) == result_count_ + long_count_);
+      assert (columns_ == result_count_ + long_count_);
     }
 
     select_statement::result select_statement::
@@ -898,15 +901,22 @@ namespace odb
       if (cc != 0 && cc->callback != 0)
         (cc->callback) (cc->context);
 
-      SQLRETURN r (SQLFetch (stmt_));
-
-      if (r == SQL_NO_DATA)
+      // Don't bother calling SQLFetch() if there are no columns.
+      //
+      if (columns_ == 0)
         return no_data;
+      else
+      {
+        SQLRETURN r (SQLFetch (stmt_));
 
-      if (!SQL_SUCCEEDED (r))
-        translate_error (r, conn_, stmt_);
+        if (r == SQL_NO_DATA)
+          return no_data;
 
-      return success;
+        if (!SQL_SUCCEEDED (r))
+          translate_error (r, conn_, stmt_);
+
+        return success;
+      }
     }
 
     void select_statement::
