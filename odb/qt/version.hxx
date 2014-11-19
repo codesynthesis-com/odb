@@ -28,23 +28,23 @@
 
 // Check that we have compatible ODB version.
 //
-#if ODB_VERSION != 20303
+#if ODB_VERSION != 20304
 #  error incompatible odb interface version detected
 #endif
 
 // ODB Qt interface version: odb interface version plus the Qt interface
 // version.
 //
-#define ODB_QT_VERSION     2030300
-#define ODB_QT_VERSION_STR "2.4.0.a3"
+#define ODB_QT_VERSION     2030400
+#define ODB_QT_VERSION_STR "2.4.0.a4"
 
 // libodb-qt version: odb interface version plus the bugfix version. Note
 // that LIBODB_QT_VERSION is always greater or equal to ODB_QT_VERSION
 // since if the Qt interface virsion is incremented then the bugfix version
 // must be incremented as well.
 //
-#define LIBODB_QT_VERSION     2039903
-#define LIBODB_QT_VERSION_STR "2.4.0.a3"
+#define LIBODB_QT_VERSION     2039904
+#define LIBODB_QT_VERSION_STR "2.4.0.a4"
 
 #include <odb/post.hxx>
 

@@ -12,6 +12,6 @@
 #
 --hxx-prologue '#include <odb/qt/version.hxx>'
 
---hxx-prologue '#if ODB_QT_VERSION != 2030300 // 2.4.0.a3'
+--hxx-prologue '#if ODB_QT_VERSION != 2030400 // 2.4.0.a4'
 --hxx-prologue '#  error ODB and C++ compilers see different libodb-qt interface versions'
 --hxx-prologue '#endif'
