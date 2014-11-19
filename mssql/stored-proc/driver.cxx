@@ -126,7 +126,46 @@ main (int argc, char* argv[])
 
     {
       create_procedure (
-        *db, "insert_object",
+        *db, "insert_object_id",
+        "(@n INT, @s VARCHAR(512))"
+        "AS"
+        "  INSERT INTO mssql_stored_proc_object([num], [str])"
+        "    VALUES(@n, @s);");
+
+      {
+        typedef mssql::query<insert_object> query;
+
+        transaction t (db->begin ());
+
+        db->query_one<insert_object> (
+          query::_val (4) + "," + query::_val ("d"));
+
+        auto_ptr<object> o (db->load<object> (4));
+        cout << o->num << " " << o->str << endl
+             << endl;
+
+        t.commit ();
+      }
+
+      {
+        typedef mssql::query<no_result> query;
+
+        transaction t (db->begin ());
+
+        db->query_one<no_result> (
+          "EXEC insert_object_id" + query::_val (5) + "," + query::_val ("e"));
+
+        auto_ptr<object> o (db->load<object> (5));
+        cout << o->num << " " << o->str << endl
+             << endl;
+
+        t.commit ();
+      }
+    }
+
+    {
+      create_procedure (
+        *db, "insert_object_id",
         "(@n INT, @s VARCHAR(512), @id INT = NULL OUTPUT)"
         "AS"
         "  INSERT INTO mssql_stored_proc_object([num], [str])"
@@ -134,43 +173,56 @@ main (int argc, char* argv[])
         "  SET @id = SCOPE_IDENTITY();"
         "  RETURN 123;");
 
-      create_procedure (
-        *db, "insert_object_odb",
-        "(@n INT, @s VARCHAR(512))"
-        "AS"
-        "  DECLARE @id INT;"
-        "  DECLARE @ret INT;"
-        "  DECLARE @tbl TABLE(dummy INT);"
-        "  EXEC @ret = insert_object @n, @s, @id OUTPUT;"
-        "  SELECT @ret, @id;");
+      typedef mssql::query<insert_object_id> query;
+
+      {
+        create_procedure (
+          *db, "insert_object_id_odb",
+          "(@n INT, @s VARCHAR(512))"
+          "AS"
+          "  DECLARE @id INT;"
+          "  DECLARE @ret INT;"
+          "  DECLARE @tbl TABLE(dummy INT);"
+          "  EXEC @ret = insert_object_id @n, @s, @id OUTPUT;"
+          "  SELECT @ret, @id;");
+
+        transaction t (db->begin ());
+
+        insert_object_id io (
+          db->query_value<insert_object_id> (
+            query::_val (6) + "," + query::_val ("f")));
+
+        cout << io.ret << " " << io.id << endl
+             << endl;
+
+        t.commit ();
+      }
 
       // An alternative implementation that produces a different
       // result set configuration at the ODBC level.
       //
-      /*
-      create_procedure (
-        *db, "insert_object_odb",
-        "(@n INT, @s VARCHAR(512))"
-        "AS"
-        "  DECLARE @id INT;"
-        "  DECLARE @ret INT;"
-        "  DECLARE @tbl TABLE(dummy INT);"
-        "  INSERT INTO @tbl EXEC @ret = insert_object @n, @s, @id OUTPUT;"
-        "  SELECT @ret, @id;");
-      */
+      {
+        create_procedure (
+          *db, "insert_object_id_odb",
+          "(@n INT, @s VARCHAR(512))"
+          "AS"
+          "  DECLARE @id INT;"
+          "  DECLARE @ret INT;"
+          "  DECLARE @tbl TABLE(dummy INT);"
+          "  INSERT INTO @tbl EXEC @ret = insert_object_id @n, @s, @id OUTPUT;"
+          "  SELECT @ret, @id;");
 
-      typedef mssql::query<select_objects> query;
+        transaction t (db->begin ());
 
-      transaction t (db->begin ());
+        insert_object_id io (
+          db->query_value<insert_object_id> (
+            query::_val (7) + "," + query::_val ("g")));
 
-      insert_object io (
-        db->query_value<insert_object> (
-          query::_val (4) + "," + query::_val ("d")));
+        cout << io.ret << " " << io.id << endl
+             << endl;
 
-      cout << io.ret << " " << io.id << endl
-           << endl;
-
-      t.commit ();
+        t.commit ();
+      }
     }
   }
   catch (const odb::exception& e)

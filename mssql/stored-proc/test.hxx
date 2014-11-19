@@ -28,6 +28,9 @@ struct object
   std::string str;
 };
 
+#pragma db view
+struct no_result {};
+
 #pragma db view query("EXEC select_all_objects")
 struct select_all_objects
 {
@@ -48,8 +51,11 @@ struct objects_min_max
   unsigned int num_max;
 };
 
-#pragma db view query("EXEC insert_object_odb (?)")
-struct insert_object
+#pragma db view query("EXEC insert_object (?)")
+struct insert_object {};
+
+#pragma db view query("EXEC insert_object_id_odb (?)")
+struct insert_object_id
 {
   unsigned int ret;
   unsigned long id;
