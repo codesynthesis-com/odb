@@ -491,11 +491,30 @@ namespace relational
       virtual void
       traverse_view (type& c)
       {
+        const view_query& vq (c.get<view_query> ("query"));
+
         // Make sure we don't have any containers or object pointers.
         //
         view_members_.traverse (c);
 
         names (c, data_member_names_);
+
+        // Allow certain kinds of empty views.
+        //
+        if (vq.kind != view_query::runtime &&
+            vq.kind != view_query::complete_execute)
+        {
+          // Allow all the members to be deleted.
+          //
+          column_count_type const& cc (column_count (c));
+
+          if (cc.total == 0)
+          {
+            os << c.file () << ":" << c.line () << ":" << c.column () << ":"
+               << " error: no persistent data members in the class" << endl;
+            valid_ = false;
+          }
+        }
       }
 
       virtual void

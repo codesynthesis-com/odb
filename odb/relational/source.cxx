@@ -4559,6 +4559,8 @@ traverse_view (type& c)
   string traits ("access::view_traits_impl< " + type + ", id_" +
                  db.string () + " >");
 
+  size_t columns (column_count (c).total);
+
   // Schema name as a string literal or empty.
   //
   string schema_name (options.schema_name ()[db]);
@@ -4582,7 +4584,7 @@ traverse_view (type& c)
 
   // grow ()
   //
-  if (generate_grow)
+  if (generate_grow && columns != 0)
   {
     os << "bool " << traits << "::" << endl
        << "grow (image_type& i," << endl
@@ -4613,58 +4615,64 @@ traverse_view (type& c)
 
   // bind (image_type)
   //
-  os << "void " << traits << "::" << endl
-     << "bind (" << bind_vector << " b," << endl
-     << "image_type& i";
+  if (columns != 0)
+  {
+    os << "void " << traits << "::" << endl
+       << "bind (" << bind_vector << " b," << endl
+       << "image_type& i";
 
-  if (versioned)
-    os << "," << endl
-       << "const schema_version_migration& svm";
+    if (versioned)
+      os << "," << endl
+         << "const schema_version_migration& svm";
 
-  os << ")"
-     << "{";
+    os << ")"
+       << "{";
 
-  if (versioned)
-    os << "ODB_POTENTIALLY_UNUSED (svm);"
+    if (versioned)
+      os << "ODB_POTENTIALLY_UNUSED (svm);"
+         << endl;
+
+    os << "using namespace " << db << ";"
+       << endl
+       << db << "::statement_kind sk (statement_select);"
+       << "ODB_POTENTIALLY_UNUSED (sk);"
+       << endl
+       << "std::size_t n (0);"
        << endl;
 
-  os << "using namespace " << db << ";"
-     << endl
-     << db << "::statement_kind sk (statement_select);"
-     << "ODB_POTENTIALLY_UNUSED (sk);"
-     << endl
-     << "std::size_t n (0);"
-     << endl;
+    names (c, bind_member_names_);
 
-  names (c, bind_member_names_);
-
-  os << "}";
+    os << "}";
+  }
 
   // init (view, image)
   //
-  os << "void " << traits << "::" << endl
-     << "init (view_type& o," << endl
-     << "const image_type& i," << endl
-     << "database* db";
+  if (columns != 0)
+  {
+    os << "void " << traits << "::" << endl
+       << "init (view_type& o," << endl
+       << "const image_type& i," << endl
+       << "database* db";
 
-  if (versioned)
-    os << "," << endl
-       << "const schema_version_migration& svm";
+    if (versioned)
+      os << "," << endl
+         << "const schema_version_migration& svm";
 
-  os << ")"
-     << "{"
-     << "ODB_POTENTIALLY_UNUSED (o);"
-     << "ODB_POTENTIALLY_UNUSED (i);"
-     << "ODB_POTENTIALLY_UNUSED (db);";
+    os << ")"
+       << "{"
+       << "ODB_POTENTIALLY_UNUSED (o);"
+       << "ODB_POTENTIALLY_UNUSED (i);"
+       << "ODB_POTENTIALLY_UNUSED (db);";
 
-  if (versioned)
-    os << "ODB_POTENTIALLY_UNUSED (svm);";
+    if (versioned)
+      os << "ODB_POTENTIALLY_UNUSED (svm);";
 
-  os << endl;
+    os << endl;
 
-  names (c, init_value_member_names_);
+    names (c, init_value_member_names_);
 
-  os << "}";
+    os << "}";
+  }
 
   // query_statement()
   //

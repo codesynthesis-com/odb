@@ -1423,18 +1423,11 @@ namespace
     }
 
     virtual void
-    traverse_view (type& c)
+    traverse_view (type&)
     {
-      // Allow all the members to be deleted.
-      //
-      column_count_type const& cc (column_count (c));
-
-      if (cc.total == 0)
-      {
-        os << c.file () << ":" << c.line () << ":" << c.column () << ":"
-           << " error: no persistent data members in the class" << endl;
-        valid_ = false;
-      }
+      // We don't check for the column count here since we may want to
+      // allow certain kinds of empty views. Instead, this is handled
+      // in relational::validation.
     }
 
     virtual void
