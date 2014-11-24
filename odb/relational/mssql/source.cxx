@@ -920,7 +920,7 @@ namespace relational
               sql_type::ROWVERSION)
             return r;
 
-          // Long data & SQL Server 2005 incompatibility is detected
+          // ROWVERSION & SQL Server 2005 incompatibility is detected
           // in persist_statement_extra.
           //
           r = "OUTPUT INSERTED." +
@@ -1034,6 +1034,16 @@ namespace relational
                   error (c.location ()) << "in SQL Server 2005 ROWVERSION " <<
                     "value cannot be retrieved for a persistent class " <<
                     "containing long data" << endl;
+                  throw operation_failed ();
+                }
+
+                // We also cannot support bulk INSERT.
+                //
+                if (c.count ("bulk-persist"))
+                {
+                  error (c.location ()) << "in SQL Server 2005 bulk " <<
+                    "persist operation cannot be implemented for a " <<
+                    "persistent class containing long data" << endl;
                   throw operation_failed ();
                 }
 
