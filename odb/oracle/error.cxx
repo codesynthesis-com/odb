@@ -4,6 +4,7 @@
 
 #include <oci.h>
 
+#include <cstring> // std::strlen
 #include <cassert>
 
 #include <odb/details/buffer.hxx>
@@ -183,6 +184,12 @@ namespace odb
 
         if (r == OCI_NO_DATA)
           break;
+
+        // Get rid of a trailing newline if there is one.
+        //
+        size_t n (strlen (b));
+        if (n != 0 && b[n - 1] == '\n')
+          b[n - 1] = '\0';
 
         dbe.append (e, b);
       }
