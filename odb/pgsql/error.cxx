@@ -29,40 +29,44 @@ namespace odb
           throw bad_alloc ();
       }
 
-      const char* error_message (PQresultErrorMessage (r));
+      string msg;
+      {
+        // Can be NULL in case of PGRES_BAD_RESPONSE.
+        //
+        const char* m (PQresultErrorMessage (r));
+        msg = (m != 0 ? m : "bad server response");
+
+        // Get rid of a trailing newline if there is one.
+        //
+        string::size_type n (msg.size ());
+        if (n != 0 && msg[n - 1] == '\n')
+          msg.resize (n - 1);
+      }
 
       switch (PQresultStatus (r))
       {
       case PGRES_BAD_RESPONSE:
         {
-          if (error_message != 0)
-            throw database_exception (error_message);
-          else
-            throw database_exception ("bad server response");
+          throw database_exception (msg);
         }
-
       case PGRES_FATAL_ERROR:
         {
-          const char* ss (PQresultErrorField (r, PG_DIAG_SQLSTATE));
-
-          assert (ss);
-          assert (error_message);
+          string ss (PQresultErrorField (r, PG_DIAG_SQLSTATE));
 
           // Deadlock detected.
           //
-          if (std::string ("40P01") == ss)
+          if (ss == "40P01")
             throw deadlock ();
-
           else if (CONNECTION_BAD == PQstatus (c.handle ()))
           {
             c.mark_failed ();
             throw connection_lost ();
           }
           else
-            throw database_exception (ss, error_message);
+            throw database_exception (ss, msg);
         }
       default:
-        assert (0);
+        assert (false);
         break;
       }
     }
