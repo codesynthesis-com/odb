@@ -756,7 +756,10 @@ namespace odb
 
       if (!is_good_result (h, &stat))
       {
-        if (PGRES_FATAL_ERROR == stat)
+        // An auto-assigned object id should never cause a duplicate
+        // primary key.
+        //
+        if (returning_ == 0 && stat == PGRES_FATAL_ERROR)
         {
           string s (PQresultErrorField (h, PG_DIAG_SQLSTATE));
 
