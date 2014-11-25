@@ -3,6 +3,7 @@
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <string>
+#include <cstring> // std::strlen
 
 #include <odb/mssql/mssql.hxx>
 #include <odb/mssql/error.hxx>
@@ -221,6 +222,12 @@ namespace odb
                  s != "HYC00"))
               conn->mark_failed ();
           }
+
+          // Get rid of a trailing newline if there is one.
+          //
+          size_t n (strlen (msg));
+          if (n != 0 && msg[n - 1] == '\n')
+            msg[n - 1] = '\0';
 
           e.append (native_code, sqlstate, msg);
         }
