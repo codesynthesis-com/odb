@@ -180,8 +180,23 @@ main (int argc, char* argv[])
 
     // Test large BLOBs.
     //
-    blob b1 (1, 50000);
-    blob b2 (2, 500000);
+    descriptor b1 (1);
+    b1.blob.assign (50000, 'b');
+    b1.timestamp = date_time (1996, 3, 9, 18, 2, 54, 123000);
+    b1.interval_ds = time_interval (0, 0, 13, 15, 23, 19, 123000);
+    b1.interval_ym = time_interval (12, 3, 0, 0, 0, 0, 0);
+
+    descriptor b2 (2);
+    b2.blob.assign (500000, 'b');
+    b2.timestamp = date_time (1997, 4, 10, 19, 3, 55, 234000);
+    b2.interval_ds = time_interval (0, 0, 14, 16, 24, 20, 234000);
+    b2.interval_ym = time_interval (13, 4, 0, 0, 0, 0, 0);
+
+    descriptor b3 (3);
+    b3.blob.assign (5000, 'b');
+    b3.timestamp = date_time (1995, 2, 8, 17, 1, 53, 120000);
+    b3.interval_ds = time_interval (0, 0, 12, 14, 22, 18, 120000);
+    b3.interval_ym = time_interval (11, 2, 0, 0, 0, 0, 0);
 
     // Persist.
     //
@@ -196,39 +211,73 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<blob> p1 (db->load<blob> (1));
-      auto_ptr<blob> p2 (db->load<blob> (2));
+      auto_ptr<descriptor> p1 (db->load<descriptor> (1));
+      auto_ptr<descriptor> p2 (db->load<descriptor> (2));
       t.commit ();
 
       assert (b1 == *p1);
       assert (b2 == *p2);
     }
 
-    // Test image copying with LOB data.
+    // Test image copying with descriptor-based type (LOB, date-time) data.
     //
     {
-      typedef oracle::query<blob> query;
-      typedef odb::result<blob> result;
+      typedef oracle::query<descriptor> query;
+      typedef odb::result<descriptor> result;
 
       transaction t (db->begin ());
 
-      result r (db->query<blob> (query::id < 3));
+      // Pre-bind the image for other operations.
+      //
+      {
+        db->persist (b3);
+        db->update (b3);
+        db->reload (b3);
+        db->erase (b3);
+      }
+
+
+      result r (db->query<descriptor> (query::id < 3));
       result::iterator i (r.begin ());
 
       assert (i != r.end ());
+
+      {
+        result r (db->query<descriptor> (query::id > 1));
+        result::iterator i (r.begin ());
+        assert (i != r.end ());
+        assert (*i == b2);
+        assert (++i == r.end ());
+      }
+
+      assert (*i == b1); // Load from copy (copy c-tor).
+
       ++i;
       assert (i != r.end ());
 
       {
-        result r (db->query<blob> (query::id < 2));
+        result r (db->query<descriptor> (query::id < 2));
         result::iterator i (r.begin ());
         assert (i != r.end ());
-        assert (i->value_.size () == 50000);
+        assert (*i == b1);
         assert (++i == r.end ());
       }
 
-      assert (i->value_.size () == 500000); // Load from copy.
+      assert (*i == b2); // Load from copy (copy assign).
       assert (++i == r.end ());
+
+      // Make sure all other operations are still working.
+      //
+      {
+        db->persist (b3);
+        auto_ptr<descriptor> p (db->load<descriptor> (3));
+        assert (b3 == *p);
+        b3.blob.push_back (123);
+        db->update (b3);
+        db->reload (p);
+        assert (b3 == *p);
+        db->erase (b3);
+      }
 
       t.commit ();
     }

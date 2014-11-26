@@ -275,25 +275,33 @@ struct big_int
 };
 
 #pragma db object
-struct blob
+struct descriptor
 {
-  blob (): id_ (0) {}
-
-  blob (unsigned int id, std::size_t n)
-      : id_ (id), value_ (n, 'b')
-  {
-  }
+  descriptor (unsigned int id = 0): id_ (id) {}
 
   #pragma db id
   unsigned int id_;
 
   #pragma db type ("BLOB")
-  std::vector<char> value_;
+  std::vector<char> blob;
+
+  #pragma db type ("TIMESTAMP(6)")
+  date_time timestamp;
+
+  #pragma db type ("INTERVAL DAY TO SECOND")
+  time_interval interval_ds;
+
+  #pragma db type ("INTERVAL YEAR TO MONTH")
+  time_interval interval_ym;
 
   bool
-  operator== (const blob& y) const
+  operator== (const descriptor& y) const
   {
-    return id_ == y.id_ && value_ == y.value_;
+    return id_ == y.id_ &&
+      blob == y.blob &&
+      timestamp == y.timestamp &&
+      interval_ds == y.interval_ds &&
+      interval_ym == y.interval_ym;
   }
 };
 
