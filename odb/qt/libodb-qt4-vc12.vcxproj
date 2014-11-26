@@ -69,22 +69,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\..\bin\</OutDir>
-    <TargetName>odb-qt4-d-__value__(interface_version)-vc11</TargetName>
+    <TargetName>odb-qt4-d-__value__(interface_version)-vc12</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\..\bin64\</OutDir>
-    <TargetName>odb-qt4-d-__value__(interface_version)-vc11</TargetName>
+    <TargetName>odb-qt4-d-__value__(interface_version)-vc12</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\bin\</OutDir>
-    <TargetName>odb-qt4-__value__(interface_version)-vc11</TargetName>
+    <TargetName>odb-qt4-__value__(interface_version)-vc12</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\..\bin64\</OutDir>
-    <TargetName>odb-qt4-__value__(interface_version)-vc11</TargetName>
+    <TargetName>odb-qt4-__value__(interface_version)-vc12</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
