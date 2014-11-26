@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{C1335C92-809F-41A7-877A-4A0193D974D3}") = "libodb-oracle", "odb\oracle\libodb-oracle-vc11.vcxproj", "{C47F2161-7F5A-4ADB-8CF3-FDFF1D0ACD5C}"
+Project("{C1335C92-809F-41A7-877A-4A0193D974D3}") = "libodb-oracle", "odb\oracle\libodb-oracle-vc12.vcxproj", "{C47F2161-7F5A-4ADB-8CF3-FDFF1D0ACD5C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
