@@ -5,7 +5,7 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
+#include <common/config.hxx> // HAVE_CXX11, DATABASE_*
 
 #include <string>
 #include <memory> // std::auto_ptr, std::unique_ptr
@@ -188,5 +188,51 @@ namespace test6
   #pragma db member(unique_object::id) id auto
 #endif
 }
+
+// Test optimistic concurrency.
+//
+#pragma db namespace table("t7_")
+namespace test7
+{
+  #pragma db object optimistic bulk(3)
+  struct object
+  {
+    object (unsigned int n_ = 0, std::string s_ = "")
+        : id (0), v (0), n (n_), s (s_) {}
+
+    #pragma db id auto
+    unsigned long long id;
+
+    #pragma db version
+    unsigned long long v;
+
+    unsigned int n;
+    std::string s;
+  };
+}
+
+// Test SQL Server optimistic concurrency with ROWVERSION.
+//
+#ifdef DATABASE_MSSQL
+#pragma db namespace table("t8_")
+namespace test8
+{
+  #pragma db object optimistic bulk(3)
+  struct object
+  {
+    object (unsigned int n_ = 0, std::string s_ = "")
+        : id (0), v (0), n (n_), s (s_) {}
+
+    #pragma db id
+    unsigned long long id;
+
+    #pragma db version type("ROWVERSION")
+    unsigned long long v;
+
+    unsigned int n;
+    std::string s;
+  };
+}
+#endif
 
 #endif // TEST_HXX

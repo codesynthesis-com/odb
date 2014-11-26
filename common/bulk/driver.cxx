@@ -1015,6 +1015,196 @@ main (int argc, char* argv[])
       }
     }
 
+    // Test optimistic concurrency.
+    //
+    {
+      using namespace test7;
+
+      std::vector<object> v (fill<object> (4));
+
+      // persist
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (v.begin (), v.end ());
+        t.commit ();
+
+        assert (v[0].v != 0 &&
+                v[1].v != 0 &&
+                v[2].v != 0 &&
+                v[3].v != 0);
+      }
+
+      // update
+      //
+      {
+        std::vector<object> c (v);
+
+        transaction t (db->begin ());
+        db->update (v.begin (), v.end ());
+        t.commit ();
+
+        assert (v[0].v > c[0].v &&
+                v[1].v > c[1].v &&
+                v[2].v > c[2].v &&
+                v[3].v > c[3].v);
+      }
+
+      {
+        object o2 (v[1]);
+        object o4 (v[3]);
+
+        o2.n++;
+        o4.n++;
+
+        transaction t (db->begin ());
+        db->update (o2);
+        db->update (o4);
+        t.commit ();
+      }
+
+      try
+      {
+        transaction t (db->begin ());
+        db->update (v.begin (), v.end ());
+        assert (false);
+      }
+      catch (const multiple_exceptions& e)
+      {
+        cout << e.what () << endl << endl;
+      }
+
+      // erase
+      //
+      try
+      {
+        transaction t (db->begin ());
+        db->erase (v.begin (), v.end ());
+        assert (false);
+      }
+      catch (const multiple_exceptions& e)
+      {
+        cout << e.what () << endl << endl;
+      }
+
+      {
+        transaction t (db->begin ());
+        db->reload (v[1]);
+        db->reload (v[3]);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        db->erase (v.begin (), v.end ());
+        t.commit ();
+      }
+    }
+
+    // Test SQL Server optimistic concurrency with ROWVERSION.
+    //
+#ifdef DATABASE_MSSQL
+    {
+      using namespace test8;
+
+      std::vector<object> v (fill<object> (4));
+
+      v[0].id = 1;
+      v[2].id = 2;
+      v[3].id = 3;
+      v[4].id = 4;
+
+
+      // persist
+      //
+      {
+        transaction t (db->begin ());
+        db->persist (v.begin (), v.end ());
+        t.commit ();
+
+        assert (v[0].v != 0 &&
+                v[1].v != 0 &&
+                v[2].v != 0 &&
+                v[3].v != 0);
+
+        //cerr << v[0].v << endl
+        //     << v[0].v << endl
+        //     << v[0].v << endl
+        //     << v[0].v << endl;
+      }
+
+      // update
+      //
+
+      /*
+      {
+        std::vector<object> c (v);
+
+        transaction t (db->begin ());
+        db->update (v.begin (), v.end ());
+        t.commit ();
+
+        assert (v[0].v > c[0].v &&
+                v[1].v > c[1].v &&
+                v[2].v > c[2].v &&
+                v[3].v > c[3].v);
+      }
+      */
+
+      {
+        object o2 (v[1]);
+        object o4 (v[3]);
+
+        o2.n++;
+        o4.n++;
+
+        transaction t (db->begin ());
+        db->update (o2);
+        db->update (o4);
+        t.commit ();
+      }
+
+      /*
+      try
+      {
+        transaction t (db->begin ());
+        db->update (v.begin (), v.end ());
+        assert (false);
+      }
+      catch (const multiple_exceptions& e)
+      {
+        cout << e.what () << endl << endl;
+      }
+      */
+
+      // erase
+      //
+      try
+      {
+        transaction t (db->begin ());
+        db->erase (v.begin (), v.end ());
+        assert (false);
+      }
+      catch (const multiple_exceptions& e)
+      {
+        assert (e.attempted () == 4 && e.failed () == 4);
+      }
+
+      {
+        transaction t (db->begin ());
+        db->reload (v[1]);
+        db->reload (v[3]);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        db->erase (v.begin (), v.end ());
+        t.commit ();
+      }
+    }
+#endif
+
 #endif
   }
   catch (const odb::exception& e)

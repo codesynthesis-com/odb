@@ -216,3 +216,11 @@ multiple exceptions, 10 elements attempted, 6 failed:
 multiple exceptions, 3 elements attempted, 3 failed:
 [0-2] (some) object not persistent
 
+multiple exceptions, 4 elements attempted, 4 failed:
+[0-2] (some) object changed concurrently
+[3] object changed concurrently
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0-2] (some) object changed concurrently
+[3] object changed concurrently
+
