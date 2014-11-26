@@ -66,8 +66,10 @@ namespace odb
                sizeof (images),
                status_)
     {
-      images_[0].obj.version = 0; // @@ TODO [0]
-      images_[0].id.version = 0;  // @@ TODO
+      // Only versions in the first element used.
+      //
+      images_[0].obj.version = 0;
+      images_[0].id.version = 0;
 
       select_image_version_ = 0;
       insert_image_version_ = 0;
@@ -75,6 +77,8 @@ namespace odb
       update_id_image_version_ = 0;
       id_image_version_ = 0;
 
+      // SELECT statements only use the first element (no batches).
+      //
       select_image_binding_.change_callback =
         images_[0].obj.change_callback ();
 
