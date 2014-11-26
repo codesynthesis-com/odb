@@ -20,11 +20,14 @@ namespace odb
 
     template <typename T>
     optimistic_data<T, true>::
-    optimistic_data (bind* b)
+    optimistic_data (bind* b, std::size_t skip, sb4* status)
         : id_image_binding_ (
             b,
             object_traits::id_column_count +
-            object_traits::managed_optimistic_column_count)
+            object_traits::managed_optimistic_column_count,
+            object_traits::batch,
+            skip,
+            status)
     {
     }
 
@@ -59,7 +62,9 @@ namespace odb
                              object_traits::batch,
                              sizeof (images),
                              status_),
-          od_ (update_image_bind_ + update_column_count)
+          od_ (update_image_bind_ + update_column_count,
+               sizeof (images),
+               status_)
     {
       // Only versions in the first element used.
       //

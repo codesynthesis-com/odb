@@ -162,7 +162,7 @@ namespace odb
       typedef T object_type;
       typedef object_traits_impl<object_type, id_oracle> object_traits;
 
-      optimistic_data (bind*);
+      optimistic_data (bind*, std::size_t skip, sb4* status);
 
       binding*
       id_image_binding () {return &id_image_binding_;}
@@ -177,7 +177,7 @@ namespace odb
     template <typename T>
     struct optimistic_data<T, false>
     {
-      optimistic_data (bind*) {}
+      optimistic_data (bind*, std::size_t, sb4*) {}
 
       binding*
       id_image_binding () {return 0;}
@@ -417,6 +417,7 @@ namespace odb
             new (details::shared) delete_statement_type (
               conn_,
               object_traits::optimistic_erase_statement,
+              true, // Unique (0 or 1 affected rows).
               od_.id_image_binding_));
         }
 
