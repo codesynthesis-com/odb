@@ -428,6 +428,7 @@ namespace odb
             new (details::shared) delete_statement_type (
               conn_,
               object_traits::optimistic_erase_statement,
+              true, // Unique (0 or 1 affected rows).
               od_.id_image_binding_,
               false));
         }

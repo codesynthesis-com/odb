@@ -54,7 +54,11 @@ namespace odb
           update_image_binding_ (update_image_bind_,
                                  update_column_count + id_column_count +
                                  managed_optimistic_column_count,
-                                 object_traits::batch,
+                                 // No support for bulk update and ROWVERSION.
+                                 //
+                                 (object_traits::rowversion
+                                  ? 1
+                                  : object_traits::batch),
                                  sizeof (images),
                                  status_),
           id_image_binding_ (update_image_bind_ + update_column_count,
