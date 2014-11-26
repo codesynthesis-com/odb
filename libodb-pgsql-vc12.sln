@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libodb-pgsql", "odb\pgsql\libodb-pgsql-vc11.vcxproj", {B6185C00-39EC-4429-B774-164B4397B995}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libodb-pgsql", "odb\pgsql\libodb-pgsql-vc12.vcxproj", {B6185C00-39EC-4429-B774-164B4397B995}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
