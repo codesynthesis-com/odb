@@ -163,7 +163,7 @@ namespace odb
 
     template <typename T>
     void object_result_impl<T>::
-    change_callback (void* c, binding* b)
+    change_callback (void* c)
     {
       object_result_impl<T>* r (static_cast<object_result_impl<T>*> (c));
       typename object_traits::image_type& im (r->statements_.image ());
@@ -172,19 +172,6 @@ namespace odb
         r->image_copy_ = new typename object_traits::image_type (im);
       else
         *r->image_copy_ = im;
-
-      // Increment image version since we may have "stolen" descriptors
-      // (LOB, date-time) from the image. This will trigger re-bind which
-      // will reallocate them and update the binding. In case this callback
-      // was triggeted as part of a select statement fetch, then it is too
-      // late to update the image version and we also need to update the
-      // image binding.
-      //
-      // @@ Would be good to only do this if we actually have descriptors.
-      //
-      im.version++;
-      if (b != 0)
-        b->version++;
 
       im.change_callback_.callback = 0;
       im.change_callback_.context = 0;

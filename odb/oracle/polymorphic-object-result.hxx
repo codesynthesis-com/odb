@@ -80,7 +80,7 @@ namespace odb
       typedef oracle::change_callback change_callback_type;
 
       static void
-      change_callback (void* context, binding*);
+      change_callback (void* context);
 
     private:
       details::shared_ptr<select_statement> statement_;

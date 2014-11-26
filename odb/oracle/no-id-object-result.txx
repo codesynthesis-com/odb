@@ -129,7 +129,7 @@ namespace odb
 
     template <typename T>
     void no_id_object_result_impl<T>::
-    change_callback (void* c, binding* b)
+    change_callback (void* c)
     {
       no_id_object_result_impl<T>* r (
         static_cast<no_id_object_result_impl<T>*> (c));
@@ -140,13 +140,6 @@ namespace odb
         r->image_copy_ = new typename object_traits::image_type (im);
       else
         *r->image_copy_ = im;
-
-      // See comment in simple object_result for details on what's going
-      // on here.
-      //
-      im.version++;
-      if (b != 0)
-        b->version++;
 
       im.change_callback_.callback = 0;
       im.change_callback_.context = 0;

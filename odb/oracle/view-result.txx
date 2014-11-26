@@ -129,7 +129,7 @@ namespace odb
 
     template <typename T>
     void view_result_impl<T>::
-    change_callback (void* c, binding*)
+    change_callback (void* c)
     {
       view_result_impl<T>* r (static_cast<view_result_impl<T>*> (c));
 
@@ -139,13 +139,6 @@ namespace odb
         r->image_copy_ = new typename view_traits::image_type (im);
       else
         *r->image_copy_ = im;
-
-      // See comment in simple object_result for details on what's going
-      // on here. Except for views, there is nothing else other than the
-      // select binding, so just incrementing the binding version will
-      // be sufficient.
-      //
-      r->statements_.image_binding ().version++;
 
       im.change_callback_.callback = 0;
       im.change_callback_.context = 0;

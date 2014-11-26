@@ -875,6 +875,8 @@ namespace odb
                 throw invalid_oci_handle ();
 
               l->locator = static_cast<OCILobLocator*> (d);
+              l->environment = env;
+              l->error = err;
             }
 
             value = &l->locator;
@@ -917,23 +919,18 @@ namespace odb
         if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
           translate_error (err, r);
 
+        // LOB prefetching is only supported in OCI version 11.1 and greater
+        // and in Oracle server 11.1 and greater. If this code is called
+        // against a pre 11.1 server, the call to OCIAttrSet will return an
+        // error code.
+        //
+#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >= 1) \
+  || OCI_MAJOR_VERSION > 11
         if (b->type == bind::blob ||
             b->type == bind::clob ||
             b->type == bind::nclob)
         {
-          // The OCIDefine handle is stored in the size member of the bind in
-          // case the LOB parameter is rebound. If rebinding is necessary, the
-          // same OCIDefine handle is used.
-          //
-          b->size = reinterpret_cast<ub2*> (h);
 
-          // LOB prefetching is only supported in OCI version 11.1 and greater
-          // and in Oracle server 11.1 and greater. If this code is called
-          // against a pre 11.1 server, the call to OCIAttrSet will return an
-          // error code.
-          //
-#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >= 1) \
-  || OCI_MAJOR_VERSION > 11
           if (p != 0)
           {
             ub4 n (static_cast<ub4> (p));
@@ -948,9 +945,10 @@ namespace odb
             if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
               translate_error (err, r);
           }
-#endif
         }
-        else if (b->type == bind::nstring)
+        else
+#endif
+        if (b->type == bind::nstring)
         {
           ub1 form (SQLCS_NCHAR);
 
@@ -967,160 +965,6 @@ namespace odb
       }
 
       return i;
-    }
-
-    void statement::
-    rebind_result (bind* b, size_t c, size_t p)
-    {
-      ODB_POTENTIALLY_UNUSED (p);
-
-      sword r;
-      OCIEnv* env (conn_.database ().environment ());
-
-      ub4 i (0);
-      for (bind* end (b + c); b != end; ++b)
-      {
-        if (b->buffer == 0) // Skip NULL entries.
-          continue;
-
-        i++; // Column index is 1-based.
-
-        void* value;
-
-        switch (b->type)
-        {
-        case bind::timestamp:
-          {
-            datetime* dt (static_cast<datetime*> (b->buffer));
-
-            if (dt->descriptor == 0)
-            {
-              void* d (0);
-              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_TIMESTAMP, 0, 0);
-
-              if (r != OCI_SUCCESS)
-                throw invalid_oci_handle ();
-
-              dt->descriptor = static_cast<OCIDateTime*> (d);
-            }
-
-            value = &dt->descriptor;
-            break;
-          }
-        case bind::interval_ym:
-          {
-            interval_ym* iym (static_cast<interval_ym*> (b->buffer));
-
-            if (iym->descriptor == 0)
-            {
-              void* d (0);
-              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_INTERVAL_YM, 0, 0);
-
-              if (r != OCI_SUCCESS)
-                throw invalid_oci_handle ();
-
-              iym->descriptor = static_cast<OCIInterval*> (d);
-            }
-
-            value = &iym->descriptor;
-            break;
-          }
-        case bind::interval_ds:
-          {
-            interval_ds* ids (static_cast<interval_ds*> (b->buffer));
-
-            if (ids->descriptor == 0)
-            {
-              void* d (0);
-              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_INTERVAL_DS, 0, 0);
-
-              if (r != OCI_SUCCESS)
-                throw invalid_oci_handle ();
-
-              ids->descriptor = static_cast<OCIInterval*> (d);
-            }
-
-            value = &ids->descriptor;
-            break;
-          }
-        case bind::blob:
-        case bind::clob:
-        case bind::nclob:
-          {
-            lob* l (static_cast<lob*> (b->buffer));
-
-            if (l->locator == 0)
-            {
-              void* d (0);
-              r = OCIDescriptorAlloc (env, &d, OCI_DTYPE_LOB, 0, 0);
-
-              if (r != OCI_SUCCESS)
-                throw invalid_oci_handle ();
-
-              l->locator = static_cast<OCILobLocator*> (d);
-            }
-
-            value = &l->locator;
-            break;
-          }
-        default:
-          {
-            continue;
-          }
-        }
-
-        // The bind::size member of bind instances associated with LOB and
-        // TIMESTAMP type is interpreted as the OCIDefine* returned by the
-        // initial call to OCIDefineByPos when binding for the first time.
-        //
-        OCIDefine* h (reinterpret_cast<OCIDefine*> (b->size));
-        OCIError* err (conn_.error_handle ());
-
-        r = OCIDefineByPos (stmt_,
-                            &h,
-                            err,
-                            i,
-                            value,
-                            static_cast<sb4> (sizeof (void*)),
-                            result_sqlt_lookup[b->type],
-                            b->indicator,
-                            0,
-                            0,
-                            OCI_DEFINE_SOFT);
-
-        if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-          translate_error (err, r);
-
-
-        // LOB prefetching is only supported in OCI version 11.1 and greater
-        // and in Oracle server 11.1 and greater. If this code is called
-        // against a pre 11.1 server, the call to OCIAttrSet will return an
-        // error code.
-        //
-        // Note that even though we are re-binding the same handle, we still
-        // have to reset this attribute. Failing to do so will result in the
-        // mysterious ORA-03106 fatal two-task communication protocol error.
-        //
-#if (OCI_MAJOR_VERSION == 11 && OCI_MINOR_VERSION >= 1) \
-  || OCI_MAJOR_VERSION > 11
-        if (p != 0 && (b->type == bind::blob ||
-                       b->type == bind::clob ||
-                       b->type == bind::nclob))
-        {
-          ub4 n (static_cast<ub4> (p));
-
-          r = OCIAttrSet (h,
-                          OCI_HTYPE_DEFINE,
-                          &n,
-                          0,
-                          OCI_ATTR_LOBPREFETCH_SIZE,
-                          err);
-
-          if (r == OCI_ERROR || r == OCI_INVALID_HANDLE)
-            translate_error (err, r);
-        }
-#endif
-      }
     }
 
     void statement::
@@ -1645,7 +1489,6 @@ namespace odb
                      text, statement_select,
                      (process ? &result : 0), optimize),
           result_ (result),
-          lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
       if (!empty ())
@@ -1653,7 +1496,6 @@ namespace odb
         bind_param (param.bind, param.count);
         result_count_ = bind_result (
           result.bind, result.count, lob_prefetch_size);
-        result_version_ = result_.version;
       }
     }
 
@@ -1669,7 +1511,6 @@ namespace odb
                      text, statement_select,
                      (process ? &result : 0), optimize),
           result_ (result),
-          lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
       if (!empty ())
@@ -1677,7 +1518,6 @@ namespace odb
         bind_param (param.bind, param.count);
         result_count_ = bind_result (
           result.bind, result.count, lob_prefetch_size);
-        result_version_ = result_.version;
       }
     }
 
@@ -1692,14 +1532,12 @@ namespace odb
                      text, statement_select,
                      (process ? &result : 0), optimize),
           result_ (result),
-          lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
       if (!empty ())
       {
         result_count_ = bind_result (
           result.bind, result.count, lob_prefetch_size);
-        result_version_ = result_.version;
       }
     }
 
@@ -1714,14 +1552,12 @@ namespace odb
                      text, statement_select,
                      (process ? &result : 0), optimize),
           result_ (result),
-          lob_prefetch_size_ (lob_prefetch_size),
           done_ (true)
     {
       if (!empty ())
       {
         result_count_ = bind_result (
           result.bind, result.count, lob_prefetch_size);
-        result_version_ = result_.version;
       }
     }
 
@@ -1780,13 +1616,7 @@ namespace odb
         change_callback* cc (result_.change_callback);
 
         if (cc != 0 && cc->callback != 0)
-          (cc->callback) (cc->context, &result_);
-
-        if (result_version_ != result_.version)
-        {
-          rebind_result (result_.bind, result_.count, lob_prefetch_size_);
-          result_version_ = result_.version;
-        }
+          (cc->callback) (cc->context);
 
         sword r (OCIStmtFetch2 (stmt_,
                                 conn_.error_handle (),

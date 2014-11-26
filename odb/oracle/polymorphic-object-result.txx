@@ -226,16 +226,6 @@ namespace odb
             sts.select_image_versions (), im, sts.select_image_bindings ());
         }
       }
-
-      static void
-      inc_version (typename traits::image_type& i)
-      {
-        polymorphic_image_rebind<
-          typename traits::base_type,
-          typename traits::root_type>::inc_version (*i.base);
-
-        i.version++;
-      }
     };
 
     template <typename R>
@@ -259,12 +249,6 @@ namespace odb
           sts.select_image_version (im.version);
           b.version++;
         }
-      }
-
-      static void
-      inc_version (typename traits::image_type& i)
-      {
-        i.version++;
       }
     };
 
@@ -314,7 +298,7 @@ namespace odb
 
     template <typename T>
     void polymorphic_object_result_impl<T>::
-    change_callback (void* c, binding* b)
+    change_callback (void* c)
     {
       polymorphic_object_result_impl<T>* r (
         static_cast<polymorphic_object_result_impl<T>*> (c));
@@ -327,13 +311,6 @@ namespace odb
 
       typename root_traits::image_type& rim (
         r->statements_.root_statements ().image ());
-
-      // See comment in simple object_result for details on what's going
-      // on here.
-      //
-      polymorphic_image_rebind<object_type, root_type>::inc_version (im);
-      if (b != 0)
-        b->version++;
 
       rim.change_callback_.callback = 0;
       rim.change_callback_.context = 0;

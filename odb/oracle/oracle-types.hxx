@@ -111,9 +111,7 @@ namespace odb
       buffer_type type; // The type stored by buffer.
       void* buffer;     // Data buffer pointer. For LOB type bindings, this is
                         // interpreted as an oracle::lob*.
-      ub2* size;        // The number of bytes in buffer. For LOB result
-                        // bindings, this is interpreted as the OCIDefine
-                        // handle associated with the LOB result parameter.
+      ub2* size;        // The number of bytes in buffer.
       ub4 capacity;     // The maximum number of bytes that can be stored in
                         // the buffer. For LOBs, it used to store array skip
                         // size.
@@ -133,7 +131,7 @@ namespace odb
     {
       change_callback (): callback (0), context (0) {};
 
-      void (*callback) (void*, binding*);
+      void (*callback) (void*);
       void* context;
     };
 
@@ -142,15 +140,21 @@ namespace odb
     //
     struct LIBODB_ORACLE_EXPORT lob
     {
+      ~lob ();
       lob (): locator (0), buffer (0), position (0) {}
 
-      lob (lob&);
-      lob& operator= (lob&);
+      lob (const lob&);
+      lob& operator= (const lob&);
 
-      ~lob ();
+    private:
+      void
+      clone (const lob&);
 
     public:
+      OCIEnv* environment;
+      OCIError* error;
       OCILobLocator* locator;
+
       details::buffer* buffer;
       ub4 position;
     };
@@ -192,23 +196,22 @@ namespace odb
            ub1 second,
            ub4 nanosecond);
 
+      ~datetime ();
+      datetime (unsigned short f = descriptor_cache | descriptor_free)
+          : descriptor (0), flags (f) {}
+
+      datetime (const datetime&);
+      datetime& operator= (const datetime&);
+
+      // Use the get() and set() functions above unless you know what you
+      // are doing and understand how copying of datetime works.
+      //
     public:
       OCIEnv* environment;
       OCIError* error;
       OCIDateTime* descriptor;
 
       unsigned short flags;
-
-    public:
-      datetime (unsigned short f = descriptor_cache | descriptor_free)
-        : descriptor (0), flags (f)
-      {
-      }
-
-      datetime (datetime&);
-      datetime& operator= (datetime&);
-
-      ~datetime ();
 
     public:
       sb2 year_;
@@ -228,23 +231,22 @@ namespace odb
       void
       set (sb4 year, sb4 month);
 
+      ~interval_ym ();
+      interval_ym (unsigned short f = descriptor_cache | descriptor_free)
+          : descriptor (0), flags (f) {}
+
+      interval_ym (const interval_ym&);
+      interval_ym& operator= (const interval_ym&);
+
+      // Use the get() and set() functions above unless you know what you
+      // are doing and understand how copying of interval_ym works.
+      //
     public:
       OCIEnv* environment;
       OCIError* error;
       OCIInterval* descriptor;
 
       unsigned short flags;
-
-    public:
-      interval_ym (unsigned short f = descriptor_cache | descriptor_free)
-        : descriptor (0), flags (f)
-      {
-      }
-
-      interval_ym (interval_ym&);
-      interval_ym& operator= (interval_ym&);
-
-      ~interval_ym ();
 
     public:
       sb4 year_;
@@ -267,23 +269,22 @@ namespace odb
            sb4 second,
            sb4 nanosecond);
 
+      ~interval_ds ();
+      interval_ds (unsigned short f = descriptor_cache | descriptor_free)
+          : descriptor (0), flags (f) {}
+
+      interval_ds (const interval_ds&);
+      interval_ds& operator= (const interval_ds&);
+
+      // Use the get() and set() functions above unless you know what you
+      // are doing and understand how copying of interval_ds works.
+      //
     public:
       OCIEnv* environment;
       OCIError* error;
       OCIInterval* descriptor;
 
       unsigned short flags;
-
-    public:
-      interval_ds (unsigned short f = descriptor_cache | descriptor_free)
-        : descriptor (0), flags (f)
-      {
-      }
-
-      interval_ds (interval_ds&);
-      interval_ds& operator= (interval_ds&);
-
-      ~interval_ds ();
 
     public:
       sb4 day_;
