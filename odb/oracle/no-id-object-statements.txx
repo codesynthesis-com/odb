@@ -25,10 +25,12 @@ namespace odb
                                  sizeof (image_type),
                                  status_)
     {
-      image_[0].version = 0;
+      image_[0].version = 0; // Only version in the first element used.
       select_image_version_ = 0;
       insert_image_version_ = 0;
 
+      // SELECT statements only use the first element (no batches).
+      //
       select_image_binding_.change_callback = image_[0].change_callback ();
 
       std::memset (insert_image_bind_, 0, sizeof (insert_image_bind_));
