@@ -71,6 +71,15 @@ namespace test4
     #pragma db column("min(" + base2::num + ")")
     unsigned long min_num;
   };
+
+  // Test custom join condition that uses object id. It cannot come
+  // from the base since the base table hasn't been join'ed yet.
+  //
+  #pragma db view object(base1) object(base2: base2::id == base1::id)
+  struct view3
+  {
+    std::string str;
+  };
 }
 
 #endif // TEST4_HXX

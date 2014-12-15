@@ -968,6 +968,22 @@ main (int argc, char* argv[])
 
         t.commit ();
       }
+
+      {
+        typedef odb::result<view3> result;
+
+        transaction t (db->begin ());
+
+        {
+          result qr (db->query<view3> ());
+          result::iterator i (qr.begin ()), e (qr.end ());
+
+          assert (i != e && i->str == "abc");
+          assert (++i == e);
+        }
+
+        t.commit ();
+      }
     }
 
     // Test 5: polymorphism and optimistic concurrency.
