@@ -29,15 +29,15 @@
 
 // Check that we have compatible ODB version.
 //
-#if ODB_VERSION != 20304
+#if ODB_VERSION != 20305
 #  error incompatible odb interface version detected
 #endif
 
 // libodb-pgsql version: odb interface version plus the bugfix
 // version.
 //
-#define LIBODB_PGSQL_VERSION     2039904
-#define LIBODB_PGSQL_VERSION_STR "2.4.0.a4"
+#define LIBODB_PGSQL_VERSION     2039905
+#define LIBODB_PGSQL_VERSION_STR "2.4.0.a5"
 
 #include <odb/post.hxx>
 
