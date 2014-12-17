@@ -26,7 +26,16 @@ done
 
 echo ./driver --options-file "$db_options"
 
-if test -f "$srcdir/test.std"; then
+std=
+if test -f "$srcdir/test-@database@.std"; then
+  std="$srcdir/test-@database@.std"
+elif test -f "$srcdir/test.std"; then
+  std="$srcdir/test.std"
+else
+  std=
+fi
+
+if test -n "$std"; then
   ./driver --options-file "$db_options" >test.out
 
   if test $? -ne 0; then
@@ -34,7 +43,7 @@ if test -f "$srcdir/test.std"; then
     exit 1
   fi
 
-  @DIFF@ @DIFFFLAGS@ "$srcdir/test.std" test.out
+  @DIFF@ @DIFFFLAGS@ "$std" test.out
   r=$?
   rm -f test.out
   exit $r

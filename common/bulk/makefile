@@ -68,9 +68,9 @@ $(dist):
 # Test.
 #
 ifneq ($(db_id),common)
-$(eval $(call test-rule))
+$(eval $(call test-rule,,,-$(db_id)))
 else
-$(foreach d,$(databases),$(eval $(call test-rule,$d)))
+$(foreach d,$(databases),$(eval $(call test-rule,$d,,-sqlite)))
 endif
 
 # Clean.

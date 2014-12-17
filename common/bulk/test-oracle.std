@@ -1,0 +1,226 @@
+multiple exceptions, 1 element attempted, 1 failed:
+[0] object already persistent
+
+multiple exceptions, 2 elements attempted, 2 failed:
+[0] object already persistent
+[1] object already persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0] object already persistent
+[1] object already persistent
+[2] object already persistent
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0] object already persistent
+[1] object already persistent
+[2] object already persistent
+[3] object already persistent
+
+multiple exceptions, 5 elements attempted, 5 failed:
+[0] object already persistent
+[1] object already persistent
+[2] object already persistent
+[3] object already persistent
+[4] object already persistent
+
+multiple exceptions, 6 elements attempted, 6 failed:
+[0] object already persistent
+[1] object already persistent
+[2] object already persistent
+[3] object already persistent
+[4] object already persistent
+[5] object already persistent
+
+multiple exceptions, 2 elements attempted, 1 failed:
+[1] object already persistent
+
+multiple exceptions, 2 elements attempted, 1 failed:
+[0] object already persistent
+
+multiple exceptions, 3 elements attempted, 2 failed:
+[1] object already persistent
+[2] object already persistent
+
+multiple exceptions, 3 elements attempted, 2 failed:
+[0] object already persistent
+[2] object already persistent
+
+multiple exceptions, 3 elements attempted, 2 failed:
+[0] object already persistent
+[1] object already persistent
+
+multiple exceptions, 4 elements attempted, 3 failed:
+[0] object already persistent
+[1] object already persistent
+[3] object already persistent
+
+multiple exceptions, 4 elements attempted, 3 failed:
+[0] object already persistent
+[1] object already persistent
+[2] object already persistent
+
+multiple exceptions, 7 elements attempted, 3 failed:
+[1] object already persistent
+[3] object already persistent
+[5] object already persistent
+
+multiple exceptions, 3 elements attempted, 1 failed:
+[2] object already persistent
+
+multiple exceptions, 1 element attempted, 1 failed:
+[0] object not persistent
+
+multiple exceptions, 2 elements attempted, 2 failed:
+[0] object not persistent
+[1] object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+[3] object not persistent
+
+multiple exceptions, 5 elements attempted, 5 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+[3] object not persistent
+[4] object not persistent
+
+multiple exceptions, 6 elements attempted, 6 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+[3] object not persistent
+[4] object not persistent
+[5] object not persistent
+
+multiple exceptions, 2 elements attempted, 2 failed:
+[0-1] (some) object not persistent
+
+multiple exceptions, 2 elements attempted, 2 failed:
+[0-1] (some) object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0-2] (some) object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0-2] (some) object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0-2] (some) object not persistent
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0-2] (some) object not persistent
+[3] object not persistent
+
+multiple exceptions, 4 elements attempted, 3 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+
+multiple exceptions, 7 elements attempted, 7 failed:
+[0-5] (some) object not persistent
+[6] object not persistent
+
+multiple exceptions, 7 elements attempted, 4 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+[6] object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0-2] (some) object not persistent
+
+multiple exceptions, 1 element attempted, 1 failed:
+[0] object not persistent
+
+multiple exceptions, 2 elements attempted, 2 failed:
+[0] object not persistent
+[1] object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+[3] object not persistent
+
+multiple exceptions, 5 elements attempted, 5 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+[3] object not persistent
+[4] object not persistent
+
+multiple exceptions, 6 elements attempted, 6 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+[3] object not persistent
+[4] object not persistent
+[5] object not persistent
+
+multiple exceptions, 2 elements attempted, 2 failed:
+[0-1] (some) object not persistent
+
+multiple exceptions, 2 elements attempted, 2 failed:
+[0-1] (some) object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0-2] (some) object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0-2] (some) object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0-2] (some) object not persistent
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0-2] (some) object not persistent
+[3] object not persistent
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0-2] (some) object not persistent
+[3] object not persistent
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0-2] (some) object not persistent
+[3] object not persistent
+
+multiple exceptions, 4 elements attempted, 3 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+
+multiple exceptions, 8 elements attempted, 8 failed:
+[0-7] (some) object not persistent
+
+multiple exceptions, 10 elements attempted, 6 failed:
+[0] object not persistent
+[1] object not persistent
+[2] object not persistent
+[6] object not persistent
+[7] object not persistent
+[8] object not persistent
+
+multiple exceptions, 3 elements attempted, 3 failed:
+[0-2] (some) object not persistent
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0-2] (some) object changed concurrently
+[3] object changed concurrently
+
+multiple exceptions, 4 elements attempted, 4 failed:
+[0-2] (some) object changed concurrently
+[3] object changed concurrently
+

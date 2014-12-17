@@ -64,7 +64,7 @@ cxx11_tests  := session/custom
 
 no_dist_tests := changelog include
 
-no_multi_tests := bulk changelog include
+no_multi_tests := changelog include
 
 $(default):
 $(call include,$(bld_root)/cxx/standard.make) # cxx_standard

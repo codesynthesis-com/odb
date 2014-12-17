@@ -33,10 +33,26 @@ if exist test*.sql (
   )
 )
 
-if exist test.std (
+if exist test-%1.std (
+  set "std=test-%1.std"
+) else (
+  if exist test.std (
+    set "std=test.std"
+  ) else (
+    set "std="
+  )
+)
+
+if "_%std%" == "__" (
+
+  %dir%\driver.exe --options-file %topdir%\%1.options
+  if errorlevel 1 goto error
+  
+) else (
+
   %dir%\driver.exe --options-file %topdir%\%1.options >test.out
   if errorlevel 1 goto error
-  %DIFF% test.std test.out
+  %DIFF% %std% test.out
 
   if errorlevel 1 (
     del /f test.out
@@ -46,10 +62,6 @@ if exist test.std (
   del /f test.out
   goto end
 
-) else (
-
-  %dir%\driver.exe --options-file %topdir%\%1.options
-  if errorlevel 1 goto error
 )
 
 goto end

@@ -114,25 +114,27 @@ endif
 #
 
 # $1 database name in the multi-database mode and empty otherwise
+# $2 optional test.std file suffix (e.g., '-mysql' for test-mysql.std)
 #
 define test-schemaless-rule
-$$(test$(if $1,_$1)): $$(driver) $$(src_base)/test.std
+$$(test$(if $1,_$1)): $$(driver) $$(src_base)/test$2.std
 	$$(call message,test$(if $1, [$1]) $$<,$$< $1 --options-file \
 $$(dcf_root)/$(if $1,$1,$(db_id)).options >$$(out_base)/test.out)
-	$$(call message,,diff -u $$(src_base)/test.std $$(out_base)/test.out)
+	$$(call message,,diff -u $$(src_base)/test$2.std $$(out_base)/test.out)
 	$$(call message,,rm -f $$(out_base)/test.out)
 
 endef
 
 # $1 database name in the multi-database mode and empty otherwise
 # $2 optional list of schema files, by default test.sql
+# $3 optional test.std file suffix (e.g., '-mysql' for test-mysql.std)
 #
 define test-rule
-$$(test$(if $1,_$1)): $$(driver) $$(src_base)/test.std
+$$(test$(if $1,_$1)): $$(driver) $$(src_base)/test$3.std
 	$$(call schema$(if $1,-$1),$2)
 	$$(call message,test$(if $1, [$1]) $$<,$$< $1 --options-file \
 $$(dcf_root)/$(if $1,$1,$(db_id)).options >$$(out_base)/test.out)
-	$$(call message,,diff -u $$(src_base)/test.std $$(out_base)/test.out)
+	$$(call message,,diff -u $$(src_base)/test$3.std $$(out_base)/test.out)
 	$$(call message,,rm -f $$(out_base)/test.out)
 
 endef
