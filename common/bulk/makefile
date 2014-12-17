@@ -51,7 +51,7 @@ name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
 
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
-$(dist): data_dist := test.std
+$(dist): data_dist := $(foreach d,$(databases),test-$d.std)
 $(dist): export name := $(name)
 $(dist): export extra_dist := $(data_dist) $(call vc8projs,$(name)) \
 $(call vc9projs,$(name)) $(call vc10projs,$(name)) $(call vc11projs,$(name)) \
