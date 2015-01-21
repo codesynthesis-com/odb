@@ -51,7 +51,11 @@ namespace odb
         }
       case PGRES_FATAL_ERROR:
         {
-          string ss (PQresultErrorField (r, PG_DIAG_SQLSTATE));
+          string ss;
+          {
+            const char* s (PQresultErrorField (r, PG_DIAG_SQLSTATE));
+            ss = (s != 0 ? s : "?????");
+          }
 
           // Deadlock detected.
           //
