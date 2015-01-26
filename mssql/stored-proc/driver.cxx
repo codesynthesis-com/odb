@@ -182,7 +182,6 @@ main (int argc, char* argv[])
           "AS"
           "  DECLARE @id INT;"
           "  DECLARE @ret INT;"
-          "  DECLARE @tbl TABLE(dummy INT);"
           "  EXEC @ret = insert_object_id @n, @s, @id OUTPUT;"
           "  SELECT @ret, @id;");
 

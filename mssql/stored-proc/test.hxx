@@ -44,7 +44,7 @@ struct select_objects
   std::string str;
 };
 
-#pragma db view query("EXEC objects_min_max_odb (?)")
+#pragma db view query("EXEC objects_min_max_odb")
 struct objects_min_max
 {
   unsigned int num_min;
