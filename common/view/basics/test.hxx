@@ -1,4 +1,4 @@
-// file      : common/view/test.hxx
+// file      : common/view/basics/test.hxx
 // copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
@@ -130,10 +130,10 @@ struct employer
 // Complete suffix query template.
 //
 #ifndef ODB_DATABASE_ORACLE
-#  pragma db view query("SELECT first, last, age FROM t_view_person")
+#  pragma db view query("SELECT first, last, age FROM t_view_b_person")
 #else
 #  pragma db view query("SELECT \"first\", \"last\", \"age\" " \
-                        "FROM \"t_view_person\"")
+                        "FROM \"t_view_b_person\"")
 #endif
 struct view1
 {
@@ -146,11 +146,11 @@ struct view1
 //
 #ifndef ODB_DATABASE_ORACLE
 #  pragma db view query("SELECT first, last, age " \
-                        "FROM t_view_person "      \
+                        "FROM t_view_b_person "    \
                         "WHERE age < 31 ORDER BY age")
 #else
 #  pragma db view query("SELECT \"first\", \"last\", \"age\" " \
-                        "FROM \"t_view_person\" "              \
+                        "FROM \"t_view_b_person\" "            \
                         "WHERE \"age\" < 31 ORDER BY \"age\"")
 #endif
 struct view1a
@@ -164,11 +164,11 @@ struct view1a
 //
 #ifndef ODB_DATABASE_ORACLE
 #  pragma db view query("SELECT first, last, age " \
-                        "FROM t_view_person "      \
+                        "FROM t_view_b_person "    \
                         "WHERE age < 31 AND (?) ORDER BY age")
 #else
 #  pragma db view query("SELECT \"first\", \"last\", \"age\" " \
-                        "FROM \"t_view_person\" "              \
+                        "FROM \"t_view_b_person\" "            \
                         "WHERE \"age\" < 31 AND (?) ORDER BY \"age\"")
 #endif
 struct view1b
@@ -190,7 +190,7 @@ struct view1c
 
 // Assembled SELECT and FROM-lists.
 //
-#pragma db view table("t_view_person")
+#pragma db view table("t_view_b_person")
 struct view1d
 {
   #pragma db column("first")
@@ -211,10 +211,10 @@ struct view1d
 //
 #ifndef ODB_DATABASE_ORACLE
 #  pragma db view object(person) \
-  query("SELECT count(id) FROM t_view_person")
+  query("SELECT count(id) FROM t_view_b_person")
 #else
 #  pragma db view object(person) \
-  query("SELECT count(\"id\") FROM \"t_view_person\"")
+  query("SELECT count(\"id\") FROM \"t_view_b_person\"")
 #endif
 struct view2
 {
@@ -240,9 +240,9 @@ struct view2a
 struct view2b
 {
 #ifndef ODB_DATABASE_ORACLE
-  #pragma db column("count(t_view_person.id)")
+  #pragma db column("count(t_view_b_person.id)")
 #else
-  #pragma db column("count(\"t_view_person\".\"id\")")
+  #pragma db column("count(\"t_view_b_person\".\"id\")")
 #endif
   std::size_t count;
 };
@@ -265,12 +265,12 @@ struct view2c
 #ifndef ODB_DATABASE_ORACLE
 #  pragma db view object(person = test) \
   query("SELECT last, count(last) "     \
-        "FROM t_view_person "           \
+        "FROM t_view_b_person "         \
         "GROUP BY last")
 #else
 #  pragma db view object(person = test)     \
   query("SELECT \"last\", count(\"last\") " \
-        "FROM \"t_view_person\" "           \
+        "FROM \"t_view_b_person\" "         \
         "GROUP BY \"last\"")
 #endif
 struct view3
@@ -302,15 +302,15 @@ struct view3a
 #ifndef ODB_DATABASE_ORACLE
 #  pragma db view object(person) object(country = residence)  \
   query("SELECT first, last, residence.name "                 \
-        "FROM t_view_person "                                 \
-        "LEFT JOIN t_view_country AS residence "              \
-        "ON t_view_person.residence = residence.code")
+        "FROM t_view_b_person "                               \
+        "LEFT JOIN t_view_b_country AS residence "            \
+        "ON t_view_b_person.residence = residence.code")
 #else
 #  pragma db view object(person) object(country = residence)   \
   query("SELECT \"first\", \"last\", \"residence\".\"name\" "  \
-        "FROM \"t_view_person\" "                              \
-        "LEFT JOIN \"t_view_country\" \"residence\" "          \
-        "ON \"t_view_person\".\"residence\" = \"residence\".\"code\"")
+        "FROM \"t_view_b_person\" "                            \
+        "LEFT JOIN \"t_view_b_country\" \"residence\" "        \
+        "ON \"t_view_b_person\".\"residence\" = \"residence\".\"code\"")
 #endif
 struct view4
 {
@@ -392,21 +392,21 @@ struct view6b
 // The same using tables.
 //
 #if defined(ODB_DATABASE_ORACLE)
-#pragma db view table("t_view_person" = "p")                                  \
-  table("t_view_employer_employees" = "ee": "\"ee\".\"value\" = \"p\".\"id\"")\
-  table("t_view_employer" = "e": "\"ee\".\"object_id\" = \"e\".\"name\"")
+#pragma db view table("t_view_b_person" = "p")                                  \
+  table("t_view_b_employer_employees" = "ee": "\"ee\".\"value\" = \"p\".\"id\"")\
+  table("t_view_b_employer" = "e": "\"ee\".\"object_id\" = \"e\".\"name\"")
 #elif defined(ODB_DATABASE_MSSQL)
-#pragma db view table("t_view_person" = "p")                   \
-  table("t_view_employer_employees" = "ee": "ee.value = p.id") \
-  table("t_view_employer" = "e": "[ee].[object_id] = e.name")
+#pragma db view table("t_view_b_person" = "p")                   \
+  table("t_view_b_employer_employees" = "ee": "ee.value = p.id") \
+  table("t_view_b_employer" = "e": "[ee].[object_id] = e.name")
 #elif defined(ODB_DATABASE_MYSQL)
-#pragma db view table("t_view_person" = "p")                   \
-  table("t_view_employer_employees" = "ee": "ee.value = p.id") \
-  table("t_view_employer" = "e": "`ee`.`object_id` = e.name")
+#pragma db view table("t_view_b_person" = "p")                   \
+  table("t_view_b_employer_employees" = "ee": "ee.value = p.id") \
+  table("t_view_b_employer" = "e": "`ee`.`object_id` = e.name")
 #else
-#pragma db view table("t_view_person" = "p")                   \
-  table("t_view_employer_employees" = "ee": "ee.value = p.id") \
-  table("t_view_employer" = "e": "\"ee\".\"object_id\" = e.name")
+#pragma db view table("t_view_b_person" = "p")                   \
+  table("t_view_b_employer_employees" = "ee": "ee.value = p.id") \
+  table("t_view_b_employer" = "e": "\"ee\".\"object_id\" = e.name")
 #endif
 struct view6c
 {

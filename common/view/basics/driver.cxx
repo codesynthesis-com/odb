@@ -1,8 +1,8 @@
-// file      : common/view/driver.cxx
+// file      : common/view/basics/driver.cxx
 // copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// Test views.
+// Test view basics.
 //
 
 #include <memory>   // std::auto_ptr
@@ -344,11 +344,11 @@ main (int argc, char* argv[])
         result r;
         if (db->id () != odb::id_oracle)
           r = db->query<view1c> ("SELECT first, last, age "
-                                 "FROM t_view_person "
+                                 "FROM t_view_b_person "
                                  "WHERE age < 31 ORDER BY age");
         else
           r = db->query<view1c> ("SELECT \"first\", \"last\", \"age\" "
-                                 "FROM \"t_view_person\" "
+                                 "FROM \"t_view_b_person\" "
                                  "WHERE \"age\" < 31 ORDER BY \"age\"");
         view1_check (r);
 

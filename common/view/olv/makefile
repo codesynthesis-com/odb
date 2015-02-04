@@ -1,10 +1,10 @@
-# file      : common/session/custom/makefile
+# file      : common/view/olv/makefile
 # copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../build/bootstrap.make
 
-cxx_tun := driver.cxx session.cxx
+cxx_tun := driver.cxx
 odb_hdr := test.hxx
 genf    := $(call odb-gen,$(odb_hdr))
 gen     := $(addprefix $(out_base)/,$(genf))
@@ -28,9 +28,8 @@ $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --generate-schema --generate-session \
---session-type ::session --hxx-prologue '\#include "session.hxx"' \
---table-prefix session_custom_
+$(gen) $(dist): export odb_options += --generate-schema --generate-query \
+--table-prefix t_view_olv_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
@@ -52,14 +51,12 @@ name := $(subst /,-,$(subst $(src_root)/common/,,$(src_base)))
 
 $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
-$(dist): export extra_headers := session.hxx session.txx
-$(dist): export extra_sources := $(filter-out driver.cxx,$(cxx_tun))
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
 $(dist): export extra_dist := $(data_dist) $(call vc10projs,$(name)) \
 $(call vc11projs,$(name)) $(call vc12projs,$(name))
 $(dist):
-	$(call dist-data,$(sources) $(headers) $(extra_headers) $(data_dist))
+	$(call dist-data,$(sources) $(headers) $(data_dist))
 	$(call meta-automake,../../template/Makefile.am)
 	$(call meta-vc10projs,../../template/template,$(name))
 	$(call meta-vc11projs,../../template/template,$(name))

@@ -55,12 +55,12 @@ template                  \
 transaction/basics        \
 transaction/callback      \
 types                     \
-view                      \
+view/basics               \
 virtual                   \
 wrapper
 
 thread_tests := threads
-cxx11_tests  := session/custom
+cxx11_tests  := session/custom view/olv
 
 no_dist_tests := changelog include
 
