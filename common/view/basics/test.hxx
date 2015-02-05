@@ -492,4 +492,22 @@ struct view12
   std::string residence;
 };
 
+//
+// Test 'distinct' result modifier.
+//
+#pragma db view object(employer) object(person) query(distinct)
+struct view13
+{
+  std::string name;
+};
+
+//
+// Test 'for_update' result modifier.
+//
+#pragma db view object(employer) query((?), for_update)
+struct view14
+{
+  std::string name;
+};
+
 #endif // TEST_HXX

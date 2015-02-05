@@ -653,6 +653,35 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+    // view13
+    //
+    {
+      typedef odb::query<view13> query;
+      typedef odb::result<view13> result;
+
+      {
+        transaction t (db->begin ());
+
+        {
+          result r (db->query<view13> (
+                      (query::person::age < 32) +
+                      "ORDER BY" + query::employer::name));
+
+          assert (size (r) == 2);
+        }
+
+        t.commit ();
+      }
+    }
+
+    // view14
+    //
+    {
+      transaction t (db->begin ());
+      assert (size (db->query<view14> ()) == 2);
+      t.commit ();
+    }
   }
   catch (const odb::exception& e)
   {
