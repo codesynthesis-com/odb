@@ -114,14 +114,14 @@ namespace odb
       // JOIN list.
       //
       const char* joins_begin (0), *joins_end (0);
-      if (e - p > 5 && traits::compare (p, "LEFT JOIN ", 10) == 0)
+      if (e - p > 5 && fuzzy_prefix (p, e, "JOIN ", 5))
       {
         joins_begin = p;
 
         // Find the end of the JOIN list.
         //
         for (const char* je (newline_begin (p, e));
-             je != 0; newline_next (p, je, e, "LEFT JOIN ", 10))
+             je != 0; newline_next (p, je, e, "JOIN ", 5, true))
           ;
 
         joins_end = (p != e ? p - 1 : p);
@@ -259,7 +259,9 @@ namespace odb
 
           // Get the alias or, if none used, the table name.
           //
-          p = find (j + 10, je, ' '); // 10 for "LEFT JOIN ".
+          p = find (j, je, "JOIN ", 5) + 5; // Skip past "JOIN ".
+          const char* table_begin (p);
+          p = find (p, je, ' '); // End of the table name.
           const char* table_end (p);
           p++; // Skip space.
 
@@ -267,15 +269,21 @@ namespace odb
           //
           const char* alias_begin (0);
           size_t alias_size (0);
-          if (je - p > 3 && traits::compare (p, "ON ", 3) != 0)
+          if (p != je && // Not the end.
+              (je - p < 4 || traits::compare (p, "ON ", 3) != 0))
           {
+            // Something other than "ON ", so got to be an alias.
+            //
             p += 3;
             alias_begin = p;
-            alias_size = find (p, je, ' ') - alias_begin;
+            p = find (p, je, ' '); // There might be no ON (CROSS JOIN).
+            alias_size = (p != 0 ? p : je) - alias_begin;
           }
           else
           {
-            alias_begin = j + 10;
+            // Just the table.
+            //
+            alias_begin = table_begin;
             alias_size = table_end - alias_begin;
           }
 
@@ -290,7 +298,7 @@ namespace odb
           //
           // Instead of re-parsing the whole thing again, we are going to
           // take a shortcut and simply search for the alias in the statement
-          // we have constructed so far (that's why we have have added the
+          // we have constructed so far (that's why we have added the
           // trailer before filling in the JOINs). To make it more robust,
           // we are going to do a few extra sanity checks, specifically,
           // that the alias is a top level identifier and is followed by
@@ -313,10 +321,10 @@ namespace odb
               continue;
 
             // The only way to distinguish the [a].[c] from FROM [a].[c] or
-            // LEFT JOIN [a].[c] is by checking the prefix.
+            // JOIN [a].[c] is by checking the prefix.
             //
             if ((p > 5 && r.compare (p - 5, 5, "FROM ") == 0) ||
-                (p > 10 && r.compare (p - 10, 10, "LEFT JOIN ") == 0))
+                (p > 5 && r.compare (p - 5, 5, "JOIN ") == 0))
               continue;
 
             // Check that we are followed by a single identifier.
