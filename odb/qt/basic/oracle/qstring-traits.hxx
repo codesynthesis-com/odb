@@ -1,5 +1,5 @@
 // file      : odb/qt/basic/oracle/qstring-traits.hxx
-// copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_QT_BASIC_ORACLE_QSTRING_TRAITS_HXX

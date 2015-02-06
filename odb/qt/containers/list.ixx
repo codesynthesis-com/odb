@@ -1,5 +1,5 @@
 // file      : odb/qt/containers/list.ixx
-// copyright : Copyright (c) 2005-2013 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2015 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 //
