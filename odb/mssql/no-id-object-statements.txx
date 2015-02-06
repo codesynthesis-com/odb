@@ -1,5 +1,5 @@
 // file      : odb/mssql/no-id-object-statements.txx
-// copyright : Copyright (c) 2005-2013 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2015 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <cstring> // std::memset

@@ -1,5 +1,5 @@
 // file      : odb/mssql/query.cxx
-// copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <cstddef> // std::size_t
