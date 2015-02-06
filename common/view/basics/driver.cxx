@@ -682,6 +682,150 @@ main (int argc, char* argv[])
       assert (size (db->query<view14> ()) == 2);
       t.commit ();
     }
+
+    // Test join types.
+    //
+    {
+      using namespace test2;
+
+      {
+        obj1 o11 (1, 1);
+        obj1 o12 (2, 2);
+
+        obj2 o21 (1, 1);
+        obj2 o22 (2, 1);
+        obj2 o23 (3, 3);
+
+        transaction t (db->begin ());
+        db->persist (o11);
+        db->persist (o12);
+        db->persist (o21);
+        db->persist (o22);
+        db->persist (o23);
+        t.commit ();
+      }
+
+      {
+        typedef odb::query<vleft> query;
+        typedef odb::result<vleft> result;
+
+        transaction t (db->begin ());
+        result r (db->query<vleft> (
+                    "ORDER BY" + query::o1::id1 + "," + query::o2::id2));
+        result::iterator i (r.begin ());
+        assert (  i != r.end () && i->id1 == 1 && *i->id2 == 1);
+        assert (++i != r.end () && i->id1 == 1 && *i->id2 == 2);
+        assert (++i != r.end () && i->id1 == 2 && i->id2.null ());
+        assert (++i == r.end ());
+        t.commit ();
+      }
+
+#if !defined(DATABASE_SQLITE)
+      {
+        typedef odb::query<vright> query;
+        typedef odb::result<vright> result;
+
+        transaction t (db->begin ());
+        result r (db->query<vright> (
+                    "ORDER BY" + query::o1::id1 + "," + query::o2::id2));
+        result::iterator i (r.begin ());
+        assert (  i != r.end () && i->id1 == 1 && *i->id2 == 1);
+        assert (++i != r.end () && i->id1 == 1 && *i->id2 == 2);
+        assert (++i != r.end () && i->id1 == 2 && i->id2.null ());
+        assert (++i == r.end ());
+        t.commit ();
+      }
+#endif
+
+#if !defined(DATABASE_MYSQL) && !defined(DATABASE_SQLITE)
+      {
+        typedef odb::query<vfull> query;
+        typedef odb::result<vfull> result;
+
+        transaction t (db->begin ());
+        result r (db->query<vfull> (
+                    "ORDER BY" + query::o1::id1 + "," + query::o2::id2));
+        result::iterator i (r.begin ());
+
+        // SQL Server orders NULL values first. Got to be different.
+        //
+#ifdef DATABASE_MSSQL
+        assert (  i != r.end () && i->id1.null () && *i->id2 == 3);
+        assert (++i != r.end () && *i->id1 == 1 && *i->id2 == 1);
+        assert (++i != r.end () && *i->id1 == 1 && *i->id2 == 2);
+        assert (++i != r.end () && *i->id1 == 2 && i->id2.null ());
+#else
+        assert (  i != r.end () && *i->id1 == 1 && *i->id2 == 1);
+        assert (++i != r.end () && *i->id1 == 1 && *i->id2 == 2);
+        assert (++i != r.end () && *i->id1 == 2 && i->id2.null ());
+        assert (++i != r.end () && i->id1.null () && *i->id2 == 3);
+#endif
+        assert (++i == r.end ());
+        t.commit ();
+      }
+#endif
+
+      {
+        typedef odb::query<vinner> query;
+        typedef odb::result<vinner> result;
+
+        transaction t (db->begin ());
+        result r (db->query<vinner> (
+                    "ORDER BY" + query::o1::id1 + "," + query::o2::id2));
+        result::iterator i (r.begin ());
+        assert (  i != r.end () && i->id1 == 1 && i->id2 == 1);
+        assert (++i != r.end () && i->id1 == 1 && i->id2 == 2);
+        assert (++i == r.end ());
+        t.commit ();
+      }
+
+      {
+        typedef odb::query<vcross> query;
+        typedef odb::result<vcross> result;
+
+        transaction t (db->begin ());
+        result r (db->query<vcross> (
+                    "ORDER BY" + query::o1::id1 + "," + query::o2::id2));
+        result::iterator i (r.begin ());
+        assert (  i != r.end () && i->id1 == 1 && i->id2 == 1);
+        assert (++i != r.end () && i->id1 == 1 && i->id2 == 2);
+        assert (++i != r.end () && i->id1 == 1 && i->id2 == 3);
+        assert (++i != r.end () && i->id1 == 2 && i->id2 == 1);
+        assert (++i != r.end () && i->id1 == 2 && i->id2 == 2);
+        assert (++i != r.end () && i->id1 == 2 && i->id2 == 3);
+        assert (++i == r.end ());
+        t.commit ();
+      }
+
+      // Inner JOIN via relationship/container.
+      //
+      {
+        obj3 o31 (1, 1);
+        obj3 o32 (2, 2);
+
+        obj4 o41 (1, 1);
+        obj4 o42 (2, 2);
+        o42.o3.push_back (&o32);
+
+        transaction t (db->begin ());
+        db->persist (o31);
+        db->persist (o32);
+        db->persist (o41);
+        db->persist (o42);
+        t.commit ();
+      }
+
+      {
+        typedef odb::result<vrel> result;
+
+        transaction t (db->begin ());
+        result r (db->query<vrel> ());
+        result::iterator i (r.begin ());
+        assert (  i != r.end () && i->id4 == 2);
+        assert (++i == r.end ());
+        t.commit ();
+      }
+    }
   }
   catch (const odb::exception& e)
   {

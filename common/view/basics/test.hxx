@@ -5,6 +5,8 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
+#include <common/config.hxx> // DATABASE_*
+
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
@@ -509,5 +511,107 @@ struct view14
 {
   std::string name;
 };
+
+// Test join types.
+//
+#pragma db namespace table("t2_")
+namespace test2
+{
+  #pragma db object
+  struct obj1
+  {
+    obj1 (int id = 0, int n_ = 0): id1 (id), n (n_) {}
+
+    #pragma db id
+    int id1;
+
+    int n;
+  };
+
+  #pragma db object no_id
+  struct obj2
+  {
+    obj2 (int id = 0, int n_ = 0): id2 (id), n (n_) {}
+
+    #pragma db id
+    int id2;
+
+    int n;
+  };
+
+  #pragma db view object(obj1 = o1) object(obj2 = o2 left: o1::n == o2::n)
+  struct vleft
+  {
+    int id1;
+    odb::nullable<int> id2;
+  };
+
+#if !defined(DATABASE_SQLITE)
+
+  #pragma db view object(obj2 = o2) object(obj1 = o1 right: o2::n == o1::n)
+  struct vright
+  {
+    int id1;
+    odb::nullable<int> id2;
+  };
+
+#endif
+
+#if !defined(DATABASE_MYSQL) && !defined(DATABASE_SQLITE)
+
+  #pragma db view object(obj1 = o1) object(obj2 = o2 full: o1::n == o2::n)
+  struct vfull
+  {
+    odb::nullable<int> id1;
+    odb::nullable<int> id2;
+  };
+
+#endif
+
+  #pragma db view object(obj1 = o1) object(obj2 = o2 inner: o1::n == o2::n)
+  struct vinner
+  {
+    int id1;
+    int id2;
+  };
+
+  #pragma db view object(obj1 = o1) object(obj2 = o2 cross)
+  struct vcross
+  {
+    int id1;
+    int id2;
+  };
+
+  // Inner JOIN via relationship/container.
+  //
+  #pragma db object
+  struct obj3
+  {
+    obj3 (int id = 0, int n_ = 0): id3 (id), n (n_) {}
+
+    #pragma db id
+    int id3;
+
+    int n;
+  };
+
+  #pragma db object no_id
+  struct obj4
+  {
+    obj4 (int id = 0, int n_ = 0): id4 (id), n (n_) {}
+
+    #pragma db id
+    int id4;
+
+    int n;
+    std::vector<obj3*> o3;
+  };
+
+  #pragma db view object(obj4) object(obj3 inner)
+  struct vrel
+  {
+    int id4;
+  };
+}
 
 #endif // TEST_HXX
