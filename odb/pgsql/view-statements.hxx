@@ -1,5 +1,5 @@
 // file      : odb/pgsql/view-statements.hxx
-// copyright : Copyright (c) 2005-2013 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2015 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_PGSQL_VIEW_STATEMENTS_HXX
