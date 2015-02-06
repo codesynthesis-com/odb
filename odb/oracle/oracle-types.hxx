@@ -1,5 +1,5 @@
 // file      : odb/oracle/oracle-types.hxx
-// copyright : Copyright (c) 2005-2013 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2015 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_ORACLE_ORACLE_TYPES_HXX
