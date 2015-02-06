@@ -1,5 +1,5 @@
 # file      : build/import/libodb-mysql/configuration-rules.make
-# copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+# copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 $(dcf_root)/import/libodb-mysql/configuration-dynamic.make: | $(dcf_root)/import/libodb-mysql/.

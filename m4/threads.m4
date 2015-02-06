@@ -1,5 +1,5 @@
 dnl file      : m4/threads.m4
-dnl copyright : Copyright (c) 2009-2013 Code Synthesis Tools CC
+dnl copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
 dnl license   : GNU GPL v2; see accompanying LICENSE file
 dnl
 AC_DEFUN([THREADS],[
