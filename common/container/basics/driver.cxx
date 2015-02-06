@@ -81,6 +81,11 @@ main (int argc, char* argv[])
       med.sl.push_back ("aaa");
       med.sl.push_back ("bbbb");
 
+      // deque
+      //
+      med.nd.push_back (123);
+      med.nd.push_back (234);
+
       // set
       //
       med.ns.insert (123);
@@ -188,6 +193,12 @@ main (int argc, char* argv[])
       full.sl.push_back ("aaaa");
       full.sl.push_back ("bbbbb");
       full.sl.push_back ("cccccc");
+
+      // deque
+      //
+      full.nd.push_back (1234);
+      full.nd.push_back (2345);
+      full.nd.push_back (3456);
 
       // set
       //
@@ -319,6 +330,7 @@ main (int argc, char* argv[])
       empty.cv.push_back (comp (12, "aa"));
       empty.uv.push_back (12);
       empty.sl.push_back ("aa");
+      empty.nd.push_back (12);
 
       empty.ns.insert (12);
       empty.ss.insert ("aa");
@@ -357,6 +369,8 @@ main (int argc, char* argv[])
       med.uv.clear ();
 
       med.sl.clear ();
+
+      med.nd.clear ();
 
       med.ns.clear ();
       med.ss.clear ();
@@ -408,6 +422,10 @@ main (int argc, char* argv[])
       //
       full.sl.back () += "c";
       full.sl.push_back ("ddddddd");
+
+      // deque
+      //
+      full.nd.push_front (456);
 
       // set
       //

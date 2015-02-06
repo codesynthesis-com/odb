@@ -11,6 +11,7 @@
 #include <set>
 #include <list>
 #include <vector>
+#include <deque>
 #include <string>
 
 #ifdef HAVE_CXX11
@@ -52,6 +53,7 @@ operator< (const comp& x, const comp& y)
 }
 
 typedef std::list<std::string> str_list;
+typedef std::deque<int> num_deque;
 
 typedef std::vector<int> num_vector;
 typedef std::vector<std::string> str_vector;
@@ -144,6 +146,10 @@ struct object
   #pragma db transient
   str_list& sl;
 
+  // deque
+  //
+  num_deque nd;
+
   // set
   //
   num_set ns;
@@ -233,6 +239,8 @@ operator== (const object& x, const object& y)
     xs == ys &&
 
     x.sl == y.sl &&
+
+    x.nd == y.nd &&
 
     x.ns == y.ns &&
     x.ss == y.ss &&
