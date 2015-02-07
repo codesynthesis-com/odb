@@ -41,6 +41,7 @@ template <typename I, typename T>
 struct element_traits
 {
   typedef T type;
+  typedef T* pointer;
   typedef std::auto_ptr<T> auto_ptr;
 
   static T& ref (T& x) {return x;}
@@ -51,6 +52,7 @@ template <typename I, typename T>
 struct element_traits<I, T*>
 {
   typedef T type;
+  typedef T* pointer;
   typedef std::auto_ptr<T> auto_ptr;
 
   static T& ref (T* p) {return *p;}
@@ -61,6 +63,7 @@ template <typename I, typename T>
 struct element_traits<I, std::auto_ptr<T> >
 {
   typedef T type;
+  typedef std::auto_ptr<T> pointer;
   typedef std::auto_ptr<T> auto_ptr;
 
   static T& ref (const auto_ptr& p) {return *p;}
@@ -72,6 +75,7 @@ template <typename I, typename T>
 struct element_traits<I, std::unique_ptr<T>>
 {
   typedef T type;
+  typedef std::unique_ptr<T> pointer;
   typedef std::unique_ptr<T> auto_ptr;
 
   static T& ref (const unique_ptr<T>& p) {return *p;}
@@ -201,7 +205,8 @@ erase (const auto_ptr<database>& db, I b, I e)
     for (I i (b); i != e; ++i)
     {
       type& x (traits::ref (*i));
-      assert (traits::ptr (db->find<type> (x.id)) == 0);
+      typename traits::pointer p (db->find<type> (x.id));
+      assert (traits::ptr (p) == 0);
     }
 
     t.commit ();
