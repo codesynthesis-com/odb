@@ -3,7 +3,7 @@
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_ORACLE_VERSION_HXX
-#define ODB_ORAClE_VERSION_HXX
+#define ODB_ORACLE_VERSION_HXX
 
 #include <odb/pre.hxx>
 
