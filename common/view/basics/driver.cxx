@@ -720,7 +720,7 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
-#if !defined(DATABASE_SQLITE)
+#if !defined(DATABASE_SQLITE) && !defined(DATABASE_COMMON)
       {
         typedef odb::query<vright> query;
         typedef odb::result<vright> result;
@@ -737,7 +737,9 @@ main (int argc, char* argv[])
       }
 #endif
 
-#if !defined(DATABASE_MYSQL) && !defined(DATABASE_SQLITE)
+#if !defined(DATABASE_MYSQL) &&  \
+    !defined(DATABASE_SQLITE) && \
+    !defined(DATABASE_COMMON)
       {
         typedef odb::query<vfull> query;
         typedef odb::result<vfull> result;

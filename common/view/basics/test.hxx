@@ -546,7 +546,7 @@ namespace test2
     odb::nullable<int> id2;
   };
 
-#if !defined(DATABASE_SQLITE)
+#if !defined(DATABASE_SQLITE) && !defined(DATABASE_COMMON)
 
   #pragma db view object(obj2 = o2) object(obj1 = o1 right: o2::n == o1::n)
   struct vright
@@ -557,7 +557,9 @@ namespace test2
 
 #endif
 
-#if !defined(DATABASE_MYSQL) && !defined(DATABASE_SQLITE)
+#if !defined(DATABASE_MYSQL) &&  \
+    !defined(DATABASE_SQLITE) && \
+    !defined(DATABASE_COMMON)
 
   #pragma db view object(obj1 = o1) object(obj2 = o2 full: o1::n == o2::n)
   struct vfull
