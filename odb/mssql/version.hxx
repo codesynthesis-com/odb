@@ -3,7 +3,7 @@
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_MSSQL_VERSION_HXX
-#define ODB_Mssql_VERSION_HXX
+#define ODB_MSSQL_VERSION_HXX
 
 #include <odb/pre.hxx>
 
