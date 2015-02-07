@@ -14,7 +14,7 @@
 struct scomp
 {
   scomp () {}
-  scomp (std::string const& s1, std::string const& s2, std::string const& s3)
+  scomp (const std::string& s1, const std::string& s2, const std::string& s3)
       : str1 (s1), str2 (s2), str3 (s3)
   {
   }
@@ -75,7 +75,7 @@ namespace test1
   struct object
   {
     object () {}
-    object (scomp const& i, unsigned long n): id (i), num (n) {}
+    object (const scomp& i, unsigned long n): id (i), num (n) {}
 
     #pragma db id
     scomp id;
@@ -101,7 +101,7 @@ namespace test2
   struct object1
   {
     object1 () {}
-    object1 (scomp const& i): id (i) {}
+    object1 (const scomp& i): id (i) {}
 
     #pragma db id
     scomp id;
@@ -111,7 +111,7 @@ namespace test2
   struct object2
   {
     object2 (): o1 (0) {}
-    object2 (ncomp const& i): id (i), o1 (0) {}
+    object2 (const ncomp& i): id (i), o1 (0) {}
     ~object2 () {delete o1;}
 
     #pragma db id
@@ -124,7 +124,7 @@ namespace test2
   struct object3
   {
     object3 () {}
-    object3 (ncomp const& i): id (i) {}
+    object3 (const ncomp& i): id (i) {}
 
     ~object3 ()
     {
@@ -155,7 +155,7 @@ namespace test2
   struct object4
   {
     object4 () {}
-    object4 (ncomp const& i): id (i) {}
+    object4 (const ncomp& i): id (i) {}
 
     #pragma db id
     ncomp id;
@@ -208,7 +208,7 @@ namespace test3
   struct object1
   {
     object1 () {}
-    object1 (scomp const& i): id (i) {}
+    object1 (const scomp& i): id (i) {}
 
     #pragma db id
     scomp id;
@@ -221,7 +221,7 @@ namespace test3
   struct object2
   {
     object2 (): o1 (0) {}
-    object2 (ncomp const& i): id (i), o1 (0) {}
+    object2 (const ncomp& i): id (i), o1 (0) {}
     ~object2 () {delete o1;}
 
     #pragma db id
@@ -252,7 +252,7 @@ namespace test4
   struct object1
   {
     object1 () {}
-    object1 (scomp const& i): id (i) {}
+    object1 (const scomp& i): id (i) {}
 
     #pragma db id
     scomp id;
@@ -265,7 +265,7 @@ namespace test4
   struct object2
   {
     object2 () {}
-    object2 (ncomp const& i): id (i) {}
+    object2 (const ncomp& i): id (i) {}
 
     ~object2 ()
     {
@@ -302,7 +302,7 @@ namespace test5
   struct object1
   {
     object1 () {}
-    object1 (scomp const& i): id (i) {}
+    object1 (const scomp& i): id (i) {}
 
     #pragma db id
     scomp id;
@@ -314,7 +314,7 @@ namespace test5
   struct object2
   {
     object2 () {}
-    object2 (ncomp const& i): id (i) {}
+    object2 (const ncomp& i): id (i) {}
 
     ~object2 ()
     {
@@ -352,7 +352,7 @@ namespace test6
   struct object1
   {
     object1 () {}
-    object1 (scomp const& i): id (i) {}
+    object1 (const scomp& i): id (i) {}
 
     #pragma db id
     scomp id;
@@ -364,7 +364,7 @@ namespace test6
   struct object2
   {
     object2 () {}
-    object2 (ncomp const& i): id (i) {}
+    object2 (const ncomp& i): id (i) {}
 
     ~object2 ()
     {
@@ -400,7 +400,7 @@ namespace test7
   struct object
   {
     object () {}
-    object (scomp const& i, unsigned long n): id (i), num (n) {}
+    object (const scomp& i, unsigned long n): id (i), num (n) {}
 
     #pragma db id
     scomp id;
@@ -427,7 +427,7 @@ namespace test8
   struct object1
   {
     object1 () {}
-    object1 (scomp const& i, unsigned long n): id (i), num (n) {}
+    object1 (const scomp& i, unsigned long n): id (i), num (n) {}
 
     #pragma db id
     scomp id;

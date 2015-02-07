@@ -96,7 +96,7 @@ struct task
             t.commit ();
             break;
           }
-          catch (deadlock const&) {}
+          catch (const deadlock&) {}
         }
 
         for (unsigned long j (0); j < sub_iteration_count; ++j)

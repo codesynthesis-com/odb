@@ -71,7 +71,7 @@ typedef std::map<comp, std::string> comp_str_map;
 struct comp_hash
 {
   std::size_t
-  operator() (comp const& x) const {return nh (x.num) + sh (x.str);}
+  operator() (const comp& x) const {return nh (x.num) + sh (x.str);}
 
   std::hash<int> nh;
   std::hash<std::string> sh;

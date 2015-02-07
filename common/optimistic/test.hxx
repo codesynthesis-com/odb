@@ -38,7 +38,7 @@ struct object_version
 struct container
 {
   container (): ver (123) {}
-  container (std::string const& id): id_ (id), ver (123) {}
+  container (const std::string& id): id_ (id), ver (123) {}
 
   #pragma db id
   std::string id_;

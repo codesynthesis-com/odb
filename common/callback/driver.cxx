@@ -115,7 +115,7 @@ main (int argc, char* argv[])
       o1->data++;
       o2->data++;
       db->update (o1.get ());
-      db->update (static_cast<object const&> (*o2));
+      db->update (static_cast<const object&> (*o2));
       t.commit ();
     }
     cout << "***" << endl;
@@ -127,7 +127,7 @@ main (int argc, char* argv[])
       transaction t (db->begin ());
       auto_ptr<object> o1 (db->load<object> (1));
       auto_ptr<object> o2 (db->load<object> (2));
-      db->erase (static_cast<object const*> (o1.get ()));
+      db->erase (static_cast<const object*> (o1.get ()));
       db->erase (*o2);
       t.commit ();
     }

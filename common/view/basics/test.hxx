@@ -19,7 +19,7 @@ struct employer;
 #pragma db object
 struct country
 {
-  country (const std::string& c, std::string const& n)
+  country (const std::string& c, const std::string& n)
       : code (c), name (n)
   {
   }

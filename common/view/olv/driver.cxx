@@ -188,7 +188,7 @@ main (int argc, char* argv[])
 
         assert (i != r.end ());
         {
-          view5 const& v (*i);
+          const view5& v (*i);
 
           assert (v.o4->o2[0]->s == "abc" && v.o4->o2[0]->o1->n == 123 &&
                   v.o4->o2[1]->s == "bcd" && v.o4->o2[1]->o1->n == 234 &&
@@ -196,7 +196,7 @@ main (int argc, char* argv[])
         }
         assert (++i != r.end ());
         {
-          view5 const& v (*i);
+          const view5& v (*i);
 
           assert (v.o4->o2[0]->s == "abc" && v.o4->o2[0]->o1->n == 123 &&
                   v.o4->o2[1]->s == "bcd" && v.o4->o2[1]->o1->n == 234 &&
@@ -419,12 +419,12 @@ main (int argc, char* argv[])
 
         assert (i != r.end ());
         {
-          view1 const& v (*i);
+          const view1& v (*i);
           assert (v.o1->n == 123 && v.o2->s == "abc" && v.o2->o1 == v.o1);
         }
         assert (++i != r.end ());
         {
-          view1 const& v (*i);
+          const view1& v (*i);
           assert (v.o1->n == 234 && !v.o2);
         }
         assert (++i == r.end ());
@@ -454,12 +454,12 @@ main (int argc, char* argv[])
 
         assert (i != r.end ());
         {
-          view2 const& v (*i);
+          const view2& v (*i);
           assert (v.o3->n == 123 && v.o4->s == "abc" && v.o4->o3 == v.o3);
         }
         assert (++i != r.end ());
         {
-          view2 const& v (*i);
+          const view2& v (*i);
           assert (v.o3->n == 234 && !v.o4);
         }
         assert (++i == r.end ());

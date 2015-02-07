@@ -145,7 +145,7 @@ namespace test3
   struct name
   {
     name () {}
-    name (std::string const& f, std::string const& l)
+    name (const std::string& f, const std::string& l)
         : first (f), last(l) {}
 
     std::string first;
