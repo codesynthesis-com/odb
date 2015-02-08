@@ -5,7 +5,8 @@
 include $(dir $(lastword $(MAKEFILE_LIST)))../../../build/bootstrap.make
 
 cxx_tun := driver.cxx
-odb_hdr := test.hxx
+odb_hdr := test1.hxx test2.hxx test3.hxx test4.hxx test5.hxx test6.hxx \
+test7.hxx test8.hxx test9.hxx
 genf    := $(call odb-gen,$(odb_hdr))
 gen     := $(addprefix $(out_base)/,$(genf))
 cxx_obj := $(addprefix $(out_base)/,$(cxx_tun:.cxx=.o)) $(filter %.o,$(gen:.cxx=.o))
@@ -53,6 +54,7 @@ $(dist): sources := $(cxx_tun)
 $(dist): headers := $(odb_hdr)
 $(dist): data_dist := test.std
 $(dist): export name := $(name)
+$(dist): export odb_header_stem := $(basename $(odb_hdr))
 $(dist): export extra_dist := $(data_dist) $(call vc10projs,$(name)) \
 $(call vc11projs,$(name)) $(call vc12projs,$(name))
 $(dist):
@@ -65,9 +67,9 @@ $(dist):
 # Test.
 #
 ifneq ($(db_id),common)
-$(eval $(call test-rule))
+$(eval $(call test-rule,,$(filter %.sql,$(gen))))
 else
-$(foreach d,$(databases),$(eval $(call test-rule,$d)))
+$(foreach d,$(databases),$(eval $(call test-rule,$d,$(filter %.sql,$(gen)))))
 endif
 
 # Clean.
