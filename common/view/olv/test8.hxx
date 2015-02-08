@@ -7,6 +7,7 @@
 
 #include <string>
 #include <memory>  // unique_ptr
+#include <utility> // std::move
 
 #include <odb/core.hxx>
 
@@ -41,6 +42,11 @@ namespace test8
   #pragma db view object(object1) object(object2)
   struct view1
   {
+    // VC12 workaround (no default move constructor generation).
+    //
+    view1 () {}
+    view1 (view1&& x): o2 (std::move (x.o2)), o1 (std::move (x.o1)) {}
+
     unique_ptr<object2> o2;
     unique_ptr<object1> o1;
   };
