@@ -399,7 +399,7 @@ namespace odb
 
         i++; // Column index is 1-based.
 
-        void* value;
+        void* value (0);
         sb4 capacity;
         ub2* size (0);
         bool callback (b->callback != 0);
