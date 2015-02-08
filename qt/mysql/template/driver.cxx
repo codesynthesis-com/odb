@@ -31,9 +31,6 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-    //
-    //
-    cout << "test 001" << endl;
     {
       transaction t (db->begin ());
       t.commit ();
