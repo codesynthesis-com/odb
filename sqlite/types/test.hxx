@@ -9,10 +9,10 @@
 #include <string>
 #include <vector>
 #include <memory>  // std::auto_ptr
-#include <cstring> // std::strncpy, std::str[n]cmp
+#include <cstring> // std::memcpy, std::str[n]cmp, std::strlen
 
 #ifdef _WIN32
-#  include <cwchar> // std::wcsncpy, std::wcs[n]cmp
+#  include <cwchar> // std::wcslen, std::wcs[n]cmp
 #endif
 
 #include <odb/core.hxx>
@@ -85,11 +85,11 @@ struct char_array
   )
       : id_ (id)
   {
-    std::strncpy (s1, s, sizeof (s1));
+    std::memcpy (s1, s, std::strlen (s) + 1); // VC++ strncpy deprecation.
     s2[0] = c1 = *s;
 
 #ifdef _WIN32
-    std::wcsncpy (ws1, ws, sizeof (ws1) / 2);
+    std::memcpy (ws1, ws, (std::wcslen (ws) + 1) * sizeof (wchar_t));
     ws2[0] = wc1 = *ws;
 #endif
   }

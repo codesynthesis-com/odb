@@ -7,7 +7,7 @@
 
 #include <common/config.hxx> // HAVE_CXX11
 
-#include <cstring> // std::strncpy
+#include <cstring> // std::memcpy, std::strlen
 
 #ifdef HAVE_CXX11
 #  include <array>
@@ -22,10 +22,11 @@ struct object
   object (unsigned long id, const char* s, const char* b)
       : id_ (id)
   {
-    std::strncpy (s_, s, sizeof (s_));
-    std::strncpy (s1_, s, sizeof (s1_));
+    std::memcpy (s_, s, std::strlen (s) + 1); // VC++ strncpy deprecation.
+    std::memcpy (s1_, s, std::strlen (s) + 1);
+
 #ifdef HAVE_CXX11
-    std::strncpy (a_.data (), s, a_.size ());
+    std::memcpy (a_.data (), s, std::strlen (s) + 1);
 #endif
     c_ = c1_ = *s;
     std::memcpy (b_, b, sizeof (b_));

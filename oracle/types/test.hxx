@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <memory>   // std::auto_ptr
-#include <cstring> // std::strncpy, std::str[n]cmp
+#include <cstring> // std::memcpy, std::str[n]cmp, std::strlen
 
 #include <odb/core.hxx>
 
@@ -314,8 +314,8 @@ struct char_array
   char_array (unsigned long id, const char* s)
       : id_ (id)
   {
-    std::strncpy (s1, s, sizeof (s1));
-    std::strncpy (s2, s, sizeof (s2));
+    std::memcpy (s1, s, std::strlen (s) + 1); // VC++ strncpy deprecation.
+    std::memcpy (s2, s, std::strlen (s) + 1);
     s3[0] = c1 = *s;
   }
 

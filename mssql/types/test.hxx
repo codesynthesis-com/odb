@@ -23,8 +23,8 @@ typedef struct _GUID
 #include <string>
 #include <vector>
 #include <memory>   // std::auto_ptr
-#include <cstring>  // std::memcmp, std::strncpy, std::str[n]cmp
-#include <cwchar>   // std::wcsncpy, std::wcs[n]cmp
+#include <cstring>  // std::memcmp, std::memcpy, std::str[n]cmp, std::strlen
+#include <cwchar>   // std::wcslen, std::wcs[n]cmp
 
 #include <odb/core.hxx>
 
@@ -379,12 +379,12 @@ struct char_array
   char_array (unsigned long id, const char* s, const wchar_t* ws)
       : id_ (id)
   {
-    std::strncpy (s1, s, sizeof (s1));
-    std::strncpy (s2, s, sizeof (s2));
+    std::memcpy (s1, s, std::strlen (s) + 1); // VC++ strncpy deprecation.
+    std::memcpy (s2, s, std::strlen (s) + 1);
     s3[0] = c1 = *s;
 
-    std::wcsncpy (ws1, ws, sizeof (ws1) / sizeof(wchar_t));
-    std::wcsncpy (ws2, ws, sizeof (ws2) / sizeof(wchar_t));
+    std::memcpy (ws1, ws, (std::wcslen (ws) + 1) * sizeof (wchar_t));
+    std::memcpy (ws2, ws, (std::wcslen (ws) + 1) * sizeof (wchar_t));
     ws3[0] = wc1 = *ws;
 
     if (std::strlen (s) == sizeof (s2))
