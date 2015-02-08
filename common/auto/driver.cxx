@@ -67,7 +67,7 @@ main (int argc, char* argv[])
     // auto_only
     //
     {
-      unsigned long id;
+      unsigned short id;
       {
         auto_only o;
 
