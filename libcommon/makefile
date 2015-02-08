@@ -10,7 +10,8 @@ $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): export dirs := $(dirs)
 $(dist): export extra_dist := $(call vc8slns,libcommon) \
-$(call vc9slns,libcommon) $(call vc10slns,libcommon) $(call vc11slns,libcommon)
+$(call vc9slns,libcommon) $(call vc10slns,libcommon) \
+$(call vc11slns,libcommon) $(call vc12slns,libcommon)
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(dirs)))
 	$(call meta-automake)
 	$(call meta-vc8slns,libcommon)
