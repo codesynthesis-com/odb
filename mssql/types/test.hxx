@@ -402,11 +402,11 @@ struct char_array
     }
     else
     {
-      std::strcpy (ls1, s);
-      std::strcpy (ls2, s);
+      std::memcpy (ls1, s, std::strlen (s) + 1); // VC++ strcpy deprecation.
+      std::memcpy (ls2, s, std::strlen (s) + 1);
 
-      std::wcscpy (lws1, ws);
-      std::wcscpy (lws2, ws);
+      std::memcpy (lws1, ws, (std::wcslen (ws) + 1) * sizeof (wchar_t));
+      std::memcpy (lws2, ws, (std::wcslen (ws) + 1) * sizeof (wchar_t));
     }
   }
 

@@ -7,6 +7,7 @@
 
 #include <string>
 #include <memory>   // std::auto_ptr
+#include <cstring>  // std::memcpy
 #include <cassert>
 #include <iostream>
 
@@ -146,7 +147,7 @@ main (int argc, char* argv[])
       //
 #ifdef ODB_CXX11
       array<char, 17> a;
-      strcpy (a.data (), "abc");
+      memcpy (a.data (), "abc", 4); // VC++ strcpy deprecation.
 
 #ifndef DATABASE_COMMON
       assert (size (db->query<object> (query::a == a)) == 1);
