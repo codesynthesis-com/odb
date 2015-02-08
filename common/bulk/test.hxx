@@ -213,7 +213,7 @@ namespace test7
 
 // Test SQL Server optimistic concurrency with ROWVERSION.
 //
-#ifdef ODB_DATABASE_MSSQL
+#if defined(ODB_DATABASE_MSSQL) || defined(DATABASE_MSSQL)
 #pragma db namespace table("t8_")
 namespace test8
 {
