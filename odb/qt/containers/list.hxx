@@ -13,7 +13,8 @@
 
 #ifdef ODB_CXX11
 #  include <utility>          // std::move
-#  ifdef ODB_CXX11_INITIALIZER_LIST
+#  if defined(ODB_CXX11_INITIALIZER_LIST) && \
+  defined(Q_COMPILER_INITIALIZER_LISTS)
 #    include <initializer_list>
 #  endif
 #endif
@@ -48,7 +49,8 @@ public:
 #ifdef ODB_CXX11
   QOdbList(QOdbList &&x): vector_base (std::move (x)), l_ (std::move (x.l_)) {}
   QOdbList &operator=(QOdbList &&other);
-#ifdef ODB_CXX11_INITIALIZER_LIST
+#if defined(ODB_CXX11_INITIALIZER_LIST) && \
+  defined(Q_COMPILER_INITIALIZER_LISTS)
   QOdbList(std::initializer_list<T> il): l_ (il) {}
 #endif
 #endif
