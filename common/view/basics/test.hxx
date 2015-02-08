@@ -5,8 +5,6 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // DATABASE_*
-
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
@@ -546,7 +544,7 @@ namespace test2
     odb::nullable<int> id2;
   };
 
-#if !defined(DATABASE_SQLITE) && !defined(DATABASE_COMMON)
+#if !defined(ODB_DATABASE_SQLITE) && !defined(ODB_DATABASE_COMMON)
 
   #pragma db view object(obj2 = o2) object(obj1 = o1 right: o2::n == o1::n)
   struct vright
@@ -557,9 +555,9 @@ namespace test2
 
 #endif
 
-#if !defined(DATABASE_MYSQL) &&  \
-    !defined(DATABASE_SQLITE) && \
-    !defined(DATABASE_COMMON)
+#if !defined(ODB_DATABASE_MYSQL) &&  \
+    !defined(ODB_DATABASE_SQLITE) && \
+    !defined(ODB_DATABASE_COMMON)
 
   #pragma db view object(obj1 = o1) object(obj2 = o2 full: o1::n == o2::n)
   struct vfull

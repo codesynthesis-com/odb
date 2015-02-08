@@ -5,7 +5,7 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11, DATABASE_*
+#include <common/config.hxx> // HAVE_CXX11
 
 #include <string>
 #include <memory> // std::auto_ptr, std::unique_ptr
@@ -213,7 +213,7 @@ namespace test7
 
 // Test SQL Server optimistic concurrency with ROWVERSION.
 //
-#ifdef DATABASE_MSSQL
+#ifdef ODB_DATABASE_MSSQL
 #pragma db namespace table("t8_")
 namespace test8
 {
