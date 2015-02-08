@@ -1115,9 +1115,9 @@ main (int argc, char* argv[])
       std::vector<object> v (fill<object> (4));
 
       v[0].id = 1;
-      v[2].id = 2;
-      v[3].id = 3;
-      v[4].id = 4;
+      v[1].id = 2;
+      v[2].id = 3;
+      v[3].id = 4;
 
 
       // persist
@@ -1133,9 +1133,9 @@ main (int argc, char* argv[])
                 v[3].v != 0);
 
         //cerr << v[0].v << endl
-        //     << v[0].v << endl
-        //     << v[0].v << endl
-        //     << v[0].v << endl;
+        //     << v[1].v << endl
+        //     << v[2].v << endl
+        //     << v[3].v << endl;
       }
 
       // update
