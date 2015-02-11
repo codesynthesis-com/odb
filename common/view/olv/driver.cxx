@@ -261,14 +261,16 @@ main (int argc, char* argv[])
       {
         transaction t (db->begin ());
         view1a v (db->query_value<view1a> ());
-        assert (v.o1->n == 123 && v.o1->o2.object_id () == o2->id);
+        // VC11
+        assert (v.o1->n == 123 && v.o1->o2.object_id<object2> () == o2->id);
         t.commit ();
       }
 
       {
         transaction t (db->begin ());
         view1b v (db->query_value<view1b> ());
-        assert (v.o1->n == 123 && v.o1->o2.object_id () == o2->id);
+        // VC11
+        assert (v.o1->n == 123 && v.o1->o2.object_id<object2> () == o2->id);
         t.commit ();
       }
 
@@ -292,14 +294,16 @@ main (int argc, char* argv[])
       {
         transaction t (db->begin ());
         view2a v (db->query_value<view2a> ());
-        assert (v.o3->n == 123 && v.o3->o4.object_id () == o4->id);
+        // VC11
+        assert (v.o3->n == 123 && v.o3->o4.object_id<object4> () == o4->id);
         t.commit ();
       }
 
       {
         transaction t (db->begin ());
         view2b v (db->query_value<view2b> ());
-        assert (v.o3->n == 123 && v.o3->o4.object_id () == o4->id);
+        // VC11
+        assert (v.o3->n == 123 && v.o3->o4.object_id<object4> () == o4->id);
         t.commit ();
       }
     }
