@@ -32,7 +32,7 @@ template <typename I,
 #ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
           typename T = typename iterator_traits<I>::value_type
 #else
-          typename T = typename details::meta::remove_pointer<I>::result
+          typename T = typename odb::details::meta::remove_pointer<I>::result
 #endif
           >
 struct element_traits;
