@@ -38,27 +38,5 @@ namespace odb
       if (status_ != 0 && !empty ())
         init (skip);
     }
-
-    // update_statement
-    //
-    inline unsigned long long update_statement::
-    result (std::size_t i)
-    {
-      if (i != i_)
-        mex_->current (++i_); // mex cannot be NULL since this is a batch.
-
-      return result_;
-    }
-
-    // delete_statement
-    //
-    inline unsigned long long delete_statement::
-    result (std::size_t i)
-    {
-      if (i != i_)
-        mex_->current (++i_); // mex cannot be NULL since this is a batch.
-
-      return result_;
-    }
   }
 }

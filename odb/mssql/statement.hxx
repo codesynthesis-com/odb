@@ -429,7 +429,13 @@ namespace odb
       using bulk_statement::result_unknown;
 
       unsigned long long
-      result (std::size_t i);
+      result (std::size_t i)
+      {
+        if (i != i_)
+          mex_->current (++i_); // mex cannot be NULL since this is a batch.
+
+        return result_;
+      }
 
       unsigned long long
       execute ()
@@ -516,7 +522,13 @@ namespace odb
       using bulk_statement::result_unknown;
 
       unsigned long long
-      result (std::size_t i);
+      result (std::size_t i)
+      {
+        if (i != i_)
+          mex_->current (++i_); // mex cannot be NULL since this is a batch.
+
+        return result_;
+      }
 
       unsigned long long
       execute ()
