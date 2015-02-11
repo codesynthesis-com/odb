@@ -51,7 +51,7 @@ struct objects_min_max
   unsigned int num_max;
 };
 
-#pragma db view query("EXEC insert_object (?)")
+#pragma db view query("EXEC insert_object_id (?)")
 struct insert_object {};
 
 #pragma db view query("EXEC insert_object_id_odb (?)")
