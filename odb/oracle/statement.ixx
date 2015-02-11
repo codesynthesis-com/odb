@@ -59,42 +59,5 @@ namespace odb
         }
       }
     }
-
-    inline bool insert_statement::
-    result (std::size_t i)
-    {
-      // Get to the next parameter set if necessary.
-      //
-      if (i != i_)
-      {
-        mex_->current (++i_); // mex cannot be NULL since this is a batch.
-        fetch (status_[i_] == 0 ? 0 /*OCI_SUCCESS*/ : -1 /*OCI_ERROR*/,
-               status_[i_]);
-      }
-
-      return result_;
-    }
-
-    // update_statement
-    //
-    inline unsigned long long update_statement::
-    result (std::size_t i)
-    {
-      if (i != i_)
-        mex_->current (++i_); // mex cannot be NULL since this is a batch.
-
-      return result_;
-    }
-
-    // delete_statement
-    //
-    inline unsigned long long delete_statement::
-    result (std::size_t i)
-    {
-      if (i != i_)
-        mex_->current (++i_); // mex cannot be NULL since this is a batch.
-
-      return result_;
-    }
   }
 }

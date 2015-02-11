@@ -314,7 +314,19 @@ namespace odb
       // All other errors are reported via exceptions.
       //
       bool
-      result (std::size_t i);
+      result (std::size_t i)
+      {
+        // Get to the next parameter set if necessary.
+        //
+        if (i != i_)
+        {
+          mex_->current (++i_); // mex cannot be NULL since this is a batch.
+          fetch (status_[i_] == 0 ? 0 /*OCI_SUCCESS*/ : -1 /*OCI_ERROR*/,
+                 status_[i_]);
+        }
+
+        return result_;
+      }
 
       bool
       execute ()
@@ -406,7 +418,13 @@ namespace odb
       using bulk_statement::result_unknown;
 
       unsigned long long
-      result (std::size_t i);
+      result (std::size_t i)
+      {
+        if (i != i_)
+          mex_->current (++i_); // mex cannot be NULL since this is a batch.
+
+        return result_;
+      }
 
       unsigned long long
       execute ()
@@ -484,7 +502,14 @@ namespace odb
       using bulk_statement::result_unknown;
 
       unsigned long long
-      result (std::size_t i);
+      result (std::size_t i)
+      {
+        if (i != i_)
+          mex_->current (++i_); // mex cannot be NULL since this is a batch.
+
+        return result_;
+      }
+
 
       unsigned long long
       execute ()
