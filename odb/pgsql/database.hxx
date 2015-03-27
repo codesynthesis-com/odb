@@ -295,7 +295,7 @@ namespace odb
       // Query one API.
       //
       template <typename T>
-      typename object_traits<T>::pointer_type
+      typename result<T>::pointer_type
       query_one ();
 
       template <typename T>
@@ -307,7 +307,7 @@ namespace odb
       query_value ();
 
       template <typename T>
-      typename object_traits<T>::pointer_type
+      typename result<T>::pointer_type
       query_one (const char*);
 
       template <typename T>
@@ -319,7 +319,7 @@ namespace odb
       query_value (const char*);
 
       template <typename T>
-      typename object_traits<T>::pointer_type
+      typename result<T>::pointer_type
       query_one (const std::string&);
 
       template <typename T>
@@ -331,7 +331,7 @@ namespace odb
       query_value (const std::string&);
 
       template <typename T>
-      typename object_traits<T>::pointer_type
+      typename result<T>::pointer_type
       query_one (const pgsql::query_base&);
 
       template <typename T>
@@ -343,7 +343,7 @@ namespace odb
       query_value (const pgsql::query_base&);
 
       template <typename T>
-      typename object_traits<T>::pointer_type
+      typename result<T>::pointer_type
       query_one (const odb::query_base&);
 
       template <typename T>
