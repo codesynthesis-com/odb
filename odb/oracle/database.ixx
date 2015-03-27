@@ -464,7 +464,7 @@ namespace odb
     }
 
     template <typename T>
-    inline typename object_traits<T>::pointer_type database::
+    inline typename result<T>::pointer_type database::
     query_one ()
     {
       return query_one<T> (oracle::query_base ());
@@ -485,7 +485,7 @@ namespace odb
     }
 
     template <typename T>
-    inline typename object_traits<T>::pointer_type database::
+    inline typename result<T>::pointer_type database::
     query_one (const char* q)
     {
       return query_one<T> (oracle::query_base (q));
@@ -506,7 +506,7 @@ namespace odb
     }
 
     template <typename T>
-    inline typename object_traits<T>::pointer_type database::
+    inline typename result<T>::pointer_type database::
     query_one (const std::string& q)
     {
       return query_one<T> (oracle::query_base (q));
@@ -527,7 +527,7 @@ namespace odb
     }
 
     template <typename T>
-    inline typename object_traits<T>::pointer_type database::
+    inline typename result<T>::pointer_type database::
     query_one (const oracle::query_base& q)
     {
       // T is always object_type. We also don't need to check for transaction
@@ -557,7 +557,7 @@ namespace odb
     }
 
     template <typename T>
-    inline typename object_traits<T>::pointer_type database::
+    inline typename result<T>::pointer_type database::
     query_one (const odb::query_base& q)
     {
       // Translate to native query.
