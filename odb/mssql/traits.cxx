@@ -496,7 +496,7 @@ namespace odb
     {
       const value_type& v (*static_cast<const value_type*> (context));
 
-      *buffer = &v.front ();
+      *buffer = v.empty () ? 0 : &v.front ();
       *size = v.size ();
       *chunk = chunk_one;
     }
@@ -566,7 +566,7 @@ namespace odb
     {
       const value_type& v (*static_cast<const value_type*> (context));
 
-      *buffer = &v.front ();
+      *buffer = v.empty () ? 0 : &v.front ();
       *size = v.size ();
       *chunk = chunk_one;
     }
