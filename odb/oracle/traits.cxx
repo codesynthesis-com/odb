@@ -147,7 +147,7 @@ namespace odb
 
       *p = chunk_one;
       *s = static_cast<ub4> (v.size ());
-      *b = &v.front ();
+      *b = v.empty () ? 0 : &v.front ();
 
       return true;
     }
@@ -197,7 +197,7 @@ namespace odb
 
       *p = chunk_one;
       *s = static_cast<ub4> (v.size ());
-      *b = &v.front ();
+      *b = v.empty () ? 0 : &v.front ();
 
       return true;
     }
