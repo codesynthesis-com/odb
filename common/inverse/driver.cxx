@@ -325,6 +325,85 @@ main (int argc, char* argv[])
       }
     }
 #endif
+
+    // Test inverse based on points_to.
+    //
+    {
+      using namespace test3;
+
+      {
+        obj1 o1 (1, 2);
+        o1.o2 = new obj2;
+
+        {
+          transaction t (db->begin ());
+
+          o1.o2->o1 = db->persist (o1);
+          db->persist (o1.o2);
+
+          t.commit ();
+        }
+
+        {
+          transaction t (db->begin ());
+
+          auto_ptr<obj1> p (db->load<obj1> (o1.id));
+          assert (p->o2->id == o1.o2->id);
+
+          t.commit ();
+        }
+
+        {
+          typedef odb::query<obj1> query;
+
+          transaction t (db->begin ());
+
+          auto_ptr<obj1> p (db->query_one<obj1> (query::o2->o1.i == o1.id.i &&
+                                                 query::o2->o1.j == o1.id.j));
+          assert (p->o2->id == o1.o2->id);
+
+          t.commit ();
+        }
+      }
+
+      {
+        obj3 o3;
+        o3.o4.push_back (new obj4);
+        o3.o4.push_back (new obj4);
+
+        {
+          transaction t (db->begin ());
+
+          o3.o4[0]->o3 = o3.o4[1]->o3 = db->persist (o3);
+          db->persist (o3.o4[0]);
+          db->persist (o3.o4[1]);
+
+          t.commit ();
+        }
+
+        {
+          transaction t (db->begin ());
+
+          auto_ptr<obj3> p (db->load<obj3> (o3.id));
+          assert (p->o4[0]->id == o3.o4[0]->id);
+          assert (p->o4[1]->id == o3.o4[1]->id);
+
+          t.commit ();
+        }
+
+        {
+          typedef odb::query<obj3> query;
+
+          transaction t (db->begin ());
+
+          auto_ptr<obj3> p (db->query_one<obj3> (query::id == o3.id));
+          assert (p->o4[0]->id == o3.o4[0]->id);
+          assert (p->o4[1]->id == o3.o4[1]->id);
+
+          t.commit ();
+        }
+      }
+    }
   }
   catch (const odb::exception& e)
   {

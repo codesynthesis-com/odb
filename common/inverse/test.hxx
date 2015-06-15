@@ -232,4 +232,83 @@ namespace test2
 }
 #endif
 
+// Test inverse based on points_to.
+//
+#pragma db namespace table("t3_")
+namespace test3
+{
+  // Inverse pointer.
+  //
+  #pragma db value
+  struct comp
+  {
+    int i;
+    int j;
+  };
+
+  inline bool
+  operator< (comp x, comp y) {return x.i < y.i || (x.i == y.i && x.j < y.j);}
+
+  struct obj2;
+
+  #pragma db object
+  struct obj1
+  {
+    #pragma db id
+    comp id;
+
+    #pragma db inverse(o1)
+    obj2* o2;
+
+    obj1 (int i = 0, int j = 0): o2 (0) {id.i = i; id.j = j;}
+    ~obj1 ();
+  };
+
+  #pragma db object
+  struct obj2
+  {
+    #pragma db id auto
+    int id;
+
+    #pragma db points_to(obj1) on_delete(cascade)
+    comp o1;
+  };
+
+  inline obj1::
+  ~obj1 () {delete o2;}
+
+  // Inverse container of pointers.
+  //
+  struct obj4;
+
+  #pragma db object
+  struct obj3
+  {
+    #pragma db id auto
+    int id;
+
+    #pragma db inverse(o3)
+    std::vector<obj4*> o4;
+
+    ~obj3 ();
+  };
+
+  #pragma db object
+  struct obj4
+  {
+    #pragma db id auto
+    int id;
+
+    #pragma db points_to(obj3)
+    int o3;
+  };
+
+  inline obj3::
+  ~obj3 ()
+  {
+    for (std::vector<obj4*>::iterator i (o4.begin ()); i != o4.end (); ++i)
+      delete *i;
+  }
+};
+
 #endif // TEST_HXX
