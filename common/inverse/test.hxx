@@ -311,4 +311,92 @@ namespace test3
   }
 };
 
+// Test inverse with nested data members.
+//
+#pragma db namespace table("t4_")
+namespace test4
+{
+  // Inverse pointer.
+  //
+  struct obj1;
+  struct obj2;
+
+  #pragma db value
+  struct obj2_id
+  {
+    #pragma db points_to(obj1)
+    int i;
+    int j;
+  };
+
+  inline bool
+  operator< (obj2_id x, obj2_id y)
+  {return x.i < y.i || (x.i == y.i && x.j < y.j);}
+
+  #pragma db object
+  struct obj1
+  {
+    #pragma db id auto
+    int id;
+
+    #pragma db inverse(id.i)
+    obj2* o2;
+
+    obj1 (): o2 (0) {}
+    ~obj1 ();
+  };
+
+  #pragma db object
+  struct obj2
+  {
+    #pragma db id
+    obj2_id id;
+  };
+
+  inline obj1::
+  ~obj1 () {delete o2;}
+
+  // Inverse container of pointers.
+  //
+  struct obj3;
+  struct obj4;
+
+  #pragma db value
+  struct obj4_id
+  {
+    #pragma db points_to(obj3)
+    int i;
+    int j;
+  };
+
+  inline bool
+  operator< (obj4_id x, obj4_id y)
+  {return x.i < y.i || (x.i == y.i && x.j < y.j);}
+
+  #pragma db object
+  struct obj3
+  {
+    #pragma db id auto
+    int id;
+
+    #pragma db inverse(id.i)
+    std::vector<obj4*> o4;
+
+    ~obj3 ();
+  };
+
+  #pragma db object
+  struct obj4
+  {
+    #pragma db id
+    obj4_id id;
+  };
+
+  inline obj3::
+  ~obj3 ()
+  {
+    for (std::vector<obj4*>::iterator i (o4.begin ()); i != o4.end (); ++i)
+      delete *i;
+  }
+};
 #endif // TEST_HXX

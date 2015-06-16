@@ -404,6 +404,96 @@ main (int argc, char* argv[])
         }
       }
     }
+
+    // Test inverse with nested data members.
+    //
+    {
+      using namespace test4;
+
+      {
+        obj1 o1;
+        o1.o2 = new obj2;
+
+        {
+          transaction t (db->begin ());
+
+          o1.o2->id.i = db->persist (o1);
+          o1.o2->id.j = 123;
+          db->persist (o1.o2);
+
+          t.commit ();
+        }
+
+        {
+          transaction t (db->begin ());
+
+          auto_ptr<obj1> p (db->load<obj1> (o1.id));
+          assert (p->o2->id.i == o1.o2->id.i && p->o2->id.j == o1.o2->id.j);
+
+          t.commit ();
+        }
+
+        {
+          typedef odb::query<obj1> query;
+
+          transaction t (db->begin ());
+
+          auto_ptr<obj1> p (db->query_one<obj1> (
+                              query::o2->id.i == o1.o2->id.i &&
+                              query::o2->id.j == o1.o2->id.j));
+          assert (p->o2->id.i == o1.o2->id.i && p->o2->id.j == o1.o2->id.j);
+
+          t.commit ();
+        }
+      }
+
+      {
+        obj3 o3;
+        o3.o4.push_back (new obj4);
+        o3.o4.push_back (new obj4);
+
+        {
+          transaction t (db->begin ());
+
+          o3.o4[0]->id.i = o3.o4[1]->id.i = db->persist (o3);
+          o3.o4[0]->id.j = 123;
+          o3.o4[1]->id.j = 234;
+          db->persist (o3.o4[0]);
+          db->persist (o3.o4[1]);
+
+          t.commit ();
+        }
+
+        {
+          transaction t (db->begin ());
+
+          auto_ptr<obj3> p (db->load<obj3> (o3.id));
+          assert (p->o4[0]->id.i == o3.o4[0]->id.i &&
+                  p->o4[0]->id.j == o3.o4[0]->id.j);
+
+          assert (p->o4[1]->id.i == o3.o4[1]->id.i &&
+                  p->o4[1]->id.j == o3.o4[1]->id.j);
+
+          t.commit ();
+        }
+
+        {
+          typedef odb::query<obj3> query;
+
+          transaction t (db->begin ());
+
+          auto_ptr<obj3> p (db->query_one<obj3> (query::id == o3.id));
+
+          assert (p->o4[0]->id.i == o3.o4[0]->id.i &&
+                  p->o4[0]->id.j == o3.o4[0]->id.j);
+
+          assert (p->o4[1]->id.i == o3.o4[1]->id.i &&
+                  p->o4[1]->id.j == o3.o4[1]->id.j);
+
+          t.commit ();
+        }
+      }
+    }
   }
   catch (const odb::exception& e)
   {
