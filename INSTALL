@@ -46,6 +46,12 @@ and without debug information:
 
 ./configure --disable-static CXX=g++-4.5 CXXFLAGS=-O3
 
+Note that if you are using Qt5 and building a static library, then you
+may have to manually add the -fPIC C++ compiler flag to satisfy the Qt5
+requirements, for example:
+
+./configure CXXFLAGS="-fPIC -O3"
+
 Once configuration is complete, run make to build libodb-qt:
 
 make
