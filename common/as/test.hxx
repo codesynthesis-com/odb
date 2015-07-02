@@ -11,6 +11,7 @@
 #include <utility> // pair
 
 #include <odb/core.hxx>
+#include <odb/vector.hxx>
 #include <odb/nullable.hxx>
 
 // Test basic type mapping functionality.
@@ -18,6 +19,24 @@
 #pragma db namespace table("t1_")
 namespace test1
 {
+  enum color {red, green, blue};
+
+  inline const char*
+  color_to_string (color c)
+  {
+    return c == red ? "RED" : (c == green ? "GREEN" : "BLUE");
+  }
+
+  inline color
+  string_to_color (const std::string& s)
+  {
+    return s == "RED" ? red : (s == "GREEN" ? green : blue);
+  }
+
+  #pragma db map type(color) as(std::string) \
+    to(test1::color_to_string (?))           \
+    from(test1::string_to_color (?))
+
   typedef std::pair<int, int> intp;
 
   #pragma db value
@@ -40,29 +59,34 @@ namespace test1
     // Class-scope mapping.
     //
     #pragma db map type(bool) as(std::string) \
-    to((?) ? "true" : "false")                \
-    from((?) == "true")
+      to((?) ? "true" : "false")              \
+      from((?) == "true")
 
     #pragma db id auto
     unsigned long id;
 
     bool b;
+    color c;
     intp ip;
 
-    #pragma db transient
     std::map<bool, int> m;
-
-    #pragma db transient
     std::vector<intp> v;
+    odb::vector<color> cv;
 
     object () {}
-    object (bool b_, int n1, int n2): b (b_), ip (n1, n2) {}
+    object (bool b_, color c_, int n1, int n2): b (b_), c (c_), ip (n1, n2) {}
   };
 
   inline bool
   operator== (const object& x, const object y)
   {
-    return x.b == y.b && x.ip == y.ip /*&& x.m == y.m && x.v == y.v*/;
+    return
+      x.b == y.b &&
+      x.c == y.c &&
+      x.ip == y.ip &&
+      x.m == y.m &&
+      x.v == y.v &&
+      x.cv == y.cv;
   }
 }
 
@@ -101,7 +125,14 @@ namespace test2
     unsigned long id;
 
     odb::nullable<bool> b;
+    std::vector<odb::nullable<bool> > v;
   };
+
+  inline bool
+  operator== (const object& x, const object y)
+  {
+    return x.b == y.b && x.v == y.v;
+  }
 }
 
 // Test wrapped simple type mapping.
@@ -150,10 +181,18 @@ namespace test3
 
     odb::nullable<intp> np;
     intp ip;
+
+    std::vector<odb::nullable<intp> > npv;
+    odb::vector<intp> ipv;
   };
+
+  inline bool
+  operator== (const object& x, const object y)
+  {
+    return x.np == y.np && x.ip == y.ip && x.npv == y.npv && x.ipv == y.ipv;
+  }
 }
 
-//@@ Test wrapped id and version.
-//@@ Containers.
+//@@ Test wrapped id and version. With container, obj-ptr.
 
 #endif // TEST_HXX

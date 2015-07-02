@@ -33,13 +33,17 @@ main (int argc, char* argv[])
     {
       using namespace test1;
 
-      object o1 (true, 123, 234);
+      object o1 (true, green, 123, 234);
       o1.m[false] = 123;
       o1.v.push_back (o1.ip);
+      o1.cv.push_back (red);
+      o1.cv.push_back (green);
 
-      object o2 (false, 234, 456);
+      object o2 (false, blue, 234, 456);
       o2.m[true] = 234;
       o2.v.push_back (o2.ip);
+      o2.cv.push_back (green);
+      o2.cv.push_back (blue);
 
       {
         transaction t (db->begin ());
@@ -59,18 +63,23 @@ main (int argc, char* argv[])
       }
 
       o1.b = false;
+      o1.c = blue;
       o1.ip.first++;
       o1.ip.second--;
       o1.m[false]++;
       o1.m[true] = 234;
       o1.v.back () = o1.ip;
+      o1.cv.modify_front () = green;
+      o1.cv.push_back (red);
 
       o2.b = true;
+      o2.c = red;
       o2.ip.first--;
       o2.ip.second++;
       o2.m[true]--;
       o2.m[false] = 345;
       o2.v.push_back (o2.ip);
+      o2.cv.pop_back ();
 
       {
         transaction t (db->begin ());
@@ -96,8 +105,13 @@ main (int argc, char* argv[])
       using namespace test2;
 
       object o1;
+      o1.v.push_back (null_bool ());
+      o1.v.push_back (false);
+
       object o2;
       o2.b = true;
+      o2.v.push_back (true);
+      o2.v.push_back (null_bool ());
 
       {
         transaction t (db->begin ());
@@ -112,12 +126,16 @@ main (int argc, char* argv[])
         auto_ptr<object> p2 (db->load<object> (o2.id));
         t.commit ();
 
-        assert (p1->b == o1.b);
-        assert (p2->b == o2.b);
+        assert (*p1 == o1);
+        assert (*p2 == o2);
       }
 
       o1.b = false;
+      o1.v[0] = true;
+      o1.v[1].reset ();
+
       o2.b.reset ();
+      o2.v.push_back (false);
 
       {
         transaction t (db->begin ());
@@ -132,8 +150,8 @@ main (int argc, char* argv[])
         auto_ptr<object> p2 (db->load<object> (o2.id));
         t.commit ();
 
-        assert (p1->b == o1.b);
-        assert (p2->b == o2.b);
+        assert (*p1 == o1);
+        assert (*p2 == o2);
       }
     }
 
@@ -144,10 +162,14 @@ main (int argc, char* argv[])
 
       object o1;
       o1.ip = intp (0, 0); // NULL
+      o1.npv.push_back (o1.np);
+      o1.ipv.push_back (o1.ip);
 
       object o2;
       o2.np = intp (123, 234);
       o1.ip = intp (234, 123);
+      o2.npv.push_back (o2.np);
+      o2.ipv.push_back (o2.ip);
 
       {
         transaction t (db->begin ());
@@ -162,15 +184,16 @@ main (int argc, char* argv[])
         auto_ptr<object> p2 (db->load<object> (o2.id));
         t.commit ();
 
-        assert (p1->np == o1.np && p1->ip == o1.ip);
-        assert (p2->np == o2.np && p2->ip == o2.ip);
+        assert (*p1 == o1);
+        assert (*p2 == o2);
       }
 
-      o1.np = intp (234, 456);
-      o1.ip = intp (456, 234);
+      o1.np = o1.npv[0] = intp (234, 456);
+      o1.ip = o1.ipv.modify_at (0) = intp (456, 234);
 
       o2.np.reset ();
-      o2.ip = intp (0, 0); // NULL
+      o2.npv[0].reset ();
+      o2.ip = o2.ipv.modify_at (0) = intp (0, 0); // NULL
 
       {
         transaction t (db->begin ());
@@ -185,8 +208,8 @@ main (int argc, char* argv[])
         auto_ptr<object> p2 (db->load<object> (o2.id));
         t.commit ();
 
-        assert (p1->np == o1.np && p1->ip == o1.ip);
-        assert (p2->np == o2.np && p2->ip == o2.ip);
+        assert (*p1 == o1);
+        assert (*p2 == o2);
       }
     }
   }
