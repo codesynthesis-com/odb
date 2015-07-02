@@ -212,6 +212,132 @@ main (int argc, char* argv[])
         assert (*p2 == o2);
       }
     }
+
+    // Test id type mapping.
+    //
+    {
+      using namespace test4;
+
+      object o1 (123);
+      o1.v.push_back (1);
+      o1.v.push_back (2);
+      o1.v.push_back (3);
+
+      object o2 (234);
+      o2.v.push_back (3);
+      o2.v.push_back (2);
+      o2.v.push_back (1);
+
+      {
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> p1 (db->load<object> (o1.id));
+        auto_ptr<object> p2 (db->load<object> (o2.id));
+        t.commit ();
+
+        assert (*p1 == o1);
+        assert (*p2 == o2);
+      }
+
+      o1.i++;
+      o1.v.pop_back ();
+      o1.v.modify_front ()++;
+
+      o2.i--;
+      o2.v.clear ();
+      o2.v.push_back (4);
+
+      {
+        transaction t (db->begin ());
+        db->update (o1);
+        db->update (o2);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> p1 (db->load<object> (o1.id));
+        auto_ptr<object> p2 (db->load<object> (o2.id));
+        t.commit ();
+
+        assert (*p1 == o1);
+        assert (*p2 == o2);
+      }
+    }
+
+    // Test version type mapping.
+    //
+    {
+      using namespace test5;
+
+      object o1 (100, 123);
+      object o2 (200, 234);
+
+      {
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> p1 (db->load<object> (o1.id));
+        auto_ptr<object> p2 (db->load<object> (o2.id));
+
+        assert (*p1 == o1);
+        assert (*p2 == o2);
+
+        p1->i--;
+        p2->i++;
+
+        db->update (*p1);
+        db->update (*p2);
+
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+
+        for (;;)
+        {
+          o1.i++;
+          o2.i--;
+
+          try
+          {
+
+            db->update (o1);
+            db->update (o2);
+            break;
+          }
+          catch (const odb::object_changed&)
+          {
+            db->reload (o1);
+            db->reload (o2);
+          }
+        }
+
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        auto_ptr<object> p1 (db->load<object> (o1.id));
+        auto_ptr<object> p2 (db->load<object> (o2.id));
+        t.commit ();
+
+        assert (*p1 == o1);
+        assert (*p2 == o2);
+      }
+    }
   }
   catch (const odb::exception& e)
   {

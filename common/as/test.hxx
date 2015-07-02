@@ -193,6 +193,79 @@ namespace test3
   }
 }
 
-//@@ Test wrapped id and version. With container, obj-ptr.
+// Test id type mapping.
+//
+struct id_type
+{
+  typedef unsigned long value_type;
+  value_type value;
+
+  id_type (value_type v = 0): value (v) {}
+  operator value_type () const {return value;}
+};
+
+#pragma db map type(id_type) as(id_type::value_type)
+
+#pragma db namespace table("t4_")
+namespace test4
+{
+  #pragma db object
+  struct object
+  {
+    #pragma db id auto
+    id_type id;
+
+    int i;
+    odb::vector<int> v;
+
+    object () {}
+    object (int i_): i (i_) {}
+  };
+
+  inline bool
+  operator== (const object& x, const object y)
+  {
+    return x.id == y.id && x.i == y.i && x.v == y.v;
+  }
+}
+
+// Test version type mapping.
+//
+#pragma db namespace table("t5_")
+namespace test5
+{
+  struct version_type
+  {
+    typedef unsigned short value_type;
+    value_type value;
+
+    version_type (value_type v = 0): value (v) {}
+    operator value_type () const {return value;}
+    version_type& operator++ () {value++; return *this;}
+  };
+
+  #pragma db map type(version_type) as(id_type::value_type)
+
+  #pragma db object optimistic
+  struct object
+  {
+    #pragma db id
+    id_type id;
+
+    #pragma db version
+    version_type v;
+
+    int i;
+
+    object () {}
+    object (id_type id_, int i_): id (id_), i (i_) {}
+  };
+
+  inline bool
+  operator== (const object& x, const object y)
+  {
+    return x.id == y.id && x.v == y.v && x.i == y.i;
+  }
+}
 
 #endif // TEST_HXX
