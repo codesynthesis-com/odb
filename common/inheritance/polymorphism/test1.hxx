@@ -23,7 +23,7 @@ namespace test1
     root () {}
     root (unsigned long i, unsigned long n): id (i), num (n) {}
 
-    #pragma db id
+    #pragma db id column("object_id")
     unsigned long id;
 
     unsigned long num;
