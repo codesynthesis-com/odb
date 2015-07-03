@@ -7,7 +7,6 @@ include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make
 tests :=                  \
 access                    \
 as                        \
-auto                      \
 blob                      \
 bulk                      \
 callback                  \
@@ -15,7 +14,6 @@ changelog                 \
 circular/single           \
 circular/multiple         \
 composite                 \
-composite-id              \
 const-object              \
 const-member              \
 container/basics          \
@@ -25,6 +23,9 @@ default                   \
 definition                \
 enum                      \
 erase-query               \
+id/auto                   \
+id/composite              \
+id/nested                 \
 include                   \
 index                     \
 inheritance/polymorphism  \

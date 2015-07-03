@@ -1,8 +1,8 @@
-# file      : common/auto/makefile
+# file      : common/id/auto/makefile
 # copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-include $(dir $(lastword $(MAKEFILE_LIST)))../../build/bootstrap.make
+include $(dir $(lastword $(MAKEFILE_LIST)))../../../build/bootstrap.make
 
 cxx_tun := driver.cxx
 odb_hdr := test.hxx
@@ -28,7 +28,8 @@ $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 
 $(gen): $(odb)
 $(gen): odb := $(odb)
-$(gen) $(dist): export odb_options += --generate-schema --table-prefix auto_
+$(gen) $(dist): export odb_options += --generate-schema \
+--table-prefix t_id_auto_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
@@ -57,12 +58,12 @@ $(call vc9projs,$(name)) $(call vc10projs,$(name)) $(call vc11projs,$(name)) \
 $(call vc12projs,$(name))
 $(dist):
 	$(call dist-data,$(sources) $(headers) $(data_dist))
-	$(call meta-automake,../template/Makefile.am)
-	$(call meta-vc8projs,../template/template,$(name))
-	$(call meta-vc9projs,../template/template,$(name))
-	$(call meta-vc10projs,../template/template,$(name))
-	$(call meta-vc11projs,../template/template,$(name))
-	$(call meta-vc12projs,../template/template,$(name))
+	$(call meta-automake,../../template/Makefile.am)
+	$(call meta-vc8projs,../../template/template,$(name))
+	$(call meta-vc9projs,../../template/template,$(name))
+	$(call meta-vc10projs,../../template/template,$(name))
+	$(call meta-vc11projs,../../template/template,$(name))
+	$(call meta-vc12projs,../../template/template,$(name))
 
 # Test.
 #
