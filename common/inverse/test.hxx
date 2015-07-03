@@ -270,8 +270,12 @@ namespace test3
     #pragma db id auto
     int id;
 
-    #pragma db points_to(obj1) on_delete(cascade)
+    #pragma db points_to(obj1)
     comp o1;
+
+#ifndef ODB_DATABASE_MYSQL
+    #pragma db member(o1) on_delete(cascade)
+#endif
   };
 
   inline obj1::
