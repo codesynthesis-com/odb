@@ -245,24 +245,24 @@ namespace odb
         switch (sk)
         {
         case statement_select:
-          process_select (text,
+          process_select (tmp,
+                          text,
                           &proc->bind->buffer, proc->count, sizeof (bind),
                           '"', '"',
                           optimize,
-                          tmp,
                           false); // No AS in JOINs.
           break;
         case statement_insert:
-          process_insert (text,
+          process_insert (tmp,
+                          text,
                           &proc->bind->buffer, proc->count, sizeof (bind),
-                          ':',
-                          tmp);
+                          ':');
           break;
         case statement_update:
-          process_update (text,
+          process_update (tmp,
+                          text,
                           &proc->bind->buffer, proc->count, sizeof (bind),
-                          ':',
-                          tmp);
+                          ':');
           break;
         case statement_delete:
         case statement_generic:
