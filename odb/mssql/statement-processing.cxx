@@ -21,15 +21,16 @@ namespace odb
     typedef bind bind_type;
 
     void statement::
-    process_select (const char* s,
+    process_select (std::string& r,
+                    const char* s,
                     const bind_type* bind,
                     std::size_t bind_size,
 #ifndef LIBODB_DEBUG_STATEMENT_PROCESSING
-                    bool optimize,
+                    bool optimize
 #else
-                    bool,
+                    bool
 #endif
-                    std::string& r)
+                    )
     {
       // This implementation is pretty much the same as the generic one
       // except for two things:

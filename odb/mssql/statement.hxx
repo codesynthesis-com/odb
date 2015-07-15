@@ -89,11 +89,11 @@ namespace odb
       // columns to the end.
       //
       static void
-      process_select (const char* statement,
+      process_select (std::string& result,
+                      const char* statement,
                       const bind*,
                       std::size_t bind_size,
-                      bool optimize,
-                      std::string& result);
+                      bool optimize);
 
     protected:
       void
