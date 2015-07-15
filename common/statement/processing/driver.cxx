@@ -21,7 +21,7 @@ insert (const char* stmt,
 {
   string r;
   odb::statement::process_insert (
-    stmt, bind, bind_size, sizeof (void*), '$', r);
+    r, stmt, bind, bind_size, sizeof (void*), '$');
   return r == expected;
 }
 
@@ -33,7 +33,7 @@ update (const char* stmt,
 {
   string r;
   odb::statement::process_update (
-    stmt, bind, bind_size, sizeof (void*), '$', r);
+    r, stmt, bind, bind_size, sizeof (void*), '$');
   return r == expected;
 }
 
@@ -45,7 +45,7 @@ select (const char* stmt,
 {
   string r;
   odb::statement::process_select (
-    stmt, bind, bind_size, sizeof (void*), '[', ']', true, r);
+    r, stmt, bind, bind_size, sizeof (void*), '[', ']', true);
   return r == expected;
 }
 

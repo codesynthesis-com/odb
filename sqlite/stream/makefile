@@ -1,4 +1,4 @@
-# file      : sqlite/template/makefile
+# file      : sqlite/stream/makefile
 # copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
@@ -29,8 +29,7 @@ $(cxx_obj) $(cxx_od): $(common.l.cpp-options)
 $(gen): $(odb)
 $(gen): odb := $(odb)
 $(gen) $(dist): export odb_options += --database sqlite --default-database \
-common --generate-schema --table-prefix sqlitex_template_ #@@ CHANGE THIS
-# Note:                                      'x' here is not a typo.
+common --generate-query --generate-schema --table-prefix sqlitex_stream_
 $(gen): cpp_options := -I$(src_base)
 $(gen): $(common.l.cpp-options)
 
