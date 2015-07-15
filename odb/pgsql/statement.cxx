@@ -162,23 +162,23 @@ namespace odb
         switch (sk)
         {
         case statement_select:
-          process_select (text_,
+          process_select (text_copy_,
+                          text_,
                           &proc->bind->buffer, proc->count, sizeof (bind),
                           '"', '"',
-                          optimize,
-                          text_copy_);
+                          optimize);
           break;
         case statement_insert:
-          process_insert (text_,
+          process_insert (text_copy_,
+                          text_,
                           &proc->bind->buffer, proc->count, sizeof (bind),
-                          '$',
-                          text_copy_);
+                          '$');
           break;
         case statement_update:
-          process_update (text_,
+          process_update (text_copy_,
+                          text_,
                           &proc->bind->buffer, proc->count, sizeof (bind),
-                          '$',
-                          text_copy_);
+                          '$');
           break;
         case statement_delete:
           assert (false);
