@@ -94,20 +94,26 @@ namespace odb
         }
       case part::op_in:
         {
-          size_t b (p - x.data);
-
-          translate (q, s, b - 1); // column
-          q += "IN (";
-
-          for (size_t i (b); i != p; ++i)
+          if (x.data != 0)
           {
-            if (i != b)
-              q += ",";
+            size_t b (p - x.data);
 
-            translate (q, s, i);
+            translate (q, s, b - 1); // column
+            q += "IN (";
+
+            for (size_t i (b); i != p; ++i)
+            {
+              if (i != b)
+                q += ",";
+
+              translate (q, s, i);
+            }
+
+            q += ")";
           }
+          else
+            q.append (false);
 
-          q += ")";
           break;
         }
       case part::op_like:
