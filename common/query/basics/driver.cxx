@@ -408,6 +408,12 @@ main (int argc, char* argv[])
       r = db->query<person> (query::first_name.in_range (names, names_end));
       print (r);
 
+      // Empty range.
+      //
+      r = db->query<person> (query::last_name == "Doe" &&
+                             query::first_name.in_range (names, names));
+      assert (r.empty ());
+
       t.commit ();
     }
 
