@@ -81,4 +81,38 @@ operator<< (std::ostream& os, const person& p)
   return os;
 }
 
+// Test member name conflicts (compilation-only test).
+//
+#pragma db namespace table("t2_")
+namespace test2
+{
+  #pragma db object
+  struct object
+  {
+    #pragma db id
+    int id;
+  };
+
+  #pragma db value
+  struct value
+  {
+    object* m_object;
+  };
+
+  #pragma db value
+  struct bar
+  {
+    value m_value;
+  };
+
+  #pragma db object
+  struct foo
+  {
+    #pragma db id
+    int id;
+
+    bar m_value;
+  };
+}
+
 #endif // TEST_HXX
