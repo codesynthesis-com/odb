@@ -59,7 +59,7 @@ namespace odb
 
           // Deadlock detected.
           //
-          if (ss == "40P01")
+          if (ss == "40001" || ss == "40P01")
             throw deadlock ();
           else if (CONNECTION_BAD == PQstatus (c.handle ()))
           {
