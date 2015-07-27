@@ -31,9 +31,9 @@ using namespace std;
 using namespace odb::core;
 namespace details = odb::details;
 
-const unsigned long thread_count = 32;
-const unsigned long iteration_count = 50;
-const unsigned long sub_iteration_count = 20;
+const unsigned long thread_count = 24;
+const unsigned long iteration_count = 30;
+const unsigned long sub_iteration_count = 40;
 
 struct task
 {
@@ -51,21 +51,26 @@ struct task
       {
         unsigned long id ((n_ * iteration_count + i) * 3);
 
-        {
-          object o1 (id, "first object");
-          object o2 (id + 1, "second object");
-          object o3 (id + 2, "third object");
+        object o1 (id, "first object");
+        object o2 (id + 1, "second object");
+        object o3 (id + 2, "third object");
 
-          transaction t (db_.begin ());
-          db_.persist (o1);
-          db_.persist (o2);
-          db_.persist (o3);
-          t.commit ();
+        // The following transactions may lead to deadlocks.
+        //
+        while (true)
+        {
+          try
+          {
+            transaction t (db_.begin ());
+            db_.persist (o1);
+            db_.persist (o2);
+            db_.persist (o3);
+            t.commit ();
+            break;
+          }
+          catch (const deadlock&) {}
         }
 
-        // The following transaction may lead to a deadlock in some database
-        // implementations (read to write lock upgrade).
-        //
         while (true)
         {
           try
@@ -105,37 +110,50 @@ struct task
           typedef odb::prepared_query<object> prep_query;
           typedef odb::result<object> result;
 
-          transaction t (db_.begin ());
-
-          prep_query pq (db_.lookup_query<object> ("object-query"));
-
-          if (!pq)
+          while (true)
           {
-            pq = db_.prepare_query<object> (
-              "object-query", query::str == "another value");
-            db_.cache_query (pq);
-          }
-
-          result r (pq.execute (false));
-
-          bool found (false);
-          for (result::iterator i (r.begin ()); i != r.end (); ++i)
-          {
-            if (i->id_ == id)
+            try
             {
-              found = true;
+              transaction t (db_.begin ());
+
+              prep_query pq (db_.lookup_query<object> ("object-query"));
+
+              if (!pq)
+              {
+                pq = db_.prepare_query<object> (
+                  "object-query", query::str == "another value");
+                db_.cache_query (pq);
+              }
+
+              result r (pq.execute (false));
+
+              bool found (false);
+              for (result::iterator i (r.begin ()); i != r.end (); ++i)
+              {
+                if (i->id_ == id)
+                {
+                  found = true;
+                  break;
+                }
+              }
+              assert (found);
+              t.commit ();
               break;
             }
+            catch (const deadlock&) {}
           }
-          assert (found);
-
-          t.commit ();
         }
 
+        while (true)
         {
-          transaction t (db_.begin ());
-          db_.erase<object> (id);
-          t.commit ();
+          try
+          {
+            transaction t (db_.begin ());
+            db_.erase<object> (id);
+            t.commit ();
+            break;
+          }
+          catch (const deadlock&) {}
         }
       }
     }
