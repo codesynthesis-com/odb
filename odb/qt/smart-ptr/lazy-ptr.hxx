@@ -196,6 +196,13 @@ private:
   template <class X> friend class QLazySharedPointer;
   template <class X> friend class QLazyWeakPointer;
 
+  // For QLazyWeakPointer::toStrongRef().
+  //
+  QLazySharedPointer (const QSharedPointer<T>& p,
+                      const odb::lazy_ptr_impl<T>& i)
+      : p_ (p), i_ (i) {}
+
+private:
   mutable QSharedPointer<T> p_;
   mutable odb::lazy_ptr_impl<T> i_;
 };

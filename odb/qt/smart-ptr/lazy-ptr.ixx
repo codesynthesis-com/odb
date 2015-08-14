@@ -196,6 +196,13 @@ loaded () const
 }
 
 template <class T>
+inline QLazySharedPointer<T> QLazyWeakPointer<T>::
+toStrongRef () const
+{
+  return QLazySharedPointer<T> (p_.toStrongRef (), i_);
+}
+
+template <class T>
 inline QSharedPointer<T> QLazySharedPointer<T>::
 load () const
 {

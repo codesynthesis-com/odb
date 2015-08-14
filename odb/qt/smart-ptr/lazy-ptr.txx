@@ -73,26 +73,3 @@ equal (const QLazySharedPointer<X>& r) const
 
   return r.equal (sp);
 }
-
-template <class T>
-QLazySharedPointer<T> QLazyWeakPointer<T>::
-toStrongRef () const
-{
-  QSharedPointer<T> sp (p_.toStrongRef ());
-
-  if (sp)
-  {
-    if (database_type* db = i_.database ())
-      return QLazySharedPointer<T> (*db, sp);
-    else
-      return QLazySharedPointer<T> (sp);
-  }
-  else
-  {
-    if (i_)
-      return QLazySharedPointer<T> (
-        *i_.database (), i_.template object_id<T> ());
-    else
-      return QLazySharedPointer<T> ();
-  }
-}
