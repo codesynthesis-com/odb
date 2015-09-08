@@ -415,6 +415,10 @@ namespace odb
         return *this;
       }
 
+      template <typename T, database_type_id ID>
+      query_base&
+      operator+= (const query_column<T, ID>&);
+
       // Implementation details.
       //
     public:
@@ -1475,6 +1479,14 @@ namespace odb
       query_base r (q);
       r.append (c.table (), c.column ());
       return r;
+    }
+
+    template <typename T, database_type_id ID>
+    inline query_base& query_base::
+    operator+= (const query_column<T, ID>& c)
+    {
+      append (c.table (), c.column ());
+      return *this;
     }
 
     //
