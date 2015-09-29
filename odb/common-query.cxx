@@ -41,7 +41,9 @@ struct query_nested_types: object_columns_base, virtual context
   virtual void
   traverse_composite (semantics::data_member* m, semantics::class_& c)
   {
-    if (m != 0)
+    // Virtual data members that start with an underscore are "see-through".
+    //
+    if (m != 0 && (!m->count ("virtual") || m->name ()[0] != '_'))
     {
       string name (prefix_ + public_name (*m));
       name += in_ptr_ ? "_column_class" : "_class";
@@ -172,9 +174,10 @@ traverse_object (semantics::class_& c)
 void query_tags::
 traverse_composite (semantics::data_member* m, semantics::class_& c)
 {
-  // Base type.
+  // Base type or a virtual data member that starts with an underscore
+  // ("see-through").
   //
-  if (m == 0)
+  if (m == 0 || (m->count ("virtual") && m->name ()[0] == '_'))
   {
     object_columns_base::traverse_composite (m, c);
     return;
@@ -242,9 +245,10 @@ traverse_object (semantics::class_& c)
 void query_alias_traits::
 traverse_composite (semantics::data_member* m, semantics::class_& c)
 {
-  // Base type.
+  // Base type or a virtual data member that starts with an underscore
+  // ("see-through").
   //
-  if (m == 0)
+  if (m == 0 || (m->count ("virtual") && m->name ()[0] == '_'))
   {
     object_columns_base::traverse_composite (m, c);
     return;
@@ -361,9 +365,10 @@ traverse_object (semantics::class_& c)
 void query_columns_base::
 traverse_composite (semantics::data_member* m, semantics::class_& c)
 {
-  // Base type.
+  // Base type or a virtual data member that starts with an underscore
+  // ("see-through").
   //
-  if (m == 0)
+  if (m == 0 || (m->count ("virtual") && m->name ()[0] == '_'))
   {
     object_columns_base::traverse_composite (m, c);
     return;
@@ -516,9 +521,10 @@ traverse_object (semantics::class_& c)
 void query_columns::
 traverse_composite (semantics::data_member* m, semantics::class_& c)
 {
-  // Base type.
+  // Base type or a virtual data member that starts with an underscore
+  // ("see-through").
   //
-  if (m == 0)
+  if (m == 0 || (m->count ("virtual") && m->name ()[0] == '_'))
   {
     object_columns_base::traverse_composite (m, c);
     return;

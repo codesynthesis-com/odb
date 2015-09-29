@@ -5881,8 +5881,6 @@ namespace relational
         }
 
         expression e (vo);
-        r += "::";
-        r += ctx.public_name (*m);
 
         // Assemble the member path if we may need to return a pointer
         // expression.
@@ -5894,6 +5892,7 @@ namespace relational
 
         // Finally, resolve nested members if any.
         //
+        bool first (true);
         for (; tt == CPP_DOT; ptt = tt, tt = l.next (tl, &tn))
         {
           // Check if this member is actually of a composite value type.
@@ -5904,8 +5903,18 @@ namespace relational
           //
           semantics::class_* comp (
             context::composite_wrapper (context::utype (*m)));
+
           if (comp == 0)
             break;
+
+          // Handle "see-through" virtual data members.
+          //
+          if (!m->count ("virtual") || m->name ()[0] != '_')
+          {
+            r += (first ? "::" : ".");
+            r += ctx.public_name (*m);
+            first = false;
+          }
 
           ptt = tt;
           tt = l.next (tl, &tn);
@@ -5919,12 +5928,12 @@ namespace relational
 
           m = &comp->lookup<data_member> (tl, scope::include_hidden);
 
-          r += '.';
-          r += ctx.public_name (*m);
-
           if (check_ptr)
             e.member_path.push_back (m);
         }
+
+        r += (first ? "::" : ".");
+        r += ctx.public_name (*m);
 
         // If requested, check if this member is a pointer. We only do this
         // if there is nothing after this name.
