@@ -1876,7 +1876,7 @@ namespace odb
                                                     id_uniqueidentifier>
     {
       typedef char* value_type;
-      typedef const char* query_type;
+      typedef char query_type[16];
       typedef uniqueidentifier image_type;
 
       static void
