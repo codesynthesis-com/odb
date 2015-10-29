@@ -757,7 +757,7 @@ namespace odb
     struct LIBODB_PGSQL_EXPORT default_value_traits<char[16], id_uuid>
     {
       typedef char* value_type;
-      typedef const char* query_type;
+      typedef char query_type[16];
       typedef unsigned char* image_type;
 
       static void
