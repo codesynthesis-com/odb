@@ -86,6 +86,41 @@ main (int argc, char* argv[])
       assert (o == *o1);
     }
 
+    typedef pgsql::query<object> query;
+    typedef odb::result<object> result;
+
+    // Test UUID in queries.
+    //
+    {
+      char uuid[16];
+      memcpy (uuid, o.uuid_, 16);
+
+      transaction t (db->begin ());
+
+      {
+        result r (db->query<object> (query::uuid == uuid));
+        assert (size (r) == 1);
+      }
+
+      {
+        result r (db->query<object> (query::uuid == query::_val (uuid)));
+        assert (size (r) == 1);
+      }
+
+      {
+        result r (db->query<object> (query::uuid == query::_ref (uuid)));
+        assert (size (r) == 1);
+      }
+
+      {
+        const char* d (uuid);
+        result r (db->query<object> (query::uuid == d));
+        assert (size (r) == 1);
+      }
+
+      t.commit ();
+    }
+
     // Test char array.
     //
     {
