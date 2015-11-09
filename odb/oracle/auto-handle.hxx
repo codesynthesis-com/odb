@@ -7,6 +7,8 @@
 
 #include <odb/pre.hxx>
 
+#include <odb/details/config.hxx> // ODB_CXX11
+
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/oracle-fwd.hxx>
 
@@ -125,6 +127,16 @@ namespace odb
         h_ = h;
       }
 
+#ifdef ODB_CXX11
+      auto_handle (auto_handle&& ah): h_ (ah.release ()) {}
+      auto_handle& operator= (auto_handle&& ah)
+      {
+        if (this != &ah)
+          reset (ah.release ());
+        return *this;
+      }
+#endif
+
     private:
       auto_handle (const auto_handle&);
       auto_handle& operator= (const auto_handle&);
@@ -198,6 +210,10 @@ namespace odb
       }
 
     private:
+      auto_handle (const auto_handle&);
+      auto_handle& operator= (const auto_handle&);
+
+    private:
       OCISvcCtx* h_;
       OCIError* e_;
     };
@@ -257,6 +273,10 @@ namespace odb
         release_mode_ = release_mode;
         e_ = e;
       }
+
+    private:
+      auto_handle (const auto_handle&);
+      auto_handle& operator= (const auto_handle&);
 
     private:
       OCIStmt* h_;

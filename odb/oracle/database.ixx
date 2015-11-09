@@ -2,12 +2,34 @@
 // copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <utility> // move()
+
 #include <odb/oracle/transaction.hxx>
 
 namespace odb
 {
   namespace oracle
   {
+#ifdef ODB_CXX11
+    inline database::
+    database (database&& db) // Has to be inline.
+        : odb::database (std::move (db)),
+          user_ (std::move (db.user_)),
+          password_ (std::move (db.password_)),
+          db_ (std::move (db.db_)),
+          service_ (std::move (db.service_)),
+          host_ (std::move (db.host_)),
+          port_ (db.port_),
+          charset_ (db.charset_),
+          ncharset_ (db.ncharset_),
+          auto_environment_ (std::move (db.auto_environment_)),
+          environment_ (db.environment_),
+          factory_ (std::move (db.factory_))
+    {
+      factory_->database (*this); // New database instance.
+    }
+#endif
+
     inline connection_ptr database::
     connection ()
     {

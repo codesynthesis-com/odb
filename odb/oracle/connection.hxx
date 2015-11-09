@@ -28,6 +28,7 @@ namespace odb
   namespace oracle
   {
     class statement_cache;
+    class connection_factory;
 
     class connection;
     typedef details::shared_ptr<connection> connection_ptr;
@@ -41,14 +42,11 @@ namespace odb
       virtual
       ~connection ();
 
-      connection (database_type&);
-      connection (database_type&, OCISvcCtx* handle);
+      connection (connection_factory&);
+      connection (connection_factory&, OCISvcCtx* handle);
 
       database_type&
-      database ()
-      {
-        return db_;
-      }
+      database ();
 
     public:
       virtual transaction_impl*
@@ -144,8 +142,6 @@ namespace odb
       friend class transaction_impl; // invalidate_results()
 
     private:
-      database_type& db_;
-
       // It is important that the error_ member is declared before the
       // handle_ member as handle_ depends on error_ during destruction.
       //
@@ -156,6 +152,33 @@ namespace odb
 
       details::unique_ptr<statement_cache_type> statement_cache_;
       details::buffer lob_buffer_;
+    };
+
+    class LIBODB_ORACLE_EXPORT connection_factory:
+      public odb::connection_factory
+    {
+    public:
+      typedef oracle::database database_type;
+
+      virtual void
+      database (database_type&);
+
+      database_type&
+      database () {return *db_;}
+
+      virtual connection_ptr
+      connect () = 0;
+
+      virtual
+      ~connection_factory ();
+
+      connection_factory (): db_ (0) {}
+
+      // Needed to break the circular connection_factory-database dependency
+      // (odb::connection_factory has the odb::database member).
+      //
+    protected:
+      database_type* db_;
     };
   }
 }

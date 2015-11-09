@@ -22,18 +22,19 @@ namespace odb
   namespace oracle
   {
     connection::
-    connection (database_type& db)
-        : odb::connection (db),
-          db_ (db),
+    connection (connection_factory& cf)
+        : odb::connection (cf),
           failed_ (false),
           statement_cache_ (new statement_cache_type (*this)),
           lob_buffer_ (0)
     {
       sword r (0);
 
+      database_type& db (database ());
+
       {
         OCIError* e (0);
-        r = OCIHandleAlloc (db_.environment (),
+        r = OCIHandleAlloc (db.environment (),
                             reinterpret_cast<void**> (&e),
                             OCI_HTYPE_ERROR,
                             0,
@@ -48,7 +49,7 @@ namespace odb
       auto_handle<OCIAuthInfo> auth_info;
       {
         OCIAuthInfo* a (0);
-        r = OCIHandleAlloc (db_.environment (),
+        r = OCIHandleAlloc (db.environment (),
                             reinterpret_cast<void**> (&a),
                             OCI_HTYPE_AUTHINFO,
                             0,
@@ -63,8 +64,8 @@ namespace odb
       r = OCIAttrSet (
         auth_info,
         OCI_HTYPE_AUTHINFO,
-        reinterpret_cast<OraText*> (const_cast<char*> (db_.user ().c_str ())),
-        static_cast <ub4> (db_.user ().size ()),
+        reinterpret_cast<OraText*> (const_cast<char*> (db.user ().c_str ())),
+        static_cast <ub4> (db.user ().size ()),
         OCI_ATTR_USERNAME,
         error_);
 
@@ -75,8 +76,8 @@ namespace odb
         auth_info,
         OCI_HTYPE_AUTHINFO,
         reinterpret_cast<OraText*> (
-          const_cast<char*> (db_.password ().c_str ())),
-        static_cast<ub4> (db_.password ().size ()),
+          const_cast<char*> (db.password ().c_str ())),
+        static_cast<ub4> (db.password ().size ()),
         OCI_ATTR_PASSWORD,
         error_);
 
@@ -87,12 +88,12 @@ namespace odb
         OCISvcCtx* s (0);
 
         r = OCISessionGet (
-          db_.environment (),
+          db.environment (),
           error_,
           &s,
           auth_info,
-          reinterpret_cast<OraText*> (const_cast<char*> (db_.db ().c_str ())),
-          static_cast<ub4> (db_.db ().size ()),
+          reinterpret_cast<OraText*> (const_cast<char*> (db.db ().c_str ())),
+          static_cast<ub4> (db.db ().size ()),
           0,
           0,
           0,
@@ -108,18 +109,19 @@ namespace odb
     }
 
     connection::
-    connection (database_type& db, OCISvcCtx* handle)
-        : odb::connection (db),
-          db_ (db),
+    connection (connection_factory& cf, OCISvcCtx* handle)
+        : odb::connection (cf),
           failed_ (false),
           statement_cache_ (new statement_cache_type (*this)),
           lob_buffer_ (0)
     {
       sword r (0);
 
+      database_type& db (database ());
+
       {
         OCIError* e (0);
-        r = OCIHandleAlloc (db_.environment (),
+        r = OCIHandleAlloc (db.environment (),
                             reinterpret_cast<void**> (&e),
                             OCI_HTYPE_ERROR,
                             0,
@@ -155,6 +157,20 @@ namespace odb
     {
       generic_statement st (*this, string (s, n));
       return st.execute ();
+    }
+
+    // connection_factory
+    //
+    connection_factory::
+    ~connection_factory ()
+    {
+    }
+
+    void connection_factory::
+    database (database_type& db)
+    {
+      odb::connection_factory::db_ = &db;
+      db_ = &db;
     }
   }
 }
