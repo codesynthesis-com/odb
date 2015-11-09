@@ -12,6 +12,7 @@
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
+#include <odb/details/config.hxx> // ODB_CXX11
 #include <odb/details/unique-ptr.hxx>
 #include <odb/details/transfer-ptr.hxx>
 
@@ -137,6 +138,12 @@ namespace odb
                 SQLHENV environment = 0,
                 details::transfer_ptr<connection_factory> =
                   details::transfer_ptr<connection_factory> ());
+
+      // Move-constructible but not move-assignable.
+      //
+#ifdef ODB_CXX11
+      database (database&&);
+#endif
 
       static void
       print_usage (std::ostream&);
@@ -591,6 +598,8 @@ namespace odb
       init ();
 
     private:
+      // Note: remember to update move ctor if adding any new members.
+      //
       std::string user_;
       std::string password_;
       std::string db_;

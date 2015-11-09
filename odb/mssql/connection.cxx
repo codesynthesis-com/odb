@@ -28,23 +28,24 @@ namespace odb
     };
 
     connection::
-    connection (database_type& db)
-        : odb::connection (db),
-          db_ (db),
+    connection (connection_factory& cf)
+        : odb::connection (cf),
           state_ (state_disconnected),
           statement_cache_ (new statement_cache_type (*this)),
           long_data_buffer_ (0)
     {
       SQLRETURN r;
 
+      database_type& db (database ());
+
       // Allocate the connection handle.
       //
       {
         SQLHANDLE h;
-        r = SQLAllocHandle (SQL_HANDLE_DBC, db_.environment (), &h);
+        r = SQLAllocHandle (SQL_HANDLE_DBC, db.environment (), &h);
 
         if (!SQL_SUCCEEDED (r))
-          translate_error (r, db_.environment (), SQL_HANDLE_ENV);
+          translate_error (r, db.environment (), SQL_HANDLE_ENV);
 
         handle_.reset (h);
       }
@@ -74,7 +75,7 @@ namespace odb
 
       // Set transaction isolation level.
       //
-      transaction_isolation ti (db_.transaction_isolation ());
+      transaction_isolation ti (db.transaction_isolation ());
       switch (ti)
       {
       case isolation_read_committed:
@@ -112,7 +113,7 @@ namespace odb
         SQLSMALLINT out_conn_str_size;
         r = SQLDriverConnectA (handle_,
                                0, // Parent window handle.
-                               (SQLCHAR*) db_.connect_string ().c_str (),
+                               (SQLCHAR*) db.connect_string ().c_str (),
                                SQL_NTS,
                                0, // Output connection string buffer.
                                0, // Size of output connection string buffer.
@@ -131,9 +132,8 @@ namespace odb
     }
 
     connection::
-    connection (database_type& db, SQLHDBC handle)
-        : odb::connection (db),
-          db_ (db),
+    connection (connection_factory& cf, SQLHDBC handle)
+        : odb::connection (cf),
           handle_ (handle),
           state_ (state_connected),
           statement_cache_ (new statement_cache_type (*this)),
@@ -267,6 +267,20 @@ namespace odb
       }
 
       return static_cast<unsigned long long> (rows);
+    }
+
+    // connection_factory
+    //
+    connection_factory::
+    ~connection_factory ()
+    {
+    }
+
+    void connection_factory::
+    database (database_type& db)
+    {
+      odb::connection_factory::db_ = &db;
+      db_ = &db;
     }
   }
 }
