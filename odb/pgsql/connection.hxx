@@ -27,6 +27,7 @@ namespace odb
   namespace pgsql
   {
     class statement_cache;
+    class connection_factory;
 
     class connection;
     typedef details::shared_ptr<connection> connection_ptr;
@@ -40,14 +41,11 @@ namespace odb
       virtual
       ~connection ();
 
-      connection (database_type&);
-      connection (database_type&, PGconn* handle);
+      connection (connection_factory&);
+      connection (connection_factory&, PGconn* handle);
 
       database_type&
-      database ()
-      {
-        return db_;
-      }
+      database ();
 
     public:
       virtual transaction_impl*
@@ -135,11 +133,6 @@ namespace odb
       friend class transaction_impl; // invalidate_results()
 
     private:
-      // Needed to break the circular connection-database dependency
-      // (odb::connection has the odb::database member).
-      //
-      database_type& db_;
-
       auto_handle<PGconn> handle_;
       bool failed_;
 
@@ -147,6 +140,33 @@ namespace odb
       // the connection is closed.
       //
       details::unique_ptr<statement_cache_type> statement_cache_;
+    };
+
+    class LIBODB_PGSQL_EXPORT connection_factory:
+      public odb::connection_factory
+    {
+    public:
+      typedef pgsql::database database_type;
+
+      virtual void
+      database (database_type&);
+
+      database_type&
+      database () {return *db_;}
+
+      virtual connection_ptr
+      connect () = 0;
+
+      virtual
+      ~connection_factory ();
+
+      connection_factory (): db_ (0) {}
+
+      // Needed to break the circular connection_factory-database dependency
+      // (odb::connection_factory has the odb::database member).
+      //
+    protected:
+      database_type* db_;
     };
   }
 }

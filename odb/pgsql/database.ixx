@@ -2,12 +2,32 @@
 // copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // move()
+
 #include <odb/pgsql/transaction.hxx>
 
 namespace odb
 {
   namespace pgsql
   {
+#ifdef ODB_CXX11
+    inline database::
+    database (database&& db) // Has to be inline.
+        : odb::database (std::move (db)),
+          user_ (std::move (db.user_)),
+          password_ (std::move (db.password_)),
+          db_ (std::move (db.db_)),
+          host_ (std::move (db.host_)),
+          port_ (db.port_),
+          socket_ext_ (std::move (db.socket_ext_)),
+          extra_conninfo_ (std::move (db.extra_conninfo_)),
+          conninfo_ (std::move (db.conninfo_)),
+          factory_ (std::move (db.factory_))
+    {
+      factory_->database (*this); // New database instance.
+    }
+#endif
+
     inline connection_ptr database::
     connection ()
     {

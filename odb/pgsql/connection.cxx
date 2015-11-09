@@ -28,9 +28,10 @@ namespace odb
   namespace pgsql
   {
     connection::
-    connection (database_type& db)
-        : odb::connection (db), db_ (db), failed_ (false)
+    connection (connection_factory& cf)
+        : odb::connection (cf), failed_ (false)
     {
+      database_type& db (database ());
       handle_.reset (PQconnectdb (db.conninfo ().c_str ()));
 
       if (handle_ == 0)
@@ -42,8 +43,8 @@ namespace odb
     }
 
     connection::
-    connection (database_type& db, PGconn* handle)
-        : odb::connection (db), db_ (db), handle_ (handle), failed_ (false)
+    connection (connection_factory& cf, PGconn* handle)
+        : odb::connection (cf), handle_ (handle), failed_ (false)
     {
       init ();
     }
@@ -116,6 +117,20 @@ namespace odb
       }
 
       return count;
+    }
+
+    // connection_factory
+    //
+    connection_factory::
+    ~connection_factory ()
+    {
+    }
+
+    void connection_factory::
+    database (database_type& db)
+    {
+      odb::connection_factory::db_ = &db;
+      db_ = &db;
     }
   }
 }
