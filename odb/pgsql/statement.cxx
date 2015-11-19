@@ -80,8 +80,40 @@ namespace odb
         s += name_;
         s += "\"";
 
-        auto_handle<PGresult> h (PQexec (conn_.handle (), s.c_str ()));
         deallocated_ = true;
+        auto_handle<PGresult> h (PQexec (conn_.handle (), s.c_str ()));
+
+        if (!is_good_result (h))
+        {
+          // When we try to execute an invalid statement, PG "poisons" the
+          // transaction (those "current transaction is aborted, commands
+          // ignored until end of transaction block" messages in the log).
+          // This includes prepared statement deallocations (quite a stupid
+          // decision, if you ask me).
+          //
+          // So what can happen in this situation is the deallocation fails
+          // but we ignore it because we are already unwinding the stack
+          // (i.e., the prepared statement execution has failed). Next the
+          // user fixes things (e.g., passes valid parameters) and tries to
+          // re-execute the same query. But since we have failed to deallocate
+          // the statement, we now cannot re-prepare it; the name is already
+          // in use.
+          //
+          // What can we do to fix this? One way would be to postpone the
+          // deallocation until after the transaction is rolled back. This,
+          // however, would require quite an elaborate machinery: connection
+          // will have to store a list of such statements, etc. A much simpler
+          // solution is to mark the connection as failed. While it maybe a
+          // bit less efficient, we assume this is an "exceptional" situation
+          // that doesn't occur often. The only potentially problematic case
+          // is if the user holds the pointer to the connection and runs
+          // multiple transactions on it. But in this case the user should
+          // check if the connection is still good after each failure anyway.
+          //
+          conn_.mark_failed ();
+
+          translate_error (conn_, h);
+        }
       }
     }
 
