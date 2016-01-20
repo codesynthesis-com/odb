@@ -25,11 +25,18 @@ namespace odb
       typedef value_type query_type;
       typedef unsigned char* image_type;
 
+      // PostgreSQL binary UUID representation is big-endian in the RFC 4122,
+      // section 4.1.2 order. While Qt provides (since 4.8) to/fromRfc4122(),
+      // they both incur a memory allocation (by QByteArray) which we could
+      // avoid, if we did it ourselves.
+      //
+
       static void
       set_value (value_type& v, const unsigned char* i, bool is_null)
       {
         if (!is_null)
-          std::memcpy (&v.data1, i, 16);
+          v = QUuid::fromRfc4122 (
+            QByteArray (reinterpret_cast<const char*> (i), 16));
         else
           v = QUuid ();
       }
@@ -42,7 +49,7 @@ namespace odb
         is_null = is_null && v.isNull ();
 
         if (!is_null)
-          std::memcpy (i, &v.data1, 16);
+          std::memcpy (i, v.toRfc4122 ().constData (), 16);
       }
     };
 
