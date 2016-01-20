@@ -37,7 +37,7 @@ namespace odb
         bit,      // Buffer is a char array.
         varbit,   // Buffer is a char array.
         uuid      // Buffer is a 16-byte char array; size capacity, truncated
-                  // are unused.
+                  // are unused. Note: big-endian, in RFC 4122/4.1.2 order.
       };
 
       buffer_type type;
