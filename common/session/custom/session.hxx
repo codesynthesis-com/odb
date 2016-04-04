@@ -95,6 +95,9 @@ private:
   // Object cache interface.
   //
 public:
+  static bool
+  _has_cache () {return current != 0;}
+
   template <typename T>
   struct cache_position
   {
