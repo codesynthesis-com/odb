@@ -597,4 +597,33 @@ namespace test18
   };
 }
 
+// Regression: BLOB in a value type used as a map value that is in a section.
+//
+#include <map>
+#include <vector>
+
+#pragma db namespace table("t19_")
+namespace test19
+{
+  #pragma db value
+  struct value
+  {
+    #pragma db type(BLOB_TYPE)
+    std::vector<char> b;
+  };
+
+  #pragma db object
+  struct object
+  {
+    #pragma db id auto
+    unsigned long id;
+
+    #pragma db load(lazy) update(always)
+    odb::section s;
+
+    #pragma db section(s)
+    std::map<int, value> m;
+  };
+}
+
 #endif // TEST_HXX

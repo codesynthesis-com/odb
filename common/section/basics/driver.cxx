@@ -1694,6 +1694,37 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+    // Regression: BLOB in a value type used as a map value that is in a
+    // section.
+    //
+    {
+      using namespace test19;
+
+      object o;
+      o.m[1].b.assign (560, 'x'); // Size greater than the default image.
+
+      {
+        transaction t (db->begin ());
+        db->persist (o);
+        t.commit ();
+      }
+
+      {
+        // Hold "old" connection to force a new set of statements/image
+        // buffers.
+        //
+        connection_ptr c (db->connection ());
+
+        transaction t (db->begin ());
+        auto_ptr<object> p (db->load<object> (o.id));
+
+        db->load (*p, p->s);
+        assert (p->m[1].b == o.m[1].b);
+
+        t.commit ();
+      }
+    }
   }
   catch (const odb::exception& e)
   {
