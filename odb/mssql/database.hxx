@@ -8,7 +8,6 @@
 #include <odb/pre.hxx>
 
 #include <string>
-#include <memory> // std::auto_ptr, std::unique_ptr
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
