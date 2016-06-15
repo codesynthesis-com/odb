@@ -7,6 +7,8 @@
 
 #include <odb/pre.hxx>
 
+#include <odb/details/config.hxx> // ODB_NOTHROW_NOEXCEPT
+
 #include <odb/qt/exception.hxx>
 #include <odb/qt/details/export.hxx>
 
@@ -19,7 +21,7 @@ namespace odb
       struct LIBODB_QT_EXPORT value_out_of_range: exception
       {
         virtual const char*
-        what () const throw ();
+        what () const ODB_NOTHROW_NOEXCEPT;
 
         virtual value_out_of_range*
         clone () const;

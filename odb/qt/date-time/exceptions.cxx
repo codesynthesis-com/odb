@@ -11,7 +11,7 @@ namespace odb
     namespace date_time
     {
       const char* value_out_of_range::
-      what () const throw ()
+      what () const ODB_NOTHROW_NOEXCEPT
       {
         return "date/time value out of range";
       }
