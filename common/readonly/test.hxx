@@ -5,6 +5,8 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
+#include <common/config.hxx> // HAVE_CXX11
+
 #include <vector>
 #include <memory> // std::auto_ptr
 
@@ -203,10 +205,17 @@ struct wrapper
   #pragma db id
   unsigned long id;
 
+#ifdef HAVE_CXX11
+  std::unique_ptr<unsigned long> pl;
+  const std::unique_ptr<unsigned long> cpl;
+  std::unique_ptr<const unsigned long> pcl;
+  const std::unique_ptr<const unsigned long> cpcl;
+#else
   std::auto_ptr<unsigned long> pl;
   const std::auto_ptr<unsigned long> cpl;
   std::auto_ptr<const unsigned long> pcl;
   const std::auto_ptr<const unsigned long> cpcl;
+#endif
 };
 
 // Readonly object with auto id.

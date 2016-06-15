@@ -18,7 +18,11 @@
 #include <odb/core.hxx>
 #include <odb/vector.hxx>
 
+#ifdef HAVE_CXX11
+#pragma db object pointer(std::unique_ptr)
+#else
 #pragma db object pointer(std::auto_ptr)
+#endif
 struct object
 {
   object () {}

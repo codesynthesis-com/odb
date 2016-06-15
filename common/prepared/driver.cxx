@@ -33,13 +33,21 @@ query_factory (const char* name, connection& c)
 {
   typedef odb::query<person> query;
 
+#ifdef HAVE_CXX11
+  unique_ptr<params> p (new params);
+#else
   auto_ptr<params> p (new params);
+#endif
   prepared_query<person> pq (
     c.prepare_query<person> (
       name,
       query::age > query::_ref (p->age) &&
       query::name != query::_ref (p->name)));
+#ifdef HAVE_CXX11
+  c.cache_query (pq, move (p));
+#else
   c.cache_query (pq, p);
+#endif
 }
 
 int
@@ -286,13 +294,13 @@ main (int argc, char* argv[])
         {
           typedef odb::query<person> query;
 
-          auto_ptr<params> p (new params);
+          unique_ptr<params> p (new params);
           prepared_query<person> pq (
             c.prepare_query<person> (
               name,
               query::age > query::_ref (p->age) &&
               query::name != query::_ref (p->name)));
-          c.cache_query (pq, p);
+          c.cache_query (pq, move (p));
         });
 
       for (unsigned int i (1); i < 6; ++i)

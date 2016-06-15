@@ -37,10 +37,18 @@ main (int argc, char* argv[])
     const obj1* co1 (co1_);
     a.o1 = co1;
 
+#ifdef HAVE_CXX11
+    unique_ptr<obj2> o2 (new obj2 (1));
+#else
     auto_ptr<obj2> o2 (new obj2 (1));
+#endif
     obj2* co2_ (new obj2 (2));
     a.o2.reset (co2_);
+#ifdef HAVE_CXX11
+    unique_ptr<const obj2>& co2 (a.o2);
+#else
     auto_ptr<const obj2>& co2 (a.o2);
+#endif
 
     // persist via references
     //
@@ -75,8 +83,15 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+      unique_ptr<aggr> a (db->load<aggr> (1));
+      unique_ptr<const aggr> ca (db->load<aggr> (2));
+#else
       auto_ptr<aggr> a (db->load<aggr> (1));
       auto_ptr<const aggr> ca (db->load<aggr> (2));
+#endif
+
       t.commit ();
 
       assert (a->o1->id == 2);
@@ -146,8 +161,13 @@ main (int argc, char* argv[])
       {
         // i->f (); // error
         i->cf ();
+#ifdef HAVE_CXX11
+        //unique_ptr<obj2> p (i.load ()); // error
+        unique_ptr<const obj2> p (i.load ());
+#else
         // auto_ptr<obj2> p (i.load ()); // error
         auto_ptr<const obj2> p (i.load ());
+#endif
         obj2 o (0);
         i.load (o);
         assert (p->id == o.id);

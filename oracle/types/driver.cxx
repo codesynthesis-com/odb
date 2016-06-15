@@ -270,7 +270,11 @@ main (int argc, char* argv[])
       //
       {
         db->persist (b3);
+#ifdef HAVE_CXX11
+        unique_ptr<descriptor> p (db->load<descriptor> (3));
+#else
         auto_ptr<descriptor> p (db->load<descriptor> (3));
+#endif
         assert (b3 == *p);
         b3.blob.push_back (123);
         db->update (b3);

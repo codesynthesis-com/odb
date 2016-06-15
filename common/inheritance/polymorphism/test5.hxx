@@ -5,6 +5,8 @@
 #ifndef TEST5_HXX
 #define TEST5_HXX
 
+#include <common/config.hxx> // HAVE_CXX11
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -17,7 +19,11 @@
 #pragma db namespace table("t5_")
 namespace test5
 {
+#ifdef HAVE_CXX11
+  #pragma db object polymorphic optimistic pointer(std::unique_ptr)
+#else
   #pragma db object polymorphic optimistic pointer(std::auto_ptr)
+#endif
   struct root
   {
     virtual ~root () {}

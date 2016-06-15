@@ -32,10 +32,11 @@ namespace test1
     std::string s;
   };
 
-  #pragma db object bulk(3) pointer(std::auto_ptr)
-  struct auto_object
+#ifdef HAVE_CXX11
+  #pragma db object bulk(3) pointer(std::unique_ptr)
+  struct unique_object
   {
-    auto_object (unsigned int n_ = 0, std::string s_ = "")
+    unique_object (unsigned int n_ = 0, std::string s_ = "")
         : id (0), n (n_), s (s_) {}
 
     #pragma db id auto
@@ -44,12 +45,11 @@ namespace test1
     unsigned int n;
     std::string s;
   };
-
-#ifdef HAVE_CXX11
-  #pragma db object bulk(3) pointer(std::unique_ptr)
-  struct unique_object
+#else
+  #pragma db object bulk(3) pointer(std::auto_ptr)
+  struct auto_object
   {
-    unique_object (unsigned int n_ = 0, std::string s_ = "")
+    auto_object (unsigned int n_ = 0, std::string s_ = "")
         : id (0), n (n_), s (s_) {}
 
     #pragma db id auto
@@ -176,16 +176,16 @@ namespace test6
   #pragma db object(object) bulk(3)
   #pragma db member(object::id) id auto
 
-  typedef object_template<2> auto_object;
-
-  #pragma db object(auto_object) bulk(3) pointer(std::auto_ptr)
-  #pragma db member(auto_object::id) id auto
-
 #ifdef HAVE_CXX11
   typedef object_template<3> unique_object;
 
   #pragma db object(unique_object) bulk(3) pointer(std::unique_ptr)
   #pragma db member(unique_object::id) id auto
+#else
+  typedef object_template<2> auto_object;
+
+  #pragma db object(auto_object) bulk(3) pointer(std::auto_ptr)
+  #pragma db member(auto_object::id) id auto
 #endif
 }
 

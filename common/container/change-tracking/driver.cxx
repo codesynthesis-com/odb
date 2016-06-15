@@ -137,7 +137,11 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
+#ifdef HAVE_CXX11
+        unique_ptr<object> p (db->load<object> ("1"));
+#else
         auto_ptr<object> p (db->load<object> ("1"));
+#endif
         assert (p->s._tracking ());
         t.commit ();
       }
@@ -551,7 +555,11 @@ main (int argc, char* argv[])
     // Armed copy.
     //
     {
+#ifdef HAVE_CXX11
+      unique_ptr<object> c;
+#else
       auto_ptr<object> c;
+#endif
 
       {
         o.s.pop_back ();
@@ -616,7 +624,7 @@ main (int argc, char* argv[])
     //
 #ifdef HAVE_CXX11
     {
-      auto_ptr<object> c;
+      unique_ptr<object> c;
 
       {
         o.s.pop_back ();
@@ -692,8 +700,13 @@ main (int argc, char* argv[])
       {
         session s;
         transaction t (db->begin ());
+#ifdef HAVE_CXX11
+        unique_ptr<inv_object1> p1 (db->load<inv_object1> (o1.id_));
+        unique_ptr<inv_object2> p2 (db->load<inv_object2> (o2.id_));
+#else
         auto_ptr<inv_object1> p1 (db->load<inv_object1> (o1.id_));
         auto_ptr<inv_object2> p2 (db->load<inv_object2> (o2.id_));
+#endif
         assert (p2->o1[0] == p1.get ());
         assert (!p2->o1._tracking ());
         t.commit ();

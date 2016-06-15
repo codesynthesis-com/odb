@@ -327,19 +327,19 @@ main (int argc, char* argv[])
         test (db, v.begin (), v.end ());
       }
 
-      {
-        auto_ptr<auto_object> a[2];
-        a[0].reset (new auto_object (1, "a"));
-        a[1].reset (new auto_object (2, "b"));
-        test (db, a, a + sizeof (a) / sizeof (a[0]));
-      }
-
 #ifdef HAVE_CXX11
       {
         vector<unique_ptr<unique_object>> v;
         v.push_back (unique_ptr<unique_object> (new unique_object (1, "a")));
         v.push_back (unique_ptr<unique_object> (new unique_object (2, "b")));
         test (db, v.begin (), v.end ());
+      }
+#else
+      {
+        auto_ptr<auto_object> a[2];
+        a[0].reset (new auto_object (1, "a"));
+        a[1].reset (new auto_object (2, "b"));
+        test (db, a, a + sizeof (a) / sizeof (a[0]));
       }
 #endif
 
@@ -981,19 +981,19 @@ main (int argc, char* argv[])
         test (db, v.begin (), v.end ());
       }
 
-      {
-        auto_ptr<auto_object> a[2];
-        a[0].reset (new auto_object (1, "a"));
-        a[1].reset (new auto_object (2, "b"));
-        test (db, a, a + sizeof (a) / sizeof (a[0]));
-      }
-
 #ifdef HAVE_CXX11
       {
         vector<unique_ptr<unique_object>> v;
         v.push_back (unique_ptr<unique_object> (new unique_object (1, "a")));
         v.push_back (unique_ptr<unique_object> (new unique_object (2, "b")));
         test (db, v.begin (), v.end ());
+      }
+#else
+      {
+        auto_ptr<auto_object> a[2];
+        a[0].reset (new auto_object (1, "a"));
+        a[1].reset (new auto_object (2, "b"));
+        test (db, a, a + sizeof (a) / sizeof (a[0]));
       }
 #endif
 

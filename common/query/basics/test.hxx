@@ -5,6 +5,8 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
+#include <common/config.hxx> // HAVE_CXX11
+
 #include <string>
 #include <vector>
 #include <memory>
@@ -55,7 +57,11 @@ struct person
   std::string first_name_;
 
   #pragma db column ("middle") null
+#ifdef HAVE_CXX11
+  std::unique_ptr<std::string> middle_name_;
+#else
   std::auto_ptr<std::string> middle_name_;
+#endif
 
   #pragma db column ("last")
   std::string last_name_;

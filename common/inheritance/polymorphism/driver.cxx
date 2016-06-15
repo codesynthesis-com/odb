@@ -1029,7 +1029,11 @@ main (int argc, char* argv[])
         // Root.
         //
         {
+#ifdef HAVE_CXX11
+          unique_ptr<root> p (db->load<root> (r.id));
+#else
           auto_ptr<root> p (db->load<root> (r.id));
+#endif
 
           r.num++;
           r.strs.push_back ("aaaa");
@@ -1053,7 +1057,11 @@ main (int argc, char* argv[])
         // Base.
         //
         {
+#ifdef HAVE_CXX11
+          unique_ptr<base> p (db->load<base> (b.id));
+#else
           auto_ptr<base> p (db->load<base> (b.id));
+#endif
 
           b.num++;
           b.str += "b";
@@ -1081,7 +1089,11 @@ main (int argc, char* argv[])
         // Derived.
         //
         {
+#ifdef HAVE_CXX11
+          unique_ptr<root> p (db->load<root> (d.id)); // Via root.
+#else
           auto_ptr<root> p (db->load<root> (d.id)); // Via root.
+#endif
 
           d.num++;
           d.str += "d";
@@ -1145,7 +1157,11 @@ main (int argc, char* argv[])
         // Root.
         //
         {
+#ifdef HAVE_CXX11
+          unique_ptr<root> p (db->load<root> (r.id));
+#else
           auto_ptr<root> p (db->load<root> (r.id));
+#endif
 
           r.num++;
           r.strs.push_back ("aaaaa");
@@ -1165,7 +1181,11 @@ main (int argc, char* argv[])
         // Base.
         //
         {
+#ifdef HAVE_CXX11
+          unique_ptr<base> p (db->load<base> (b.id));
+#else
           auto_ptr<base> p (db->load<base> (b.id));
+#endif
 
           b.num++;
           b.str += "b";
@@ -1187,7 +1207,11 @@ main (int argc, char* argv[])
         // Derived.
         //
         {
+#ifdef HAVE_CXX11
+          unique_ptr<root> p (db->load<root> (d.id)); // Via root.
+#else
           auto_ptr<root> p (db->load<root> (d.id)); // Via root.
+#endif
 
           d.num++;
           d.str += "d";
@@ -1240,7 +1264,12 @@ main (int argc, char* argv[])
       using namespace test6;
 
       base b (1, 1, "bbb");
+
+#ifdef HAVE_CXX11
+      unique_ptr<base> d (new derived (2, 2, "ddd"));
+#else
       auto_ptr<base> d (new derived (2, 2, "ddd"));
+#endif
 
       // Persist.
       //
@@ -1256,8 +1285,13 @@ main (int argc, char* argv[])
       {
         transaction t (db->begin ());
 
+#ifdef HAVE_CXX11
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<root> pd (db->load<root> (d->id));
+#else
         auto_ptr<base> pb (db->load<base> (b.id));
         auto_ptr<root> pd (db->load<root> (d->id));
+#endif
 
         db->load (b.id, *pb);
         db->load (d->id, *pd);
@@ -1319,7 +1353,12 @@ main (int argc, char* argv[])
 
         {
           transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+          unique_ptr<root> p (db->load<root> (d.id));
+#else
           auto_ptr<root> p (db->load<root> (d.id));
+#endif
           t.commit ();
         }
       }
@@ -1479,9 +1518,15 @@ main (int argc, char* argv[])
 
         // load (id)
         //
+#ifdef HAVE_CXX11
+        unique_ptr<root> pb (db->load<root> (b.id));
+        unique_ptr<interm> pd1 (db->load<interm> (d1.id));
+        unique_ptr<derived2> pd2 (db->load<derived2> (d2.id));
+#else
         auto_ptr<root> pb (db->load<root> (b.id));
         auto_ptr<interm> pd1 (db->load<interm> (d1.id));
         auto_ptr<derived2> pd2 (db->load<derived2> (d2.id));
+#endif
 
         assert (*pb == b);
         assert (*pd1 == d1);
@@ -1563,9 +1608,17 @@ main (int argc, char* argv[])
 
         {
           transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+          unique_ptr<base> pb (db->load<base> (b.id));
+          unique_ptr<root> pd1 (db->load<root> (d1.id));
+          unique_ptr<base> pd2 (db->load<base> (d2.id));
+#else
           auto_ptr<base> pb (db->load<base> (b.id));
           auto_ptr<root> pd1 (db->load<root> (d1.id));
           auto_ptr<base> pd2 (db->load<base> (d2.id));
+#endif
+
           t.commit ();
 
           assert (*pb == b);
@@ -1690,6 +1743,16 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+        unique_ptr<ro_root> p_ro_r (db->load<ro_root> (ro_r.id));
+        unique_ptr<ro_root> p_rw_b (db->load<ro_root> (rw_b.id));
+        unique_ptr<ro_root> p_ro_d (db->load<ro_root> (ro_d.id));
+
+        unique_ptr<rw_root> p_rw_r (db->load<rw_root> (rw_r.id));
+        unique_ptr<rw_root> p_ro_b (db->load<rw_root> (ro_b.id));
+        unique_ptr<rw_root> p_rw_d (db->load<rw_root> (rw_d.id));
+#else
         auto_ptr<ro_root> p_ro_r (db->load<ro_root> (ro_r.id));
         auto_ptr<ro_root> p_rw_b (db->load<ro_root> (rw_b.id));
         auto_ptr<ro_root> p_ro_d (db->load<ro_root> (ro_d.id));
@@ -1697,6 +1760,8 @@ main (int argc, char* argv[])
         auto_ptr<rw_root> p_rw_r (db->load<rw_root> (rw_r.id));
         auto_ptr<rw_root> p_ro_b (db->load<rw_root> (ro_b.id));
         auto_ptr<rw_root> p_rw_d (db->load<rw_root> (rw_d.id));
+#endif
+
         t.commit ();
 
         assert (*p_ro_r == ro_r);
@@ -1730,8 +1795,14 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+        unique_ptr<root> pb (db->load<root> (b.id));
+        unique_ptr<root> pd (db->load<root> (d.id));
+#else
         auto_ptr<root> pb (db->load<root> (b.id));
         auto_ptr<root> pd (db->load<root> (d.id));
+#endif
         t.commit ();
 
         assert (*pb == b);
@@ -1754,8 +1825,14 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+        unique_ptr<root> pb (db->load<root> (b.id));
+        unique_ptr<root> pd (db->load<root> (d.id));
+#else
         auto_ptr<root> pb (db->load<root> (b.id));
         auto_ptr<root> pd (db->load<root> (d.id));
+#endif
         t.commit ();
 
         assert (*pb == b);
@@ -1790,8 +1867,14 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<base> pd (db->load<base> (d.id));
+#else
         auto_ptr<base> pb (db->load<base> (b.id));
         auto_ptr<base> pd (db->load<base> (d.id));
+#endif
         t.commit ();
 
         assert (*pb == b);
@@ -1823,8 +1906,15 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<base> pd (db->load<base> (d.id));
+#else
         auto_ptr<base> pb (db->load<base> (b.id));
         auto_ptr<base> pd (db->load<base> (d.id));
+#endif
+
         t.commit ();
 
         assert (*pb == b);
@@ -1885,8 +1975,15 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+        unique_ptr<root> pb (db->load<root> (id1));
+        unique_ptr<root> pd (db->load<root> (id2));
+#else
         auto_ptr<root> pb (db->load<root> (id1));
         auto_ptr<root> pd (db->load<root> (id2));
+#endif
+
         t.commit ();
 
         assert (*pb == b);
@@ -1922,10 +2019,18 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+        unique_ptr<root> pbr (db->load<root> (b.id));
+        unique_ptr<root> pdr (db->load<root> (d.id));
+        unique_ptr<base> pdb (db->load<base> (d.id));
+        unique_ptr<root> pb1r (db->load<root> (b1.id));
+#else
         auto_ptr<root> pbr (db->load<root> (b.id));
         auto_ptr<root> pdr (db->load<root> (d.id));
         auto_ptr<base> pdb (db->load<base> (d.id));
         auto_ptr<root> pb1r (db->load<root> (b1.id));
+#endif
         t.commit ();
 
         base& rb (static_cast<base&> (*pbr));
@@ -2044,7 +2149,12 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
+
+#ifdef HAVE_CXX11
+        unique_ptr<base> pb (db->load<base> (d.id));
+#else
         auto_ptr<base> pb (db->load<base> (d.id));
+#endif
         t.commit ();
 
         derived* pd (dynamic_cast<derived*> (pb.get ()));

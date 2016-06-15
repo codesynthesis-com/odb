@@ -231,7 +231,11 @@ namespace test5
     unsigned long id;
 
     #pragma db null
+#ifdef HAVE_CXX11
+    std::unique_ptr<comp> p;
+#else
     std::auto_ptr<comp> p;
+#endif
 
     odb::nullable<comp> n;
 
