@@ -1,13 +1,16 @@
 // file      : prepared/driver.cxx
 // copyright : not copyrighted - public domain
 
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::auto_ptr/unique_ptr
 #include <cassert>
+#include <utility>  // std::move()
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/connection.hxx>
 #include <odb/transaction.hxx>
+
+#include <odb/details/config.hxx> // ODB_CXX11
 
 #include "database.hxx" // create_database
 
@@ -28,11 +31,19 @@ query_factory (const char* name, connection& c)
 {
   typedef odb::query<person> query;
 
+#ifdef ODB_CXX11
+  unique_ptr<params> p (new params);
+  query q (query::age > query::_ref (p->age) &&
+           query::first == query::_ref (p->first));
+  prepared_query<person> pq (c.prepare_query<person> (name, q));
+  c.cache_query (pq, move (p));
+#else
   auto_ptr<params> p (new params);
   query q (query::age > query::_ref (p->age) &&
            query::first == query::_ref (p->first));
   prepared_query<person> pq (c.prepare_query<person> (name, q));
   c.cache_query (pq, p);
+#endif
 }
 
 static void
@@ -150,11 +161,19 @@ main (int argc, char* argv[])
 
       if (!pq)
       {
+#ifdef ODB_CXX11
+        unique_ptr<unsigned short> p (new unsigned short);
+        age_param = p.get ();
+        query q (query::age > query::_ref (*age_param));
+        pq = db->prepare_query<person> ("person-ref-age-query", q);
+        db->cache_query (pq, move (p));
+#else
         auto_ptr<unsigned short> p (new unsigned short);
         age_param = p.get ();
         query q (query::age > query::_ref (*age_param));
         pq = db->prepare_query<person> ("person-ref-age-query", q);
         db->cache_query (pq, p); // Assumes ownership of p.
+#endif
       }
 
       *age_param = age; // Initialize the parameter.
