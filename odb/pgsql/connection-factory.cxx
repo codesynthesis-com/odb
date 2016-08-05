@@ -41,7 +41,7 @@ namespace odb
       while (in_use_ != 0)
       {
         waiters_++;
-        cond_.wait ();
+        cond_.wait (l);
         waiters_--;
       }
     }
@@ -78,7 +78,7 @@ namespace odb
         // Wait until someone releases a connection.
         //
         waiters_++;
-        cond_.wait ();
+        cond_.wait (l);
         waiters_--;
       }
     }
