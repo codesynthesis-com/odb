@@ -1,0 +1,109 @@
+# file      : odb/pgsql/buildfile
+# copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# @@ On Debian libpq's headers are in /usr/include/postgresql. There is
+#    pkg-config support.
+#
+
+import libs  = libpq%lib{pq}
+import libs += libodb%lib{odb}
+
+lib{odb-pgsql}:                                                   \
+               {hxx         cxx}{ auto-handle                   } \
+               {hxx            }{ binding                       } \
+               {hxx ixx     cxx}{ connection                    } \
+               {hxx         cxx}{ connection-factory            } \
+               {hxx     txx    }{ container-statements          } \
+               {hxx ixx     cxx}{ database                      } \
+               {hxx ixx     cxx}{ error                         } \
+               {hxx         cxx}{ exceptions                    } \
+               {hxx            }{ forward                       } \
+               {hxx     txx    }{ no-id-object-result           } \
+               {hxx     txx    }{ no-id-object-statements       } \
+               {hxx            }{ pgsql-fwd                     } \
+               {hxx            }{ pgsql-oid                     } \
+               {hxx            }{ pgsql-types                   } \
+               {hxx     txx    }{ polymorphic-object-result     } \
+               {hxx     txx    }{ polymorphic-object-statements } \
+               {hxx         cxx}{ prepared-query                } \
+               {hxx ixx txx cxx}{ query                         } \
+               {            cxx}{ query-const-expr              } \
+               {hxx ixx txx cxx}{ query-dynamic                 } \
+               {hxx     txx    }{ section-statements            } \
+               {hxx     txx    }{ simple-object-result          } \
+               {hxx ixx txx cxx}{ simple-object-statements      } \
+               {hxx     txx    }{ statement-cache               } \
+               {hxx         cxx}{ statement                     } \
+               {hxx         cxx}{ statements-base               } \
+               {hxx         cxx}{ tracer                        } \
+               {hxx         cxx}{ traits                        } \
+               {hxx            }{ traits-calls                  } \
+               {hxx ixx     cxx}{ transaction                   } \
+               {hxx ixx     cxx}{ transaction-impl              } \
+               {hxx            }{ version                       } \
+               {hxx     txx    }{ view-result                   } \
+               {hxx     txx    }{ view-statements               } \
+       details/{hxx            }{ config                        } \
+       details/{hxx            }{ conversion                    } \
+       details/{hxx         cxx}{ endian-traits                 } \
+       details/{hxx            }{ export                        } \
+       details/{hxx ixx     cxx}{ options                       } \
+details/build2/{h              }{ config                        } \
+details/build2/{h              }{ config-vc                     } \
+                                  $libs
+
+cxx.poptions =+ -I$out_root -I$src_root -DLIBODB_PGSQL_BUILD2
+obja{*}: cxx.poptions += -DLIBODB_PGSQL_STATIC_BUILD
+objs{*}: cxx.poptions += -DLIBODB_PGSQL_SHARED_BUILD
+
+lib{odb-pgsql}: cxx.export.poptions = -I$src_root -DLIBODB_PGSQL_BUILD2
+liba{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_STATIC
+libs{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_SHARED
+
+# Load the cli module but only if it's available. This way a distribution that
+# includes pre-generated files can be built without installing cli.
+#
+using? cli
+
+if! $cli.loaded
+{
+  define cli: file
+  cli{*}: extension = cli
+}
+
+details/:
+{
+  {hxx ixx cxx}{options}: cli{options}
+
+  cli.options += --include-with-brackets --include-prefix odb/pgsql/details \
+--guard-prefix LIBODB_PGSQL_DETAILS --generate-file-scanner \
+--cli-namespace odb::pgsql::details::cli --long-usage --generate-specifier
+
+  # Include generated cli files into the distribution. But don't install them
+  # since they are only used internally in the database implementation.
+  #
+  {hxx ixx cxx}{options}: dist = true
+  {hxx ixx}{options}: install = false
+}
+
+# Install into the odb/pgsql/ subdirectory of, say, /usr/include/.
+#
+install.include = $install.include/odb/pgsql/
+install.include.subdirs = true # Recreate subdirectories.
+
+# We want these to be picked up even when LIBODB_PGSQL_BUILD2 is not defined.
+#
+details/build2/:
+{
+  if ($cxx.id == "msvc")
+  {
+    h{config}@./:    install = false
+    h{config-vc}@./: install = $install.include/details
+  }
+  else
+  {
+    h{config}@./:    install = $install.include/details
+    h{config-vc}@./: install = false
+  }
+}

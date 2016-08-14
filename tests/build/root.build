@@ -1,0 +1,11 @@
+# file      : tests/build/root.build
+# copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+using cxx
+
+cxx.std = 11
+
+# Every exe{} in this subproject is by default a test.
+#
+exe{*}: test = true

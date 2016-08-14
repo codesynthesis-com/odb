@@ -1,0 +1,18 @@
+# file      : build/bootstrap.build
+# copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+project = libodb-pgsql
+version = 2.5.0-a9
+revision = 0
+
+using build@0.4.0-a1
+using config
+using dist
+using test
+using install
+
+dist.package = $project-$version
+
+if ($revision != 0)
+  dist.package += +$revision

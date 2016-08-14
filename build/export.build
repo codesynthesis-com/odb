@@ -1,0 +1,10 @@
+# file      : build/export.build
+# copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+$out_root/:
+{
+  include odb/pgsql/
+}
+
+export $out_root/odb/pgsql/lib{odb-pgsql}
