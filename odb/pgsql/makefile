@@ -103,7 +103,7 @@ $(dist): headers_dist = $(subst $(src_base)/,,$(shell find $(src_base) \
 $(dist): gen_headers := $(cli_tun:.cli=.hxx) $(cli_tun:.cli=.ixx)
 $(dist): export headers = $(sort $(headers_dist) $(gen_headers))
 $(dist): gen_dist := $(gen)
-$(dist): data_dist := $(cli_tun) details/config.h.in
+$(dist): data_dist := $(cli_tun) details/config.h.in details/config-vc.h
 $(dist): export extra_dist := $(data_dist)                  \
 libodb-pgsql-vc8.vcproj libodb-pgsql-vc9.vcproj             \
 libodb-pgsql-vc10.vcxproj libodb-pgsql-vc10.vcxproj.filters \
