@@ -1754,6 +1754,51 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+#ifdef HAVE_CXX11
+    // Test reuse/polymorphic inheritance and optimistic mix.
+    //
+    {
+      using namespace test9;
+      using std::shared_ptr;
+
+      unsigned long long id;
+
+      {
+        container c (123);
+
+        c.e1.push_back (shared_ptr<element> (new element (11)));
+        c.e1.push_back (shared_ptr<element> (new element (12)));
+
+        c.e2.push_back (shared_ptr<element> (new element (21)));
+        c.e2.push_back (shared_ptr<element> (new element (22)));
+
+        transaction t (db->begin ());
+
+        db->persist (c.e1[0]);
+        db->persist (c.e1[1]);
+        db->persist (c.e2[0]);
+        db->persist (c.e2[1]);
+
+        id = db->persist (c);
+
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+
+        shared_ptr<container> c (db->load<container> (id));
+
+        assert (c->n == 123);
+        db->load (*c, c->s);
+        assert (c->e1.size () == 2 && c->e1[0]->n == 11 && c->e1[1]->n == 12);
+        assert (c->e2.size () == 2 && c->e2[0]->n == 21 && c->e2[1]->n == 22);
+
+        t.commit ();
+      }
+    }
+#endif
   }
   catch (const odb::exception& e)
   {

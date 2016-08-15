@@ -5,8 +5,11 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
+#include <common/config.hxx> // HAVE_CXX11
+
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <odb/core.hxx>
 #include <odb/section.hxx>
@@ -491,5 +494,54 @@ namespace test8
     int sn;
   };
 }
+
+// Test id overwrite regression.
+//
+// The key here is the setup: the object that contains the containers in a
+// section and the pointers to objects stored in those containers. And these
+// objects derive polymorphically from the same base (and thus shared the id
+// bindind).
+//
+#ifdef HAVE_CXX11
+#pragma db namespace table("t9_")
+namespace test9
+{
+  #pragma db object polymorphic pointer(std::shared_ptr)
+  struct base
+  {
+    virtual ~base () {}
+
+    #pragma db id auto
+    unsigned long id;
+  };
+
+  #pragma db object
+  struct element: base
+  {
+    element (int n_ = 0): n (n_) {}
+
+    int n;
+  };
+
+  typedef std::vector<std::shared_ptr<element>> elements;
+
+  #pragma db object
+  struct container: base
+  {
+    container (int n_ = 0): n (n_) {}
+
+    int n;
+
+    #pragma db load(lazy) update(always)
+    odb::section s;
+
+    #pragma db section(s)
+    elements e1;
+
+    #pragma db section(s)
+    elements e2;
+  };
+}
+#endif
 
 #endif // TEST_HXX
