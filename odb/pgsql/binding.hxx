@@ -12,13 +12,11 @@
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/pgsql-types.hxx>
 
-#include <odb/pgsql/details/export.hxx>
-
 namespace odb
 {
   namespace pgsql
   {
-    class LIBODB_PGSQL_EXPORT native_binding
+    class native_binding
     {
     public:
       native_binding (char** v,
@@ -39,7 +37,7 @@ namespace odb
       native_binding& operator= (const native_binding&);
     };
 
-    class LIBODB_PGSQL_EXPORT binding
+    class binding
     {
     public:
       typedef pgsql::bind bind_type;

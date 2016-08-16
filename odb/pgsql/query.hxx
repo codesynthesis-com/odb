@@ -637,7 +637,7 @@ namespace odb
 
     // query_column
     //
-    struct LIBODB_PGSQL_EXPORT query_column_base
+    struct query_column_base
     {
       // Note that we keep shallow copies of the table, column, and conversion
       // expression. The latter can be NULL.

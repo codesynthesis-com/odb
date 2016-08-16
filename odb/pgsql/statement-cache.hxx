@@ -20,13 +20,11 @@
 #include <odb/pgsql/forward.hxx>
 #include <odb/pgsql/statements-base.hxx>
 
-#include <odb/pgsql/details/export.hxx>
-
 namespace odb
 {
   namespace pgsql
   {
-    class LIBODB_PGSQL_EXPORT statement_cache
+    class statement_cache
     {
     public:
       statement_cache (connection& conn)

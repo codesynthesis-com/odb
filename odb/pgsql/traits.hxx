@@ -423,11 +423,10 @@ namespace odb
     };
 
     template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<char*, id_string>:
-      c_string_value_traits {};
+    struct default_value_traits<char*, id_string>: c_string_value_traits {};
 
     template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<const char*, id_string>:
+    struct default_value_traits<const char*, id_string>:
       c_string_value_traits {};
 
     // char[N] specializations.
@@ -508,7 +507,7 @@ namespace odb
     // char specialization.
     //
     template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<char, id_string>
+    struct default_value_traits<char, id_string>
     {
       typedef char value_type;
       typedef char query_type;
@@ -754,7 +753,7 @@ namespace odb
     // char[16] specialization for uuid.
     //
     template <>
-    struct LIBODB_PGSQL_EXPORT default_value_traits<char[16], id_uuid>
+    struct default_value_traits<char[16], id_uuid>
     {
       typedef char* value_type;
       typedef char query_type[16];
