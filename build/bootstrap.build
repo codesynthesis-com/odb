@@ -3,7 +3,7 @@
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 project = libodb-pgsql
-version = 2.5.0-a9
+version = 2.5.0-a10
 revision = 0
 
 using build@0.4.0-a1
