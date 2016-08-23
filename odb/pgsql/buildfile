@@ -99,11 +99,11 @@ details/build2/:
   if ($cxx.id == "msvc")
   {
     h{config}@./:    install = false
-    h{config-vc}@./: install = $install.include/details
+    h{config-vc}@./: install = $install.include/details/
   }
   else
   {
-    h{config}@./:    install = $install.include/details
+    h{config}@./:    install = $install.include/details/
     h{config-vc}@./: install = false
   }
 }
