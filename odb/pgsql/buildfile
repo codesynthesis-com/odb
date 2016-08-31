@@ -49,7 +49,15 @@ details/build2/{h              }{ config                        } \
 details/build2/{h              }{ config-vc                     } \
                                   $imp_libs $int_libs
 
-cxx.poptions =+ -I$out_root -I$src_root -DLIBODB_PGSQL_BUILD2
+# For pre-releases use the complete version to make sure they cannot be used
+# in place of another pre-release or the final version.
+#
+if $abi_prerelease
+  lib{odb-pgsql}: bin.lib.version = @-$version
+else
+  lib{odb-pgsql}: bin.lib.version = @-$abi_major.$abi_minor
+
+cxx.poptions =+ -DLIBODB_PGSQL_BUILD2
 obja{*}: cxx.poptions += -DLIBODB_PGSQL_STATIC_BUILD
 objs{*}: cxx.poptions += -DLIBODB_PGSQL_SHARED_BUILD
 
@@ -58,17 +66,6 @@ liba{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_STATIC
 libs{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_SHARED
 
 lib{odb-pgsql}: cxx.export.libs = $int_libs
-
-# Load the cli module but only if it's available. This way a distribution that
-# includes pre-generated files can be built without installing cli.
-#
-using? cli
-
-if! $cli.loaded
-{
-  define cli: file
-  cli{*}: extension = cli
-}
 
 details/:
 {
