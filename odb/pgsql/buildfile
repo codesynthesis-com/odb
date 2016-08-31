@@ -2,12 +2,8 @@
 # copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-# @@ On Debian libpq's headers are in /usr/include/postgresql. There is
-#    pkg-config support.
-#
-
-import libs  = libpq%lib{pq}
-import libs += libodb%lib{odb}
+import int_libs = libodb%lib{odb}
+import imp_libs = libpq%lib{pq}
 
 lib{odb-pgsql}:                                                   \
                {hxx         cxx}{ auto-handle                   } \
@@ -51,7 +47,7 @@ lib{odb-pgsql}:                                                   \
        details/{hxx ixx     cxx}{ options                       } \
 details/build2/{h              }{ config                        } \
 details/build2/{h              }{ config-vc                     } \
-                                  $libs
+                                  $imp_libs $int_libs
 
 cxx.poptions =+ -I$out_root -I$src_root -DLIBODB_PGSQL_BUILD2
 obja{*}: cxx.poptions += -DLIBODB_PGSQL_STATIC_BUILD
@@ -60,6 +56,8 @@ objs{*}: cxx.poptions += -DLIBODB_PGSQL_SHARED_BUILD
 lib{odb-pgsql}: cxx.export.poptions = -I$src_root -DLIBODB_PGSQL_BUILD2
 liba{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_STATIC
 libs{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_SHARED
+
+lib{odb-pgsql}: cxx.export.libs = $int_libs
 
 # Load the cli module but only if it's available. This way a distribution that
 # includes pre-generated files can be built without installing cli.
