@@ -57,7 +57,7 @@ if $abi_prerelease
 else
   lib{odb-pgsql}: bin.lib.version = @-$abi_major.$abi_minor
 
-cxx.poptions =+ -DLIBODB_PGSQL_BUILD2
+cxx.poptions =+ -I$out_root -I$src_root -DLIBODB_PGSQL_BUILD2
 obja{*}: cxx.poptions += -DLIBODB_PGSQL_STATIC_BUILD
 objs{*}: cxx.poptions += -DLIBODB_PGSQL_SHARED_BUILD
 
