@@ -10,6 +10,7 @@ changes-file: NEWS
 url: http://www.codesynthesis.com/products/odb/
 email: odb-users@codesynthesis.com
 requires: c++11
-requires: build2 >= 0.4.0
+depends: * build2 >= 0.4.0
+depends: * bpkg >= 0.4.0
 depends: libpq >= 9.0.0
 depends: libodb == 2.5.0-a10

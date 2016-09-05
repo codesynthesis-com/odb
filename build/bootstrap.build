@@ -4,7 +4,7 @@
 
 project = libodb-pgsql
 
-using build@0.4.0-a1
+using build@0.4.0
 
 version = 2.5.0-a10
 
