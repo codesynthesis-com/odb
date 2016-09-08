@@ -6,7 +6,7 @@ project = libodb-pgsql
 
 using build@0.4.0
 
-version = 2.5.0-a10
+version = 2.5.0-a11
 
 abi_major = 2
 abi_minor = 5
