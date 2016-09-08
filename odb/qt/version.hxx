@@ -35,16 +35,16 @@
 // ODB Qt interface version: odb interface version plus the Qt interface
 // version.
 //
-#define ODB_QT_VERSION     2041000
-#define ODB_QT_VERSION_STR "2.5.0-a10"
+#define ODB_QT_VERSION     2041100
+#define ODB_QT_VERSION_STR "2.5.0-a11"
 
 // libodb-qt version: odb interface version plus the bugfix version. Note
 // that LIBODB_QT_VERSION is always greater or equal to ODB_QT_VERSION
 // since if the Qt interface virsion is incremented then the bugfix version
 // must be incremented as well.
 //
-#define LIBODB_QT_VERSION     2049910
-#define LIBODB_QT_VERSION_STR "2.5.0-a10"
+#define LIBODB_QT_VERSION     2049911
+#define LIBODB_QT_VERSION_STR "2.5.0-a11"
 
 #include <odb/post.hxx>
 
