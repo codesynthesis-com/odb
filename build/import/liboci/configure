@@ -39,6 +39,13 @@ while [ -z "$liboci_include" ]; do
   elif [ -d "$liboci_root/rdbms/public" ]; then
     liboci_include="$liboci_root/rdbms/public"
     liboci_lib=`ls $liboci_root/lib/libclntsh.so 2>/dev/null`
+  elif [ -d "$liboci_root/include" ]; then
+    liboci_include="$liboci_root/include"
+
+    liboci_lib=`ls $liboci_root/lib/libclntsh.so 2>/dev/null`
+    if [ -z "$liboci_lib" ]; then
+      liboci_lib=`ls $liboci_root/lib/libclntsh.so.* 2>/dev/null`
+    fi
   fi
 
   if [ -z "$liboci_include" ]; then
