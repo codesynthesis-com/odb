@@ -19,6 +19,14 @@ $echo "Configuring external dependency on 'Qt libraries' for '$project_name'."
 $echo
 
 $echo
+$echo "Which version of Qt would you like to use?"
+$echo
+$echo "(1) Qt5"
+$echo "(2) Qt4"
+$echo
+version=`read_option "5 4" "5"`
+
+$echo
 $echo "Would you like to configure dependency on the installed version"
 $echo "of 'Qt libraries' as opposed to the development build?"
 $echo
@@ -43,17 +51,24 @@ if [ "$installed" = "n" ]; then
   type=`read_option "archive shared" "shared"`
 
 else
-  if pkg-config --exists QtCore; then
+  core_libs=
+  if [ "$version" = "5" ]; then
 
-    core_cppflags=`pkg-config --cflags QtCore`
-    core_libs=`pkg-config --libs QtCore`
-
-  elif pkg-config --exists Qt5Core; then
-
-    core_cppflags=`pkg-config --cflags Qt5Core`
-    core_libs=`pkg-config --libs Qt5Core`
+    if pkg-config --exists Qt5Core; then
+      core_cppflags=`pkg-config --cflags Qt5Core`
+      core_libs=`pkg-config --libs Qt5Core`
+    fi
 
   else
+
+    if pkg-config --exists QtCore; then
+      core_cppflags=`pkg-config --cflags QtCore`
+      core_libs=`pkg-config --libs QtCore`
+    fi
+
+  fi
+
+  if [ "$core_libs" = "" ]; then
 
     $echo
     $echo "Unable to discover installed 'Qt libraries' using pkg-config."
@@ -61,13 +76,18 @@ else
     $echo
 
     core_cppflags=
-    core_libs=-lQtCore
 
+    if [ "$version" = "5" ]; then
+      core_libs=-lQt5Core
+    else
+      core_libs=-lQtCore
+    fi
   fi
 fi
 
 
-echo libqt_installed := $installed   >$1
+echo libqt_version := $version >$1
+echo libqt_installed := $installed >>$1
 
 if [ "$installed" = "n" ]; then
   echo libqt_root    := $root    >>$1

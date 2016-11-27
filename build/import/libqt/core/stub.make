@@ -4,6 +4,7 @@
 
 $(call include-once,$(scf_root)/import/libqt/configuration-rules.make,$(dcf_root))
 
+libqt_version :=
 libqt_installed :=
 
 $(call -include,$(dcf_root)/import/libqt/configuration-dynamic.make)
