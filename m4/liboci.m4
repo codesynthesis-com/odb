@@ -112,12 +112,36 @@ main ()
 oci_found=yes
 ])
 
+    # Try the new Instant Client layout.
+    #
+    if test x"$oci_found" = xno; then
+      CPPFLAGS="$CPPFLAGS -I$ORACLE_HOME/include"
+      LDFLAGS="$LDFLAGS -L$ORACLE_HOME/lib"
+      LIBS="-lclntsh $LIBS"
+
+      CXX_LIBTOOL_LINK_IFELSE([
+AC_LANG_SOURCE([
+#include <oci.h>
+
+int
+main ()
+{
+  OCIEnv* env (0);
+  OCIEnvNlsCreate (&env, OCI_THREADED, 0, 0, 0, 0, 0, 0, 0, 0);
+  OCIHandleFree (env, OCI_HTYPE_ENV);
+  return 0;
+}
+])],
+[
+oci_found=yes
+])
+    fi
+
     if test x"$oci_found" = xno; then
       CPPFLAGS="$save_CPPFLAGS"
       LDFLAGS="$save_LDFLAGS"
       LIBS="$save_LIBS"
     fi
-
   fi
 fi
 
