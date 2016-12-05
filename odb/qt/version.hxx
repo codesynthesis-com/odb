@@ -28,7 +28,7 @@
 
 // Check that we have compatible ODB version.
 //
-#if ODB_VERSION != 20410
+#if ODB_VERSION != 20411
 #  error incompatible odb interface version detected
 #endif
 
