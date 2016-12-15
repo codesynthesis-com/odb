@@ -506,8 +506,13 @@ main (int argc, char* argv[])
       {
         transaction t (db->begin ());
         view1 v (db->query_value<view1> ());
+
         assert (v.o1->n == 123 && v.o2->s == "abc" &&
                 !v.o2->r.loaded () && !v.o2->o1);
+
+        db->load (*v.o2, v.o2->r);
+        assert (v.o2->r.loaded () && v.o2->o1 && v.o2->o1->n == 123);
+
         t.commit ();
       }
     }
