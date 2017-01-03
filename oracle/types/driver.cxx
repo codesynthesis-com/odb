@@ -1,5 +1,5 @@
 // file      : oracle/types/driver.cxx
-// copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 // Test Oracle type conversion.

@@ -1,5 +1,5 @@
 # file      : build/import/libodb-oracle/configuration-rules.make
-# copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
+# copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 # license   : ODB NCUEL; see accompanying LICENSE file
 
 $(dcf_root)/import/libodb-oracle/configuration-dynamic.make: | $(dcf_root)/import/libodb-oracle/.

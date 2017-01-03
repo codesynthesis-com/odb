@@ -1,5 +1,5 @@
 dnl file      : m4/tr1-memory.m4
-dnl copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
+dnl copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 dnl license   : GNU GPL v2; see accompanying LICENSE file
 dnl
 dnl TR1_MEMORY
