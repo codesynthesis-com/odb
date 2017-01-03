@@ -1,5 +1,5 @@
 // file      : odb/qt/smart-ptr/pointer-traits.hxx
-// copyright : Copyright (c) 2009-2015 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_QT_SMART_PTR_POINTER_TRAITS_HXX
