@@ -1,5 +1,5 @@
 // file      : odb/pgsql/traits.cxx
-// copyright : Copyright (c) 2005-2015 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2017 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #include <odb/pgsql/traits.hxx>
