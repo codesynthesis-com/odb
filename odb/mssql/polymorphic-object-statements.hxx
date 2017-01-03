@@ -1,5 +1,5 @@
 // file      : odb/mssql/polymorphic-object-statements.hxx
-// copyright : Copyright (c) 2005-2015 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2017 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_MSSQL_POLYMORPHIC_OBJECT_STATEMENTS_HXX
