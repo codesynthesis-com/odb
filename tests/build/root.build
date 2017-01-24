@@ -12,3 +12,7 @@ cxx{*}: extension = cxx
 # Every exe{} in this subproject is by default a test.
 #
 exe{*}: test = true
+
+# Specify the test target for cross-testing.
+#
+test.target = $cxx.target
