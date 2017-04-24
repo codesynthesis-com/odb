@@ -9,6 +9,7 @@ description-file: README
 changes-file: NEWS
 url: http://www.codesynthesis.com/products/odb/
 email: odb-users@codesynthesis.com
+build-email: odb-builds@codesynthesis.com
 requires: c++11
 depends: * build2 >= 0.4.0
 depends: * bpkg >= 0.4.0
