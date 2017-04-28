@@ -61,7 +61,7 @@ cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_PGSQL_BUILD2
 obja{*}: cxx.poptions += -DLIBODB_PGSQL_STATIC_BUILD
 objs{*}: cxx.poptions += -DLIBODB_PGSQL_SHARED_BUILD
 
-lib{odb-pgsql}: cxx.export.poptions = "-I$src_root" -DLIBODB_PGSQL_BUILD2
+lib{odb-pgsql}: cxx.export.poptions = "-I$out_root" "-I$src_root" -DLIBODB_PGSQL_BUILD2
 liba{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_STATIC
 libs{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_SHARED
 
