@@ -4,22 +4,7 @@
 
 project = libodb-pgsql
 
-using build@0.4.0
-
-version = 2.5.0-a11
-
-abi_major = 2
-abi_minor = 5
-abi_patch = 0
-abi_prerelease = true
-
-revision = 0
-
-dist.package = $project-$version
-
-if ($revision != 0)
-  dist.package += +$revision
-
+using version
 using config
 using dist
 using test

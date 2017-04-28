@@ -52,10 +52,10 @@ details/build2/{h              }{ config-vc                     } \
 # For pre-releases use the complete version to make sure they cannot be used
 # in place of another pre-release or the final version.
 #
-if $abi_prerelease
-  lib{odb-pgsql}: bin.lib.version = @-$version
+if $version.pre_release
+  lib{odb-pgsql}: bin.lib.version = @"-$version.project_id"
 else
-  lib{odb-pgsql}: bin.lib.version = @-$abi_major.$abi_minor
+  lib{odb-pgsql}: bin.lib.version = @"-$version.major.$version.minor"
 
 cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_PGSQL_BUILD2
 obja{*}: cxx.poptions += -DLIBODB_PGSQL_STATIC_BUILD

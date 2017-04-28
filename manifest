@@ -1,6 +1,6 @@
 : 1
 name: libodb-pgsql
-version: 2.5.0-a11
+version: 2.5.0-b.1.z
 summary: PostgreSQL ODB runtime library
 license: GPLv2
 license: proprietary
@@ -11,7 +11,7 @@ url: http://www.codesynthesis.com/products/odb/
 email: odb-users@codesynthesis.com
 build-email: odb-builds@codesynthesis.com
 requires: c++11
-depends: * build2 >= 0.4.0
-depends: * bpkg >= 0.4.0
+depends: * build2 >= 0.5.0-
+depends: * bpkg >= 0.5.0-
 depends: libpq >= 9.0.0
-depends: libodb == 2.5.0-a11
+depends: libodb [2.5.0.b.1.1 2.5.0.b.2)
