@@ -27,3 +27,7 @@
 # Generated .gitignore files.
 #
 .gitignore
+
+# Temporarily here because of auto-generated odb/pgsql/.gitignore.
+#
+odb/pgsql/version-build2.hxx

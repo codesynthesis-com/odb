@@ -37,6 +37,7 @@ lib{odb-pgsql}:                                                   \
                {hxx            }{ traits-calls                  } \
                {hxx ixx     cxx}{ transaction                   } \
                {hxx ixx     cxx}{ transaction-impl              } \
+               {hxx            }{ version-build2                } \
                {hxx            }{ version                       } \
                {hxx     txx    }{ view-result                   } \
                {hxx     txx    }{ view-statements               } \
@@ -48,6 +49,9 @@ lib{odb-pgsql}:                                                   \
 details/build2/{h              }{ config                        } \
 details/build2/{h              }{ config-vc                     } \
                                   $imp_libs $int_libs
+
+hxx{version-build2}: in{version-build2} $src_root/file{manifest}
+hxx{version-build2}: dist = true
 
 # For pre-releases use the complete version to make sure they cannot be used
 # in place of another pre-release or the final version.
@@ -95,6 +99,9 @@ install.include.subdirs = true # Recreate subdirectories.
 
 # We want these to be picked up even when LIBODB_PGSQL_BUILD2 is not defined.
 #
+hxx{version}@./:     install = false
+hxx{version-build2}: install = $install.include/version.hxx
+
 details/build2/:
 {
   if ($cxx.id == "msvc")
