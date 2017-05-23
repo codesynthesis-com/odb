@@ -29,15 +29,15 @@
 
 // Check that we have compatible ODB version.
 //
-#if ODB_VERSION != 20452
+#if ODB_VERSION != 20453
 #  error incompatible odb interface version detected
 #endif
 
 // libodb-mssql version: odb interface version plus the bugfix
 // version.
 //
-#define LIBODB_MSSQL_VERSION     2049952
-#define LIBODB_MSSQL_VERSION_STR "2.5.0-b.2"
+#define LIBODB_MSSQL_VERSION     2049953
+#define LIBODB_MSSQL_VERSION_STR "2.5.0-b.3"
 
 #include <odb/post.hxx>
 
