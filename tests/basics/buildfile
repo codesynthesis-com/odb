@@ -4,4 +4,4 @@
 
 import libs = libodb-pgsql%lib{odb-pgsql}
 
-exe{driver}: cxx{driver} $libs
+exe{driver}: {hxx cxx}{*} $libs

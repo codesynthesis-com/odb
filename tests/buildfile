@@ -2,6 +2,4 @@
 # copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-d = basics/
-./: $d
-include $d
+./: {*/ -build/}

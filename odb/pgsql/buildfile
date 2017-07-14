@@ -5,50 +5,10 @@
 import int_libs = libodb%lib{odb}
 import imp_libs = libpq%lib{pq}
 
-lib{odb-pgsql}:                                                   \
-               {hxx         cxx}{ auto-handle                   } \
-               {hxx            }{ binding                       } \
-               {hxx ixx     cxx}{ connection                    } \
-               {hxx         cxx}{ connection-factory            } \
-               {hxx     txx    }{ container-statements          } \
-               {hxx ixx     cxx}{ database                      } \
-               {hxx ixx     cxx}{ error                         } \
-               {hxx         cxx}{ exceptions                    } \
-               {hxx            }{ forward                       } \
-               {hxx     txx    }{ no-id-object-result           } \
-               {hxx     txx    }{ no-id-object-statements       } \
-               {hxx            }{ pgsql-fwd                     } \
-               {hxx            }{ pgsql-oid                     } \
-               {hxx            }{ pgsql-types                   } \
-               {hxx     txx    }{ polymorphic-object-result     } \
-               {hxx     txx    }{ polymorphic-object-statements } \
-               {hxx         cxx}{ prepared-query                } \
-               {hxx ixx txx cxx}{ query                         } \
-               {            cxx}{ query-const-expr              } \
-               {hxx ixx txx cxx}{ query-dynamic                 } \
-               {hxx     txx    }{ section-statements            } \
-               {hxx     txx    }{ simple-object-result          } \
-               {hxx ixx txx cxx}{ simple-object-statements      } \
-               {hxx     txx    }{ statement-cache               } \
-               {hxx         cxx}{ statement                     } \
-               {hxx         cxx}{ statements-base               } \
-               {hxx         cxx}{ tracer                        } \
-               {hxx         cxx}{ traits                        } \
-               {hxx            }{ traits-calls                  } \
-               {hxx ixx     cxx}{ transaction                   } \
-               {hxx ixx     cxx}{ transaction-impl              } \
-               {hxx            }{ version-build2                } \
-               {hxx            }{ version                       } \
-               {hxx     txx    }{ view-result                   } \
-               {hxx     txx    }{ view-statements               } \
-       details/{hxx            }{ config                        } \
-       details/{hxx            }{ conversion                    } \
-       details/{hxx         cxx}{ endian-traits                 } \
-       details/{hxx            }{ export                        } \
-       details/{hxx ixx     cxx}{ options                       } \
-details/build2/{h              }{ config                        } \
-details/build2/{h              }{ config-vc                     } \
-                                  $imp_libs $int_libs
+lib{odb-pgsql}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2}   \
+        details/{hxx ixx txx cxx}{* -options} details/{hxx ixx cxx}{options} \
+ details/build2/{h}{*}                                                       \
+                $imp_libs $int_libs
 
 hxx{version-build2}: in{version-build2} $src_root/file{manifest}
 hxx{version-build2}: dist = true
