@@ -52,26 +52,28 @@ details/:
   {hxx ixx}{options}: install = false
 }
 
-# Install into the odb/pgsql/ subdirectory of, say, /usr/include/.
+# Install into the odb/pgsql/ subdirectory of, say, /usr/include/ recreating
+# subdirectories.
 #
-install.include = $install.include/odb/pgsql/
-install.include.subdirs = true # Recreate subdirectories.
+install_include = include/odb/pgsql/
+{hxx ixx txx}{*}: install         = $install_include
+{hxx ixx txx}{*}: install.subdirs = true
 
 # We want these to be picked up even when LIBODB_PGSQL_BUILD2 is not defined.
 #
 hxx{version}@./:     install = false
-hxx{version-build2}: install = $install.include/version.hxx
+hxx{version-build2}: install = $install_include/version.hxx
 
 details/build2/:
 {
   if ($cxx.id == "msvc")
   {
     h{config}@./:    install = false
-    h{config-vc}@./: install = $install.include/details/
+    h{config-vc}@./: install = $install_include/details/
   }
   else
   {
-    h{config}@./:    install = $install.include/details/
+    h{config}@./:    install = $install_include/details/
     h{config-vc}@./: install = false
   }
 }
