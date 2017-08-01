@@ -55,7 +55,8 @@ details/:
 # Install into the odb/pgsql/ subdirectory of, say, /usr/include/ recreating
 # subdirectories.
 #
-install_include = include/odb/pgsql/
+install_include = [dir_path] include/odb/pgsql/
+
 {hxx ixx txx}{*}: install         = $install_include
 {hxx ixx txx}{*}: install.subdirs = true
 
