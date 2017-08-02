@@ -8,9 +8,9 @@ tags: c++, orm, postgres, database, relational, object, persistence, sql
 description-file: README
 changes-file: NEWS
 url: http://www.codesynthesis.com/products/odb/
+doc-url: http://www.codesynthesis.com/products/odb/doc/manual.xhtml
+src-url: http://scm.codesynthesis.com/?p=odb/libodb-pgsql.git\;a=tree
 email: odb-users@codesynthesis.com
-doc-url: http://codesynthesis.com/products/odb/doc/manual.xhtml
-src-url: http://scm.codesynthesis.com/?p=odb/libodb-pgsql.git;a=tree
 build-email: odb-builds@codesynthesis.com
 requires: c++11
 depends: * build2 >= 0.5.0-
