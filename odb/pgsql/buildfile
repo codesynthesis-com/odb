@@ -60,21 +60,24 @@ install_include = [dir_path] include/odb/pgsql/
 {hxx ixx txx}{*}: install         = $install_include
 {hxx ixx txx}{*}: install.subdirs = true
 
-# We want these to be picked up even when LIBODB_PGSQL_BUILD2 is not defined.
+# We want these to be picked up whether LIBODB_PGSQL_BUILD2 is defined or not.
 #
-hxx{version}@./:     install = false
-hxx{version-build2}: install = $install_include/version.hxx
+hxx{version}@./:             install = false
+hxx{version-build2}:         install = $install_include/version.hxx
+hxx{version-build2-stub}@./: install = $install_include/version-build2.hxx
 
 details/build2/:
 {
+  h{*}: install = false
+
   if ($cxx.id == "msvc")
   {
-    h{config}@./:    install = false
-    h{config-vc}@./: install = $install_include/details/
+    h{config-vc}@./:      install = $install_include/details/
+    h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
   }
   else
   {
-    h{config}@./:    install = $install_include/details/
-    h{config-vc}@./: install = false
+    h{config}@./:      install = $install_include/details/
+    h{config-stub}@./: install = $install_include/details/build2/config.h
   }
 }
