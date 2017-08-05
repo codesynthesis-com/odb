@@ -41,15 +41,19 @@ details/:
 --guard-prefix LIBODB_PGSQL_DETAILS --generate-file-scanner \
 --cli-namespace odb::pgsql::details::cli --long-usage --generate-specifier
 
-    # Include generated cli files into the distribution.
+    # Include generated cli files into the distribution. But don't install
+    # their headers since they are only used internally in the database
+    # implementation.
     #
-    cli.cxx{*}: dist = true
+    cli.cxx{*}: dist    = true
+    cli.cxx{*}: install = false
   }
-
-  # But don't install their headers since they are only used internally in the
-  # database implementation.
-  #
-  {hxx ixx}{options}: install = false
+  else
+  {
+    # No install for the pre-generated case.
+    #
+    {hxx ixx}{options}@/: install = false
+  }
 }
 
 # Install into the odb/pgsql/ subdirectory of, say, /usr/include/ recreating
