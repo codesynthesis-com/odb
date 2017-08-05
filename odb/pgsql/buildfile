@@ -52,7 +52,7 @@ details/:
   {
     # No install for the pre-generated case.
     #
-    {hxx ixx}{options}@/: install = false
+    {hxx ixx}{options}@./: install = false
   }
 }
 
