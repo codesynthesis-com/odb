@@ -49,11 +49,9 @@ details/:
     cli.cxx{*}: install = false
   }
   else
-  {
     # No install for the pre-generated case.
     #
-    {hxx ixx}{options}@./: install = false
-  }
+    hxx{options}@./ ixx{options}@./: install = false
 }
 
 # Install into the odb/pgsql/ subdirectory of, say, /usr/include/ recreating
