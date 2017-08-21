@@ -11,7 +11,6 @@ lib{odb-pgsql}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2}   \
                 $imp_libs $int_libs
 
 hxx{version-build2}: in{version-build2} $src_root/file{manifest}
-hxx{version-build2}: dist = true
 
 # For pre-releases use the complete version to make sure they cannot be used
 # in place of another pre-release or the final version.
