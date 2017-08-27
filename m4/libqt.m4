@@ -11,10 +11,10 @@ AC_LANG_SOURCE([
 // See libodb-qt/odb/qt/details/config.hxx for more information on
 // what's going on here.
 //
-#  if defined(__ELF__) && !defined(__PIC__) && !defined(__PIE__)
+#  if defined(__ELF__) && !defined(__PIC__)
 #    include <QtCore/qconfig.h> // QT_REDUCE_RELOCATIONS
 #    ifdef QT_REDUCE_RELOCATIONS
-#      define __PIE__
+#      define __PIC__
 #    endif
 #  endif
 #include <string>
