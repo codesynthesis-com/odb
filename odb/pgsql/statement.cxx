@@ -653,7 +653,7 @@ namespace odb
       handle_.reset (
         PQexecPrepared (conn_.handle (),
                         name_,
-                        in ? native_param_->count : 0,
+                        in ? static_cast<int> (native_param_->count) : 0,
                         in ? native_param_->values : 0,
                         in ? native_param_->lengths : 0,
                         in ? native_param_->formats : 0,
@@ -778,7 +778,7 @@ namespace odb
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
                         name_,
-                        native_param_.count,
+                        static_cast<int> (native_param_.count),
                         native_param_.values,
                         native_param_.lengths,
                         native_param_.formats,
@@ -870,7 +870,7 @@ namespace odb
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
                         name_,
-                        native_param_.count,
+                        static_cast<int> (native_param_.count),
                         native_param_.values,
                         native_param_.lengths,
                         native_param_.formats,
@@ -959,7 +959,7 @@ namespace odb
       auto_handle<PGresult> h (
         PQexecPrepared (conn_.handle (),
                         name_,
-                        native_param_.count,
+                        static_cast<int> (native_param_.count),
                         native_param_.values,
                         native_param_.lengths,
                         native_param_.formats,
