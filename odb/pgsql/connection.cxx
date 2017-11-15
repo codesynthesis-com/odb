@@ -77,6 +77,12 @@ namespace odb
       clear_prepared_map ();
     }
 
+    int connection::
+    server_version () const
+    {
+      return PQserverVersion (handle_);
+    }
+
     transaction_impl* connection::
     begin ()
     {

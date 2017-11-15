@@ -115,6 +115,12 @@ namespace odb
         return handle_;
       }
 
+      // Server version as returned by PQserverVersion(), for example, 90200
+      // (9.2.0), 90201 (9.2.1), 100000 (10.0), 110001 (11.1).
+      //
+      int
+      server_version () const;
+
       statement_cache_type&
       statement_cache ()
       {
