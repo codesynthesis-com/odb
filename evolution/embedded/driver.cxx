@@ -16,6 +16,10 @@
 #include <common/config.hxx>  // DATABASE_XXX
 #include <common/common.hxx>
 
+#ifdef DATABASE_PGSQL
+#  include <odb/pgsql/connection.hxx>
+#endif
+
 #include "test2.hxx"
 #include "test3.hxx"
 #include "test2-odb.hxx"
@@ -49,12 +53,22 @@ main (int argc, char* argv[])
           t.commit ();
         }
 
-        // PostgreSQL cannot continue a transaction after a query failed.
+        // PostgreSQL cannot continue a transaction after a query failed. We
+        // have a workaround but only for 9.4+.
         //
-        assert (db->schema_version () == 0);
+#ifdef DATABASE_PGSQL
+        {
+          odb::connection_ptr c (db->connection ());
+          int v (static_cast<odb::pgsql::connection&> (*c).server_version ());
+          if (v < 90400)
+            assert (db->schema_version () == 0);
+        }
+#endif
 
         {
           transaction t (db->begin ());
+          assert (db->schema_version () == 0);
+
           schema_catalog::create_schema (*db, "", false);
 
           assert (db->schema_version () == 1 && !db->schema_migration ());
