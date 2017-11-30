@@ -79,7 +79,7 @@ details/build2/:
 {
   h{*}: install = false
 
-  if ($cxx.id == "msvc")
+  if ($cxx.class == 'msvc')
   {
     h{config-vc}@./:      install = $install_include/details/
     h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
