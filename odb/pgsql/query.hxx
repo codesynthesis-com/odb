@@ -155,7 +155,7 @@ namespace odb
 
         kind_type kind;
         std::string part; // If kind is param, then part is conversion expr.
-        bool bool_part;
+        bool bool_part = false;
       };
 
       query_base ()
