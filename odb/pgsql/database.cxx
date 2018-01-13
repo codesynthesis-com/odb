@@ -326,9 +326,14 @@ namespace odb
 
         // Note that to_regclass() seems happy to accept a quoted table name.
         //
+        // Also note that starting 9.6 it requires text type rather than
+        // cstring type.
+        //
         select_statement st (c,
                              "odb_database_schema_version_exists",
-                             "SELECT to_regclass($1::cstring) IS NOT NULL",
+                             c.server_version () >= 90600
+                             ? "SELECT to_regclass($1::text) IS NOT NULL"
+                             : "SELECT to_regclass($1::cstring) IS NOT NULL",
                              false, // Don't process.
                              false, // Don't optimize.
                              param_types,
