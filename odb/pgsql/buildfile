@@ -14,7 +14,7 @@ lib{odb-pgsql}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2}   \
 # pick up an installed one) and don't remove it when cleaning in src (so that
 # clean results in a state identical to distributed).
 #
-hxx{version-build2}: in{version-build2} $src_root/file{manifest}
+hxx{version-build2}: in{version-build2} $src_root/manifest
 hxx{version-build2}: dist  = true
 hxx{version-build2}: clean = ($src_root != $out_root)
 
