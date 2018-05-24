@@ -1,5 +1,5 @@
 dnl file      : m4/libodb.m4
-dnl copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
+dnl copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
 dnl license   : GNU GPL v2; see accompanying LICENSE file
 dnl
 dnl LIBODB([ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])

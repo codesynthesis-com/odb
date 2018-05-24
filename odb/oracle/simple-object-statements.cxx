@@ -1,5 +1,5 @@
 // file      : odb/oracle/simple-object-statements.cxx
-// copyright : Copyright (c) 2005-2017 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2018 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <odb/oracle/simple-object-statements.hxx>

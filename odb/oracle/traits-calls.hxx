@@ -1,5 +1,5 @@
 // file      : odb/oracle/traits-calls.hxx
-// copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_ORACLE_TRAITS_CALLS_HXX

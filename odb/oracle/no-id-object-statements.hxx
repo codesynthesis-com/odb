@@ -1,5 +1,5 @@
 // file      : odb/oracle/no-id-object-statements.hxx
-// copyright : Copyright (c) 2005-2017 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2018 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_ORACLE_NO_ID_OBJECT_STATEMENTS_HXX
