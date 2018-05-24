@@ -1,5 +1,5 @@
 # file      : build/export/libodb-mssql/stub.make
-# copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
+# copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
 # license   : ODB NCUEL; see accompanying LICENSE file
 
 $(call include-once,$(src_root)/odb/mssql/makefile,$(out_root))
