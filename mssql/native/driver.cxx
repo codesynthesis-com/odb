@@ -1,5 +1,5 @@
 // file      : mssql/native/driver.cxx
-// copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
 // license   : GNU GPL; see accompanying LICENSE file
 
 // Test native SQL execution.

@@ -1,5 +1,5 @@
 // file      : common/index/driver.cxx
-// copyright : Copyright (c) 2009-2017 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 // Test index creation with db pragma index. See also database-specific
