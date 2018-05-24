@@ -1,5 +1,5 @@
 // file      : odb/pgsql/no-id-object-statements.txx
-// copyright : Copyright (c) 2005-2017 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2018 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #include <cstring> // std::memset
