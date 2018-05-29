@@ -15,5 +15,5 @@ build-email: odb-builds@codesynthesis.com
 requires: c++11
 depends: * build2 >= 0.7.0-
 depends: * bpkg >= 0.7.0-
-depends: libpq >= 9.0.0
+depends: libpq ^9.0.0
 depends: libodb == 2.5.0-b.7
