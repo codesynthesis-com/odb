@@ -2,7 +2,7 @@ Prerequisites
 =============
 
   - libodb   http://www.codesynthesis.com/products/odb/
-  - oci      http://www.oracle.com/technetwork/database/features/instant-client/index-100365.html
+  - oci      http://www.oracle.com/technetwork/database/database-technologies/instant-client/overview/index.html
 
 The OCI library can be obtained in two ways: as part of the Oracle database
 installation or as a separate distribution called Instant Client.

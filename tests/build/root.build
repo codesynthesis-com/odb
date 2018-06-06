@@ -1,0 +1,18 @@
+# file      : tests/build/root.build
+# copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+cxx.std = 11
+
+using cxx
+
+hxx{*}: extension = hxx
+cxx{*}: extension = cxx
+
+# Every exe{} in this subproject is by default a test.
+#
+exe{*}: test = true
+
+# Specify the test target for cross-testing.
+#
+test.target = $cxx.target

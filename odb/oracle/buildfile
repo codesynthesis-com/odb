@@ -1,0 +1,100 @@
+# file      : odb/oracle/buildfile
+# copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+import int_libs = libodb%lib{odb}
+
+# Note: to build with MinGW rename oci.lib to liboci.dll.a.
+#
+if ($cc.target.class != 'windows')
+  import imp_libs = liboci%lib{clntsh}
+else
+  import imp_libs = liboci%lib{oci}
+
+lib{odb-oracle}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2}   \
+         details/{hxx ixx txx cxx}{* -options} details/{hxx ixx cxx}{options} \
+  details/build2/{h}{*}                                                       \
+                 $imp_libs $int_libs
+
+# Include the generated version header into the distribution (so that we don't
+# pick up an installed one) and don't remove it when cleaning in src (so that
+# clean results in a state identical to distributed).
+#
+hxx{version-build2}: in{version-build2} $src_root/manifest
+hxx{version-build2}: dist  = true
+hxx{version-build2}: clean = ($src_root != $out_root)
+
+# For pre-releases use the complete version to make sure they cannot be used
+# in place of another pre-release or the final version.
+#
+if $version.pre_release
+  lib{odb-oracle}: bin.lib.version = @"-$version.project_id"
+else
+  lib{odb-oracle}: bin.lib.version = @"-$version.major.$version.minor"
+
+cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_ORACLE_BUILD2
+obja{*}: cxx.poptions += -DLIBODB_ORACLE_STATIC_BUILD
+objs{*}: cxx.poptions += -DLIBODB_ORACLE_SHARED_BUILD
+
+lib{odb-oracle}: cxx.export.poptions = "-I$out_root" "-I$src_root" \
+ -DLIBODB_ORACLE_BUILD2
+
+liba{odb-oracle}: cxx.export.poptions += -DLIBODB_ORACLE_STATIC
+libs{odb-oracle}: cxx.export.poptions += -DLIBODB_ORACLE_SHARED
+
+lib{odb-oracle}: cxx.export.libs = $int_libs
+
+details/
+{
+  if $cli.configured
+  {
+    cli.cxx{options}: cli{options}
+
+    cli.options += --include-with-brackets --include-prefix odb/oracle/details \
+--guard-prefix LIBODB_ORACLE_DETAILS --generate-file-scanner \
+--cli-namespace odb::oracle::details::cli --long-usage --generate-specifier
+
+    # Include generated cli files into the distribution and don't remove them
+    # when cleaning in src (so that clean results in a state identical to
+    # distributed). But don't install their headers since they are only used
+    # internally in the database implementation.
+    #
+    cli.cxx{*}: dist    = true
+    cli.cxx{*}: clean   = ($src_root != $out_root)
+    cli.cxx{*}: install = false
+  }
+  else
+    # No install for the pre-generated case.
+    #
+    hxx{options}@./ ixx{options}@./: install = false
+}
+
+# Install into the odb/oracle/ subdirectory of, say, /usr/include/ recreating
+# subdirectories.
+#
+install_include = [dir_path] include/odb/oracle/
+
+{hxx ixx txx}{*}: install         = $install_include
+{hxx ixx txx}{*}: install.subdirs = true
+
+# We want these to be picked up whether LIBODB_ORACLE_BUILD2 is defined or not.
+#
+hxx{version}@./:             install = false
+hxx{version-build2}:         install = $install_include/version.hxx
+hxx{version-build2-stub}@./: install = $install_include/version-build2.hxx
+
+details/build2/
+{
+  h{*}: install = false
+
+  if ($cxx.class == 'msvc')
+  {
+    h{config-vc}@./:      install = $install_include/details/
+    h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
+  }
+  else
+  {
+    h{config}@./:      install = $install_include/details/
+    h{config-stub}@./: install = $install_include/details/build2/config.h
+  }
+}

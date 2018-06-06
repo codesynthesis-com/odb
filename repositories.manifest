@@ -1,0 +1,6 @@
+: 1
+summary: Oracle ODB runtime library repository
+
+:
+role: prerequisite
+location: ../libodb.git##HEAD

@@ -1,0 +1,11 @@
+# file      : build/bootstrap.build
+# copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+project = libodb-oracle
+
+using version
+using config
+using dist
+using test
+using install

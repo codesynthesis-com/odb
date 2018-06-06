@@ -2,6 +2,10 @@
 // copyright : Copyright (c) 2005-2018 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#ifdef LIBODB_ORACLE_BUILD2
+#  include <odb/oracle/version-build2.hxx>
+#else
+
 #ifndef ODB_ORACLE_VERSION_HXX
 #define ODB_ORACLE_VERSION_HXX
 
@@ -42,3 +46,4 @@
 #include <odb/post.hxx>
 
 #endif // ODB_ORACLE_VERSION_HXX
+#endif // LIBODB_ORACLE_BUILD2
