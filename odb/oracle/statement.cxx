@@ -111,7 +111,7 @@ namespace odb
               size,
               &pos,
               l->buffer->data (),
-              l->buffer->capacity ()))
+              static_cast<ub4> (l->buffer->capacity ())))
           return OCI_ERROR;
 
         switch (pos)
