@@ -1,0 +1,21 @@
+: 1
+name: libodb-mssql
+version: 2.5.0-b.8.z
+summary: Microsoft SQL Server ODB runtime library
+license: ODB NCUEL; Non-Commercial Use and Evaluation License
+license: proprietary
+tags: c++, orm, mssql, database, relational, object, persistence, sql, microsoft
+description-file: README
+changes-file: NEWS
+url: https://www.codesynthesis.com/products/odb/
+doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
+src-url: https://git.codesynthesis.com/cgit/odb/libodb-mssql/
+email: odb-users@codesynthesis.com
+build-email: odb-builds@codesynthesis.com
+build-include: windows*
+build-exclude: * ; Requires not yet packaged libunixodbc (unixODBC)
+requires: c++11
+requires: ? libunixodbc; Only on UNIX
+depends: * build2 >= 0.7.0-
+depends: * bpkg >= 0.7.0-
+depends: libodb [2.5.0-b.8.1 2.5.0-b.9)

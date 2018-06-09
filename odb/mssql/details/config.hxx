@@ -7,11 +7,14 @@
 
 // no pre
 
-#ifdef _MSC_VER
-#elif defined(ODB_COMPILER)
+#ifdef ODB_COMPILER
 #  error libodb-mssql header included in odb-compiled header
-#else
-#  include <odb/mssql/details/config.h>
+#elif !defined(LIBODB_MSSQL_BUILD2)
+#  ifdef _MSC_VER
+#    include <odb/mssql/details/config-vc.h>
+#  else
+#    include <odb/mssql/details/config.h>
+#  endif
 #endif
 
 // no post

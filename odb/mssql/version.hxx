@@ -2,13 +2,17 @@
 // copyright : Copyright (c) 2005-2018 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#ifdef LIBODB_MSSQL_BUILD2
+#  include <odb/mssql/version-build2.hxx>
+#else
+
 #ifndef ODB_MSSQL_VERSION_HXX
 #define ODB_MSSQL_VERSION_HXX
 
 #include <odb/pre.hxx>
 
-#include <odb/version.hxx>
 #include <odb/mssql/details/config.hxx>
+#include <odb/version.hxx>
 
 // Version format is AABBCCDD where
 //
@@ -42,3 +46,4 @@
 #include <odb/post.hxx>
 
 #endif // ODB_MSSQL_VERSION_HXX
+#endif // LIBODB_MSSQL_BUILD2

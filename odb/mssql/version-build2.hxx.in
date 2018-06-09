@@ -1,0 +1,44 @@
+// file      : odb/mssql/version-build2.hxx.in
+// copyright : Copyright (c) 2005-2018 Code Synthesis Tools CC
+// license   : ODB NCUEL; see accompanying LICENSE file
+
+#ifndef LIBODB_MSSQL_VERSION // Note: using the version macro itself.
+
+// Note: using build2 standard versioning scheme. The numeric version format
+// is AAABBBCCCDDDE where:
+//
+// AAA - major version number
+// BBB - minor version number
+// CCC - bugfix version number
+// DDD - alpha / beta (DDD + 500) version number
+// E   - final (0) / snapshot (1)
+//
+// When DDDE is not 0, 1 is subtracted from AAABBBCCC. For example:
+//
+// Version      AAABBBCCCDDDE
+//
+// 0.1.0        0000010000000
+// 0.1.2        0000010010000
+// 1.2.3        0010020030000
+// 2.2.0-a.1    0020019990010
+// 3.0.0-b.2    0029999995020
+// 2.2.0-a.1.z  0020019990011
+//
+#define LIBODB_MSSQL_VERSION       $libodb-mssql.version.project_number$ULL
+#define LIBODB_MSSQL_VERSION_STR   "$libodb-mssql.version.project$"
+#define LIBODB_MSSQL_VERSION_ID    "$libodb-mssql.version.project_id$"
+
+#define LIBODB_MSSQL_VERSION_MAJOR $libodb-mssql.version.major$
+#define LIBODB_MSSQL_VERSION_MINOR $libodb-mssql.version.minor$
+#define LIBODB_MSSQL_VERSION_PATCH $libodb-mssql.version.patch$
+
+#define LIBODB_MSSQL_PRE_RELEASE   $libodb-mssql.version.pre_release$
+
+#define LIBODB_MSSQL_SNAPSHOT      $libodb-mssql.version.snapshot_sn$ULL
+#define LIBODB_MSSQL_SNAPSHOT_ID   "$libodb-mssql.version.snapshot_id$"
+
+#include <odb/version.hxx>
+
+$libodb.check(LIBODB_VERSION, LIBODB_SNAPSHOT)$
+
+#endif // LIBODB_MSSQL_VERSION

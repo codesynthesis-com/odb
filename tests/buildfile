@@ -1,0 +1,5 @@
+# file      : tests/buildfile
+# copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+./: {*/ -build/}
