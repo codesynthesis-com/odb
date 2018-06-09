@@ -3,6 +3,7 @@
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <string>
+#include <cstdint> //intptr_t
 
 #include <odb/mssql/mssql.hxx>
 #include <odb/mssql/database.hxx>
@@ -18,7 +19,7 @@ namespace odb
 {
   namespace mssql
   {
-    static const long transaction_isolation_map[] =
+    static const intptr_t transaction_isolation_map[] =
     {
       SQL_TXN_READ_UNCOMMITTED,
       SQL_TXN_READ_COMMITTED,
@@ -90,6 +91,7 @@ namespace odb
                                   SQL_ATTR_TXN_ISOLATION,
                                   (SQLPOINTER) transaction_isolation_map[ti],
                                   0);
+
           if (!SQL_SUCCEEDED (r))
             translate_error (r, handle_, SQL_HANDLE_DBC);
           break;
