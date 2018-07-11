@@ -1,6 +1,7 @@
 : 1
 name: libodb-oracle
 version: 2.5.0-b.8.z
+project: odb
 summary: Oracle ODB runtime library
 license: ODB NCUEL; Non-Commercial Use and Evaluation License
 license: proprietary
