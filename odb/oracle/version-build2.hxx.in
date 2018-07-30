@@ -24,18 +24,18 @@
 // 3.0.0-b.2    0029999995020
 // 2.2.0-a.1.z  0020019990011
 //
-#define LIBODB_ORACLE_VERSION       $libodb-oracle.version.project_number$ULL
-#define LIBODB_ORACLE_VERSION_STR   "$libodb-oracle.version.project$"
-#define LIBODB_ORACLE_VERSION_ID    "$libodb-oracle.version.project_id$"
+#define LIBODB_ORACLE_VERSION       $libodb_oracle.version.project_number$ULL
+#define LIBODB_ORACLE_VERSION_STR   "$libodb_oracle.version.project$"
+#define LIBODB_ORACLE_VERSION_ID    "$libodb_oracle.version.project_id$"
 
-#define LIBODB_ORACLE_VERSION_MAJOR $libodb-oracle.version.major$
-#define LIBODB_ORACLE_VERSION_MINOR $libodb-oracle.version.minor$
-#define LIBODB_ORACLE_VERSION_PATCH $libodb-oracle.version.patch$
+#define LIBODB_ORACLE_VERSION_MAJOR $libodb_oracle.version.major$
+#define LIBODB_ORACLE_VERSION_MINOR $libodb_oracle.version.minor$
+#define LIBODB_ORACLE_VERSION_PATCH $libodb_oracle.version.patch$
 
-#define LIBODB_ORACLE_PRE_RELEASE   $libodb-oracle.version.pre_release$
+#define LIBODB_ORACLE_PRE_RELEASE   $libodb_oracle.version.pre_release$
 
-#define LIBODB_ORACLE_SNAPSHOT      $libodb-oracle.version.snapshot_sn$ULL
-#define LIBODB_ORACLE_SNAPSHOT_ID   "$libodb-oracle.version.snapshot_id$"
+#define LIBODB_ORACLE_SNAPSHOT      $libodb_oracle.version.snapshot_sn$ULL
+#define LIBODB_ORACLE_SNAPSHOT_ID   "$libodb_oracle.version.snapshot_id$"
 
 #include <odb/version.hxx>
 
