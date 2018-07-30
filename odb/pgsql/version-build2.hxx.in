@@ -24,18 +24,18 @@
 // 3.0.0-b.2    0029999995020
 // 2.2.0-a.1.z  0020019990011
 //
-#define LIBODB_PGSQL_VERSION       $libodb-pgsql.version.project_number$ULL
-#define LIBODB_PGSQL_VERSION_STR   "$libodb-pgsql.version.project$"
-#define LIBODB_PGSQL_VERSION_ID    "$libodb-pgsql.version.project_id$"
+#define LIBODB_PGSQL_VERSION       $libodb_pgsql.version.project_number$ULL
+#define LIBODB_PGSQL_VERSION_STR   "$libodb_pgsql.version.project$"
+#define LIBODB_PGSQL_VERSION_ID    "$libodb_pgsql.version.project_id$"
 
-#define LIBODB_PGSQL_VERSION_MAJOR $libodb-pgsql.version.major$
-#define LIBODB_PGSQL_VERSION_MINOR $libodb-pgsql.version.minor$
-#define LIBODB_PGSQL_VERSION_PATCH $libodb-pgsql.version.patch$
+#define LIBODB_PGSQL_VERSION_MAJOR $libodb_pgsql.version.major$
+#define LIBODB_PGSQL_VERSION_MINOR $libodb_pgsql.version.minor$
+#define LIBODB_PGSQL_VERSION_PATCH $libodb_pgsql.version.patch$
 
-#define LIBODB_PGSQL_PRE_RELEASE   $libodb-pgsql.version.pre_release$
+#define LIBODB_PGSQL_PRE_RELEASE   $libodb_pgsql.version.pre_release$
 
-#define LIBODB_PGSQL_SNAPSHOT      $libodb-pgsql.version.snapshot_sn$ULL
-#define LIBODB_PGSQL_SNAPSHOT_ID   "$libodb-pgsql.version.snapshot_id$"
+#define LIBODB_PGSQL_SNAPSHOT      $libodb_pgsql.version.snapshot_sn$ULL
+#define LIBODB_PGSQL_SNAPSHOT_ID   "$libodb_pgsql.version.snapshot_id$"
 
 #include <odb/version.hxx>
 
