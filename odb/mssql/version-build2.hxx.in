@@ -24,18 +24,18 @@
 // 3.0.0-b.2    0029999995020
 // 2.2.0-a.1.z  0020019990011
 //
-#define LIBODB_MSSQL_VERSION       $libodb-mssql.version.project_number$ULL
-#define LIBODB_MSSQL_VERSION_STR   "$libodb-mssql.version.project$"
-#define LIBODB_MSSQL_VERSION_ID    "$libodb-mssql.version.project_id$"
+#define LIBODB_MSSQL_VERSION       $libodb_mssql.version.project_number$ULL
+#define LIBODB_MSSQL_VERSION_STR   "$libodb_mssql.version.project$"
+#define LIBODB_MSSQL_VERSION_ID    "$libodb_mssql.version.project_id$"
 
-#define LIBODB_MSSQL_VERSION_MAJOR $libodb-mssql.version.major$
-#define LIBODB_MSSQL_VERSION_MINOR $libodb-mssql.version.minor$
-#define LIBODB_MSSQL_VERSION_PATCH $libodb-mssql.version.patch$
+#define LIBODB_MSSQL_VERSION_MAJOR $libodb_mssql.version.major$
+#define LIBODB_MSSQL_VERSION_MINOR $libodb_mssql.version.minor$
+#define LIBODB_MSSQL_VERSION_PATCH $libodb_mssql.version.patch$
 
-#define LIBODB_MSSQL_PRE_RELEASE   $libodb-mssql.version.pre_release$
+#define LIBODB_MSSQL_PRE_RELEASE   $libodb_mssql.version.pre_release$
 
-#define LIBODB_MSSQL_SNAPSHOT      $libodb-mssql.version.snapshot_sn$ULL
-#define LIBODB_MSSQL_SNAPSHOT_ID   "$libodb-mssql.version.snapshot_id$"
+#define LIBODB_MSSQL_SNAPSHOT      $libodb_mssql.version.snapshot_sn$ULL
+#define LIBODB_MSSQL_SNAPSHOT_ID   "$libodb_mssql.version.snapshot_id$"
 
 #include <odb/version.hxx>
 
