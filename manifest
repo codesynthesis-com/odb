@@ -1,6 +1,6 @@
 : 1
 name: libodb-pgsql
-version: 2.5.0-b.8.z
+version: 2.5.0-b.9
 project: odb
 summary: PostgreSQL ODB runtime library
 license: GPLv2
@@ -17,4 +17,4 @@ requires: c++11
 depends: * build2 >= 0.8.0-
 depends: * bpkg >= 0.8.0-
 depends: libpq ^9.0.0
-depends: libodb [2.5.0-b.8.1 2.5.0-b.9)
+depends: libodb == 2.5.0-b.9
