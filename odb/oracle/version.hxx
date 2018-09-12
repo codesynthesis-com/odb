@@ -33,15 +33,15 @@
 
 // Check that we have compatible ODB version.
 //
-#if ODB_VERSION != 20459
+#if ODB_VERSION != 20460
 #  error incompatible odb interface version detected
 #endif
 
 // libodb-oracle version: odb interface version plus the bugfix
 // version.
 //
-#define LIBODB_ORACLE_VERSION     2049959
-#define LIBODB_ORACLE_VERSION_STR "2.5.0-b.9"
+#define LIBODB_ORACLE_VERSION     2049960
+#define LIBODB_ORACLE_VERSION_STR "2.5.0-b.10"
 
 #include <odb/post.hxx>
 
