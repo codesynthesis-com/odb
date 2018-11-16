@@ -400,7 +400,7 @@ namespace odb
             // to go to our endianness and back in order for casts to
             // work properly.
             //
-            long long i;
+            long long i (0);
 
             switch (PQftype (result, c))
             {
