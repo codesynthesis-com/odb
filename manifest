@@ -13,6 +13,7 @@ doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
 src-url: https://git.codesynthesis.com/cgit/odb/libodb-pgsql/
 email: odb-users@codesynthesis.com
 build-email: odb-builds@codesynthesis.com
+#builds: all
 requires: c++11
 depends: * build2 >= 0.8.0-
 depends: * bpkg >= 0.8.0-
