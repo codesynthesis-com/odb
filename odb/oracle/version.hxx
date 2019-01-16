@@ -1,5 +1,5 @@
 // file      : odb/oracle/version.hxx
-// copyright : Copyright (c) 2005-2018 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifdef LIBODB_ORACLE_BUILD2

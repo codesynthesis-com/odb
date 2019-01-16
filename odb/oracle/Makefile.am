@@ -1,5 +1,5 @@
 # file      : odb/oracle/Makefile.am
-# copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
+# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : ODB NCUEL; see accompanying LICENSE file
 
 lib_LTLIBRARIES = libodb-oracle.la

@@ -1,5 +1,5 @@
 # file      : build/import/cli/stub.make
-# copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
+# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
 $(call include-once,$(scf_root)/import/cli/configuration-rules.make,$(dcf_root))
