@@ -1,5 +1,5 @@
 // file      : odb/mssql/view-statements.hxx
-// copyright : Copyright (c) 2005-2018 Code Synthesis Tools CC
+// copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_MSSQL_VIEW_STATEMENTS_HXX

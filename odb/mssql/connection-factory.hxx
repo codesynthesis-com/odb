@@ -1,5 +1,5 @@
 // file      : odb/mssql/connection-factory.hxx
-// copyright : Copyright (c) 2009-2018 Code Synthesis Tools CC
+// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_MSSQL_CONNECTION_FACTORY_HXX
