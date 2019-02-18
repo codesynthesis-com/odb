@@ -1,0 +1,81 @@
+# file      : odb/boost/buildfile
+# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+../
+{
+  define options: file
+  options{*}: extension = options
+
+  # Install into the odb/boost/ subdirectory of, say, /usr/include/ recreating
+  # subdirectories.
+  #
+  {hxx ixx txx options}{*}: install         = include/odb/
+  {hxx ixx txx options}{*}: install.subdirs = true
+
+  boost/
+  {
+    import int_libs = libodb%lib{odb}
+    imp_libs =
+
+    lib{odb-boost}: {hxx ixx txx cxx}{** -version-build2} {hxx}{version-build2} \
+     details/build2/{h}{*}                                                      \
+                options{**} ../options{boost}                                   \
+                $imp_libs $int_libs
+
+    # Include the generated version header into the distribution (so that we
+    # don't pick up an installed one) and don't remove it when cleaning in src
+    # (so that clean results in a state identical to distributed).
+    #
+    hxx{version-build2}: in{version-build2} $src_root/manifest
+    hxx{version-build2}: dist  = true
+    hxx{version-build2}: clean = ($src_root != $out_root)
+
+    # For pre-releases use the complete version to make sure they cannot be used
+    # in place of another pre-release or the final version.
+    #
+    if $version.pre_release
+      lib{odb-boost}: bin.lib.version = @"-$version.project_id"
+    else
+      lib{odb-boost}: bin.lib.version = @"-$version.major.$version.minor"
+
+    cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_BOOST_BUILD2
+    obja{*}: cxx.poptions += -DLIBODB_BOOST_STATIC_BUILD
+    objs{*}: cxx.poptions += -DLIBODB_BOOST_SHARED_BUILD
+
+    lib{odb-boost}: cxx.export.poptions = "-I$out_root" "-I$src_root" \
+ -DLIBODB_BOOST_BUILD2
+
+    liba{odb-boost}: cxx.export.poptions += -DLIBODB_BOOST_STATIC
+    libs{odb-boost}: cxx.export.poptions += -DLIBODB_BOOST_SHARED
+
+    lib{odb-boost}: cxx.export.libs = $int_libs
+
+    # Installation tweaks.
+    #
+    install_include = [dir_path] include/odb/boost/
+
+    # We want these to be picked up whether LIBODB_BOOST_BUILD2 is defined or
+    # not.
+    #
+    hxx{version}@./:             install = false
+    hxx{version-build2}:         install = $install_include/version.hxx
+    hxx{version-build2-stub}@./: install = $install_include/version-build2.hxx
+
+    details/build2/
+    {
+      h{*}: install = false
+
+      if ($cxx.class == 'msvc')
+      {
+        h{config-vc}@./:      install = $install_include/details/
+        h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
+      }
+      else
+      {
+        h{config}@./:      install = $install_include/details/
+        h{config-stub}@./: install = $install_include/details/build2/config.h
+      }
+    }
+  }
+}

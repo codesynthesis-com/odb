@@ -2,6 +2,16 @@
 // copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#ifdef LIBODB_BOOST_BUILD2
+#  include <odb/boost/version-build2.hxx>
+
+// @@ TODO: need to derive automatically (it is also hardcoded in *.options).
+//
+#define ODB_BOOST_VERSION     2046000
+#define ODB_BOOST_VERSION_STR "2.5.0-b.10"
+
+#else
+
 #ifndef ODB_BOOST_VERSION_HXX
 #define ODB_BOOST_VERSION_HXX
 
@@ -49,3 +59,4 @@
 #include <odb/post.hxx>
 
 #endif // ODB_BOOST_VERSION_HXX
+#endif // LIBODB_BOOST_BUILD2

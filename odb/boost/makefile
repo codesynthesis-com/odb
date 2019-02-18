@@ -63,7 +63,7 @@ $(dist): export interface_version = $(shell sed -e \
 's/^\([0-9]*\.[0-9]*\).*/\1/' $(src_root)/version)
 
 $(dist):
-	$(call dist-data,$(sources) $(headers) $(options) details/config.h.in)
+	$(call dist-data,$(sources) $(headers) $(options) details/config.h.in details/config-vc.h)
 	$(call meta-vc8proj,$(src_base)/libodb-boost-vc8.vcproj)
 	$(call meta-vc9proj,$(src_base)/libodb-boost-vc9.vcproj)
 	$(call meta-vc10proj,$(src_base)/libodb-boost-vc10.vcxproj)

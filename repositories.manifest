@@ -1,0 +1,6 @@
+: 1
+summary: Boost ODB profile library repository
+
+:
+role: prerequisite
+location: ../libodb.git##HEAD

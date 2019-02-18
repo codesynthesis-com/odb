@@ -1,0 +1,18 @@
+# file      : build/root.build
+# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+cxx.std = 11
+
+using cxx
+
+hxx{*}: extension = hxx
+ixx{*}: extension = ixx
+txx{*}: extension = txx
+cxx{*}: extension = cxx
+
+if ($cxx.class == 'msvc')
+{
+  cxx.poptions += -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS
+  cxx.coptions += /wd4251 /wd4275 /wd4800
+}

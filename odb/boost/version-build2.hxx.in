@@ -1,0 +1,44 @@
+// file      : odb/boost/version-build2.hxx.in
+// copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+#ifndef LIBODB_BOOST_VERSION // Note: using the version macro itself.
+
+// Note: using build2 standard versioning scheme. The numeric version format
+// is AAABBBCCCDDDE where:
+//
+// AAA - major version number
+// BBB - minor version number
+// CCC - bugfix version number
+// DDD - alpha / beta (DDD + 500) version number
+// E   - final (0) / snapshot (1)
+//
+// When DDDE is not 0, 1 is subtracted from AAABBBCCC. For example:
+//
+// Version      AAABBBCCCDDDE
+//
+// 0.1.0        0000010000000
+// 0.1.2        0000010010000
+// 1.2.3        0010020030000
+// 2.2.0-a.1    0020019990010
+// 3.0.0-b.2    0029999995020
+// 2.2.0-a.1.z  0020019990011
+//
+#define LIBODB_BOOST_VERSION       $libodb_boost.version.project_number$ULL
+#define LIBODB_BOOST_VERSION_STR   "$libodb_boost.version.project$"
+#define LIBODB_BOOST_VERSION_ID    "$libodb_boost.version.project_id$"
+
+#define LIBODB_BOOST_VERSION_MAJOR $libodb_boost.version.major$
+#define LIBODB_BOOST_VERSION_MINOR $libodb_boost.version.minor$
+#define LIBODB_BOOST_VERSION_PATCH $libodb_boost.version.patch$
+
+#define LIBODB_BOOST_PRE_RELEASE   $libodb_boost.version.pre_release$
+
+#define LIBODB_BOOST_SNAPSHOT      $libodb_boost.version.snapshot_sn$ULL
+#define LIBODB_BOOST_SNAPSHOT_ID   "$libodb_boost.version.snapshot_id$"
+
+#include <odb/version.hxx>
+
+$libodb.check(LIBODB_VERSION, LIBODB_SNAPSHOT)$
+
+#endif // LIBODB_BOOST_VERSION

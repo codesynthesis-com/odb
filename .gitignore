@@ -1,9 +1,25 @@
+.bdep/
+
 # Compiler/linker output.
 #
+*.d
+*.t
+*.i
+*.ii
 *.o
-*.o.d
+*.obj
 *.so
+*.dll
 *.a
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.exe
+*.exe.dlls/
+*.exe.manifest
+*.pc
+
 *.l
 *.l.cpp-options
 
