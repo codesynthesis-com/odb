@@ -1,0 +1,21 @@
+: 1
+name: libodb-qt
+version: 2.5.0-b.10.z
+project: odb
+summary: Qt ODB profile library
+license: GPLv2
+license: proprietary
+tags: qt, c++, orm, database, relational, object, persistence, sql
+description-file: README
+changes-file: NEWS
+url: https://www.codesynthesis.com/products/odb/
+doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
+src-url: https://git.codesynthesis.com/cgit/odb/libodb-qt/
+email: odb-users@codesynthesis.com
+build-email: odb-builds@codesynthesis.com
+#builds: all
+requires: c++11
+requires: libqt-core ; Requires not yet packaged libqt-core.
+depends: * build2 >= 0.8.0-
+depends: * bpkg >= 0.8.0-
+depends: libodb [2.5.0-b.10.1 2.5.0-b.11)

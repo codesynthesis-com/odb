@@ -7,8 +7,6 @@
 
 // no pre
 
-#ifdef _MSC_VER
-#elif defined(ODB_COMPILER)
 // Qt5 may complain if we are building without -fPIC. Instead of asking the
 // user to pass one of these options to the ODB compiler (which can, BTW, be
 // done with -x -fPIC, for example, if one is not using the Qt profile), we
@@ -20,6 +18,7 @@
 // directly. This file appears to be present in all the versions starting with
 // Qt 4.0.
 //
+#ifdef ODB_COMPILER
 #  if defined(__ELF__) && !defined(__PIC__)
 #    include <QtCore/qconfig.h> // QT_REDUCE_RELOCATIONS
 #    ifdef QT_REDUCE_RELOCATIONS
@@ -27,8 +26,12 @@
 #    endif
 #  endif
 #  define LIBODB_QT_STATIC_LIB
-#else
-#  include <odb/qt/details/config.h>
+#elif !defined(LIBODB_QT_BUILD2)
+#  ifdef _MSC_VER
+#    include <odb/qt/details/config-vc.h>
+#  else
+#    include <odb/qt/details/config.h>
+#  endif
 #endif
 
 // no post
