@@ -4,12 +4,6 @@
 
 #ifdef LIBODB_BOOST_BUILD2
 #  include <odb/boost/version-build2.hxx>
-
-// @@ TODO: need to derive automatically (it is also hardcoded in *.options).
-//
-#define ODB_BOOST_VERSION     2046100
-#define ODB_BOOST_VERSION_STR "2.5.0-b.11"
-
 #else
 
 #ifndef ODB_BOOST_VERSION_HXX
