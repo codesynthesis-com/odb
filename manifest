@@ -1,6 +1,6 @@
 : 1
 name: libodb-qt
-version: 2.5.0-b.11
+version: 2.5.0-b.11+1
 project: odb
 summary: Qt ODB profile library
 license: GPLv2
