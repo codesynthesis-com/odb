@@ -22,32 +22,44 @@ lib{odb-mssql}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2}   \
 # clean results in a state identical to distributed).
 #
 hxx{version-build2}: in{version-build2} $src_root/manifest
-hxx{version-build2}: dist  = true
-hxx{version-build2}: clean = ($src_root != $out_root)
+hxx{version-build2}:
+{
+  dist  = true
+  clean = ($src_root != $out_root)
+}
 
-# For pre-releases use the complete version to make sure they cannot be used
-# in place of another pre-release or the final version.
+# Build options.
 #
-if $version.pre_release
-  lib{odb-mssql}: bin.lib.version = @"-$version.project_id"
-else
-  lib{odb-mssql}: bin.lib.version = @"-$version.major.$version.minor"
-
 cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_MSSQL_BUILD2
+
 obja{*}: cxx.poptions += -DLIBODB_MSSQL_STATIC_BUILD
 objs{*}: cxx.poptions += -DLIBODB_MSSQL_SHARED_BUILD
 
 if ($cc.target.class == 'windows')
   cxx.libs += ($cxx.target.system == "mingw32" ? -lodbc32 : odbc32.lib)
 
-lib{odb-mssql}: cxx.export.poptions = "-I$out_root" "-I$src_root" \
- -DLIBODB_MSSQL_BUILD2
+# Export options.
+#
+lib{odb-mssql}:
+{
+  cxx.export.poptions = "-I$out_root" "-I$src_root" -DLIBODB_MSSQL_BUILD2
+  cxx.export.libs = $int_libs
+}
 
 liba{odb-mssql}: cxx.export.poptions += -DLIBODB_MSSQL_STATIC
 libs{odb-mssql}: cxx.export.poptions += -DLIBODB_MSSQL_SHARED
 
-lib{odb-mssql}: cxx.export.libs = $int_libs
+# For pre-releases use the complete version to make sure they cannot be used
+# in place of another pre-release or the final version. See the version module
+# for details on the version.* variable values.
+#
+if $version.pre_release
+  lib{odb-mssql}: bin.lib.version = @"-$version.project_id"
+else
+  lib{odb-mssql}: bin.lib.version = @"-$version.major.$version.minor"
 
+# Generated options parser.
+#
 details/
 {
   if $cli.configured
@@ -64,9 +76,12 @@ details/
     # distributed). But don't install their headers since they are only used
     # internally in the database implementation.
     #
-    cli.cxx{*}: dist    = true
-    cli.cxx{*}: clean   = ($src_root != $out_root)
-    cli.cxx{*}: install = false
+    cli.cxx{*}:
+    {
+      dist    = true
+      clean   = ($src_root != $out_root)
+      install = false
+    }
   }
   else
     # No install for the pre-generated case.
@@ -74,13 +89,16 @@ details/
     hxx{options}@./ ixx{options}@./: install = false
 }
 
-# Install into the odb/mssql/ subdirectory of, say, /usr/include/ recreating
-# subdirectories.
+# Install into the odb/mssql/ subdirectory of, say, /usr/include/
+# recreating subdirectories.
 #
 install_include = [dir_path] include/odb/mssql/
 
-{hxx ixx txx}{*}: install         = $install_include
-{hxx ixx txx}{*}: install.subdirs = true
+{hxx ixx txx}{*}:
+{
+  install         = $install_include
+  install.subdirs = true
+}
 
 # We want these to be picked up whether LIBODB_MSSQL_BUILD2 is defined or not.
 #
