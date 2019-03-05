@@ -7,11 +7,14 @@
   define options: file
   options{*}: extension = options
 
-  # Install into the odb/boost/ subdirectory of, say, /usr/include/ recreating
-  # subdirectories.
+  # Install into the odb/boost/ subdirectory of, say, /usr/include/
+  # recreating subdirectories.
   #
-  {hxx ixx txx options}{*}: install         = include/odb/
-  {hxx ixx txx options}{*}: install.subdirs = true
+  {hxx ixx txx options}{*}:
+  {
+    install         = include/odb/
+    install.subdirs = true
+  }
 
   boost/
   {
@@ -28,28 +31,38 @@
     # (so that clean results in a state identical to distributed).
     #
     hxx{version-build2}: in{version-build2} $src_root/manifest
-    hxx{version-build2}: dist  = true
-    hxx{version-build2}: clean = ($src_root != $out_root)
+    hxx{version-build2}:
+    {
+      dist  = true
+      clean = ($src_root != $out_root)
+    }
 
-    # For pre-releases use the complete version to make sure they cannot be used
-    # in place of another pre-release or the final version.
+    # For pre-releases use the complete version to make sure they cannot be
+    # used in place of another pre-release or the final version. See the
+    # version module for details on the version.* variable values.
     #
     if $version.pre_release
       lib{odb-boost}: bin.lib.version = @"-$version.project_id"
     else
       lib{odb-boost}: bin.lib.version = @"-$version.major.$version.minor"
 
+    # Build options.
+    #
     cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_BOOST_BUILD2
+
     obja{*}: cxx.poptions += -DLIBODB_BOOST_STATIC_BUILD
     objs{*}: cxx.poptions += -DLIBODB_BOOST_SHARED_BUILD
 
-    lib{odb-boost}: cxx.export.poptions = "-I$out_root" "-I$src_root" \
- -DLIBODB_BOOST_BUILD2
+    # Export options.
+    #
+    lib{odb-boost}:
+    {
+      cxx.export.poptions = "-I$out_root" "-I$src_root" -DLIBODB_BOOST_BUILD2
+      cxx.export.libs = $int_libs
+    }
 
     liba{odb-boost}: cxx.export.poptions += -DLIBODB_BOOST_STATIC
     libs{odb-boost}: cxx.export.poptions += -DLIBODB_BOOST_SHARED
-
-    lib{odb-boost}: cxx.export.libs = $int_libs
 
     # Installation tweaks.
     #
