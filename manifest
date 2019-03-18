@@ -1,6 +1,6 @@
 : 1
 name: libodb-mssql
-version: 2.5.0-b.12.z
+version: 2.5.0-b.13
 project: odb
 summary: Microsoft SQL Server ODB runtime library
 license: ODB NCUEL ; Non-Commercial Use and Evaluation License.
@@ -18,4 +18,4 @@ requires: c++11
 requires: ? libunixodbc ; Only on UNIX.
 depends: * build2 >= 0.9.0
 depends: * bpkg >= 0.9.0
-depends: libodb [2.5.0-b.12.1 2.5.0-b.13)
+depends: libodb == 2.5.0-b.13
