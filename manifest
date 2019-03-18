@@ -1,6 +1,6 @@
 : 1
 name: libodb-boost
-version: 2.5.0-b.12.z
+version: 2.5.0-b.13
 project: odb
 summary: Boost ODB profile library
 license: GPLv2
@@ -18,4 +18,4 @@ requires: c++11
 requires: libboost ; Requires not yet packaged libboost.
 depends: * build2 >= 0.9.0
 depends: * bpkg >= 0.9.0
-depends: libodb [2.5.0-b.12.1 2.5.0-b.13)
+depends: libodb == 2.5.0-b.13

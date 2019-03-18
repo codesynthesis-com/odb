@@ -6,7 +6,7 @@
 
 // @@ TODO: need to derive automatically (it is also hardcoded in *.options).
 //
-#define ODB_BOOST_VERSION     2046200
+#define ODB_BOOST_VERSION     2046300
 
 // Note: using build2 standard versioning scheme. The numeric version format
 // is AAABBBCCCDDDE where:
