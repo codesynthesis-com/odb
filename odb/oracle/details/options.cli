@@ -51,9 +51,10 @@ namespace odb
         std::string --options-file
         {
           "<file>",
-          "Read additional options from <file>. Each option appearing on a
-           separate line optionally followed by space and an option value.
-           Empty lines and lines starting with \cb{#} are ignored."
+          "Read additional options from <file>. Each option should appear on a
+           separate line optionally followed by space or equal sign (\cb{=})
+           and an option value. Empty lines and lines starting with \cb{#} are
+           ignored."
         };
       };
     }
