@@ -1,6 +1,6 @@
 : 1
 name: libodb-qt
-version: 2.5.0-b.15
+version: 2.5.0-b.16.z
 project: odb
 summary: Qt ODB profile library
 license: GPLv2
@@ -16,6 +16,6 @@ build-email: odb-builds@codesynthesis.com
 builds: all
 requires: c++11
 requires: libqt-core ; Requires not yet packaged libqt-core.
-depends: * build2 >= 0.10.0
-depends: * bpkg >= 0.10.0
-depends: libodb == 2.5.0-b.15
+depends: * build2 >= 0.11.0
+depends: * bpkg >= 0.11.0
+depends: libodb [2.5.0-b.16.1 2.5.0-b.17)
