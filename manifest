@@ -5,7 +5,7 @@ project: odb
 summary: Oracle ODB runtime library
 license: ODB NCUEL ; Non-Commercial Use and Evaluation License.
 license: proprietary
-tags: c++, orm, oracle, database, relational, object, persistence, sql
+topics: C++, ORM, Oracle, SQL
 description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/
