@@ -5,7 +5,7 @@ project: odb
 summary: Qt ODB profile library
 license: GPLv2
 license: proprietary
-tags: qt, c++, orm, database, relational, object, persistence, sql
+topics: C++, ORM, Qt, SQL
 description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/
