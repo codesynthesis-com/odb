@@ -5,7 +5,7 @@ project: odb
 summary: Boost ODB profile library
 license: GPLv2
 license: proprietary
-tags: boost, c++, orm, database, relational, object, persistence, sql
+topics: C++, ORM, Boost, SQL
 description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/
