@@ -5,7 +5,7 @@ project: odb
 summary: Microsoft SQL Server ODB runtime library
 license: ODB NCUEL ; Non-Commercial Use and Evaluation License.
 license: proprietary
-tags: c++, orm, mssql, database, relational, object, persistence, sql, microsoft
+topics: C++, ORM, Microsoft SQL Server, SQL
 description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/
