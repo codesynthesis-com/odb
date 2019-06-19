@@ -5,7 +5,7 @@ project: odb
 summary: PostgreSQL ODB runtime library
 license: GPLv2
 license: proprietary
-tags: c++, orm, postgres, database, relational, object, persistence, sql
+topics: C++, ORM, PostgreSQL, SQL
 description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/
