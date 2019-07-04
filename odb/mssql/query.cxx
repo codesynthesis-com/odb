@@ -389,9 +389,17 @@ namespace odb
           size_ += n;
         }
 
-        if (chunk == chunk_one ||
-            chunk == chunk_last ||
-            chunk == chunk_null)
+        if (chunk == chunk_one || chunk == chunk_last)
+        {
+          // Make sure the resulting buffer is not NULL (failed that, this
+          // parameter will be skipped by the query machinery).
+          //
+          if (size_ == 0)
+            buf_.capacity (1);
+
+          break;
+        }
+        else if (chunk == chunk_null)
           break;
       }
     }
