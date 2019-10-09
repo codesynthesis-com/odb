@@ -100,7 +100,7 @@ details/build2/
 {
   h{*}: install = false
 
-  if ($cxx.class == 'msvc')
+  if ($cxx.target.system == 'win32-msvc')
   {
     h{config-vc}@./:      install = $install_include/details/
     h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
