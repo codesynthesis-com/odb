@@ -31,7 +31,7 @@ namespace odb
     public:
       statement_cache (connection& conn)
         : conn_ (conn),
-          version_seq_ (conn.database ().schema_version_sequence ()) {}
+          version_seq_ (conn_.database ().schema_version_sequence ()) {}
 
       template <typename T>
       typename object_traits_impl<T, id_mssql>::statements_type&
