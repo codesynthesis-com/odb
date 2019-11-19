@@ -1,6 +1,6 @@
 : 1
 name: libodb-oracle
-version: 2.5.0-b.16.z
+version: 2.5.0-b.17
 project: odb
 summary: Oracle ODB runtime library
 license: ODB NCUEL ; Non-Commercial Use and Evaluation License.
@@ -18,4 +18,4 @@ requires: c++11
 requires: oci ; Oracle Call Interface library.
 depends: * build2 >= 0.11.0
 depends: * bpkg >= 0.11.0
-depends: libodb [2.5.0-b.16.1 2.5.0-b.17)
+depends: libodb == 2.5.0-b.17
