@@ -1,6 +1,6 @@
 : 1
 name: libodb-boost
-version: 2.5.0-b.17
+version: 2.5.0-b.18.z
 project: odb
 summary: Boost ODB profile library
 license: GPLv2
@@ -16,6 +16,6 @@ build-email: odb-builds@codesynthesis.com
 builds: all
 requires: c++11
 requires: libboost ; Requires not yet packaged libboost.
-depends: * build2 >= 0.11.0
-depends: * bpkg >= 0.11.0
-depends: libodb == 2.5.0-b.17
+depends: * build2 >= 0.12.0
+depends: * bpkg >= 0.12.0
+depends: libodb [2.5.0-b.18.1 2.5.0-b.19)
