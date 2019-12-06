@@ -3,7 +3,7 @@ summary: PostgreSQL ODB runtime library repository
 
 :
 role: prerequisite
-location: https://git.build2.org/packaging/postgresql/libpq.git##HEAD
+location: https://git.build2.org/packaging/postgresql/postgresql.git##HEAD
 
 :
 role: prerequisite
