@@ -149,13 +149,14 @@ namespace odb
           kind_bool
         };
 
-        clause_part (kind_type k): kind (k) {}
-        clause_part (kind_type k, const std::string& p): kind (k), part (p) {}
+        clause_part (kind_type k): kind (k), bool_part (false) {}
+        clause_part (kind_type k, const std::string& p)
+            : kind (k), part (p), bool_part (false) {}
         clause_part (bool p): kind (kind_bool), bool_part (p) {}
 
         kind_type kind;
         std::string part; // If kind is param, then part is conversion expr.
-        bool bool_part = false;
+        bool bool_part;
       };
 
       query_base ()
