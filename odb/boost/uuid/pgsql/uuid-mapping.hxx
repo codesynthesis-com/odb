@@ -1,5 +1,4 @@
 // file      : odb/boost/uuid/pgsql/uuid-mapping.hxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_BOOST_UUID_PGSQL_UUID_MAPPING_HXX

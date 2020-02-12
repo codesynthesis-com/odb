@@ -1,5 +1,4 @@
 // file      : odb/boost/date-time/mssql/gregorian-mapping.hxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_BOOST_DATE_TIME_MSSQL_GREGORIAN_MAPPING_HXX

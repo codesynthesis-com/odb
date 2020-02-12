@@ -1,5 +1,4 @@
 // file      : odb/boost/smart-ptr/wrapper-traits.hxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_BOOST_SMART_PTR_WRAPPER_TRAITS_HXX
