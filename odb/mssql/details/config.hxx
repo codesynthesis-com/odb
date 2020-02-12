@@ -1,5 +1,4 @@
 // file      : odb/mssql/details/config.hxx
-// copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_MSSQL_DETAILS_CONFIG_HXX

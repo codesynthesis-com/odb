@@ -1,5 +1,4 @@
 // file      : odb/mssql/statements-base.cxx
-// copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <odb/mssql/statements-base.hxx>

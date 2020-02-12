@@ -1,5 +1,4 @@
 // file      : odb/mssql/query-dynamic.ixx
-// copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 namespace odb

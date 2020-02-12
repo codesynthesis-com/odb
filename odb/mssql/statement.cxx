@@ -1,5 +1,4 @@
 // file      : odb/mssql/statement.cxx
-// copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <cstring> // std::strlen, std::strstr, std::memset, std::memcpy
