@@ -1,5 +1,4 @@
 // file      : odb/qt/basic/pgsql/qstring-traits.hxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_QT_BASIC_PGSQL_QSTRING_TRAITS_HXX

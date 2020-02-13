@@ -1,5 +1,4 @@
 # file      : build/import/libqt/configuration-rules.make
-# copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 $(dcf_root)/import/libqt/configuration-dynamic.make: | $(dcf_root)/import/libqt/.

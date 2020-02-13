@@ -1,5 +1,4 @@
 // file      : odb/qt/basic/oracle/qbyte-array-traits.hxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_QT_BASIC_ORACLE_QBYTE_ARRAY_TRAITS_HXX
