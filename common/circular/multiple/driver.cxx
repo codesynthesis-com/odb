@@ -1,5 +1,4 @@
 // file      : common/circular/multiple/driver.cxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 // Test cases of circular dependencies between persistent classes, multiple

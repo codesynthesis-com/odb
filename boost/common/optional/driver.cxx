@@ -1,5 +1,4 @@
 // file      : boost/common/optional/driver.cxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 // Test boost::optional persistence.

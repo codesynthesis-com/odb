@@ -1,5 +1,4 @@
 // file      : mssql/database/driver.cxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : GNU GPL; see accompanying LICENSE file
 
 // Test that database constructors are unambiguous (compilation only).

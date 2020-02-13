@@ -1,5 +1,4 @@
 # file      : mysql/makefile
-# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : GNU GPL; see accompanying LICENSE file
 
 include $(dir $(lastword $(MAKEFILE_LIST)))../build/bootstrap.make

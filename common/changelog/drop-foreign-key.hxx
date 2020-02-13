@@ -1,5 +1,4 @@
 // file      : common/changelog/drop-foreign-key.hxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef DROP_FOREIGN_KEY_HXX
