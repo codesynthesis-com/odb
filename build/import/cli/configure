@@ -1,7 +1,6 @@
 #! /usr/bin/env bash
 
 # file      : build/import/cli/configure
-# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
 

@@ -1,5 +1,4 @@
 // file      : odb/pgsql/no-id-object-statements.hxx
-// copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef ODB_PGSQL_NO_ID_OBJECT_STATEMENTS_HXX

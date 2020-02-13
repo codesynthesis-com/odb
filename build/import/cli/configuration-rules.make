@@ -1,5 +1,4 @@
 # file      : build/import/cli/configuration-rules.make
-# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
 $(dcf_root)/import/cli/configuration-dynamic.make: | $(dcf_root)/import/cli/.
