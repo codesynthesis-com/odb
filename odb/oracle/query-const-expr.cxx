@@ -1,5 +1,4 @@
 // file      : odb/oracle/query-const-expr.cxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <odb/oracle/query.hxx>

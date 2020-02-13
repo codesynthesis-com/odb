@@ -1,5 +1,4 @@
 // file      : odb/oracle/query.cxx
-// copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #include <cstddef> // std::size_t

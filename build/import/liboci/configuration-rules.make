@@ -1,5 +1,4 @@
 # file      : build/import/liboci/configuration-rules.make
-# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 $(dcf_root)/import/liboci/configuration-dynamic.make: | $(dcf_root)/import/liboci/.

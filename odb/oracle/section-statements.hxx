@@ -1,5 +1,4 @@
 // file      : odb/oracle/section-statements.hxx
-// copyright : Copyright (c) 2005-2019 Code Synthesis Tools CC
 // license   : ODB NCUEL; see accompanying LICENSE file
 
 #ifndef ODB_ORACLE_SECTION_STATEMENTS_HXX

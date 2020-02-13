@@ -1,5 +1,4 @@
 # file      : build/import/cli/cli-cxx.make
-# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : MIT; see accompanying LICENSE file
 
 # Here we are operating in the importing project's space, not in
