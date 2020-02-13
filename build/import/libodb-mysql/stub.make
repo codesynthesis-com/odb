@@ -1,5 +1,4 @@
 # file      : build/import/libodb-mysql/stub.make
-# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 $(call include-once,$(scf_root)/import/libodb-mysql/configuration-rules.make,$(dcf_root))

@@ -1,5 +1,4 @@
 # file      : build/import/libodb-mssql/configuration-rules.make
-# copyright : Copyright (c) 2009-2019 Code Synthesis Tools CC
 # license   : ODB NCUEL; see accompanying LICENSE file
 
 $(dcf_root)/import/libodb-mssql/configuration-dynamic.make: | $(dcf_root)/import/libodb-mssql/.
