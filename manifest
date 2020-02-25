@@ -17,5 +17,5 @@ builds: all
 requires: c++11
 depends: * build2 >= 0.12.0
 depends: * bpkg >= 0.12.0
-depends: libpq ^9.0.0
+depends: libpq >=7.4.0
 depends: libodb [2.5.0-b.18.1 2.5.0-b.19)
