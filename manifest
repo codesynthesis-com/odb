@@ -3,8 +3,8 @@ name: libodb-pgsql
 version: 2.5.0-b.18.z
 project: odb
 summary: PostgreSQL ODB runtime library
-license: GPLv2
-license: proprietary
+license: GPL-2.0-only
+license: other: proprietary ; Not free/open source.
 topics: C++, ORM, PostgreSQL, SQL
 description-file: README
 changes-file: NEWS
