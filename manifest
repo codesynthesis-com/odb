@@ -3,8 +3,8 @@ name: libodb-oracle
 version: 2.5.0-b.18.z
 project: odb
 summary: Oracle ODB runtime library
-license: ODB NCUEL ; Non-Commercial Use and Evaluation License.
-license: proprietary
+license: other: ODB NCUEL   ; Non-Commercial Use and Evaluation License.
+license: other: proprietary ; Not free/open source.
 topics: C++, ORM, Oracle, SQL
 description-file: README
 changes-file: NEWS
