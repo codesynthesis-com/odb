@@ -12,7 +12,7 @@ url: https://www.codesynthesis.com/products/odb/
 doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
 src-url: https://git.codesynthesis.com/cgit/odb/libodb-qt/
 email: odb-users@codesynthesis.com
-build-email: odb-builds@codesynthesis.com
+build-warning-email: odb-builds@codesynthesis.com
 builds: all
 requires: c++11
 requires: libqt-core ; Requires not yet packaged libqt-core.
