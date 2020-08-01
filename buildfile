@@ -1,7 +1,7 @@
 # file      : buildfile
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-./: {*/ -build/ -m4/} doc{INSTALL LICENSE NEWS README} manifest
+./: {*/ -build/ -m4/} doc{INSTALL NEWS README} legal{LICENSE} manifest
 
 # Don't install tests or the INSTALL file.
 #
