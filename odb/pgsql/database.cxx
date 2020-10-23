@@ -319,7 +319,7 @@ namespace odb
         native_binding nparam (values, lengths, formats, 1);
 
         bool rnull[1];
-        bind rbind[1] = {{bind::boolean_, &exists, 0, 0, &rnull[1], 0}};
+        bind rbind[1] = {{bind::boolean_, &exists, 0, 0, &rnull[0], 0}};
         binding result (rbind, 1);
         result.version++;
 
