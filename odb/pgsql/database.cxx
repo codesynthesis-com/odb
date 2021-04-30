@@ -282,7 +282,9 @@ namespace odb
         cp = factory_->connect ();
 
       pgsql::connection& c (
-        cp != 0 ? *cp : transaction::current ().connection ());
+        cp != 0
+        ? *cp
+        : transaction::current ().connection (const_cast<database&> (*this)));
 
       // If we are in the user's transaction then things are complicated. When
       // we try to execute SELECT on a non-existent table, PG "poisons" the

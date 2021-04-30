@@ -129,7 +129,7 @@ namespace odb
                     root_type& robj,
                     const schema_version_migration* svm)
     {
-      connection_type& conn (transaction::current ().connection ());
+      connection_type& conn (transaction::current ().connection (db));
       polymorphic_derived_object_statements& sts (
         conn.statement_cache ().find_object<object_type> ());
       root_statements_type& rsts (sts.root_statements ());

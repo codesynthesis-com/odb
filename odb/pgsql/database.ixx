@@ -594,7 +594,7 @@ namespace odb
     {
       // Throws if not in transaction.
       //
-      pgsql::connection& c (transaction::current ().connection ());
+      pgsql::connection& c (transaction::current ().connection (*this));
       return c.prepare_query<T> (n, q);
     }
 
