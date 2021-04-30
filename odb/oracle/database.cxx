@@ -304,7 +304,9 @@ namespace odb
         cp = factory_->connect ();
 
       oracle::connection& c (
-        cp != 0 ? *cp : transaction::current ().connection ());
+        cp != 0
+        ? *cp
+        : transaction::current ().connection (const_cast<database&> (*this)));
 
       try
       {

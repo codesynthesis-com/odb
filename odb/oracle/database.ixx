@@ -624,7 +624,7 @@ namespace odb
     {
       // Throws if not in transaction.
       //
-      oracle::connection& c (transaction::current ().connection ());
+      oracle::connection& c (transaction::current ().connection (*this));
       return c.prepare_query<T> (n, q);
     }
 
