@@ -38,16 +38,11 @@ namespace odb
       virtual void
       rollback ();
 
-      connection_type&
-      connection ();
-
     private:
       connection_ptr connection_;
     };
   }
 }
-
-#include <odb/mssql/transaction-impl.ixx>
 
 #include <odb/post.hxx>
 

@@ -527,9 +527,11 @@ namespace odb
       if (!transaction::has_current ())
         t.reset (factory_->connect ()->begin (), false);
 
-      mssql::connection& c (t.finalized ()
-                            ? transaction::current ().connection ()
-                            : t.connection ());
+      mssql::connection& c (
+        t.finalized ()
+        ? transaction::current ().connection (const_cast<database&> (*this))
+        : t.connection (const_cast<database&> (*this)));
+
       try
       {
         select_statement st (c,

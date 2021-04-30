@@ -628,7 +628,7 @@ namespace odb
     {
       // Throws if not in transaction.
       //
-      mssql::connection& c (transaction::current ().connection ());
+      mssql::connection& c (transaction::current ().connection (*this));
       return c.prepare_query<T> (n, q);
     }
 

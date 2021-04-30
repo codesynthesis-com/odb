@@ -39,7 +39,13 @@ namespace odb
     inline transaction::connection_type& transaction::
     connection ()
     {
-      return implementation ().connection ();
+      return static_cast<connection_type&> (odb::transaction::connection ());
+    }
+
+    inline transaction::connection_type& transaction::
+    connection (odb::database& db)
+    {
+      return static_cast<connection_type&> (odb::transaction::connection (db));
     }
 
     inline void transaction::
