@@ -26,7 +26,10 @@ namespace odb
                         const string& message)
         : sqlstate_ (sqlstate), message_ (message)
     {
-      what_ = sqlstate_ + ": " + message_;
+      if (!sqlstate_.empty ())
+        what_ = sqlstate_ + ": " + message_;
+      else
+        what_ = message_;
     }
 
     database_exception::

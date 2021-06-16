@@ -1671,7 +1671,7 @@ namespace odb
       bind (bind_type* b)
       {
         b->type = bind::numeric;
-        b->buffer = buffer_.data ();
+        b->buffer = buffer_.data_ptr ();
         b->capacity = buffer_.capacity ();
         b->size = &size_;
       }
@@ -1836,7 +1836,7 @@ namespace odb
       bind (bind_type* b)
       {
         b->type = bind::text;
-        b->buffer = buffer_.data ();
+        b->buffer = buffer_.data_ptr ();
         b->capacity = buffer_.capacity ();
         b->size = &size_;
       }
@@ -1881,7 +1881,7 @@ namespace odb
       bind (bind_type* b)
       {
         b->type = bind::bytea;
-        b->buffer = buffer_.data ();
+        b->buffer = buffer_.data_ptr ();
         b->capacity = buffer_.capacity ();
         b->size = &size_;
       }
@@ -1926,7 +1926,7 @@ namespace odb
       bind (bind_type* b)
       {
         b->type = bind::bit;
-        b->buffer = buffer_.data ();
+        b->buffer = buffer_.data_ptr ();
         b->capacity = buffer_.capacity ();
         b->size = &size_;
       }
@@ -1970,7 +1970,7 @@ namespace odb
       bind (bind_type* b)
       {
         b->type = bind::varbit;
-        b->buffer = buffer_.data ();
+        b->buffer = buffer_.data_ptr ();
         b->capacity = buffer_.capacity ();
         b->size = &size_;
       }

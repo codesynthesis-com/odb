@@ -249,10 +249,11 @@ namespace odb
 
       // Bind parameters and results.
       //
+      char* pbuf[1] = {const_cast<char*> (name.c_str ())};
       size_t psize[1] = {name.size ()};
       bool pnull[1] = {false};
       bind pbind[1] = {{bind::text,
-                        const_cast<char*> (name.c_str ()),
+                        &pbuf[0],
                         &psize[0],
                         psize[0],
                         &pnull[0],
@@ -302,10 +303,11 @@ namespace odb
       bool exists (true);
       if (cp == 0 && c.server_version () >= 90400)
       {
+        char* pbuf[1] = {const_cast<char*> (table)};
         size_t psize[1] = {strlen (table)};
         bool pnull[1] = {false};
         bind pbind[1] = {{bind::text,
-                          const_cast<char*> (table),
+                          &pbuf[0],
                           &psize[0],
                           psize[0],
                           &pnull[0],

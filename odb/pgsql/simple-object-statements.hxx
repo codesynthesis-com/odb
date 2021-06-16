@@ -167,7 +167,8 @@ namespace odb
       typedef T object_type;
       typedef object_traits_impl<object_type, id_pgsql> object_traits;
 
-      optimistic_data (bind*, char** nv, int* nl, int* nf);
+      optimistic_data (bind*, char** nv, int* nl, int* nf,
+                       std::size_t skip, unsigned long long* status);
 
       binding*
       id_image_binding () {return &id_image_binding_;}
@@ -190,7 +191,8 @@ namespace odb
     template <typename T>
     struct optimistic_data<T, false>
     {
-      optimistic_data (bind*, char**, int*, int*) {}
+      optimistic_data (bind*, char**, int*, int*,
+                       std::size_t, unsigned long long*) {}
 
       binding*
       id_image_binding () {return 0;}
@@ -301,7 +303,7 @@ namespace odb
       // Object image.
       //
       image_type&
-      image () {return image_;}
+      image (std::size_t i = 0) {return images_[i].obj;}
 
       // Insert binding.
       //
@@ -348,7 +350,7 @@ namespace odb
       // Object id image and binding.
       //
       id_image_type&
-      id_image () {return id_image_;}
+      id_image (std::size_t i = 0) {return images_[i].id;}
 
       std::size_t
       id_image_version () const {return id_image_version_;}
@@ -471,8 +473,8 @@ namespace odb
       {
         return extra_statement_cache_.get (
           conn_,
-          image_,
-          id_image_,
+          images_[0].obj,
+          images_[0].id,
           id_image_binding_,
           od_.id_image_binding (),
           id_image_native_binding_,
@@ -527,7 +529,18 @@ namespace odb
                                 image_type,
                                 id_image_type> extra_statement_cache_;
 
-      image_type image_;
+      // The UPDATE statement uses both the object and id image. Keep them
+      // next to each other so that the same skip distance can be used in
+      // batch binding.
+      //
+      struct images
+      {
+        image_type obj;
+        id_image_type id;
+      };
+
+      images images_[object_traits::batch];
+      unsigned long long status_[object_traits::batch];
 
       // Select binding.
       //
@@ -574,7 +587,6 @@ namespace odb
       // Id image binding (only used as a parameter). Uses the suffix in
       // the update bind.
       //
-      id_image_type id_image_;
       std::size_t id_image_version_;
       binding id_image_binding_;
       native_binding id_image_native_binding_;

@@ -124,6 +124,13 @@ namespace odb
       typename object_traits<T>::id_type
       persist (const typename object_traits<T>::pointer_type& obj_ptr);
 
+      // Bulk persist. Can be a range of references or pointers (including
+      // smart pointers) to objects.
+      //
+      template <typename I>
+      void
+      persist (I begin, I end, bool continue_failed = true);
+
       // Load an object. Throw object_not_persistent if not found.
       //
       template <typename T>
@@ -210,6 +217,13 @@ namespace odb
       void
       update (const typename object_traits<T>::pointer_type& obj_ptr);
 
+      // Bulk update. Can be a range of references or pointers (including
+      // smart pointers) to objects.
+      //
+      template <typename I>
+      void
+      update (I begin, I end, bool continue_failed = true);
+
       // Update a section of an object. Throws the section_not_loaded
       // exception if the section is not loaded. Note also that this
       // function does not clear the changed flag if it is set.
@@ -252,6 +266,19 @@ namespace odb
       template <typename T>
       void
       erase (const typename object_traits<T>::pointer_type& obj_ptr);
+
+      // Bulk erase.
+      //
+      template <typename T, typename I>
+      void
+      erase (I id_begin, I id_end, bool continue_failed = true);
+
+      // Can be a range of references or pointers (including smart pointers)
+      // to objects.
+      //
+      template <typename I>
+      void
+      erase (I obj_begin, I obj_end, bool continue_failed = true);
 
       // Erase multiple objects matching a query predicate.
       //

@@ -14,8 +14,13 @@ namespace odb
 {
   namespace pgsql
   {
-    // The libpq result binding. This data structures is
-    // modelled after MYSQL_BIND from MySQL.
+    // The libpq result binding. This data structures is roughly modeled
+    // after MYSQL_BIND from MySQL.
+    //
+    // Types that may need to grow are bound as pointers to pointers to char
+    // array (normally in details::buffer) in order to allow simple offsetting
+    // in bulk operation support. Note that if we were to do the same for
+    // capacity, we could get rid of the buffer growth tracking altogether.
     //
     struct bind
     {
@@ -27,14 +32,14 @@ namespace odb
         bigint,   // Buffer is long long; size, capacity, truncated are unused.
         real,     // Buffer is float; size, capacity, truncated are unused.
         double_,  // Buffer is double; size, capacity, truncated are unused.
-        numeric,  // Buffer is a char array.
+        numeric,  // Buffer is a pointer to pointer to char array.
         date,     // Buffer is int; size, capacity, truncated are unused.
         time,     // Buffer is long long; size, capacity, truncated are unused.
         timestamp,// Buffer is long long; size, capacity, truncated are unused.
-        text,     // Buffer is a char array.
-        bytea,    // Buffer is a char array.
-        bit,      // Buffer is a char array.
-        varbit,   // Buffer is a char array.
+        text,     // Buffer is a pointer to pointer to char array.
+        bytea,    // Buffer is a pointer to pointer to char array.
+        bit,      // Buffer is a pointer to char array.
+        varbit,   // Buffer is a pointer to pointer to char array.
         uuid      // Buffer is a 16-byte char array; size capacity, truncated
                   // are unused. Note: big-endian, in RFC 4122/4.1.2 order.
       };

@@ -63,22 +63,24 @@ namespace odb
       void
       deallocate ();
 
-      // Adapt an ODB binding to a native PostgreSQL parameter binding.
+      // Adapt an ODB binding to a native PostgreSQL parameter binding. If pos
+      // is not 0, then bind the parameter set at this position in a batch.
       //
       static void
-      bind_param (native_binding&, const binding&);
+      bind_param (native_binding&, const binding&, std::size_t pos = 0);
 
       // Populate an ODB binding given a PostgreSQL result. If the truncated
       // argument is true, then only truncated columns are extracted. Return
       // true if all the data was extracted successfully and false if one or
-      // more columns were truncated.
+      // more columns were truncated. If pos is not 0, then populate the
+      // parameter set at this position in a batch.
       //
       static bool
-      bind_result (bind*,
-                   std::size_t count,
+      bind_result (const binding&,
                    PGresult*,
                    std::size_t row,
-                   bool truncated = false);
+                   bool truncated = false,
+                   std::size_t pos = 0);
 
     protected:
       // We keep two versions to take advantage of std::string COW.
@@ -101,6 +103,16 @@ namespace odb
                  bool copy_name_text,
                  const Oid* types,
                  std::size_t types_count);
+
+      // Bulk execute implementation.
+      //
+      std::size_t
+      execute (const binding& param,
+               native_binding& native_param,
+               std::size_t n,
+               multiple_exceptions&,
+               bool (*process) (size_t i, PGresult*, bool good, void* data),
+               void* data);
 
     private:
       void
@@ -296,6 +308,20 @@ namespace odb
       bool
       execute ();
 
+      // Return the number of parameter sets (out of n) that were attempted.
+      //
+      std::size_t
+      execute (std::size_t n, multiple_exceptions&);
+
+      // Return true if successful and false if this row is a duplicate.
+      // All other errors are reported via exceptions.
+      //
+      bool
+      result (std::size_t i)
+      {
+        return param_.status[i] != 0;
+      }
+
     private:
       insert_statement (const insert_statement&);
       insert_statement& operator= (const insert_statement&);
@@ -333,6 +359,22 @@ namespace odb
 
       unsigned long long
       execute ();
+
+      // Return the number of parameter sets (out of n) that were attempted.
+      //
+      std::size_t
+      execute (std::size_t n, multiple_exceptions&);
+
+      // Return the number of rows affected (updated) by the parameter
+      // set. All errors are reported by throwing exceptions.
+      //
+      static const unsigned long long result_unknown = ~0ULL;
+
+      unsigned long long
+      result (std::size_t i)
+      {
+        return param_.status[i];
+      }
 
     private:
       update_statement (const update_statement&);
@@ -375,6 +417,22 @@ namespace odb
 
       unsigned long long
       execute ();
+
+      // Return the number of parameter sets (out of n) that were attempted.
+      //
+      std::size_t
+      execute (std::size_t n, multiple_exceptions&);
+
+      // Return the number of rows affected (deleted) by the parameter
+      // set. All errors are reported by throwing exceptions.
+      //
+      static const unsigned long long result_unknown = ~0ULL;
+
+      unsigned long long
+      result (std::size_t i)
+      {
+        return param_->status[i];
+      }
 
     private:
       delete_statement (const delete_statement&);

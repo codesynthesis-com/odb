@@ -24,13 +24,17 @@ namespace odb
           // select
           select_image_binding_ (select_image_bind_, select_column_count),
           // insert
-          insert_image_binding_ (insert_image_bind_, insert_column_count),
+          insert_image_binding_ (insert_image_bind_,
+                                 insert_column_count,
+                                 object_traits::batch,
+                                 sizeof (image_type),
+                                 status_),
           insert_image_native_binding_ (insert_image_values_,
                                         insert_image_lengths_,
                                         insert_image_formats_,
                                         insert_column_count)
     {
-      image_.version = 0;
+      image_[0].version = 0; // Only version in the first element used.
       select_image_version_ = 0;
       insert_image_version_ = 0;
 

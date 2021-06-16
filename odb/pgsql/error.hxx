@@ -9,23 +9,25 @@
 #include <libpq-fe.h>
 
 #include <odb/pgsql/version.hxx>
-#include <odb/pgsql/forward.hxx> // connection
+#include <odb/pgsql/forward.hxx> // connection, multiple_exceptions
 #include <odb/pgsql/details/export.hxx>
 
 namespace odb
 {
   namespace pgsql
   {
-    // Translate an error condition involving a PGresult*. If r is null, it is
-    // assumed that the error was caused due to a bad connection or a memory
-    // allocation error.
+    // Translate an error condition involving PGresult* and throw (or return,
+    // in case multiple_exceptions is not NULL) an appropriate exception. If
+    // result is NULL, it is assumed that the error was caused due to a bad
+    // connection or a memory allocation error.
     //
     LIBODB_PGSQL_EXPORT void
-    translate_error (connection& c, PGresult* r);
+    translate_error (connection& c, PGresult* r,
+                     std::size_t pos = 0, multiple_exceptions* = 0);
 
-    // Return true if the PGresult is in an error state. If both s and r are
-    // non-null, the pointed to value will be populated with the result status.
-    // Otherwise, s is ignored.
+    // Return true if PGresult is not NULL and is not in an error state. If
+    // both s and r are non-NULL, the pointed to value will be populated with
+    // the result status. Otherwise, s is ignored.
     //
     LIBODB_PGSQL_EXPORT bool
     is_good_result (PGresult* r, ExecStatusType* s = 0);

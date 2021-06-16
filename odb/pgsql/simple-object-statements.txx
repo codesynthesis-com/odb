@@ -19,11 +19,15 @@ namespace odb
 
     template <typename T>
     optimistic_data<T, true>::
-    optimistic_data (bind* b, char** nv, int* nl, int* nf)
+    optimistic_data (bind* b, char** nv, int* nl, int* nf,
+                     std::size_t skip, unsigned long long* status)
         : id_image_binding_ (
             b,
             object_traits::id_column_count +
-            object_traits::managed_optimistic_column_count),
+            object_traits::managed_optimistic_column_count,
+            object_traits::batch,
+            skip,
+            status),
           id_image_native_binding_ (
             nv, nl, nf,
             object_traits::id_column_count +
@@ -48,7 +52,11 @@ namespace odb
           // select
           select_image_binding_ (select_image_bind_, select_column_count),
           // insert
-          insert_image_binding_ (insert_image_bind_, insert_column_count),
+          insert_image_binding_ (insert_image_bind_,
+                                 insert_column_count,
+                                 object_traits::batch,
+                                 sizeof (images),
+                                 status_),
           insert_image_native_binding_ (insert_image_values_,
                                         insert_image_lengths_,
                                         insert_image_formats_,
@@ -56,7 +64,10 @@ namespace odb
           // update
           update_image_binding_ (update_image_bind_,
                                  update_column_count + id_column_count +
-                                 managed_optimistic_column_count),
+                                 managed_optimistic_column_count,
+                                 object_traits::batch,
+                                 sizeof (images),
+                                 status_),
           update_image_native_binding_ (update_image_values_,
                                         update_image_lengths_,
                                         update_image_formats_,
@@ -64,7 +75,10 @@ namespace odb
                                         managed_optimistic_column_count),
           // id
           id_image_binding_ (update_image_bind_ + update_column_count,
-                             id_column_count),
+                             id_column_count,
+                             object_traits::batch,
+                             sizeof (images),
+                             status_),
           id_image_native_binding_ (
             update_image_values_ + update_column_count,
             update_image_lengths_ + update_column_count,
@@ -74,15 +88,19 @@ namespace odb
           od_ (update_image_bind_ + update_column_count,
                update_image_values_ + update_column_count,
                update_image_lengths_ + update_column_count,
-               update_image_formats_ + update_column_count)
+               update_image_formats_ + update_column_count,
+               sizeof (images),
+               status_)
     {
-      image_.version = 0;
+      // Only versions in the first element used.
+      //
+      images_[0].obj.version = 0;
+      images_[0].id.version = 0;
+
       select_image_version_ = 0;
       insert_image_version_ = 0;
       update_image_version_ = 0;
       update_id_image_version_ = 0;
-
-      id_image_.version = 0;
       id_image_version_ = 0;
 
       std::memset (insert_image_bind_, 0, sizeof (insert_image_bind_));

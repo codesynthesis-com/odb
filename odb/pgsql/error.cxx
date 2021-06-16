@@ -15,17 +15,50 @@ namespace odb
   namespace pgsql
   {
     void
-    translate_error (connection& c, PGresult* r)
+    translate_error (connection& c, PGresult* r,
+                     size_t pos, multiple_exceptions* mex)
     {
       if (!r)
       {
-        if (CONNECTION_BAD == PQstatus (c.handle ()))
+        if (PQstatus (c.handle ()) == CONNECTION_BAD)
         {
           c.mark_failed ();
           throw connection_lost ();
         }
         else
           throw bad_alloc ();
+      }
+
+      // Note that we expect the caller to handle PGRES_PIPELINE_ABORTED since
+      // it's not really an error but rather an indication that no attempt was
+      // made to execute this statement.
+      //
+      string ss;
+      switch (PQresultStatus (r))
+      {
+      case PGRES_BAD_RESPONSE:
+        {
+          throw database_exception ("bad server response");
+        }
+      case PGRES_FATAL_ERROR:
+        {
+          const char* s (PQresultErrorField (r, PG_DIAG_SQLSTATE));
+          ss = (s != 0 ? s : "?????");
+
+          // Deadlock detected.
+          //
+          if (ss == "40001" || ss == "40P01")
+            throw deadlock ();
+          else if (PQstatus (c.handle ()) == CONNECTION_BAD)
+          {
+            c.mark_failed ();
+            throw connection_lost ();
+          }
+          break;
+        }
+      default:
+        assert (false);
+        break;
       }
 
       string msg;
@@ -35,43 +68,19 @@ namespace odb
         const char* m (PQresultErrorMessage (r));
         msg = (m != 0 ? m : "bad server response");
 
-        // Get rid of a trailing newline if there is one.
+        // Get rid of the trailing newline if there is one.
         //
         string::size_type n (msg.size ());
         if (n != 0 && msg[n - 1] == '\n')
           msg.resize (n - 1);
       }
 
-      switch (PQresultStatus (r))
-      {
-      case PGRES_BAD_RESPONSE:
-        {
-          throw database_exception (msg);
-        }
-      case PGRES_FATAL_ERROR:
-        {
-          string ss;
-          {
-            const char* s (PQresultErrorField (r, PG_DIAG_SQLSTATE));
-            ss = (s != 0 ? s : "?????");
-          }
-
-          // Deadlock detected.
-          //
-          if (ss == "40001" || ss == "40P01")
-            throw deadlock ();
-          else if (CONNECTION_BAD == PQstatus (c.handle ()))
-          {
-            c.mark_failed ();
-            throw connection_lost ();
-          }
-          else
-            throw database_exception (ss, msg);
-        }
-      default:
-        assert (false);
-        break;
-      }
+      if (mex == 0)
+        throw database_exception (ss, msg);
+      else
+        // In PosgreSQL all errors are fatal.
+        //
+        mex->insert (pos, database_exception (ss, msg), true);
     }
   }
 }
