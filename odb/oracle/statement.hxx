@@ -408,7 +408,7 @@ namespace odb
         return execute (n, &mex);
       }
 
-      // Return the number of rows affected (deleted) by the parameter
+      // Return the number of rows affected (updated) by the parameter
       // set. If this is a batch (n > 1 in execute() call above) and it
       // is impossible to determine the affected row count for each
       // parameter set, then this function returns result_unknown. All
@@ -508,7 +508,6 @@ namespace odb
 
         return result_;
       }
-
 
       unsigned long long
       execute ()
