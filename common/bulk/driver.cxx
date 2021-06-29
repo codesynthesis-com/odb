@@ -288,7 +288,9 @@ main (int argc, char* argv[])
   {
     auto_ptr<database> db (create_database (argc, argv));
 
-#if defined(DATABASE_ORACLE) || defined(DATABASE_MSSQL)
+// @@ TODO: bulk operations in PostgreSQL are only available with libpq >= 14.
+//
+#if defined(DATABASE_ORACLE) || defined(DATABASE_MSSQL) //|| defined(DATABASE_PGSQL)
 
     // Test database class API with various forms of containers
     // and elements (test #6 is a copy).
@@ -776,8 +778,16 @@ main (int argc, char* argv[])
         }
         catch (const multiple_exceptions& e)
         {
+#ifndef DATABASE_PGSQL
           assert (e.attempted () == 3 && e.failed () == 2);
           assert (e[0] != 0 && e[1] == 0 && e[2] != 0);
+#else
+          // In PosgreSQL no further statements are attempted after the first
+          // failure.
+          //
+          assert (e.attempted () == 1 && e.failed () == 1);
+          assert (e[0] != 0);
+#endif
         }
       }
 
@@ -1069,8 +1079,12 @@ main (int argc, char* argv[])
 
       try
       {
+        // Some updates may succeed spoiling the version for erase tests.
+        //
+        std::vector<object> c (v);
+
         transaction t (db->begin ());
-        db->update (v.begin (), v.end ());
+        db->update (c.begin (), c.end ());
         assert (false);
       }
       catch (const multiple_exceptions& e)
