@@ -70,7 +70,7 @@ namespace odb
     };
 
     template <typename T>
-    inline T*
+    static inline T*
     offset (T* base, size_t count, size_t size)
     {
       return reinterpret_cast<T*> (
