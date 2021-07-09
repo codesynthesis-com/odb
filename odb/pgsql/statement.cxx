@@ -807,7 +807,13 @@ namespace odb
           if (PQconsumeInput (ch) == 0)
             translate_connection_error (conn_);
 
-          while (PQisBusy (ch) == 0)
+          // Note that PQisBusy() will return 0 (and subsequent PQgetResult()
+          // -- NULL) if we have consumed all the results for the queries that
+          // we have sent so far. Thus the (wn > rn) condition. Note that for
+          // this to work correctly we have to count the PQpipelineSync() call
+          // below as one of the queries (since it has a separate result).
+          //
+          while (wn > rn && PQisBusy (ch) == 0)
           {
             auto_handle<PGresult> res (PQgetResult (ch));
 
@@ -830,7 +836,7 @@ namespace odb
               // without marking the connection as failed.
               //
               {
-                pipeline_recovery plr (pl, wdone, wn != n);
+                pipeline_recovery plr (pl, wdone, wn < n);
 
                 if (!process (i, res, gr, data))
                   translate_error (conn_, res, i, &mex);
@@ -881,7 +887,7 @@ namespace odb
           //
           for (;;)
           {
-            if (wn != n)
+            if (wn < n)
             {
               bind_param (native_param, param, wn);
 
@@ -898,6 +904,10 @@ namespace odb
               {
                 if (PQpipelineSync (ch) == 0)
                   translate_connection_error (conn_);
+
+                // Count as one of the queries since it has a separate result.
+                //
+                ++wn;
               }
             }
 
@@ -913,7 +923,7 @@ namespace odb
 
             if (r == 0)
             {
-              if (wn != n)
+              if (wn < n)
               {
                 // If we continue here, then we are write-biased. And if we
                 // break, then we are read-biased.
