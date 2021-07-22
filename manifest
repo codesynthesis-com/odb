@@ -14,6 +14,7 @@ src-url: https://git.codesynthesis.com/cgit/odb/libodb-pgsql/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
 builds: all
+builds: -wasm
 requires: c++11
 depends: * build2 >= 0.13.0
 depends: * bpkg >= 0.13.0
