@@ -18,7 +18,7 @@
 #  ifndef WIN32_LEAN_AND_MEAN
 #    define WIN32_LEAN_AND_MEAN
 #  endif
-#  include <windows.h>   // CreatePipe, CreateProcess
+#  include <windows.h>   // CreatePipe, CreateProcess, GetTemp*, MAX_PATH
 #  include <io.h>        // _open_osfhandle
 #  include <fcntl.h>     // _O_TEXT
 #endif
@@ -32,6 +32,7 @@
 #include <ext/stdio_filebuf.h>
 
 #include <libcutl/fs/path.hxx>
+#include <libcutl/fs/auto-remove.hxx>
 
 #include <odb/version.hxx>
 #include <odb/options.hxx>
@@ -44,6 +45,7 @@
 using namespace std;
 using cutl::fs::path;
 using cutl::fs::invalid_path;
+using cutl::fs::auto_remove;
 
 typedef vector<string> strings;
 typedef vector<path> paths;
@@ -89,6 +91,16 @@ struct process_info
 };
 
 struct process_failure {};
+
+#ifdef _WIN32
+// Deal with Windows command line length limit.
+//
+static auto_remove
+fixup_cmd_line (vector<const char*>& args,
+                size_t start,
+                const char* name,
+                string& arg);
+#endif
 
 // Start another process using the specified command line. Connect the
 // newly created process' stdin to out_fd. Also if connect_* are true,
@@ -892,6 +904,14 @@ main (int argc, char* argv[])
           }
         }
 
+        // Deal with Windows command line length limit.
+        //
+#ifdef _WIN32
+        string ops_file_arg;
+        auto_remove opt_file_rm (
+          fixup_cmd_line (exec_args, 1, argv[0], ops_file_arg));
+#endif
+
         process_info pi (start_process (&exec_args[0], argv[0], false, true));
 
         {
@@ -1324,6 +1344,11 @@ profile_paths (strings const& sargs, char const* name)
 
   exec_args.push_back ("-"); // Compile stdin.
   exec_args.push_back (0);
+
+#ifdef _WIN32
+  string ops_file_arg;
+  auto_remove opt_file_rm (fixup_cmd_line (exec_args, 1, name, ops_file_arg));
+#endif
 
   process_info pi (start_process (&exec_args[0], name, true));
   close (pi.out_fd); // Preprocess empty file.
@@ -1839,6 +1864,138 @@ print_error (char const* name)
   LocalFree (msg);
 }
 
+// On Windows we need to protect command line arguments with spaces using
+// quotes. Since there could be actual quotes in the value, we need to escape
+// them.
+//
+static void
+append_quoted (string& cmd_line, const char* ca)
+{
+  string a (ca);
+  bool quote (a.find (' ') != string::npos);
+
+  if (quote)
+    cmd_line += '"';
+
+  for (size_t i (0); i < a.size (); ++i)
+  {
+    if (a[i] == '"')
+      cmd_line += "\\\"";
+    else
+      cmd_line += a[i];
+  }
+
+  if (quote)
+    cmd_line += '"';
+}
+
+// Deal with Windows command line length limit.
+//
+// The best approach seems to be passing the command line in an "options file"
+// ("response file" in Microsoft's terminology).
+//
+static auto_remove
+fixup_cmd_line (vector<const char*>& args,
+                size_t start,
+                const char* name,
+                string& arg)
+{
+  // Calculate the would-be command line length similar to how start_process()
+  // implementation does it.
+  //
+  size_t n (0);
+  string s;
+  for (const char* a: args)
+  {
+    if (a != nullptr)
+    {
+      if (n != 0)
+        n++; // For the space separator.
+
+      s.clear ();
+      append_quoted (s, a);
+      n += s.size ();
+    }
+  }
+
+  if (n <= 32) // @@ TMP
+  //if (n <= 32766) // 32768 - "Unicode terminating null character".
+    return auto_remove ();
+
+  // Create the temporary file.
+  //
+  char d[MAX_PATH + 1], p[MAX_PATH + 1];
+  if (GetTempPathA (sizeof (d), d) == 0 ||
+      GetTempFileNameA (d, "odb", 0, p) == 0)
+  {
+    print_error (name);
+    throw process_failure ();
+  }
+
+  auto_remove rm = auto_remove (path (p));
+  try
+  {
+    ofstream ofs (p);
+    if (!ofs.is_open ())
+    {
+      cerr << name << ": error: unable to open '" << p << "' in write mode"
+           << endl;
+      throw process_failure ();
+    }
+
+    ofs.exceptions (ios_base::badbit | ios_base::failbit);
+
+    // Write the arguments to file.
+    //
+    // The format is a space-separated list of potentially-quoted arguments
+    // with support for backslash-escaping.
+    //
+    string b;
+    for (size_t i (start), n (args.size () - 1); i != n; ++i)
+    {
+      const char* a (args[i]);
+
+      // We will most likely have backslashes so just do it.
+      //
+      {
+        for (b.clear (); *a != '\0'; ++a)
+        {
+          if (*a != '\\')
+            b += *a;
+          else
+            b += "\\\\";
+        }
+
+        a = b.c_str ();
+      }
+
+      s.clear ();
+      append_quoted (s, a);
+      ofs << (i != start ? " " : "") << s;
+    }
+
+    ofs << '\n';
+    ofs.close ();
+  }
+  catch (const ios_base::failure&)
+  {
+    cerr << name << ": error: unable to write to '" << p << "'" << endl;
+    throw process_failure ();
+  }
+
+  // Rewrite the command line.
+  //
+  arg = '@' + p;
+  args.resize (start);
+  args.push_back (arg.c_str());
+  args.push_back (nullptr);
+
+  cerr << arg << endl;
+  rm.cancel ();
+
+  return rm;
+}
+
 static process_info
 start_process (char const* args[], char const* name, bool err, bool out)
 {
@@ -1904,26 +2061,7 @@ start_process (char const* args[], char const* name, bool err, bool out)
     if (p != args)
       cmd_line += ' ';
 
-    // On Windows we need to protect values with spaces using quotes.
-    // Since there could be actual quotes in the value, we need to
-    // escape them.
-    //
-    string a (*p);
-    bool quote (a.find (' ') != string::npos);
-
-    if (quote)
-      cmd_line += '"';
-
-    for (size_t i (0); i < a.size (); ++i)
-    {
-      if (a[i] == '"')
-        cmd_line += "\\\"";
-      else
-        cmd_line += a[i];
-    }
-
-    if (quote)
-      cmd_line += '"';
+    append_quoted (cmd_line, *p);
   }
 
   // Prepare other info.
