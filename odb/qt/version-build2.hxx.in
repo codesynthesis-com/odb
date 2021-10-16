@@ -5,7 +5,7 @@
 
 // @@ TODO: need to derive automatically (it is also hardcoded in *.options).
 //
-#define ODB_QT_VERSION     2047000
+#define ODB_QT_VERSION     2047100
 
 // The numeric version format is AAAAABBBBBCCCCCDDDE where:
 //
