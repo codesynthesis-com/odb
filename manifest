@@ -16,7 +16,7 @@ build-warning-email: odb-builds@codesynthesis.com
 builds: all
 builds: -wasm
 requires: c++11
-depends: * build2 >= 0.14.0
-depends: * bpkg >= 0.14.0
+depends: * build2 >= 0.14.0-
+depends: * bpkg >= 0.14.0-
 depends: libpq >=7.4.0
 depends: libodb [2.5.0-b.22.1 2.5.0-b.23)
