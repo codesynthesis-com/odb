@@ -1,6 +1,6 @@
 : 1
 name: libodb-mssql
-version: 2.5.0-b.21
+version: 2.5.0-b.22.z
 project: odb
 summary: Microsoft SQL Server ODB runtime library
 license: other: ODB NCUEL   ; Non-Commercial Use and Evaluation License.
@@ -16,6 +16,6 @@ build-warning-email: odb-builds@codesynthesis.com
 builds: windows ; Requires not yet packaged libunixodbc (unixODBC).
 requires: c++11
 requires: ? libunixodbc ; Only on UNIX.
-depends: * build2 >= 0.13.0
-depends: * bpkg >= 0.13.0
-depends: libodb == 2.5.0-b.21
+depends: * build2 >= 0.14.0
+depends: * bpkg >= 0.14.0
+depends: libodb [2.5.0-b.22.1 2.5.0-b.23)
