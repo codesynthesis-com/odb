@@ -10,6 +10,8 @@
 #include <cstddef>  // std::size_t
 #include <cstring>  // std::memcpy
 
+#include <QtCore/QtGlobal> // QT_VERSION
+
 #include <QtCore/QDateTime>
 
 #include <odb/details/buffer.hxx>
@@ -90,7 +92,14 @@ namespace odb
         else
         {
           v.setTimeSpec (Qt::UTC);
-          v.setTime_t (static_cast <uint> (i));
+
+          // *Time_t() functions are deprecated in favor of *SecsSinceEpoch().
+          //
+#if QT_VERSION < 0x060000
+          v.setTime_t (static_cast<uint> (i));
+#else
+          v.setSecsSinceEpoch (static_cast<qint64> (i));
+#endif
         }
       }
 
@@ -106,7 +115,12 @@ namespace odb
         else
         {
           is_null = false;
+
+#if QT_VERSION < 0x060000
           i = static_cast<long long> (v.toTime_t ());
+#else
+          i = static_cast<long long> (v.toSecsSinceEpoch ());
+#endif
         }
       }
     };

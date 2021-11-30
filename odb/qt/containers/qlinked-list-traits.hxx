@@ -6,6 +6,13 @@
 
 #include <odb/pre.hxx>
 
+#include <QtCore/QtGlobal> // QT_VERSION
+
+// QLinkedList is deprecated since Qt5 5.15 and in Qt6 it has been moved to a
+// separate library.
+//
+#if (QT_VERSION < 0x050F00) || ODB_QT_FORCE_QLINKEDLIST
+
 #include <QtCore/QLinkedList>
 
 #include <odb/container-traits.hxx>
@@ -67,6 +74,8 @@ namespace odb
     }
   };
 }
+
+#endif
 
 #include <odb/post.hxx>
 
