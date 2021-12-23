@@ -15,7 +15,8 @@ email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
 builds: windows ; Requires not yet packaged libunixodbc (unixODBC).
 requires: c++11
-requires: ? libunixodbc ; Only on UNIX.
+# @@ DEP
+#requires: ? libunixodbc ; Only on UNIX.
 depends: * build2 >= 0.14.0-
 depends: * bpkg >= 0.14.0-
 depends: libodb [2.5.0-b.22.1 2.5.0-b.23)
