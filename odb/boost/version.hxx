@@ -31,23 +31,23 @@
 
 // Check that we have compatible ODB version.
 //
-#if ODB_VERSION != 20472
+#if ODB_VERSION != 20473
 #  error incompatible odb interface version detected
 #endif
 
 // ODB Boost interface version: odb interface version plus the Boost interface
 // version.
 //
-#define ODB_BOOST_VERSION     2047200
-#define ODB_BOOST_VERSION_STR "2.5.0-b.22"
+#define ODB_BOOST_VERSION     2047300
+#define ODB_BOOST_VERSION_STR "2.5.0-b.23"
 
 // libodb-boost version: odb interface version plus the bugfix version. Note
 // that LIBODB_BOOST_VERSION is always greater or equal to ODB_BOOST_VERSION
 // since if the Boost interface virsion is incremented then the bugfix version
 // must be incremented as well.
 //
-#define LIBODB_BOOST_VERSION     2049972
-#define LIBODB_BOOST_VERSION_STR "2.5.0-b.22"
+#define LIBODB_BOOST_VERSION     2049973
+#define LIBODB_BOOST_VERSION_STR "2.5.0-b.23"
 
 #include <odb/post.hxx>
 
