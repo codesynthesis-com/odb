@@ -290,7 +290,7 @@ main (int argc, char* argv[])
 
 // @@ TODO: bulk operations in PostgreSQL are only available with libpq >= 14.
 //
-#if defined(DATABASE_ORACLE) || defined(DATABASE_MSSQL) //|| defined(DATABASE_PGSQL)
+#if defined(DATABASE_ORACLE) || defined(DATABASE_MSSQL) || defined(DATABASE_PGSQL)
 
     // Test database class API with various forms of containers
     // and elements (test #6 is a copy).

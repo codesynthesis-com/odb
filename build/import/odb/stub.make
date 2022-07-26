@@ -11,7 +11,7 @@ ifdef odb_installed
 
 ifeq ($(odb_installed),y)
 
-$(call export,odb: odb,odb-rules: $(scf_root)/import/odb/hxx-cxx.make)
+$(call export,odb: /usr/local/bin/odb,odb-rules: $(scf_root)/import/odb/hxx-cxx.make)
 
 else
 
