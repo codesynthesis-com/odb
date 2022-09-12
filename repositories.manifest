@@ -8,3 +8,7 @@ location: https://git.build2.org/packaging/postgresql/postgresql.git##HEAD
 :
 role: prerequisite
 location: ../libodb.git##HEAD
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/cli/cli.git##HEAD
