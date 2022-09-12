@@ -12,12 +12,12 @@ clean    := $(out_base)/.clean
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): export dirs := $(dirs)
-$(dist): export docs := NCUEL LICENSE README NEWS version
+$(dist): export docs := NCUEL LICENSE README NEWS version.txt
 $(dist): data_dist := INSTALL libodb-mssql-vc8.sln libodb-mssql-vc9.sln \
 libodb-mssql-vc10.sln libodb-mssql-vc11.sln libodb-mssql-vc12.sln
 $(dist): exec_dist := bootstrap
 $(dist): export extra_dist := $(data_dist) $(exec_dist)
-$(dist): export version = $(shell cat $(src_root)/version)
+$(dist): export version = $(shell cat $(src_root)/version.txt)
 
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(dirs)))
 	$(call dist-data,$(docs) $(data_dist) libodb-mssql.pc.in)
