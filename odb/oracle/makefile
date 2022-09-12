@@ -110,7 +110,7 @@ libodb-oracle-vc10.vcxproj libodb-oracle-vc10.vcxproj.filters \
 libodb-oracle-vc11.vcxproj libodb-oracle-vc11.vcxproj.filters \
 libodb-oracle-vc12.vcxproj libodb-oracle-vc12.vcxproj.filters
 $(dist): export interface_version = $(shell sed -e \
-'s/^\([0-9]*\.[0-9]*\).*/\1/' $(src_root)/version)
+'s/^\([0-9]*\.[0-9]*\).*/\1/' $(src_root)/version.txt)
 
 $(dist): $(gen)
 	$(call dist-data,$(sources_dist) $(headers_dist) $(data_dist))

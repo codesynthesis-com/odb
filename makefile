@@ -12,12 +12,12 @@ clean    := $(out_base)/.clean
 $(default): $(addprefix $(out_base)/,$(addsuffix /,$(dirs)))
 
 $(dist): export dirs := $(dirs)
-$(dist): export docs := LICENSE NCUEL README NEWS version
+$(dist): export docs := LICENSE NCUEL README NEWS version.txt
 $(dist): data_dist := INSTALL libodb-oracle-vc8.sln libodb-oracle-vc9.sln \
 libodb-oracle-vc10.sln libodb-oracle-vc11.sln libodb-oracle-vc12.sln
 $(dist): exec_dist := bootstrap
 $(dist): export extra_dist := $(data_dist) $(exec_dist)
-$(dist): export version = $(shell cat $(src_root)/version)
+$(dist): export version = $(shell cat $(src_root)/version.txt)
 
 $(dist): $(addprefix $(out_base)/,$(addsuffix /.dist,$(dirs)))
 	$(call dist-data,$(docs) $(data_dist) libodb-oracle.pc.in)
