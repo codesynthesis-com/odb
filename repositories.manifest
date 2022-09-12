@@ -4,3 +4,7 @@ summary: Microsoft SQL Server ODB runtime library repository
 :
 role: prerequisite
 location: ../libodb.git##HEAD
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/cli/cli.git##HEAD
