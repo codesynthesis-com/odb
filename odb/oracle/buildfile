@@ -1,6 +1,9 @@
 # file      : odb/oracle/buildfile
 # license   : ODB NCUEL; see accompanying LICENSE file
 
+define cli: file
+cli{*}: extension = cli
+
 import int_libs = libodb%lib{odb}
 
 # Note: to build with MinGW rename oci.lib to liboci.dll.a.
@@ -10,9 +13,9 @@ if ($cc.target.class != 'windows')
 else
   import imp_libs = liboci%lib{oci}
 
-lib{odb-oracle}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2}   \
-         details/{hxx ixx txx cxx}{* -options} details/{hxx ixx cxx}{options} \
-  details/build2/{h}{*}                                                       \
+lib{odb-oracle}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2} \
+         details/{hxx ixx txx cxx}{* -options}                              \
+  details/build2/{h}{*}                                                     \
                  $imp_libs $int_libs
 
 # Include the generated version header into the distribution (so that we don't
@@ -53,36 +56,76 @@ if $version.pre_release
 else
   lib{odb-oracle}: bin.lib.version = @"-$version.major.$version.minor"
 
-# Generated options parser.
+develop = $config.libodb_oracle.develop
+
+## Consumption build ($develop == false).
 #
-details/
+
+# Use pregenerated versions in the consumption build.
+#
+lib{odb-oracle}: details/pregenerated/{hxx ixx cxx}{**}: include = (!$develop)
+
+if! $develop
+  cxx.poptions =+ "-I($src_base/details/pregenerated)" # Note: must come first.
+
+# Don't install pregenerated headers since they are only used internally in
+# the database implementation (also below).
+#
+details/pregenerated/{hxx ixx}{*}: install = false
+
+# Distribute pregenerated versions only in the consumption build.
+#
+details/pregenerated/{hxx ixx cxx}{*}: dist = (!$develop)
+
+#
+##
+
+## Development build ($develop == true).
+#
+
+lib{odb-oracle}: details/{hxx ixx cxx}{options}: include = $develop
+
+if $develop
+  import! [metadata] cli = cli%exe{cli}
+
+# In the development build distribute regenerated {hxx ixx cxx}{options},
+# remapping their locations to the paths of the pregenerated versions (which
+# are only distributed in the consumption build; see above). This way we make
+# sure that the distributed files are always up-to-date.
+#
+<details/{hxx ixx cxx}{options}>: details/cli{options} $cli
 {
-  if $cli.configured
-  {
-    cli.cxx{options}: cli{options}
+  install = false
+  dist    = ($develop ? details/pregenerated/odb/oracle/details/ : false)
 
-    cli.options += --include-with-brackets --include-prefix odb/oracle/details \
---guard-prefix LIBODB_ORACLE_DETAILS --generate-file-scanner \
---cli-namespace odb::oracle::details::cli --long-usage --generate-specifier \
---no-combined-flags
-
-    # Include generated cli files into the distribution and don't remove them
-    # when cleaning in src (so that clean results in a state identical to
-    # distributed). But don't install their headers since they are only used
-    # internally in the database implementation.
-    #
-    cli.cxx{*}:
-    {
-      dist    = true
-      clean   = ($src_root != $out_root)
-      install = false
-    }
-  }
-  else
-    # No install for the pre-generated case.
-    #
-    hxx{options}@./ ixx{options}@./: install = false
+  # Symlink the generated code in src for convenience of development.
+  #
+  backlink = true
 }
+%
+if $develop
+{{
+  options = --include-with-brackets --include-prefix odb/oracle/details  \
+            --guard-prefix LIBODB_ORACLE_DETAILS --generate-file-scanner \
+            --cli-namespace odb::oracle::details::cli --long-usage       \
+            --generate-specifier --no-combined-flags
+
+  $cli $options -o $out_base/details/ $path($<[0])
+
+  # If the result differs from the pregenerated version, copy it over.
+  #
+  d = [dir_path] $src_base/details/pregenerated/odb/oracle/details/
+
+  if diff $d/options.hxx $path($>[0]) >- && \
+     diff $d/options.ixx $path($>[1]) >- && \
+     diff $d/options.cxx $path($>[2]) >-
+    exit
+  end
+
+  cp $path($>[0]) $d/options.hxx
+  cp $path($>[1]) $d/options.ixx
+  cp $path($>[2]) $d/options.cxx
+}}
 
 # Install into the odb/oracle/ subdirectory of, say, /usr/include/
 # recreating subdirectories.

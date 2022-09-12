@@ -19,3 +19,4 @@ requires: oci ; Oracle Call Interface library.
 depends: * build2 >= 0.15.0-
 depends: * bpkg >= 0.15.0-
 depends: libodb [2.5.0-b.24.1 2.5.0-b.25)
+depends: * cli ^1.2.0- ? ($config.libodb_oracle.develop)
