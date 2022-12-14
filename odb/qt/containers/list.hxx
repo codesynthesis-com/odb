@@ -46,8 +46,14 @@ public:
 #endif
 
 #ifdef ODB_CXX11
-  QOdbList(QOdbList &&x): vector_base (std::move (x)), l_ (std::move (x.l_)) {}
+  QOdbList(QOdbList &&x) noexcept
+    : vector_base (std::move (x)), l_ (std::move (x.l_)) {}
+
+  // Note: noexcept is not specified since it can throw while reallocating
+  // impl_.
+  //
   QOdbList &operator=(QOdbList &&other);
+
 #if defined(ODB_CXX11_INITIALIZER_LIST) && \
   defined(Q_COMPILER_INITIALIZER_LISTS)
   QOdbList(std::initializer_list<T> il): l_ (il) {}
