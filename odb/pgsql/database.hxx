@@ -79,6 +79,9 @@ namespace odb
 
       // Move-constructible but not move-assignable.
       //
+      // Note: noexcept is not specified since odb::database(odb::database&&)
+      // can throw.
+      //
 #ifdef ODB_CXX11
       database (database&&);
 #endif
