@@ -127,8 +127,8 @@ namespace odb
       }
 
 #ifdef ODB_CXX11
-      auto_handle (auto_handle&& ah): h_ (ah.release ()) {}
-      auto_handle& operator= (auto_handle&& ah)
+      auto_handle (auto_handle&& ah) noexcept: h_ (ah.release ()) {}
+      auto_handle& operator= (auto_handle&& ah) noexcept
       {
         if (this != &ah)
           reset (ah.release ());
