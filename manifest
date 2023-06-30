@@ -1,6 +1,6 @@
 : 1
 name: libodb-oracle
-version: 2.5.0-b.24.z
+version: 2.5.0-b.25
 project: odb
 summary: Oracle ODB runtime library
 license: other: ODB NCUEL   ; Non-Commercial Use and Evaluation License.
@@ -16,7 +16,7 @@ build-warning-email: odb-builds@codesynthesis.com
 builds: none ; Requires proprietary Oracle Call Interface library.
 requires: c++11
 requires: oci ; Oracle Call Interface library.
-depends: * build2 >= 0.15.0-
-depends: * bpkg >= 0.15.0-
-depends: libodb [2.5.0-b.24.1 2.5.0-b.25)
+depends: * build2 >= 0.15.0
+depends: * bpkg >= 0.15.0
+depends: libodb == 2.5.0-b.25
 depends: * cli ^1.2.0- ? ($config.libodb_oracle.develop)
