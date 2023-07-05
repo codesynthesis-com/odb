@@ -1,6 +1,6 @@
 : 1
 name: libodb-pgsql
-version: 2.5.0-b.25
+version: 2.5.0-b.26.z
 project: odb
 summary: PostgreSQL ODB runtime library
 license: GPL-2.0-only
@@ -16,8 +16,8 @@ build-warning-email: odb-builds@codesynthesis.com
 builds: all
 builds: -wasm
 requires: c++11
-depends: * build2 >= 0.15.0
-depends: * bpkg >= 0.15.0
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
 depends: libpq >=7.4.0
-depends: libodb == 2.5.0-b.25
+depends: libodb [2.5.0-b.26.1 2.5.0-b.27)
 depends: * cli ^1.2.0- ? ($config.libodb_pgsql.develop)
