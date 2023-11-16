@@ -6,6 +6,14 @@
 
 #include <odb/pre.hxx>
 
+#include <QtCore/QtGlobal> // QT_VERSION
+
+// In Qt 6 QVector is an alias for QList.
+//
+#if QT_VERSION >= 0x060000
+#include <odb/qt/containers/qlist-traits.hxx>
+#else
+
 #include <QtCore/QVector>
 
 #include <odb/container-traits.hxx>
@@ -66,6 +74,8 @@ namespace odb
     }
   };
 }
+
+#endif
 
 #include <odb/post.hxx>
 
