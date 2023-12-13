@@ -11,13 +11,12 @@
 //
 
 #include <memory>
-#include <cassert>
 #include <iostream>
 
 #include <odb/exceptions.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test1.hxx"
 #include "test1-odb.hxx"
@@ -30,6 +29,9 @@
 
 #include "test4.hxx"
 #include "test4-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;

@@ -4,17 +4,19 @@
 // Test automatic C++ enum mapping.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -27,18 +29,16 @@ main (int argc, char* argv[])
     typedef odb::query<object> query;
     typedef odb::result<object> result;
 
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     object o;
     o.color_ = green;
     o.taste_ = object::sweet;
     o.position_ = object::left;
 
-#ifdef HAVE_CXX11_ENUM
     o.gender_ = object::gender::female;
     o.scale_ = object::scale::ten;
     o.yesno_ = object::yesno::yes;
-#endif
 
     {
       transaction t (db->begin ());
@@ -48,7 +48,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (o.id_));
+      unique_ptr<object> o1 (db->load<object> (o.id_));
       t.commit ();
 
       assert (o == *o1);
@@ -65,7 +65,6 @@ main (int argc, char* argv[])
       assert (!r2.empty ());
       assert (!r3.empty ());
 
-#ifdef HAVE_CXX11_ENUM
       result r4 (db->query<object> (query::gender == object::gender::female));
       result r5 (db->query<object> (query::scale == object::scale::ten));
       result r6 (db->query<object> (query::yesno == object::yesno::yes));
@@ -73,7 +72,6 @@ main (int argc, char* argv[])
       assert (!r4.empty ());
       assert (!r5.empty ());
       assert (!r6.empty ());
-#endif
 
       t.commit ();
     }

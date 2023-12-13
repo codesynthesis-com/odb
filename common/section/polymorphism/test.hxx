@@ -4,8 +4,6 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <string>
 #include <vector>
 #include <memory>
@@ -501,7 +499,6 @@ namespace test8
 // objects derive polymorphically from the same base (and thus shared the id
 // bindind).
 //
-#ifdef HAVE_CXX11
 #pragma db namespace table("t9_")
 namespace test9
 {
@@ -541,6 +538,5 @@ namespace test9
     elements e2;
   };
 }
-#endif
 
 #endif // TEST_HXX

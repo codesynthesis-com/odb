@@ -4,17 +4,19 @@
 // Test reuse object inheritance.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     base b;
     b.comp_.bools.push_back (true);
@@ -99,7 +101,7 @@ main (int argc, char* argv[])
     reference r;
     r.o1_ = &o1;
 
-    empty e;
+    empty_object e;
     e.comp_.bools.push_back (true);
     e.comp_.bools.push_back (true);
     e.comp_.obools.push_back (true);
@@ -134,12 +136,12 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<base> lb (db->load<base> (b.id_));
-      auto_ptr<object1> lo1 (db->load<object1> (o1.id_));
-      auto_ptr<object2> lo2 (db->load<object2> (o2.id_));
-      auto_ptr<object3> lo3 (db->load<object3> (o3.id_));
-      auto_ptr<empty> le (db->load<empty> (e.id_));
-      auto_ptr<reference> lr (db->load<reference> (r.id_));
+      unique_ptr<base> lb (db->load<base> (b.id_));
+      unique_ptr<object1> lo1 (db->load<object1> (o1.id_));
+      unique_ptr<object2> lo2 (db->load<object2> (o2.id_));
+      unique_ptr<object3> lo3 (db->load<object3> (o3.id_));
+      unique_ptr<empty_object> le (db->load<empty_object> (e.id_));
+      unique_ptr<reference> lr (db->load<reference> (r.id_));
       t.commit ();
 
       assert (b == *lb);

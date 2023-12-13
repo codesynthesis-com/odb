@@ -4,19 +4,20 @@
 // Test relationship queries.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/session.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -26,9 +27,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
-
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
+    unique_ptr<database> db (create_database (argc, argv));
 
     //
     //
@@ -160,9 +159,6 @@ main (int argc, char* argv[])
 
       t.commit ();
     }
-
-#endif // HAVE_CXX11 || HAVE_TR1_MEMORY
-
   }
   catch (const odb::exception& e)
   {

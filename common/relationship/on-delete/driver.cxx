@@ -4,17 +4,19 @@
 // Test ON DELETE functionality.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     object o;
 
@@ -60,13 +62,13 @@ main (int argc, char* argv[])
       transaction t (db->begin ());
       assert (db->find<cascade> (c.id) == 0);
 
-      auto_ptr<cascade_cont> pcc (db->load<cascade_cont> (cc.id));
+      unique_ptr<cascade_cont> pcc (db->load<cascade_cont> (cc.id));
       assert (pcc->p.empty ());
 
-      auto_ptr<set_null> pn (db->load<set_null> (n.id));
+      unique_ptr<set_null> pn (db->load<set_null> (n.id));
       assert (pn->p == 0);
 
-      auto_ptr<set_null_cont> pnc (db->load<set_null_cont> (nc.id));
+      unique_ptr<set_null_cont> pnc (db->load<set_null_cont> (nc.id));
       assert (pnc->p.size () == 1 && pnc->p[0] == 0);
 
       t.commit ();

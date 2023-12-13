@@ -4,17 +4,19 @@
 // Test database schemas (aka database namespaces).
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test database schema (aka database namespace).
     //
@@ -47,7 +49,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object2> p2 (db->load<object2> ("aaa"));
+      unique_ptr<object2> p2 (db->load<object2> ("aaa"));
       t.commit ();
 
       assert (o2 == *p2);

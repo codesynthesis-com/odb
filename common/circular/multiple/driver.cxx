@@ -5,8 +5,7 @@
 // files version.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
@@ -14,13 +13,16 @@
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test1.hxx"
 #include "test2.hxx"
 
 #include "test2-odb.hxx"
 #include "test1-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -30,7 +32,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv, false));
+    unique_ptr<database> db (create_database (argc, argv, false));
 
     // Create the database schema.
     //

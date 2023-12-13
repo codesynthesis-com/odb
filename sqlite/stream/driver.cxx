@@ -5,8 +5,7 @@
 //
 
 #include <vector>
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/sqlite/database.hxx>
@@ -15,10 +14,13 @@
 #include <odb/sqlite/text-stream.hxx>
 #include <odb/sqlite/blob-stream.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace sqlite = odb::sqlite;
@@ -41,7 +43,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_specific_database<database> (argc, argv));
+    unique_ptr<database> db (create_specific_database<database> (argc, argv));
 
     string txt (1024 * 1024, 't');
     vector<char> blb (1024 * 1024, 'b');
@@ -80,7 +82,7 @@ main (int argc, char* argv[])
 
     {
       transaction tx (db->begin ());
-      auto_ptr<object> p (db->load<object> (o.id));
+      unique_ptr<object> p (db->load<object> (o.id));
 
       print (p->t);
       print (p->b);
@@ -169,7 +171,7 @@ main (int argc, char* argv[])
 
     {
       transaction tx (db->begin ());
-      auto_ptr<object> p (db->load<object> (o.id));
+      unique_ptr<object> p (db->load<object> (o.id));
 
       print (p->t);
       print (p->b);

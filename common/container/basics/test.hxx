@@ -4,21 +4,16 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <map>
 #include <set>
 #include <list>
 #include <vector>
 #include <deque>
+#include <array>
 #include <string>
-
-#ifdef HAVE_CXX11
-#  include <array>
-#  include <forward_list>
-#  include <unordered_map>
-#  include <unordered_set>
-#endif
+#include <forward_list>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <odb/core.hxx>
 
@@ -29,7 +24,7 @@ struct comp
   comp (int n, const std::string& s) : num (n), str (s) {}
 
   #pragma db column("number")
-  int num;
+  int num = 0;
   std::string str;
 };
 
@@ -66,7 +61,6 @@ typedef std::map<std::string, int> str_num_map;
 typedef std::map<int, comp> num_comp_map;
 typedef std::map<comp, std::string> comp_str_map;
 
-#ifdef HAVE_CXX11
 struct comp_hash
 {
   std::size_t
@@ -92,7 +86,6 @@ typedef std::unordered_map<int, std::string> num_str_umap;
 typedef std::unordered_map<std::string, int> str_num_umap;
 typedef std::unordered_map<int, comp> num_comp_umap;
 typedef std::unordered_map<comp, std::string, comp_hash> comp_str_umap;
-#endif
 
 #pragma db value
 struct cont_comp1
@@ -162,7 +155,6 @@ struct object
   num_comp_map ncm;
   comp_str_map csm;
 
-#ifdef HAVE_CXX11
   // array
   //
   num_array na;
@@ -187,26 +179,6 @@ struct object
   str_num_umap snum;
   num_comp_umap ncum;
   comp_str_umap csum;
-#else
-  // Dummy containers to get the equivalent DROP TABLE statements.
-  //
-  num_vector na;
-  num_vector sa;
-  num_vector ca;
-
-  num_vector nfl;
-  num_vector sfl;
-  num_vector cfl;
-
-  num_set nus;
-  str_set sus;
-  comp_set cus;
-
-  num_str_map nsum;
-  str_num_map snum;
-  num_comp_map ncum;
-  comp_str_map csum;
-#endif
 
   std::string str;
 };
@@ -250,7 +222,6 @@ operator== (const object& x, const object& y)
     x.ncm == y.ncm &&
     x.csm == y.csm &&
 
-#ifdef HAVE_CXX11
     x.na == y.na &&
     x.sa == y.sa &&
     x.ca == y.ca &&
@@ -267,7 +238,6 @@ operator== (const object& x, const object& y)
     x.snum == y.snum &&
     x.ncum == y.ncum &&
     x.csum == y.csum &&
-#endif
 
     x.str == y.str;
 }

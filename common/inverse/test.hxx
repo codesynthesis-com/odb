@@ -4,18 +4,12 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
-
 #include <set>
 #include <vector>
 #include <string>
 #include <memory>
 
 #include <odb/core.hxx>
-
-#if !defined(HAVE_CXX11) && defined(HAVE_TR1_MEMORY)
-#  include <odb/tr1/memory.hxx>
-#endif
 
 // Test raw pointers.
 //
@@ -127,18 +121,11 @@ namespace test1
 
 // Test shared_ptr/weak_ptr.
 //
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
-
 #pragma db namespace table("t2_")
 namespace test2
 {
-#ifdef HAVE_CXX11
   using std::shared_ptr;
   using std::weak_ptr;
-#else
-  using std::tr1::shared_ptr;
-  using std::tr1::weak_ptr;
-#endif
 
   struct obj1;
   struct obj2;
@@ -229,7 +216,6 @@ namespace test2
     obj1_wptr_vec o1;
   };
 }
-#endif
 
 // Test inverse based on points_to.
 //

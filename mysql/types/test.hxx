@@ -7,7 +7,7 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <memory>  // std::auto_ptr
+#include <memory>  // std::unique_ptr
 #include <cstring> // std::memcpy, std::str[n]cmp, std::strlen
 
 #include <odb/core.hxx>
@@ -84,7 +84,7 @@ operator== (bitfield x, bitfield y)
 #pragma db value(bitfield) type ("BIT(4)")
 
 typedef std::set<std::string> set;
-typedef std::auto_ptr<std::string> string_ptr;
+typedef std::unique_ptr<std::string> string_ptr;
 
 enum color {red, green, blue};
 

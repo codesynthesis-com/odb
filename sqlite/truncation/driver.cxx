@@ -4,17 +4,19 @@
 // Test insufficient buffer/truncation handling.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace sqlite = odb::sqlite;
@@ -33,7 +35,7 @@ main (int argc, char* argv[])
     // Test basic operations.
     //
     {
-      auto_ptr<database> db (create_specific_database<database> (argc, argv));
+      unique_ptr<database> db (create_specific_database<database> (argc, argv));
 
       // Run persist/load so that the initial bindings are established
       // (version == 0).
@@ -71,7 +73,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object2> o (db->load<object2> (3));
+        unique_ptr<object2> o (db->load<object2> (3));
         assert (o->str_ == long_str);
         t.commit ();
       }
@@ -89,7 +91,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object2> o (db->load<object2> (3));
+        unique_ptr<object2> o (db->load<object2> (3));
         assert (o->str_ == longer_str);
         t.commit ();
       }
@@ -98,7 +100,7 @@ main (int argc, char* argv[])
     // Test query.
     //
     {
-      auto_ptr<database> db (create_specific_database<database> (argc, argv));
+      unique_ptr<database> db (create_specific_database<database> (argc, argv));
 
       typedef sqlite::query<object1> query;
       typedef odb::result<object1> result;

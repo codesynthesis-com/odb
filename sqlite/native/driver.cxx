@@ -4,14 +4,16 @@
 // Test native SQL execution.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace sqlite = odb::sqlite;
@@ -22,7 +24,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (
+    unique_ptr<database> db (
       create_specific_database<database> (argc, argv, false));
 
     // Create the database schema.

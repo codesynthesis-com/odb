@@ -1,0 +1,11 @@
+# file      : pgsql/database/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+assert ($pgsql && !$multi || $build.meta_operation == 'dist') \
+"pgsql should be configured via config.odb_tests.database variable as a single database"
+
+import libs = libodb-pgsql%lib{odb-pgsql}
+
+exe{driver}: {hxx cxx}{*} $libs testscript
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"

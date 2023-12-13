@@ -4,17 +4,19 @@
 // Test basic container persistence.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     for (unsigned short i (0); i < 2; ++i)
     {
@@ -37,7 +39,6 @@ main (int argc, char* argv[])
       empty.num = 0;
       empty.str = "";
 
-#ifdef HAVE_CXX11
       // array
       //
       empty.na[0] = 123;
@@ -51,7 +52,6 @@ main (int argc, char* argv[])
       empty.ca[0] = comp (123, "aaa");
       empty.ca[1] = comp (234, "bbbb");
       empty.ca[2] = comp (345, "ccccc");
-#endif
 
 
       //
@@ -110,7 +110,6 @@ main (int argc, char* argv[])
       med.csm[comp (123, "aaa")] = "aaa";
       med.csm[comp (234, "bbbb")] = "bbbb";
 
-#ifdef HAVE_CXX11
       // array
       //
       med.na[0] = 123;
@@ -160,7 +159,6 @@ main (int argc, char* argv[])
 
       med.csum[comp (123, "aaa")] = "aaa";
       med.csum[comp (234, "bbbb")] = "bbbb";
-#endif
 
       //
       // full
@@ -231,7 +229,6 @@ main (int argc, char* argv[])
       full.csm[comp (2345, "bbbbb")] = "bbbbb";
       full.csm[comp (3456, "cccccc")] = "cccccc";
 
-#ifdef HAVE_CXX11
       // array
       //
       full.na[0] = 123;
@@ -291,7 +288,6 @@ main (int argc, char* argv[])
       full.csum[comp (1234, "aaaa")] = "aaaa";
       full.csum[comp (2345, "bbbbb")] = "bbbbb";
       full.csum[comp (3456, "cccccc")] = "cccccc";
-#endif
 
       // persist
       //
@@ -307,9 +303,9 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> e (db->load<object> ("empty"));
-        auto_ptr<object> m (db->load<object> ("medium"));
-        auto_ptr<object> f (db->load<object> ("full"));
+        unique_ptr<object> e (db->load<object> ("empty"));
+        unique_ptr<object> m (db->load<object> ("medium"));
+        unique_ptr<object> f (db->load<object> ("full"));
         t.commit ();
 
         assert (empty == *e);
@@ -340,7 +336,6 @@ main (int argc, char* argv[])
       empty.ncm[12] = comp (12, "aa");
       empty.csm[comp (12, "aa")] = "aa";
 
-#ifdef HAVE_CXX11
       empty.nfl.push_front (12);
       empty.sfl.push_front ("aa");
       empty.cfl.push_front (comp (12, "aa"));
@@ -353,7 +348,6 @@ main (int argc, char* argv[])
       empty.snum["aa"] = 12;
       empty.ncum[12] = comp (12, "aa");
       empty.csum[comp (12, "aa")] = "aa";
-#endif
 
       //
       // med
@@ -380,7 +374,6 @@ main (int argc, char* argv[])
       med.ncm.clear ();
       med.csm.clear ();
 
-#ifdef HAVE_CXX11
       med.nfl.clear ();
       med.sfl.clear ();
       med.cfl.clear ();
@@ -393,7 +386,6 @@ main (int argc, char* argv[])
       med.snum.clear ();
       med.ncum.clear ();
       med.csum.clear ();
-#endif
 
       //
       // full
@@ -447,7 +439,6 @@ main (int argc, char* argv[])
       full.csm[comp (3456, "cccccc")] += "c";
       full.csm[comp (4567, "ddddddd")] = "ddddddd";
 
-#ifdef HAVE_CXX11
       // array
       //
       full.na[0]++;
@@ -487,7 +478,6 @@ main (int argc, char* argv[])
 
       full.csum[comp (3456, "cccccc")] += "c";
       full.csum[comp (4567, "ddddddd1")] = "ddddddd";
-#endif
 
       // update
       //
@@ -503,9 +493,9 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> e (db->load<object> ("empty"));
-        auto_ptr<object> m (db->load<object> ("medium"));
-        auto_ptr<object> f (db->load<object> ("full"));
+        unique_ptr<object> e (db->load<object> ("empty"));
+        unique_ptr<object> m (db->load<object> ("medium"));
+        unique_ptr<object> f (db->load<object> ("full"));
         t.commit ();
 
         assert (empty == *e);

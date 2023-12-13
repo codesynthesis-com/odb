@@ -7,13 +7,13 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <memory>  // std::auto_ptr
+#include <memory>  // std::unique_ptr
 #include <cstring> // std::memcmp, std::memcpy, std::str[n]cmp, std::strlen
 #include <cstddef> // std::size_t
 
 #include <odb/core.hxx>
 
-#include <common/buffer.hxx>
+#include <libcommon/buffer.hxx>
 
 struct bitfield
 {
@@ -71,7 +71,7 @@ operator== (const varbit& x, const varbit& y)
 
 #pragma db value(bitfield) type ("BIT(4)")
 
-typedef std::auto_ptr<std::string> string_ptr;
+typedef std::unique_ptr<std::string> string_ptr;
 
 enum color {red, green, blue};
 

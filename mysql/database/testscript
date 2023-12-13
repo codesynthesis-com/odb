@@ -1,0 +1,6 @@
+# file      : mysql/database/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+: basics
+:
+$*

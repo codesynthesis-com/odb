@@ -1,0 +1,503 @@
+# file      : common/bulk/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+
++cat <<EOI >=output
+  multiple exceptions, 1 element attempted, 1 failed:
+  [0] object already persistent
+
+  multiple exceptions, 2 elements attempted, 2 failed:
+  [0] object already persistent
+  [1] object already persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0] object already persistent
+  [1] object already persistent
+  [2] object already persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0] object already persistent
+  [1] object already persistent
+  [2] object already persistent
+  [3] object already persistent
+
+  multiple exceptions, 5 elements attempted, 5 failed:
+  [0] object already persistent
+  [1] object already persistent
+  [2] object already persistent
+  [3] object already persistent
+  [4] object already persistent
+
+  multiple exceptions, 6 elements attempted, 6 failed:
+  [0] object already persistent
+  [1] object already persistent
+  [2] object already persistent
+  [3] object already persistent
+  [4] object already persistent
+  [5] object already persistent
+
+  multiple exceptions, 2 elements attempted, 1 failed:
+  [1] object already persistent
+
+  multiple exceptions, 2 elements attempted, 1 failed:
+  [0] object already persistent
+
+  multiple exceptions, 3 elements attempted, 2 failed:
+  [1] object already persistent
+  [2] object already persistent
+
+  multiple exceptions, 3 elements attempted, 2 failed:
+  [0] object already persistent
+  [2] object already persistent
+
+  multiple exceptions, 3 elements attempted, 2 failed:
+  [0] object already persistent
+  [1] object already persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [0] object already persistent
+  [1] object already persistent
+  [3] object already persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [0] object already persistent
+  [1] object already persistent
+  [2] object already persistent
+
+  multiple exceptions, 7 elements attempted, 3 failed:
+  [1] object already persistent
+  [3] object already persistent
+  [5] object already persistent
+
+  multiple exceptions, 3 elements attempted, 1 failed:
+  [2] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed:
+  [0] object not persistent
+
+  multiple exceptions, 2 elements attempted, 2 failed:
+  [0] object not persistent
+  [1] object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 5 elements attempted, 5 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+  [4] object not persistent
+
+  multiple exceptions, 6 elements attempted, 6 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+  [4] object not persistent
+  [5] object not persistent
+
+  multiple exceptions, 2 elements attempted, 2 failed:
+  [0-1] (some) object not persistent
+
+  multiple exceptions, 2 elements attempted, 2 failed:
+  [0-1] (some) object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0-2] (some) object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0-2] (some) object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0-2] (some) object not persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0-2] (some) object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 7 elements attempted, 7 failed:
+  [0-5] (some) object not persistent
+  [6] object not persistent
+
+  multiple exceptions, 7 elements attempted, 4 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [6] object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0-2] (some) object not persistent
+
+  multiple exceptions, 1 element attempted, 1 failed:
+  [0] object not persistent
+
+  multiple exceptions, 2 elements attempted, 2 failed:
+  [0] object not persistent
+  [1] object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 5 elements attempted, 5 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+  [4] object not persistent
+
+  multiple exceptions, 6 elements attempted, 6 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+  [4] object not persistent
+  [5] object not persistent
+
+  multiple exceptions, 2 elements attempted, 2 failed:
+  [0-1] (some) object not persistent
+
+  multiple exceptions, 2 elements attempted, 2 failed:
+  [0-1] (some) object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0-2] (some) object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0-2] (some) object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0-2] (some) object not persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0-2] (some) object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0-2] (some) object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0-2] (some) object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 8 elements attempted, 8 failed:
+  [0-7] (some) object not persistent
+
+  multiple exceptions, 10 elements attempted, 6 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [6] object not persistent
+  [7] object not persistent
+  [8] object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0-2] (some) object not persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0-2] (some) object changed concurrently
+  [3] object changed concurrently
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0-2] (some) object changed concurrently
+  [3] object changed concurrently
+
+  EOI
+
++cat <<EOI >=pgsql-output
+  multiple exceptions, 1 element attempted, 1 failed:
+  [0] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 2 elements attempted, 1 failed:
+  [1] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 2 elements attempted, 1 failed, fatal:
+  [1] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed, fatal:
+  [0] object already persistent
+
+  multiple exceptions, 2 elements attempted, 1 failed, fatal:
+  [1] object already persistent
+
+  multiple exceptions, 3 elements attempted, 1 failed:
+  [2] object already persistent
+
+  multiple exceptions, 1 element attempted, 1 failed:
+  [0] object not persistent
+
+  multiple exceptions, 2 elements attempted, 2 failed:
+  [0] object not persistent
+  [1] object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 5 elements attempted, 5 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+  [4] object not persistent
+
+  multiple exceptions, 6 elements attempted, 6 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+  [4] object not persistent
+  [5] object not persistent
+
+  multiple exceptions, 2 elements attempted, 1 failed:
+  [1] object not persistent
+
+  multiple exceptions, 2 elements attempted, 1 failed:
+  [0] object not persistent
+
+  multiple exceptions, 3 elements attempted, 2 failed:
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 3 elements attempted, 2 failed:
+  [0] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 3 elements attempted, 2 failed:
+  [0] object not persistent
+  [1] object not persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 7 elements attempted, 4 failed:
+  [0] object not persistent
+  [2] object not persistent
+  [4] object not persistent
+  [6] object not persistent
+
+  multiple exceptions, 7 elements attempted, 4 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [6] object not persistent
+
+  multiple exceptions, 3 elements attempted, 1 failed:
+  [2] object not persistent
+
+  multiple exceptions, 1 element attempted, 1 failed:
+  [0] object not persistent
+
+  multiple exceptions, 2 elements attempted, 2 failed:
+  [0] object not persistent
+  [1] object not persistent
+
+  multiple exceptions, 3 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 4 elements attempted, 4 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 5 elements attempted, 5 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+  [4] object not persistent
+
+  multiple exceptions, 6 elements attempted, 6 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+  [4] object not persistent
+  [5] object not persistent
+
+  multiple exceptions, 2 elements attempted, 1 failed:
+  [1] object not persistent
+
+  multiple exceptions, 2 elements attempted, 1 failed:
+  [0] object not persistent
+
+  multiple exceptions, 3 elements attempted, 2 failed:
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 3 elements attempted, 2 failed:
+  [0] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 3 elements attempted, 2 failed:
+  [0] object not persistent
+  [1] object not persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [1] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [0] object not persistent
+  [2] object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [3] object not persistent
+
+  multiple exceptions, 4 elements attempted, 3 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+
+  multiple exceptions, 8 elements attempted, 4 failed:
+  [1] object not persistent
+  [3] object not persistent
+  [5] object not persistent
+  [7] object not persistent
+
+  multiple exceptions, 10 elements attempted, 6 failed:
+  [0] object not persistent
+  [1] object not persistent
+  [2] object not persistent
+  [6] object not persistent
+  [7] object not persistent
+  [8] object not persistent
+
+  multiple exceptions, 3 elements attempted, 1 failed:
+  [2] object not persistent
+
+  multiple exceptions, 4 elements attempted, 2 failed:
+  [1] object changed concurrently
+  [3] object changed concurrently
+
+  multiple exceptions, 4 elements attempted, 2 failed:
+  [1] object changed concurrently
+  [3] object changed concurrently
+
+  EOI
+
+: mysql
+:
+if $mysql
+{
+  .include ../../mysql.testscript
+
+  $create_schema;
+  $*
+}
+
+: sqlite
+:
+if $sqlite
+{
+  .include ../../sqlite.testscript
+
+  $*
+}
+
+: pgsql
+:
+if ($pgsql && $pgsql_bulk)
+{
+  .include ../../pgsql.testscript
+
+  $create_schema;
+
+  # Query the PostgreSQL server version and only run the test if it is 7.4 or
+  # above.
+  #
+  $pgsql_client_cmd --tuples-only -c 'SELECT VERSION()' | \
+  sed -n -e 's/.*PostgreSQL (\d+\.\d+).*/\1/p'          | \
+  set version [string];
+
+  if ("$version" == "")
+    exit "unable to obtain PostgreSQL server version"
+  end;
+
+  sed -n -e 's/(.+)\..+/\1/p' <"$version" | set major_version [uint64];
+  sed -n -e 's/.+\.(.+)/\1/p' <"$version" | set minor_version [uint64];
+
+  if (($major_version == 7 && minor_version >= 4) || $major_version > 7)
+    if $multi
+      $* # Noop.
+    else
+      $* >>>../pgsql-output
+    end
+  end
+}

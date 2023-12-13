@@ -4,12 +4,10 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <string>
 #include <vector>
 #include <cstring> // std::memcpy, std::memcmp, std::memset
-#include <memory>  // std::auto_ptr/std::unique_ptr
+#include <memory>  // std::unique_ptr
 #include <utility> // std::move
 
 #include <odb/core.hxx>
@@ -239,11 +237,7 @@ namespace test3
 {
   struct object1;
 
-#ifdef HAVE_CXX11
   typedef std::unique_ptr<object1> object1_ptr;
-#else
-  typedef std::auto_ptr<object1> object1_ptr;
-#endif
 
   #pragma db object pointer(object1_ptr)
   struct object1
@@ -282,17 +276,11 @@ namespace test3
   public:
     const object1_ptr& p2 () const {return p2_;}
 
-#ifdef HAVE_CXX11
     void p2 (object1_ptr p2) {p2_ = std::move (p2);}
-#else
-    void p2 (object1_ptr p2) {p2_ = p2;}
-#endif
+
   private:
-#ifdef HAVE_CXX11
     #pragma db get(p2) set(p2 (std::move (?)))
-#else
-    #pragma db access(p2)
-#endif
+
     object1_ptr p2_;
   };
 }

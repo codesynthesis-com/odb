@@ -4,17 +4,19 @@
 // Test database operation callbacks.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -56,7 +58,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Persist.
     //
@@ -76,7 +78,7 @@ main (int argc, char* argv[])
     cout << "load" << endl;
     {
       transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (1));
+      unique_ptr<object> o1 (db->load<object> (1));
       object o2;
       db->load<object> (2, o2);
       t.commit ();
@@ -109,8 +111,8 @@ main (int argc, char* argv[])
     cout << "update" << endl;
     {
       transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (1));
-      auto_ptr<object> o2 (db->load<object> (2));
+      unique_ptr<object> o1 (db->load<object> (1));
+      unique_ptr<object> o2 (db->load<object> (2));
       o1->data++;
       o2->data++;
       db->update (o1.get ());
@@ -124,8 +126,8 @@ main (int argc, char* argv[])
     cout << "erase" << endl;
     {
       transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (1));
-      auto_ptr<object> o2 (db->load<object> (2));
+      unique_ptr<object> o1 (db->load<object> (1));
+      unique_ptr<object> o2 (db->load<object> (2));
       db->erase (static_cast<const object*> (o1.get ()));
       db->erase (*o2);
       t.commit ();
@@ -158,7 +160,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> o1 (db->load<object> (1));
+        unique_ptr<object> o1 (db->load<object> (1));
         object* o2 (o1->pobj);
 
         cout << o1->id_ << ' ' << o1->ref << ' ' << o1->robj->id_ << endl;

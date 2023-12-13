@@ -8,6 +8,9 @@
 
 #include <odb/mysql/database.hxx>
 
+#undef NDEBUG
+#include <cassert>
+
 using std::string;
 namespace mysql = odb::mysql;
 using namespace mysql;

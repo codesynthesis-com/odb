@@ -5,17 +5,19 @@
 // members are automatically treated as read-only.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -25,7 +27,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Const ids.
     //
@@ -57,7 +59,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<const_auto_id> o (db->load<const_auto_id> (1));
+        unique_ptr<const_auto_id> o (db->load<const_auto_id> (1));
         t.commit ();
         assert (o->id == 1);
       }
@@ -76,7 +78,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<container> o (db->load<container> (1));
+        unique_ptr<container> o (db->load<container> (1));
         t.commit ();
 
         assert (o->ccom.vec.size () == 1 && o->ccom.vec[0] == 1 &&
@@ -98,7 +100,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<wrapper> o (db->load<wrapper> (1));
+        unique_ptr<wrapper> o (db->load<wrapper> (1));
         t.commit ();
 
         assert (*o->str == "abc" &&

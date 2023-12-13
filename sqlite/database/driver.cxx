@@ -4,9 +4,10 @@
 // Test that database constructors are unambiguous and some other things.
 //
 
-#include <cassert>
-
 #include <odb/sqlite/database.hxx>
+
+#undef NDEBUG
+#include <cassert>
 
 namespace sqlite = odb::sqlite;
 using namespace sqlite;

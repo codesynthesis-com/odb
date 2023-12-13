@@ -1,0 +1,9 @@
+# file      : mysql-schema.testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# Create the MySQL database schema creation canned command base.
+#
+create_schema_cmd = [cmdline] \
+  $mysql_client_cmd 2>&1                                                    | \
+  sed -e "'"'s/^mysql: \[Warning\] Using a password on the command .*//'"'" | \
+  sed -n -e "'"'s/(.+)/\1/p'"'" >&2

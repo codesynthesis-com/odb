@@ -4,21 +4,12 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
-
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
-
 #include <string>
+#include <memory>
 
 #include <odb/core.hxx>
 
-#ifdef HAVE_CXX11
-#  include <memory>
 using std::shared_ptr;
-#else
-#  include <odb/tr1/memory.hxx>
-using std::tr1::shared_ptr;
-#endif
 
 struct country;
 
@@ -146,5 +137,4 @@ struct country
   std::string name;
 };
 
-#endif // HAVE_CXX11 || HAVE_TR1_MEMORY
 #endif // TEST_HXX

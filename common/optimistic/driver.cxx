@@ -4,23 +4,25 @@
 // Test optimistic concurrency support.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
 
 unsigned long
-version (const auto_ptr<database>& db, unsigned long id)
+version (const unique_ptr<database>& db, unsigned long id)
 {
   typedef odb::query<object_version> query;
   typedef odb::result<object_version> result;
@@ -34,7 +36,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     object o (1);
     o.num = 123;
@@ -80,7 +82,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (1));
+      unique_ptr<object> o1 (db->load<object> (1));
       t.commit ();
 
       assert (o1->ver == 2 && o1->num == 124 && o1->str == "abcd");
@@ -103,7 +105,7 @@ main (int argc, char* argv[])
 
       // Verify the data hasn't changed.
       //
-      auto_ptr<object> o1 (db->load<object> (1));
+      unique_ptr<object> o1 (db->load<object> (1));
       assert (o1->ver == 2 && o1->num == 124 && o1->str == "abcd");
 
       // Reload the object.
@@ -201,7 +203,7 @@ main (int argc, char* argv[])
 
         // Verify the container data hasn't changed.
         //
-        auto_ptr<container> o1 (db->load<container> ("abc"));
+        unique_ptr<container> o1 (db->load<container> ("abc"));
         assert (o1->nums.size () == 2 && o1->nums[0] == 1 && o1->nums[1] == 2);
 
         t.commit ();

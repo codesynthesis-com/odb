@@ -1,0 +1,44 @@
+: 1
+summary: 	ODB test suite repository
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/odb/libodb.git##HEAD
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/odb/libodb-mysql.git##HEAD
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/odb/libodb-sqlite.git##HEAD
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/odb/libodb-pgsql.git##HEAD
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/odb/libodb-oracle.git##HEAD
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/odb/libodb-mssql.git##HEAD
+
+:
+role: prerequisite
+location: https://git.codesynthesis.com/odb/odb.git##HEAD
+
+# @@ TMP Uncomment when mysql package is added to mysql.git repository.
+#
+#:
+#role: prerequisite
+#location: https://git.build2.org/packaging/mysql/mysql.git##HEAD
+
+:
+role: prerequisite
+location: https://git.build2.org/packaging/sqlite/sqlite.git##HEAD
+
+:
+role: prerequisite
+location: https://git.build2.org/packaging/postgresql/postgresql.git##HEAD

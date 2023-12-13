@@ -4,14 +4,9 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
+#include <array>
 #include <vector>
 #include <cstring> // std::memcmp
-
-#ifdef HAVE_CXX11
-#  include <array>
-#endif
 
 #include <odb/core.hxx>
 
@@ -48,13 +43,11 @@ struct object
   #pragma db type(BLOB_TYPE)
   unsigned char uc[1024];
 
-#ifdef HAVE_CXX11
   #pragma db type(BLOB_TYPE)
   std::array<char, 1024> a;
 
   #pragma db type(BLOB_TYPE)
   std::array<char, 1024> ua;
-#endif
 
   // Make sure we can still use std::vector<char> and std::array<char>
   // as containers.
@@ -70,10 +63,8 @@ operator== (const object& x, const object& y)
     && x.vuc == y.vuc
     && std::memcmp (x.c, y.c, sizeof (x.c)) == 0
     && std::memcmp (x.uc, y.uc, sizeof (x.uc)) == 0
-#ifdef HAVE_CXX11
     && x.a == y.a
     && x.ua == y.ua
-#endif
     && x.cont == y.cont;
 }
 

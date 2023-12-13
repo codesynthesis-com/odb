@@ -4,18 +4,20 @@
 // Test view basics.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
-#include <common/config.hxx> // DATABASE_XXX
+#include <libcommon/common.hxx>
+#include <libcommon/config.hxx> // DATABASE_XXX
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -41,7 +43,7 @@ view1_check (odb::result<V>& r)
 
 template <typename V>
 void
-view2_test (const auto_ptr<database>& db)
+view2_test (const unique_ptr<database>& db)
 {
   typedef odb::query<V> query;
   typedef odb::result<V> result;
@@ -76,12 +78,12 @@ view2_test (const auto_ptr<database>& db)
   }
 
   {
-    auto_ptr<V> v (db->query_one<V> ());
+    unique_ptr<V> v (db->query_one<V> ());
     assert (v->count == 4);
   }
 
   {
-    auto_ptr<V> v;
+    unique_ptr<V> v;
     if (db->id () != odb::id_oracle)
       v.reset (db->query_one<V> ("age < 31"));
     else
@@ -90,7 +92,7 @@ view2_test (const auto_ptr<database>& db)
   }
 
   {
-    auto_ptr<V> v (db->query_one<V> (query::age < 31));
+    unique_ptr<V> v (db->query_one<V> (query::age < 31));
     assert (v->count == 2);
   }
 
@@ -99,7 +101,7 @@ view2_test (const auto_ptr<database>& db)
 
 template <typename V>
 void
-view4_test (const auto_ptr<database>& db)
+view4_test (const unique_ptr<database>& db)
 {
   typedef odb::query<V> query;
   typedef odb::result<V> result;
@@ -162,7 +164,7 @@ view4_test (const auto_ptr<database>& db)
 
 template <typename V>
 void
-view6_test (const auto_ptr<database>& db, const odb::query<V>& q)
+view6_test (const unique_ptr<database>& db, const odb::query<V>& q)
 {
   typedef odb::result<V> result;
   typedef typename result::iterator iterator;
@@ -193,7 +195,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     //
     //
@@ -309,7 +311,7 @@ main (int argc, char* argv[])
 
       // No native parameter support in dynamic multi-database mode.
       //
-#ifndef DATABASE_COMMON
+#ifndef MULTI_DATABASE
       {
         typedef odb::query<view1b> query;
 
@@ -487,7 +489,7 @@ main (int argc, char* argv[])
 
     // No native parameter support in dynamic multi-database mode.
     //
-#ifndef DATABASE_COMMON
+#ifndef MULTI_DATABASE
     view6_test<view6c> (
 #ifndef DATABASE_ORACLE
       db, "e.name = " + odb::query<view6c>::_val ("Simple Tech, Inc"));
@@ -719,7 +721,12 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
-#if !defined(DATABASE_SQLITE) && !defined(DATABASE_COMMON)
+      // @@ BUILD2 Also disable for DATABASE_MYSQL and DATABASE_PGSQL (see
+      //           vright definition for details).
+      //
+#if !defined(DATABASE_MYSQL)  && \
+    !defined(DATABASE_SQLITE) && \
+    !defined(DATABASE_PGSQL)
       {
         typedef odb::query<vright> query;
         typedef odb::result<vright> result;
@@ -736,9 +743,12 @@ main (int argc, char* argv[])
       }
 #endif
 
-#if !defined(DATABASE_MYSQL) &&  \
+      // @@ BUILD2 Also disable for DATABASE_PGSQL (see vfull definition for
+      //           details).
+      //
+#if !defined(DATABASE_MYSQL)  && \
     !defined(DATABASE_SQLITE) && \
-    !defined(DATABASE_COMMON)
+    !defined(DATABASE_PGSQL)
       {
         typedef odb::query<vfull> query;
         typedef odb::result<vfull> result;

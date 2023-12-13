@@ -4,8 +4,6 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <memory>
 #include <odb/core.hxx>
 
@@ -22,11 +20,7 @@ struct obj1
   void cf () const {}
 };
 
-#ifdef HAVE_CXX11
 #pragma db object pointer (std::unique_ptr<obj2>)
-#else
-#pragma db object pointer (std::auto_ptr<obj2>)
-#endif
 struct obj2
 {
   obj2 () {}
@@ -51,11 +45,7 @@ struct aggr
 
   const obj1* o1;
 
-#ifdef HAVE_CXX11
   std::unique_ptr<const obj2> o2;
-#else
-  std::auto_ptr<const obj2> o2;
-#endif
 };
 
 #endif // TEST_HXX

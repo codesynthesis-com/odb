@@ -4,8 +4,6 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
-
 #include <set>
 #include <map>
 #include <vector>
@@ -13,10 +11,6 @@
 #include <memory>
 
 #include <odb/core.hxx>
-
-#if !defined(HAVE_CXX11) && defined(HAVE_TR1_MEMORY)
-#  include <odb/tr1/memory.hxx>
-#endif
 
 // Raw pointer.
 //
@@ -121,11 +115,7 @@ operator== (const obj1_map& x, const obj1_map& y)
 //
 struct obj2;
 
-#ifdef HAVE_CXX11
 typedef std::unique_ptr<obj2> obj2_ptr;
-#else
-typedef std::auto_ptr<obj2> obj2_ptr;
-#endif
 
 #pragma db object pointer(obj2_ptr)
 struct obj2
@@ -145,7 +135,6 @@ operator== (const obj2& x, const obj2& y)
   return x.id == y.id && x.str == y.str;
 }
 
-#ifdef HAVE_CXX11
 typedef std::vector<obj2_ptr> obj2_vec;
 
 inline bool
@@ -160,18 +149,12 @@ operator== (const obj2_vec& x, const obj2_vec& y)
 
   return true;
 }
-#endif
 
 // shared_ptr
 //
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
 struct obj3;
 
-#ifdef HAVE_CXX11
 typedef std::shared_ptr<obj3> obj3_ptr;
-#else
-typedef std::tr1::shared_ptr<obj3> obj3_ptr;
-#endif
 
 #pragma db object pointer(obj3_ptr)
 struct obj3
@@ -211,7 +194,6 @@ operator== (const comp& x, const comp& y)
 }
 
 typedef std::vector<comp> comp_vec;
-#endif
 
 //
 //
@@ -241,19 +223,11 @@ struct aggr
   obj1* o1;
 
   obj2_ptr o2; // std::auto_ptr or std::unique_ptr
-#ifdef HAVE_CXX11
   obj2_vec v2;
-#else
-  // Dummy containers to get the equivalent DROP TABLE statements.
-  //
-  std::vector<int> v2;
-#endif
 
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
   obj3_ptr o3;
   comp c;
   comp_vec cv;
-#endif
 
   obj1_vec v1;
   obj1_set s1;
@@ -273,14 +247,10 @@ operator== (const aggr& x, const aggr& y)
     x.id == y.id &&
     (x.o1 ? (y.o1 && *x.o1 == *y.o1) : !y.o1) &&
     (x.o2.get () ? (y.o2.get () && *x.o2 == *y.o2) : !y.o2.get ()) &&
-#ifdef HAVE_CXX11
     x.v2 == y.v2 &&
-#endif
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     (x.o3.get () ? (y.o3.get () && *x.o3 == *y.o3) : !y.o3.get ()) &&
     x.c == y.c &&
     x.cv == y.cv &&
-#endif
     x.v1 == y.v1 &&
     x.s1 == y.s1 &&
     x.m1 == y.m1 &&

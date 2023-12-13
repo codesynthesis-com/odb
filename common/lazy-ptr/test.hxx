@@ -4,19 +4,12 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
-
 #include <vector>
 #include <string>
 #include <memory>
 
 #include <odb/core.hxx>
 #include <odb/lazy-ptr.hxx>
-
-#if !defined(HAVE_CXX11) && defined(HAVE_TR1_MEMORY)
-#  include <odb/tr1/memory.hxx>
-#  include <odb/tr1/lazy-ptr.hxx>
-#endif
 
 // Raw pointer.
 //
@@ -76,22 +69,16 @@ namespace test2
   class obj;
   class cont;
 
-#ifdef HAVE_CXX11
   typedef std::unique_ptr<obj> obj_ptr;
   typedef std::unique_ptr<cont> cont_ptr;
   typedef odb::lazy_unique_ptr<obj> lazy_obj_ptr;
-#else
-  typedef std::auto_ptr<obj> obj_ptr;
-  typedef std::auto_ptr<cont> cont_ptr;
-  typedef odb::lazy_auto_ptr<obj> lazy_obj_ptr;
-#endif
 
   #pragma db object
   class cont
   {
   public:
-    cont () {}
-    cont (unsigned long i): id (i) {}
+    cont () = default;
+    cont (unsigned long id);
 
     #pragma db id
     unsigned long id;
@@ -104,7 +91,7 @@ namespace test2
   class obj
   {
   public:
-    obj () {}
+    obj () = default;
     obj (unsigned long i): id (i) {}
 
     #pragma db id
@@ -117,19 +104,12 @@ namespace test2
 
 // shared_ptr
 //
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
 #pragma db namespace table("t3_")
 namespace test3
 {
-#ifdef HAVE_CXX11
   using std::shared_ptr;
   using odb::lazy_shared_ptr;
   using odb::lazy_weak_ptr;
-#else
-  using std::tr1::shared_ptr;
-  using odb::tr1::lazy_shared_ptr;
-  using odb::tr1::lazy_weak_ptr;
-#endif
 
   class obj;
 
@@ -163,6 +143,5 @@ namespace test3
     lazy_shared_ptr<cont> c;
   };
 }
-#endif
 
 #endif // TEST_HXX

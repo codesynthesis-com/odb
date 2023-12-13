@@ -1,0 +1,30 @@
+# file      : common/changelog/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+import libodb = libodb%lib{odb}
+
+./: file{odb.options} xml{*} testscript
+
+# Introduce the metadata library target to make sure the libodb library is
+# resolved for the below ad hoc recipe.
+#
+libue{test-meta}: $libodb
+
+file{odb.options}: libue{test-meta}
+{{
+  pops = $cxx.lib_poptions($<[0])
+  depdb hash $pops
+
+  f = $path($>[0])
+  rm -f $f
+
+  for o: $pops
+    echo $o >+$f
+  end
+}}
+
+# Testscript's run-time prerequisites.
+#
+testscript@./: test = $odb
+
+./: $odb: clean = false

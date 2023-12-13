@@ -4,19 +4,20 @@
 // Test prepared query functionality.
 //
 
-#include <memory>   // std::auto_ptr, std::unique_ptr
+#include <memory>   // std::unique_ptr
 #include <utility>  // std::move
-#include <cassert>
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
-#include <common/config.hxx> // HAVE_CXX11
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -32,21 +33,13 @@ query_factory (const char* name, connection& c)
 {
   typedef odb::query<person> query;
 
-#ifdef HAVE_CXX11
   unique_ptr<params> p (new params);
-#else
-  auto_ptr<params> p (new params);
-#endif
   prepared_query<person> pq (
     c.prepare_query<person> (
       name,
       query::age > query::_ref (p->age) &&
       query::name != query::_ref (p->name)));
-#ifdef HAVE_CXX11
   c.cache_query (pq, move (p));
-#else
-  c.cache_query (pq, p);
-#endif
 }
 
 int
@@ -54,7 +47,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     {
       person p1 ("John First",  91);
@@ -184,21 +177,13 @@ main (int argc, char* argv[])
         {
           assert (i == 1);
 
-#ifdef HAVE_CXX11
           unique_ptr<unsigned short> p (new unsigned short);
-#else
-          auto_ptr<unsigned short> p (new unsigned short);
-#endif
           age = p.get ();
           pq = db->prepare_query<person> (
             "person-ref-age-query",
             query::age > query::_ref (*age));
 
-#ifdef HAVE_CXX11
           db->cache_query (pq, move (p));
-#else
-          db->cache_query (pq, p);
-#endif
         }
         else if (i == 2)
         {
@@ -285,7 +270,6 @@ main (int argc, char* argv[])
 
     // Cached query with lambda factory.
     //
-#ifdef HAVE_CXX11
     {
       db->query_factory (
         "person-params-query-2",
@@ -353,15 +337,8 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
-      db->query_factory ("person-params-query-3",
-#ifdef HAVE_CXX11_NULLPTR
-                         nullptr
-#else
-                         database::query_factory_ptr ()
-#endif
-      );
+      db->query_factory ("person-params-query-3", nullptr);
     }
-#endif
 
     // View prepared query.
     //
@@ -433,12 +410,12 @@ main (int argc, char* argv[])
         db->prepare_query<person> ("query-0", query::id == p.id_ + 1));
 
       {
-        auto_ptr<person> p (pq1.execute_one ());
+        unique_ptr<person> p (pq1.execute_one ());
         assert (p.get () != 0 && p->name_ == "John Doe");
       }
 
       {
-        auto_ptr<person> p (pq0.execute_one ());
+        unique_ptr<person> p (pq0.execute_one ());
         assert (p.get () == 0);
       }
 

@@ -5,10 +5,12 @@
 //
 
 #include <string>
-#include <cassert>
 #include <iostream>
 
 #include <odb/statement.hxx>
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 

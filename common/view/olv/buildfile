@@ -1,0 +1,50 @@
+# file      : common/view/olv/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+import libodb = libodb%lib{odb}
+
+libs =
+
+for db: $databases
+  import libs += libodb-$db%lib{odb-$db}
+
+import libs += lib{common}
+
+hs = test1 test2 test3 test4 test5 test6 test7 test8 test9
+
+exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} testscript
+
+# Introduce the metadata library target to make sure the libodb library is
+# resolved for the odb_compile ad hoc rule (see build/root.build for details).
+#
+libue{test-meta}: $libodb
+
+for h: $hs
+{
+  exe{driver}: {hxx ixx cxx}{$h-odb}
+
+  <{hxx ixx cxx}{$h-odb}>: hxx{$h} libue{test-meta}
+
+  for db: $databases
+  {
+    exe{driver}: {hxx ixx cxx}{$h-odb-$db}: include = $multi
+    <{hxx ixx cxx}{$h-odb-$db}>: hxx{$h} libue{test-meta}
+  }
+}
+
+exe{driver}: libue{test-meta} $libs
+
+# Specify the ODB custom options to be used by the odb_compile ad hoc rule
+# (see build/root.build for details).
+#
+odb_options = --table-prefix t_view_olv_ \
+              --generate-schema          \
+              --generate-query
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+
+# Testscript's run-time prerequisites.
+#
+exe{driver}: ../../../alias{database-client}: include = adhoc
+
+testscript@./: schemas = $hs

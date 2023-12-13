@@ -4,17 +4,19 @@
 // Test wrapper machinery.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test 1: simple values.
     //
@@ -40,10 +42,8 @@ main (int argc, char* argv[])
         o1.nstrs.push_back (nullable_string ());
         o1.nstrs.push_back (nullable_string ("123"));
 
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
         o2.sstrs.push_back (str_sptr ());
         o2.sstrs.push_back (str_sptr (new string ("123")));
-#endif
 
         transaction t (db->begin ());
         id1 = db->persist (o1);
@@ -53,8 +53,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object1> o1 (db->load<object1> (id1));
-        auto_ptr<object2> o2 (db->load<object2> (id2));
+        unique_ptr<object1> o1 (db->load<object1> (id1));
+        unique_ptr<object2> o2 (db->load<object2> (id2));
         t.commit ();
 
         assert (*o1->num == 123);
@@ -63,11 +63,9 @@ main (int argc, char* argv[])
         assert (o1->nstrs[0].null ());
         assert (o1->nstrs[1].get () == "123");
 
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
         assert (!o2->sstr);
         assert (!o2->sstrs[0]);
         assert (*o2->sstrs[1] == "123");
-#endif
       }
     }
 
@@ -96,7 +94,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<comp_object> o (db->load<comp_object> (id));
+        unique_ptr<comp_object> o (db->load<comp_object> (id));
         t.commit ();
 
         assert (*o->c1 == *co.c1);
@@ -130,7 +128,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<cont_object> o (db->load<cont_object> (id));
+        unique_ptr<cont_object> o (db->load<cont_object> (id));
         t.commit ();
 
         assert (*o->nums == *co.nums);
@@ -164,8 +162,8 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> p1 (db->load<object> (o1.id));
-        auto_ptr<object> p2 (db->load<object> (o2.id));
+        unique_ptr<object> p1 (db->load<object> (o1.id));
+        unique_ptr<object> p2 (db->load<object> (o2.id));
         t.commit ();
 
         assert (p1->p.get () == 0);
@@ -196,8 +194,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p1 (db->load<object> (o1.id));
-        auto_ptr<object> p2 (db->load<object> (o2.id));
+        unique_ptr<object> p1 (db->load<object> (o1.id));
+        unique_ptr<object> p2 (db->load<object> (o2.id));
         t.commit ();
 
         assert (p1->p.get () != 0 && *p1->p == *o1.p);

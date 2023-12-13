@@ -13,8 +13,8 @@
 //
 #pragma db map type("GEOMETRY")        \
                as("VARCHAR(256)")      \
-               to("GeomFromText((?))") \
-               from("AsText((?))")
+               to("ST_GeomFromText((?))") \
+               from("ST_AsText((?))")
 
 #pragma db value type("GEOMETRY")
 struct point

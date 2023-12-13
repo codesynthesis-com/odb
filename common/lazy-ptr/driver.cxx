@@ -4,26 +4,32 @@
 // Test lazy object pointers.
 //
 
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
 #include <utility>  // std::move
-#include <cassert>
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/session.hxx>
 #include <odb/transaction.hxx>
-#include <odb/details/config.hxx> // ODB_CXX11_*
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
 
 namespace test2
 {
+  cont::cont (unsigned long i)
+      : id (i)
+  {
+  }
+
   obj_ptr
   create (unsigned int id)
   {
@@ -44,7 +50,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Raw.
     //
@@ -61,8 +67,8 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
-      auto_ptr<cont> c1 (new cont (1));
-      auto_ptr<cont> c2 (new cont (2));
+      unique_ptr<cont> c1 (new cont (1));
+      unique_ptr<cont> c2 (new cont (2));
 
       lazy_ptr<obj> lo1 (*db, 1);
       obj* o2 (new obj (2));
@@ -104,7 +110,7 @@ main (int argc, char* argv[])
       {
         session s;
         transaction t (db->begin ());
-        auto_ptr<cont> c (db->load<cont> (1));
+        unique_ptr<cont> c (db->load<cont> (1));
         obj* o (db->load<obj> (1));
 
         // Not loaded.
@@ -117,13 +123,8 @@ main (int argc, char* argv[])
 
         // Correct object ids.
         //
-#if defined(HAVE_CXX11) && defined(ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT)
         assert (c->o[0].object_id () == o->id);
         assert (o->c.object_id () == c->id);
-#else
-        assert (c->o[0].object_id<obj> () == o->id);
-        assert (o->c.object_id<cont> () == c->id);
-#endif
 
         // Load.
         //
@@ -144,7 +145,7 @@ main (int argc, char* argv[])
       }
     }
 
-    // std::auto_ptr/std::unique_ptr
+    // std::unique_ptr
     //
     {
       using namespace test2;
@@ -164,11 +165,7 @@ main (int argc, char* argv[])
       lazy_obj_ptr lo1 = create (*db, 1);
       lo1 = create (*db, 1);
 
-#ifdef HAVE_CXX11
       c1->o = std::move (lo1);
-#else
-      c1->o = lo1;
-#endif
       c2->o = create (2);
 
       {
@@ -197,13 +194,8 @@ main (int argc, char* argv[])
 
         // Correct object ids.
         //
-#if defined(HAVE_CXX11) && defined(ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT)
         assert (c->o.object_id () == o->id);
         assert (o->c.object_id () == c->id);
-#else
-        assert (c->o.object_id<obj> () == o->id);
-        assert (o->c.object_id<cont> () == c->id);
-#endif
 
         // Load.
         //
@@ -237,7 +229,6 @@ main (int argc, char* argv[])
 
     // Shared pointer from C++11 or TR1.
     //
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     {
       using namespace test3;
 
@@ -276,7 +267,6 @@ main (int argc, char* argv[])
 
       // Test move constructors.
       //
-#ifdef HAVE_CXX11
       {
         lazy_shared_ptr<cont> tmp (*db, 1);
         lazy_shared_ptr<cont> l (std::move (tmp));
@@ -288,7 +278,6 @@ main (int argc, char* argv[])
         lazy_shared_ptr<cont> l (*db, std::move (tmp));
         assert (lc1 == l);
       }
-#endif
 
       {
         transaction t (db->begin ());
@@ -321,13 +310,8 @@ main (int argc, char* argv[])
 
         // Correct object ids.
         //
-#if defined(HAVE_CXX11) && defined(ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT)
         assert (c->o[0].object_id () == o->id);
         assert (o->c.object_id () == c->id);
-#else
-        assert (c->o[0].object_id<obj> () == o->id);
-        assert (o->c.object_id<cont> () == c->id);
-#endif
 
         // Load.
         //
@@ -352,12 +336,7 @@ main (int argc, char* argv[])
         assert (!c->o[1].loaded ());
         lazy_shared_ptr<obj> l (c->o[1].lock ());
         assert (!l.loaded ());
-
-#if defined(HAVE_CXX11) && defined(ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT)
         assert (l.object_id () == c->o[1].object_id ());
-#else
-        assert (l.object_id<obj> () == c->o[1].object_id<obj> ());
-#endif
 
         // Reload.
         //
@@ -372,7 +351,6 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
-#endif
   }
   catch (const odb::exception& e)
   {

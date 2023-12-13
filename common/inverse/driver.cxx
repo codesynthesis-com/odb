@@ -4,18 +4,20 @@
 // Test bidirectional relationships with inverse sides.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/session.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -25,7 +27,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test raw pointers.
     //
@@ -211,7 +213,6 @@ main (int argc, char* argv[])
 
     // Test shared_ptr/weak_ptr.
     //
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     {
       using namespace test2;
 
@@ -323,7 +324,6 @@ main (int argc, char* argv[])
         }
       }
     }
-#endif
 
     // Test inverse based on points_to.
     //
@@ -346,7 +346,7 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
 
-          auto_ptr<obj1> p (db->load<obj1> (o1.id));
+          unique_ptr<obj1> p (db->load<obj1> (o1.id));
           assert (p->o2->id == o1.o2->id);
 
           t.commit ();
@@ -357,7 +357,7 @@ main (int argc, char* argv[])
 
           transaction t (db->begin ());
 
-          auto_ptr<obj1> p (db->query_one<obj1> (query::o2->o1.i == o1.id.i &&
+          unique_ptr<obj1> p (db->query_one<obj1> (query::o2->o1.i == o1.id.i &&
                                                  query::o2->o1.j == o1.id.j));
           assert (p->o2->id == o1.o2->id);
 
@@ -383,7 +383,7 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
 
-          auto_ptr<obj3> p (db->load<obj3> (o3.id));
+          unique_ptr<obj3> p (db->load<obj3> (o3.id));
           assert (p->o4[0]->id == o3.o4[0]->id);
           assert (p->o4[1]->id == o3.o4[1]->id);
 
@@ -395,7 +395,7 @@ main (int argc, char* argv[])
 
           transaction t (db->begin ());
 
-          auto_ptr<obj3> p (db->query_one<obj3> (query::id == o3.id));
+          unique_ptr<obj3> p (db->query_one<obj3> (query::id == o3.id));
           assert (p->o4[0]->id == o3.o4[0]->id);
           assert (p->o4[1]->id == o3.o4[1]->id);
 
@@ -426,7 +426,7 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
 
-          auto_ptr<obj1> p (db->load<obj1> (o1.id));
+          unique_ptr<obj1> p (db->load<obj1> (o1.id));
           assert (p->o2->id.i == o1.o2->id.i && p->o2->id.j == o1.o2->id.j);
 
           t.commit ();
@@ -437,7 +437,7 @@ main (int argc, char* argv[])
 
           transaction t (db->begin ());
 
-          auto_ptr<obj1> p (db->query_one<obj1> (
+          unique_ptr<obj1> p (db->query_one<obj1> (
                               query::o2->id.i == o1.o2->id.i &&
                               query::o2->id.j == o1.o2->id.j));
           assert (p->o2->id.i == o1.o2->id.i && p->o2->id.j == o1.o2->id.j);
@@ -466,7 +466,7 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
 
-          auto_ptr<obj3> p (db->load<obj3> (o3.id));
+          unique_ptr<obj3> p (db->load<obj3> (o3.id));
           assert (p->o4[0]->id.i == o3.o4[0]->id.i &&
                   p->o4[0]->id.j == o3.o4[0]->id.j);
 
@@ -481,7 +481,7 @@ main (int argc, char* argv[])
 
           transaction t (db->begin ());
 
-          auto_ptr<obj3> p (db->query_one<obj3> (query::id == o3.id));
+          unique_ptr<obj3> p (db->query_one<obj3> (query::id == o3.id));
 
           assert (p->o4[0]->id.i == o3.o4[0]->id.i &&
                   p->o4[0]->id.j == o3.o4[0]->id.j);

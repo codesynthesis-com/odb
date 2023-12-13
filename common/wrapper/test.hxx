@@ -4,18 +4,12 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
-
 #include <string>
-#include <memory> // std::auto_ptr
+#include <memory> // std::unique_ptr
 #include <vector>
 
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
-
-#if !defined(HAVE_CXX11) && defined(HAVE_TR1_MEMORY)
-#  include <odb/tr1/memory.hxx>
-#endif
 
 using odb::nullable;
 
@@ -26,17 +20,9 @@ namespace test1
 {
   typedef nullable<std::string> nullable_string;
 
-#ifdef HAVE_CXX11
   typedef std::unique_ptr<int> num_uptr;
   typedef std::unique_ptr<std::string> str_uptr;
   typedef std::shared_ptr<std::string> str_sptr;
-#else
-  typedef std::auto_ptr<int> num_uptr;
-  typedef std::auto_ptr<std::string> str_uptr;
-#  ifdef HAVE_TR1_MEMORY
-  typedef std::tr1::shared_ptr<std::string> str_sptr;
-#  endif
-#endif
 
   #pragma db object table("obj1")
   struct object1
@@ -59,13 +45,11 @@ namespace test1
     #pragma db id auto
     unsigned long id_;
 
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     #pragma db null
     str_sptr sstr;
 
     #pragma db value_null
     std::vector<str_sptr> sstrs;
-#endif
   };
 }
 
@@ -110,15 +94,9 @@ operator== (const comp2& x, const comp2& y)
 
 struct comp3;
 
-#ifdef HAVE_CXX11
 typedef std::unique_ptr<comp1> comp1_uptr;
 typedef std::unique_ptr<comp2> comp2_uptr;
 typedef std::unique_ptr<comp3> comp3_uptr;
-#else
-typedef std::auto_ptr<comp1> comp1_uptr;
-typedef std::auto_ptr<comp2> comp2_uptr;
-typedef std::auto_ptr<comp3> comp3_uptr;
-#endif
 
 #pragma db object
 struct comp_object
@@ -153,13 +131,8 @@ struct comp_object2
 // Containers.
 //
 
-#ifdef HAVE_CXX11
 typedef std::unique_ptr<std::vector<int>> nums_uptr;
 typedef std::unique_ptr<std::vector<std::string>> strs_uptr;
-#else
-typedef std::auto_ptr<std::vector<int> > nums_uptr;
-typedef std::auto_ptr<std::vector<std::string> > strs_uptr;
-#endif
 
 #pragma db value
 struct cont_comp
@@ -195,7 +168,7 @@ namespace test5
     base () {}
     base (int n): num (n) {}
 
-    int num;
+    int num = 0;
   };
 
   inline bool
@@ -230,11 +203,7 @@ namespace test5
     unsigned long id;
 
     #pragma db null
-#ifdef HAVE_CXX11
     std::unique_ptr<comp> p;
-#else
-    std::auto_ptr<comp> p;
-#endif
 
     odb::nullable<comp> n;
 

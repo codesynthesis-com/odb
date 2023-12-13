@@ -146,7 +146,7 @@ struct object3: abstract_base, id_base
 // Empty derived object.
 //
 #pragma db object
-struct empty: base
+struct empty_object: base
 {
 };
 

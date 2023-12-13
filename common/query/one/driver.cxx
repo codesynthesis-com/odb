@@ -8,17 +8,19 @@
 // specific to query_one() and query_value().
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -28,7 +30,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
     odb::database_id db_id (db->id ());
 
     transaction t (db->begin ());
@@ -36,7 +38,7 @@ main (int argc, char* argv[])
     // query_one()
     //
     {
-      auto_ptr<object> o (db->query_one<object> ());
+      unique_ptr<object> o (db->query_one<object> ());
       assert (o.get () == 0);
     }
 
@@ -57,7 +59,7 @@ main (int argc, char* argv[])
     db->persist (o);
 
     {
-      auto_ptr<object> o (db->query_one<object> ());
+      unique_ptr<object> o (db->query_one<object> ());
       assert (o.get () != 0 && o->str_ == "value 1");
     }
 
@@ -77,12 +79,12 @@ main (int argc, char* argv[])
     const char* q0_c (db_id == odb::id_oracle ? "\"id\" = 2" : "id = 2");
 
     {
-      auto_ptr<object> o (db->query_one<object> (q1_c));
+      unique_ptr<object> o (db->query_one<object> (q1_c));
       assert (o.get () != 0 && o->str_ == "value 1");
     }
 
     {
-      auto_ptr<object> o (db->query_one<object> (q0_c));
+      unique_ptr<object> o (db->query_one<object> (q0_c));
       assert (o.get () == 0);
     }
 
@@ -108,12 +110,12 @@ main (int argc, char* argv[])
     string q0_s (q0_c);
 
     {
-      auto_ptr<object> o (db->query_one<object> (q1_s));
+      unique_ptr<object> o (db->query_one<object> (q1_s));
       assert (o.get () != 0 && o->str_ == "value 1");
     }
 
     {
-      auto_ptr<object> o (db->query_one<object> (q0_s));
+      unique_ptr<object> o (db->query_one<object> (q0_s));
       assert (o.get () == 0);
     }
 
@@ -141,12 +143,12 @@ main (int argc, char* argv[])
     query q0 (query::id == 2);
 
     {
-      auto_ptr<object> o (db->query_one<object> (q1));
+      unique_ptr<object> o (db->query_one<object> (q1));
       assert (o.get () != 0 && o->str_ == "value 1");
     }
 
     {
-      auto_ptr<object> o (db->query_one<object> (q0));
+      unique_ptr<object> o (db->query_one<object> (q0));
       assert (o.get () == 0);
     }
 
@@ -175,7 +177,7 @@ main (int argc, char* argv[])
 
     /*
     {
-      auto_ptr<object> o (db->query_one<object> ());
+      unique_ptr<object> o (db->query_one<object> ());
       assert (false);
     }
     */

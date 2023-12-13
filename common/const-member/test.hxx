@@ -4,8 +4,6 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <vector>
 #include <string>
 #include <memory> // std::auto_ptr
@@ -103,15 +101,9 @@ struct wrapper
   #pragma db id
   unsigned long id;
 
-#ifdef HAVE_CXX11
   const std::unique_ptr<const std::string> str;
   const std::unique_ptr<const wrapped_value> com;
   const std::unique_ptr<const std::vector<unsigned long>> vec;
-#else
-  const std::auto_ptr<const std::string> str;
-  const std::auto_ptr<const wrapped_value> com;
-  const std::auto_ptr< const std::vector<unsigned long> > vec;
-#endif
 };
 
 #endif // TEST_HXX

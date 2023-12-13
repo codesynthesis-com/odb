@@ -4,17 +4,19 @@
 // Test persistent classes.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test persistent class template instantiation.
     //
@@ -51,8 +53,8 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<pair_object> po1 (db->load<pair_object> (po.first));
-        auto_ptr<derived> d1 (db->load<derived> (d.id));
+        unique_ptr<pair_object> po1 (db->load<pair_object> (po.first));
+        unique_ptr<derived> d1 (db->load<derived> (d.id));
         t.commit ();
 
         assert (po == *po1);

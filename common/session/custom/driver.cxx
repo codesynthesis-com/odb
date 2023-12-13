@@ -6,7 +6,6 @@
 
 #include <memory>
 #include <cstddef> // std::size_t
-#include <cassert>
 #include <iostream>
 
 #include <odb/tracer.hxx>
@@ -15,12 +14,15 @@
 #include <odb/transaction.hxx>
 #include <odb/details/config.hxx> // ODB_CXX11_*
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "session.hxx"
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 
@@ -43,7 +45,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Simple Tech Ltd.
     //

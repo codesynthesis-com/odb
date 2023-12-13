@@ -4,17 +4,19 @@
 // Test esoteric SQLite transaction semantics aspects.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace sqlite = odb::sqlite;
@@ -25,7 +27,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_specific_database<database> (argc, argv));
+    unique_ptr<database> db (create_specific_database<database> (argc, argv));
 
     // In SQLite, when a commit fails because of the deferred foreign
     // key constraint violation, the transaction is not automatically

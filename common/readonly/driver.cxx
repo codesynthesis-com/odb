@@ -6,18 +6,20 @@
 // member test.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/config.hxx> // DATABASE_*
-#include <common/common.hxx>
+#include <libcommon/config.hxx> // DATABASE_*
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -27,7 +29,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Simple.
     //
@@ -63,7 +65,7 @@ main (int argc, char* argv[])
     //
     {
       pointer p (1, new pointer (2));
-      auto_ptr<pointer> p1 (new pointer (3));
+      unique_ptr<pointer> p1 (new pointer (3));
 
       {
         transaction t (db->begin ());
@@ -86,7 +88,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<pointer> p (db->load<pointer> (1));
+        unique_ptr<pointer> p (db->load<pointer> (1));
         t.commit ();
 
         assert (p->ro->id == 2 && p->co->id == 2 && p->rw->id == 3);
@@ -204,7 +206,7 @@ main (int argc, char* argv[])
     // Readonly object.
     //
     {
-#ifndef DATABASE_COMMON
+#ifndef MULTI_DATABASE
       typedef odb::object_traits_impl<simple_object, odb::id_common> so_traits;
       typedef odb::object_traits_impl<ro_object, odb::id_common> ro_traits;
       typedef odb::object_traits_impl<rw_object, odb::id_common> rw_traits;
@@ -305,8 +307,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<ro_auto> p1 (db->load<ro_auto> (o1.id));
-        auto_ptr<ro_auto> p2 (db->load<ro_auto> (o2.id));
+        unique_ptr<ro_auto> p1 (db->load<ro_auto> (o1.id));
+        unique_ptr<ro_auto> p2 (db->load<ro_auto> (o2.id));
         t.commit ();
 
         assert (p1->num == o1.num);

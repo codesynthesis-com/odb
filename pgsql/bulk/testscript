@@ -1,0 +1,18 @@
+# file      : pgsql/custom/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+.include ../../pgsql.testscript
+
++$create_schema
+
+: basics
+:
+{
+  $*;
+
+  $* --fail-already-persistent 2>>EOE != 0
+    multiple exceptions, 252 elements attempted, 1 failed, fatal:
+    [251] object already persistent
+    EOE
+}

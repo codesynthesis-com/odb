@@ -5,13 +5,15 @@
 //
 
 #include <memory>
-#include <cassert>
 #include <iostream>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;

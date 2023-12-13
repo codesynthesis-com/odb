@@ -1,0 +1,6 @@
+# file      : common/statement/processing/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+: basics
+:
+$*

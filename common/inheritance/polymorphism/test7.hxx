@@ -4,28 +4,17 @@
 #ifndef TEST7_HXX
 #define TEST7_HXX
 
-#include <common/config.hxx> // HAVE_CXX11, HAVE_TR1_MEMORY
-
 #include <string>
 #include <memory>
-
-#if !defined(HAVE_CXX11) && defined(HAVE_TR1_MEMORY)
-#  include <odb/tr1/memory.hxx>
-#endif
 
 #include <odb/core.hxx>
 
 // Test polymorphism and object cache (session).
 //
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
 #pragma db namespace table("t7_")
 namespace test7
 {
-#ifdef HAVE_CXX11
   using std::shared_ptr;
-#else
-  using std::tr1::shared_ptr;
-#endif
 
   #pragma db object polymorphic pointer(shared_ptr) session
   struct root
@@ -61,6 +50,5 @@ namespace test7
     std::string dstr;
   };
 }
-#endif
 
 #endif // TEST7_HXX

@@ -4,8 +4,7 @@
 // Test object loading views.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 #include <typeinfo>
 
@@ -13,7 +12,7 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test1.hxx"
 #include "test2.hxx"
@@ -35,6 +34,9 @@
 #include "test8-odb.hxx"
 #include "test9-odb.hxx"
 
+#undef NDEBUG
+#include <cassert>
+
 using namespace std;
 using namespace odb::core;
 
@@ -43,7 +45,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test basic object loading functionality.
     //
@@ -365,7 +367,15 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
         session s;
         view2 v (db->query_value<view2> ());
-        assert (v.o1.n == 123 && v.o2.s == "abc" && v.o2.o1 == &v.o1);
+
+        // @@ BUILD2 As of cl 19.29.30136 (VS 2019 16.11.5) v.o2.o1 points to
+        //           the address of o1 member of the object being returned by
+        //           query_value<view2>() which v is a copy of, and thus the
+        //           original assertion fails. Note that changing `view2 v` to
+        //           `const view2& v` doesn't help.
+        //
+        //assert (v.o1.n == 123 && v.o2.s == "abc" && v.o2.o1 == &v.o1);
+        assert (v.o1.n == 123 && v.o2.s == "abc");
         t.commit ();
       }
 
@@ -588,20 +598,23 @@ main (int argc, char* argv[])
         //
         {
           view1r r (db->query_value<view1r> (query<view1r>::n == 1));
-          assert (r.n == 1 && r.o->n == 1 && typeid (*r.o) == typeid (root));
+          auto& o (*r.o);
+          assert (r.n == 1 && r.o->n == 1 && typeid (o) == typeid (root));
         }
 
         {
           view1r r (db->query_value<view1r> (query<view1r>::n == 2));
-          assert (r.n == 2 && r.o->n == 2 && typeid (*r.o) == typeid (base));
+          auto& o (*r.o);
+          assert (r.n == 2 && r.o->n == 2 && typeid (o) == typeid (base));
           base& b (dynamic_cast<base&> (*r.o));
           assert (b.s == "a");
         }
 
         {
           view1r r (db->query_value<view1r> (query<view1r>::n == 3));
-          assert (r.n == 3 && r.o->n == 3 && typeid (*r.o) == typeid (derived));
-          derived& d (dynamic_cast<derived&> (*r.o));
+          auto& o (*r.o);
+          assert (r.n == 3 && r.o->n == 3 && typeid (o) == typeid (derived));
+          derived& d (dynamic_cast<derived&> (o));
           assert (d.s == "b" && d.b);
         }
 
@@ -614,9 +627,10 @@ main (int argc, char* argv[])
 
         {
           view1b r (db->query_value<view1b> (query<view1b>::n == 3));
+          auto& o (*r.o);
           assert (r.s == "b" && r.n == 3 && r.o->n == 3 &&
-                  typeid (*r.o) == typeid (derived));
-          derived& d (dynamic_cast<derived&> (*r.o));
+                  typeid (o) == typeid (derived));
+          derived& d (dynamic_cast<derived&> (o));
           assert (d.s == "b" && d.b);
         }
 

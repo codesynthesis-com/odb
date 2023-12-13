@@ -1,0 +1,50 @@
+# file      : common/threads/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+
+: mysql
+:
+if $mysql
+{
+  .include ../../mysql.testscript
+
+  $create_schema;
+  $*
+}
+
+: sqlite
+:
+if $sqlite
+{
+  .include ../../sqlite.testscript
+
+  # Note: this is quite slow:
+  #
+  # $ time ./driver --database ~/odb-test.db
+  # real 3m5.593s
+  # user 1m1.244s
+  # sys	 0m26.793s
+  #
+  # $ time ./driver --database /tmp/odb-test.db
+  # real 0m13.909s
+  # user 0m16.724s
+  # sys  0m4.874s
+  #
+  # $ time ./driver --database "file::memory:"
+  # real	0m12.406s
+  # user	0m15.694s
+  # sys	0m4.207s
+  #
+  $*
+}
+
+: pgsql
+:
+if $pgsql
+{
+  .include ../../pgsql.testscript
+
+  $create_schema;
+  $*
+}

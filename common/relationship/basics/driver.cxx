@@ -4,17 +4,19 @@
 // Test object relationships.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,19 +26,16 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     aggr a ("aggr");
     a.o1 = new obj1 ("o1", "obj1");
     a.o2.reset (new obj2 ("obj2"));
 
-#ifdef HAVE_CXX11
     a.v2.push_back (obj2_ptr (new obj2 ("v1 obj2 1")));
     a.v2.push_back (0);
     a.v2.push_back (obj2_ptr (new obj2 ("v1 obj2 2")));
-#endif
 
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     a.o3.reset (new obj3 ("obj3"));
 
     a.c.num = 123;
@@ -45,7 +44,6 @@ main (int argc, char* argv[])
     a.cv.push_back (comp (234, obj3_ptr (new obj3 ("cv 0"))));
     a.cv.push_back (comp (235, obj3_ptr ()));
     a.cv.push_back (comp (236, obj3_ptr (new obj3 ("cv 2"))));
-#endif
 
     a.v1.push_back (new obj1 ("v1 0", "v1 0"));
     a.v1.push_back (0);
@@ -67,13 +65,10 @@ main (int argc, char* argv[])
       db->persist (a.o1);
       db->persist (a.o2);
 
-#ifdef HAVE_CXX11
       for (obj2_vec::iterator i (a.v2.begin ()); i != a.v2.end (); ++i)
         if (*i)
           db->persist (*i);
-#endif
 
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
       db->persist (a.o3);
 
       db->persist (a.c.o3);
@@ -81,7 +76,6 @@ main (int argc, char* argv[])
       for (comp_vec::iterator i (a.cv.begin ()); i != a.cv.end (); ++i)
         if (i->o3)
           db->persist (i->o3);
-#endif
 
       for (obj1_vec::iterator i (a.v1.begin ()); i != a.v1.end (); ++i)
         if (*i)
@@ -103,7 +97,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<aggr> a1 (db->load<aggr> (a.id));
+      unique_ptr<aggr> a1 (db->load<aggr> (a.id));
       t.commit ();
 
       assert (*a1 == a);
@@ -130,9 +124,7 @@ main (int argc, char* argv[])
     delete a.o1;
     a.o1 = 0;
     a.o2.reset ();
-#if defined(HAVE_CXX11) || defined(HAVE_TR1_MEMORY)
     a.o3.reset ();
-#endif
 
     {
       transaction t (db->begin ());
@@ -144,7 +136,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<aggr> a1 (db->load<aggr> (a.id));
+      unique_ptr<aggr> a1 (db->load<aggr> (a.id));
       t.commit ();
 
       assert (*a1 == a);

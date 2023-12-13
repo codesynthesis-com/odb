@@ -1,0 +1,48 @@
+: 1
+name: odb-tests
+version: 2.5.0-b.26.z
+project: odb
+type: tests
+language: c++
+summary: ODB compiler tests
+license: GPL-2.0-only
+description-file: README.md
+url: https://www.codesynthesis.com/products/odb/
+doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
+src-url: https://git.codesynthesis.com/cgit/odb/odb/
+email: odb-users@codesynthesis.com ; Mailing list
+
+# @@ BUILD2 The odb dependency can only be built with GCC. However, shouldn't
+#           we test that the odb-generated mappings can be compiled by other
+#           compilers and properly run afterwards?
+#
+builds: default
+builds: -( +windows -gcc ) ; Requires MinGW GCC.
+builds: &gcc               ; Requires GCC with plugin support enabled.
+builds: &gcc-5+            ; Requires GCC 5 or later.
+builds: -static            ; Implementation uses plugins and requires -fPIC.
+
+depends: * build2 >= 0.16.0
+depends: * bpkg >= 0.16.0
+
+depends: * odb [2.5.0-b.26.1 2.5.0-b.27)
+
+depends: libodb        [2.5.0-b.26.1 2.5.0-b.27)
+depends: libodb-mysql  [2.5.0-b.26.1 2.5.0-b.27) ? ($mysql)
+depends: libodb-sqlite [2.5.0-b.26.1 2.5.0-b.27) ? ($sqlite)
+depends: libodb-pgsql  [2.5.0-b.26.1 2.5.0-b.27) ? ($pgsql)
+depends: libodb-oracle [2.5.0-b.26.1 2.5.0-b.27) ? ($oracle)
+depends: libodb-mssql  [2.5.0-b.26.1 2.5.0-b.27) ? ($mssql)
+
+# Reflect whether libodb-pgsql is likely to support bulk operations. This is
+# normally the case on POSIX platforms if libodb-pgsql is linked against libpq
+# of the version 14 or above.
+#
+depends: libpq >= 14.0.0 ? ($pgsql) config.odb_tests.pgsql.bulk_default=true | \
+         libpq >= 7.4.0  ? ($pgsql) config.odb_tests.pgsql.bulk_default=false
+
+# @@ TODO/LATER: use an alternative to automatically detect whether we are
+#    using MySQL or MariaDB? But maybe we don't need to know?
+
+depends: mysql >= 5.0.3 ? ($mysql)
+depends: psql  >= 7.4.0 ? ($pgsql)

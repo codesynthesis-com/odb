@@ -4,17 +4,19 @@
 // Test accessor/modifier expressions.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test basic accessor/modifier functionality.
     //
@@ -49,7 +51,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id ()));
+        unique_ptr<object> p (db->load<object> (o.id ()));
         t.commit ();
 
         assert (o == *p);
@@ -76,7 +78,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id ()));
+        unique_ptr<object> p (db->load<object> (o.id ()));
         t.commit ();
 
         assert (o == *p);
@@ -103,7 +105,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object2> p (db->load<object2> (o.id ()));
+        unique_ptr<object2> p (db->load<object2> (o.id ()));
         t.commit ();
 
         assert (p->p1 ()->id () == o.p1 ()->id () &&
@@ -149,7 +151,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id ()));
+        unique_ptr<object> p (db->load<object> (o.id ()));
         t.commit ();
 
         assert (o == *p);
@@ -179,10 +181,10 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object1> p1 (db->load<object1> (o1.id ()));
-        auto_ptr<object2> p2 (db->load<object2> (o2.id ()));
-        auto_ptr<object3> p3 (db->load<object3> (o3.id_));
-        auto_ptr<object4> p4 (db->load<object4> (o4.id ()));
+        unique_ptr<object1> p1 (db->load<object1> (o1.id ()));
+        unique_ptr<object2> p2 (db->load<object2> (o2.id ()));
+        unique_ptr<object3> p3 (db->load<object3> (o3.id_));
+        unique_ptr<object4> p4 (db->load<object4> (o4.id ()));
         t.commit ();
       }
     }
@@ -245,7 +247,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id_));
+        unique_ptr<object> p (db->load<object> (o.id_));
         t.commit ();
 
         assert (o == *p);

@@ -4,18 +4,20 @@
 // Test object section basics.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/session.hxx>
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -27,7 +29,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test lazy-loaded, always updating section.
     //
@@ -46,7 +48,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (p->n == o.n &&
@@ -76,7 +78,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n &&
                 p->sn == o.sn && p->ss == o.ss && p->sv == o.sv);
@@ -98,7 +100,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n != o.n &&
                 p->sn == o.sn && p->ss == o.ss && p->sv == o.sv);
@@ -121,7 +123,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n &&
                 p->sn != o.sn && p->ss != o.ss && p->sv != o.sv);
@@ -138,7 +140,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         db->reload (o);
         assert (p->n == o.n &&
@@ -154,7 +156,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         db->reload (o);
         assert (p->n == o.n &&
@@ -235,7 +237,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (p->n == o.n &&
@@ -265,7 +267,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n &&
                 p->sn != o.sn && p->ss != o.ss && p->sv != o.sv);
@@ -285,7 +287,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n &&
                 p->sn == o.sn && p->ss == o.ss && p->sv == o.sv);
@@ -309,7 +311,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n != o.n &&
                 p->sn == o.sn && p->ss == o.ss && p->sv == o.sv);
@@ -334,7 +336,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (p->n == o.n &&
@@ -364,7 +366,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n &&
                 p->sn != o.sn && p->ss != o.ss && p->sv != o.sv);
@@ -384,7 +386,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n &&
                 p->sn == o.sn && p->ss == o.ss && p->sv == o.sv);
@@ -406,7 +408,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n != o.n &&
                 p->sn == o.sn && p->ss == o.ss && p->sv == o.sv);
@@ -418,7 +420,7 @@ main (int argc, char* argv[])
       try
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->update (*p, p->s);
         assert (false);
       }
@@ -444,7 +446,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (p->s.loaded ());
         assert (p->n == o.n &&
@@ -468,7 +470,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         assert (p->n == o.n &&
                 p->sn != o.sn && p->ss != o.ss && p->sv != o.sv);
         t.commit ();
@@ -487,7 +489,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         assert (p->n == o.n &&
                 p->sn == o.sn && p->ss == o.ss && p->sv == o.sv);
         t.commit ();
@@ -511,7 +513,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (p->s.loaded ());
         assert (p->n == o.n &&
@@ -535,7 +537,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         assert (p->n == o.n &&
                 p->sn != o.sn && p->ss != o.ss && p->sv != o.sv);
         t.commit ();
@@ -554,7 +556,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         assert (p->n == o.n &&
                 p->sn == o.sn && p->ss == o.ss && p->sv == o.sv);
         t.commit ();
@@ -575,7 +577,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         assert (p->n != o.n &&
                 p->sn == o.sn && p->ss == o.ss && p->sv == o.sv);
         t.commit ();
@@ -601,7 +603,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s1.loaded ());
         assert (!p->s2.loaded ());
@@ -636,7 +638,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s1);
         db->load (*p, p->s2);
         assert (p->n == o.n &&
@@ -660,7 +662,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s1);
         db->load (*p, p->s2);
         assert (p->n != o.n &&
@@ -688,7 +690,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s1.loaded ());
         assert (!p->s2.loaded ());
@@ -722,7 +724,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s1);
         db->load (*p, p->s2);
         assert (p->sn1 == o.sn1 && p->ss1 == o.ss1 &&
@@ -746,7 +748,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s1);
         db->load (*p, p->s2);
         assert (p->sn1 != o.sn1 && p->ss1 != o.ss1 &&
@@ -777,7 +779,7 @@ main (int argc, char* argv[])
         session s;
 
         transaction t (db->begin ());
-        auto_ptr<object1> p1 (db->load<object1> (o1.id));
+        unique_ptr<object1> p1 (db->load<object1> (o1.id));
         object* p (p1->p);
 
         assert (!p->s.loaded ());
@@ -809,7 +811,7 @@ main (int argc, char* argv[])
         session s;
 
         transaction t (db->begin ());
-        auto_ptr<object1> p1 (db->load<object1> (o1.id));
+        unique_ptr<object1> p1 (db->load<object1> (o1.id));
         object* p (p1->p);
 
         db->load (*p, p->s);
@@ -837,7 +839,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (o.id == o.id &&
@@ -865,7 +867,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (o.id == o.id &&
                 p->sn != o.sn && p->ss != o.ss);
@@ -882,7 +884,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (o.id == o.id &&
                 p->sn == o.sn && p->ss == o.ss);
@@ -907,7 +909,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (p->n == o.n && p->sn != o.sn);
@@ -934,7 +936,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n && p->sn != o.sn);
         t.commit ();
@@ -958,7 +960,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (p->n == o.n &&
@@ -988,7 +990,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n &&
                 p->sn == o.sn && p->sc.s == o.sc.s && p->sc.v == o.sc.v);
@@ -1045,7 +1047,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n && p->sn == o.sn && p->ss == o.ss);
         t.commit ();
@@ -1071,7 +1073,7 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s ().loaded ());
         assert (p->n == o.n && p->sn != o.sn && p->ss != o.ss);
@@ -1099,7 +1101,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->rw_s ());
         assert (p->n == o.n && p->sn == o.sn && p->ss == o.ss);
         t.commit ();
@@ -1136,7 +1138,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (p->n == o.n && p->sn != o.sn && p->sb != o.sb);
@@ -1163,7 +1165,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n == o.n && p->sn == o.sn && p->sb == o.sb);
         t.commit ();
@@ -1183,7 +1185,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->n != o.n && p->sn == o.sn && p->sb == o.sb);
         t.commit ();
@@ -1207,7 +1209,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (p->n == o.n &&
@@ -1232,7 +1234,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         db->update (o1);
         assert (o.v != o1.v);
@@ -1267,7 +1269,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         db->update (o1, o1.s);
         assert (o.v != o1.v);
@@ -1275,7 +1277,7 @@ main (int argc, char* argv[])
         // Double-check object version was updated.
         //
         {
-          auto_ptr<object> p1 (db->load<object> (o.id));
+          unique_ptr<object> p1 (db->load<object> (o.id));
           assert (o1.v == p1->v);
         }
 
@@ -1343,7 +1345,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (p->sv != o.sv);
@@ -1363,7 +1365,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         db->update (o1);
         assert (o.v != o1.v);
@@ -1394,7 +1396,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         db->update (o1, o1.s);
         assert (o.v != o1.v);
@@ -1402,7 +1404,7 @@ main (int argc, char* argv[])
         // Double-check object version was updated.
         //
         {
-          auto_ptr<object> p1 (db->load<object> (o.id));
+          unique_ptr<object> p1 (db->load<object> (o.id));
           assert (o1.v == p1->v);
         }
 
@@ -1467,7 +1469,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s1.loaded ());
         assert (!p->s2.loaded ());
@@ -1493,7 +1495,7 @@ main (int argc, char* argv[])
         o1.s2v[0]++;
 
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         db->update (o1);
         assert (o.v != o1.v);
@@ -1532,7 +1534,7 @@ main (int argc, char* argv[])
       for (unsigned short s (1); s < 3; ++s)
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         switch (s)
         {
@@ -1642,7 +1644,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         assert (!p->s.loaded ());
         assert (p->sn != o.sn && p->sv != o.sv);
@@ -1668,7 +1670,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->sn == o.sn && p->sv == o.sv);
         t.commit ();
@@ -1687,7 +1689,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s);
         assert (p->sn == o.sn && p->sv == o.sv);
         t.commit ();
@@ -1716,7 +1718,7 @@ main (int argc, char* argv[])
         connection_ptr c (db->connection ());
 
         transaction t (db->begin ());
-        auto_ptr<object> p (db->load<object> (o.id));
+        unique_ptr<object> p (db->load<object> (o.id));
 
         db->load (*p, p->s);
         assert (p->m[1].b == o.m[1].b);

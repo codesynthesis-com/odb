@@ -4,14 +4,17 @@
 // Test transaction callbacks.
 //
 
-#include <cstddef> // std::size_t
-#include <cassert>
+#include <memory>   // std::unique_ptr
+#include <cstddef>  // std::size_t
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -104,7 +107,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv, false));
+    unique_ptr<database> db (create_database (argc, argv, false));
 
     // We want to test both stack and dynamic slots.
     //

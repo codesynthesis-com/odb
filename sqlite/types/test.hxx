@@ -7,7 +7,7 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <memory>  // std::auto_ptr
+#include <memory>  // std::unique_ptr
 #include <cstring> // std::memcpy, std::str[n]cmp, std::strlen
 
 #ifdef _WIN32
@@ -16,7 +16,7 @@
 
 #include <odb/core.hxx>
 
-typedef std::auto_ptr<std::string> string_ptr;
+typedef std::unique_ptr<std::string> string_ptr;
 
 #pragma db object
 struct object

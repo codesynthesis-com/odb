@@ -1,0 +1,75 @@
+# file      : database-options.testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# For the enabled databases create the test driver option lists (*_options)
+# for subsequent use in the tests. Also create the database-specific client
+# option lists (*_client_options) and command lines (*_client_cmd) which can
+# be used as a base for the data manipulation commands.
+#
++if $mysql
+   mysql_options = --user $config.odb_tests.pgsql.user \
+                   --database $config.odb_tests.pgsql.database
+
+   mysql_client_options = --user $config.odb_tests.pgsql.user \
+                          --database $config.odb_tests.pgsql.database
+
+   if $defined(config.odb_tests.mysql.passwd)
+      mysql_options        += --password $config.odb_tests.mysql.passwd
+      mysql_client_options += --password=$config.odb_tests.mysql.passwd
+   end
+
+   if $defined(config.odb_tests.mysql.host)
+      mysql_options        += --host $config.odb_tests.mysql.host
+      mysql_client_options += --host $config.odb_tests.mysql.host
+   end
+
+   if $defined(config.odb_tests.mysql.port)
+      mysql_options        += --port $config.odb_tests.mysql.port
+      mysql_client_options += --port $config.odb_tests.mysql.port
+   end
+
+   if $defined(config.odb_tests.mysql.socket)
+      mysql_options        += --socket $config.odb_tests.mysql.socket
+      mysql_client_options += --socket $config.odb_tests.mysql.socket
+   end
+
+   mysql_client_cmd = $path($mysql_client) $mysql_client_options
+end
+
++if $sqlite
+  sqlite_options = --database odb-test.db
+
+  # Note that we currently don't manipulate the data using the sqlite3
+  # utility. Thus, we don't create the sqlite client option list and command
+  # line.
+  #
+end
+
++if $pgsql
+   pgsql_options = --user $config.odb_tests.pgsql.user \
+                   --database $config.odb_tests.pgsql.database
+
+   pgsql_client_options = --quiet \
+                          --set ON_ERROR_STOP=1 \
+                          --username $config.odb_tests.pgsql.user \
+                          --dbname $config.odb_tests.pgsql.database
+
+  if $defined(config.odb_tests.pgsql.host)
+    pgsql_options        += --host $config.odb_tests.pgsql.host
+    pgsql_client_options += --host $config.odb_tests.pgsql.host
+  end
+
+  if $defined(config.odb_tests.pgsql.port)
+    pgsql_options        += --port $config.odb_tests.pgsql.port
+    pgsql_client_options += --port $config.odb_tests.pgsql.port
+  end
+
+  pgsql_client_cmd = $path($pgsql_client) $pgsql_client_options
+
+  export PGOPTIONS=--client-min-messages=warning
+end
+
+# Set the default schema file name, which can be overridden by the subsequent
+# tests in their own scopes.
+#
+schema = test

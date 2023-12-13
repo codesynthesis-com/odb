@@ -128,8 +128,8 @@ namespace odb
     public:
       query_column (const char* table, const char* column, const char* conv)
           : table_ (table), column_ (column), conversion_ (conv),
-            x_table_ ("X(" + std::string (table)), // @@ Not very clean.
-            y_table_ ("Y(" + std::string (table)),
+            x_table_ ("ST_X(" + std::string (table)), // @@ Not very clean.
+            y_table_ ("ST_Y(" + std::string (table)),
             s_column_ (std::string (column) + ")"), // X & Y column suffix.
             x (x_table_.c_str (), s_column_.c_str (), 0),
             y (y_table_.c_str (), s_column_.c_str (), 0)

@@ -5,7 +5,7 @@
 //
 
 #include <string>
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/tracer.hxx>
@@ -14,8 +14,11 @@
 #include <odb/statement.hxx>
 #include <odb/exceptions.hxx>
 
-#include <common/common.hxx>
-#include <common/concrete.hxx>
+#include <libcommon/common.hxx>
+#include <libcommon/concrete.hxx>
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -49,7 +52,7 @@ main (int argc, char* argv[])
 {
   {
     transaction_tracer tracer;
-    auto_ptr<database> db (create_database (argc, argv, false));
+    unique_ptr<database> db (create_database (argc, argv, false));
     db->tracer (tracer);
 
     assert (!transaction::has_current ());
@@ -137,7 +140,7 @@ main (int argc, char* argv[])
   // Test early connection release.
   //
   {
-    auto_ptr<database> db (create_database (argc, argv, false, 1));
+    unique_ptr<database> db (create_database (argc, argv, false, 1));
     transaction t1 (db->begin ());
     t1.commit ();
     transaction t2 (db->begin ());

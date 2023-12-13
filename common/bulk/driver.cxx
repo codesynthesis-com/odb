@@ -4,9 +4,8 @@
 // Test bulk database operations.
 //
 
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
 #include <vector>
-#include <cassert>
 #include <iostream>
 #include <iterator>
 
@@ -15,11 +14,14 @@
 
 #include <odb/details/meta/remove-pointer.hxx>
 
-#include <common/config.hxx> // HAVE_CXX11, DATABASE_*
-#include <common/common.hxx>
+#include <libcommon/config.hxx> // DATABASE_*
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -41,7 +43,7 @@ struct element_traits
 {
   typedef T type;
   typedef T* pointer;
-  typedef std::auto_ptr<T> auto_ptr;
+  typedef std::unique_ptr<T> unique_ptr;
 
   static T& ref (T& x) {return x;}
   static T* ptr (T* p) {return p;}
@@ -52,43 +54,30 @@ struct element_traits<I, T*>
 {
   typedef T type;
   typedef T* pointer;
-  typedef std::auto_ptr<T> auto_ptr;
+  typedef std::unique_ptr<T> unique_ptr;
 
   static T& ref (T* p) {return *p;}
   static T* ptr (T* p) {return p;}
 };
 
 template <typename I, typename T>
-struct element_traits<I, std::auto_ptr<T> >
-{
-  typedef T type;
-  typedef std::auto_ptr<T> pointer;
-  typedef std::auto_ptr<T> auto_ptr;
-
-  static T& ref (const auto_ptr& p) {return *p;}
-  static T* ptr (const auto_ptr& p) {return p.get ();}
-};
-
-#ifdef HAVE_CXX11
-template <typename I, typename T>
-struct element_traits<I, std::unique_ptr<T>>
+struct element_traits<I, std::unique_ptr<T> >
 {
   typedef T type;
   typedef std::unique_ptr<T> pointer;
-  typedef std::unique_ptr<T> auto_ptr;
+  typedef std::unique_ptr<T> unique_ptr;
 
-  static T& ref (const unique_ptr<T>& p) {return *p;}
-  static T* ptr (const unique_ptr<T>& p) {return p.get ();}
+  static T& ref (const unique_ptr& p) {return *p;}
+  static T* ptr (const unique_ptr& p) {return p.get ();}
 };
-#endif
 
 template <typename I>
 void
-persist (const auto_ptr<database>& db, I b, I e, bool cont = true)
+persist (const unique_ptr<database>& db, I b, I e, bool cont = true)
 {
   typedef element_traits<I> traits;
   typedef typename traits::type type;
-  typedef typename traits::auto_ptr auto_ptr;
+  typedef typename traits::unique_ptr unique_ptr;
 
   {
     transaction t (db->begin ());
@@ -104,7 +93,7 @@ persist (const auto_ptr<database>& db, I b, I e, bool cont = true)
     for (I i (b); i != e; ++i)
     {
       type& x (traits::ref (*i));
-      auto_ptr p (db->load<type> (x.id));
+      unique_ptr p (db->load<type> (x.id));
       assert (p->n == x.n && p->s == x.s);
     }
 
@@ -114,7 +103,7 @@ persist (const auto_ptr<database>& db, I b, I e, bool cont = true)
 
 template <typename I>
 void
-try_persist (const auto_ptr<database>& db, I b, I e, bool cont = true)
+try_persist (const unique_ptr<database>& db, I b, I e, bool cont = true)
 {
   try
   {
@@ -129,12 +118,12 @@ try_persist (const auto_ptr<database>& db, I b, I e, bool cont = true)
 
 template <typename I>
 void
-update (const auto_ptr<database>& db, I b, I e,
+update (const unique_ptr<database>& db, I b, I e,
         bool modify = true, bool cont = true)
 {
   typedef element_traits<I> traits;
   typedef typename traits::type type;
-  typedef typename traits::auto_ptr auto_ptr;
+  typedef typename traits::unique_ptr unique_ptr;
 
   if (modify)
   {
@@ -160,7 +149,7 @@ update (const auto_ptr<database>& db, I b, I e,
     for (I i (b); i != e; ++i)
     {
       type& x (traits::ref (*i));
-      auto_ptr p (db->load<type> (x.id));
+      unique_ptr p (db->load<type> (x.id));
       assert (p->n == x.n && p->s == x.s);
     }
 
@@ -170,7 +159,7 @@ update (const auto_ptr<database>& db, I b, I e,
 
 template <typename I>
 void
-try_update (const auto_ptr<database>& db, I b, I e, bool cont = true)
+try_update (const unique_ptr<database>& db, I b, I e, bool cont = true)
 {
   try
   {
@@ -185,7 +174,7 @@ try_update (const auto_ptr<database>& db, I b, I e, bool cont = true)
 
 template <typename I>
 void
-erase (const auto_ptr<database>& db, I b, I e)
+erase (const unique_ptr<database>& db, I b, I e)
 {
   typedef element_traits<I> traits;
   typedef typename traits::type type;
@@ -214,7 +203,7 @@ erase (const auto_ptr<database>& db, I b, I e)
 
 template <typename T, typename I>
 void
-erase_id (const auto_ptr<database>& db, I b, I e, bool cont = true)
+erase_id (const unique_ptr<database>& db, I b, I e, bool cont = true)
 {
   typedef element_traits<T*> traits;
   typedef T type;
@@ -239,7 +228,7 @@ erase_id (const auto_ptr<database>& db, I b, I e, bool cont = true)
 
 template <typename T, typename A>
 void
-try_erase (const auto_ptr<database>& db, const A& a, bool cont = true)
+try_erase (const unique_ptr<database>& db, const A& a, bool cont = true)
 {
   try
   {
@@ -255,7 +244,7 @@ try_erase (const auto_ptr<database>& db, const A& a, bool cont = true)
 
 template <typename I>
 void
-test (const auto_ptr<database>& db, I b, I e)
+test (const unique_ptr<database>& db, I b, I e)
 {
   persist (db, b, e);
   update (db, b, e);
@@ -286,11 +275,12 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
-// @@ TODO: bulk operations in PostgreSQL are only available with libpq >= 14.
-//
-#if defined(DATABASE_ORACLE) || defined(DATABASE_MSSQL) || defined(DATABASE_PGSQL)
+#if !defined(MULTI_DATABASE) &&  \
+    (defined(DATABASE_ORACLE) || \
+     defined(DATABASE_MSSQL)  || \
+     defined(DATABASE_PGSQL))
 
     // Test database class API with various forms of containers
     // and elements (test #6 is a copy).
@@ -328,21 +318,12 @@ main (int argc, char* argv[])
         test (db, v.begin (), v.end ());
       }
 
-#ifdef HAVE_CXX11
       {
         vector<unique_ptr<unique_object>> v;
         v.push_back (unique_ptr<unique_object> (new unique_object (1, "a")));
         v.push_back (unique_ptr<unique_object> (new unique_object (2, "b")));
         test (db, v.begin (), v.end ());
       }
-#else
-      {
-        auto_ptr<auto_object> a[2];
-        a[0].reset (new auto_object (1, "a"));
-        a[1].reset (new auto_object (2, "b"));
-        test (db, a, a + sizeof (a) / sizeof (a[0]));
-      }
-#endif
 
       {
         vector<object> v;
@@ -425,7 +406,6 @@ main (int argc, char* argv[])
         test (db, v.begin (), v.end ());
       }
 
-#ifdef HAVE_CXX11
       {
         typedef unique_ptr<unique_object> unique_ptr;
 
@@ -434,7 +414,6 @@ main (int argc, char* argv[])
         v.push_back (unique_ptr (new unique_object ("2", 2, "b")));
         test (db, v.begin (), v.end ());
       }
-#endif
 
       // Test const objects.
       //
@@ -990,21 +969,12 @@ main (int argc, char* argv[])
         test (db, v.begin (), v.end ());
       }
 
-#ifdef HAVE_CXX11
       {
         vector<unique_ptr<unique_object>> v;
         v.push_back (unique_ptr<unique_object> (new unique_object (1, "a")));
         v.push_back (unique_ptr<unique_object> (new unique_object (2, "b")));
         test (db, v.begin (), v.end ());
       }
-#else
-      {
-        auto_ptr<auto_object> a[2];
-        a[0].reset (new auto_object (1, "a"));
-        a[1].reset (new auto_object (2, "b"));
-        test (db, a, a + sizeof (a) / sizeof (a[0]));
-      }
-#endif
 
       {
         vector<object> v;

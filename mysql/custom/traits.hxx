@@ -16,7 +16,7 @@ namespace odb
 {
   namespace mysql
   {
-        template <>
+    template <>
     class value_traits<point, id_string>
     {
     public:
@@ -79,7 +79,7 @@ namespace odb
 
       struct conversion
       {
-        static const char* to () {return "GeomFromText((?))";}
+        static const char* to () {return "ST_GeomFromText((?))";}
       };
     };
   }

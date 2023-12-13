@@ -1,4 +1,4 @@
-// file      : pgsql/savepoint/driver.cxx
+// file      : pgsql/bulk/driver.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 // Test transaction savepoints.
@@ -10,13 +10,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
-#include <assert.h>
 #include <sys/select.h>
 
 // Note: hack.
 //
 #include <arpa/inet.h>
 #define htonll(x) ((((long long)htonl(x)) << 32) + htonl((x) >> 32))
+
+#undef NDEBUG
+#include <assert.h>
 
 static const size_t columns = 3;
 
@@ -255,19 +257,21 @@ test (PGconn* conn)
   }
 }
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
-#include <iostream>
-
 #include <vector>
+#include <memory>   // std::unique_ptr
+#include <cstring>
+#include <iostream>
 
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace pgsql = odb::pgsql;
@@ -276,9 +280,26 @@ using namespace pgsql;
 int
 main (int argc, char* argv[])
 {
+  bool fail_already_persistent (false);
+
+  for (int i (1); i != argc; ++i)
+  {
+    if (strcmp (argv[i], "--fail-already-persistent") == 0)
+    {
+      fail_already_persistent = true;
+
+      for (; i != argc - 1; ++i)
+        argv[i] = argv[i + 1];
+
+      --argc;
+
+      break;
+    }
+  }
+
   try
   {
-    auto_ptr<database> db (create_specific_database<database> (argc, argv));
+    unique_ptr<database> db (create_specific_database<database> (argc, argv));
 
     connection_ptr cn (db->connection ());
 
@@ -297,7 +318,7 @@ main (int argc, char* argv[])
       {
         os.push_back (object {i, i, string (i, 'x')});
 
-        if (i == n / 2)
+        if (fail_already_persistent && i == n / 2)
           os.push_back (object {i, i, to_string (i)});
       }
 

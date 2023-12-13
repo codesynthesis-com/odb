@@ -4,13 +4,8 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
+#include <array>
 #include <cstring> // std::memcpy, std::strlen
-
-#ifdef HAVE_CXX11
-#  include <array>
-#endif
 
 #include <odb/core.hxx>
 
@@ -23,10 +18,7 @@ struct object
   {
     std::memcpy (s_, s, std::strlen (s) + 1); // VC++ strncpy deprecation.
     std::memcpy (s1_, s, std::strlen (s) + 1);
-
-#ifdef HAVE_CXX11
     std::memcpy (a_.data (), s, std::strlen (s) + 1);
-#endif
     c_ = c1_ = *s;
     std::memcpy (b_, b, sizeof (b_));
   }
@@ -37,7 +29,6 @@ struct object
   char s_[17];
   char s1_[17];
 
-#ifdef HAVE_CXX11
 #ifdef ODB_COMPILER
 #  if defined(ODB_DATABASE_MYSQL)  || \
       defined(ODB_DATABASE_PGSQL)  || \
@@ -53,7 +44,6 @@ struct object
 #  endif
 #endif
   std::array<char, 17> a_;
-#endif
 
   char c_;
   char c1_;

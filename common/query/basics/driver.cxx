@@ -4,18 +4,20 @@
 // Test basic query support.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/config.hxx>  // DATABASE_XXX
-#include <common/common.hxx>
+#include <libcommon/config.hxx>  // DATABASE_XXX
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -25,7 +27,7 @@ print (result<person>& r)
 {
   for (result<person>::iterator i (r.begin ()); i != r.end (); ++i)
   {
-    auto_ptr<person> o (i.load ());
+    unique_ptr<person> o (i.load ());
     cout << *o << endl;
   }
   cout << endl;
@@ -46,7 +48,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
     odb::database_id db_id (db->id ());
 
     typedef odb::query<person> query;
@@ -76,7 +78,7 @@ main (int argc, char* argv[])
 
     // Compilation tests.
     //
-#ifndef DATABASE_COMMON
+#ifndef MULTI_DATABASE
     if (false)
     {
       string name;
@@ -164,7 +166,7 @@ main (int argc, char* argv[])
 
       const char* name = "Doe";
 
-#if defined(DATABASE_COMMON)
+#if defined(MULTI_DATABASE)
       result r (
         db->query<person> (
           query::age >= query::_val (30) &&
@@ -195,7 +197,7 @@ main (int argc, char* argv[])
       string name;
       unsigned short age;
 
-#if defined(DATABASE_COMMON)
+#if defined(MULTI_DATABASE)
       query q (query::age >= query::_ref (age) &&
                query::last_name == query::_ref (name));
 #elif defined(DATABASE_ORACLE)
@@ -249,7 +251,7 @@ main (int argc, char* argv[])
       //db->query<person> (query::age == query::_ref (name));
       db->query<person> (query::last_name == "Doe");
       db->query<person> (query::last_name == name);
-#ifndef DATABASE_COMMON
+#ifndef MULTI_DATABASE
       db->query<person> (query::last_name == query::_val ("Doe"));
 #endif
       db->query<person> (query::last_name == query::_val (name));
@@ -450,7 +452,7 @@ main (int argc, char* argv[])
       assert (i != r.end ());
 
       {
-        auto_ptr<person> joe (db->load<person> (3));
+        unique_ptr<person> joe (db->load<person> (3));
       }
 
       {
@@ -467,7 +469,7 @@ main (int argc, char* argv[])
 
       // Overwrite object image again.
       //
-      auto_ptr<person> joe (db->load<person> (3));
+      unique_ptr<person> joe (db->load<person> (3));
       person p;
       i.load (p);
       assert (p.last_name_ == "Doe");
@@ -499,7 +501,7 @@ main (int argc, char* argv[])
 
       // Oracle does not support LOB comparisons.
       //
-#ifndef DATABASE_ORACLE
+#if defined(MULTI_DATABASE) || !defined(DATABASE_ORACLE)
       if (db_id != odb::id_oracle)
       {
         r = db->query<person> (query::public_key == key2);

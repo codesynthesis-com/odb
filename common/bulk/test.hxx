@@ -1,13 +1,11 @@
-// file      : common/driver/test.hxx
+// file      : common/bulk/test.hxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <string>
-#include <memory> // std::auto_ptr, std::unique_ptr
+#include <memory> // std::unique_ptr
 
 #include <odb/core.hxx>
 
@@ -31,7 +29,6 @@ namespace test1
     std::string s;
   };
 
-#ifdef HAVE_CXX11
   #pragma db object bulk(3) pointer(std::unique_ptr)
   struct unique_object
   {
@@ -44,20 +41,6 @@ namespace test1
     unsigned int n;
     std::string s;
   };
-#else
-  #pragma db object bulk(3) pointer(std::auto_ptr)
-  struct auto_object
-  {
-    auto_object (unsigned int n_ = 0, std::string s_ = "")
-        : id (0), n (n_), s (s_) {}
-
-    #pragma db id auto
-    unsigned long id;
-
-    unsigned int n;
-    std::string s;
-  };
-#endif
 }
 
 // Test object with manually assigned id.
@@ -80,7 +63,6 @@ namespace test2
     std::string s;
   };
 
-#ifdef HAVE_CXX11
 #pragma db object bulk(3) pointer(std::unique_ptr)
   struct unique_object
   {
@@ -95,7 +77,6 @@ namespace test2
     unsigned int n;
     std::string s;
   };
-#endif
 }
 
 // Test failure.
@@ -175,17 +156,10 @@ namespace test6
   #pragma db object(object) bulk(3)
   #pragma db member(object::id) id auto
 
-#ifdef HAVE_CXX11
   typedef object_template<3> unique_object;
 
   #pragma db object(unique_object) bulk(3) pointer(std::unique_ptr)
   #pragma db member(unique_object::id) id auto
-#else
-  typedef object_template<2> auto_object;
-
-  #pragma db object(auto_object) bulk(3) pointer(std::auto_ptr)
-  #pragma db member(auto_object::id) id auto
-#endif
 }
 
 // Test optimistic concurrency.

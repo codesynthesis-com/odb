@@ -4,8 +4,6 @@
 #ifndef TEST6_HXX
 #define TEST6_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <string>
 #include <memory>
 
@@ -17,11 +15,7 @@
 #pragma db namespace table("t6_")
 namespace test6
 {
-#ifdef HAVE_CXX11
   #pragma db object polymorphic pointer(std::unique_ptr)
-#else
-  #pragma db object polymorphic pointer(std::auto_ptr)
-#endif
   struct root
   {
     virtual ~root () {}
@@ -60,11 +54,7 @@ namespace test6
     unsigned long dnum;
     std::string dstr;
 
-#ifdef HAVE_CXX11
     std::unique_ptr<root> ptr;
-#else
-    std::auto_ptr<root> ptr;
-#endif
 
     void
     db_callback (odb::callback_event, odb::database&) const;

@@ -4,8 +4,7 @@
 // Test attached database support.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/schema-catalog.hxx>
@@ -14,10 +13,13 @@
 #include <odb/sqlite/connection.hxx>
 #include <odb/sqlite/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace sqlite = odb::sqlite;
@@ -28,7 +30,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> mdb (create_specific_database<database> (argc, argv));
+    unique_ptr<database> mdb (create_specific_database<database> (argc, argv));
 
     {
       object o ("one");
@@ -58,7 +60,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (c->begin ());
-        auto_ptr<object> p (adb.load<object> (o.id));
+        unique_ptr<object> p (adb.load<object> (o.id));
         t.commit ();
 
         assert (p->str == o.str);
@@ -76,7 +78,7 @@ main (int argc, char* argv[])
         typedef sqlite::query<object> query;
 
         transaction t (c->begin ());
-        auto_ptr<object> p (adb.query_one<object> (query::str == "two"));
+        unique_ptr<object> p (adb.query_one<object> (query::str == "two"));
         t.commit ();
 
         assert (p->str == o.str);
@@ -90,7 +92,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (c->begin ());
-        auto_ptr<object> p (mdb->load<object> (o.id));
+        unique_ptr<object> p (mdb->load<object> (o.id));
         t.commit ();
 
         assert (p.get () != 0);

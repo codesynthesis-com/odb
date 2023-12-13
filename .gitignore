@@ -1,27 +1,41 @@
 # Compiler/linker output.
 #
+*.d
+*.t
+*.i
+*.i.*
+*.ii
+*.ii.*
 *.o
-*.o.d
+*.obj
+*.gcm
+*.pcm
+*.ifc
 *.so
+*.dylib
+*.dll
 *.a
-*.l
-*.l.cpp-options
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.exe
+*.exe.dlls/
+*.exe.manifest
+*.pc
 
-# Test output
+# Test executables.
 #
-*.out
+driver
 
-# Generated documentation.
+# ODB-generated files.
 #
-*.pdf
-*.ps
+test-odb.?xx
+test-odb-*.?xx
+test.sql
+test-*.sql
 
-# Generated build system files.
+# Testscript output directories (can be symlinks).
 #
-*-dynamic.make
-build/*.options
-build/*-driver
-
-# Generated .gitignore files.
-#
-.gitignore
+test
+test-driver

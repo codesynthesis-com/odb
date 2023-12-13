@@ -4,17 +4,19 @@
 // Test transient inheritance of objects, composite value types, and views.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     object o;
     o.num = 1;
@@ -48,7 +50,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<object> p (db->load<object> (o.id_));
+      unique_ptr<object> p (db->load<object> (o.id_));
       t.commit ();
 
       assert (*p == o);

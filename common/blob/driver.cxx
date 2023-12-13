@@ -4,19 +4,19 @@
 // Test BLOB mapping.
 //
 
-#include <common/config.hxx> // HAVE_CXX11
-
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -26,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     const char data[] =
       "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
@@ -48,10 +48,8 @@ main (int argc, char* argv[])
     o.vuc.assign (udata, udata + sizeof (data));
     memcpy (o.c, data, sizeof (data));
     memcpy (o.uc, udata, sizeof (data));
-#ifdef HAVE_CXX11
     memcpy (o.a.data (), data, sizeof (data));
     memcpy (o.ua.data (), udata, sizeof (data));
-#endif
     o.cont.push_back (1);
     o.cont.push_back (2);
     o.cont.push_back (3);
@@ -64,7 +62,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (1));
+      unique_ptr<object> o1 (db->load<object> (1));
       t.commit ();
 
       assert (o == *o1);

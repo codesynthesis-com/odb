@@ -5,9 +5,8 @@
 //
 
 #include <vector>
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
 #include <cstddef>  // std::size_t
-#include <cassert>
 #include <iostream>
 
 #include <odb/database.hxx>
@@ -16,15 +15,18 @@
 #include <odb/details/shared-ptr.hxx>
 #include <odb/details/thread.hxx>
 
-#include <common/config.hxx> // DATABASE_*
-#include <common/common.hxx>
+#include <libcommon/config.hxx> // DATABASE_*
+#include <libcommon/common.hxx>
 
-#if defined(DATABASE_SQLITE) || defined(DATABASE_COMMON)
+#if defined(DATABASE_SQLITE)
 #  include <odb/sqlite/database.hxx>
 #endif
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -61,6 +63,7 @@ struct task
           try
           {
             transaction t (db_.begin ());
+
             db_.persist (o1);
             db_.persist (o2);
             db_.persist (o3);
@@ -74,7 +77,7 @@ struct task
         {
           try
           {
-#if !defined(DATABASE_SQLITE) && !defined(DATABASE_COMMON)
+#if !defined(DATABASE_SQLITE)
             transaction t (db_.begin ());
 #else
             // SQLite has a peculiar table locking mode (shared cache)
@@ -93,7 +96,7 @@ struct task
                 static_cast<odb::sqlite::database&> (db_).begin_immediate ());
             }
 #endif
-            auto_ptr<object> o (db_.load<object> (id));
+            unique_ptr<object> o (db_.load<object> (id));
             assert (o->str_ == "first object");
             o->str_ = "another value";
             db_.update (*o);
@@ -178,7 +181,7 @@ struct task
 bool
 test (int argc, char* argv[], size_t max_connections)
 {
-  auto_ptr<database> db (create_database (argc, argv, true, max_connections));
+  unique_ptr<database> db (create_database (argc, argv, true, max_connections));
 
   vector<details::shared_ptr<details::thread> > threads;
   vector<details::shared_ptr<task> > tasks;

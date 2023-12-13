@@ -6,6 +6,9 @@
 
 #include <odb/pgsql/database.hxx>
 
+#undef NDEBUG
+#include <cassert>
+
 namespace pgsql = odb::pgsql;
 using namespace pgsql;
 

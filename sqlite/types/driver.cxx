@@ -5,17 +5,19 @@
 //
 
 #include <limits>   // std::numeric_limits
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace sqlite = odb::sqlite;
@@ -26,7 +28,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_specific_database<database> (argc, argv));
+    unique_ptr<database> db (create_specific_database<database> (argc, argv));
 
     object o (1);
 
@@ -51,7 +53,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (1));
+      unique_ptr<object> o1 (db->load<object> (1));
       t.commit ();
 
       assert (o == *o1);
@@ -92,9 +94,9 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<char_array> p1 (db->load<char_array> (1));
-        auto_ptr<char_array> p2 (db->load<char_array> (2));
-        auto_ptr<char_array> p3 (db->load<char_array> (3));
+        unique_ptr<char_array> p1 (db->load<char_array> (1));
+        unique_ptr<char_array> p2 (db->load<char_array> (2));
+        unique_ptr<char_array> p3 (db->load<char_array> (3));
         t.commit ();
 
         assert (o1 == *p1);

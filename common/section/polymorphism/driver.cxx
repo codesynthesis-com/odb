@@ -4,18 +4,20 @@
 // Test sections in polymorphic objects.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/session.hxx>
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -27,7 +29,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test basic polymorphic section functionality.
     //
@@ -59,8 +61,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         assert (!pb->rs1.loaded ());
         assert (!pb->rs2.loaded ());
@@ -177,8 +179,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->load (*pb, pb->rs1);
         db->load (*pb, pb->rs2);
@@ -252,8 +254,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->load (*pb, pb->rs1);
         db->load (*pb, pb->rs2);
@@ -312,8 +314,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->load (*pb, pb->rs1);
         db->load (*pb, pb->rs2);
@@ -369,7 +371,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         assert (!pd->s.loaded ());
         assert (pd->sn != d.sn && pd->sv != d.sv);
@@ -396,7 +398,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         base* pb (pd.get ());
         db->load (*pb, pb->s); // Via base.
@@ -419,7 +421,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->load (*pd, pd->s);
 
@@ -434,7 +436,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->load (*pd, pd->s);
 
@@ -482,9 +484,9 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<root> pr (db->load<root> (r.id));
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<root> pr (db->load<root> (r.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         assert (!pr->s1.loaded ());
         assert (!pr->s2.loaded ());
@@ -595,9 +597,9 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<root> pr (db->load<root> (r.id));
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<root> pr (db->load<root> (r.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->load (*pr, pr->s1);
         db->load (*pr, pr->s2);
@@ -674,9 +676,9 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<root> pr (db->load<root> (r.id));
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<root> pr (db->load<root> (r.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->load (*pr, pr->s1);
         db->load (*pr, pr->s2);
@@ -733,9 +735,9 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<root> pr (db->load<root> (r.id));
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<root> pr (db->load<root> (r.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->load (*pr, pr->s1);
         db->load (*pr, pr->s2);
@@ -808,8 +810,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         assert (!pb->rs1.loaded ());
         assert (!pb->rs2.loaded ());
@@ -904,8 +906,8 @@ main (int argc, char* argv[])
         d1.ds1v[0]++;
 
         transaction t (db->begin ());
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->update (b1);
         db->update (d1);
@@ -1023,8 +1025,8 @@ main (int argc, char* argv[])
       for (unsigned short s (1); s < 7; ++s)
       {
         transaction t (db->begin ());
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         switch (s)
         {
@@ -1311,8 +1313,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         assert (!pb->s.loaded ());
         assert (!pd->s.loaded ());
@@ -1338,7 +1340,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->update (d1);
 
@@ -1370,7 +1372,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->update (b1, b1.s); // No-op.
         db->update (d1, d1.s);
@@ -1439,7 +1441,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         assert (pd->s.loaded ());
         assert (pd->sn == d.sn);
@@ -1526,8 +1528,8 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<base> pb (db->load<base> (b.id));
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<base> pb (db->load<base> (b.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         assert (!pb->s.loaded ());
         assert (!pd->s.loaded ());
@@ -1553,7 +1555,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->update (d1);
 
@@ -1585,7 +1587,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->update (b1, b1.s); // No-op.
         db->update (d1, d1.s);
@@ -1653,7 +1655,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         assert (!pd->s.loaded ());
         assert (pd->sn != d.sn);
@@ -1674,7 +1676,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->update (d1);
 
@@ -1706,7 +1708,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<derived> pd (db->load<derived> (d.id));
+        unique_ptr<derived> pd (db->load<derived> (d.id));
 
         db->update (d1, d1.s);
         assert (d.v != d1.v);
@@ -1754,7 +1756,6 @@ main (int argc, char* argv[])
       }
     }
 
-#ifdef HAVE_CXX11
     // Test reuse/polymorphic inheritance and optimistic mix.
     //
     {
@@ -1797,7 +1798,6 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
-#endif
   }
   catch (const odb::exception& e)
   {

@@ -1,0 +1,14 @@
+// file      : libcommon/config.hxx.in
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+#ifndef LIBCOMMON_CONFIG_HXX
+#define LIBCOMMON_CONFIG_HXX
+
+#undef DATABASE_MYSQL
+#undef DATABASE_SQLITE
+#undef DATABASE_PGSQL
+#undef DATABASE_ORACLE
+#undef DATABASE_MSSQL
+#undef MULTI_DATABASE
+
+#endif // LIBCOMMON_CONFIG_HXX

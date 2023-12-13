@@ -4,14 +4,13 @@
 // Test composite value types.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
@@ -19,12 +18,15 @@
 using namespace std;
 using namespace odb::core;
 
+#undef NDEBUG
+#include <cassert>
+
 int
 main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test basic composite functionality.
     //
@@ -55,7 +57,7 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<person> p1 (db->load<person> (1));
+        unique_ptr<person> p1 (db->load<person> (1));
         t.commit ();
 
         assert (p == *p1);
@@ -78,7 +80,7 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<person> p1 (db->load<person> (1));
+        unique_ptr<person> p1 (db->load<person> (1));
         t.commit ();
 
         assert (p == *p1);
@@ -157,7 +159,7 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> o1 (db->load<object> (1));
+        unique_ptr<object> o1 (db->load<object> (1));
         t.commit ();
 
         assert (o == *o1);
@@ -184,7 +186,7 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> o1 (db->load<object> (1));
+        unique_ptr<object> o1 (db->load<object> (1));
         t.commit ();
 
         assert (o == *o1);
@@ -212,7 +214,7 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> o1 (db->load<object> (1));
+        unique_ptr<object> o1 (db->load<object> (1));
         t.commit ();
 
         assert (o == *o1);
