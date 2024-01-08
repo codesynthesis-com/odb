@@ -67,7 +67,10 @@ namespace odb
       }
       else
       {
-        function = reinterpret_cast<F*> (&caller_impl<F>::function);
+        function_wrapper<decltype (caller_impl<F>::function)> fw (
+          &caller_impl<F>::function);
+
+        function = fw.template cast<F*> ();
         deleter = &deleter_impl<F>;
         std_function = new std_function_type (std::move (sf));
       }
