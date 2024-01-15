@@ -16,6 +16,18 @@
 #  endif
 #endif
 
+// LIBODB_SQLITE_BUILD2 macro can be defined either by the buildfile or by the
+// included odb/sqlite/details/config*.h (see above).
+//
+#ifdef LIBODB_SQLITE_BUILD2
+#  include <sqlite3.h>
+
+#  if SQLITE_VERSION_NUMBER >= 3006012
+#    define LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY 1
+#  endif
+#  define LIBODB_SQLITE_HAVE_COLUMN_METADATA 1
+#endif
+
 // no post
 
 #endif // ODB_SQLITE_DETAILS_CONFIG_HXX

@@ -6,7 +6,15 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/sqlite/details/config.hxx>
+#ifdef ODB_COMPILER
+#  error libodb-sqlite header included in odb-compiled header
+#elif !defined(LIBODB_SQLITE_BUILD2)
+#  ifdef _MSC_VER
+#    include <odb/sqlite/details/config-vc.h>
+#  else
+#    include <odb/sqlite/details/config.h>
+#  endif
+#endif
 
 // Normally we don't export class templates (but do complete specializations),
 // inline functions, and classes with only inline member functions. Exporting
