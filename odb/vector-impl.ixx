@@ -18,6 +18,16 @@ namespace odb
   {
   }
 
+  inline void vector_impl::
+  swap (vector_impl& x)
+  {
+    std::swap (state_, x.state_);
+    std::swap (size_, x.size_);
+    std::swap (tail_, x.tail_);
+    std::swap (capacity_, x.capacity_);
+    std::swap (data_, x.data_);
+  }
+
 #ifdef ODB_CXX11
   inline vector_impl::
   vector_impl (vector_impl&& x) noexcept
@@ -33,16 +43,6 @@ namespace odb
   {
     if (data_ != 0)
       operator delete (data_);
-  }
-
-  inline void vector_impl::
-  swap (vector_impl& x)
-  {
-    std::swap (state_, x.state_);
-    std::swap (size_, x.size_);
-    std::swap (tail_, x.tail_);
-    std::swap (capacity_, x.capacity_);
-    std::swap (data_, x.data_);
   }
 
   inline void vector_impl::
@@ -146,6 +146,17 @@ namespace odb
   inline vector_base::
   vector_base (): tran_ (0) {}
 
+  inline void vector_base::
+  _arm (transaction& t) const
+  {
+    tran_ = &t;
+    t.callback_register (&rollback,
+                         const_cast<vector_base*> (this),
+                         transaction::event_rollback,
+                         0,
+                         &tran_);
+  }
+
   inline vector_base::
   vector_base (const vector_base& x)
       : impl_ (x.impl_), tran_ (0)
@@ -195,16 +206,5 @@ namespace odb
   _tracking () const
   {
     return impl_.tracking ();
-  }
-
-  inline void vector_base::
-  _arm (transaction& t) const
-  {
-    tran_ = &t;
-    t.callback_register (&rollback,
-                         const_cast<vector_base*> (this),
-                         transaction::event_rollback,
-                         0,
-                         &tran_);
   }
 }
