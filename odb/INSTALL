@@ -1,0 +1,36 @@
+Prerequisites
+=============
+
+  - GNU g++ >= 4.5.0  http://gcc.gnu.org/
+  - libcutl >= 1.9.0  http://www.codesynthesis.com/projects/libcutl/
+
+ODB requires the GCC compiler (g++) to be built with plugin support.
+If you are building GCC yourself, you can enable plugin support with
+the --enable-plugin configure option. If you are using a pre-packaged
+GCC (for example, as part of your distribution), then you can verify
+that GCC was built with plugin support by running g++ with the -v
+option and then making sure --enable-plugin is present in the output.
+
+Note also that for pre-packaged GCC, plugin headers are usually
+distributed in a separate package, normally called gcc-plugin-dev
+or similar. You will need to install this package in order to build
+ODB. For Debian/Ubuntu, this package is called gcc-X.Y-plugin-dev,
+for example:
+
+apt-get install gcc-4.7-plugin-dev
+
+For RedHat/Fedora, this package is called gcc-plugin-devel, for
+example:
+
+yum install gcc-plugin-devel
+
+
+Building
+========
+
+The easiest way to build this package is with the bpkg package manager:
+
+$ bpkg build odb
+
+But if you don't want to use the package manager, then you can also build it
+manually using the standard build2 build system.

@@ -1,9 +1,6 @@
-# file      : buildfile
-# license   : GNU GPL v3; see accompanying LICENSE file
-
-./: {*/ -build/ -m4/} doc{INSTALL NEWS README} legal{GPLv3 LICENSE} manifest
-
-# Don't install tests or the INSTALL file.
+# Glue buildfile that "pulls" all the packages in the project.
 #
-tests/:          install = false
-doc{INSTALL}@./: install = false
+import pkgs = [dir_paths] $process.run_regex(\
+  cat $src_root/packages.manifest, '\s*location\s*:\s*(\S+)\s*', '\1')
+
+./: $pkgs
