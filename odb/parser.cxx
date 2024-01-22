@@ -176,6 +176,7 @@ private:
 
   unit* unit_;
   scope* scope_;
+  vector<scope*> class_scopes_; // Current hierarchy of class-like scopes.
   size_t error_;
 
   decl_set decls_;
@@ -262,6 +263,11 @@ emit_class (tree c, path const& file, size_t line, size_t clmn, bool stub)
 
   if (stub || !COMPLETE_TYPE_P (c))
     return *c_node;
+
+  // Note: "include" the base classes into the class scope (see comment for
+  // self-typedefs in emit_type_decl()).
+  //
+  class_scopes_.push_back (c_node);
 
   // Traverse base information.
   //
@@ -557,6 +563,8 @@ emit_class (tree c, path const& file, size_t line, size_t clmn, bool stub)
   diagnose_unassoc_pragmas (decls);
 
   scope_ = prev_scope;
+  class_scopes_.pop_back ();
+
   return *c_node;
 }
 
@@ -582,6 +590,8 @@ emit_union (tree u, path const& file, size_t line, size_t clmn, bool stub)
 
   if (stub || !COMPLETE_TYPE_P (u))
     return *u_node;
+
+  class_scopes_.push_back (u_node);
 
   // Collect member declarations so that we can traverse them in
   // the source code order.
@@ -728,6 +738,7 @@ emit_union (tree u, path const& file, size_t line, size_t clmn, bool stub)
   diagnose_unassoc_pragmas (decls);
 
   scope_ = prev_scope;
+  class_scopes_.pop_back ();
   return *u_node;
 }
 
@@ -942,9 +953,10 @@ collect (tree ns)
 
     if (!DECL_IS_BUILTIN (decl) || DECL_NAMESPACE_STD_P (decl))
     {
+      tree dn (DECL_NAME (decl));
+
       if (trace)
       {
-        tree dn (DECL_NAME (decl));
         char const* name (dn ? IDENTIFIER_POINTER (dn) : "<anonymous>");
 
         ts << "namespace " << name << " at "
@@ -952,7 +964,12 @@ collect (tree ns)
            << DECL_SOURCE_LINE (decl) << endl;
       }
 
-      collect (decl);
+      // Skip anonymous namespaces (there could be nothing of interest to us
+      // inside but they wreck havoc with our attempts to sort declarations
+      // into namespaces).
+      //
+      if (dn != 0)
+        collect (decl);
     }
   }
 }
@@ -1079,6 +1096,8 @@ emit ()
         break;
       }
     }
+
+    assert (class_scopes_.empty ());
   }
 
   // Diagnose any position pragmas that haven't been associated.
@@ -1201,6 +1220,58 @@ emit_type_decl (tree decl)
     size_t c (DECL_SOURCE_COLUMN (decl));
 
     type& node (emit_type (t, decl_access (decl), f, l, c));
+
+    // Omit inner self-typedefs (e.g., a class typedefs itself in its own
+    // scope). Such aliases don't buy us anything (in particular, they cannot
+    // be used to form an fq-name) but they do cause scoping cycles if this
+    // name happens to be used to find outer scope (see scope::scope_()).
+    // Note that this means we can now have class template instantiations that
+    // are not named and therefore don't belong to any scope.
+    //
+    // Note that emit_type() might still enter this decl as a hint. It's fuzzy
+    // whether this is harmless or not.
+    //
+    // Note also that using the normal scope hierarchy does not work in more
+    // complex cases where templates cross-self-typedef. So instead we now use
+    // a special-purpose mechanism (class_scopes_). Note for this to work
+    // correctly (hopefully), the class should be "in scope" for its bases.
+    // Here is a representative examples (inspired by code in Eigen):
+    //
+    // template <typename M>
+    // struct PlainObjectBase
+    // {
+    //   typedef M Self;
+    // };
+    //
+    // template <typename T, int X, int Y>
+    // struct Matrix: PlainObjectBase<Matrix<T, X, Y>>
+    // {
+    //   typedef PlainObjectBase<Matrix> Base;
+    //   typedef Matrix Self;
+    // };
+    //
+    // typedef Matrix<double, 3, 1> Vector3d;
+    //
+    // Here we want both Self's (but not Base) to be skipped.
+    //
+    if (scope* s = dynamic_cast<scope*> (&node))
+    {
+      for (auto i (class_scopes_.rbegin ()); i != class_scopes_.rend (); ++i)
+      {
+        if (s == *i)
+        {
+          if (trace)
+          {
+            string s (emit_type_name (t, false));
+
+            ts << "omitting inner self-typedef " << s << " (" << &node
+               << ") -> " << name << " at " << f << ":" << l << endl;
+          }
+          return 0;
+        }
+      }
+    }
+
     typedefs& edge (unit_->new_edge<typedefs> (*scope_, node, name));
 
     // Find our hint.
@@ -1327,6 +1398,8 @@ emit_class_template (tree t, bool stub)
   if (stub || !COMPLETE_TYPE_P (c))
     return *ct_node;
 
+  class_scopes_.push_back (ct_node);
+
   // Collect member declarations so that we can traverse them in
   // the source code order. For now we are only interested in
   // nested class template declarations.
@@ -1382,6 +1455,7 @@ emit_class_template (tree t, bool stub)
   diagnose_unassoc_pragmas (decls);
 
   scope_ = prev_scope;
+  class_scopes_.pop_back ();
   return *ct_node;
 }
 
@@ -1409,6 +1483,8 @@ emit_union_template (tree t, bool stub)
 
   if (stub || !COMPLETE_TYPE_P (u))
     return *ut_node;
+
+  class_scopes_.push_back (ut_node);
 
   // Collect member declarations so that we can traverse them in
   // the source code order. For now we are only interested in
@@ -1465,6 +1541,7 @@ emit_union_template (tree t, bool stub)
   diagnose_unassoc_pragmas (decls);
 
   scope_ = prev_scope;
+  class_scopes_.pop_back ();
   return *ut_node;
 }
 
@@ -2053,9 +2130,12 @@ emit_type_name (tree type, bool direct)
           if (i != 0)
             id += ", ";
 
-          // Assume type-only arguments.
+          // Assume integer and type-only arguments.
           //
-          id += emit_type_name (a);
+          if (TREE_CODE (a) == INTEGER_CST)
+            id += to_string (integer_value (a));
+          else
+            id += emit_type_name (a);
         }
 
         id += '>';

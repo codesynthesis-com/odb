@@ -1,6 +1,20 @@
 # file      : build/root.build
 # license   : GNU GPL v3; see accompanying LICENSE file
 
+# This configuration variable can be used to specify the GCC plugin directory
+# instead of auto-discovering it with -print-file-name=plugin. Primarily
+# useful when dealing with cross-compilation.
+#
+config [dir_path, config.report.variable=plugin_dir] \
+  config.odb.plugin_dir ?= [null]
+
+# This configuration variable can be used to specify the GCC g++ executable
+# name that will be called by the ODB compiler instead of auto-deriving it
+# from config.cxx. Primarily useful when dealing with cross-compilation.
+#
+config [string, config.report.variable=gxx_name] \
+  config.odb.gxx_name ?= [null]
+
 config [bool] config.odb.develop ?= false
 
 develop = $config.odb.develop
@@ -36,22 +50,48 @@ if ($build.mode != 'skeleton')
   if ($cxx.id != 'gcc')
     fail 'ODB compiler can only be built with GCC'
 
-  # Determine the GCC plugin directory.
+  # Determine the GCC plugin directory unless specified explicitly.
   #
-  # If plugin support is disabled, then -print-file-name will print the name
-  # we have passed (the real plugin directory will always be absolute).
-  #
+  if ($config.odb.plugin_dir != [null])
+    plugin_dir = $config.odb.plugin_dir
+  else
+  {
+    # If plugin support is disabled, then -print-file-name will print the name
+    # we have passed (the real plugin directory will always be absolute).
+    #
+    plugin_dir = [dir_path] $process.run($cxx.path -print-file-name=plugin)
+
+    if ("$plugin_dir" == plugin)
+      fail "$recall($cxx.path) does not support plugins"
+  }
+
   # It can also include '..' components (e.g., on Windows) so normalize it for
   # good measure.
   #
-  plugin_dir = [dir_path] $process.run($cxx.path -print-file-name=plugin)
-
-  if ("$plugin_dir" == plugin)
-    fail "$recall($cxx.path) does not support plugins"
-
   plugin_dir = $normalize($plugin_dir)
 
-  config [config.report] plugin_dir
+  # Determine the g++ executable name unless specified explicitly.
+  #
+  if ($config.odb.gxx_name != [null])
+    gxx_name = $config.odb.gxx_name
+  else
+  {
+    # Unless cross-compiling, pass the C++ compiler's recall path as the g++
+    # name.
+    #
+    # Note that we used to compare complete target triplets but that prooved
+    # too strict. For example, we may be running on x86_64-apple-darwin17.7.0
+    # while the compiler is targeting x86_64-apple-darwin17.3.0.
+    #
+    if ($cxx.target.cpu    == $build.host.cpu && \
+        $cxx.target.system == $build.host.system)
+    {
+      gxx_name = $recall($cxx.path)
+    }
+    else
+      fail "g++ executable name must be specified explicitly with \
+config.odb.gxx_name when cross-compiling"
+  }
 
   # Extract the copyright notice from the LICENSE file.
   #
@@ -60,4 +100,11 @@ if ($build.mode != 'skeleton')
   copyright = $process.run_regex(cat $src_root/LICENSE,    \
                                  'Copyright \(c\) (.+)\.', \
                                  '\1')
+}
+else
+{
+  # Set for report.
+  #
+  plugin_dir = [null]
+  gxx_name = [null]
 }

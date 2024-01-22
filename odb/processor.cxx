@@ -2194,8 +2194,13 @@ namespace
 
             namespace_* ns (dynamic_cast<namespace_*> (s));
 
-            if (ns == 0)
-              continue; // Some other scope.
+            if (ns == 0) // Some other scope.
+            {
+              if (!s->named_p ())
+                break;
+
+              continue;
+            }
 
             if (ns->extension ())
               ns = &ns->original ();
@@ -2207,7 +2212,7 @@ namespace
               break;
             }
 
-            if (ns->global_scope ())
+            if (ns->global_scope ()) // Note: namespaces always named.
               break;
           }
 
@@ -2702,15 +2707,20 @@ namespace
 
             namespace_* ns (dynamic_cast<namespace_*> (s));
 
-            if (ns == 0)
-              continue; // Some other scope.
+            if (ns == 0) // Some other scope.
+            {
+              if (!s->named_p ())
+                break;
+
+              continue;
+            }
 
             if (ns->extension ())
               ns = &ns->original ();
 
             if (!ns->count ("pointer"))
             {
-              if (ns->global_scope ())
+              if (ns->global_scope ()) // Note: namespace always named.
                 break;
               else
                 continue;

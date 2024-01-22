@@ -56,7 +56,7 @@ namespace semantics
       if (p == &s)
         return true;
 
-      if (p->global_scope ())
+      if (!p->named_p () || p->global_scope ())
         break;
     }
 
@@ -476,7 +476,7 @@ namespace semantics
     // Look in the outer scope unless requested not to or if this is
     // the global scope.
     //
-    if ((flags & exclude_outer) == 0 && !global_scope ())
+    if ((flags & exclude_outer) == 0 && named_p () && !global_scope ())
       return scope ().lookup (name, ti, flags, hidden);
 
     return 0;

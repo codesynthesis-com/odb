@@ -1472,7 +1472,7 @@ utype (semantics::data_member& m,
       }
     }
 
-    if (s->global_scope ())
+    if (!s->named_p () || s->global_scope ())
       break;
   }
 
@@ -1882,8 +1882,13 @@ schema (semantics::scope& s) const
 
     namespace_* ns (dynamic_cast<namespace_*> (ps));
 
-    if (ns == 0)
-      continue; // Some other scope.
+    if (ns == 0) // Some other scope.
+    {
+      if (!ps->named_p ())
+        break;
+
+      continue;
+    }
 
     if (ns->extension ())
       ns = &ns->original ();
@@ -1920,7 +1925,8 @@ schema (semantics::scope& s) const
       n.swap (r);
     }
 
-    if (r.fully_qualified () || ns->global_scope ())
+    if (r.fully_qualified () ||
+        ns->global_scope ()) // Note: namespaces always named.
       break;
   }
 
@@ -1952,8 +1958,13 @@ table_name_prefix (semantics::scope& s) const
 
     namespace_* ns (dynamic_cast<namespace_*> (ps));
 
-    if (ns == 0)
-      continue; // Some other scope.
+    if (ns == 0) // Some other scope.
+    {
+      if (!ps->named_p ())
+        break;
+
+      continue;
+    }
 
     if (ns->extension ())
       ns = &ns->original ();
@@ -1964,7 +1975,7 @@ table_name_prefix (semantics::scope& s) const
       r = n.uname () + r;
     }
 
-    if (ns->global_scope ())
+    if (ns->global_scope ()) // Note: namespaces always named.
       break;
   }
 
