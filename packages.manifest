@@ -2,3 +2,5 @@
 location: odb/
 :
 location: libodb/
+:
+location: libodb-sqlite/

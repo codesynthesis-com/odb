@@ -3,6 +3,10 @@ summary: ODB compiler repository
 
 :
 role: prerequisite
+location: https://git.build2.org/packaging/sqlite/sqlite.git##HEAD
+
+:
+role: prerequisite
 location: https://git.codesynthesis.com/libcutl/libcutl.git##HEAD
 
 :
