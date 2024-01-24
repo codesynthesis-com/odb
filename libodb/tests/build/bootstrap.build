@@ -1,0 +1,8 @@
+# file      : tests/build/bootstrap.build
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+project = # Unnamed subproject.
+
+using config
+using dist
+using test

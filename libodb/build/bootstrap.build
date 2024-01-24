@@ -1,0 +1,10 @@
+# file      : build/bootstrap.build
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+project = libodb
+
+using version
+using config
+using dist
+using test
+using install

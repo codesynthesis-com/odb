@@ -1,0 +1,81 @@
+# file      : odb/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+lib{odb}:          {hxx ixx txx cxx}{* -version-build2} \
+                   {hxx}{version-build2}                \
+           details/{hxx ixx txx}{*}                     \
+           details/{cxx}{* -condition -lock -mutex}     \
+    details/build2/{h}{*}                               \
+      details/meta/{hxx}{*}                             \
+details/shared-ptr/{hxx ixx txx cxx}{*}                 \
+     details/win32/{hxx}{windows}
+
+# Include the generated version header into the distribution (so that we don't
+# pick up an installed one) and don't remove it when cleaning in src (so that
+# clean results in a state identical to distributed).
+#
+hxx{version-build2}: in{version-build2} $src_root/manifest
+hxx{version-build2}:
+{
+  dist  = true
+  clean = ($src_root != $out_root)
+}
+
+# Build options.
+#
+cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_BUILD2
+
+obja{*}: cxx.poptions += -DLIBODB_STATIC_BUILD
+objs{*}: cxx.poptions += -DLIBODB_SHARED_BUILD
+
+# Export options.
+#
+lib{odb}: cxx.export.poptions = "-I$out_root" "-I$src_root" -DLIBODB_BUILD2
+
+liba{odb}: cxx.export.poptions += -DLIBODB_STATIC
+libs{odb}: cxx.export.poptions += -DLIBODB_SHARED
+
+# For pre-releases use the complete version to make sure they cannot be used
+# in place of another pre-release or the final version. See the version module
+# for details on the version.* variable values.
+#
+if $version.pre_release
+  lib{odb}: bin.lib.version = @"-$version.project_id"
+else
+  lib{odb}: bin.lib.version = @"-$version.major.$version.minor"
+
+# Install into the odb/ subdirectory of, say, /usr/include/ recreating
+# subdirectories.
+#
+install_include = [dir_path] include/odb/
+
+{hxx ixx txx}{*}:
+{
+  install         = $install_include
+  install.subdirs = true
+}
+
+if ($cxx.target.class != "windows")
+  details/win32/*: install = false
+
+# We want these to be picked up whether LIBODB_BUILD2 is defined or not.
+#
+hxx{version}@./:             install = false
+hxx{version-build2}:         install = $install_include/version.hxx
+hxx{version-build2-stub}@./: install = $install_include/version-build2.hxx
+
+details/build2/
+{
+  h{*}: install = false
+
+  if ($cxx.target.system == 'win32-msvc')
+  {
+    h{config-vc}@./:      install = $install_include/details/
+    h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
+  }
+  else
+  {
+    h{config}@./:      install = $install_include/details/
+    h{config-stub}@./: install = $install_include/details/build2/config.h
+  }
+}
