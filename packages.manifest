@@ -1,2 +1,4 @@
 : 1
 location: odb/
+:
+location: libodb/
