@@ -1,0 +1,22 @@
+: 1
+name: libodb-sqlite
+version: 2.5.0-b.26.z
+project: odb
+summary: SQLite ODB runtime library
+license: GPL-2.0-only
+license: other: proprietary ; Not free/open source.
+topics: C++, ORM, SQLite, SQL
+description-file: README
+changes-file: NEWS
+url: https://www.codesynthesis.com/products/odb/
+doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
+src-url: https://git.codesynthesis.com/cgit/odb/libodb-sqlite/
+email: odb-users@codesynthesis.com
+build-warning-email: odb-builds@codesynthesis.com
+builds: all
+requires: c++11
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
+depends: libsqlite3 ^3.6.18
+depends: libodb [2.5.0-b.26.1 2.5.0-b.27)
+depends: * cli ^1.2.0- ? ($config.libodb_sqlite.develop)
