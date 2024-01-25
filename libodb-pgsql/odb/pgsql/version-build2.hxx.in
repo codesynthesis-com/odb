@@ -1,0 +1,42 @@
+// file      : odb/pgsql/version-build2.hxx.in
+// license   : GNU GPL v2; see accompanying LICENSE file
+
+#ifndef LIBODB_PGSQL_VERSION // Note: using the version macro itself.
+
+// The numeric version format is AAAAABBBBBCCCCCDDDE where:
+//
+// AAAAA - major version number
+// BBBBB - minor version number
+// CCCCC - bugfix version number
+// DDD   - alpha / beta (DDD + 500) version number
+// E     - final (0) / snapshot (1)
+//
+// When DDDE is not 0, 1 is subtracted from AAAAABBBBBCCCCC. For example:
+//
+// Version      AAAAABBBBBCCCCCDDDE
+//
+// 0.1.0        0000000001000000000
+// 0.1.2        0000000001000020000
+// 1.2.3        0000100002000030000
+// 2.2.0-a.1    0000200001999990010
+// 3.0.0-b.2    0000299999999995020
+// 2.2.0-a.1.z  0000200001999990011
+//
+#define LIBODB_PGSQL_VERSION       $libodb_pgsql.version.project_number$ULL
+#define LIBODB_PGSQL_VERSION_STR   "$libodb_pgsql.version.project$"
+#define LIBODB_PGSQL_VERSION_ID    "$libodb_pgsql.version.project_id$"
+
+#define LIBODB_PGSQL_VERSION_MAJOR $libodb_pgsql.version.major$
+#define LIBODB_PGSQL_VERSION_MINOR $libodb_pgsql.version.minor$
+#define LIBODB_PGSQL_VERSION_PATCH $libodb_pgsql.version.patch$
+
+#define LIBODB_PGSQL_PRE_RELEASE   $libodb_pgsql.version.pre_release$
+
+#define LIBODB_PGSQL_SNAPSHOT      $libodb_pgsql.version.snapshot_sn$ULL
+#define LIBODB_PGSQL_SNAPSHOT_ID   "$libodb_pgsql.version.snapshot_id$"
+
+#include <odb/version.hxx>
+
+$libodb.check(LIBODB_VERSION, LIBODB_SNAPSHOT)$
+
+#endif // LIBODB_PGSQL_VERSION
