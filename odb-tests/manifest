@@ -25,14 +25,14 @@ builds: -static            ; Implementation uses plugins and requires -fPIC.
 depends: * build2 >= 0.16.0
 depends: * bpkg >= 0.16.0
 
-depends: * odb [2.5.0-b.26.1 2.5.0-b.27)
+depends: * odb == $
 
-depends: libodb        [2.5.0-b.26.1 2.5.0-b.27)
-depends: libodb-mysql  [2.5.0-b.26.1 2.5.0-b.27) ? ($mysql)
-depends: libodb-sqlite [2.5.0-b.26.1 2.5.0-b.27) ? ($sqlite)
-depends: libodb-pgsql  [2.5.0-b.26.1 2.5.0-b.27) ? ($pgsql)
-depends: libodb-oracle [2.5.0-b.26.1 2.5.0-b.27) ? ($oracle)
-depends: libodb-mssql  [2.5.0-b.26.1 2.5.0-b.27) ? ($mssql)
+depends: libodb        == $
+depends: libodb-mysql  == $ ? ($mysql)
+depends: libodb-sqlite == $ ? ($sqlite)
+depends: libodb-pgsql  == $ ? ($pgsql)
+depends: libodb-oracle == $ ? ($oracle)
+depends: libodb-mssql  == $ ? ($mssql)
 
 # Reflect whether libodb-pgsql is likely to support bulk operations. This is
 # normally the case on POSIX platforms if libodb-pgsql is linked against libpq
