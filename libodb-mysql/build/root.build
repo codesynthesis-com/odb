@@ -1,0 +1,45 @@
+# file      : build/root.build
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+config [bool] config.libodb_mysql.develop ?= false
+
+# Configure which database client library to use for build2 versions greater
+# than 0.12.0 and always use MySQL client library otherwise (due to the lack
+# of the project configuration variables support).
+#
+if ($build.version.number > 12000000000)
+{
+  # Whether to use the MySQL or MariaDB client library.
+  #
+  config [string] config.libodb_mysql.client_lib ?= 'mysql'
+
+  # Verify the config.libodb_mysql.client_lib configuration variable value and
+  # provide the short alias for it.
+  #
+  switch $config.libodb_mysql.client_lib
+  {
+    case 'mysql'
+    case 'mariadb'
+      client_lib = $config.libodb_mysql.client_lib
+
+    default
+      fail "invalid config.libodb_mysql.client_lib value '$config.libodb_mysql.client_lib'"
+  }
+}
+else
+  client_lib = 'mysql'
+
+cxx.std = latest
+
+using cxx
+
+hxx{*}: extension = hxx
+ixx{*}: extension = ixx
+txx{*}: extension = txx
+cxx{*}: extension = cxx
+
+if ($cxx.target.system == 'win32-msvc')
+  cxx.poptions += -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS
+
+if ($cxx.class == 'msvc')
+  cxx.coptions += /wd4251 /wd4275 /wd4800

@@ -1,0 +1,25 @@
+: 1
+name: libodb-mysql
+version: 2.5.0-b.26.z
+project: odb
+summary: MySQL ODB runtime library
+license: GPL-2.0-only
+license: other: proprietary ; Not free/open source.
+topics: C++, ORM, MySQL, MariaDB, SQL
+description-file: README
+changes-file: NEWS
+url: https://www.codesynthesis.com/products/odb/
+doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
+src-url: https://git.codesynthesis.com/cgit/odb/libodb-mysql/
+email: odb-users@codesynthesis.com
+build-warning-email: odb-builds@codesynthesis.com
+builds: all
+builds: -wasm
+builds: -( +windows &gcc ) ; MinGW GCC is not supported by libmysqlclient.
+requires: c++11
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
+#depends: libmysqlclient >= 5.0.3 | libmariadb ^10.2.2
+depends: libmysqlclient >= 5.0.3
+depends: libodb [2.5.0-b.26.1 2.5.0-b.27)
+depends: * cli ^1.2.0- ? ($config.libodb_mysql.develop)

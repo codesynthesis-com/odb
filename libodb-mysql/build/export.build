@@ -1,0 +1,9 @@
+# file      : build/export.build
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+$out_root/
+{
+  include odb/mysql/
+}
+
+export $out_root/odb/mysql/lib{odb-mysql}
