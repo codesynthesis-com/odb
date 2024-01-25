@@ -1,5 +1,0 @@
-The checked out odb/mysql/version-build2.hxx will be overwritten during the
-build process but these changes should be ignored. To do this automatically,
-run:
-
-git update-index --assume-unchanged odb/mysql/version-build2.hxx
