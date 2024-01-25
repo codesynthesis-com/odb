@@ -3,6 +3,8 @@ location: odb/
 :
 location: libodb/
 :
+location: libodb-mysql/
+:
 location: libodb-sqlite/
 :
 location: libodb-pgsql/

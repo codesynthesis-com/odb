@@ -1,8 +1,10 @@
 The checked out libodb/odb/version-build2.hxx,
+libodb-mysql/odb/mysql/version-build2.hxx,
 libodb-sqlite/odb/sqlite/version-build2.hxx, and
 libodb-pgsql/odb/pgsql/version-build2.hxx will be overwritten during the build
 process but these changes should be ignored. To do this automatically, run:
 
 git update-index --assume-unchanged libodb/odb/version-build2.hxx
+git update-index --assume-unchanged libodb-mysql/odb/mysql/version-build2.hxx
 git update-index --assume-unchanged libodb-sqlite/odb/sqlite/version-build2.hxx
 git update-index --assume-unchanged libodb-pgsql/odb/pgsql/version-build2.hxx
