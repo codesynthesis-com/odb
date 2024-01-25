@@ -90,7 +90,7 @@ if $develop
 <details/{hxx ixx cxx}{options}>: details/cli{options} $cli
 {
   install = false
-  dist    = ($develop ? details/pregenerated/odb/pgsql/details/ : false)
+  dist    = ($develop ? pregenerated/odb/pgsql/details/ : false)
 
   # Symlink the generated code in src for convenience of development.
   #
