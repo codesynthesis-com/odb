@@ -100,7 +100,7 @@ if $develop
 <details/{hxx ixx cxx}{options}>: details/cli{options} $cli
 {
   install = false
-  dist    = ($develop ? details/pregenerated/odb/mssql/details/ : false)
+  dist    = ($develop ? pregenerated/odb/mssql/details/ : false)
 
   # Symlink the generated code in src for convenience of development.
   #
