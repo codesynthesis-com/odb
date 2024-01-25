@@ -1,0 +1,9 @@
+# file      : mysql/native/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+.include ../../mysql.testscript
+
+: basics
+:
+$*

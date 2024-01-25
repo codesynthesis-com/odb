@@ -1,0 +1,6 @@
+# file      : pgsql/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+./: {*/ -bulk/}
+
+./: bulk/: include = ($pgsql && !$multi && $pgsql_bulk)

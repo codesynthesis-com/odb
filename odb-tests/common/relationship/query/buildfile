@@ -1,0 +1,42 @@
+# file      : common/relationship/query/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+import libodb = libodb%lib{odb}
+
+libs =
+
+for db: $databases
+  import libs += libodb-$db%lib{odb-$db}
+
+import libs += lib{common}
+
+exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} {hxx ixx cxx}{test-odb} testscript
+
+# Introduce the metadata library target to make sure the libodb library is
+# resolved for the odb_compile ad hoc rule (see build/root.build for details).
+#
+libue{test-meta}: $libodb
+
+<{hxx ixx cxx}{test-odb}>: hxx{test} libue{test-meta}
+
+for db: $databases
+{
+  exe{driver}: {hxx ixx cxx}{test-odb-$db}: include = $multi
+  <{hxx ixx cxx}{test-odb-$db}>: hxx{test} libue{test-meta}
+}
+
+exe{driver}: libue{test-meta} $libs
+
+# Specify the ODB custom options to be used by the odb_compile ad hoc rule
+# (see build/root.build for details).
+#
+odb_options = --table-prefix t_rel_query_ \
+              --generate-schema           \
+              --generate-query            \
+              --generate-session
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+
+# Testscript's run-time prerequisites.
+#
+exe{driver}: ../../../alias{database-client}: include = adhoc

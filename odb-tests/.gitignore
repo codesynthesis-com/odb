@@ -1,0 +1,41 @@
+# Compiler/linker output.
+#
+*.d
+*.t
+*.i
+*.i.*
+*.ii
+*.ii.*
+*.o
+*.obj
+*.gcm
+*.pcm
+*.ifc
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+*.exp
+*.pdb
+*.ilk
+*.exe
+*.exe.dlls/
+*.exe.manifest
+*.pc
+
+# Test executables.
+#
+driver
+
+# ODB-generated files.
+#
+test-odb.?xx
+test-odb-*.?xx
+test.sql
+test-*.sql
+
+# Testscript output directories (can be symlinks).
+#
+test
+test-driver

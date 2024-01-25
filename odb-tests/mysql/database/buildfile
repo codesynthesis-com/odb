@@ -1,0 +1,11 @@
+# file      : mysql/database/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+assert ($mysql && !$multi || $build.meta_operation == 'dist') \
+"mysql should be configured via config.odb_tests.database variable as a single database"
+
+import libs = libodb-mysql%lib{odb-mysql}
+
+exe{driver}: {hxx cxx}{*} $libs testscript
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"

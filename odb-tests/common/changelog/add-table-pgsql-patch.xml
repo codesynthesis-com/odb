@@ -1,0 +1,44 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="pgsql" version="1">
+  <changeset version="3"/>
+
+  <model version="2">
+    <table name="object1" kind="object">
+      <column name="id" type="INTEGER" null="false"/>
+      <column name="num" type="INTEGER" null="false"/>
+      <primary-key>
+        <column name="id"/>
+      </primary-key>
+    </table>
+    <table name="object" kind="object">
+      <column name="id" type="INTEGER" null="false"/>
+      <column name="num" type="INTEGER" null="false"/>
+      <column name="o1" type="INTEGER" null="true"/>
+      <primary-key auto="true">
+        <column name="id"/>
+      </primary-key>
+      <foreign-key name="o1_fk" deferrable="DEFERRED">
+        <column name="o1"/>
+        <references table="object1">
+          <column name="id"/>
+        </references>
+      </foreign-key>
+    </table>
+    <table name="object_nums" kind="container">
+      <column name="object_id" type="INTEGER" null="false"/>
+      <column name="index" type="BIGINT" null="false"/>
+      <column name="value" type="INTEGER" null="false"/>
+      <foreign-key name="object_id_fk" on-delete="CASCADE">
+        <column name="object_id"/>
+        <references table="object">
+          <column name="id"/>
+        </references>
+      </foreign-key>
+      <index name="object_nums_object_id_i">
+        <column name="object_id"/>
+      </index>
+      <index name="object_nums_index_i">
+        <column name="index"/>
+      </index>
+    </table>
+  </model>
+</changelog>

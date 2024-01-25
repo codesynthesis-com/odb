@@ -1,0 +1,25 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="oracle" version="1">
+  <changeset version="3"/>
+
+  <model version="2">
+    <table name="object" kind="object">
+      <column name="id" type="NUMBER(10)" null="false"/>
+      <column name="o1" type="NUMBER(10)" null="true"/>
+      <primary-key auto="true" sequence="object_seq">
+        <column name="id"/>
+      </primary-key>
+      <foreign-key name="object_o1_fk" deferrable="DEFERRED">
+        <column name="o1"/>
+        <references table="object1">
+          <column name="id"/>
+        </references>
+      </foreign-key>
+    </table>
+    <table name="object1" kind="object">
+      <column name="id" type="NUMBER(10)" null="false"/>
+      <primary-key>
+        <column name="id"/>
+      </primary-key>
+    </table>
+  </model>
+</changelog>

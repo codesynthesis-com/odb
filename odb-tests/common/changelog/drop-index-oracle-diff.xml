@@ -1,0 +1,20 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="oracle" version="1">
+  <changeset version="2">
+    <alter-table name="object">
+      <drop-index name="object_num_i"/>
+    </alter-table>
+  </changeset>
+
+  <model version="1">
+    <table name="object" kind="object">
+      <column name="id" type="NUMBER(10)" null="false"/>
+      <column name="num" type="NUMBER(10)" null="false"/>
+      <primary-key auto="true" sequence="object_seq">
+        <column name="id"/>
+      </primary-key>
+      <index name="object_num_i">
+        <column name="num"/>
+      </index>
+    </table>
+  </model>
+</changelog>

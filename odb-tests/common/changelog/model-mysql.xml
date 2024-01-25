@@ -1,0 +1,56 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="mysql" version="1">
+  <model version="1">
+    <table name="object" options="ENGINE=InnoDB" kind="object">
+      <column name="id" type="INT" null="false"/>
+      <column name="num" type="INT" null="true" default="0" options="DUMMY=1"/>
+      <column name="v_x" type="INT" null="false"/>
+      <column name="v_y" type="INT" null="false"/>
+      <column name="o1_x" type="INT" null="true"/>
+      <column name="o1_y" type="INT" null="true"/>
+      <primary-key auto="true">
+        <column name="id"/>
+      </primary-key>
+      <foreign-key name="object_o1_fk" deferrable="DEFERRED">
+        <column name="o1_x"/>
+        <column name="o1_y"/>
+        <references table="object1">
+          <column name="id_x"/>
+          <column name="id_y"/>
+        </references>
+      </foreign-key>
+      <index name="num_i" type="UNIQUE" method="BTREE" options="DUMMY=1">
+        <column name="num" options="DESC"/>
+      </index>
+      <index name="v_i">
+        <column name="v_x"/>
+        <column name="v_y"/>
+      </index>
+    </table>
+    <table name="object_nums" options="ENGINE=InnoDB" kind="container">
+      <column name="object_id" type="INT" null="false"/>
+      <column name="index" type="BIGINT UNSIGNED" null="false"/>
+      <column name="value" type="INT" null="false"/>
+      <foreign-key name="object_nums_object_id_fk" on-delete="CASCADE">
+        <column name="object_id"/>
+        <references table="object">
+          <column name="id"/>
+        </references>
+      </foreign-key>
+      <index name="object_id_i">
+        <column name="object_id"/>
+      </index>
+      <index name="index_i">
+        <column name="index"/>
+      </index>
+    </table>
+    <table name="object1" options="ENGINE=InnoDB" kind="object">
+      <column name="id_x" type="INT" null="false"/>
+      <column name="id_y" type="INT" null="false"/>
+      <column name="num" type="INT" null="false"/>
+      <primary-key>
+        <column name="id_x"/>
+        <column name="id_y"/>
+      </primary-key>
+    </table>
+  </model>
+</changelog>

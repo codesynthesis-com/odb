@@ -1,0 +1,39 @@
+# file      : common/view/olv/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../../database-options.testscript
+
+: mysql
+:
+if $mysql
+{
+  .include ../../../mysql-schema.testscript
+
+  for s: $schemas
+    cat $out_base/"$s"($multi ? '-mysql' : '').sql | $create_schema_cmd
+  end;
+
+  $* ($multi ? 'mysql' : ) $mysql_options
+}
+
+: sqlite
+:
+if $sqlite
+{
+  .include ../../../sqlite.testscript
+
+  $*
+}
+
+: pgsql
+:
+if $pgsql
+{
+  .include ../../../pgsql-schema.testscript
+
+  for s: $schemas
+    $create_schema_cmd -f $out_base/"$s"($multi ? '-pgsql' : '').sql
+  end;
+
+  $* ($multi ? 'pgsql' : ) $pgsql_options
+}

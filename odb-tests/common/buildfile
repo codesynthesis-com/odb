@@ -1,0 +1,6 @@
+# file      : common/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+./: {*/ -bulk/}
+
+./: bulk/: include = (!$pgsql || $pgsql_bulk || $size($databases) != 1)

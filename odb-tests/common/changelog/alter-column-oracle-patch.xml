@@ -1,0 +1,13 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="oracle" version="1">
+  <changeset version="3"/>
+
+  <model version="2">
+    <table name="object" kind="object">
+      <column name="id" type="NUMBER(10)" null="false"/>
+      <column name="num" type="NUMBER(10)" null="true"/>
+      <primary-key auto="true" sequence="object_seq">
+        <column name="id"/>
+      </primary-key>
+    </table>
+  </model>
+</changelog>

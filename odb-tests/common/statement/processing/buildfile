@@ -1,0 +1,8 @@
+# file      : common/statement/processing/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+import libs = libodb%lib{odb}
+
+exe{driver}: {hxx cxx}{*} $libs testscript
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"

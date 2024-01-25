@@ -1,0 +1,56 @@
+<changelog xmlns="http://www.codesynthesis.com/xmlns/odb/changelog" database="oracle" version="1">
+  <model version="1">
+    <table name="object" kind="object">
+      <column name="id" type="NUMBER(10)" null="false"/>
+      <column name="num" type="NUMBER(10)" null="true" default="0" options="DUMMY=1"/>
+      <column name="v_x" type="NUMBER(10)" null="false"/>
+      <column name="v_y" type="NUMBER(10)" null="false"/>
+      <column name="o1_x" type="NUMBER(10)" null="true"/>
+      <column name="o1_y" type="NUMBER(10)" null="true"/>
+      <primary-key auto="true" sequence="object_seq">
+        <column name="id"/>
+      </primary-key>
+      <foreign-key name="object_o1_fk" deferrable="DEFERRED">
+        <column name="o1_x"/>
+        <column name="o1_y"/>
+        <references table="object1">
+          <column name="id_x"/>
+          <column name="id_y"/>
+        </references>
+      </foreign-key>
+      <index name="object_num_i" type="UNIQUE" method="BTREE" options="DUMMY=1">
+        <column name="num" options="DESC"/>
+      </index>
+      <index name="object_v_i">
+        <column name="v_x"/>
+        <column name="v_y"/>
+      </index>
+    </table>
+    <table name="object_nums" kind="container">
+      <column name="object_id" type="NUMBER(10)" null="false"/>
+      <column name="index" type="NUMBER(20)" null="false"/>
+      <column name="value" type="NUMBER(10)" null="false"/>
+      <foreign-key name="object_nums_object_id_fk" on-delete="CASCADE">
+        <column name="object_id"/>
+        <references table="object">
+          <column name="id"/>
+        </references>
+      </foreign-key>
+      <index name="object_nums_object_id_i">
+        <column name="object_id"/>
+      </index>
+      <index name="object_nums_index_i">
+        <column name="index"/>
+      </index>
+    </table>
+    <table name="object1" kind="object">
+      <column name="id_x" type="NUMBER(10)" null="false"/>
+      <column name="id_y" type="NUMBER(10)" null="false"/>
+      <column name="num" type="NUMBER(10)" null="false"/>
+      <primary-key>
+        <column name="id_x"/>
+        <column name="id_y"/>
+      </primary-key>
+    </table>
+  </model>
+</changelog>

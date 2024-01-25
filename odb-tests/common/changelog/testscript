@@ -1,0 +1,66 @@
+# file      : common/changelog/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+headers = [paths] $path_search($src_base/*.hxx)
+
+odb_options = --generate-schema-only \
+              --schema-format sql \
+              --suppress-migration \
+              --options-file $out_base/odb.options
+
+: mysql
+:
+if $mysql
+{
+  odb_options += --database 'mysql' --changelog-dir $~
+
+  for h: $headers
+    n = $base($leaf($h))
+
+    $* $odb_options -DBVER=1 -DCVER=1 --init-changelog $h &$(n).xml &$(n).sql
+
+    $* $odb_options -DBVER=1 -DCVER=2 $h
+    diff $src_base/$n-mysql-diff.xml $(n).xml
+
+    $* $odb_options -DBVER=2 -DCVER=3 $h
+    diff $src_base/$n-mysql-patch.xml $(n).xml
+  end
+}
+
+: sqlite
+:
+if $sqlite
+{
+  odb_options += --database 'sqlite' --changelog-dir $~
+
+  for h: $headers
+    n = $base($leaf($h))
+
+    $* $odb_options -DBVER=1 -DCVER=1 --init-changelog $h &$(n).xml &$(n).sql
+
+    $* $odb_options -DBVER=1 -DCVER=2 $h
+    diff $src_base/$n-sqlite-diff.xml $(n).xml
+
+    $* $odb_options -DBVER=2 -DCVER=3 $h
+    diff $src_base/$n-sqlite-patch.xml $(n).xml
+  end
+}
+
+: pgsql
+:
+if $pgsql
+{
+  odb_options += --database 'pgsql' --changelog-dir $~
+
+  for h: $headers
+    n = $base($leaf($h))
+
+    $* $odb_options -DBVER=1 -DCVER=1 --init-changelog $h &$(n).xml &$(n).sql
+
+    $* $odb_options -DBVER=1 -DCVER=2 $h
+    diff $src_base/$n-pgsql-diff.xml $(n).xml
+
+    $* $odb_options -DBVER=2 -DCVER=3 $h
+    diff $src_base/$n-pgsql-patch.xml $(n).xml
+  end
+}

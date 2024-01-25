@@ -1,0 +1,270 @@
+# file      : build/root.build
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+cxx.std = latest
+
+using cxx
+
+hxx{*}: extension = hxx
+ixx{*}: extension = ixx
+txx{*}: extension = txx
+cxx{*}: extension = cxx
+
+# List of the identifiers of the databases to compile and run the tests
+# against. The valid identifiers are mysql, sqlite, pgsql, oracle, and mssql.
+#
+# @@ TODO: change to string_set once available.
+#
+config [strings] config.odb_tests.database
+
+assert ($defined(config.odb_tests.database) && \
+        $size($config.odb_tests.database) > 0) \
+'at least one database must be configured via config.odb_tests.database variable'
+
+databases = $config.odb_tests.database
+
+mysql  = false
+sqlite = false
+pgsql  = false
+oracle = false
+mssql  = false
+
+for db: $databases
+{
+  switch $db
+  {
+    case 'mysql'
+      mysql = true
+
+    case 'sqlite'
+      sqlite = true
+
+    case 'pgsql'
+      pgsql = true
+
+    case 'oracle'
+      oracle = true
+
+    case 'mssql'
+      mssql = true
+
+    default
+      fail "invalid database '$db' specified in config.odb_tests.database value"
+  }
+}
+
+# If true, then build and run the test drivers in the dynamic multi-database
+# mode.
+#
+config [bool] config.odb_tests.multi_database ?= ($size($databases) > 1)
+multi = $config.odb_tests.multi_database
+
+assert ($multi || $size($databases) == 1) \
+'only one database can be configured if config.odb_tests.multi_database value is false'
+
+# Database connections.
+#
+
+# PostgreSQL
+#
+# The database user. Note that the named user must be allowed to connect to
+# the database server without specifying credentials.
+#
+config [string] config.odb_tests.pgsql.user ?= 'odb_test'
+
+# The database name. Note that it WILL BE MODIFIED by the tests.
+#
+config [string] config.odb_tests.pgsql.database ?= 'odb_test'
+
+# The database host. Leaving this variable undefined results in using
+# Unix-domain sockets. Machines without Unix-domain sockets will connect to
+# localhost.
+#
+config [string] config.odb_tests.pgsql.host
+
+# The database port or the socket file name extension for Unix-domain
+# connections.
+#
+config [string] config.odb_tests.pgsql.port
+
+# If true, then assume that libodb-pgsql supports the bulk operations.
+#
+# Note: config.odb_tests.pgsql.bulk_default is reflected from manifest.
+#
+config [bool] config.odb_tests.pgsql.bulk_default ?= false
+config [bool] config.odb_tests.pgsql.bulk ?= ($cxx.target.class != 'windows' && \
+                                              $config.odb_tests.pgsql.bulk_default)
+pgsql_bulk = $config.odb_tests.pgsql.bulk
+
+# MySQL
+#
+# The database user.
+#
+config [string] config.odb_tests.mysql.user ?= 'odb_test'
+
+# The database password.
+#
+config [string] config.odb_tests.mysql.passwd
+
+# The database name. Note that it WILL BE MODIFIED by the tests.
+#
+config [string] config.odb_tests.mysql.database ?= 'odb_test'
+
+# The database host.
+#
+config [string] config.odb_tests.mysql.host
+
+# The database port.
+#
+config [uint64] config.odb_tests.mysql.port
+
+# The database socket path.
+#
+config [path] config.odb_tests.mysql.socket
+
+define sql: file
+sql{*}: extension = sql
+
+define xml: file
+xml{*}: extension = xml
+
+if ($build.mode != 'skeleton')
+{
+  if ($cxx.target.system == 'win32-msvc')
+    cxx.poptions += -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS
+
+  switch $cxx.class
+  {
+    case 'gcc'
+    {
+      cxx.coptions += -Wno-unknown-pragmas
+    }
+    case 'msvc'
+    {
+      cxx.coptions += /wd4068 /wd4251 /wd4275 /wd4800
+    }
+  }
+
+  # @@ BUILD2 Clang issues the following warnings while compile the
+  #           odb-generated headers:
+  #
+  #    In file included from odb-tests/common/view/olv/test1-odb-sqlite.cxx:10:
+  #    odb-tests/common/view/olv/test1-odb-sqlite.hxx:68:80: warning: instantiation of variable 'odb::query_columns<test1::object1, odb::id_common, odb::access::object_traits_impl< ::test1::object1, id_common>>::id' required here, but no definition is available [-Wundefined-var-template]
+  #       68 |   id (query_columns< ::test1::object1, id_common, typename A::common_traits >::id,
+  #          |                                                                                ^
+  #    odb-tests/common/view/olv/test1-odb.hxx:91:21: note: forward declaration of template entity is here
+  #       91 |     static id_type_ id;
+  #          |                     ^
+  #    odb-tests/common/view/olv/test1-odb-sqlite.hxx:68:80: note: add an explicit instantiation declaration to suppress this warning if 'odb::query_columns<test1::object1, odb::id_common, odb::access::object_traits_impl< ::test1::object1, id_common>>::id' is explicitly instantiated in another translation unit
+  #       68 |   id (query_columns< ::test1::object1, id_common, typename A::common_traits >::id,
+  #
+  #    Note: -Wno-undefined-var-template is temporarily added to suppress them.
+  #
+  if ($cxx.id.type == 'clang')
+    cxx.coptions += -Wno-undefined-var-template
+
+  # Import odb that we are testing.
+  #
+  import! [metadata] odb = odb%exe{odb}
+
+  # Import the mysql client for creating the database schemas, etc.
+  #
+  if $mysql
+  {
+    import! mysql_client = mysql%exe{mysql}
+    testscript{*}: mysql_client = $mysql_client
+  }
+
+  # Import the psql client for creating the database schemas, etc.
+  #
+  if $pgsql
+  {
+    import! pgsql_client = psql%exe{psql}
+    testscript{*}: pgsql_client = $pgsql_client
+  }
+
+  # Note that we need ((-.+)?) instead of just (-.+)? because we use this
+  # capture as a back-reference in the pattern.
+  #
+  [rule_name=odb_compile]                                     \
+  <hxx{~'/(.+)-odb((-.+)?)/'}                                 \
+   ixx{~'/\1-odb\2/'}                                         \
+   cxx{~'/\1-odb\2/'}>: hxx{~'/\1/'} libue{~'/.+-meta/'} $odb
+  {{
+    pops = $cxx.lib_poptions($<[1])
+    depdb hash $pops
+
+    hp = $path($>[0])
+    bn = $base($leaf($hp))
+    db = $regex.replace($bn, '.+-odb(-(.+))?', '\2')
+
+    if ($db == '') # *-odb.?xx target group?
+      db = ($multi ? 'common' : $databases[0])
+    end
+
+    # If the external SQL schema file will be generated, then add it as a
+    # dynamic target group member.
+    #
+    # @@ BUILD2 Probably we should add support for --generate-dep ODB compiler
+    # option. Then presumably this will be take care of automatically.
+    #
+    # We assume that the '--generate-schema' and '--schema-format' strings
+    # will never appear as standalone option values.
+    #
+    if ($db != 'common' && $regex.find_match($odb_options, '--generate-schema'))
+      schema_format = ($db == 'sqlite' ? 'embedded' : 'sql')
+
+      for o: $odb_options
+        if ($o == '--schema-format')
+          schema_format = [null] # Indicate that the schema format comes next.
+        elif ($schema_format == [null])
+          schema_format = $o
+        end
+      end
+    else
+      schema_format = ''
+    end
+
+    t = ($schema_format == 'sql'                                             \
+         ? $directory($hp)/$regex.replace($bn, '(.+)-odb(-.+)?', '\1\2').sql \
+         : '')
+
+    depdb dyndep --dyn-target --target-what 'generated schema' --format lines \
+    -- echo "$t"
+
+    $odb --std c++11                            \
+         ($multi ? --multi-database dynamic : ) \
+         --database $db                         \
+         --output-dir $out_base                 \
+         $odb_options                           \
+         "-I$src_base"                          \
+         $pops                                  \
+         $path($<[0])
+  }}
+
+  # Every exe{} in this project is by default a test.
+  #
+  exe{*}: test = true
+
+  # Specify the test target for cross-testing.
+  #
+  test.target = $cxx.target
+}
+
+# The helper targets which can be used as prerequisites of test drivers
+# which require either a specific database client or multiple clients for
+# all the enabled databases.
+#
+alias{mysql-client}: $mysql_client:
+{
+  include = $mysql
+  clean = false
+}
+
+alias{pgsql-client}: $pgsql_client:
+{
+  include = $pgsql
+  clean = false
+}
+
+alias{database-client}: alias{mysql-client pgsql-client}

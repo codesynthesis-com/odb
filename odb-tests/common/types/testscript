@@ -1,0 +1,6 @@
+# file      : common/types/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+: basic
+:
+$*

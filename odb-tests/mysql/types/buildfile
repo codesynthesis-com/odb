@@ -1,0 +1,36 @@
+# file      : mysql/types/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+assert ($mysql && !$multi || $build.meta_operation == 'dist') \
+"mysql should be configured via config.odb_tests.database variable as a single database"
+
+import libodb = libodb%lib{odb}
+
+import libs  = libodb-mysql%lib{odb-mysql}
+import libs += lib{common}
+
+exe{driver}: {hxx cxx}{* -*-odb} {hxx ixx cxx}{test-odb} testscript
+
+# Introduce the metadata library target to make sure the libodb library is
+# resolved for the odb_compile ad hoc rule (see build/root.build for details).
+#
+libue{test-meta}: $libodb
+
+<{hxx ixx cxx}{test-odb}>: hxx{test} libue{test-meta}
+
+exe{driver}: libue{test-meta} $libs
+
+# Specify the ODB custom options to be used by the odb_compile ad hoc rule
+# (see build/root.build for details).
+#
+odb_options = --table-prefix mysql_types_            \
+              --generate-schema                      \
+              --default-database common              \
+              --generate-query                       \
+              --hxx-prologue '#include "traits.hxx"'
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+
+# Testscript's run-time prerequisites.
+#
+exe{driver}: ../../alias{mysql-client}: include = adhoc

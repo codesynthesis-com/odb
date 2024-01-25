@@ -1,0 +1,11 @@
+# file      : sqlite/database/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+assert ($sqlite && !$multi || $build.meta_operation == 'dist') \
+"sqlite should be configured via config.odb_tests.database variable as a single database"
+
+import libs = libodb-sqlite%lib{odb-sqlite}
+
+exe{driver}: {hxx cxx}{*} $libs testscript
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"

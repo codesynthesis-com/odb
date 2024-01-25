@@ -1,0 +1,33 @@
+# file      : common/nested/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../../database-options.testscript
+
+: mysql
+:
+if $mysql
+{
+  .include ../../../mysql.testscript
+
+  $create_schema;
+  $*
+}
+
+: sqlite
+:
+if $sqlite
+{
+  .include ../../../sqlite.testscript
+
+  $*
+}
+
+: pgsql
+:
+if $pgsql
+{
+  .include ../../../pgsql.testscript
+
+  $create_schema;
+  $*
+}
