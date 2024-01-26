@@ -20,3 +20,4 @@ depends: * bpkg >= 0.16.0-
 depends: libsqlite3 ^3.6.18
 depends: libodb == $
 depends: * cli ^1.2.0- ? ($config.libodb_sqlite.develop)
+tests: odb-tests == $ config.odb_tests.database+=sqlite
