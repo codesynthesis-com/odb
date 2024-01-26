@@ -1,9 +1,0 @@
-# file      : sqlite/stream/testscript
-# license   : GNU GPL v2; see accompanying LICENSE file
-
-.include ../../database-options.testscript
-.include ../../sqlite.testscript
-
-: basics
-:
-$*
