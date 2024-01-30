@@ -8,3 +8,5 @@ location: libodb-mysql/
 location: libodb-sqlite/
 :
 location: libodb-pgsql/
+:
+location: odb-tests/

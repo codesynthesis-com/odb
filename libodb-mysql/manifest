@@ -13,9 +13,6 @@ doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
 src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
-builds: all
-builds: -wasm
-builds: -( +windows &gcc ) ; MinGW GCC is not supported by libmysqlclient.
 requires: c++11
 depends: * build2 >= 0.16.0-
 depends: * bpkg >= 0.16.0-
@@ -23,3 +20,24 @@ depends: * bpkg >= 0.16.0-
 depends: libmysqlclient >= 5.0.3
 depends: libodb == $
 depends: * cli ^1.2.0- ? ($config.libodb_mysql.develop)
+
+#tests: odb-tests == $ \
+#? (!$defined(config.odb_tests.database)) config.odb_tests.database=mysql
+
+# @@ TMP
+#
+builds: all
+#builds: all mysql
+builds: -wasm
+builds: -( +windows &gcc ) ; MinGW GCC is not supported by libmysqlclient.
+
+# Only build this package configuration where it can be tested via odb-tests
+# package (see its manifest for details).
+#
+#multi-builds: mysql
+#multi-build-config:
+#\
+#{ 'config.odb_tests.database=mysql sqlite' }+ odb-tests
+#;
+#Enable testing in dynamic multi-database mode.
+#\

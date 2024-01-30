@@ -13,11 +13,29 @@ doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
 src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
-builds: all
-builds: -wasm
 requires: c++11
 depends: * build2 >= 0.16.0-
 depends: * bpkg >= 0.16.0-
 depends: libpq >=7.4.0
 depends: libodb == $
 depends: * cli ^1.2.0- ? ($config.libodb_pgsql.develop)
+
+#tests: odb-tests == $ \
+#? (!$defined(config.odb_tests.database)) config.odb_tests.database=pgsql
+
+# @@ TMP
+#
+builds: all
+#builds: all pgsql
+builds: -wasm
+
+# Only build this package configuration where it can be tested via odb-tests
+# package (see its manifest for details).
+#
+#multi-builds: pgsql
+#multi-build-config:
+#\
+#{ 'config.odb_tests.database=pgsql sqlite' }+ odb-tests
+#;
+#Enable testing in dynamic multi-database mode.
+#\

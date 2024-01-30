@@ -10,18 +10,30 @@ ixx{*}: extension = ixx
 txx{*}: extension = txx
 cxx{*}: extension = cxx
 
+define sql: file
+sql{*}: extension = sql
+
+define xml: file
+xml{*}: extension = xml
+
+skeleton = ($build.mode == 'skeleton')
+
 # List of the identifiers of the databases to compile and run the tests
 # against. The valid identifiers are mysql, sqlite, pgsql, oracle, and mssql.
 #
-# @@ TODO: change to string_set once available.
+# Note: can be specified by the user but is also conditionally reflected by
+#       the libodb-* libraries' tests manifest values.
+#
+# @@ TODO: make it of the string_set type once available.
 #
 config [strings] config.odb_tests.database
 
-assert ($defined(config.odb_tests.database) && \
-        $size($config.odb_tests.database) > 0) \
-'at least one database must be configured via config.odb_tests.database variable'
+databases = ($defined(config.odb_tests.database) \
+             ? $config.odb_tests.database        \
+             : )
 
-databases = $config.odb_tests.database
+assert ($skeleton || $size($databases) > 0) \
+'at least one database must be configured via config.odb_tests.database variable'
 
 mysql  = false
 sqlite = false
@@ -53,13 +65,21 @@ for db: $databases
   }
 }
 
+# @@ TMP Remove once string_set is available.
+#
+databases = ($mysql  ? 'mysql'  : ) \
+            ($sqlite ? 'sqlite' : ) \
+            ($pgsql  ? 'pgsql'  : ) \
+            ($oracle ? 'oracle' : ) \
+            ($mssql  ? 'mssql'  : )
+
 # If true, then build and run the test drivers in the dynamic multi-database
 # mode.
 #
 config [bool] config.odb_tests.multi_database ?= ($size($databases) > 1)
 multi = $config.odb_tests.multi_database
 
-assert ($multi || $size($databases) == 1) \
+assert ($multi || $size($databases) < 2) \
 'only one database can be configured if config.odb_tests.multi_database value is false'
 
 # Database connections.
@@ -122,13 +142,7 @@ config [uint64] config.odb_tests.mysql.port
 #
 config [path] config.odb_tests.mysql.socket
 
-define sql: file
-sql{*}: extension = sql
-
-define xml: file
-xml{*}: extension = xml
-
-if ($build.mode != 'skeleton')
+if! $skeleton
 {
   if ($cxx.target.system == 'win32-msvc')
     cxx.poptions += -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS

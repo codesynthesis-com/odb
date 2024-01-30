@@ -12,11 +12,15 @@ doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
 src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com ; Mailing list
 
+# @@ TMP
+#
+builds: all
+#builds: mysql sqlite pgsql oracle mssql
+#
 # @@ BUILD2 The odb dependency can only be built with GCC. However, shouldn't
 #           we test that the odb-generated mappings can be compiled by other
 #           compilers and properly run afterwards?
 #
-builds: default
 builds: -( +windows -gcc ) ; Requires MinGW GCC.
 builds: &gcc               ; Requires GCC with plugin support enabled.
 builds: &gcc-5+            ; Requires GCC 5 or later.
@@ -25,19 +29,27 @@ builds: -static            ; Implementation uses plugins and requires -fPIC.
 depends: * build2 >= 0.16.0
 depends: * bpkg >= 0.16.0
 
-depends: * odb [2.5.0-b.26.1 2.5.0-b.27)
+depends: * odb == $
 
-depends: libodb        [2.5.0-b.26.1 2.5.0-b.27)
-depends: libodb-mysql  [2.5.0-b.26.1 2.5.0-b.27) ? ($mysql)
-depends: libodb-sqlite [2.5.0-b.26.1 2.5.0-b.27) ? ($sqlite)
-depends: libodb-pgsql  [2.5.0-b.26.1 2.5.0-b.27) ? ($pgsql)
-depends: libodb-oracle [2.5.0-b.26.1 2.5.0-b.27) ? ($oracle)
-depends: libodb-mssql  [2.5.0-b.26.1 2.5.0-b.27) ? ($mssql)
+depends: libodb        == $
+depends: libodb-mysql  == $ ? ($mysql)
+depends: libodb-sqlite == $ ? ($sqlite)
+depends: libodb-pgsql  == $ ? ($pgsql)
+depends: libodb-oracle == $ ? ($oracle)
+depends: libodb-mssql  == $ ? ($mssql)
 
 # Reflect whether libodb-pgsql is likely to support bulk operations. This is
 # normally the case on POSIX platforms if libodb-pgsql is linked against libpq
 # of the version 14 or above.
 #
+# Note, though, that this approach doesn't work well for libodb-pgsql
+# configured as a system package, since the version of libpq it is linked to
+# may not be the same as what we can get from the repository. Also note that
+# the following depends clause (without alternatives) is required to avoid the
+# 'unable to select dependency alternative' failure when libodb-pgsql is
+# configured as a system package.
+#
+depends: libpq           ? ($pgsql)
 depends: libpq >= 14.0.0 ? ($pgsql) config.odb_tests.pgsql.bulk_default=true | \
          libpq >= 7.4.0  ? ($pgsql) config.odb_tests.pgsql.bulk_default=false
 
