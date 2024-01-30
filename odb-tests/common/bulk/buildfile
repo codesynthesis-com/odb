@@ -1,8 +1,11 @@
 # file      : common/bulk/buildfile
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-assert (!$pgsql || $pgsql_bulk || $size($databases) != 1) \
-"bulk operations are disabled for pgsql which is specified as single database"
+if ($build.meta_operation != 'dist')
+{
+  assert (!$pgsql || $pgsql_bulk || $size($databases) != 1) \
+    "bulk operations are disabled for pgsql which is specified as single database"
+}
 
 import libodb = libodb%lib{odb}
 
