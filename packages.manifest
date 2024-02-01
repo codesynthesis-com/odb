@@ -9,4 +9,6 @@ location: libodb-sqlite/
 :
 location: libodb-pgsql/
 :
+location: libodb-oracle/
+:
 location: odb-tests/
