@@ -15,4 +15,6 @@ location: libodb-mssql/
 :
 location: libodb-boost/
 :
+location: libodb-qt/
+:
 location: odb-tests/
