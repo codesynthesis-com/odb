@@ -1,0 +1,22 @@
+: 1
+name: libodb-oracle
+version: 2.5.0-b.26.z
+project: odb
+summary: Oracle ODB runtime library
+license: other: ODB NCUEL   ; Non-Commercial Use and Evaluation License.
+license: other: proprietary ; Not free/open source.
+topics: C++, ORM, Oracle, SQL
+description-file: README
+changes-file: NEWS
+url: https://www.codesynthesis.com/products/odb/
+doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
+src-url: https://git.codesynthesis.com/cgit/odb/libodb-oracle/
+email: odb-users@codesynthesis.com
+build-warning-email: odb-builds@codesynthesis.com
+builds: none ; Requires proprietary Oracle Call Interface library.
+requires: c++11
+requires: oci ; Oracle Call Interface library.
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
+depends: libodb [2.5.0-b.26.1 2.5.0-b.27)
+depends: * cli ^1.2.0- ? ($config.libodb_oracle.develop)

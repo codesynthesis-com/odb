@@ -1,0 +1,6 @@
+# file      : tests/basics/buildfile
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+import libs = libodb-oracle%lib{odb-oracle}
+
+exe{driver}: {hxx cxx}{*} $libs
