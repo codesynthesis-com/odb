@@ -10,12 +10,12 @@ description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/
 doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
-src-url: https://git.codesynthesis.com/cgit/odb/libodb-boost/
+src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
 builds: all
 requires: c++11
 requires: libboost ; Requires not yet packaged libboost.
-depends: * build2 >= 0.16.0-
-depends: * bpkg >= 0.16.0-
-depends: libodb [2.5.0-b.26.1 2.5.0-b.27)
+depends: * build2 >= 0.17.0-
+depends: * bpkg >= 0.17.0-
+depends: libodb == $

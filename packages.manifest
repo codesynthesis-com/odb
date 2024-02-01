@@ -13,4 +13,6 @@ location: libodb-oracle/
 :
 location: libodb-mssql/
 :
+location: libodb-boost/
+:
 location: odb-tests/
