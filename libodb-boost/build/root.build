@@ -1,0 +1,17 @@
+# file      : build/root.build
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+cxx.std = latest
+
+using cxx
+
+hxx{*}: extension = hxx
+ixx{*}: extension = ixx
+txx{*}: extension = txx
+cxx{*}: extension = cxx
+
+if ($cxx.target.system == 'win32-msvc')
+  cxx.poptions += -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS
+
+if ($cxx.class == 'msvc')
+  cxx.coptions += /wd4251 /wd4275 /wd4800

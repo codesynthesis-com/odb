@@ -1,0 +1,6 @@
+# file      : tests/basics/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+import libs = libodb-boost%lib{odb-boost}
+
+exe{driver}: {hxx cxx}{*} $libs

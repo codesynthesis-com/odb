@@ -1,0 +1,19 @@
+# file      : odb/boost/smart-ptr.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile boost/version
+
+# Make boost::shared_ptr the default object pointer.
+#
+--hxx-prologue '#include <boost/shared_ptr.hpp>'
+--default-pointer ::boost::shared_ptr
+
+# Include pointer traits.
+#
+--odb-epilogue '#include <odb/boost/smart-ptr/pointer-traits.hxx>'
+--hxx-prologue '#include <odb/boost/smart-ptr/pointer-traits.hxx>'
+
+# Include wrapper traits.
+#
+--odb-epilogue '#include <odb/boost/smart-ptr/wrapper-traits.hxx>'
+--hxx-prologue '#include <odb/boost/smart-ptr/wrapper-traits.hxx>'

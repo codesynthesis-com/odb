@@ -1,0 +1,7 @@
+# file      : odb/boost/multi-index.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile boost/version
+
+--odb-epilogue '#include <odb/boost/multi-index/container-traits.hxx>'
+--hxx-prologue '#include <odb/boost/multi-index/container-traits.hxx>'

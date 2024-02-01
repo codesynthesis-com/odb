@@ -1,0 +1,4 @@
+# file      : odb/boost/uuid/uuid-common.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile boost/version

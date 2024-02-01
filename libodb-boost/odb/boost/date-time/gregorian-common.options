@@ -1,0 +1,4 @@
+# file      : odb/boost/date-time/gregorian-common.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile boost/version

@@ -1,0 +1,10 @@
+# file      : odb/boost.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile boost/smart-ptr
+--profile boost/optional
+--profile boost/unordered
+--profile boost/date-time
+--profile boost/multi-index
+--profile boost/uuid
+

@@ -1,0 +1,11 @@
+# file      : odb/boost/date-time/gregorian-oracle.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile boost/version
+
+# Include the default mapping in prologue instead of epilogue to
+# allow the user to override the default mapping.
+#
+--odb-prologue '#include <odb/boost/date-time/oracle/gregorian-mapping.hxx>'
+
+--hxx-prologue '#include <odb/boost/date-time/oracle/gregorian-traits.hxx>'

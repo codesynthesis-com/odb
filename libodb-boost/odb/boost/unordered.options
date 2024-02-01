@@ -1,0 +1,7 @@
+# file      : odb/boost/unordered.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile boost/version
+
+--odb-epilogue '#include <odb/boost/unordered/container-traits.hxx>'
+--hxx-prologue '#include <odb/boost/unordered/container-traits.hxx>'
