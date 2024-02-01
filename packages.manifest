@@ -11,4 +11,6 @@ location: libodb-pgsql/
 :
 location: libodb-oracle/
 :
+location: libodb-mssql/
+:
 location: odb-tests/

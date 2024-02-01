@@ -10,14 +10,32 @@ description-file: README
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/
 doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
-src-url: https://git.codesynthesis.com/cgit/odb/libodb-mssql/
+src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
-builds: windows ; Requires not yet packaged libunixodbc (unixODBC).
 requires: c++11
 # @@ DEP
 #requires: ? libunixodbc ; Only on UNIX.
-depends: * build2 >= 0.16.0-
-depends: * bpkg >= 0.16.0-
-depends: libodb [2.5.0-b.26.1 2.5.0-b.27)
+depends: * build2 >= 0.17.0-
+depends: * bpkg >= 0.17.0-
+depends: libodb == $
 depends: * cli ^1.2.0- ? ($config.libodb_mssql.develop)
+
+#tests: odb-tests == $ \
+#? (!$defined(config.odb_tests.database)) config.odb_tests.database=mssql
+
+# @@ TMP
+#
+builds: windows ; Requires not yet packaged libunixodbc (unixODBC).
+#builds: windows mssql
+
+# Only build this package configuration where it can be tested via odb-tests
+# package (see its manifest for details).
+#
+#multi-builds: mssql
+#multi-build-config:
+#\
+#{ 'config.odb_tests.database=mssql sqlite' }+ odb-tests
+#;
+#Enable testing in dynamic multi-database mode.
+#\

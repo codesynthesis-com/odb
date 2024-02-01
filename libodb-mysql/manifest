@@ -14,8 +14,8 @@ src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
 requires: c++11
-depends: * build2 >= 0.16.0-
-depends: * bpkg >= 0.16.0-
+depends: * build2 >= 0.17.0-
+depends: * bpkg >= 0.17.0-
 #depends: libmysqlclient >= 5.0.3 | libmariadb ^10.2.2
 depends: libmysqlclient >= 5.0.3
 depends: libodb == $
