@@ -1,0 +1,9 @@
+# file      : build/export.build
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+$out_root/
+{
+  include odb/mssql/
+}
+
+export $out_root/odb/mssql/lib{odb-mssql}

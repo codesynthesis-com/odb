@@ -1,0 +1,63 @@
+// file      : odb/mssql/details/options.cli
+// license   : ODB NCUEL; see accompanying LICENSE file
+
+include <string>;
+
+namespace odb
+{
+  namespace mssql
+  {
+    namespace details
+    {
+      class options
+      {
+        std::string --user | -U
+        {
+          "<name>",
+          "SQL Server database user. If not specified, then Windows
+           authentication is used."
+        };
+
+        std::string --password | -P
+        {
+          "<str>",
+          "SQL Server database password. Omit this option if the user
+           password is blank or Windows authentication is used."
+        };
+
+        std::string --database | -d
+        {
+          "<name>",
+          "SQL Server database name. If not specified, then the default
+           database for this user is used."
+        };
+
+        std::string --server | -S
+        {
+          "<addr>",
+          "SQL Server instance address in the
+           \c{[\i{protocol}\b{:}]\i{host}[\b{\\}\i{instance}][\b{,}\i{port}]}
+           format, where \ci{protocol} can be \cb{tcp} (TCP/IP),
+           \cb{lpc} (shared memory), or \cb{np} (named pipe). If not specifid,
+           then \cb{localhost} is used."
+        };
+
+        std::string --driver
+        {
+          "<name>",
+          "SQL Server Native Client ODBC driver name. If not specified, then
+           the latest available driver is used."
+        };
+
+        std::string --options-file
+        {
+          "<file>",
+          "Read additional options from <file>. Each option should appear on a
+           separate line optionally followed by space or equal sign (\cb{=})
+           and an option value. Empty lines and lines starting with \cb{#} are
+           ignored."
+        };
+      };
+    }
+  }
+}

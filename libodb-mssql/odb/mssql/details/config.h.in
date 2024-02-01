@@ -1,0 +1,12 @@
+/* file      : odb/mssql/details/config.h.in
+ * license   : ODB NCUEL; see accompanying LICENSE file
+ */
+
+/* This file is automatically processed by configure. */
+
+#ifndef ODB_MSSQL_DETAILS_CONFIG_H
+#define ODB_MSSQL_DETAILS_CONFIG_H
+
+#undef LIBODB_MSSQL_STATIC_LIB
+
+#endif /* ODB_MSSQL_DETAILS_CONFIG_H */

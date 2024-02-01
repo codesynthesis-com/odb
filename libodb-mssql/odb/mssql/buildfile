@@ -1,0 +1,165 @@
+# file      : odb/mssql/buildfile
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+define cli: file
+cli{*}: extension = cli
+
+import int_libs = libodb%lib{odb}
+
+# On Windows ODBC is a pre-installed system library so we pass it to the
+# linker directly
+#
+imp_libs =
+
+if ($cc.target.class != 'windows')
+  import imp_libs = libunixodbc%lib{odbc}
+
+lib{odb-mssql}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2} \
+        details/{hxx ixx txx cxx}{* -options}                              \
+ details/build2/{h}{*}                                                     \
+                $imp_libs $int_libs
+
+# Include the generated version header into the distribution (so that we don't
+# pick up an installed one) and don't remove it when cleaning in src (so that
+# clean results in a state identical to distributed).
+#
+hxx{version-build2}: in{version-build2} $src_root/manifest
+hxx{version-build2}:
+{
+  dist  = true
+  clean = ($src_root != $out_root)
+}
+
+# Build options.
+#
+cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_MSSQL_BUILD2
+
+obja{*}: cxx.poptions += -DLIBODB_MSSQL_STATIC_BUILD
+objs{*}: cxx.poptions += -DLIBODB_MSSQL_SHARED_BUILD
+
+if ($cc.target.class == 'windows')
+  cxx.libs += ($cxx.target.system == "mingw32" ? -lodbc32 : odbc32.lib)
+
+# Export options.
+#
+lib{odb-mssql}:
+{
+  cxx.export.poptions = "-I$out_root" "-I$src_root" -DLIBODB_MSSQL_BUILD2
+  cxx.export.libs = $int_libs
+}
+
+liba{odb-mssql}: cxx.export.poptions += -DLIBODB_MSSQL_STATIC
+libs{odb-mssql}: cxx.export.poptions += -DLIBODB_MSSQL_SHARED
+
+# For pre-releases use the complete version to make sure they cannot be used
+# in place of another pre-release or the final version. See the version module
+# for details on the version.* variable values.
+#
+if $version.pre_release
+  lib{odb-mssql}: bin.lib.version = @"-$version.project_id"
+else
+  lib{odb-mssql}: bin.lib.version = @"-$version.major.$version.minor"
+
+develop = $config.libodb_mssql.develop
+
+## Consumption build ($develop == false).
+#
+
+# Use pregenerated versions in the consumption build.
+#
+lib{odb-mssql}: details/pregenerated/{hxx ixx cxx}{**}: include = (!$develop)
+
+if! $develop
+  cxx.poptions =+ "-I($src_base/details/pregenerated)" # Note: must come first.
+
+# Don't install pregenerated headers since they are only used internally in
+# the database implementation (also below).
+#
+details/pregenerated/{hxx ixx}{*}: install = false
+
+# Distribute pregenerated versions only in the consumption build.
+#
+details/pregenerated/{hxx ixx cxx}{*}: dist = (!$develop)
+
+#
+##
+
+## Development build ($develop == true).
+#
+
+lib{odb-mssql}: details/{hxx ixx cxx}{options}: include = $develop
+
+if $develop
+  import! [metadata] cli = cli%exe{cli}
+
+# In the development build distribute regenerated {hxx ixx cxx}{options},
+# remapping their locations to the paths of the pregenerated versions (which
+# are only distributed in the consumption build; see above). This way we make
+# sure that the distributed files are always up-to-date.
+#
+<details/{hxx ixx cxx}{options}>: details/cli{options} $cli
+{
+  install = false
+  dist    = ($develop ? pregenerated/odb/mssql/details/ : false)
+
+  # Symlink the generated code in src for convenience of development.
+  #
+  backlink = true
+}
+%
+if $develop
+{{
+  options = --include-with-brackets --include-prefix odb/mssql/details  \
+            --guard-prefix LIBODB_MSSQL_DETAILS --generate-file-scanner \
+            --cli-namespace odb::mssql::details::cli --long-usage       \
+            --generate-specifier --no-combined-flags
+
+  $cli $options -o $out_base/details/ $path($<[0])
+
+  # If the result differs from the pregenerated version, copy it over.
+  #
+  d = [dir_path] $src_base/details/pregenerated/odb/mssql/details/
+
+  if diff $d/options.hxx $path($>[0]) >- && \
+     diff $d/options.ixx $path($>[1]) >- && \
+     diff $d/options.cxx $path($>[2]) >-
+    exit
+  end
+
+  cp $path($>[0]) $d/options.hxx
+  cp $path($>[1]) $d/options.ixx
+  cp $path($>[2]) $d/options.cxx
+}}
+
+# Install into the odb/mssql/ subdirectory of, say, /usr/include/
+# recreating subdirectories.
+#
+install_include = [dir_path] include/odb/mssql/
+
+{hxx ixx txx}{*}:
+{
+  install         = $install_include
+  install.subdirs = true
+}
+
+# We want these to be picked up whether LIBODB_MSSQL_BUILD2 is defined or not.
+#
+hxx{version}@./:             install = false
+hxx{version-build2}:         install = $install_include/version.hxx
+hxx{version-build2-stub}@./: install = $install_include/version-build2.hxx
+
+details/build2/
+{
+  h{*}: install = false
+
+  if ($cxx.target.system == 'win32-msvc')
+  {
+    h{config-vc}@./:      install = $install_include/details/
+    h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
+  }
+  else
+  {
+    h{config}@./:      install = $install_include/details/
+    h{config-stub}@./: install = $install_include/details/build2/config.h
+  }
+}

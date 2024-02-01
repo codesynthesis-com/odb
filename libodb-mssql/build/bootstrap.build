@@ -1,0 +1,10 @@
+# file      : build/bootstrap.build
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+project = libodb-mssql
+
+using version
+using config
+using dist
+using test
+using install

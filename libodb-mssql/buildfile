@@ -1,0 +1,9 @@
+# file      : buildfile
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+./: {*/ -build/} doc{INSTALL NEWS README} legal{NCUEL LICENSE} manifest
+
+# Don't install tests or the INSTALL file.
+#
+tests/:          install = false
+doc{INSTALL}@./: install = false

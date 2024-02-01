@@ -1,0 +1,4 @@
+# file      : tests/buildfile
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+./: {*/ -build/}

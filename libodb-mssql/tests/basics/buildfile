@@ -1,0 +1,6 @@
+# file      : tests/basics/buildfile
+# license   : ODB NCUEL; see accompanying LICENSE file
+
+import libs = libodb-mssql%lib{odb-mssql}
+
+exe{driver}: {hxx cxx}{*} $libs
