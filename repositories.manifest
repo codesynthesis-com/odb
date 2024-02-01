@@ -1,6 +1,0 @@
-: 1
-summary: Qt ODB profile library repository
-
-:
-role: prerequisite
-location: ../libodb.git##HEAD
