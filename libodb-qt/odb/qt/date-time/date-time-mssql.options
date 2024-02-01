@@ -1,0 +1,13 @@
+# file      : odb/qt/date-time/date-time-mssql.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile qt/version
+
+# Include the default mapping in prologue instead of epilogue to
+# allow the user to override the default mapping.
+#
+--odb-prologue '#include <odb/qt/date-time/mssql/default-mapping.hxx>'
+
+--hxx-prologue '#include <odb/qt/date-time/mssql/qdate-traits.hxx>'
+--hxx-prologue '#include <odb/qt/date-time/mssql/qtime-traits.hxx>'
+--hxx-prologue '#include <odb/qt/date-time/mssql/qdate-time-traits.hxx>'

@@ -1,0 +1,4 @@
+# file      : odb/qt/basic/basic-common.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile qt/version

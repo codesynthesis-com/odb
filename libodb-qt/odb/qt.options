@@ -1,0 +1,7 @@
+# file      : odb/qt.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile qt/basic
+--profile qt/containers
+--profile qt/date-time
+--profile qt/smart-ptr

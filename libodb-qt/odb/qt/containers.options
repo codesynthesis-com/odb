@@ -1,0 +1,18 @@
+# file      : odb/qt/containers.options
+# licences  : GNU GPL v2; see accompanying LICENSE file
+
+--profile qt/version
+
+--odb-epilogue '#include <odb/qt/containers/qhash-traits.hxx>'
+--odb-epilogue '#include <odb/qt/containers/qlist-traits.hxx>'
+--odb-epilogue '#include <odb/qt/containers/qlinked-list-traits.hxx>'
+--odb-epilogue '#include <odb/qt/containers/qmap-traits.hxx>'
+--odb-epilogue '#include <odb/qt/containers/qset-traits.hxx>'
+--odb-epilogue '#include <odb/qt/containers/qvector-traits.hxx>'
+
+--hxx-prologue '#include <odb/qt/containers/qhash-traits.hxx>'
+--hxx-prologue '#include <odb/qt/containers/qlist-traits.hxx>'
+--hxx-prologue '#include <odb/qt/containers/qlinked-list-traits.hxx>'
+--hxx-prologue '#include <odb/qt/containers/qmap-traits.hxx>'
+--hxx-prologue '#include <odb/qt/containers/qset-traits.hxx>'
+--hxx-prologue '#include <odb/qt/containers/qvector-traits.hxx>'

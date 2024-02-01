@@ -1,0 +1,13 @@
+# file      : odb/qt/basic/basic-sqlite.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile qt/version
+
+# Include the default mapping in prologue instead of epilogue to
+# allow the user to override the default mapping.
+#
+--odb-prologue '#include <odb/qt/basic/sqlite/default-mapping.hxx>'
+
+--hxx-prologue '#include <odb/qt/basic/sqlite/qstring-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/sqlite/qbyte-array-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/sqlite/quuid-traits.hxx>'

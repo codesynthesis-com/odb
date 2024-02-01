@@ -1,0 +1,4 @@
+# file      : tests/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+./: {*/ -build/}

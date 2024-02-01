@@ -1,0 +1,13 @@
+# file      : odb/qt/basic/basic-mssql.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile qt/version
+
+# Include the default mapping in prologue instead of epilogue to
+# allow the user to override the default mapping.
+#
+--odb-prologue '#include <odb/qt/basic/mssql/default-mapping.hxx>'
+
+--hxx-prologue '#include <odb/qt/basic/mssql/qstring-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/mssql/qbyte-array-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/mssql/quuid-traits.hxx>'

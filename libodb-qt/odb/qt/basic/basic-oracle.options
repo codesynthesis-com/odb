@@ -1,0 +1,13 @@
+# file      : odb/qt/basic/basic-oracle.options
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+--profile qt/version
+
+# Include the default mapping in prologue instead of epilogue to
+# allow the user to override the default mapping.
+#
+--odb-prologue '#include <odb/qt/basic/oracle/default-mapping.hxx>'
+
+--hxx-prologue '#include <odb/qt/basic/oracle/qstring-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/oracle/qbyte-array-traits.hxx>'
+--hxx-prologue '#include <odb/qt/basic/oracle/quuid-traits.hxx>'
