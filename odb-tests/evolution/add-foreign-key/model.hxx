@@ -9,7 +9,7 @@
 
 #include <odb/core.hxx>
 
-#include <common/config.hxx> // DATABASE_XXX
+#include <libcommon/config.hxx> // DATABASE_XXX
 
 #pragma db model version(1, MODEL_VERSION)
 

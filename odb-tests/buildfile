@@ -7,4 +7,6 @@
 ./: sqlite/: include = ($sqlite && !$multi)
 ./: pgsql/:  include = ($pgsql  && !$multi)
 
+./: evolution/: include = (!$multi)
+
 ./: testscript{*}: include = adhoc

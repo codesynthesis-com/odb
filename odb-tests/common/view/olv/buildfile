@@ -10,7 +10,7 @@ for db: $databases
 
 import libs += lib{common}
 
-hs = test1 test2 test3 test4 test5 test6 test7 test8 test9
+hdrs = test1 test2 test3 test4 test5 test6 test7 test8 test9
 
 exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} testscript
 
@@ -19,7 +19,7 @@ exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} testscript
 #
 libue{test-meta}: $libodb
 
-for h: $hs
+for h: $hdrs
 {
   exe{driver}: {hxx ixx cxx}{$h-odb}
 
@@ -47,4 +47,4 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"
 #
 exe{driver}: ../../../alias{database-client}: include = adhoc
 
-testscript@./: schemas = $hs
+testscript@./: schemas = $hdrs

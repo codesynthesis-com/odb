@@ -4,21 +4,23 @@
 // Test adding a new table (object, container).
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/config.hxx>  // DATABASE_XXX
-#include <common/common.hxx>
+#include <libcommon/config.hxx>  // DATABASE_XXX
+#include <libcommon/common.hxx>
 
 #include "test2.hxx"
 #include "test3.hxx"
 #include "test2-odb.hxx"
 #include "test3-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -28,7 +30,10 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv, false));
+    unique_ptr<database> db (create_database (argc, argv, false));
+
+    db->schema_version_table ("evo_add_t_sv");
+
     bool embedded (schema_catalog::exists (*db));
 
     // 1 - base version

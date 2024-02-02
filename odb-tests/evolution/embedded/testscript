@@ -1,0 +1,21 @@
+# file      : evolution/embedded/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+
+test.arguments += $($(db)_options)
+
+: basics
+:
+if! $sqlite
+{
+  $* 1;
+  $* 2;
+  $* 3
+}
+else
+{
+  $* 1 &odb-test.db;
+  $* 2;
+  $* 3
+}

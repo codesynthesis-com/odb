@@ -1,8 +1,11 @@
 # file      : mysql/database/buildfile
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-assert ($mysql && !$multi || $build.meta_operation == 'dist') \
-"mysql should be configured via config.odb_tests.database variable as a single database"
+if ($build.meta_operation != 'dist')
+{
+  assert ($mysql) "mysql should be configured for this test"
+  assert (!$multi) "multi-database mode is not supported by this test"
+}
 
 import libs = libodb-mysql%lib{odb-mysql}
 

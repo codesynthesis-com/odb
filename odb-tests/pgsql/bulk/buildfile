@@ -3,9 +3,8 @@
 
 if ($build.meta_operation != 'dist')
 {
-  assert ($pgsql && !$multi) \
-    "pgsql should be configured via config.odb_tests.database variable as a single database"
-
+  assert ($pgsql) "pgsql should be configured for this test"
+  assert (!$multi) "multi-database mode is not supported by this test"
   assert ($pgsql_bulk) "bulk operations are disabled for pgsql"
 }
 

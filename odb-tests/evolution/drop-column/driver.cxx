@@ -4,20 +4,22 @@
 // Test dropping a column.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test2.hxx"
 #include "test3.hxx"
 #include "test2-odb.hxx"
 #include "test3-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -27,7 +29,10 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv, false));
+    unique_ptr<database> db (create_database (argc, argv, false));
+
+    db->schema_version_table ("evo_drop_c_sv");
+
     bool embedded (schema_catalog::exists (*db));
 
     // 1 - base version
@@ -79,7 +84,7 @@ main (int argc, char* argv[])
         //
         {
           transaction t (db->begin ());
-          auto_ptr<object> p (db->load<object> (1));
+          unique_ptr<object> p (db->load<object> (1));
 
           assert (p->str == "abc");
           assert (p->num == 123);
@@ -104,7 +109,7 @@ main (int argc, char* argv[])
         //
         {
           transaction t (db->begin ());
-          auto_ptr<object> p (db->load<object> (1));
+          unique_ptr<object> p (db->load<object> (1));
           assert (p->str == "" && p->ptr == 0);
           db->erase<object1> (value (1, 2)); // SQLite logical delete test.
           t.commit ();

@@ -1,8 +1,11 @@
 # file      : pgsql/truncation/buildfile
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-assert ($pgsql && !$multi || $build.meta_operation == 'dist') \
-"pgsql should be configured via config.odb_tests.database variable as a single database"
+if ($build.meta_operation != 'dist')
+{
+  assert ($pgsql) "pgsql should be configured for this test"
+  assert (!$multi) "multi-database mode is not supported by this test"
+}
 
 import libodb = libodb%lib{odb}
 

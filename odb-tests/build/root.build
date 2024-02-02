@@ -197,7 +197,21 @@ if! $skeleton
     testscript{*}: pgsql_client = $pgsql_client
   }
 
-  # Note that we need ((-.+)?) instead of just (-.+)? because we use this
+  # Notes:
+  #
+  # - The second prerequisite ($<[1]) is expected to be a metadata library
+  #   target which we will use to extract the poptions variable value for
+  #   specifying the contained options on the ODB compiler command line.
+  #
+  # - The additional options for the ODB compiler command line must be
+  #   specified via the odb_options variable.
+  #
+  # - If the pre/post-migration SQL files are being generated, then the
+  #   version numbers the object model is being migrated through must be
+  #   specified via the schema_versions variable in the NNN form (001 002,
+  #   etc; see the implementation for details).
+  #
+  # Also note that we need ((-.+)?) instead of just (-.+)? because we use this
   # capture as a back-reference in the pattern.
   #
   [rule_name=odb_compile]                                     \
@@ -239,12 +253,51 @@ if! $skeleton
       schema_format = ''
     end
 
-    t = ($schema_format == 'sql'                                             \
-         ? $directory($hp)/$regex.replace($bn, '(.+)-odb(-.+)?', '\1\2').sql \
-         : '')
+    ts = ($schema_format == 'sql'                                               \
+          ? "$directory($hp)/$regex.replace($bn, '(.+)-odb(-.+)?', '\1\2').sql" \
+          : '')
+
+    # If the object model change log and/or migration SQL files will be
+    # generated, then add them as a dynamic target group member.
+    #
+    changelog = ''
+    init_changelog = false
+    suppress_migration = false
+
+    for o: $odb_options
+      if ($o == '--changelog')
+        changelog = [null] # Indicate that the changelog path comes next.
+      elif ($changelog == [null])
+        changelog = $o
+      elif ($o == '--init-changelog')
+        init_changelog = true
+      elif ($o == '--suppress-migration')
+        suppress_migration = true
+      end
+    end
+
+    if ($changelog != '')
+      if ($init_changelog)
+        ts = ($ts == '' ? "$changelog" : "$ts$\n$changelog")
+      end
+
+      if ($schema_format == 'sql' && !$suppress_migration)
+        n = $base($leaf($path($<[0])))
+
+        # Note that it's not easy to deduce the object model migration files
+        # list. Thus, we expect the version numbers the object model is being
+        # migrated through to be explicitly specified via the schema_versions
+        # variable.
+        #
+        for v: $schema_versions
+          ns = "$out_base/$n-$v-pre.sql$\n$out_base/$n-$v-post.sql"
+          ts = ($ts == '' ? "$ns" : "$ts$\n$ns")
+        end
+      end
+    end
 
     depdb dyndep --dyn-target --target-what 'generated schema' --format lines \
-    -- echo "$t"
+    -- echo "$ts"
 
     $odb --std c++11                            \
          ($multi ? --multi-database dynamic : ) \

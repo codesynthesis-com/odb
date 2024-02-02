@@ -4,16 +4,15 @@
 // Test embedded schema migration.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/config.hxx>  // DATABASE_XXX
-#include <common/common.hxx>
+#include <libcommon/config.hxx>  // DATABASE_XXX
+#include <libcommon/common.hxx>
 
 #ifdef DATABASE_PGSQL
 #  include <odb/pgsql/connection.hxx>
@@ -24,6 +23,9 @@
 #include "test2-odb.hxx"
 #include "test3-odb.hxx"
 
+#undef NDEBUG
+#include <cassert>
+
 using namespace std;
 using namespace odb::core;
 
@@ -32,7 +34,9 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv, false));
+    unique_ptr<database> db (create_database (argc, argv, false));
+
+    db->schema_version_table ("evo_embedded_sv");
 
     // 1 - base version
     // 2 - migration
@@ -113,7 +117,7 @@ main (int argc, char* argv[])
 
         {
           transaction t (db->begin ());
-          auto_ptr<object1> o1 (db->load<object1> (1));
+          unique_ptr<object1> o1 (db->load<object1> (1));
           object2 o2 (1);
           o2.num = o1->num;
           db->persist (o2);
@@ -143,7 +147,7 @@ main (int argc, char* argv[])
 
         {
           transaction t (db->begin ());
-          auto_ptr<object2> o2 (db->load<object2> (1));
+          unique_ptr<object2> o2 (db->load<object2> (1));
           assert (o2->num == 123);
           t.commit ();
         }
@@ -156,9 +160,9 @@ main (int argc, char* argv[])
           transaction t (db->begin ());
 
 #ifdef DATABASE_ORACLE
-          db->execute ("DROP TABLE \"schema_version\"");
+          db->execute ("DROP TABLE \"evo_embedded_sv\"");
 #else
-          db->execute ("DROP TABLE schema_version");
+          db->execute ("DROP TABLE evo_embedded_sv");
 #endif
           t.commit ();
         }

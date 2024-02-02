@@ -26,7 +26,7 @@ depends: libodb == $
 depends: * cli ^1.2.0- ? ($config.libodb_mysql.develop)
 
 #tests: odb-tests == $ \
-#? (!$defined(config.odb_tests.database)) config.odb_tests.database=mysql
+#  ? (!$defined(config.odb_tests.database)) config.odb_tests.database=mysql
 
 # @@ TMP
 #

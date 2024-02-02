@@ -4,21 +4,23 @@
 // Test soft-delete functionality.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/config.hxx> // DATABASE_XXX
-#include <common/common.hxx>
+#include <libcommon/config.hxx> // DATABASE_XXX
+#include <libcommon/common.hxx>
 
 #include "test2.hxx"
 #include "test3.hxx"
 #include "test2-odb.hxx"
 #include "test3-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -28,7 +30,10 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv, false));
+    unique_ptr<database> db (create_database (argc, argv, false));
+
+    db->schema_version_table ("evo_soft_d_sv");
+
     bool embedded (schema_catalog::exists (*db));
 
     // 1 - base version
@@ -339,7 +344,7 @@ main (int argc, char* argv[])
 
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->num == 123);
             t.commit ();
           }
@@ -355,7 +360,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->str == "abc" && p->num == 123 &&
                     p->vec[0] == 123 && p->ptr->id_ == 1);
             t.commit ();
@@ -386,7 +391,7 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             db->persist (o);
             db->persist (*o.ptr);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->str == "bcd" && p->num == 234 &&
                     p->vec[0] == 234 && p->ptr->id_ == 2);
             t.commit ();
@@ -402,7 +407,7 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             db->erase<object1> (2);
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->str == "bcde" && p->num == 235 &&
                     p->vec[0] == 235 && p->ptr == 0);
             t.commit ();
@@ -425,7 +430,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->vec[0].str == "abc" && p->vec[0].num == 123);
             t.commit ();
           }
@@ -436,7 +441,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->vec[0].str == "bcd" && p->vec[0].num == 234);
             t.commit ();
           }
@@ -447,7 +452,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->vec[0].str == "bcde" && p->vec[0].num == 235);
             t.commit ();
           }
@@ -489,7 +494,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             db->load (*p, p->s);
             assert (p->str == "abc" && p->num == 123 && p->vec[0] == 123);
             t.commit ();
@@ -516,7 +521,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->str == "bcd" && p->num == 234 && p->vec[0] == 234);
             t.commit ();
@@ -529,7 +534,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->str == "bcde" && p->num == 235 && p->vec[0] == 235);
             t.commit ();
@@ -552,7 +557,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             db->load (*p, p->s);
             assert (p->str == "abc" && p->num == 123 && p->vec[0] == 123);
             t.commit ();
@@ -579,7 +584,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->str == "bcd" && p->num == 234 && p->vec[0] == 234);
             t.commit ();
@@ -592,7 +597,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->str == "bcde" && p->num == 235 && p->vec[0] == 235);
             t.commit ();
@@ -615,7 +620,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (static_cast<object*> (db->load<base> (1)));
+            unique_ptr<object> p (static_cast<object*> (db->load<base> (1)));
             assert (p->bstr == "ab" && p->dstr == "abc" && p->num == 123);
             t.commit ();
           }
@@ -641,7 +646,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->bstr == "bc" && p->dstr == "bcd" && p->num == 234);
             t.commit ();
           }
@@ -653,7 +658,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->bstr == "bcd" && p->dstr == "bcde" && p->num == 235);
             t.commit ();
           }
@@ -675,7 +680,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<base> p (db->load<base> (1));
+            unique_ptr<base> p (db->load<base> (1));
             db->load (*p, p->s);
             object& o (static_cast<object&> (*p));
             assert (o.bstr == "ab" && o.dstr == "abc" && o.num == 123);
@@ -704,7 +709,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->bstr == "bc" && p->dstr == "bcd" && p->num == 234);
             t.commit ();
@@ -718,7 +723,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->bstr == "bcd" && p->dstr == "bcde" && p->num == 235);
             t.commit ();
@@ -741,7 +746,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<base> p (db->load<base> (1));
+            unique_ptr<base> p (db->load<base> (1));
             db->load (*p, p->s);
             object& o (static_cast<object&> (*p));
             assert (o.bstr == "ab" && o.dstr == "abc" && o.num == 123);
@@ -770,7 +775,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->bstr == "bc" && p->dstr == "bcd" && p->num == 234);
             t.commit ();
@@ -784,7 +789,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->bstr == "bcd" && p->dstr == "bcde" && p->num == 235);
             t.commit ();
@@ -807,7 +812,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->str == "abc" && p->num == 123);
             t.commit ();
           }
@@ -830,7 +835,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->str == "bcd" && p->num == 234);
             t.commit ();
           }
@@ -843,7 +848,7 @@ main (int argc, char* argv[])
             unsigned long long v (o.v_);
             db->update (o);
             assert (o.v_ != v);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->str == "bcde" && p->num == 235 && p->v_ == o.v_);
             t.commit ();
           }
@@ -919,7 +924,7 @@ main (int argc, char* argv[])
 
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (id));
+            unique_ptr<object> p (db->load<object> (id));
             assert (p->str == "abc" && p->num == 123);
             t.commit ();
           }
@@ -931,7 +936,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (o.id));
+            unique_ptr<object> p (db->load<object> (o.id));
             assert (p->str == "bcd" && p->num == 234);
             t.commit ();
           }
@@ -942,7 +947,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (o.id));
+            unique_ptr<object> p (db->load<object> (o.id));
             assert (p->str == "bcde" && p->num == 235);
             t.commit ();
           }
@@ -964,7 +969,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->v->str == "abc" && p->num == 123 &&
                     p->v->vec[0] == 123);
             t.commit ();
@@ -992,7 +997,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->v->str == "bcd" && p->num == 234 &&
                     p->v->vec[0] == 234);
             t.commit ();
@@ -1005,7 +1010,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->v->str == "bcde" && p->num == 235 &&
                     p->v->vec[0] == 235);
             t.commit ();
@@ -1028,7 +1033,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->num == 123 && p->vec[0] == 123);
             t.commit ();
           }
@@ -1051,7 +1056,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->num == 234 && p->vec[0] == 234);
             t.commit ();
           }
@@ -1062,7 +1067,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->num == 235 && p->vec[0] == 235);
             t.commit ();
           }
@@ -1084,7 +1089,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             db->load (*p, p->s);
             assert (p->num == 123 && p->vec[0] == 123);
             t.commit ();
@@ -1110,7 +1115,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->num == 234 && p->vec[0] == 234);
             t.commit ();
@@ -1122,7 +1127,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->num == 235 && p->vec[0] == 235);
             t.commit ();
@@ -1155,7 +1160,7 @@ main (int argc, char* argv[])
           try
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1)); // No such table.
+            unique_ptr<object> p (db->load<object> (1)); // No such table.
             assert (false);
           }
           catch (const odb::exception&) {}
@@ -1171,7 +1176,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->str == "" && p->num == 123 &&
                     p->vec.empty () && p->ptr == 0);
             t.commit ();
@@ -1214,7 +1219,7 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             db->persist (o);
             db->persist (*o.ptr);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->str == "" && p->num == 234 &&
                     p->vec.empty () && p->ptr == 0);
             t.commit ();
@@ -1230,7 +1235,7 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             db->erase<object1> (2);
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->str == "" && p->num == 235 &&
                     p->vec.empty () && p->ptr == 0);
             t.commit ();
@@ -1257,7 +1262,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (o.id));
+            unique_ptr<object> p (db->load<object> (o.id));
             assert (p->str == "");
             t.commit ();
           }
@@ -1267,7 +1272,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (o.id));
+            unique_ptr<object> p (db->load<object> (o.id));
             assert (p->str == "");
             t.commit ();
           }
@@ -1287,7 +1292,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<base> p (db->load<base> (1));
+            unique_ptr<base> p (db->load<base> (1));
             assert (static_cast<object&> (*p).str == "");
             t.commit ();
           }
@@ -1303,7 +1308,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->vec[0].str == "" && p->vec[0].num == 123);
             t.commit ();
           }
@@ -1314,7 +1319,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->vec[0].str == "" && p->vec[0].num == 234);
             t.commit ();
           }
@@ -1325,7 +1330,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->vec[0].str == "" && p->vec[0].num == 235);
             t.commit ();
           }
@@ -1380,7 +1385,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
 
             // Logical delete in SQLite.
             //
@@ -1434,7 +1439,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             db->load (*p, p->s);
             assert (p->str == "" && p->num == 123 && p->vec.empty ());
             t.commit ();
@@ -1474,7 +1479,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->str == "" && p->num == 234 && p->vec.empty ());
             t.commit ();
@@ -1487,7 +1492,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->str == "" && p->num == 234 && p->vec.empty ());
             t.commit ();
@@ -1498,7 +1503,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->str == "" && p->num == 235 && p->vec.empty ());
             t.commit ();
@@ -1521,7 +1526,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (static_cast<object*> (db->load<base> (1)));
+            unique_ptr<object> p (static_cast<object*> (db->load<base> (1)));
             assert (p->bstr == "" && p->dstr == "" && p->num == 123);
             t.commit ();
           }
@@ -1585,7 +1590,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->bstr == "" && p->dstr == "" && p->num == 234);
             t.commit ();
           }
@@ -1597,7 +1602,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->bstr == "" && p->dstr == "" && p->num == 235);
             t.commit ();
           }
@@ -1619,7 +1624,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<base> p (db->load<base> (1));
+            unique_ptr<base> p (db->load<base> (1));
 
             // Logical delete in SQLite.
             //
@@ -1673,7 +1678,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<base> p (db->load<base> (1));
+            unique_ptr<base> p (db->load<base> (1));
             db->load (*p, p->s);
             object& o (static_cast<object&> (*p));
             assert (o.bstr == "" && o.dstr == "" && o.num == 123);
@@ -1741,7 +1746,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->bstr == "" && p->dstr == "" && p->num == 234);
             t.commit ();
@@ -1755,7 +1760,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (static_cast<base&> (o));
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->bstr == "" && p->dstr == "" && p->num == 235);
             t.commit ();
@@ -1775,7 +1780,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (b);
-            auto_ptr<base> p (db->load<base> (3));
+            unique_ptr<base> p (db->load<base> (3));
             db->load (*p, p->s);
             assert (p->bstr == "");
             t.commit ();
@@ -1787,7 +1792,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (b);
-            auto_ptr<base> p (db->load<base> (3));
+            unique_ptr<base> p (db->load<base> (3));
             db->load (*p, p->s);
             assert (p->bstr == "");
             t.commit ();
@@ -1804,7 +1809,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->str == "" && p->num == 123);
             t.commit ();
           }
@@ -1840,7 +1845,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->str == "" && p->num == 234);
             t.commit ();
           }
@@ -1853,7 +1858,7 @@ main (int argc, char* argv[])
             unsigned long long v (o.v_);
             db->update (o);
             assert (o.v_ != v);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->str == "" && p->num == 235 && p->v_ == o.v_);
             t.commit ();
           }
@@ -1955,7 +1960,7 @@ main (int argc, char* argv[])
 
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (id));
+            unique_ptr<object> p (db->load<object> (id));
             assert (p->str == "" && p->num == 123);
             t.commit ();
           }
@@ -1967,7 +1972,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (o.id));
+            unique_ptr<object> p (db->load<object> (o.id));
             assert (p->str == "" && p->num == 234);
             t.commit ();
           }
@@ -1978,7 +1983,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (o.id));
+            unique_ptr<object> p (db->load<object> (o.id));
             assert (p->str == "" && p->num == 235);
             t.commit ();
           }
@@ -2000,7 +2005,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->v.get () == 0 && p->num == 123);
             t.commit ();
           }
@@ -2035,7 +2040,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->v.get () == 0 && p->num == 234);
             t.commit ();
           }
@@ -2045,7 +2050,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->v.get () == 0 && p->num == 235);
             t.commit ();
           }
@@ -2067,7 +2072,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             assert (p->num == 123 && p->vec.empty ());
             t.commit ();
           }
@@ -2090,7 +2095,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->num == 234 && p->vec.empty ());
             t.commit ();
           }
@@ -2101,7 +2106,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             assert (p->num == 235 && p->vec.empty ());
             t.commit ();
           }
@@ -2123,7 +2128,7 @@ main (int argc, char* argv[])
           //
           {
             transaction t (db->begin ());
-            auto_ptr<object> p (db->load<object> (1));
+            unique_ptr<object> p (db->load<object> (1));
             db->load (*p, p->s);
             assert (p->num == 123 && p->vec.empty ());
             t.commit ();
@@ -2149,7 +2154,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->persist (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->num == 234 && p->vec.empty ());
             t.commit ();
@@ -2161,7 +2166,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->num == 234 && p->vec.empty ());
             t.commit ();
@@ -2172,7 +2177,7 @@ main (int argc, char* argv[])
           {
             transaction t (db->begin ());
             db->update (o);
-            auto_ptr<object> p (db->load<object> (2));
+            unique_ptr<object> p (db->load<object> (2));
             db->load (*p, p->s);
             assert (p->num == 235 && p->vec.empty ());
             t.commit ();

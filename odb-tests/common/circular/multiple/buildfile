@@ -10,7 +10,7 @@ for db: $databases
 
 import libs += lib{common}
 
-hs = test1 test2
+hdrs = test1 test2
 
 exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} testscript
 
@@ -19,7 +19,7 @@ exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} testscript
 #
 libue{test-meta}: $libodb
 
-for h: $hs
+for h: $hdrs
 {
   exe{driver}: {hxx ixx cxx}{$h-odb}
 

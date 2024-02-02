@@ -1,0 +1,63 @@
+# file      : evolution/drop-index/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+if ($build.meta_operation != 'dist')
+  assert (!$multi) "multi-database mode is not supported by this test"
+
+db = ($databases[0])
+
+import libodb = libodb%lib{odb}
+
+import libs  = libodb-$db%lib{odb-$db}
+import libs += lib{common}
+
+hdrs = test1 test2 test3
+
+exe{driver}: {hxx cxx}{* -*-odb} testscript
+
+# Introduce the metadata library target to make sure the libodb library is
+# resolved for the odb_compile ad hoc rule (see build/root.build for details).
+#
+libue{test-meta}: $libodb
+
+for h: $hdrs
+  exe{driver}: {hxx ixx cxx}{$h-odb}: hxx{$h} libue{test-meta} hxx{model}
+
+# Make sure testN.hxx are compiled serially since they share the changelog.
+#
+# @@ TODO: make order-only when supported by build2.
+#
+{hxx ixx cxx}{test3-odb}: {hxx ixx cxx}{test2-odb}: {hxx ixx cxx}{test1-odb}
+
+exe{driver}: libue{test-meta} $libs
+
+# Specify the ODB custom options to be used by the odb_compile ad hoc rule
+# (see build/root.build for details).
+#
+odb_options = --table-prefix evo_drop_i_           \
+              --schema-version-table evo_drop_i_sv \
+              --generate-schema                    \
+              --generate-query                     \
+              --at-once                            \
+              --changelog $out_base/model.xml
+
+<{hxx ixx cxx}{test1-odb}>: odb_options += --init-changelog
+<{hxx ixx cxx}{test2-odb}>: odb_options += --omit-create --suppress-migration
+
+<{hxx ixx cxx}{test3-odb}>:
+{
+  odb_options += --omit-create
+  schema_versions = 002 003
+}
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+
+# Testscript's run-time prerequisites.
+#
+exe{driver}: ../../alias{database-client}: include = adhoc
+
+testscript@./:
+{
+  db = $db
+  schemas = $hdrs
+}

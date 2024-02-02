@@ -1,0 +1,54 @@
+# file      : evolution/add-index/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+.include ../../$db-schema.testscript
+
+test.arguments += $($(db)_options)
+
+: basics
+:
+if! $sqlite
+{
+  ss =; # Schema modification base file names.
+
+  # Drop everything.
+  #
+  for s: $schemas
+    ss =+ $s
+  end;
+
+  # Add base schema.
+  #
+  ss += test3-002-pre test3-002-post;
+
+  # Add migration.
+  #
+  ss += test3-003-pre test3-003-post;
+
+  # Run tests.
+  #
+  for s: $ss
+    f = $out_base/"$s".sql
+
+    if $mysql
+      cat $f | $create_schema_cmd
+    elif $pgsql
+      $create_schema_cmd -f $f
+    end
+
+    if ($s == 'test3-002-post')
+      $* 1
+    elif ($s == 'test3-003-pre')
+      $* 2
+    elif ($s == 'test3-003-post')
+      $* 3
+    end
+  end
+}
+else
+{
+  $* 1 &odb-test.db;
+  $* 2;
+  $* 3
+}

@@ -5,10 +5,8 @@
 #  error model.hxx included directly
 #endif
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <string>
-#include <memory> // std::auto_ptr/unique_ptr
+#include <memory> // unique_ptr
 
 #include <odb/core.hxx>
 #include <odb/vector.hxx>
@@ -449,11 +447,7 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
       #pragma db id
       unsigned long id_;
 
-#ifdef HAVE_CXX11
       std::unique_ptr<value> v;
-#else
-      std::auto_ptr<value> v;
-#endif
       unsigned long num;
     };
 

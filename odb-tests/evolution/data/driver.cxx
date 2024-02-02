@@ -4,21 +4,23 @@
 // Test data migration support.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/config.hxx>  // DATABASE_XXX, HAVE_CXX11
-#include <common/common.hxx>
+#include <libcommon/config.hxx>  // DATABASE_XXX
+#include <libcommon/common.hxx>
 
 #include "test2.hxx"
 #include "test3.hxx"
 #include "test2-odb.hxx"
 #include "test3-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -29,7 +31,7 @@ migrate1 (database& db)
   using namespace v2;
   using namespace v3;
 
-  auto_ptr<object1> o1 (db.load<object1> (1));
+  unique_ptr<object1> o1 (db.load<object1> (1));
   object2 o2 (1);
   o2.num = o1->num;
   db.persist (o2);
@@ -41,7 +43,7 @@ migrate2 (database& db)
   using namespace v2;
   using namespace v3;
 
-  auto_ptr<object1> o1 (db.load<object1> (2));
+  unique_ptr<object1> o1 (db.load<object1> (2));
   object2 o2 (2);
   o2.num = o1->num;
   db.persist (o2);
@@ -54,23 +56,24 @@ main (int argc, char* argv[])
 {
   schema_catalog::data_migration_function<3, 1> (&migrate1);
 
-#ifdef HAVE_CXX11
   schema_catalog::data_migration_function<3, 1> (
     [] (database& db)
     {
       using namespace v2;
       using namespace v3;
 
-      auto_ptr<object1> o1 (db.load<object1> (11));
+      unique_ptr<object1> o1 (db.load<object1> (11));
       object2 o2 (11);
       o2.num = o1->num;
       db.persist (o2);
     });
-#endif
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv, false));
+    unique_ptr<database> db (create_database (argc, argv, false));
+
+    db->schema_version_table ("evo_data_sv");
+
     bool embedded (schema_catalog::exists (*db));
 
     // 1 - base version
@@ -109,13 +112,12 @@ main (int argc, char* argv[])
             db->persist (o1);
           }
 
-#ifdef HAVE_CXX11
           {
             object1 o1 (11);
             o1.num = 123;
             db->persist (o1);
           }
-#endif
+
           t.commit ();
         }
         break;
@@ -143,21 +145,20 @@ main (int argc, char* argv[])
           transaction t (db->begin ());
 
           {
-            auto_ptr<object2> o2 (db->load<object2> (1));
+            unique_ptr<object2> o2 (db->load<object2> (1));
             assert (o2->num == 123);
           }
 
           {
-            auto_ptr<object2> o2 (db->load<object2> (2));
+            unique_ptr<object2> o2 (db->load<object2> (2));
             assert (o2->num == 123);
           }
 
-#ifdef HAVE_CXX11
           {
-            auto_ptr<object2> o2 (db->load<object2> (11));
+            unique_ptr<object2> o2 (db->load<object2> (11));
             assert (o2->num == 123);
           }
-#endif
+
           t.commit ();
         }
 

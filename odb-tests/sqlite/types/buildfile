@@ -1,8 +1,11 @@
 # file      : sqlite/types/buildfile
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-assert ($sqlite && !$multi || $build.meta_operation == 'dist') \
-"sqlite should be configured via config.odb_tests.database variable as a single database"
+if ($build.meta_operation != 'dist')
+{
+  assert ($sqlite) "sqlite should be configured for this test"
+  assert (!$multi) "multi-database mode is not supported by this test"
+}
 
 import libodb = libodb%lib{odb}
 

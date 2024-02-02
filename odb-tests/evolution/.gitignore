@@ -1,0 +1,15 @@
+# ODB-generated files.
+#
+test1-odb.?xx
+test1.sql
+model.xml
+
+test2-odb.?xx
+test2.sql
+
+test3-odb.?xx
+test3.sql
+test3-002-post.sql
+test3-002-pre.sql
+test3-003-post.sql
+test3-003-pre.sql

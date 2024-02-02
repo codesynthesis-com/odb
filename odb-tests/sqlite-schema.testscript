@@ -1,0 +1,5 @@
+# Note that we currently don't manipulate the data using the sqlite3 utility.
+# The database schema is created implicitly by the database object creation
+# function called by the test driver.
+#
+#create_schema_cmd =

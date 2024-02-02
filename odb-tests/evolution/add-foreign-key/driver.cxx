@@ -4,21 +4,23 @@
 // Test adding a foreign key.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 #include <odb/schema-catalog.hxx>
 
-#include <common/config.hxx>  // DATABASE_XXX
-#include <common/common.hxx>
+#include <libcommon/config.hxx>  // DATABASE_XXX
+#include <libcommon/common.hxx>
 
 #include "test2.hxx"
 #include "test3.hxx"
 #include "test2-odb.hxx"
 #include "test3-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -28,7 +30,10 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv, false));
+    unique_ptr<database> db (create_database (argc, argv, false));
+
+    db->schema_version_table ("evo_add_fk_sv");
+
     bool embedded (schema_catalog::exists (*db));
 
     // 1 - base version
@@ -83,7 +88,7 @@ main (int argc, char* argv[])
         //
         {
           transaction t (db->begin ());
-          auto_ptr<object> p (db->load<object> (1));
+          unique_ptr<object> p (db->load<object> (1));
 
           assert (p->o1 == 0 && p->o2 == 0);
 
@@ -122,7 +127,7 @@ main (int argc, char* argv[])
 
         {
           transaction t (db->begin ());
-          auto_ptr<object> p (db->load<object> (1));
+          unique_ptr<object> p (db->load<object> (1));
           assert (p->o1->id_ == 1);
           assert (p->o2->id_ == 1);
           t.commit ();
