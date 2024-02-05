@@ -179,7 +179,7 @@ operator== (const obj3& x, const obj3& y)
 #pragma db value
 struct comp
 {
-  comp () {}
+  comp () = default;
   comp (int n, obj3_ptr o): num (n), o3 (o) {}
 
   int num;
