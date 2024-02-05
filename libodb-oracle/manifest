@@ -15,8 +15,12 @@ email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
 requires: c++11
 requires: oci ; Oracle Call Interface library.
-depends: * build2 >= 0.17.0-
-depends: * bpkg >= 0.17.0-
+
+# @@ TMP Bump the toolchain version to 0.17.0 after it is released.
+#
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
+
 depends: libodb == $
 depends: * cli ^1.2.0- ? ($config.libodb_oracle.develop)
 

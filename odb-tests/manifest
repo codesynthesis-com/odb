@@ -26,8 +26,10 @@ builds: &gcc               ; Requires GCC with plugin support enabled.
 builds: &gcc-5+            ; Requires GCC 5 or later.
 builds: -static            ; Implementation uses plugins and requires -fPIC.
 
-depends: * build2 >= 0.17.0-
-depends: * bpkg >= 0.17.0-
+# @@ TMP Bump the toolchain version to 0.17.0 after it is released.
+#
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
 
 depends: * odb == $
 

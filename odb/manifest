@@ -19,8 +19,11 @@ builds: &gcc-5+            ; Requires GCC 5 or later.
 builds: -static            ; Implementation uses plugins and requires -fPIC.
 requires: host
 requires: c++11
-depends: * build2 >= 0.17.0-
-depends: * bpkg >= 0.17.0-
+
+# @@ TMP Bump the toolchain version to 0.17.0 after it is released.
+#
+depends: * build2 >= 0.16.0-
+depends: * bpkg >= 0.16.0-
 
 depends: libstudxml ^1.1.0-
 depends: libcutl ^1.11.0-
