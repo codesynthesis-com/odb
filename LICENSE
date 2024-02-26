@@ -1,0 +1,24 @@
+Copyright (c) 2005-2024 Code Synthesis.
+
+The individual ODB components are licensed as follows (see the LICENSE file
+in each package for the exact terms and conditions):
+
+odb (ODB compiler)
+  GPL-3.0-only
+
+libodb
+libodb-sqlite
+libodb-pgsql
+libodb-mysql
+libodb-qt
+libodb-boost
+  GPL-2.0-only or Commercial Proprietary License (CPL)
+
+libodb-oracle
+libodb-mssql
+  Non-Commercial Use and Evaluation License (NCUEL) or Commercial Proprietary
+  License (CPL)
+
+odb-tests
+odb-example
+  GPL-2.0-only
