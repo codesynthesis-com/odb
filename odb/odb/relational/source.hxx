@@ -3644,7 +3644,9 @@ namespace relational
                 sc.push_back (
                   statement_column (
                     inv_qtable,
-                    inv_qtable + "." + quote_id (i->name),
+                    convert_from (inv_qtable + "." + quote_id (i->name),
+                                  i->type,
+                                  *i->member),
                     i->type,
                     *i->member,
                     inv_id_cols->size () == 1 ? "id" : ""));
@@ -3666,7 +3668,9 @@ namespace relational
                 sc.push_back (
                   statement_column (
                     inv_qtable,
-                    inv_qtable + "." + quote_id (i->name),
+                    convert_from (inv_qtable + "." + quote_id (i->name),
+                                  i->type,
+                                  *i->member),
                     i->type,
                     *i->member));
               }
