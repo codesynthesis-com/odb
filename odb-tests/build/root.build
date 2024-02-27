@@ -96,14 +96,21 @@ config [string] config.odb_tests.pgsql.user ?= 'odb_test'
 #
 config [string] config.odb_tests.pgsql.database ?= 'odb_test'
 
-# The database host. Leaving this variable undefined results in using
-# Unix-domain sockets. Machines without Unix-domain sockets will connect to
-# localhost.
+# The database host or directory of Unix-domain socket. Leaving this variable
+# undefined results in using Unix-domain sockets. Machines without Unix-domain
+# sockets will connect to localhost.
 #
 config [string] config.odb_tests.pgsql.host
 
 # The database port or the socket file name extension for Unix-domain
 # connections.
+#
+# For example, specifying:
+#
+#   config.odb_tests.pgsql.host=/var/run/postgresql
+#   config.odb_tests.pgsql.port=5433
+#
+# Will result in the /var/run/postgresql/.s.PGSQL.5433 socket being used.
 #
 config [string] config.odb_tests.pgsql.port
 
