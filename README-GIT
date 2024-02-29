@@ -1,6 +1,0 @@
-The checked out libodb/odb/version-build2.hxx and
-libodb-*/odb/*/version-build2.hxx files will be overwritten during the build
-process but these changes should be ignored. To do this automatically, run:
-
-git update-index --assume-unchanged \
-  libodb/odb/version-build2.hxx libodb-*/odb/*/version-build2.hxx
