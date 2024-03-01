@@ -16,11 +16,11 @@ page](https://codesynthesis.com/products/odb/).
 NOTE: the steps described below are more appropriate for the development of
 ODB as opposed to consumption. In case you just want to use ODB:
 
-* If you want to use a binary package, see the [DOB download
+* If you want to use a binary package, see the [ODB download
   page](https://codesynthesis.com/products/odb/download.xhtml).
 
 * If you want to build ODB from source and use the result from a project that
-  uses a build system other than `build2`, then see [Installing DOB with
+  uses a build system other than `build2`, then see [Installing ODB with
   `build2`](https://codesynthesis.com/products/odb/doc/install-build2.xhtml)
   for the step-by-step instructions.
 
