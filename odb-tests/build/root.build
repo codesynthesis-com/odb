@@ -37,7 +37,7 @@ databases = ($defined(config.odb_tests.database) \
              : )
 
 assert ($skeleton || $size($databases) > 0) \
-'at least one database must be configured via config.odb_tests.database variable'
+  'at least one database must be configured via config.odb_tests.database variable'
 
 mysql  = false
 sqlite = false
@@ -80,11 +80,20 @@ databases = ($mysql  ? 'mysql'  : ) \
 # If true, then build and run the test drivers in the dynamic multi-database
 # mode.
 #
-config [bool] config.odb_tests.multi_database ?= ($size($databases) > 1)
-multi = $config.odb_tests.multi_database
+# Note: do not assign the default value so that if it's not specified by the
+# user, then it won't be saved into config.build. Failed that, if we need to
+# reconfigure a single-database configuration into multi (or vise-versa), then
+# we will have to (remember to) override the saved multi_database value
+# explicitly.
+#
+config [bool, config.report.variable=multi] config.odb_tests.multi_database
 
-assert ($multi || $size($databases) < 2) \
-'only one database can be configured if config.odb_tests.multi_database value is false'
+multi = ($defined(config.odb_tests.multi_database) \
+         ? $config.odb_tests.multi_database        \
+         : $size($databases) > 1)
+
+assert ($multi || $size($databases) == 1) \
+  'only one database can be configured if config.odb_tests.multi_database value is false'
 
 # Database connections.
 #
