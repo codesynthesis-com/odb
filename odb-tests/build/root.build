@@ -18,6 +18,10 @@ xml{*}: extension = xml
 
 skeleton = ($build.mode == 'skeleton')
 
+# @@ TMP: remove once no longer used by libodb-<db>.
+#
+config [bool] config.odb_tests.develop ?= false
+
 # List of the identifiers of the databases to compile and run the tests
 # against. The valid identifiers are mysql, sqlite, pgsql, oracle, and mssql.
 #
