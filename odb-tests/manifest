@@ -58,5 +58,5 @@ depends: libpq >= 14.0.0 ? ($pgsql) config.odb_tests.pgsql.bulk_default=true | \
 # @@ TODO/LATER: use an alternative to automatically detect whether we are
 #    using MySQL or MariaDB? But maybe we don't need to know?
 
-depends: * mysql >= 5.0.3 ? ($mysql)
-depends: * psql  >= 7.4.0 ? ($pgsql)
+depends: * mysql-client >= 5.0.3 ? ($mysql)
+depends: * psql         >= 7.4.0 ? ($pgsql)

@@ -205,7 +205,7 @@ if! $skeleton
   #
   if $mysql
   {
-    import! mysql_client = mysql%exe{mysql}
+    import! mysql_client = mysql-client%exe{mysql}
     testscript{*}: mysql_client = $mysql_client
   }
 
