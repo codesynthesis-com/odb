@@ -28,13 +28,11 @@ config [bool] config.odb_tests.develop ?= false
 # Note: can be specified by the user but is also conditionally reflected by
 #       the libodb-* libraries' tests manifest values.
 #
-# @@ TODO: make it of the string_set type once available.
-#
-config [strings] config.odb_tests.database
+config [string_set] config.odb_tests.database
 
-databases = ($defined(config.odb_tests.database) \
-             ? $config.odb_tests.database        \
-             : )
+databases = [strings] ($defined(config.odb_tests.database) \
+                       ? $config.odb_tests.database        \
+                       : )
 
 assert ($skeleton || $size($databases) > 0) \
   'at least one database must be configured via config.odb_tests.database variable'
@@ -68,14 +66,6 @@ for db: $databases
       fail "invalid database '$db' specified in config.odb_tests.database value"
   }
 }
-
-# @@ TMP Remove once string_set is available.
-#
-databases = ($mysql  ? 'mysql'  : ) \
-            ($sqlite ? 'sqlite' : ) \
-            ($pgsql  ? 'pgsql'  : ) \
-            ($oracle ? 'oracle' : ) \
-            ($mssql  ? 'mssql'  : )
 
 # If true, then build and run the test drivers in the dynamic multi-database
 # mode.
