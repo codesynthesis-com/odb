@@ -7,11 +7,11 @@
 # be used as a base for the data manipulation commands.
 #
 +if $mysql
-   mysql_options = --user $config.odb_tests.pgsql.user \
-                   --database $config.odb_tests.pgsql.database
+   mysql_options = --user $config.odb_tests.mysql.user \
+                   --database $config.odb_tests.mysql.database
 
-   mysql_client_options = --user $config.odb_tests.pgsql.user \
-                          --database $config.odb_tests.pgsql.database
+   mysql_client_options = --user $config.odb_tests.mysql.user \
+                          --database $config.odb_tests.mysql.database
 
    if $defined(config.odb_tests.mysql.passwd)
       mysql_options        += --password $config.odb_tests.mysql.passwd
