@@ -25,25 +25,22 @@ depends: libmysqlclient >= 5.0.3
 depends: libodb == $
 depends: * cli ^1.2.0- ? ($config.libodb_mysql.develop)
 
-# @@ TMP: drop develop (also drop in odb-tests/build/root.build).
-#
 tests: odb-tests == $ \
-  ? ($config.odb_tests.develop && !$defined(config.odb_tests.database)) config.odb_tests.database=mysql
+  ? (!$defined(config.odb_tests.database)) config.odb_tests.database=mysql
 
-# @@ TMP
-#
 builds: all
-#builds: all mysql
 builds: -wasm
 builds: -( +windows &gcc ) ; MinGW GCC is not supported by libmysqlclient.
 
-# Only build this package configuration where it can be tested via odb-tests
-# package (see its manifest for details).
-#
-#multi-builds: mysql
-#multi-build-config:
-#\
-#{ 'config.odb_tests.database=mysql sqlite' }+ odb-tests
-#;
-#Enable testing in dynamic multi-database mode.
-#\
+build-auxiliary: *-mysql_*
+
+default-build-config:
+\
+{
+  config.odb_tests.database=mysql
+  config.odb_tests.mysql.user=$getenv(DATABASE_USER)
+  config.odb_tests.mysql.database=$getenv(DATABASE_NAME)
+  config.odb_tests.mysql.host=$getenv(DATABASE_HOST)
+  config.odb_tests.mysql.port=$getenv(DATABASE_PORT)
+}+ odb-tests
+\

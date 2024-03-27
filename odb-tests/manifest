@@ -12,10 +12,7 @@ doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
 src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com ; Mailing list
 
-# @@ TMP
-#
 builds: all
-#builds: mysql sqlite pgsql oracle mssql
 #
 # @@ BUILD2 The odb dependency can only be built with GCC. However, shouldn't
 #           we test that the odb-generated mappings can be compiled by other
