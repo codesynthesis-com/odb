@@ -37,7 +37,6 @@ build-auxiliary: *-mysql_*
 default-build-config:
 \
 {
-  config.odb_tests.database=mysql
   config.odb_tests.mysql.user=$getenv(DATABASE_USER)
   config.odb_tests.mysql.database=$getenv(DATABASE_NAME)
   config.odb_tests.mysql.host=$getenv(DATABASE_HOST)
