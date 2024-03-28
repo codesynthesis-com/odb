@@ -85,6 +85,13 @@ multi = ($defined(config.odb_tests.multi_database) \
 assert ($skeleton || $multi || $size($databases) == 1) \
   'only one database can be configured if config.odb_tests.multi_database value is false'
 
+# If true, then this package is enabled as an external test for libodb library
+# (see libodb's manifest for details).
+#
+# Note that this variable is not used in this package itself.
+#
+config [bool] config.odb_tests.libodb_test ?= false
+
 # Database connections.
 #
 

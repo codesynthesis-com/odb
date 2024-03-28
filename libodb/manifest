@@ -13,10 +13,41 @@ doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
 src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
-builds: all
 requires: c++11
 
 # @@ TMP Bump the toolchain version to 0.17.0 after it is released.
 #
 depends: * build2 >= 0.16.0-
 depends: * bpkg >= 0.16.0-
+
+tests: odb-tests == $ ? ($config.odb_tests.libodb_test)
+
+builds: all
+
+default-build-config:
+\
+{
+  config.odb_tests.libodb_test=true
+  config.odb_tests.database=sqlite
+}+ odb-tests
+\
+
+multi-build-auxiliary-mysql: *-mysql_*
+multi-build-auxiliary-pgsql: *-postgresql_*
+multi-build-config:
+\
+{
+  config.odb_tests.libodb_test=true
+  config.odb_tests.database='mysql sqlite pgsql'
+
+  config.odb_tests.mysql.user=$getenv(MYSQL_DATABASE_USER)
+  config.odb_tests.mysql.database=$getenv(MYSQL_DATABASE_NAME)
+  config.odb_tests.mysql.host=$getenv(MYSQL_DATABASE_HOST)
+  config.odb_tests.mysql.port=$getenv(MYSQL_DATABASE_PORT)
+
+  config.odb_tests.pgsql.user=$getenv(PGSQL_DATABASE_USER)
+  config.odb_tests.pgsql.database=$getenv(PGSQL_DATABASE_NAME)
+  config.odb_tests.pgsql.host=$getenv(PGSQL_DATABASE_HOST)
+  config.odb_tests.pgsql.port=$getenv(PGSQL_DATABASE_PORT)
+}+ odb-tests
+\
