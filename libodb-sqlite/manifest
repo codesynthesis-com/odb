@@ -27,25 +27,14 @@ depends: * cli ^1.2.0- ? ($config.libodb_sqlite.develop)
 tests: odb-tests == $ \
   ? (!$defined(config.odb_tests.database)) config.odb_tests.database=sqlite
 
-# @@ TMP
-#
 builds: all
-#builds: all sqlite
 
 # Only build this package configuration where it can be tested via odb-tests
 # package (see its manifest for details).
 #
-# @@ TMP
-#
 multi-builds: all
-#multi-builds: sqlite
 multi-builds: -( +windows -gcc )
 multi-builds: &gcc
 multi-builds: &gcc-5+
 multi-builds: -static
-multi-build-config:
-\
-{ config.odb_tests.multi_database=true }+ odb-tests
-;
-Enable testing in dynamic multi-database mode.
-\
+multi-build-config: { config.odb_tests.multi_database=true }+ odb-tests

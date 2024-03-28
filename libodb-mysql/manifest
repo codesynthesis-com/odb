@@ -43,3 +43,25 @@ default-build-config:
   config.odb_tests.mysql.port=$getenv(DATABASE_PORT)
 }+ odb-tests
 \
+
+# Only build this package configuration where it can be tested via odb-tests
+# package (see its manifest for details).
+#
+multi-builds: all
+multi-builds: -wasm
+multi-builds: -( +windows &gcc ) ; MinGW GCC is not supported by libmysqlclient.
+multi-builds: -( +windows -gcc )
+multi-builds: &gcc
+multi-builds: &gcc-5+
+multi-builds: -static
+multi-build-config:
+\
+{
+  config.odb_tests.multi_database=true
+
+  config.odb_tests.mysql.user=$getenv(DATABASE_USER)
+  config.odb_tests.mysql.database=$getenv(DATABASE_NAME)
+  config.odb_tests.mysql.host=$getenv(DATABASE_HOST)
+  config.odb_tests.mysql.port=$getenv(DATABASE_PORT)
+}+ odb-tests
+\
