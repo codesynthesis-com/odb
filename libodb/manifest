@@ -32,6 +32,17 @@ default-build-config:
 }+ odb-tests
 \
 
+# Only build this package configuration where it can be tested via odb-tests
+# package and where libodb-* libraries can be built (see their manifests for
+# details).
+#
+multi-builds: all
+multi-builds: -wasm              ; Not supported by libodb-{mysql,pgsql}.
+multi-builds: -( +windows &gcc ) ; Not supported by libodb-mysql.
+multi-builds: -( +windows -gcc )
+multi-builds: &gcc
+multi-builds: &gcc-5+
+multi-builds: -static
 multi-build-auxiliary-mysql: *-mysql_*
 multi-build-auxiliary-pgsql: *-postgresql_*
 multi-build-config:
