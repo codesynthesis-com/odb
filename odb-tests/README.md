@@ -77,6 +77,6 @@ compiler for C++.
    CREATE USER odb_test@'%';
    CREATE USER odb_test@'localhost';
    CREATE DATABASE odb_test;
-   GRANT ALL PRIVILEGES ON odb_test.* to odb_test@'%';
+   GRANT ALL PRIVILEGES ON odb_test.* TO odb_test@'%';
    FLUSH PRIVILEGES;
    ```
