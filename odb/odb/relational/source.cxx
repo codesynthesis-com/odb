@@ -4383,6 +4383,7 @@ traverse_object (type& c)
          << endl;
 
       os << db << "::transaction& tr (" << db << "::transaction::current ());"
+         << "ODB_POTENTIALLY_UNUSED (tr);"
          << endl
          << "// The connection used by the current transaction and the" << endl
          << "// one used to prepare this statement must be the same." << endl
@@ -5683,6 +5684,7 @@ traverse_view (type& c)
        << endl;
 
     os << db << "::transaction& tr (" << db << "::transaction::current ());"
+       << "ODB_POTENTIALLY_UNUSED (tr);"
        << endl
        << "// The connection used by the current transaction and the" << endl
        << "// one used to prepare this statement must be the same." << endl

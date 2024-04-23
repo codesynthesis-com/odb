@@ -24,6 +24,8 @@
 
 #include <odb/tracer.hxx>
 
+#include <odb/details/unused.hxx>
+
 #include <odb/pgsql/pgsql-oid.hxx>
 #include <odb/pgsql/statement.hxx>
 #include <odb/pgsql/exceptions.hxx>
@@ -871,6 +873,7 @@ namespace odb
             //
             {
               PGresult* end (PQgetResult (ch));
+              ODB_POTENTIALLY_UNUSED (end);
               assert (end == 0);
             }
           }

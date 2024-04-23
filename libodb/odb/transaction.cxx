@@ -5,6 +5,7 @@
 #include <odb/exceptions.hxx>
 
 #include <odb/details/tls.hxx>
+#include <odb/details/unused.hxx>
 
 using namespace std;
 
@@ -335,6 +336,7 @@ namespace odb
   connection& transaction_impl::
   connection (database_type* db)
   {
+    ODB_POTENTIALLY_UNUSED (db);
     assert (db == 0 || db == &database_);
     return *connection_;
   }

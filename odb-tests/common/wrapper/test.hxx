@@ -60,7 +60,7 @@ namespace test1
 #pragma db value
 struct comp1
 {
-  comp1 () {}
+  comp1 (): num (0) {}
   comp1 (const std::string& s, int n): str (s), num (n) {}
 
   std::string str;

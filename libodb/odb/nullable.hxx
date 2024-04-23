@@ -197,7 +197,7 @@ namespace odb
   nullable (const nullable& y)
       : null_ (y.null_)
   {
-    if (!null_)
+    if (!y.null_)
       new (&value_) T (y.value_);
   }
 
@@ -206,7 +206,7 @@ namespace odb
   nullable (nullable&& y)
       : null_ (y.null_)
   {
-    if (!null_)
+    if (!y.null_)
       new (&value_) T (std::move (y.value_));
   }
 
@@ -216,7 +216,7 @@ namespace odb
   nullable (const nullable<Y>& y)
       : null_ (y.null_)
   {
-    if (!null_)
+    if (!y.null_)
       new (&value_) T (y.value_);
   }
 
@@ -226,7 +226,7 @@ namespace odb
   nullable (nullable<Y>&& y)
       : null_ (y.null_)
   {
-    if (!null_)
+    if (!y.null_)
       new (&value_) T (std::move (y.value_));
   }
 

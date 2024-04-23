@@ -14,6 +14,7 @@
 #include <cassert>
 
 #include <odb/statement.hxx>
+#include <odb/details/unused.hxx>
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
@@ -139,6 +140,7 @@ namespace odb
       void
       active (bool active)
       {
+        ODB_POTENTIALLY_UNUSED (active);
         assert (active);
 
         if (!active_)
