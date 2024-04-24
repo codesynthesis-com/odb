@@ -12,10 +12,12 @@
 #include <stddef.h>
 #include <sys/select.h>
 
-// Note: hack.
+// Note: hack (also, some platforms, like Mac OS, provide it).
 //
 #include <arpa/inet.h>
-#define htonll(x) ((((long long)htonl(x)) << 32) + htonl((x) >> 32))
+#ifndef htonll
+#  define htonll(x) ((((long long)htonl(x)) << 32) + htonl((x) >> 32))
+#endif
 
 #undef NDEBUG
 #include <assert.h>

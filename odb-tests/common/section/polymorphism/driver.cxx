@@ -1762,7 +1762,7 @@ main (int argc, char* argv[])
       using namespace test9;
       using std::shared_ptr;
 
-      unsigned long long id;
+      unsigned long id;
 
       {
         container c (123);

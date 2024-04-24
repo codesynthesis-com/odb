@@ -195,7 +195,7 @@ main (int argc, char* argv[])
       transaction t (db->begin ());
 
       string name;
-      unsigned short age;
+      unsigned short age (0);
 
 #if defined(MULTI_DATABASE)
       query q (query::age >= query::_ref (age) &&

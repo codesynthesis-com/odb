@@ -30,7 +30,7 @@ namespace odb
       // BLOB size to provision for. Set before calling persist() or update().
       //
       explicit
-      blob (std::size_t size = 0): size_ (size) {}
+      blob (std::size_t size = 0): size_ (size), rowid_ (0) {}
 
       std::size_t size () const {return size_;}
       void size (std::size_t s) {size_ = s;}
