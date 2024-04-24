@@ -10,10 +10,6 @@
 #include <libcommon/config.hxx>
 #include <libcommon/common.hxx>
 
-using namespace std;
-using namespace odb::core;
-
-
 // MySQL.
 //
 #if defined(DATABASE_MYSQL)
@@ -21,9 +17,11 @@ using namespace odb::core;
 #include <odb/mysql/database.hxx>
 #include <odb/mysql/connection-factory.hxx>
 
-static unique_ptr<database>
+static std::unique_ptr<odb::database>
 create_mysql_database (int& argc, char* argv[], bool, size_t max_connections)
 {
+  using namespace std;
+  using namespace odb::core;
   namespace mysql = odb::mysql;
 
   unique_ptr<mysql::connection_factory> f;
@@ -47,12 +45,14 @@ create_mysql_database (int& argc, char* argv[], bool, size_t max_connections)
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/connection-factory.hxx>
 
-static unique_ptr<database>
+static std::unique_ptr<odb::database>
 create_sqlite_database (int& argc,
                         char* argv[],
                         bool schema,
                         size_t max_connections)
 {
+  using namespace std;
+  using namespace odb::core;
   namespace sqlite = odb::sqlite;
 
   unique_ptr<sqlite::connection_factory> f;
@@ -102,9 +102,11 @@ create_sqlite_database (int& argc,
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/connection-factory.hxx>
 
-static unique_ptr<database>
+static std::unique_ptr<odb::database>
 create_pgsql_database (int& argc, char* argv[], bool, size_t max_connections)
 {
+  using namespace std;
+  using namespace odb::core;
   namespace pgsql = odb::pgsql;
 
   unique_ptr<pgsql::connection_factory> f;
@@ -125,9 +127,11 @@ create_pgsql_database (int& argc, char* argv[], bool, size_t max_connections)
 #include <odb/oracle/database.hxx>
 #include <odb/oracle/connection-factory.hxx>
 
-static unique_ptr<database>
+static std::unique_ptr<odb::database>
 create_oracle_database (int& argc, char* argv[], bool, size_t max_connections)
 {
+  using namespace std;
+  using namespace odb::core;
   namespace oracle = odb::oracle;
 
   unique_ptr<oracle::connection_factory> f;
@@ -150,9 +154,11 @@ create_oracle_database (int& argc, char* argv[], bool, size_t max_connections)
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/connection-factory.hxx>
 
-static unique_ptr<database>
+static std::unique_ptr<odb::database>
 create_mssql_database (int& argc, char* argv[], bool, size_t max_connections)
 {
+  using namespace std;
+  using namespace odb::core;
   namespace mssql = odb::mssql;
 
   unique_ptr<mssql::connection_factory> f;
@@ -168,7 +174,7 @@ create_mssql_database (int& argc, char* argv[], bool, size_t max_connections)
 
 //
 //
-unique_ptr<database>
+std::unique_ptr<odb::database>
 create_database (int argc,
                  char* argv[],
                  bool schema,
@@ -180,6 +186,9 @@ create_database (int argc,
 #endif
 )
 {
+  using namespace std;
+  using namespace odb::core;
+
   char** argp = argv + 1; // Position of the next argument. Assignment for VC8.
   int argn (argc - 1);    // Number of arguments left.
 
