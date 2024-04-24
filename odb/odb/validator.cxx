@@ -1644,6 +1644,10 @@ namespace
 
           bool v (inst != error_mark_node);
 
+          // Old version of has_lt_operator() relied on full instantiation
+          // while the new one is based on SFINAE.
+          //
+#if 0
           if (v &&
               DECL_TEMPLATE_INSTANTIATION (inst) &&
               !DECL_TEMPLATE_INSTANTIATED (inst))
@@ -1667,6 +1671,7 @@ namespace
             global_dc->printer->buffer->stream = s;
             v = (ec == errorcount);
           }
+#endif
 
           if (!v)
           {

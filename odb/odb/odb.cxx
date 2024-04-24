@@ -981,13 +981,34 @@ main (int argc, char* argv[])
 
             // operator< test, used in validator.
             //
+            // Note that typeof() cannot be used in the function signature
+            // directly so we have to go though lt_operator_type. This means
+            // we get diagnostics from the compiler (followed by ours) but
+            // it's doesn't look bad plus C++98 support is on its way out.
+            //
             os << "template <typename T>" << endl
-               << "bool" << endl
-               << "has_lt_operator (const T& x, const T& y)" << endl
-               << "{"  << endl
-               << "bool r (x < y);"  << endl
-               << "return r;"  << endl
-               << "}" << endl;
+               << "const T&" << endl
+               << "instance ();" << endl
+               << endl;
+
+            if (ops.std () == cxx_version::cxx98)
+            {
+              os << "template <typename T>" << endl
+                 << "struct lt_operator_type" << endl
+                 << "{" << endl
+                 << "typedef __typeof__ (instance<T> () < instance<T> ()) R;" << endl
+                 << "};" << endl
+                 << endl
+                 << "template <typename T>" << endl
+                 << "typename lt_operator_type<T>::R" << endl
+                 << "has_lt_operator ();" << endl;
+            }
+            else
+            {
+              os << "template <typename T>" << endl
+                 << "decltype (instance<T> () < instance<T> ())" << endl
+                 << "has_lt_operator ();" << endl;
+            }
 
             os << "}" << endl
                << "}" << endl;
