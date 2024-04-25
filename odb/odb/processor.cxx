@@ -458,8 +458,14 @@ namespace
               // functions. Note that TREE_PUBLIC() returns something
               // other than what we need.
               //
-              if (!DECL_NONSTATIC_MEMBER_FUNCTION_P (f) ||
-                  TREE_PRIVATE (f) || TREE_PROTECTED (f))
+              if (
+#if BUILDING_GCC_MAJOR >= 14
+                !DECL_OBJECT_MEMBER_FUNCTION_P (f)
+#else
+                !DECL_NONSTATIC_MEMBER_FUNCTION_P (f)
+#endif
+                  || TREE_PRIVATE (f)
+                  || TREE_PROTECTED (f))
                 continue;
 
               found_type r (k == "get"
@@ -568,7 +574,13 @@ namespace
 #endif
               // We are only interested in non-static member functions.
               //
-              if (!DECL_NONSTATIC_MEMBER_FUNCTION_P (f))
+              if (
+#if BUILDING_GCC_MAJOR >= 14
+                !DECL_OBJECT_MEMBER_FUNCTION_P (f)
+#else
+                !DECL_NONSTATIC_MEMBER_FUNCTION_P (f)
+#endif
+              )
                 continue;
 
               if ((k == "get"

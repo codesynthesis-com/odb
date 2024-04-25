@@ -216,7 +216,9 @@ cxx_string_lexer ()
   linemap_init (&line_map_);
 #endif
 
-#if BUILDING_GCC_MAJOR > 4 || BUILDING_GCC_MAJOR == 4 && BUILDING_GCC_MINOR > 6
+#if BUILDING_GCC_MAJOR >= 14
+  line_map_.m_round_alloc_size = ggc_round_alloc_size;
+#elif BUILDING_GCC_MAJOR > 4 || BUILDING_GCC_MAJOR == 4 && BUILDING_GCC_MINOR > 6
   line_map_.round_alloc_size = ggc_round_alloc_size;
 #endif
 
