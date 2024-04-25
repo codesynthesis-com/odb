@@ -501,3 +501,18 @@ if ($pgsql && $pgsql_bulk)
     end
   end
 }
+
+: mssql
+:
+if $mssql
+{
+  .include ../../mssql.testscript
+
+  $create_schema;
+
+  if $multi
+    $* # Noop.
+  else
+    $* >>>../output
+  end
+}

@@ -30,11 +30,14 @@ exe{driver}: libue{test-meta} $libs
 # Specify the ODB custom options to be used by the odb_compile ad hoc rule
 # (see build/root.build for details).
 #
-odb_options = --table-prefix t_rel_on_d_                   \
-              --generate-schema                            \
-              --fkeys-deferrable-mode mysql:not_deferrable \
-              --fkeys-deferrable-mode mssql:not_deferrable
+odb_options = --table-prefix t_rel_on_d_ \
+              --generate-schema
 
+if $mysql
+  odb_options += --fkeys-deferrable-mode mysql:not_deferrable
+
+if $mssql
+  odb_options += --fkeys-deferrable-mode mssql:not_deferrable
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 

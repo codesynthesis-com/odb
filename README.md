@@ -41,11 +41,13 @@ bdep config create @host ../odb-host --type host cc config.cxx=g++
 bdep config create @sqlite ../odb-sqlite cc config.cxx=g++
 bdep config create @pgsql ../odb-pgsql cc config.cxx=g++
 bdep config create @mysql ../odb-mysql cc config.cxx=g++
+bdep config create @mssql ../odb-mssql cc config.cxx=g++
 
 bdep init @host -d odb
 bdep init @sqlite -d libodb -d libodb-sqlite -d odb-tests
 bdep init @pgsql -d libodb -d libodb-pgsql -d odb-tests
 bdep init @mysql -d libodb -d libodb-mysql -d odb-tests
+bdep init @mssql -d libodb -d libodb-mssql -d odb-tests
 ```
 
 Note that while the target configurations can use any compiler (and you can
@@ -64,6 +66,9 @@ bdep init @sqlite -d libodb -d libodb-sqlite -d odb-tests ?sys:libsqlite3
 bdep init @pgsql -d libodb -d libodb-pgsql -d odb-tests ?sys:libpq { @host }+ ?sys:psql/*
 bdep init @mysql -d libodb -d libodb-mysql -d odb-tests ?sys:libmysqlclient { @host }+ ?sys:mysql-client/*
 ```
+
+Note that the client libraries and tools for Oracle and Microsoft SQL Server
+are supposed to be system-installed.
 
 You can also create a target configuration for testing multi-database
 support. For example:

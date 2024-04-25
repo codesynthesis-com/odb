@@ -4,18 +4,20 @@
 // Test SQL Server type conversion.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/exceptions.hxx>
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace mssql = odb::mssql;
@@ -26,7 +28,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_specific_database<database> (argc, argv));
+    unique_ptr<database> db (create_specific_database<database> (argc, argv));
 
     {
       object o (1);
@@ -123,7 +125,7 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> o1 (db->load<object> (1));
+        unique_ptr<object> o1 (db->load<object> (1));
         t.commit ();
 
         assert (o == *o1);
@@ -214,8 +216,8 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<long_null> p1 (db->load<long_null> (1));
-        auto_ptr<long_null> p2 (db->load<long_null> (2));
+        unique_ptr<long_null> p1 (db->load<long_null> (1));
+        unique_ptr<long_null> p2 (db->load<long_null> (2));
         t.commit ();
 
         assert (o1 == *p1);
@@ -243,7 +245,7 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<long_cont> p (db->load<long_cont> (1));
+        unique_ptr<long_cont> p (db->load<long_cont> (1));
         t.commit ();
 
         assert (o == *p);
@@ -286,9 +288,9 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<char_array> p1 (db->load<char_array> (1));
-        auto_ptr<char_array> p2 (db->load<char_array> (2));
-        auto_ptr<char_array> p3 (db->load<char_array> (3));
+        unique_ptr<char_array> p1 (db->load<char_array> (1));
+        unique_ptr<char_array> p2 (db->load<char_array> (2));
+        unique_ptr<char_array> p3 (db->load<char_array> (3));
         t.commit ();
 
         assert (o1 == *p1);
@@ -312,7 +314,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<rowversion> p (db->load<rowversion> (o.id_));
+        unique_ptr<rowversion> p (db->load<rowversion> (o.id_));
         assert (p->ver == o.ver);
         p->str += 'd';
         db->update (*p);
@@ -321,7 +323,7 @@ main (int argc, char* argv[])
         // Double-check object version was updated.
         //
         {
-          auto_ptr<rowversion> p1 (db->load<rowversion> (o.id_));
+          unique_ptr<rowversion> p1 (db->load<rowversion> (o.id_));
           assert (p->ver == p1->ver);
         }
 
@@ -353,7 +355,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<rowversion_auto> p (db->load<rowversion_auto> (o.id_));
+        unique_ptr<rowversion_auto> p (db->load<rowversion_auto> (o.id_));
         assert (p->ver == o.ver);
         p->str += 'd';
         db->update (*p);

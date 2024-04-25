@@ -1,0 +1,29 @@
+# file      : mssql/stored-proc/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+.include ../../mssql.testscript
+
++$create_schema
+
+: basics
+:
+$* >>EOO
+  1 a
+  2 b
+  3 c
+
+  a
+  b
+
+  1 3
+
+  4 d
+
+  5 e
+
+  123 6
+
+  123 7
+
+  EOO

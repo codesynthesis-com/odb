@@ -12,7 +12,7 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <libcommon/config.hxx> // DATABASE_*
+#include <libcommon/config.hxx> // MULTI_DATABASE
 #include <libcommon/common.hxx>
 
 #include "test.hxx"

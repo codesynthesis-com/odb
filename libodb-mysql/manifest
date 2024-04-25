@@ -28,9 +28,12 @@ depends: * cli ^1.2.0- ? ($config.libodb_mysql.develop)
 tests: odb-tests == $ \
   ? (!$defined(config.odb_tests.database)) config.odb_tests.database=mysql
 
-builds: all
-builds: -wasm
+# Note: common for all the build configurations.
+#
 build-auxiliary: *-mysql_*
+
+default-builds: all
+default-builds: -wasm
 default-build-config:
 \
 {
@@ -64,8 +67,6 @@ multi-build-config:
 
 # Complements the default configuration (see odb-tests for background).
 #
-# Note: derives build-auxiliary from default.
-#
 custom-builds: latest
 custom-builds: -wasm
 custom-builds: -static ; Implementation uses plugins and requires -fPIC.
@@ -81,8 +82,6 @@ custom-build-config:
 \
 
 # Complements the multi configuration (see odb-tests for background).
-#
-# Note: derives build-auxiliary from default.
 #
 custom-multi-builds: latest
 custom-multi-builds: -wasm

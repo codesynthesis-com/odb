@@ -4,17 +4,19 @@
 // Test SQL Server stored procedure support.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace mssql = odb::mssql;
@@ -43,7 +45,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_specific_database<database> (argc, argv));
+    unique_ptr<database> db (create_specific_database<database> (argc, argv));
 
     object o1 (1, "a");
     object o2 (2, "b");
@@ -139,7 +141,7 @@ main (int argc, char* argv[])
         db->query_one<insert_object> (
           query::_val (4) + "," + query::_val ("d"));
 
-        auto_ptr<object> o (db->load<object> (4));
+        unique_ptr<object> o (db->load<object> (4));
         cout << o->num << " " << o->str << endl
              << endl;
 
@@ -154,7 +156,7 @@ main (int argc, char* argv[])
         db->query_one<no_result> (
           "EXEC insert_object_id" + query::_val (5) + "," + query::_val ("e"));
 
-        auto_ptr<object> o (db->load<object> (5));
+        unique_ptr<object> o (db->load<object> (5));
         cout << o->num << " " << o->str << endl
              << endl;
 

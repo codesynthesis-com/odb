@@ -19,11 +19,9 @@ typedef struct _GUID
 } GUID;
 #endif
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <string>
 #include <vector>
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
 #include <cstring>  // std::memcmp, std::memcpy, std::str[n]cmp, std::strlen
 #include <cwchar>   // std::wcslen, std::wcs[n]cmp
 
@@ -322,11 +320,7 @@ struct long_null
   unsigned int id_;
 
   #pragma db type ("VARCHAR(max)") null
-#ifdef HAVE_CXX11
   std::unique_ptr<std::string> str_;
-#else
-  std::auto_ptr<std::string> str_;
-#endif
 
   bool
   operator== (const long_null& y) const

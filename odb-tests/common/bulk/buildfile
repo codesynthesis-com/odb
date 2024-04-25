@@ -7,7 +7,8 @@ if ($build.meta_operation != 'dist')
     "bulk operations are disabled for pgsql which is specified as single database"
 }
 
-import libodb = libodb%lib{odb}
+import libodb    = libodb%lib{odb}
+import libcommon = lib{common}
 
 libs =
 
@@ -17,14 +18,12 @@ for db: $databases
     import libs += libodb-$db%lib{odb-$db}
 }
 
-import libs += lib{common}
-
 exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} {hxx ixx cxx}{test-odb} testscript
 
 # Introduce the metadata library target to make sure the libodb library is
 # resolved for the odb_compile ad hoc rule (see build/root.build for details).
 #
-libue{test-meta}: $libodb
+libue{test-meta}: $libodb $libcommon
 
 <{hxx ixx cxx}{test-odb}>: hxx{test} libue{test-meta}
 

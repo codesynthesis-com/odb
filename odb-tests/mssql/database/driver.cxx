@@ -5,9 +5,11 @@
 //
 
 #include <string>
-#include <cassert>
 
 #include <odb/mssql/database.hxx>
+
+#undef NDEBUG
+#include <cassert>
 
 namespace mssql = odb::mssql;
 using namespace mssql;
@@ -73,32 +75,34 @@ main (int argc, char* argv[])
 
   // Test transaction isolation levels.
   //
+  const char* tsc ("TrustServerCertificate=yes");
+
   {
-    database d (argc, argv, false, "", isolation_read_uncommitted);
+    database d (argc, argv, false, tsc, isolation_read_uncommitted);
     connection_ptr c (d.connection ());
     assert (check_isolation (*c, isolation_read_uncommitted));
   }
 
   {
-    database d (argc, argv, false, "");
+    database d (argc, argv, false, tsc);
     connection_ptr c (d.connection ());
     assert (check_isolation (*c, isolation_read_committed));
   }
 
   {
-    database d (argc, argv, false, "", isolation_repeatable_read);
+    database d (argc, argv, false, tsc, isolation_repeatable_read);
     connection_ptr c (d.connection ());
     assert (check_isolation (*c, isolation_repeatable_read));
   }
 
   {
-    database d (argc, argv, false, "", isolation_snapshot);
+    database d (argc, argv, false, tsc, isolation_snapshot);
     connection_ptr c (d.connection ());
     assert (check_isolation (*c, isolation_snapshot));
   }
 
   {
-    database d (argc, argv, false, "", isolation_serializable);
+    database d (argc, argv, false, tsc, isolation_serializable);
     connection_ptr c (d.connection ());
     assert (check_isolation (*c, isolation_serializable));
   }

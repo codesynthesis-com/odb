@@ -78,3 +78,16 @@ if $pgsql
 
   $* ($multi ? 'pgsql' : ) $pgsql_options
 }
+
+: mssql
+:
+if $mssql
+{
+  .include ../../../mssql-schema.testscript
+
+  for s: $schemas
+    $create_schema_cmd -i $out_base/"$s"($multi ? '-mssql' : '').sql
+  end;
+
+  $* ($multi ? 'mssql' : ) $mssql_options
+}

@@ -35,6 +35,8 @@ if! $sqlite
       cat $f | $create_schema_cmd
     elif $pgsql
       $create_schema_cmd -f $f
+    elif $mssql
+      $create_schema_cmd -i $f
     end
 
     if ($s == 'test3-002-post')

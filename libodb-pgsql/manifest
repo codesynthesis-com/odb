@@ -27,9 +27,12 @@ depends: * cli ^1.2.0- ? ($config.libodb_pgsql.develop)
 tests: odb-tests == $ \
   ? (!$defined(config.odb_tests.database)) config.odb_tests.database=pgsql
 
-builds: all
-builds: -wasm
+# Note: common for all the build configurations.
+#
 build-auxiliary: *-postgresql_*
+
+default-builds: all
+default-builds: -wasm
 default-build-config:
 \
 {
@@ -63,8 +66,6 @@ multi-build-config:
 
 # Complements the default configuration (see odb-tests for background).
 #
-# Note: derives build-auxiliary from default.
-#
 custom-builds: latest
 custom-builds: -wasm
 custom-builds: -static ; Implementation uses plugins and requires -fPIC.
@@ -80,8 +81,6 @@ custom-build-config:
 \
 
 # Complements the multi configuration (see odb-tests for background).
-#
-# Note: derives build-auxiliary from default.
 #
 custom-multi-builds: latest
 custom-multi-builds: -wasm

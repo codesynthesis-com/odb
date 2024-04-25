@@ -35,6 +35,9 @@ odb_options = --table-prefix t_inverse_ \
               --generate-query          \
               --generate-session
 
+if $mssql
+  odb_options += --fkeys-deferrable-mode mssql:not_deferrable
+
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 
 # Testscript's run-time prerequisites.

@@ -167,7 +167,7 @@ create_mssql_database (int& argc, char* argv[], bool, size_t max_connections)
     f.reset (new mssql::connection_pool_factory (max_connections));
 
   return unique_ptr<database> (
-    new mssql::database (argc, argv, false, "",
+    new mssql::database (argc, argv, false, "TrustServerCertificate=yes",
                          mssql::isolation_read_committed, 0, move (f)));
 }
 #endif // SQL Server

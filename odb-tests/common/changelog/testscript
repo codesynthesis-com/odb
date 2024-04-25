@@ -64,3 +64,22 @@ if $pgsql
     diff $src_base/$n-pgsql-patch.xml $(n).xml
   end
 }
+
+: mssql
+:
+if $mssql
+{
+  odb_options += --database 'mssql' --changelog-dir $~
+
+  for h: $headers
+    n = $base($leaf($h))
+
+    $* $odb_options -DBVER=1 -DCVER=1 --init-changelog $h &$(n).xml &$(n).sql
+
+    $* $odb_options -DBVER=1 -DCVER=2 $h
+    diff $src_base/$n-mssql-diff.xml $(n).xml
+
+    $* $odb_options -DBVER=2 -DCVER=3 $h
+    diff $src_base/$n-mssql-patch.xml $(n).xml
+  end
+}

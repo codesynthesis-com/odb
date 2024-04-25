@@ -9,6 +9,8 @@
 
 #include <odb/core.hxx>
 
+#include <libcommon/config.hxx> // DATABASE_XXX
+
 // Test basic functionality.
 //
 #pragma db namespace table("t1_")
@@ -186,7 +188,7 @@ namespace test7
 
 // Test SQL Server optimistic concurrency with ROWVERSION.
 //
-#if defined(ODB_DATABASE_MSSQL) || defined(DATABASE_MSSQL)
+#if !defined(MULTI_DATABASE) && defined(DATABASE_MSSQL)
 #pragma db namespace table("t8_")
 namespace test8
 {

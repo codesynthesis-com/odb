@@ -95,6 +95,32 @@ config [bool] config.odb_tests.libodb_test ?= false
 # Database connections.
 #
 
+# MySQL
+#
+# The database user.
+#
+config [string] config.odb_tests.mysql.user ?= 'odb_test'
+
+# The database password.
+#
+config [string] config.odb_tests.mysql.passwd
+
+# The database name. Note that it WILL BE MODIFIED by the tests.
+#
+config [string] config.odb_tests.mysql.database ?= 'odb_test'
+
+# The database host.
+#
+config [string] config.odb_tests.mysql.host
+
+# The database port.
+#
+config [uint64] config.odb_tests.mysql.port
+
+# The database socket path.
+#
+config [path] config.odb_tests.mysql.socket
+
 # PostgreSQL
 #
 # The database user. Note that the named user must be allowed to connect to
@@ -133,31 +159,45 @@ config [bool] config.odb_tests.pgsql.bulk ?= ($cxx.target.class != 'windows' && 
                                               $config.odb_tests.pgsql.bulk_default)
 pgsql_bulk = $config.odb_tests.pgsql.bulk
 
-# MySQL
+# Microsoft SQL Server
 #
 # The database user.
 #
-config [string] config.odb_tests.mysql.user ?= 'odb_test'
+config [string] config.odb_tests.mssql.user ?= 'odb_test'
 
 # The database password.
 #
-config [string] config.odb_tests.mysql.passwd
+config [string] config.odb_tests.mssql.passwd
 
 # The database name. Note that it WILL BE MODIFIED by the tests.
 #
-config [string] config.odb_tests.mysql.database ?= 'odb_test'
+config [string] config.odb_tests.mssql.database ?= 'odb_test'
 
 # The database host.
 #
-config [string] config.odb_tests.mysql.host
+config [string] config.odb_tests.mssql.host
 
 # The database port.
 #
-config [uint64] config.odb_tests.mysql.port
+config [uint64] config.odb_tests.mssql.port
 
-# The database socket path.
+# The SQL Server instance address.
 #
-config [path] config.odb_tests.mysql.socket
+# Note: mutually exclusive with config.odb_tests.mssql.{host,port}.
+#
+config [string] config.odb_tests.mssql.server
+
+assert (!$defined(config.odb_tests.mssql.server) || \
+        !$defined(config.odb_tests.mssql.host))     \
+  'variables config.odb_tests.mssql.server and config.odb_tests.mssql.host cannot be specified both'
+
+assert (!$defined(config.odb_tests.mssql.server) || \
+        !$defined(config.odb_tests.mssql.port))     \
+  'variables config.odb_tests.mssql.server and config.odb_tests.mssql.port cannot be specified both'
+
+# The SQL Server ODBC Driver.
+#
+config [string, null] config.odb_tests.mssql.driver
 
 if! $skeleton
 {
@@ -194,6 +234,16 @@ if! $skeleton
   {
     import! pgsql_client = psql%exe{psql}
     testscript{*}: pgsql_client = $pgsql_client
+  }
+
+  # Import the sqlcmd client for creating the database schemas, etc.
+  #
+  # Note: supposed to be system-installed.
+  #
+  if $mssql
+  {
+    import! mssql_client = sqlcmd%exe{sqlcmd}
+    testscript{*}: mssql_client = $mssql_client
   }
 
   # Notes:

@@ -1091,7 +1091,7 @@ main (int argc, char* argv[])
 
     // Test SQL Server optimistic concurrency with ROWVERSION.
     //
-#ifdef DATABASE_MSSQL
+#if !defined(MULTI_DATABASE) && defined(DATABASE_MSSQL)
     {
       using namespace test8;
 

@@ -1,0 +1,14 @@
+# file      : mssql/database/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+if ($build.meta_operation != 'dist')
+{
+  assert ($mssql) "mssql should be configured for this test"
+  assert (!$multi) "multi-database mode is not supported by this test"
+}
+
+import libs = libodb-mssql%lib{odb-mssql}
+
+exe{driver}: {hxx cxx}{*} $libs testscript
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"

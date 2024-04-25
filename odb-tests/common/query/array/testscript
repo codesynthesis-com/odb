@@ -31,3 +31,13 @@ if $pgsql
   $create_schema;
   $*
 }
+
+: mssql
+:
+if $mssql
+{
+  .include ../../../mssql.testscript
+
+  $create_schema;
+  $*
+}

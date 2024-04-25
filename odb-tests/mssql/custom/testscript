@@ -1,0 +1,11 @@
+# file      : mssql/custom/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+.include ../../mssql.testscript
+
++$create_schema
+
+: basics
+:
+$*

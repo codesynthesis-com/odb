@@ -60,3 +60,12 @@ if $pgsql
 
   $*
 }
+
+: mssql
+:
+if $mssql
+{
+  .include ../../../mssql.testscript
+
+  $*
+}
