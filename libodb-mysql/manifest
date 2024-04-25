@@ -30,7 +30,6 @@ tests: odb-tests == $ \
 
 builds: all
 builds: -wasm
-builds: -( +windows &gcc ) ; MinGW GCC is not supported by libmysqlclient.
 build-auxiliary: *-mysql_*
 default-build-config:
 \
@@ -47,7 +46,6 @@ default-build-config:
 #
 multi-builds: all
 multi-builds: -wasm
-multi-builds: -( +windows &gcc ) ; MinGW GCC is not supported by libmysqlclient.
 multi-builds: -( +windows -gcc )
 multi-builds: &gcc
 multi-builds: &gcc-5+
@@ -70,7 +68,6 @@ multi-build-config:
 #
 custom-builds: latest
 custom-builds: -wasm
-custom-builds: -( +windows &gcc ) ; MinGW GCC is not supported by libmysqlclient.
 custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-build-bot: -- see below.
 custom-build-config:
@@ -89,7 +86,6 @@ custom-build-config:
 #
 custom-multi-builds: latest
 custom-multi-builds: -wasm
-custom-multi-builds: -( +windows &gcc ) ; MinGW GCC is not supported by libmysqlclient.
 custom-multi-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-multi-build-bot: -- see below.
 custom-multi-build-config:
