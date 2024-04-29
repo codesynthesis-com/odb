@@ -96,10 +96,10 @@ b install: ../odb-install/odb/
 ```
 
 Note that if building manually (that is, without `bdep`) and in-source, then
-the checked out `libodb/odb/version.hxx` and `libodb-*/odb/*/version.hxx`
-files will be overwritten during the build but these changes should be
-ignored. To do this automatically, run:
+the checked out `odb/odb/version.hxx`, `libodb/odb/version.hxx`, and
+`libodb-*/odb/*/version.hxx` files will be overwritten during the build but
+these changes should be ignored. To do this automatically, run:
 
 ```
-git update-index --assume-unchanged libodb/odb/version.hxx libodb-*/odb/*/version.hxx
+git update-index --assume-unchanged odb/odb/version.hxx libodb/odb/version.hxx libodb-*/odb/*/version.hxx
 ```

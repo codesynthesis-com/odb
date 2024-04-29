@@ -78,7 +78,19 @@ switch $cxx.target.system
     plugin{odb}: cxx.loptions += -undefined dynamic_lookup
 }
 
-libus{odb}: {hxx ixx txx cxx}{** -odb -options -pregenerated/**} $libs
+libus{odb}: {hxx ixx txx cxx}{** -odb -version -options -pregenerated/**} \
+            hxx{version} $libs
+
+# Include the generated version header into the distribution (so that we don't
+# pick up an installed one) and don't remove it when cleaning in src (so that
+# clean results in a state identical to distributed).
+#
+hxx{version}: in{version} $src_root/manifest
+hxx{version}:
+{
+  dist  = true
+  clean = ($src_root != $out_root)
+}
 
 # Build options.
 #

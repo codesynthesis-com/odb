@@ -520,11 +520,12 @@ generate (options const& ops,
                     "// Begin prologue.\n//",
                     "//\n// End prologue.");
 
-      // Version check.
+      // Version check (see similar check in odb.cxx for background).
       //
       hxx << "#include <odb/version.hxx>" << endl
           << endl
-          << "#if (ODB_VERSION != " << ODB_VERSION << "UL)" << endl
+          << "#if LIBODB_VERSION_FULL != " << ODB_COMPILER_VERSION << "ULL || \\" << endl
+          << "    LIBODB_SNAPSHOT != " << ODB_COMPILER_SNAPSHOT << "ULL" << endl
           << "#error ODB runtime version mismatch" << endl
           << "#endif" << endl
           << endl;

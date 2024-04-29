@@ -622,8 +622,8 @@ main (int argc, char* argv[])
         o << "# build2 buildfile odb" << endl
           << "export.metadata = 1 odb" << endl
           << "odb.name = [string] odb" << endl
-          << "odb.version = [string] '" << ODB_COMPILER_VERSION_STR << '\'' << endl
-          << "odb.checksum = [string] '" << ODB_COMPILER_VERSION_STR << '\'' << endl
+          << "odb.version = [string] '" << ODB_COMPILER_VERSION_FULL << '\'' << endl
+          << "odb.checksum = [string] '" << ODB_COMPILER_VERSION_FULL << '\'' << endl
           << "odb.environment = [strings] CPATH CPLUS_INCLUDE_PATH GCC_EXEC_PREFIX COMPILER_PATH" << endl;
 
         return 0;
@@ -742,7 +742,7 @@ main (int argc, char* argv[])
 
     {
       ostringstream ostr;
-      ostr << ODB_COMPILER_VERSION;
+      ostr << ODB_COMPILER_VERSION_OLD;
       args.push_back ("-DODB_COMPILER_VERSION=" + ostr.str ());
     }
 
@@ -957,9 +957,14 @@ main (int argc, char* argv[])
 
             // Make sure ODB compiler and libodb versions are compatible.
             //
+            // Note that the snapshot comparision is only necessary of the
+            // version is a pre-release but having it always won't hurt (it
+            // will be 0 for final versions).
+            //
             os << "#include <odb/version.hxx>" << endl
                << endl
-               << "#if ODB_VERSION != " << ODB_VERSION << endl
+               << "#if LIBODB_VERSION_FULL != " << ODB_COMPILER_VERSION << "ULL"
+              " || LIBODB_SNAPSHOT != " << ODB_COMPILER_SNAPSHOT << "ULL" << endl
                << "#  error incompatible ODB compiler and runtime " <<
               "versions" << endl
                << "#endif" << endl
