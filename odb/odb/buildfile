@@ -98,7 +98,6 @@ hxx{version}:
 #
 cxx.poptions += "-I$plugin_dir/include"
 cxx.poptions += "-DODB_GXX_NAME=\"$regex.replace($gxx_name, '\\', '\\\\')\""
-cxx.poptions += -DODB_BUILD2 # @@ TMP while supporting other build systems.
 
 ## Consumption build ($develop == false).
 #

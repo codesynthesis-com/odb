@@ -539,7 +539,6 @@ main (int argc, char* argv[])
       if (plugin.empty ())
         return 1; // Diagnostics has already been issued.
 
-#ifdef ODB_BUILD2
 #ifdef _WIN32
       // Here is the problem: since the plugin is loaded by GCC (cc1plus.exe
       // to be precise), the DLL assembly magic we have for executables won't
@@ -574,7 +573,6 @@ main (int argc, char* argv[])
 
         _putenv (v.c_str ());
       }
-#endif
 #endif
 
       args[7] = "-fplugin=" + plugin.string ();
@@ -636,13 +634,9 @@ main (int argc, char* argv[])
         ostream& o (cout);
 
         o << "ODB object-relational mapping (ORM) compiler for C++ "
-          ODB_COMPILER_VERSION_STR << endl;
-
-#ifdef ODB_BUILD2
-        o << "Copyright (c) " << ODB_COPYRIGHT << "." << endl;
-#endif
-
-        o << "This is free software; see the source for copying conditions. "
+          ODB_COMPILER_VERSION_STR << endl
+          << "Copyright (c) " << ODB_COPYRIGHT << "." << endl
+          << "This is free software; see the source for copying conditions. "
           << "There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS "
           << "FOR A PARTICULAR PURPOSE." << endl;
 
@@ -1170,7 +1164,8 @@ main (int argc, char* argv[])
 
             // TR1 wrapper/pointer traits.
             //
-#ifndef ODB_BUILD2
+            // @@ TMP: drop after 2.5.0.
+#if 0
             if (ops.std () == cxx_version::cxx98)
               os << endl
                  << "#ifndef BOOST_TR1_MEMORY_HPP_INCLUDED" << endl
@@ -1615,7 +1610,7 @@ plugin_path (path const& drv,
 // bug in the extension stripping code. So for now we use the .so extension
 // everywhere (see also buildfile if changing this).
 //
-//#elif defined(__APPLE__) && defined(ODB_BUILD2)
+//#elif defined(__APPLE__)
 //  char const plugin_ext[] = ".dylib";
 #else
   char const plugin_ext[] = ".so";

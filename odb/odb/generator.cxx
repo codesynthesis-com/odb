@@ -15,13 +15,8 @@
 #include <libcutl/compiler/cxx-indenter.hxx>
 #include <libcutl/compiler/sloc-counter.hxx>
 
-#ifdef ODB_BUILD2
 #include <libstudxml/parser.hxx>
 #include <libstudxml/serializer.hxx>
-#else
-#include <libcutl/xml/parser.hxx>
-#include <libcutl/xml/serializer.hxx>
-#endif
 
 #include <odb/version.hxx>
 #include <odb/context.hxx>

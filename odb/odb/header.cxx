@@ -777,7 +777,9 @@ namespace header
        << "#include <odb/wrapper-traits.hxx>" << endl
        << "#include <odb/pointer-traits.hxx>" << endl;
 
-#ifndef ODB_BUILD2
+    // @@ TMP: drop after 2.5.0.
+    //
+#if 0
     if (ctx.options.std () == cxx_version::cxx98)
     {
       // In case of a boost TR1 implementation, we cannot distinguish
