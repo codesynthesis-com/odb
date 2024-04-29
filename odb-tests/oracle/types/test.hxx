@@ -4,11 +4,9 @@
 #ifndef TEST_HXX
 #define TEST_HXX
 
-#include <common/config.hxx> // HAVE_CXX11
-
 #include <string>
 #include <vector>
-#include <memory>   // std::auto_ptr
+#include <memory>  // std::unique_ptr
 #include <cstring> // std::memcpy, std::str[n]cmp, std::strlen
 
 #include <odb/core.hxx>
@@ -97,11 +95,7 @@ struct time_interval
   int nanosecond;
 };
 
-#ifdef HAVE_CXX11
 typedef std::unique_ptr<std::string> string_ptr;
-#else
-typedef std::auto_ptr<std::string> string_ptr;
-#endif
 
 typedef std::vector<std::string> strings;
 

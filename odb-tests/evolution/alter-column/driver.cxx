@@ -31,7 +31,7 @@ main (int argc, char* argv[])
   {
     unique_ptr<database> db (create_database (argc, argv, false));
 
-    db->schema_version_table ("evo_alter_c_sv");
+    db->schema_version_table (quote_name ("evo_alter_c_sv"));
 
     // SQLite doesn't support altering of columns.
     //

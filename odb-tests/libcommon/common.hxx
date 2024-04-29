@@ -35,6 +35,9 @@ create_specific_database (int argc,
   return std::unique_ptr<T> (&dynamic_cast<T&> (*r.release ()));
 }
 
+LIBCOMMON_SYMEXPORT std::string
+quote_name (const std::string&);
+
 // This function returns an accurate result only if the result iterator
 // hasn't been advanced and after the call the result is no longer valid.
 //

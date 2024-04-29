@@ -4,17 +4,19 @@
 // Test Oracle type conversion.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/oracle/database.hxx>
 #include <odb/oracle/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 namespace oracle = odb::oracle;
@@ -28,7 +30,7 @@ main (int argc, char* argv[])
     // Create an Oracle database instance, setting both the client database
     // and national character set to UTF-8.
     //
-    auto_ptr<database> db (create_specific_database<database> (argc, argv));
+    unique_ptr<database> db (create_specific_database<database> (argc, argv));
 
     object o (1);
 
@@ -85,7 +87,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (1));
+      unique_ptr<object> o1 (db->load<object> (1));
       t.commit ();
 
       assert (o == *o1);
@@ -120,7 +122,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<object> o1 (db->load<object> (1));
+      unique_ptr<object> o1 (db->load<object> (1));
       t.commit ();
 
       assert (o == *o1);
@@ -157,14 +159,14 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<big_int> bil1 (db->load<big_int> (1));
-      auto_ptr<big_int> bil2 (db->load<big_int> (2));
-      auto_ptr<big_int> bil3 (db->load<big_int> (3));
-      auto_ptr<big_int> bil4 (db->load<big_int> (4));
-      auto_ptr<big_int> bil5 (db->load<big_int> (5));
-      auto_ptr<big_uint> buil1 (db->load<big_uint> (1));
-      auto_ptr<big_uint> buil2 (db->load<big_uint> (2));
-      auto_ptr<big_uint> buil3 (db->load<big_uint> (3));
+      unique_ptr<big_int> bil1 (db->load<big_int> (1));
+      unique_ptr<big_int> bil2 (db->load<big_int> (2));
+      unique_ptr<big_int> bil3 (db->load<big_int> (3));
+      unique_ptr<big_int> bil4 (db->load<big_int> (4));
+      unique_ptr<big_int> bil5 (db->load<big_int> (5));
+      unique_ptr<big_uint> buil1 (db->load<big_uint> (1));
+      unique_ptr<big_uint> buil2 (db->load<big_uint> (2));
+      unique_ptr<big_uint> buil3 (db->load<big_uint> (3));
       t.commit ();
 
       assert (bi1 == *bil1);
@@ -210,8 +212,8 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<descriptor> p1 (db->load<descriptor> (1));
-      auto_ptr<descriptor> p2 (db->load<descriptor> (2));
+      unique_ptr<descriptor> p1 (db->load<descriptor> (1));
+      unique_ptr<descriptor> p2 (db->load<descriptor> (2));
       t.commit ();
 
       assert (b1 == *p1);
@@ -269,11 +271,7 @@ main (int argc, char* argv[])
       //
       {
         db->persist (b3);
-#ifdef HAVE_CXX11
         unique_ptr<descriptor> p (db->load<descriptor> (3));
-#else
-        auto_ptr<descriptor> p (db->load<descriptor> (3));
-#endif
         assert (b3 == *p);
         b3.blob.push_back (123);
         db->update (b3);
@@ -347,9 +345,9 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<char_array> p1 (db->load<char_array> (1));
-        auto_ptr<char_array> p2 (db->load<char_array> (2));
-        auto_ptr<char_array> p3 (db->load<char_array> (3));
+        unique_ptr<char_array> p1 (db->load<char_array> (1));
+        unique_ptr<char_array> p2 (db->load<char_array> (2));
+        unique_ptr<char_array> p3 (db->load<char_array> (3));
         t.commit ();
 
         assert (o1 == *p1);

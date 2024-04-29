@@ -41,12 +41,14 @@ bdep config create @host ../odb-host --type host cc config.cxx=g++
 bdep config create @sqlite ../odb-sqlite cc config.cxx=g++
 bdep config create @pgsql ../odb-pgsql cc config.cxx=g++
 bdep config create @mysql ../odb-mysql cc config.cxx=g++
+bdep config create @oracle ../odb-oracle cc config.cxx=g++
 bdep config create @mssql ../odb-mssql cc config.cxx=g++
 
 bdep init @host -d odb
 bdep init @sqlite -d libodb -d libodb-sqlite -d odb-tests
 bdep init @pgsql -d libodb -d libodb-pgsql -d odb-tests
 bdep init @mysql -d libodb -d libodb-mysql -d odb-tests
+bdep init @oracle -d libodb -d libodb-oracle -d odb-tests
 bdep init @mssql -d libodb -d libodb-mssql -d odb-tests
 ```
 

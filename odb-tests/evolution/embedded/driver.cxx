@@ -36,7 +36,7 @@ main (int argc, char* argv[])
   {
     unique_ptr<database> db (create_database (argc, argv, false));
 
-    db->schema_version_table ("evo_embedded_sv");
+    db->schema_version_table (quote_name ("evo_embedded_sv"));
 
     // 1 - base version
     // 2 - migration

@@ -30,6 +30,15 @@ if $pgsql
   $*
 }
 
+: oracle
+:
+if $oracle
+{
+  .include ../../oracle.testscript
+
+  $*
+}
+
 : mssql
 :
 if $mssql

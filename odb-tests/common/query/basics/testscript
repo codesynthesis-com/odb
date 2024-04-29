@@ -149,6 +149,16 @@ if $pgsql
   $*
 }
 
+: oracle
+:
+if $oracle
+{
+  .include ../../../oracle.testscript
+
+  $create_schema;
+  $*
+}
+
 : mssql
 :
 if $mssql

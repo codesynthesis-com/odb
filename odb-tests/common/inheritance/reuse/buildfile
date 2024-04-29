@@ -30,8 +30,20 @@ exe{driver}: libue{test-meta} $libs
 # Specify the ODB custom options to be used by the odb_compile ad hoc rule
 # (see build/root.build for details).
 #
-odb_options = --table-prefix inhrt_r_ \
-              --generate-schema       \
+# Note that the table prefix inhrt_r_, which we would normally use for this
+# test, doesn't work well for Oracle. In this case ODB ends up with the
+# following error:
+#
+# test.hxx:16:30: error: index name 'inhrt_r_empty_object_comp_bool' conflicts with an already defined index name
+# test.hxx:16:30: info: index name 'inhrt_r_empty_object_comp_bool' is truncated 'inhrt_r_empty_object_comp_bools_index_i'
+# test.hxx:16:30: info: conflicting index is defined here
+# test.hxx:16:30: info: conflicting index name 'inhrt_r_empty_object_comp_bool' is truncated 'inhrt_r_empty_object_comp_bools_object_id_i'
+# test.hxx:16:30: info: use #pragma db index to change one of the names
+#
+# Thus, we shorten the prefix to just i_r_.
+#
+odb_options = --table-prefix i_r_ \
+              --generate-schema   \
               --generate-query
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"

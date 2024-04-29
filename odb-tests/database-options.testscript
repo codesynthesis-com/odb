@@ -69,6 +69,43 @@ end
   export PGOPTIONS=--client-min-messages=warning
 end
 
++if $oracle
+   oracle_options = --user $config.odb_tests.oracle.user
+
+   oracle_client_options = -L -S
+   oracle_logon = $config.odb_tests.oracle.user
+
+   if $defined(config.odb_tests.oracle.passwd)
+     oracle_options += --password $config.odb_tests.oracle.passwd
+     oracle_logon = "$oracle_logon/$config.odb_tests.oracle.passwd"
+   end
+
+   if ($defined(config.odb_tests.oracle.host) || \
+       $defined(config.odb_tests.oracle.port))
+     if $defined(config.odb_tests.oracle.host)
+       oracle_options += --host $config.odb_tests.oracle.host
+       oracle_logon = "$oracle_logon@//$config.odb_tests.oracle.host"
+     else
+       oracle_logon = "$oracle_logon@//localhost"
+     end
+
+     if $defined(config.odb_tests.oracle.port)
+       oracle_options += --port $config.odb_tests.oracle.port
+       oracle_logon = "$oracle_logon:$config.odb_tests.oracle.port"
+     end
+
+     if $defined(config.odb_tests.oracle.service)
+       oracle_options += --service $config.odb_tests.oracle.service
+       oracle_logon = "$oracle_logon/$config.odb_tests.oracle.service"
+     end
+   elif $defined(config.odb_tests.oracle.service)
+     oracle_options += --service $config.odb_tests.oracle.service
+     oracle_logon = "$oracle_logon@$config.odb_tests.oracle.service"
+   end
+
+   oracle_client_cmd = $path($oracle_client) $oracle_client_options $oracle_logon
+end
+
 +if $mssql
    mssql_options = --user $config.odb_tests.mssql.user \
                    --database $config.odb_tests.mssql.database

@@ -502,6 +502,21 @@ if ($pgsql && $pgsql_bulk)
   end
 }
 
+: oracle
+:
+if $oracle
+{
+  .include ../../oracle.testscript
+
+  $create_schema;
+
+  if $multi
+    $* # Noop.
+  else
+    $* >>>../output
+  end
+}
+
 : mssql
 :
 if $mssql

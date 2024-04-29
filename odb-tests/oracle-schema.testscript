@@ -1,0 +1,6 @@
+# file      : oracle-schema.testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# Create the Oracle database schema creation canned command base.
+#
+create_schema_cmd = [cmdline] $oracle_client_cmd

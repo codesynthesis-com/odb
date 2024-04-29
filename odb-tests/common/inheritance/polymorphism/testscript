@@ -79,6 +79,19 @@ if $pgsql
   $* ($multi ? 'pgsql' : ) $pgsql_options
 }
 
+: oracle
+:
+if $oracle
+{
+  .include ../../../oracle-schema.testscript
+
+  for s: $schemas
+    $create_schema_cmd "@$out_base/$s"($multi ? '-oracle' : '').sql
+  end;
+
+  $* ($multi ? 'oracle' : ) $oracle_options
+}
+
 : mssql
 :
 if $mssql

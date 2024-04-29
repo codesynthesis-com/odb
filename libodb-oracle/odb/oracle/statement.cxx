@@ -643,13 +643,11 @@ namespace odb
             assert (callback);
             value = 0;
 
-            // When binding LOB parameters, the capacity must be greater than
-            // 4000 and less than the maximum LOB length in bytes. If it is
-            // not, OCI returns an error. Other than this, the capacity seems
-            // to be irrelevant to OCI bind behaviour for LOB parameters when
-            // used with callbacks.
+            // When binding LOB parameters, let's set the capacity to the
+            // minimum between the LOB maximum size (4GB) and the maximum
+            // value that can be stored in the variable of sb4 type.
             //
-            capacity = 4096;
+            capacity = SB4MAXVAL < OCI_LOBMAXSIZE ? SB4MAXVAL : OCI_LOBMAXSIZE;
 
             // Store skip in capacity so that the callback can offset the
             // values based on the iteration number.

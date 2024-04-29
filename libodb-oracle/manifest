@@ -24,19 +24,122 @@ depends: * bpkg >= 0.16.0-
 depends: libodb == $
 depends: * cli ^1.2.0- ? ($config.libodb_oracle.develop)
 
-# @@ TMP: drop develop (also drop in odb-tests/build/root.build).
-#
 tests: odb-tests == $ \
-  ? ($config.odb_tests.develop && !$defined(config.odb_tests.database)) config.odb_tests.database=oracle
+  ? (!$defined(config.odb_tests.database)) config.odb_tests.database=oracle
 
-# @@ TMP
+# Note: common for all the build configurations.
 #
-builds: none ; Requires proprietary Oracle Call Interface library.
-#builds: oracle
+build-auxiliary: *-oracle_*
 
-#multi-build-config:
-#\
-#{ 'config.odb_tests.database=oracle sqlite' }+ odb-tests
-#;
-#Enable testing in dynamic multi-database mode.
-#\
+# Note that we can only test on custom bots since the proprietary software
+# needs to be installed into the system.
+#
+builds: none ; Requires proprietary software.
+
+# Instead of the default configuration (see odb-tests for background).
+#
+custom-builds: latest ; Requires proprietary software.
+custom-builds: &( +linux &gcc ) ; Only test on Linux with main compiler.
+custom-builds: -static ; Implementation uses plugins and requires -fPIC.
+#custom-build-bot: -- see below.
+custom-build-config:
+\
+{
+  config.odb_tests.oracle.user=$getenv(DATABASE_USER)
+  config.odb_tests.oracle.passwd=$getenv(DATABASE_PASSWORD)
+  config.odb_tests.oracle.host=$getenv(DATABASE_HOST)
+  config.odb_tests.oracle.port=$getenv(DATABASE_PORT)
+  config.odb_tests.oracle.service=$getenv(DATABASE_SERVICE)
+}+ odb-tests
+\
+
+# Instead of the multi configuration (see odb-tests for background).
+#
+custom-multi-builds: latest ; Requires proprietary software.
+custom-multi-builds: &( +linux &gcc ) ; Only test on Linux with main compiler.
+custom-multi-builds: -static ; Implementation uses plugins and requires -fPIC.
+#custom-multi-build-bot: -- see below.
+custom-multi-build-config:
+\
+{
+  config.odb_tests.multi_database=true
+
+  config.odb_tests.oracle.user=$getenv(DATABASE_USER)
+  config.odb_tests.oracle.passwd=$getenv(DATABASE_PASSWORD)
+  config.odb_tests.oracle.host=$getenv(DATABASE_HOST)
+  config.odb_tests.oracle.port=$getenv(DATABASE_PORT)
+  config.odb_tests.oracle.service=$getenv(DATABASE_SERVICE)
+}+ odb-tests
+\
+
+custom-build-bot:
+\
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuF4YmJmPHY52Q6N+YO0M
+lt/fCovdezleb2tVplyTnvbyAiPdmYCIIjVrsqUn3y46PdFtWEiSdsrCcncoxi6H
+8KelOB/oQ9pNTyEvwGKEH5ZIU7noLZYdXEfoNdvdL/pbY/7uLBZOSekfdQShZtbe
+uOZCM2Mhg2DD76TP/VAwaXuDCnEvxxU/yneUl5ZaBo62AWNrYJuSGAliCOpVpl6X
+X1kbHOvnCx7c9e3LxgaVivPaeZRKYg0OaFt96SBYEZzNPvjA8pMuKuj/vatHaCQ3
+NO9+r3TJ+4dQd7qN6Ju3zUJq9J/ndSh4lPvUalvvhdykecefhcyHwRZOG4xyFMFE
+nJM4sM+aZu6WoKATIKtk7On70inVr0sZJXwJ4Lt4oqaK2VthcSTby3wf2Yv4p5hL
+zNo31cCPmBRYzABcIc6ADYvexVK4uCwaim8xs7RK5Ug2Gv6vUWoRNZW8grIgDwUY
+5pZ4Zk3hW4ii2vehTaVrrmdW6XipIsT+ayiVX7eWuHHNxAeCojXVjOJu9B0ExMlD
+5tHZCs+SNdV5MceexecbptB7fZtRebP120yjLiSnZ5FpaQ1stusr0hSg+VQaX4np
+f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
+9MLA+cE/nNJ/rMI//MZ1+kcCAwEAAQ==
+-----END PUBLIC KEY-----
+\
+
+custom-build-bot:
+\
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuLYZ68rotGDAtWViFHOe
+XEsmZB8BGI+af1ixh9JOy9BE4ohGTfPr1YsjGDzh+PhOVLAtyykOoT/qG7cuGB0T
+gBInoRrgVB2/ZKTMwxeDGb/TA3uykaXxcw7/liTsizHAY+phCNTbke8iER5Y78js
+9GlnTPmNhwFqEj2fwCz+2o08eyZvZ9Vj1fH/bFDCmDmU33JR3crtJlC8wPiF70Ho
+FJzHFdaFQl3MxvEV92HjOsyqozMi6tAVVefN1vapVQeNtjkB0Di18p0/EMugEuGU
+OxktjDHQWNaV8Ao6cCDk6OkJnM3ZNL1no3cV4cuF+/xI8UZzwfPoBnwg/s183Qzu
+pHHKOSHmuO0oVE/XohJhepSw3tb+wf5BwejRhYHikIjqCxJdm9H0QTiqXT82y24K
+yg3gkRMOgqnVxERKKP4ZknLSMQCEKiND/t2zdLJ/lxH9eHZdPHKk3OZZG292j+Bh
+fknxcTKNk1Dmf32Irs5hVrjsoU8eAutbItovzXdBaj//rn/ry/kUlCa1Ov6iLIDJ
+gyxmsDlgKNR/uE9ogmDn0ishJIoCmxeqenRfJkttr9pEsDsUFuB425QGqiSxa1jh
+PCNca3iRtO44wADXaQMTGpvLzBfdfVc8LoFpn+kynN0V1MvxAX4mHRXxw8ERXd3U
+dpHDhOthPLolJQrYKb/YyW8CAwEAAQ==
+-----END PUBLIC KEY-----
+\
+
+custom-multi-build-bot:
+\
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuF4YmJmPHY52Q6N+YO0M
+lt/fCovdezleb2tVplyTnvbyAiPdmYCIIjVrsqUn3y46PdFtWEiSdsrCcncoxi6H
+8KelOB/oQ9pNTyEvwGKEH5ZIU7noLZYdXEfoNdvdL/pbY/7uLBZOSekfdQShZtbe
+uOZCM2Mhg2DD76TP/VAwaXuDCnEvxxU/yneUl5ZaBo62AWNrYJuSGAliCOpVpl6X
+X1kbHOvnCx7c9e3LxgaVivPaeZRKYg0OaFt96SBYEZzNPvjA8pMuKuj/vatHaCQ3
+NO9+r3TJ+4dQd7qN6Ju3zUJq9J/ndSh4lPvUalvvhdykecefhcyHwRZOG4xyFMFE
+nJM4sM+aZu6WoKATIKtk7On70inVr0sZJXwJ4Lt4oqaK2VthcSTby3wf2Yv4p5hL
+zNo31cCPmBRYzABcIc6ADYvexVK4uCwaim8xs7RK5Ug2Gv6vUWoRNZW8grIgDwUY
+5pZ4Zk3hW4ii2vehTaVrrmdW6XipIsT+ayiVX7eWuHHNxAeCojXVjOJu9B0ExMlD
+5tHZCs+SNdV5MceexecbptB7fZtRebP120yjLiSnZ5FpaQ1stusr0hSg+VQaX4np
+f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
+9MLA+cE/nNJ/rMI//MZ1+kcCAwEAAQ==
+-----END PUBLIC KEY-----
+\
+
+custom-multi-build-bot:
+\
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuLYZ68rotGDAtWViFHOe
+XEsmZB8BGI+af1ixh9JOy9BE4ohGTfPr1YsjGDzh+PhOVLAtyykOoT/qG7cuGB0T
+gBInoRrgVB2/ZKTMwxeDGb/TA3uykaXxcw7/liTsizHAY+phCNTbke8iER5Y78js
+9GlnTPmNhwFqEj2fwCz+2o08eyZvZ9Vj1fH/bFDCmDmU33JR3crtJlC8wPiF70Ho
+FJzHFdaFQl3MxvEV92HjOsyqozMi6tAVVefN1vapVQeNtjkB0Di18p0/EMugEuGU
+OxktjDHQWNaV8Ao6cCDk6OkJnM3ZNL1no3cV4cuF+/xI8UZzwfPoBnwg/s183Qzu
+pHHKOSHmuO0oVE/XohJhepSw3tb+wf5BwejRhYHikIjqCxJdm9H0QTiqXT82y24K
+yg3gkRMOgqnVxERKKP4ZknLSMQCEKiND/t2zdLJ/lxH9eHZdPHKk3OZZG292j+Bh
+fknxcTKNk1Dmf32Irs5hVrjsoU8eAutbItovzXdBaj//rn/ry/kUlCa1Ov6iLIDJ
+gyxmsDlgKNR/uE9ogmDn0ishJIoCmxeqenRfJkttr9pEsDsUFuB425QGqiSxa1jh
+PCNca3iRtO44wADXaQMTGpvLzBfdfVc8LoFpn+kynN0V1MvxAX4mHRXxw8ERXd3U
+dpHDhOthPLolJQrYKb/YyW8CAwEAAQ==
+-----END PUBLIC KEY-----
+\

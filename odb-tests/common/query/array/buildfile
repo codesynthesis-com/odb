@@ -33,8 +33,10 @@ exe{driver}: libue{test-meta} $libs
 odb_options = --table-prefix t_query_array_ \
               --generate-schema             \
               --generate-query              \
-              --generate-prepared           \
-              --sql-name-case oracle:upper
+              --generate-prepared
+
+if $oracle
+  odb_options += --sql-name-case oracle:upper
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 

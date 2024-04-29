@@ -350,6 +350,26 @@ create_database (int argc,
 #endif
 }
 
+#ifndef MULTI_DATABASE
+std::string
+quote_name (const std::string& name)
+{
+#if defined(DATABASE_MYSQL)
+  return '`' + name + '`';
+#elif defined(DATABASE_SQLITE)
+  return '"' + name + '"';
+#elif defined(DATABASE_PGSQL)
+  return '"' + name + '"';
+#elif defined(DATABASE_ORACLE)
+  return '"' + name + '"';
+#elif defined(DATABASE_MSSQL)
+  return '[' + name + ']';
+#else
+# error unknown database
+#endif
+}
+#endif
+
 bool
 size_available ()
 {

@@ -18,10 +18,6 @@ xml{*}: extension = xml
 
 skeleton = ($build.mode == 'skeleton')
 
-# @@ TMP: remove once no longer used by libodb-<db>.
-#
-config [bool] config.odb_tests.develop ?= false
-
 # List of the identifiers of the databases to compile and run the tests
 # against. The valid identifiers are mysql, sqlite, pgsql, oracle, and mssql.
 #
@@ -159,6 +155,29 @@ config [bool] config.odb_tests.pgsql.bulk ?= ($cxx.target.class != 'windows' && 
                                               $config.odb_tests.pgsql.bulk_default)
 pgsql_bulk = $config.odb_tests.pgsql.bulk
 
+# Oracle
+#
+# The database user.
+#
+config [string] config.odb_tests.oracle.user ?= 'odb_test'
+
+# The database password.
+#
+config [string] config.odb_tests.oracle.passwd
+
+# The database host.
+#
+config [string] config.odb_tests.oracle.host
+
+# The database port.
+#
+config [uint64] config.odb_tests.oracle.port
+
+# The service name. Note that the database associated with this user on this
+# service WILL BE MODIFIED by the tests.
+#
+config [string] config.odb_tests.oracle.service
+
 # Microsoft SQL Server
 #
 # The database user.
@@ -234,6 +253,16 @@ if! $skeleton
   {
     import! pgsql_client = psql%exe{psql}
     testscript{*}: pgsql_client = $pgsql_client
+  }
+
+  # Import the sqlplus client for creating the database schemas, etc.
+  #
+  # Note: supposed to be system-installed.
+  #
+  if $oracle
+  {
+    import! oracle_client = sqlplus%exe{sqlplus}
+    testscript{*}: oracle_client = $oracle_client
   }
 
   # Import the sqlcmd client for creating the database schemas, etc.
