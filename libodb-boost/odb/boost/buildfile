@@ -21,7 +21,6 @@
     imp_libs =
 
     lib{odb-boost}: {hxx ixx txx cxx}{** -version} hxx{version} \
-                    details/build2/{h}{*}                       \
                     options{**} ../options{boost}               \
                     $imp_libs $int_libs
 
@@ -47,7 +46,7 @@
 
     # Build options.
     #
-    cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_BOOST_BUILD2
+    cxx.poptions =+ "-I$out_root" "-I$src_root"
 
     obja{*}: cxx.poptions += -DLIBODB_BOOST_STATIC_BUILD
     objs{*}: cxx.poptions += -DLIBODB_BOOST_SHARED_BUILD
@@ -56,31 +55,11 @@
     #
     lib{odb-boost}:
     {
-      cxx.export.poptions = "-I$out_root" "-I$src_root" -DLIBODB_BOOST_BUILD2
+      cxx.export.poptions = "-I$out_root" "-I$src_root"
       cxx.export.libs = $int_libs
     }
 
     liba{odb-boost}: cxx.export.poptions += -DLIBODB_BOOST_STATIC
     libs{odb-boost}: cxx.export.poptions += -DLIBODB_BOOST_SHARED
-
-    # Installation tweaks.
-    #
-    install_include = [dir_path] include/odb/boost/
-
-    details/build2/
-    {
-      h{*}: install = false
-
-      if ($cxx.target.system == 'win32-msvc')
-      {
-        h{config-vc}@./:      install = $install_include/details/
-        h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
-      }
-      else
-      {
-        h{config}@./:      install = $install_include/details/
-        h{config-stub}@./: install = $install_include/details/build2/config.h
-      }
-    }
   }
 }

@@ -16,7 +16,6 @@ if ($cc.target.class != 'windows')
 
 lib{odb-mssql}: {hxx ixx txx cxx}{* -version} {hxx}{version} \
         details/{hxx ixx txx cxx}{* -options}                \
- details/build2/{h}{*}                                       \
                 $imp_libs $int_libs
 
 # Include the generated version header into the distribution (so that we don't
@@ -32,7 +31,7 @@ hxx{version}:
 
 # Build options.
 #
-cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_MSSQL_BUILD2
+cxx.poptions =+ "-I$out_root" "-I$src_root"
 
 obja{*}: cxx.poptions += -DLIBODB_MSSQL_STATIC_BUILD
 objs{*}: cxx.poptions += -DLIBODB_MSSQL_SHARED_BUILD
@@ -44,7 +43,7 @@ if ($cc.target.class == 'windows')
 #
 lib{odb-mssql}:
 {
-  cxx.export.poptions = "-I$out_root" "-I$src_root" -DLIBODB_MSSQL_BUILD2
+  cxx.export.poptions = "-I$out_root" "-I$src_root"
   cxx.export.libs = $int_libs
 }
 
@@ -140,20 +139,4 @@ install_include = [dir_path] include/odb/mssql/
 {
   install         = $install_include
   install.subdirs = true
-}
-
-details/build2/
-{
-  h{*}: install = false
-
-  if ($cxx.target.system == 'win32-msvc')
-  {
-    h{config-vc}@./:      install = $install_include/details/
-    h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
-  }
-  else
-  {
-    h{config}@./:      install = $install_include/details/
-    h{config-stub}@./: install = $install_include/details/build2/config.h
-  }
 }

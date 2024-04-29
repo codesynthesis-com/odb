@@ -6,7 +6,11 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/pgsql/details/config.hxx>
+// Note: do this check directly instead of including config.hxx.
+//
+#ifdef ODB_COMPILER
+#  error libodb-pgsql header included in odb-compiled header
+#endif
 
 // Normally we don't export class templates (but do complete specializations),
 // inline functions, and classes with only inline member functions. Exporting
@@ -15,8 +19,6 @@
 // export. Also, MinGW GCC doesn't like seeing non-exported function being
 // used before their inline definition. The workaround is to reorder code. In
 // the end it's all trial and error.
-
-#ifdef LIBODB_PGSQL_BUILD2
 
 #if defined(LIBODB_PGSQL_STATIC)         // Using static.
 #  define LIBODB_PGSQL_EXPORT
@@ -42,36 +44,6 @@
 //
 #  define LIBODB_PGSQL_EXPORT            // Using static or shared.
 #endif
-
-#else // LIBODB_PGSQL_BUILD2
-
-#ifdef LIBODB_PGSQL_STATIC_LIB
-#  define LIBODB_PGSQL_EXPORT
-#else
-#  ifdef _WIN32
-#    ifdef _MSC_VER
-#      ifdef LIBODB_PGSQL_DYNAMIC_LIB
-#        define LIBODB_PGSQL_EXPORT __declspec(dllexport)
-#      else
-#        define LIBODB_PGSQL_EXPORT __declspec(dllimport)
-#      endif
-#    else
-#      ifdef LIBODB_PGSQL_DYNAMIC_LIB
-#        ifdef DLL_EXPORT
-#          define LIBODB_PGSQL_EXPORT __declspec(dllexport)
-#        else
-#          define LIBODB_PGSQL_EXPORT
-#        endif
-#      else
-#        define LIBODB_PGSQL_EXPORT __declspec(dllimport)
-#      endif
-#    endif
-#  else
-#    define LIBODB_PGSQL_EXPORT
-#  endif
-#endif
-
-#endif // LIBODB_PGSQL_BUILD2
 
 #include <odb/post.hxx>
 

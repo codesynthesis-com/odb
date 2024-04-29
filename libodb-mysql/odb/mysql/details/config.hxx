@@ -8,23 +8,14 @@
 
 #ifdef ODB_COMPILER
 #  error libodb-mysql header included in odb-compiled header
-#elif !defined(LIBODB_MYSQL_BUILD2)
-#  ifdef _MSC_VER
-#    include <odb/mysql/details/config-vc.h>
-#  else
-#    include <odb/mysql/details/config.h>
-#  endif
 #endif
 
-// LIBODB_MYSQL_BUILD2 macro can be defined either by the buildfile or by the
-// included odb/mysql/details/config*.h (see above).
+// @@ TMP: drop (along with LIBODB_MYSQL_THR_KEY_VISIBLE) after 2.5.0.
 //
-#ifdef LIBODB_MYSQL_BUILD2
-#  ifdef LIBODB_MYSQL_INCLUDE_SHORT
-#    error mysql headers must be included with mysql/ prefix
-#  elif !defined(LIBODB_MYSQL_INCLUDE_LONG)
-#    define LIBODB_MYSQL_INCLUDE_LONG 1
-#  endif
+#ifdef LIBODB_MYSQL_INCLUDE_SHORT
+#  error mysql headers must be included with mysql/ prefix
+#elif !defined(LIBODB_MYSQL_INCLUDE_LONG)
+#  define LIBODB_MYSQL_INCLUDE_LONG 1
 #endif
 
 // no post

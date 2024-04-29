@@ -1,12 +1,9 @@
 // file      : odb/details/win32/dll.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-// If we are building a static library from VC++ (LIBODB_STATIC_LIB) or
-// a static library from automake (!DLL_EXPORT), then omit DllMain.
-//
+// If we are building a static library then omit DllMain.
 
-#if (defined(_MSC_VER) && defined(LIBODB_DYNAMIC_LIB)) || \
-    (!defined(_MSC_VER) && defined(DLL_EXPORT))
+#ifdef LIBODB_SHARED_BUILD
 
 #include <odb/details/win32/windows.hxx>
 #include <odb/details/win32/init.hxx>

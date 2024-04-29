@@ -7,13 +7,7 @@
 // no pre
 
 #ifdef ODB_COMPILER
-#  define LIBODB_BOOST_STATIC_LIB
-#elif !defined(LIBODB_BOOST_BUILD2)
-#  ifdef _MSC_VER
-#    include <odb/boost/details/config-vc.h>
-#  else
-#    include <odb/boost/details/config.h>
-#  endif
+#  define LIBODB_BOOST_STATIC
 #endif
 
 // no post

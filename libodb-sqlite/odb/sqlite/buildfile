@@ -9,7 +9,6 @@ import int_libs += libsqlite3%lib{sqlite3}
 
 lib{odb-sqlite}: {hxx ixx txx cxx}{* -version} {hxx}{version} \
          details/{hxx ixx txx cxx}{* -options}                \
-  details/build2/{h}{*}                                       \
                  $int_libs
 
 # Include the generated version header into the distribution (so that we don't
@@ -25,7 +24,7 @@ hxx{version}:
 
 # Build options.
 #
-cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_SQLITE_BUILD2
+cxx.poptions =+ "-I$out_root" "-I$src_root"
 
 obja{*}: cxx.poptions += -DLIBODB_SQLITE_STATIC_BUILD
 objs{*}: cxx.poptions += -DLIBODB_SQLITE_SHARED_BUILD
@@ -34,7 +33,7 @@ objs{*}: cxx.poptions += -DLIBODB_SQLITE_SHARED_BUILD
 #
 lib{odb-sqlite}:
 {
-  cxx.export.poptions = "-I$out_root" "-I$src_root" -DLIBODB_SQLITE_BUILD2
+  cxx.export.poptions = "-I$out_root" "-I$src_root"
   cxx.export.libs = $int_libs
 }
 
@@ -130,20 +129,4 @@ install_include = [dir_path] include/odb/sqlite/
 {
   install         = $install_include
   install.subdirs = true
-}
-
-details/build2/
-{
-  h{*}: install = false
-
-  if ($cxx.target.system == 'win32-msvc')
-  {
-    h{config-vc}@./:      install = $install_include/details/
-    h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
-  }
-  else
-  {
-    h{config}@./:      install = $install_include/details/
-    h{config-stub}@./: install = $install_include/details/build2/config.h
-  }
 }

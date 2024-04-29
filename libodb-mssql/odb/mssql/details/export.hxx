@@ -6,7 +6,11 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/mssql/details/config.hxx>
+// Note: do this check directly instead of including config.hxx.
+//
+#ifdef ODB_COMPILER
+#  error libodb-mssql header included in odb-compiled header
+#endif
 
 // Normally we don't export class templates (but do complete specializations),
 // inline functions, and classes with only inline member functions. Exporting
@@ -15,8 +19,6 @@
 // export. Also, MinGW GCC doesn't like seeing non-exported function being
 // used before their inline definition. The workaround is to reorder code. In
 // the end it's all trial and error.
-
-#ifdef LIBODB_MSSQL_BUILD2
 
 #if defined(LIBODB_MSSQL_STATIC)         // Using static.
 #  define LIBODB_MSSQL_EXPORT
@@ -42,36 +44,6 @@
 //
 #  define LIBODB_MSSQL_EXPORT            // Using static or shared.
 #endif
-
-#else // LIBODB_MSSQL_BUILD2
-
-#ifdef LIBODB_MSSQL_STATIC_LIB
-#  define LIBODB_MSSQL_EXPORT
-#else
-#  ifdef _WIN32
-#    ifdef _MSC_VER
-#      ifdef LIBODB_MSSQL_DYNAMIC_LIB
-#        define LIBODB_MSSQL_EXPORT __declspec(dllexport)
-#      else
-#        define LIBODB_MSSQL_EXPORT __declspec(dllimport)
-#      endif
-#    else
-#      ifdef LIBODB_MSSQL_DYNAMIC_LIB
-#        ifdef DLL_EXPORT
-#          define LIBODB_MSSQL_EXPORT __declspec(dllexport)
-#        else
-#          define LIBODB_MSSQL_EXPORT
-#        endif
-#      else
-#        define LIBODB_MSSQL_EXPORT __declspec(dllimport)
-#      endif
-#    endif
-#  else
-#    define LIBODB_MSSQL_EXPORT
-#  endif
-#endif
-
-#endif // LIBODB_MSSQL_BUILD2
 
 #include <odb/post.hxx>
 

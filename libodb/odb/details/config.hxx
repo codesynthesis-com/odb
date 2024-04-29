@@ -62,13 +62,7 @@
 //
 #ifdef ODB_COMPILER
 #  define ODB_THREADS_NONE
-#  define LIBODB_STATIC_LIB
-#elif defined(LIBODB_BUILD2)
-#  if defined(_MSC_VER)
-#    include <odb/details/build2/config-vc.h>
-#  else
-#    include <odb/details/build2/config.h>
-#  endif
+#  define LIBODB_STATIC
 #elif defined(_MSC_VER)
 #  include <odb/details/config-vc.h>
 #else

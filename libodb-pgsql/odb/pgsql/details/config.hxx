@@ -8,12 +8,6 @@
 
 #ifdef ODB_COMPILER
 #  error libodb-pgsql header included in odb-compiled header
-#elif !defined(LIBODB_PGSQL_BUILD2)
-#  ifdef _MSC_VER
-#    include <odb/pgsql/details/config-vc.h>
-#  else
-#    include <odb/pgsql/details/config.h>
-#  endif
 #endif
 
 // no post

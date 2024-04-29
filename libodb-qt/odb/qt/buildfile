@@ -21,7 +21,6 @@
     imp_libs =
 
     lib{odb-qt}: {hxx ixx txx cxx}{** -version} {hxx}{version} \
-                 details/build2/{h}{*}                         \
                  options{**} ../options{qt}                    \
                  $imp_libs $int_libs
 
@@ -38,7 +37,7 @@
 
     # Build options.
     #
-    cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_QT_BUILD2
+    cxx.poptions =+ "-I$out_root" "-I$src_root"
 
     obja{*}: cxx.poptions += -DLIBODB_QT_STATIC_BUILD
     objs{*}: cxx.poptions += -DLIBODB_QT_SHARED_BUILD
@@ -47,7 +46,7 @@
     #
     lib{odb-qt}:
     {
-      cxx.export.poptions = "-I$out_root" "-I$src_root"  -DLIBODB_QT_BUILD2
+      cxx.export.poptions = "-I$out_root" "-I$src_root"
       cxx.export.libs = $int_libs
     }
 
@@ -62,25 +61,5 @@
       lib{odb-qt}: bin.lib.version = @"-$version.project_id"
     else
       lib{odb-qt}: bin.lib.version = @"-$version.major.$version.minor"
-
-    # Installation tweaks.
-    #
-    install_include = [dir_path] include/odb/qt/
-
-    details/build2/
-    {
-      h{*}: install = false
-
-      if ($cxx.target.system == 'win32-msvc')
-      {
-        h{config-vc}@./:      install = $install_include/details/
-        h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
-      }
-      else
-      {
-        h{config}@./:      install = $install_include/details/
-        h{config-stub}@./: install = $install_include/details/build2/config.h
-      }
-    }
   }
 }

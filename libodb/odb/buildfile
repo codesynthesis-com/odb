@@ -5,7 +5,7 @@ lib{odb}:          {hxx ixx txx cxx}{* -version}    \
                    {hxx}{version}                   \
            details/{hxx ixx txx}{*}                 \
            details/{cxx}{* -condition -lock -mutex} \
-    details/build2/{h}{*}                           \
+           details/{h}{*}                           \
       details/meta/{hxx}{*}                         \
 details/shared-ptr/{hxx ixx txx cxx}{*}             \
      details/win32/{hxx}{windows}
@@ -23,14 +23,14 @@ hxx{version}:
 
 # Build options.
 #
-cxx.poptions =+ "-I$out_root" "-I$src_root" -DLIBODB_BUILD2
+cxx.poptions =+ "-I$out_root" "-I$src_root"
 
 obja{*}: cxx.poptions += -DLIBODB_STATIC_BUILD
 objs{*}: cxx.poptions += -DLIBODB_SHARED_BUILD
 
 # Export options.
 #
-lib{odb}: cxx.export.poptions = "-I$out_root" "-I$src_root" -DLIBODB_BUILD2
+lib{odb}: cxx.export.poptions = "-I$out_root" "-I$src_root"
 
 liba{odb}: cxx.export.poptions += -DLIBODB_STATIC
 libs{odb}: cxx.export.poptions += -DLIBODB_SHARED
@@ -49,7 +49,7 @@ else
 #
 install_include = [dir_path] include/odb/
 
-{hxx ixx txx}{*}:
+{h hxx ixx txx}{*}:
 {
   install         = $install_include
   install.subdirs = true
@@ -58,18 +58,10 @@ install_include = [dir_path] include/odb/
 if ($cxx.target.class != "windows")
   details/win32/*: install = false
 
-details/build2/
+details/
 {
-  h{*}: install = false
-
-  if ($cxx.target.system == 'win32-msvc')
-  {
-    h{config-vc}@./:      install = $install_include/details/
-    h{config-vc-stub}@./: install = $install_include/details/build2/config-vc.h
-  }
+  if ($cxx.target.system != 'win32-msvc')
+    h{config-vc}@./: install = false
   else
-  {
-    h{config}@./:      install = $install_include/details/
-    h{config-stub}@./: install = $install_include/details/build2/config.h
-  }
+    h{config}@./: install = false
 }

@@ -24,13 +24,7 @@
 #      define __PIC__
 #    endif
 #  endif
-#  define LIBODB_QT_STATIC_LIB
-#elif !defined(LIBODB_QT_BUILD2)
-#  ifdef _MSC_VER
-#    include <odb/qt/details/config-vc.h>
-#  else
-#    include <odb/qt/details/config.h>
-#  endif
+#  define LIBODB_QT_STATIC
 #endif
 
 // no post
