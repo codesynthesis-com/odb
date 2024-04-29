@@ -13,17 +13,17 @@ if ($cc.target.class != 'windows')
 else
   import imp_libs = liboci%lib{oci}
 
-lib{odb-oracle}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2} \
-         details/{hxx ixx txx cxx}{* -options}                              \
-  details/build2/{h}{*}                                                     \
+lib{odb-oracle}: {hxx ixx txx cxx}{* -version} {hxx}{version} \
+         details/{hxx ixx txx cxx}{* -options}                \
+  details/build2/{h}{*}                                       \
                  $imp_libs $int_libs
 
 # Include the generated version header into the distribution (so that we don't
 # pick up an installed one) and don't remove it when cleaning in src (so that
 # clean results in a state identical to distributed).
 #
-hxx{version-build2}: in{version-build2} $src_root/manifest
-hxx{version-build2}:
+hxx{version}: in{version} $src_root/manifest
+hxx{version}:
 {
   dist  = true
   clean = ($src_root != $out_root)
@@ -137,12 +137,6 @@ install_include = [dir_path] include/odb/oracle/
   install         = $install_include
   install.subdirs = true
 }
-
-# We want these to be picked up whether LIBODB_ORACLE_BUILD2 is defined or not.
-#
-hxx{version}@./:             install = false
-hxx{version-build2}:         install = $install_include/version.hxx
-hxx{version-build2-stub}@./: install = $install_include/version-build2.hxx
 
 details/build2/
 {

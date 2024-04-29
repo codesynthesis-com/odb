@@ -1,21 +1,21 @@
 # file      : odb/buildfile
 # license   : GNU GPL v2; see accompanying LICENSE file
 
-lib{odb}:          {hxx ixx txx cxx}{* -version-build2} \
-                   {hxx}{version-build2}                \
-           details/{hxx ixx txx}{*}                     \
-           details/{cxx}{* -condition -lock -mutex}     \
-    details/build2/{h}{*}                               \
-      details/meta/{hxx}{*}                             \
-details/shared-ptr/{hxx ixx txx cxx}{*}                 \
+lib{odb}:          {hxx ixx txx cxx}{* -version}    \
+                   {hxx}{version}                   \
+           details/{hxx ixx txx}{*}                 \
+           details/{cxx}{* -condition -lock -mutex} \
+    details/build2/{h}{*}                           \
+      details/meta/{hxx}{*}                         \
+details/shared-ptr/{hxx ixx txx cxx}{*}             \
      details/win32/{hxx}{windows}
 
 # Include the generated version header into the distribution (so that we don't
 # pick up an installed one) and don't remove it when cleaning in src (so that
 # clean results in a state identical to distributed).
 #
-hxx{version-build2}: in{version-build2} $src_root/manifest
-hxx{version-build2}:
+hxx{version}: in{version} $src_root/manifest
+hxx{version}:
 {
   dist  = true
   clean = ($src_root != $out_root)
@@ -57,12 +57,6 @@ install_include = [dir_path] include/odb/
 
 if ($cxx.target.class != "windows")
   details/win32/*: install = false
-
-# We want these to be picked up whether LIBODB_BUILD2 is defined or not.
-#
-hxx{version}@./:             install = false
-hxx{version-build2}:         install = $install_include/version.hxx
-hxx{version-build2-stub}@./: install = $install_include/version-build2.hxx
 
 details/build2/
 {

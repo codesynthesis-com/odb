@@ -20,17 +20,17 @@
     import int_libs = libodb%lib{odb}
     imp_libs =
 
-    lib{odb-boost}: {hxx ixx txx cxx}{** -version-build2} {hxx}{version-build2} \
-     details/build2/{h}{*}                                                      \
-                options{**} ../options{boost}                                   \
-                $imp_libs $int_libs
+    lib{odb-boost}: {hxx ixx txx cxx}{** -version} hxx{version} \
+                    details/build2/{h}{*}                       \
+                    options{**} ../options{boost}               \
+                    $imp_libs $int_libs
 
     # Include the generated version header into the distribution (so that we
     # don't pick up an installed one) and don't remove it when cleaning in src
     # (so that clean results in a state identical to distributed).
     #
-    hxx{version-build2}: in{version-build2} $src_root/manifest
-    hxx{version-build2}:
+    hxx{version}: in{version} $src_root/manifest
+    hxx{version}:
     {
       dist  = true
       clean = ($src_root != $out_root)
@@ -66,13 +66,6 @@
     # Installation tweaks.
     #
     install_include = [dir_path] include/odb/boost/
-
-    # We want these to be picked up whether LIBODB_BOOST_BUILD2 is defined or
-    # not.
-    #
-    hxx{version}@./:             install = false
-    hxx{version-build2}:         install = $install_include/version.hxx
-    hxx{version-build2-stub}@./: install = $install_include/version-build2.hxx
 
     details/build2/
     {

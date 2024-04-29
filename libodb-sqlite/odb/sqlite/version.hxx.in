@@ -1,9 +1,9 @@
-// file      : odb/sqlite/version-build2.hxx.in
+// file      : odb/sqlite/version.hxx.in
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef LIBODB_SQLITE_VERSION // Note: using the version macro itself.
 
-// The numeric version format is AAAAABBBBBCCCCCDDDE where:
+// New numeric version format is AAAAABBBBBCCCCCDDDE where:
 //
 // AAAAA - major version number
 // BBBBB - minor version number
@@ -22,7 +22,7 @@
 // 3.0.0-b.2    0000299999999995020
 // 2.2.0-a.1.z  0000200001999990011
 //
-#define LIBODB_SQLITE_VERSION       $libodb_sqlite.version.project_number$ULL
+#define LIBODB_SQLITE_VERSION_FULL  $libodb_sqlite.version.project_number$ULL
 #define LIBODB_SQLITE_VERSION_STR   "$libodb_sqlite.version.project$"
 #define LIBODB_SQLITE_VERSION_ID    "$libodb_sqlite.version.project_id$"
 
@@ -37,6 +37,25 @@
 
 #include <odb/version.hxx>
 
-$libodb.check(LIBODB_VERSION, LIBODB_SNAPSHOT)$
+$libodb.check(LIBODB_VERSION_FULL, LIBODB_SNAPSHOT)$
+
+
+// Old/deprecated numeric version format is AABBCCDD where:
+//
+// AA - major version number
+// BB - minor version number
+// CC - bugfix version number
+// DD - alpha / beta (DD + 50) version number
+//
+// When DD is not 00, 1 is subtracted from AABBCC. For example:
+//
+// Version     AABBCCDD
+// 2.0.0       02000000
+// 2.1.0       02010000
+// 2.1.1       02010100
+// 2.2.0.a1    02019901
+// 3.0.0.b2    02999952
+//
+#define LIBODB_SQLITE_VERSION 2049976
 
 #endif // LIBODB_SQLITE_VERSION

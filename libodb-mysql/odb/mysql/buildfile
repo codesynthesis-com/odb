@@ -10,17 +10,17 @@ import int_libs += ($client_lib == 'mysql'            \
                     ? libmysqlclient%lib{mysqlclient} \
                     : libmariadb%lib{mariadb})
 
-lib{odb-mysql}: {hxx ixx txx cxx}{* -version-build2} {hxx}{version-build2} \
-        details/{hxx ixx txx cxx}{* -options}                              \
- details/build2/{h}{*}                                                     \
+lib{odb-mysql}: {hxx ixx txx cxx}{* -version} {hxx}{version} \
+        details/{hxx ixx txx cxx}{* -options}                \
+ details/build2/{h}{*}                                       \
                 $int_libs
 
 # Include the generated version header into the distribution (so that we don't
 # pick up an installed one) and don't remove it when cleaning in src (so that
 # clean results in a state identical to distributed).
 #
-hxx{version-build2}: in{version-build2} $src_root/manifest
-hxx{version-build2}:
+hxx{version}: in{version} $src_root/manifest
+hxx{version}:
 {
   dist  = true
   clean = ($src_root != $out_root)
@@ -141,12 +141,6 @@ install_include = [dir_path] include/odb/mysql/
   install         = $install_include
   install.subdirs = true
 }
-
-# We want these to be picked up whether LIBODB_MYSQL_BUILD2 is defined or not.
-#
-hxx{version}@./:             install = false
-hxx{version-build2}:         install = $install_include/version.hxx
-hxx{version-build2-stub}@./: install = $install_include/version-build2.hxx
 
 details/build2/
 {

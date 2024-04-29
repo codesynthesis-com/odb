@@ -1,13 +1,9 @@
-// file      : odb/qt/version-build2.hxx.in
+// file      : odb/qt/version.hxx.in
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #ifndef LIBODB_QT_VERSION // Note: using the version macro itself.
 
-// @@ TODO: need to derive automatically (it is also hardcoded in *.options).
-//
-#define ODB_QT_VERSION     2047600
-
-// The numeric version format is AAAAABBBBBCCCCCDDDE where:
+// New numeric version format is AAAAABBBBBCCCCCDDDE where:
 //
 // AAAAA - major version number
 // BBBBB - minor version number
@@ -26,7 +22,7 @@
 // 3.0.0-b.2    0000299999999995020
 // 2.2.0-a.1.z  0000200001999990011
 //
-#define LIBODB_QT_VERSION       $libodb_qt.version.project_number$ULL
+#define LIBODB_QT_VERSION_FULL  $libodb_qt.version.project_number$ULL
 #define LIBODB_QT_VERSION_STR   "$libodb_qt.version.project$"
 #define LIBODB_QT_VERSION_ID    "$libodb_qt.version.project_id$"
 
@@ -42,5 +38,38 @@
 #include <odb/version.hxx>
 
 $libodb.check(LIBODB_VERSION, LIBODB_SNAPSHOT)$
+
+
+// Old/deprecated numeric version format is AABBCCDD where:
+//
+// AA - major version number
+// BB - minor version number
+// CC - bugfix version number
+// DD - alpha / beta (DD + 50) version number
+//
+// When DD is not 00, 1 is subtracted from AABBCC. For example:
+//
+// Version     AABBCCDD
+// 2.0.0       02000000
+// 2.1.0       02010000
+// 2.1.1       02010100
+// 2.2.0.a1    02019901
+// 3.0.0.b2    02999952
+//
+
+// ODB Qt interface version: odb interface version plus the Qt interface
+// version.
+//
+// NOTE: also hardcoded in *.options.
+//
+#define ODB_QT_VERSION     2047600
+#define ODB_QT_VERSION_STR "2.5.0-b.26"
+
+// libodb-qt version: odb interface version plus the bugfix version. Note
+// that LIBODB_QT_VERSION is always greater or equal to ODB_QT_VERSION
+// since if the Qt interface virsion is incremented then the bugfix version
+// must be incremented as well.
+//
+#define LIBODB_QT_VERSION 2049976
 
 #endif // LIBODB_QT_VERSION
