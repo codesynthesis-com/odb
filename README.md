@@ -62,7 +62,7 @@ bdep config link @mysql @host
 
 bdep init @sqlite -d libodb -d libodb-sqlite -d odb-tests ?sys:libsqlite3
 bdep init @pgsql -d libodb -d libodb-pgsql -d odb-tests ?sys:libpq { @host }+ ?sys:psql/*
-bdep init @mysql -d libodb -d libodb-mysql -d odb-tests ?sys:libmysqlclient { @host }+ ?sys:mysql-clent/*
+bdep init @mysql -d libodb -d libodb-mysql -d odb-tests ?sys:libmysqlclient { @host }+ ?sys:mysql-client/*
 ```
 
 You can also create a target configuration for testing multi-database
