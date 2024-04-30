@@ -1617,19 +1617,13 @@ plugin_path (path const& drv,
 #endif
 
   // Figure out the plugin base name which is just the driver name (but
-  // without the .exe extension on Windows). If the driver name starts with
-  // 'lt-', then we are running through the libtool script. Strip this prefix
-  // -- the shared object should be in the same directory.
+  // without the .exe extension on Windows).
   //
 #ifdef _WIN32
   string b (drv.leaf ().base ().string ());
 #else
   string b (drv.leaf ().string ());
 #endif
-
-  bool lt (b.size () > 3 && b[0] == 'l' && b[1] == 't' && b[2] == '-');
-  if (lt)
-    b = string (b, 3, string::npos);
 
   path dp (driver_path (drv));
 
@@ -1642,19 +1636,7 @@ plugin_path (path const& drv,
   dp = dp.directory ();
   struct stat info;
 
-  // Regardless of whether we were given a plugin path, first try
-  // the current directory for the .la file. This will make sure
-  // running ODB from the build directory works as expected.
-  //
-  // @@ BUILD2: not going to work for build2 build.
-  //
-  path pp (dp / path (b + ".la"));
-  if (stat (pp.string ().c_str (), &info) == 0)
-  {
-    pp = dp / path (".libs") / path (b + ".so");
-    if (stat (pp.string ().c_str (), &info) == 0)
-      return pp;
-  }
+  path pp;
 
 #ifdef ODB_GCC_PLUGIN_DIR
   // Plugin should be installed into the GCC default plugin directory.
@@ -1663,9 +1645,9 @@ plugin_path (path const& drv,
   // was only added in GCC 4.6 so in order to support 4.5 we will have to
   // emulate it ourselves.
   //
-  if (!lt)
+  //@@ TMP: drop this after 2.5.0 since we no longer support GCC < 5.
+  //
   {
-    //@@ BUILD2: if/when dropping old GCC should just get rid of this.
 #if 1
     // First get the default GCC plugin directory.
     //
@@ -1715,10 +1697,8 @@ plugin_path (path const& drv,
 #endif
   }
 #elif defined (ODB_PLUGIN_PATH)
-  // If we were given a plugin path, use that unless we are running
-  // via libtool.
+  // If we were given a plugin path, use that.
   //
-  if (!lt)
   {
     string rp (ODB_PLUGIN_PATH);
     if (!rp.empty ())
