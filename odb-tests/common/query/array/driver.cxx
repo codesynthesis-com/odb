@@ -143,27 +143,7 @@ main (int argc, char* argv[])
       assert (size (db->query<object> ("s = " + query::_ref (s))) == 1);
 #endif
 
-      // @@ BUILD2 Ends up with the following warning, but strangely only in the
-      //    multi-database mode:
-      //
-      // In file included from odb/odb-tests/common/query/array/test-odb.hxx:31,
-      //                  from odb/odb-tests/common/query/array/driver.cxx:20:
-      // odb/libodb/odb/query-dynamic.hxx: In instantiation of ‘odb::query_base odb::query_column<T>::operator==(const odb::query_column<T2>&) const [with T2 = char [17]; T = char [17]]’:
-      // odb/odb-tests/common/query/array/driver.cxx:144:7:   required from here
-      // odb/libodb/odb/query-dynamic.hxx:895:43: error: comparison between two arrays is deprecated in C++20 [-Werror=array-compare]
-      //   895 |       (void) (sizeof (type_instance<T> () == type_instance<T2> ()));
-      //       |                      ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~
-      // odb/libodb/odb/query-dynamic.hxx:895:43: note: use unary ‘+’ which decays operands to pointers or ‘&‘indirect_ref’ not supported by dump_decl<declaration error>[0] == &‘indirect_ref’ not supported by dump_decl<declaration error>[0]’ to compare the addresses
-      //
-      //    Looks like compile-time assertion. Doesn't make much sense for
-      //    arrays since compares pointers to objects rather than objects.
-      //    Should we somehow suppress the assertion for arrays or similar?
-      //
-      //    Note: temporarily ifndef-ed.
-      //
-#ifndef MULTI_DATABASE
       assert (size (db->query<object> (query::s == query::s1)) == 3);
-#endif
 
       // std::array
       //
