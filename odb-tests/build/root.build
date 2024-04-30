@@ -176,24 +176,6 @@ if! $skeleton
     }
   }
 
-  # @@ BUILD2 Clang issues the following warnings while compile the
-  #           odb-generated headers:
-  #
-  #    In file included from odb-tests/common/view/olv/test1-odb-sqlite.cxx:10:
-  #    odb-tests/common/view/olv/test1-odb-sqlite.hxx:68:80: warning: instantiation of variable 'odb::query_columns<test1::object1, odb::id_common, odb::access::object_traits_impl< ::test1::object1, id_common>>::id' required here, but no definition is available [-Wundefined-var-template]
-  #       68 |   id (query_columns< ::test1::object1, id_common, typename A::common_traits >::id,
-  #          |                                                                                ^
-  #    odb-tests/common/view/olv/test1-odb.hxx:91:21: note: forward declaration of template entity is here
-  #       91 |     static id_type_ id;
-  #          |                     ^
-  #    odb-tests/common/view/olv/test1-odb-sqlite.hxx:68:80: note: add an explicit instantiation declaration to suppress this warning if 'odb::query_columns<test1::object1, odb::id_common, odb::access::object_traits_impl< ::test1::object1, id_common>>::id' is explicitly instantiated in another translation unit
-  #       68 |   id (query_columns< ::test1::object1, id_common, typename A::common_traits >::id,
-  #
-  #    Note: -Wno-undefined-var-template is temporarily added to suppress them.
-  #
-  if ($cxx.id.type == 'clang')
-    cxx.coptions += -Wno-undefined-var-template
-
   # Import odb that we are testing.
   #
   import! [metadata] odb = odb%exe{odb}

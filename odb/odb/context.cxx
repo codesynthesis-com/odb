@@ -2961,8 +2961,13 @@ strlit (string const& str)
 void context::
 inst_header (bool decl, bool omit_exp)
 {
-  if (decl && !ext.empty ())
-    os << ext << " ";
+  if (decl)
+  {
+    if (!ext.empty ())
+      os << ext << " ";
+    else
+      os << "extern ";
+  }
 
   os << "template struct";
 

@@ -1031,14 +1031,30 @@ traverse (type& c)
   {
     // If we have the extern symbol, generate extern template declarations.
     //
-    if (!ext.empty ())
+    // Without a declaration of explicit template instantiation Clang issues
+    // -Wundefined-var-template. Note that extern template is only available
+    // since C++11 and this only appears to be an issue in dynamic multi-
+    // database support for id_common.
+    //
+    // Note also that this break our support for multi-file circular
+    // dependencies (see odb-tests/common/circule/multiple/).
+    //
+    if (!ext.empty () ||
+        (multi_dynamic &&
+         db == database::common &&
+         options.std () >= cxx_version::cxx11))
     {
       bool has_ptr (has_a (c, test_pointer | exclude_base));
       bool reuse_abst (abstract (c) && !polymorphic (c));
 
       if (has_ptr || !reuse_abst)
       {
-        os << "#ifdef " << ext << endl
+        const string& guard (
+          !ext.empty ()
+          ? ext
+          : make_guard ("ODB_" + db.string () + "_QUERY_COLUMNS_DEF"));
+
+        os << (!ext.empty () ? "#ifdef " : "#ifndef ") << guard << endl
            << endl;
 
         if (has_ptr)
@@ -1055,7 +1071,7 @@ traverse (type& c)
         if (!reuse_abst)
           generate_inst (c);
 
-        os << "#endif // " << ext << endl
+        os << "#endif // " << guard << endl
            << endl;
       }
     }
@@ -1128,7 +1144,7 @@ generate_inst (type& c)
   string const& type (class_fq_name (c));
 
   // Explicit template instantiations. Here is what we need to
-  // instantiate
+  // instantiate:
   //
   // 1. Reuse inheritance bases all the way to the ultimate base.
   //    Unlike poly inheritance, reuse inheritance uses the table
@@ -1216,14 +1232,25 @@ generate_decl (type& c)
   // Do it before query_columns since the inheritance will trigger
   // instantiation and we won't be able to change visibility (GCC).
   //
-  if (obj_count != 0 && multi_dynamic && !ext.empty ())
+  // See query_columns_type::traverse() for background.
+  //
+  if (obj_count != 0 && multi_dynamic &&
+      (!ext.empty () ||
+       (multi_dynamic &&
+        db == database::common &&
+        options.std () >= cxx_version::cxx11)))
   {
-    os << "#ifdef " << ext << endl
+    const string& guard (
+      !ext.empty ()
+      ? ext
+      : make_guard ("ODB_" + db.string () + "_QUERY_COLUMNS_DEF"));
+
+    os << (!ext.empty () ? "#ifdef " : "#ifndef ") << guard << endl
        << endl;
 
     generate_inst (c);
 
-    os << "#endif // " << ext << endl
+    os << "#endif // " << guard << endl
        << endl;
   }
 

@@ -1,0 +1,9 @@
+# file      : common/circular/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+./: {*/ -multiple/}
+
+# We cannot support this case in multi-database support since we need to
+# generate extern template involving classes that participate in the cycle.
+#
+./: multiple/: include = (!$multi)
