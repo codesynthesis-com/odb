@@ -35,6 +35,9 @@ odb_options = --table-prefix t_view_b_ \
               --generate-query         \
               --generate-prepared
 
+if $multi
+  odb_options += -DMULTI_DATABASE
+
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 
 # Testscript's run-time prerequisites.

@@ -721,12 +721,7 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
-      // @@ BUILD2 Also disable for DATABASE_MYSQL and DATABASE_PGSQL (see
-      //           vright definition for details).
-      //
-#if !defined(DATABASE_MYSQL)  && \
-    !defined(DATABASE_SQLITE) && \
-    !defined(DATABASE_PGSQL)
+#if !defined(DATABASE_SQLITE) && !defined(MULTI_DATABASE)
       {
         typedef odb::query<vright> query;
         typedef odb::result<vright> result;
@@ -743,12 +738,9 @@ main (int argc, char* argv[])
       }
 #endif
 
-      // @@ BUILD2 Also disable for DATABASE_PGSQL (see vfull definition for
-      //           details).
-      //
-#if !defined(DATABASE_MYSQL)  && \
-    !defined(DATABASE_SQLITE) && \
-    !defined(DATABASE_PGSQL)
+#if !defined(DATABASE_SQLITE) && \
+    !defined(DATABASE_MYSQL)  && \
+    !defined(MULTI_DATABASE)
       {
         typedef odb::query<vfull> query;
         typedef odb::result<vfull> result;

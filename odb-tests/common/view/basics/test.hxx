@@ -543,18 +543,7 @@ namespace test2
     odb::nullable<int> id2;
   };
 
-  // @@ BUILD2 Also disable for ODB_DATABASE_MYSQL and ODB_DATABASE_PGSQL,
-  //           otherwise we end up with the following error:
-  //
-  // test-odb-mysql.hxx:3202:20: error: invalid use of incomplete type ‘class odb::access::view_traits<test2::vright>’
-  // 3202 |     public access::view_traits< ::test2::vright >
-  //      |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  //
-//#if !defined(ODB_DATABASE_SQLITE) && !defined(ODB_DATABASE_COMMON)
-#if !defined(ODB_DATABASE_MYSQL)  && \
-    !defined(ODB_DATABASE_SQLITE) && \
-    !defined(ODB_DATABASE_PGSQL)  && \
-    !defined(ODB_DATABASE_COMMON)
+#if !defined(ODB_DATABASE_SQLITE) && !defined(MULTI_DATABASE)
 
   #pragma db view object(obj2 = o2) object(obj1 = o1 right: o2::n == o1::n)
   struct vright
@@ -565,22 +554,9 @@ namespace test2
 
 #endif
 
-  // @@ BUILD2 Also disable for ODB_DATABASE_PGSQL, otherwise we end up with the
-  //           following error:
-  //
-  // test-odb-pgsql.hxx:3325:20: error: invalid use of incomplete type ‘class odb::access::view_traits<test2::vfull>’
-  // 3325 |     public access::view_traits< ::test2::vfull >
-  //      |                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  //
-/*
-#if !defined(ODB_DATABASE_MYSQL) &&           \
-    !defined(ODB_DATABASE_SQLITE) &&          \
-    !defined(ODB_DATABASE_COMMON)
-*/
-#if !defined(ODB_DATABASE_MYSQL) &&  \
+#if !defined(ODB_DATABASE_MYSQL)  && \
     !defined(ODB_DATABASE_SQLITE) && \
-    !defined(ODB_DATABASE_PGSQL)  && \
-    !defined(ODB_DATABASE_COMMON)
+    !defined(MULTI_DATABASE)
 
   #pragma db view object(obj1 = o1) object(obj2 = o2 full: o1::n == o2::n)
   struct vfull
