@@ -367,15 +367,7 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
         session s;
         view2 v (db->query_value<view2> ());
-
-        // @@ BUILD2 As of cl 19.29.30136 (VS 2019 16.11.5) v.o2.o1 points to
-        //           the address of o1 member of the object being returned by
-        //           query_value<view2>() which v is a copy of, and thus the
-        //           original assertion fails. Note that changing `view2 v` to
-        //           `const view2& v` doesn't help.
-        //
-        //assert (v.o1.n == 123 && v.o2.s == "abc" && v.o2.o1 == &v.o1);
-        assert (v.o1.n == 123 && v.o2.s == "abc");
+        assert (v.o1.n == 123 && v.o2.s == "abc" && v.o2.o1 == &v.o1);
         t.commit ();
       }
 

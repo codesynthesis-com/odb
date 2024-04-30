@@ -6,6 +6,7 @@
 
 #include <string>
 #include <memory>  // shared_ptr
+#include <cassert>
 
 #include <odb/core.hxx>
 
@@ -90,6 +91,17 @@ namespace test4
 
     object1 o1;
     object2 o2;
+
+    view2 () {}
+    view2 (const view2& v)
+        : o1 (v.o1), o2 (v.o2)
+    {
+      if (v.o2.o1 != 0)
+      {
+        assert (v.o2.o1 == &v.o1);
+        o2.o1 = &o1;
+      }
+    }
   };
 
   #pragma db view object(object1) object(object2) transient
@@ -102,6 +114,17 @@ namespace test4
     object1 o1;
     object2 o2;
     bool o2_null;
+
+    view2a () {}
+    view2a (const view2a& v)
+        : o1 (v.o1), o2 (v.o2)
+    {
+      if (v.o2.o1 != 0)
+      {
+        assert (v.o2.o1 == &v.o1);
+        o2.o1 = &o1;
+      }
+    }
   };
 
   // Test loading into raw pointer with non-raw object pointer.
