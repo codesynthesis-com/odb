@@ -955,10 +955,19 @@ main (int argc, char* argv[])
             // version is a pre-release but having it always won't hurt (it
             // will be 0 for final versions).
             //
+            // After some experience with requiring the exact version match we
+            // found it just too tedious and went back to only comparing the
+            // interface version (we could support both with an option; see
+            // also similar code in generator.cxx).
+            //
             os << "#include <odb/version.hxx>" << endl
                << endl
+#if 1
+               << "#if ODB_VERSION != " << ODB_VERSION << "UL" << endl
+#else
                << "#if LIBODB_VERSION_FULL != " << ODB_COMPILER_VERSION << "ULL"
               " || LIBODB_SNAPSHOT != " << ODB_COMPILER_SNAPSHOT << "ULL" << endl
+#endif
                << "#  error incompatible ODB compiler and runtime " <<
               "versions" << endl
                << "#endif" << endl

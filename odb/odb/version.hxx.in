@@ -47,4 +47,8 @@
 //
 #define ODB_COMPILER_VERSION_OLD 2049976
 
+// ODB interface version: minor, major, and alpha/beta versions.
+//
+#define ODB_VERSION 20476
+
 #endif // ODB_COMPILER_VERSION

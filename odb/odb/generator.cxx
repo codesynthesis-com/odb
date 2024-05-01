@@ -519,8 +519,12 @@ generate (options const& ops,
       //
       hxx << "#include <odb/version.hxx>" << endl
           << endl
+#if 1
+          << "#if ODB_VERSION != " << ODB_VERSION << "UL" << endl
+#else
           << "#if LIBODB_VERSION_FULL != " << ODB_COMPILER_VERSION << "ULL || \\" << endl
           << "    LIBODB_SNAPSHOT != " << ODB_COMPILER_SNAPSHOT << "ULL" << endl
+#endif
           << "#error ODB runtime version mismatch" << endl
           << "#endif" << endl
           << endl;
