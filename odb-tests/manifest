@@ -67,19 +67,19 @@ builds: -static            ; Implementation uses plugins and requires -fPIC.
 # And they allow CI'ing odb-tests by itself (thus we specify the bot keys both
 # in libodb* and here).
 #
-custom-builds: latest
+custom-builds: latest ; Requires latest config with GCC as host compiler.
 custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-build-bot: -- see below.
 
-custom-multi-builds: latest
+custom-multi-builds: latest ; Requires latest config with GCC as host compiler.
 custom-multi-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-multi-build-bot: -- see below.
 
-custom-multi-oracle-builds: latest
+custom-multi-oracle-builds: latest ; Requires proprietary software.
 custom-multi-oracle-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-multi-oracle-build-bot: -- see below.
 
-custom-multi-mssql-builds: latest
+custom-multi-mssql-builds: latest ; Requires proprietary software.
 custom-multi-mssql-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-multi-mssql-build-bot: -- see below.
 

@@ -49,10 +49,10 @@ default-build-config:
 #
 multi-builds: all
 multi-builds: -wasm
-multi-builds: -( +windows -gcc )
-multi-builds: &gcc
-multi-builds: &gcc-5+
-multi-builds: -static
+multi-builds: -( +windows -gcc ) ; Requires MinGW GCC.
+multi-builds: &gcc               ; Requires GCC with plugin support enabled.
+multi-builds: &gcc-5+            ; Requires GCC 5 or later.
+multi-builds: -static            ; Implementation uses plugins and requires -fPIC.
 multi-build-config:
 \
 {
@@ -67,7 +67,7 @@ multi-build-config:
 
 # Complements the default configuration (see odb-tests for background).
 #
-custom-builds: latest
+custom-builds: latest ; Requires latest config with GCC as host compiler.
 custom-builds: -wasm
 custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-build-bot: -- see below.
@@ -83,7 +83,7 @@ custom-build-config:
 
 # Complements the multi configuration (see odb-tests for background).
 #
-custom-multi-builds: latest
+custom-multi-builds: latest ; Requires latest config with GCC as host compiler.
 custom-multi-builds: -wasm
 custom-multi-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-multi-build-bot: -- see below.
