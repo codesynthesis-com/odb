@@ -12,7 +12,7 @@
 
 #include <sqlite3.h>
 
-#if SQLITE_VERSION_NUMBER >= 3006012
+#if SQLITE_VERSION_NUMBER >= 3006012 && !defined(ODB_THREADS_NONE)
 #  define LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY 1
 #endif
 
