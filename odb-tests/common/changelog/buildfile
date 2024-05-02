@@ -15,8 +15,12 @@ file{odb.options}: libue{test-meta}
   pops = $cxx.lib_poptions($<[0])
   depdb hash $pops
 
+  diag poptions ($<[0]) -> $>
+
   f = $path($>[0])
   rm -f $f
+
+  touch $f
 
   for o: $pops
     echo $o >+$f
