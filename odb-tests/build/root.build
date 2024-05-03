@@ -257,7 +257,7 @@ if! $skeleton
 
   # Import the sqlplus client for creating the database schemas, etc.
   #
-  # Note: supposed to be system-installed.
+  # Note: expected to be system-installed.
   #
   if $oracle
   {
@@ -267,7 +267,7 @@ if! $skeleton
 
   # Import the sqlcmd client for creating the database schemas, etc.
   #
-  # Note: supposed to be system-installed.
+  # Note: expected to be system-installed.
   #
   if $mssql
   {

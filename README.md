@@ -70,7 +70,7 @@ bdep init @mysql -d libodb -d libodb-mysql -d odb-tests ?sys:libmysqlclient { @h
 ```
 
 Note that the client libraries and tools for Oracle and Microsoft SQL Server
-are supposed to be system-installed.
+are expected to be system-installed.
 
 You can also create a target configuration for testing multi-database
 support. For example:

@@ -6,7 +6,6 @@
 
 test.arguments += $($(db)_options)
 
-
 : basics
 :
 if! $sqlite
