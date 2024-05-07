@@ -30,10 +30,10 @@ exe{driver}: libue{test-meta} $libs
 # Specify the ODB custom options to be used by the odb_compile ad hoc rule
 # (see build/root.build for details).
 #
-odb_options = --table-prefix prepared_ \
-              --generate-schema        \
-              --generate-query         \
-              --generate-prepared      \
+odb_options = --table-prefix t_prepared_ \
+              --generate-schema          \
+              --generate-query           \
+              --generate-prepared        \
               --omit-unprepared
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"

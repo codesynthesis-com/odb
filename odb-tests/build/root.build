@@ -396,9 +396,9 @@ if! $skeleton
   test.target = $cxx.target
 }
 
-# The helper targets which can be used as prerequisites of test drivers
-# which require either a specific database client or multiple clients for
-# all the enabled databases.
+# The helper targets which can be used as prerequisites of test drivers which
+# require either a specific database client or multiple clients for all the
+# enabled databases.
 #
 alias{mysql-client}: $mysql_client:
 {

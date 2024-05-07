@@ -20,15 +20,21 @@ requires: c++11
 depends: * build2 >= 0.16.0-
 depends: * bpkg >= 0.16.0-
 
-tests: odb-tests == $ ? ($config.odb_tests.libodb_test)
+tests:    odb-tests    == $ ? ($config.odb_tests.libodb_test)
+examples: odb-examples == $ ? ($config.odb_examples.libodb_example)
 
-builds: all
+default-builds: all
 default-build-config:
 \
 {
   config.odb_tests.libodb_test=true
   config.odb_tests.database=sqlite
 }+ odb-tests
+
+{
+  config.odb_examples.libodb_example=true
+  config.odb_examples.database=sqlite
+}+ odb-examples
 \
 
 # Only build this package configuration where it can be tested via odb-tests
@@ -61,9 +67,10 @@ multi-build-config:
 }+ odb-tests
 \
 
-# Complements the default configuration (see odb-tests for background).
+# Complements the default configuration (see odb-{tests,examples} for
+# background).
 #
-custom-builds: latest ; Requires latest config with GCC as host compiler.
+custom-builds: latest  ; Requires latest config with GCC as host compiler.
 custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-build-bot: -- see below.
 custom-build-config:
@@ -72,6 +79,11 @@ custom-build-config:
   config.odb_tests.libodb_test=true
   config.odb_tests.database=sqlite
 }+ odb-tests
+
+{
+  config.odb_examples.libodb_example=true
+  config.odb_examples.database=sqlite
+}+ odb-examples
 \
 
 # Complements the multi configuration (see odb-tests for background).

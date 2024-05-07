@@ -28,6 +28,9 @@ depends: * cli ^1.2.0- ? ($config.libodb_mysql.develop)
 tests: odb-tests == $ \
   ? (!$defined(config.odb_tests.database)) config.odb_tests.database=mysql
 
+examples: odb-examples == $ \
+  ? (!$defined(config.odb_examples.database)) config.odb_examples.database=mysql
+
 # Note: common for all the build configurations.
 #
 build-auxiliary: *-mysql_*
@@ -42,6 +45,13 @@ default-build-config:
   config.odb_tests.mysql.host=$getenv(DATABASE_HOST)
   config.odb_tests.mysql.port=$getenv(DATABASE_PORT)
 }+ odb-tests
+
+{
+  config.odb_examples.mysql.user=$getenv(DATABASE_USER)
+  config.odb_examples.mysql.database=$getenv(DATABASE_NAME)
+  config.odb_examples.mysql.host=$getenv(DATABASE_HOST)
+  config.odb_examples.mysql.port=$getenv(DATABASE_PORT)
+}+ odb-examples
 \
 
 # Only build this package configuration where it can be tested via odb-tests
@@ -65,7 +75,8 @@ multi-build-config:
 }+ odb-tests
 \
 
-# Complements the default configuration (see odb-tests for background).
+# Complements the default configuration (see odb-{tests,examples} for
+# background).
 #
 custom-builds: latest ; Requires latest config with GCC as host compiler.
 custom-builds: -wasm
@@ -79,6 +90,13 @@ custom-build-config:
   config.odb_tests.mysql.host=$getenv(DATABASE_HOST)
   config.odb_tests.mysql.port=$getenv(DATABASE_PORT)
 }+ odb-tests
+
+{
+  config.odb_examples.mysql.user=$getenv(DATABASE_USER)
+  config.odb_examples.mysql.database=$getenv(DATABASE_NAME)
+  config.odb_examples.mysql.host=$getenv(DATABASE_HOST)
+  config.odb_examples.mysql.port=$getenv(DATABASE_PORT)
+}+ odb-examples
 \
 
 # Complements the multi configuration (see odb-tests for background).

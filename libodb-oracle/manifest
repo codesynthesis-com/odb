@@ -27,6 +27,9 @@ depends: * cli ^1.2.0- ? ($config.libodb_oracle.develop)
 tests: odb-tests == $ \
   ? (!$defined(config.odb_tests.database)) config.odb_tests.database=oracle
 
+examples: odb-examples == $ \
+  ? (!$defined(config.odb_examples.database)) config.odb_examples.database=oracle
+
 # Note: common for all the build configurations.
 #
 build-auxiliary: *-oracle_*
@@ -36,7 +39,8 @@ build-auxiliary: *-oracle_*
 #
 builds: none ; Requires proprietary software.
 
-# Instead of the default configuration (see odb-tests for background).
+# Instead of the default configuration (see odb-{tests,examples} for
+# background).
 #
 custom-builds: latest ; Requires proprietary software.
 custom-builds: &( +linux &gcc ) ; Only test on Linux with main compiler.
@@ -51,6 +55,14 @@ custom-build-config:
   config.odb_tests.oracle.port=$getenv(DATABASE_PORT)
   config.odb_tests.oracle.service=$getenv(DATABASE_SERVICE)
 }+ odb-tests
+
+{
+  config.odb_examples.oracle.user=$getenv(DATABASE_USER)
+  config.odb_examples.oracle.passwd=$getenv(DATABASE_PASSWORD)
+  config.odb_examples.oracle.host=$getenv(DATABASE_HOST)
+  config.odb_examples.oracle.port=$getenv(DATABASE_PORT)
+  config.odb_examples.oracle.service=$getenv(DATABASE_SERVICE)
+}+ odb-examples
 \
 
 # Instead of the multi configuration (see odb-tests for background).

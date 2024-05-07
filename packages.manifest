@@ -18,3 +18,5 @@ location: libodb-boost/
 location: libodb-qt/
 :
 location: odb-tests/
+:
+location: odb-examples/
