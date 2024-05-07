@@ -1,0 +1,44 @@
+# file      : schema/custom/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+import libodb = libodb%lib{odb}
+
+import libs = libodb-$database%lib{odb-$database}
+
+exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} {hxx ixx cxx}{employee-odb} testscript
+
+# The metadata library target which we use to extract the poptions variable
+# value for specifying the contained options on the ODB compiler command line.
+#
+libue{employee-meta}: $libodb
+
+exe{driver}: libue{employee-meta} $libs
+
+<{hxx ixx cxx}{employee-odb}>: hxx{employee} libue{employee-meta} $odb
+{{
+  pops = $cxx.lib_poptions($<[1])
+  depdb hash $pops
+
+  depdb dyndep --dyn-target --target-what 'generated schema' --format lines \
+  -- echo ($sqlite ? '' : "$out_base/employee.sql")
+
+  $odb --std c++11                       \
+       --database $database              \
+       --generate-schema                 \
+       --generate-query                  \
+       --default-pointer std::shared_ptr \
+       --output-dir $out_base            \
+       "-I$src_base" $pops               \
+       $path($<[0])
+}}
+
+cxx.poptions =+ "-I$out_base" "-I$src_base" -DDATABASE_$ucase($database)
+
+# Testscript's run-time prerequisites.
+#
+# @@ BUILD2: Eventually we should be able to mark it as test.input once
+#    this is supported for testscript tests.
+#
+exe{driver}: ../../alias{database-client}: include = adhoc
+
+testscript@./: schema = employee

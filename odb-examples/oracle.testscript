@@ -1,0 +1,12 @@
+# file      : oracle.testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# Create the Oracle database schema creation canned command and setup the
+# example driver command line for the subsequent examples.
+#
+.include oracle-schema.testscript
+
+schema_file   = [path] $out_base/"$schema".sql
+create_schema = [cmdline] $create_schema_cmd "@$schema_file"
+
+test.arguments += $oracle_options

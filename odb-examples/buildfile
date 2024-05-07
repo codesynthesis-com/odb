@@ -1,0 +1,6 @@
+# file      : buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+./: {*/ -build/ -boost/ -qt/} doc{README.md} legal{GPLv2 LICENSE} manifest
+
+./: testscript{*}: include = adhoc

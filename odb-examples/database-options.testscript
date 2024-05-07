@@ -1,0 +1,148 @@
+# file      : database-options.testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# For the enabled databases create the example driver option lists (*_options)
+# for subsequent use in the examples. Also create the database-specific client
+# option lists (*_client_options) and command lines (*_client_cmd) which can
+# be used as a base for the data manipulation commands.
+#
++if $mysql
+   mysql_options = --user $config.odb_examples.mysql.user \
+                   --database $config.odb_examples.mysql.database
+
+   mysql_client_options = --user $config.odb_examples.mysql.user \
+                          --database $config.odb_examples.mysql.database
+
+   if $defined(config.odb_examples.mysql.passwd)
+     mysql_options        += --password $config.odb_examples.mysql.passwd
+     mysql_client_options += --password=$config.odb_examples.mysql.passwd
+   end
+
+   if $defined(config.odb_examples.mysql.host)
+     mysql_options        += --host $config.odb_examples.mysql.host
+     mysql_client_options += --host $config.odb_examples.mysql.host
+   end
+
+   if $defined(config.odb_examples.mysql.port)
+     mysql_options        += --port $config.odb_examples.mysql.port
+     mysql_client_options += --port $config.odb_examples.mysql.port
+   end
+
+   if $defined(config.odb_examples.mysql.socket)
+     mysql_options        += --socket $config.odb_examples.mysql.socket
+     mysql_client_options += --socket $config.odb_examples.mysql.socket
+   end
+
+   mysql_client_cmd = $path($mysql_client) $mysql_client_options
+end
+
++if $sqlite
+  sqlite_options = --database odb-test.db
+
+  # Note that we currently don't manipulate the data using the sqlite3
+  # utility. Thus, we don't create the sqlite client option list and command
+  # line.
+  #
+end
+
++if $pgsql
+   pgsql_options = --user $config.odb_examples.pgsql.user \
+                   --database $config.odb_examples.pgsql.database
+
+   pgsql_client_options = --quiet \
+                          --set ON_ERROR_STOP=1 \
+                          --username $config.odb_examples.pgsql.user \
+                          --dbname $config.odb_examples.pgsql.database
+
+  if $defined(config.odb_examples.pgsql.host)
+    pgsql_options        += --host $config.odb_examples.pgsql.host
+    pgsql_client_options += --host $config.odb_examples.pgsql.host
+  end
+
+  if $defined(config.odb_examples.pgsql.port)
+    pgsql_options        += --port $config.odb_examples.pgsql.port
+    pgsql_client_options += --port $config.odb_examples.pgsql.port
+  end
+
+  pgsql_client_cmd = $path($pgsql_client) $pgsql_client_options
+
+  export PGOPTIONS=--client-min-messages=warning
+end
+
++if $oracle
+   oracle_options = --user $config.odb_examples.oracle.user
+
+   oracle_client_options = -L -S
+   oracle_logon = $config.odb_examples.oracle.user
+
+   if $defined(config.odb_examples.oracle.passwd)
+     oracle_options += --password $config.odb_examples.oracle.passwd
+     oracle_logon = "$oracle_logon/$config.odb_examples.oracle.passwd"
+   end
+
+   if ($defined(config.odb_examples.oracle.host) || \
+       $defined(config.odb_examples.oracle.port))
+     if $defined(config.odb_examples.oracle.host)
+       oracle_options += --host $config.odb_examples.oracle.host
+       oracle_logon = "$oracle_logon@//$config.odb_examples.oracle.host"
+     else
+       oracle_logon = "$oracle_logon@//localhost"
+     end
+
+     if $defined(config.odb_examples.oracle.port)
+       oracle_options += --port $config.odb_examples.oracle.port
+       oracle_logon = "$oracle_logon:$config.odb_examples.oracle.port"
+     end
+
+     if $defined(config.odb_examples.oracle.service)
+       oracle_options += --service $config.odb_examples.oracle.service
+       oracle_logon = "$oracle_logon/$config.odb_examples.oracle.service"
+     end
+   elif $defined(config.odb_examples.oracle.service)
+     oracle_options += --service $config.odb_examples.oracle.service
+     oracle_logon = "$oracle_logon@$config.odb_examples.oracle.service"
+   end
+
+   oracle_client_cmd = $path($oracle_client) $oracle_client_options $oracle_logon
+end
+
++if $mssql
+   mssql_options = --user $config.odb_examples.mssql.user \
+                   --database $config.odb_examples.mssql.database
+
+   mssql_client_options = -C -x -r 1 -b \
+                          -U $config.odb_examples.mssql.user \
+                          -d $config.odb_examples.mssql.database
+
+   if $defined(config.odb_examples.mssql.passwd)
+     mssql_options        += --password $config.odb_examples.mssql.passwd
+     mssql_client_options += -P $config.odb_examples.mssql.passwd
+   end
+
+   if ($defined(config.odb_examples.mssql.host) || \
+       $defined(config.odb_examples.mssql.port))
+     mssql_server = \
+       "tcp:($defined(config.odb_examples.mssql.host) ? $config.odb_examples.mssql.host : localhost)"
+
+     if $defined(config.odb_examples.mssql.port)
+       mssql_server = "$mssql_server,$config.odb_examples.mssql.port"
+     end
+   elif $defined(config.odb_examples.mssql.server)
+     mssql_server = $config.odb_examples.mssql.server
+   else
+     mssql_server = [null]
+   end
+
+   if ($mssql_server != [null])
+     mssql_options        += --server $mssql_server
+     mssql_client_options += -S $mssql_server
+   end
+
+   if ($defined(config.odb_examples.mssql.driver)  && \
+       $config.odb_examples.mssql.driver != [null] && \
+       $config.odb_examples.mssql.driver != '')
+     mssql_options += --driver $config.odb_examples.mssql.driver
+   end
+
+   mssql_client_cmd = $path($mssql_client) $mssql_client_options
+end

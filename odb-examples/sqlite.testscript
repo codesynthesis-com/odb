@@ -1,0 +1,10 @@
+# file      : sqlite.testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# Setup the example driver command line for the subsequent SQLite examples.
+#
+# Note that for SQLite the schema is created implicitly by the database object
+# creation function called by the test driver.
+#
+test.arguments += $sqlite_options
+test.cleanups  += &odb-test.db # See database-options.testscript for details.

@@ -1,0 +1,6 @@
+# file      : pgsql-schema.testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# Create the PostgreSQL database schema creation canned command base.
+#
+create_schema_cmd = [cmdline] $pgsql_client_cmd

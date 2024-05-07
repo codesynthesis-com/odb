@@ -1,0 +1,13 @@
+# file      : prepared/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../database-options.testscript
+.include ../$(database).testscript
+
++if! $sqlite
+  $create_schema
+end
+
+: basics
+:
+$* >|
