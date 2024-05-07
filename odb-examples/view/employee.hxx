@@ -5,7 +5,7 @@
 #define EMPLOYEE_HXX
 
 #include <string>
-#include <memory>  // shared_ptr
+#include <memory>  // std::shared_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/core.hxx>

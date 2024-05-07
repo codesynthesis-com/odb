@@ -26,7 +26,7 @@ employee.sql
 
   The --generate-session option is used to enable session support for all
   the persistent classes in employee.hxx. The --default-pointer option is
-  used to make shared_ptr the default object pointer.
+  used to make std::shared_ptr the default object pointer.
 
 database.hxx
   Contains the create_database() function which instantiates the concrete

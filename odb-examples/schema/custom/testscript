@@ -2,10 +2,11 @@
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 .include ../../database-options.testscript
-.include ../../$(database).testscript
 
-+if! $sqlite
-  $create_schema
+test.arguments += $($(database)_options)
+
++if $sqlite
+  test.cleanups += &odb-test.db
 end
 
 : basics

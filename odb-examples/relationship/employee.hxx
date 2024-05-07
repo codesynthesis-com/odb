@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <string>
-#include <memory> // shared_ptr
+#include <memory> // std::shared_ptr
 
 #include <odb/core.hxx>
 

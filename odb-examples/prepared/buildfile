@@ -5,10 +5,11 @@ import libodb = libodb%lib{odb}
 
 import libs = libodb-$database%lib{odb-$database}
 
-exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} {hxx ixx cxx}{person-odb} testscript
+exe{driver}: {hxx cxx}{* -person-odb} {hxx ixx cxx}{person-odb} testscript
 
 # The metadata library target which we use to extract the poptions variable
-# value for specifying the contained options on the ODB compiler command line.
+# value for specifying the preprocessor options (-I, etc) on the ODB compiler
+# command line.
 #
 libue{person-meta}: $libodb
 

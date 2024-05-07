@@ -29,9 +29,9 @@ employee.sql
   Where <database> stands for the database system we are using, for example,
   'mysql'.
 
-  The --default-pointer option is used to make shared_ptr the default object
-  pointer. The --generate-session option is used to enable session support
-  for all the objects which is required to use object loading views.
+  The --default-pointer option is used to make std::shared_ptr the default
+  object pointer. The --generate-session option is used to enable session
+  support for all the objects which is required to use object loading views.
 
 database.hxx
   Contains the create_database() function which instantiates the concrete
