@@ -1,0 +1,9 @@
+# file      : schema/embedded/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+.include ../../$(database).testscript
+
+: basics
+:
+$* >|

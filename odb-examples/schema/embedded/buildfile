@@ -1,0 +1,42 @@
+# file      : schema/embedded/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+import libodb = libodb%lib{odb}
+
+import libs = libodb-$database%lib{odb-$database}
+
+exe{driver}: {hxx cxx}{* -*-odb -*-odb-*} {hxx ixx cxx}{person-odb} testscript
+
+# The metadata library target which we use to extract the poptions variable
+# value for specifying the contained options on the ODB compiler command line.
+#
+libue{person-meta}: $libodb
+
+exe{driver}: libue{person-meta} $libs
+
+<{hxx ixx cxx}{person-odb}>: hxx{person} libue{person-meta} $odb
+{{
+  pops = $cxx.lib_poptions($<[1])
+  depdb hash $pops
+
+  $odb --std c++11                     \
+       --database $database            \
+       --generate-schema               \
+       --schema-format embedded        \
+       --generate-query                \
+       --output-dir $out_base          \
+       --table-prefix schema_embedded_ \
+       "-I$src_base" $pops             \
+       $path($<[0])
+}}
+
+cxx.poptions =+ "-I$out_base" "-I$src_base" -DDATABASE_$ucase($database)
+
+# Testscript's run-time prerequisites.
+#
+# @@ BUILD2: Eventually we should be able to mark it as test.input once
+#    this is supported for testscript tests.
+#
+exe{driver}: ../../alias{database-client}: include = adhoc
+
+testscript@./: schema = person

@@ -1,0 +1,12 @@
+# file      : mssql.testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# Create the Microsoft SQL Server database schema creation canned command and
+# setup the example driver command line for the subsequent examples.
+#
+.include mssql-schema.testscript
+
+schema_file   = [path] $out_base/"$schema".sql
+create_schema = [cmdline] $create_schema_cmd -i $schema_file
+
+test.arguments += $mssql_options

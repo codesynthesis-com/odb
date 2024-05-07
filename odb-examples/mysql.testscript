@@ -1,0 +1,12 @@
+# file      : mysql.testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+# Create the MySQL database schema creation canned command and setup the
+# example driver command line for the subsequent examples.
+#
+.include mysql-schema.testscript
+
+schema_file   = [path] $out_base/"$schema".sql
+create_schema = [cmdline] cat "'""$schema_file""'" | $create_schema_cmd
+
+test.arguments += $mysql_options
