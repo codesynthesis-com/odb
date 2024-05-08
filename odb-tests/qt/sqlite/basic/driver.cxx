@@ -4,7 +4,7 @@
 // Test Qt basic type persistence. SQLite version.
 //
 
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
 #include <cassert>
 #include <iostream>
 
@@ -13,10 +13,13 @@
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -28,7 +31,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     object o;
     o.str = QString::fromUtf8 ("Constantin Micha\xC3\x88l");
@@ -46,7 +49,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<object> p (db->load<object> (o.str));
+      unique_ptr<object> p (db->load<object> (o.str));
       t.commit ();
 
       assert (*p == o);

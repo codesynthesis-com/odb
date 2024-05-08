@@ -7,7 +7,6 @@
 #include <QtCore/QString>
 #include <QtCore/QVector>
 #include <QtCore/QList>
-#include <QtCore/QLinkedList>
 #include <QtCore/QSet>
 #include <QtCore/QMap>
 #include <QtCore/QMultiMap>
@@ -19,7 +18,7 @@
 #pragma db value
 struct comp
 {
-  comp () {}
+  comp (): num (0) {}
   comp (int n, const QString& s) : num (n), str (s) {}
 
   #pragma db column("number")
@@ -46,10 +45,6 @@ typedef QVector<comp> comp_vector;
 typedef QList<int> num_list;
 typedef QList<QString> str_list;
 typedef QList<comp> comp_list;
-
-typedef QLinkedList<int> num_linked_list;
-typedef QLinkedList<QString> str_linked_list;
-typedef QLinkedList<comp> comp_linked_list;
 
 typedef QSet<int> num_set;
 typedef QSet<QString> str_set;
@@ -125,12 +120,6 @@ struct object
   num_list nl;
   comp_list cl;
 
-  // linked list
-  //
-  str_linked_list sll;
-  num_linked_list nll;
-  comp_linked_list cll;
-
   // set
   //
   num_set ns;
@@ -193,10 +182,6 @@ operator== (const object& x, const object& y)
     x.sl == y.sl &&
     x.nl == y.nl &&
     x.cl == y.cl &&
-
-    x.nll == y.nll &&
-    x.sll == y.sll &&
-    x.cll == y.cll &&
 
     x.ns == y.ns &&
     x.ss == y.ss &&

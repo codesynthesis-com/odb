@@ -88,6 +88,27 @@ assert ($skeleton || $multi || $size($databases) == 1) \
 #
 config [bool] config.odb_tests.libodb_test ?= false
 
+# If true, then build and run the boost/* tests.
+#
+config [bool] config.odb_tests.boost ?= false
+
+boost = $config.odb_tests.boost
+
+# If defined, then, depending on the value, build and run the qt/* tests
+# against Qt5 (5) or Qt6 (6).
+#
+config [uint64] config.odb_tests.qt
+
+qt = $defined(config.odb_tests.qt)
+
+if $qt
+{
+  qt_ver = $config.odb_tests.qt
+
+  assert ($qt_ver == 5 || $qt_ver == 6) \
+    'config.odb_tests.qt value must be between 5 and 6'
+}
+
 # Database connections.
 #
 
@@ -336,11 +357,13 @@ if! $skeleton
           : '')
 
     # If the object model change log and/or migration SQL files will be
-    # generated, then add them as a dynamic target group member.
+    # generated, then add them as a dynamic target group member. While at it,
+    # check if the --std options is specified.
     #
     changelog = ''
     init_changelog = false
     suppress_migration = false
+    std = false
 
     for o: $odb_options
       if ($o == '--changelog')
@@ -351,6 +374,8 @@ if! $skeleton
         init_changelog = true
       elif ($o == '--suppress-migration')
         suppress_migration = true
+      elif ($o == '--std')
+        std = true
       end
     end
 
@@ -377,7 +402,7 @@ if! $skeleton
     depdb dyndep --dyn-target --target-what 'generated schema' --format lines \
     -- echo "$ts"
 
-    $odb --std c++11                            \
+    $odb (!$std ? --std c++11 : )               \
          ($multi ? --multi-database dynamic : ) \
          --database $db                         \
          --output-dir $out_base                 \

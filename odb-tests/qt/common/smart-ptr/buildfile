@@ -1,0 +1,51 @@
+# file      : qt/common/smart-ptr/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+if ($build.meta_operation != 'dist')
+{
+  assert ($qt) \
+    "Qt version should be configured for this test via config.odb_tests.qt variable"
+}
+
+import meta_libs  = libodb%lib{odb}
+import meta_libs += libodb-qt%lib{odb-qt}
+import meta_libs += "libQt$(qt_ver)Core"%lib{"Qt$(qt_ver)Core"}
+
+libs =
+
+for db: $databases
+  import libs += libodb-$db%lib{odb-$db}
+
+import libs += lib{common}
+
+exe{driver}: {hxx cxx}{* -test-odb -test-odb-*} {hxx ixx cxx}{test-odb} testscript
+
+# Introduce the metadata library target to make sure the libodb library is
+# resolved for the odb_compile ad hoc rule (see build/root.build for details).
+#
+libue{test-meta}: $meta_libs
+
+<{hxx ixx cxx}{test-odb}>: hxx{test} libue{test-meta}
+
+for db: $databases
+{
+  exe{driver}: {hxx ixx cxx}{test-odb-$db}: include = $multi
+  <{hxx ixx cxx}{test-odb-$db}>: hxx{test} libue{test-meta}
+}
+
+exe{driver}: libue{test-meta} $libs
+
+# Specify the ODB custom options to be used by the odb_compile ad hoc rule
+# (see build/root.build for details).
+#
+odb_options = --std ($qt_ver == 5 ? c++11 : c++17) \
+              --table-prefix qt_smart_ptr_         \
+              --profile qt/smart-ptr               \
+              --generate-schema                    \
+              --generate-session
+
+cxx.poptions =+ "-I$out_base" "-I$src_base"
+
+# Testscript's run-time prerequisites.
+#
+exe{driver}: ../../../alias{database-client}: include = adhoc

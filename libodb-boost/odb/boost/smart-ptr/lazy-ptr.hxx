@@ -6,7 +6,7 @@
 
 #include <odb/pre.hxx>
 
-#include <memory> // std::auto_ptr
+#include <memory> // std::unique_ptr, std::auto_ptr
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -41,13 +41,23 @@ namespace odb
       lazy_shared_ptr (const lazy_shared_ptr&);
       template <class Y> lazy_shared_ptr (const lazy_shared_ptr<Y>&);
       template <class Y> explicit lazy_shared_ptr (const lazy_weak_ptr<Y>&);
+
+#ifdef ODB_CXX11
+      template <class Y> explicit lazy_shared_ptr (std::unique_ptr<Y>&&);
+#else
       template <class Y> explicit lazy_shared_ptr (std::auto_ptr<Y>&);
+#endif
 
       ~lazy_shared_ptr ();
 
       lazy_shared_ptr& operator= (const lazy_shared_ptr&);
       template <class Y> lazy_shared_ptr& operator= (const lazy_shared_ptr<Y>&);
+
+#ifdef ODB_CXX11
+      template <class Y> lazy_shared_ptr& operator= (std::unique_ptr<Y>&&);
+#else
       template <class Y> lazy_shared_ptr& operator= (std::auto_ptr<Y>&);
+#endif
 
       void swap (lazy_shared_ptr&);
       void reset ();
@@ -106,7 +116,13 @@ namespace odb
       template <class DB, class Y> lazy_shared_ptr (DB&, Y*);
       template <class DB, class Y, class D> lazy_shared_ptr (DB&, Y*, D);
       template <class DB, class Y, class D, class A> lazy_shared_ptr (DB&, Y*, D, A);
+
+#ifdef ODB_CXX11
+      template <class DB, class Y> lazy_shared_ptr (DB&, std::unique_ptr<Y>&&);
+#else
       template <class DB, class Y> lazy_shared_ptr (DB&, std::auto_ptr<Y>&);
+#endif
+
       template <class DB, class Y> lazy_shared_ptr (DB&, const ::boost::shared_ptr<Y>&);
       template <class DB, class Y> lazy_shared_ptr (DB&, const ::boost::weak_ptr<Y>&);
 
@@ -114,7 +130,13 @@ namespace odb
       template <class DB, class Y> void reset (DB&, Y*);
       template <class DB, class Y, class D> void reset (DB&, Y*, D);
       template <class DB, class Y, class D, class A> void reset (DB&, Y*, D, A);
+
+#ifdef ODB_CXX11
+      template <class DB, class Y> void reset (DB&, std::unique_ptr<Y>&&);
+#else
       template <class DB, class Y> void reset (DB&, std::auto_ptr<Y>&);
+#endif
+
       template <class DB, class Y> void reset (DB&, const ::boost::shared_ptr<Y>&);
 
 #ifdef ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT

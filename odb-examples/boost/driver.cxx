@@ -1,7 +1,7 @@
 // file      : boost/driver.cxx
 // copyright : not copyrighted - public domain
 
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <boost/uuid/uuid_io.hpp>
@@ -26,7 +26,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Create a few persistent objects.
     //

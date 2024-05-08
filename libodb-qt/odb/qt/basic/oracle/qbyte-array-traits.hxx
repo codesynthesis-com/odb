@@ -118,9 +118,8 @@ namespace odb
         case chunk_first:
           {
             v.clear ();
-
-            // Falling through.
           }
+          // Fall through.
         case chunk_next:
         case chunk_last:
           {

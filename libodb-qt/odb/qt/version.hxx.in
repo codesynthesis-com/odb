@@ -37,8 +37,7 @@
 
 #include <odb/version.hxx>
 
-$libodb.check(LIBODB_VERSION, LIBODB_SNAPSHOT)$
-
+$libodb.check(LIBODB_VERSION_FULL, LIBODB_SNAPSHOT)$
 
 // Old/deprecated numeric version format is AABBCCDD where:
 //

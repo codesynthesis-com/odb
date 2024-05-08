@@ -4,8 +4,7 @@
 // Test Qt smart pointers.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <QtCore/QSharedPointer>
@@ -15,10 +14,13 @@
 #include <odb/session.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -36,7 +38,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     QSharedPointer<cont> c1 (new cont (1));
     QSharedPointer<cont> c2 (new cont (2));

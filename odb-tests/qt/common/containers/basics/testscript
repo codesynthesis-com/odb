@@ -1,0 +1,53 @@
+# file      : qt/common/containers/basics/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../../../database-options.testscript
+
+: mysql
+:
+if $mysql
+{
+  .include ../../../../mysql.testscript
+
+  $create_schema;
+  $*
+}
+
+: sqlite
+:
+if $sqlite
+{
+  .include ../../../../sqlite.testscript
+
+  $*
+}
+
+: pgsql
+:
+if $pgsql
+{
+  .include ../../../../pgsql.testscript
+
+  $create_schema;
+  $*
+}
+
+: oracle
+:
+if $oracle
+{
+  .include ../../../../oracle.testscript
+
+  $create_schema;
+  $*
+}
+
+: mssql
+:
+if $mssql
+{
+  .include ../../../../mssql.testscript
+
+  $create_schema;
+  $*
+}

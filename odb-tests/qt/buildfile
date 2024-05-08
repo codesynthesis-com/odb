@@ -1,0 +1,10 @@
+# file      : qt/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+./: common/
+
+./: mysql/:  include = ($mysql  && !$multi)
+./: sqlite/: include = ($sqlite && !$multi)
+./: pgsql/:  include = ($pgsql  && !$multi)
+./: oracle/: include = ($oracle && !$multi)
+./: mssql/:  include = ($mssql  && !$multi)

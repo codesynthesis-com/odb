@@ -4,15 +4,11 @@
 // Test change-tracking Qt containers.
 //
 
-#include <common/config.hxx> // HAVE_CXX11
-
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
+#include <utility>  // std::move
 #include <cassert>
 #include <iostream>
 
-#ifdef HAVE_CXX11
-#  include <utility> // std::move
-#endif
 
 #include <QtCore/QtGlobal> // QT_VERSION, Q_FOREACH
 #include <QtCore/QCoreApplication>
@@ -24,10 +20,13 @@
 #include <odb/qt/list-iterator.hxx>
 #include <odb/qt/mutable-list-iterator.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -115,7 +114,7 @@ main (int argc, char* argv[])
         cerr << i;
     }
 
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Test traits logic.
     //
@@ -140,11 +139,7 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-#ifdef HAVE_CXX11
         unique_ptr<object> p (db->load<object> ("1"));
-#else
-        auto_ptr<object> p (db->load<object> ("1"));
-#endif
         assert (p->s._tracking ());
         t.commit ();
       }
@@ -532,12 +527,7 @@ main (int argc, char* argv[])
     //
     {
 
-#ifdef HAVE_CXX11
       unique_ptr<object> c;
-#else
-      auto_ptr<object> c;
-#endif
-
 
       {
         o.s.pop_back ();
@@ -602,7 +592,6 @@ main (int argc, char* argv[])
 
     // Armed move.
     //
-#ifdef HAVE_CXX11
     {
       unique_ptr<object> c;
 
@@ -633,7 +622,6 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
-#endif
   }
   catch (const odb::exception& e)
   {

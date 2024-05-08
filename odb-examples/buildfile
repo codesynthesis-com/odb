@@ -3,4 +3,7 @@
 
 ./: {*/ -build/ -boost/ -qt/} doc{README.md} legal{GPLv2 LICENSE} manifest
 
+./: boost/: include = $boost
+./: qt/:    include = $qt
+
 ./: testscript{*}: include = adhoc

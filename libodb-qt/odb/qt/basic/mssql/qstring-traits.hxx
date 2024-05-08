@@ -93,7 +93,7 @@ namespace odb
           // overload was only added in Qt 4.7.
           //
           v.resize (static_cast<int> (n));
-          std::memcpy (v.data (), b, n * 2);
+          std::memcpy (static_cast<void*> (v.data ()), b, n * 2);
         }
       }
 

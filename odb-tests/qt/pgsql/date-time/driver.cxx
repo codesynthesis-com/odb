@@ -4,8 +4,7 @@
 // Test Qt date/time type persistence. PostgreSQL version.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <QtCore/QDateTime>
@@ -14,10 +13,13 @@
 #include <odb/pgsql/database.hxx>
 #include <odb/pgsql/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -32,7 +34,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Check persistence of null values.
     //
@@ -47,7 +49,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> ol (db->load<object> (o.id));
+        unique_ptr<object> ol (db->load<object> (o.id));
         t.commit ();
 
         assert (ol->is_null ());
@@ -72,7 +74,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> ol (db->load<object> (o.id));
+        unique_ptr<object> ol (db->load<object> (o.id));
         t.commit ();
 
         assert (*ol == o);
@@ -93,7 +95,7 @@ main (int argc, char* argv[])
 
       {
         transaction t (db->begin ());
-        auto_ptr<object> ol (db->load<object> (o.id));
+        unique_ptr<object> ol (db->load<object> (o.id));
         t.commit ();
 
         assert (*ol == o);

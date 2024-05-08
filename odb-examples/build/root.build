@@ -68,6 +68,27 @@ switch $database
 #
 config [bool] config.odb_examples.libodb_example ?= false
 
+# If true, then build the boost/ example.
+#
+config [bool] config.odb_examples.boost ?= false
+
+boost = $config.odb_examples.boost
+
+# If defined, then, depending on the value, build the qt/ example against Qt5
+# (5) or Qt6 (6).
+#
+config [uint64] config.odb_examples.qt
+
+qt = $defined(config.odb_examples.qt)
+
+if $qt
+{
+  qt_ver = $config.odb_examples.qt
+
+  assert ($qt_ver == 5 || $qt_ver == 6) \
+    'config.odb_examples.qt value must be between 5 and 6'
+}
+
 # Database connections.
 #
 

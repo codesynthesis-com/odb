@@ -4,8 +4,7 @@
 // Test Boost UUID persistence.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <boost/uuid/uuid_generators.hpp>
@@ -13,10 +12,13 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace boost::uuids;
@@ -27,7 +29,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     object o (1);
     o.uuid_ = random_generator() ();
@@ -42,7 +44,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object> p (db->load<object> (o.id_));
+      unique_ptr<object> p (db->load<object> (o.id_));
       t.commit ();
 
       assert (*p == o);

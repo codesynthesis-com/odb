@@ -4,17 +4,19 @@
 // Test Boost unordered containers persistence.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -24,7 +26,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     for (unsigned short i (0); i < 2; ++i)
     {
@@ -118,9 +120,9 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> e (db->load<object> ("empty"));
-        auto_ptr<object> m (db->load<object> ("medium"));
-        auto_ptr<object> f (db->load<object> ("full"));
+        unique_ptr<object> e (db->load<object> ("empty"));
+        unique_ptr<object> m (db->load<object> ("medium"));
+        unique_ptr<object> f (db->load<object> ("full"));
         t.commit ();
 
         assert (empty == *e);
@@ -182,9 +184,9 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> e (db->load<object> ("empty"));
-        auto_ptr<object> m (db->load<object> ("medium"));
-        auto_ptr<object> f (db->load<object> ("full"));
+        unique_ptr<object> e (db->load<object> ("empty"));
+        unique_ptr<object> m (db->load<object> ("medium"));
+        unique_ptr<object> f (db->load<object> ("full"));
         t.commit ();
 
         assert (empty == *e);

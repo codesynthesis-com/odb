@@ -4,8 +4,7 @@
 // Test boost date/time type persistence. SQL Server version.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/boost/date-time/exceptions.hxx>
@@ -13,10 +12,13 @@
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 
@@ -26,17 +28,17 @@ using namespace boost::posix_time;
 using namespace odb::core;
 
 bool
-test_invalid_special_value (object&, auto_ptr<database>&);
+test_invalid_special_value (object&, unique_ptr<database>&);
 
 bool
-test_out_of_range_value (object&, auto_ptr<database>&);
+test_out_of_range_value (object&, unique_ptr<database>&);
 
 int
 main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     object o;
 
@@ -77,7 +79,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object> ol (db->load<object> (o.id));
+      unique_ptr<object> ol (db->load<object> (o.id));
       t.commit ();
 
       assert (*ol == o);
@@ -143,7 +145,7 @@ main (int argc, char* argv[])
 }
 
 bool
-test_invalid_special_value (object& x, auto_ptr<database>& db)
+test_invalid_special_value (object& x, unique_ptr<database>& db)
 {
   try
   {

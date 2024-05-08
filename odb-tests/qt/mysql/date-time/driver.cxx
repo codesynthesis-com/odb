@@ -4,8 +4,7 @@
 // Test Qt date/time type persistence. MySQL version.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <QtCore/QDateTime>
@@ -14,10 +13,13 @@
 #include <odb/mysql/database.hxx>
 #include <odb/mysql/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -32,7 +34,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     mysql_version v;
     {
@@ -73,7 +75,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object> ol (db->load<object> (o.id));
+      unique_ptr<object> ol (db->load<object> (o.id));
       t.commit ();
 
       assert (ol->is_null ());
@@ -106,7 +108,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object> ol (db->load<object> (o.id));
+      unique_ptr<object> ol (db->load<object> (o.id));
       t.commit ();
 
       assert (*ol == o);
@@ -134,7 +136,7 @@ main (int argc, char* argv[])
       //
       object or1, or2;
       or1.date_time = QDateTime (QDate (999, 12, 31), QTime (23, 59, 59));
-      or2.date_time = QDateTime (QDate (10000, 1, 1));
+      or2.date_time = QDateTime (QDate (10000, 1, 1), QTime (0, 0, 0));
 
       transaction t (db->begin ());
       assert (test_out_of_range_value (or1, *db));
@@ -146,7 +148,7 @@ main (int argc, char* argv[])
       // Test out of range timestamps.
       //
       object or1, or2;
-      or1.timestamp = QDateTime (QDate (1970, 1, 1));
+      or1.timestamp = QDateTime (QDate (1970, 1, 1), QTime (0, 0, 0));
       or2.timestamp = QDateTime (QDate (2038, 1, 19), QTime (3, 14, 8));
 
       transaction t (db->begin ());

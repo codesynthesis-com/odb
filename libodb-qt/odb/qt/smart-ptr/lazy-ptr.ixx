@@ -420,7 +420,7 @@ template <class T>
 inline T* QLazyWeakPointer<T>::
 data () const
 {
-  return p_.data ();
+  return p_.toStrongRef ().data ();
 }
 
 template <class T>

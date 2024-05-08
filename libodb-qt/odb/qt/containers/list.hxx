@@ -7,6 +7,8 @@
 #include <odb/pre.hxx>
 #include <odb/details/config.hxx> // ODB_CXX11
 
+#include <list>
+
 #include <QtCore/QtGlobal> // QT_VERSION
 #include <QtCore/QList>
 
@@ -67,9 +69,14 @@ public:
 
   int size() const {return l_.size ();}
   void detach() {l_.detach ();}
+
+#if QT_VERSION < 0x060000
   void detachShared() {l_.detachShared ();}
-  bool isDetached() const {return l_.isDetached ();}
+
   void setSharable(bool sharable) {l_.setSharable (sharable);}
+#endif
+
+  bool isDetached() const {return l_.isDetached ();}
   // Implicit conversion.
   bool isSharedWith(const QList<T> &x) const {return l_.isSharedWith (x);}
   bool isEmpty() const {return l_.isEmpty ();}
@@ -178,16 +185,16 @@ public:
   QOdbList &operator<<(const QList<T> &l) {append (l); return *this;}
 
   QVector<T> toVector() const {return l_.toVector ();}
-  QSet<T> toSet() const {return l_.toSet ();}
+  QSet<T> toSet() const {return QSet<T> (l_.begin(), l_.end());}
 
   static QOdbList fromVector(const QVector<T> &v)
   {return base_list_type::fromVector (v);}
   static QOdbList fromSet(const QSet<T> &s)
-  {return base_list_type::fromSet (s);}
+  {return base_list_type (s.begin (), s.end ());}
 
   static QOdbList fromStdList(const std::list<T> &l)
-  {return base_list_type::fromStdList (l);}
-  std::list<T> toStdList() const {return l_.toStdList ();}
+  {return base_list_type (l.begin (), l.end ());}
+  std::list<T> toStdList() const {return std::list<T> (l_.begin(), l_.end());}
 
   // Interfacing with the base list.
   //

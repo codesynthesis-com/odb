@@ -211,7 +211,7 @@ template <typename T>
 inline void QOdbList<T>::
 swap (int i, int j)
 {
-  l_.swap (i, j);
+  l_.swapItemsAt (i, j);
   if (_tracking ())
   {
     impl_.modify (static_cast<std::size_t> (i));

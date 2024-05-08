@@ -47,8 +47,8 @@ namespace odb
           is_null = true;
         else
         {
-          if ((v < QDateTime (QDate (1000, 1, 1))) ||
-              (v >= QDateTime (QDate (10000, 1, 1))))
+          if ((v < QDateTime (QDate (1000, 1, 1), QTime (0, 0, 0))) ||
+              (v >= QDateTime (QDate (10000, 1, 1), QTime (0, 0, 0))))
             throw odb::qt::date_time::value_out_of_range ();
 
           is_null = false;
@@ -101,7 +101,7 @@ namespace odb
           is_null = true;
         else
         {
-          if ((v <= QDateTime (QDate (1970, 1, 1))) ||
+          if ((v <= QDateTime (QDate (1970, 1, 1), QTime (0, 0, 0))) ||
               (v > QDateTime (QDate (2038, 1, 19), QTime (3, 14, 7))))
             throw odb::qt::date_time::value_out_of_range ();
 

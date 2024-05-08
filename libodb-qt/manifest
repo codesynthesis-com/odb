@@ -15,7 +15,6 @@ email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
 builds: all
 requires: c++11
-requires: libqt-core ; Requires not yet packaged libqt-core.
 
 # @@ TMP Bump the toolchain version to 0.17.0 after it is released.
 #

@@ -20,18 +20,30 @@ public:
   QMutableOdbListIterator(QOdbList<T> &x)
       : c (&x)
   {
+#if QT_VERSION < 0x060000
     c->setSharable(false);
+#endif
+
     i = c->begin();
     n = c->end();
   }
 
+#if QT_VERSION < 0x060000
   ~QMutableOdbListIterator() {c->setSharable(true);}
+#endif
 
   QMutableOdbListIterator &operator=(QOdbList<T> &x)
   {
+#if QT_VERSION < 0x060000
     c->setSharable(true);
+#endif
+
     c = &x;
+
+#if QT_VERSION < 0x060000
     c->setSharable(false);
+#endif
+
     i = c->begin();
     n = c->end();
     return *this;

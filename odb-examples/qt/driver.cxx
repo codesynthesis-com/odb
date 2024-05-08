@@ -30,7 +30,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (createDatabase (argc, argv));
+    unique_ptr<database> db (createDatabase (argc, argv));
 
     // Create a few persistent objects.
     //

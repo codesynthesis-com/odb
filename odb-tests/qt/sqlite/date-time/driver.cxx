@@ -4,8 +4,7 @@
 // Test Qt date/time type persistence. SQLite version.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <QtCore/QDateTime>
@@ -14,10 +13,13 @@
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -32,7 +34,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     // Check persistence of null values.
     //
@@ -45,7 +47,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object> ol1 (db->load<object> (o1.id));
+      unique_ptr<object> ol1 (db->load<object> (o1.id));
       t.commit ();
 
       assert (ol1->is_null ());
@@ -86,7 +88,7 @@ main (int argc, char* argv[])
 
     {
       transaction t (db->begin ());
-      auto_ptr<object> ol2 (db->load<object> (o2.id));
+      unique_ptr<object> ol2 (db->load<object> (o2.id));
       t.commit ();
 
       assert (*ol2 == o2);

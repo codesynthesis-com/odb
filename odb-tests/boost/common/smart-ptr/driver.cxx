@@ -4,18 +4,21 @@
 // Test boost smart pointers.
 //
 
-#include <memory>   // std::auto_ptr
-#include <cassert>
+#include <memory>   // std::unique_ptr
+#include <utility>  // std::move()
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/session.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 
@@ -29,7 +32,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     shared_ptr<cont> c1 (new cont (1));
     {
@@ -64,13 +67,13 @@ main (int argc, char* argv[])
       assert (ly == lazy_shared_ptr<cont> (*db, c1));
     }
 
-    // Test assignment from auto_ptr.
+    // Test assignment from unique_ptr.
     //
     {
       cont* p = new cont (3);
-      auto_ptr<cont> a (p);
+      unique_ptr<cont> a (p);
       lazy_shared_ptr<cont> l;
-      l = a;
+      l = move (a);
 
       assert (l.get() == p);
       assert (!a.get ());

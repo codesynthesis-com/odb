@@ -4,7 +4,7 @@
 // Test Qt basic type persistence. Oracle version.
 //
 
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -14,10 +14,13 @@
 #include <odb/oracle/database.hxx>
 #include <odb/oracle/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -29,7 +32,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     string short_str (13, 's');
     string medium_str (150, 'm');
@@ -68,7 +71,7 @@ main (int argc, char* argv[])
     //
     {
       transaction t (db->begin ());
-      auto_ptr<object> p (db->load<object> (o.varchar2));
+      unique_ptr<object> p (db->load<object> (o.varchar2));
       t.commit ();
       assert (*p == o);
     }

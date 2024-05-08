@@ -1,0 +1,59 @@
+# file      : boost/buildfile
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+import meta_libs  = libodb%lib{odb}
+import meta_libs += libodb-boost%lib{odb-boost}
+import meta_libs += libboost-multi-index%lib{boost_multi_index}
+import meta_libs += libboost-optional%lib{boost_optional}
+import meta_libs += libboost-smart-ptr%lib{boost_smart_ptr}
+import meta_libs += libboost-unordered%lib{boost_unordered}
+import meta_libs += libboost-uuid%lib{boost_uuid}
+import meta_libs += libboost-date-time%lib{boost_date_time}
+
+import libs = libodb-$database%lib{odb-$database}
+
+exe{driver}: {hxx cxx}{* -employee-odb} {hxx ixx cxx}{employee-odb} testscript
+
+# The metadata library target which we use to extract the poptions variable
+# value for specifying the preprocessor options (-I, etc) on the ODB compiler
+# command line.
+#
+libue{employee-meta}: $meta_libs
+
+exe{driver}: libue{employee-meta} $libs
+
+<{hxx ixx cxx}{employee-odb}>: hxx{employee} libue{employee-meta} $odb
+{{
+  pops = $cxx.lib_poptions($<[1])
+  depdb hash $pops
+
+  depdb dyndep --dyn-target --target-what 'generated schema' --format lines \
+  -- echo ($sqlite ? '' : "$out_base/employee.sql")
+
+  $odb --std c++11            \
+       --database $database   \
+       --profile boost        \
+       --generate-schema      \
+       --generate-query       \
+       --generate-session     \
+       --output-dir $out_base \
+       --table-prefix boost_  \
+       "-I$src_base" $pops    \
+       $path($<[0])
+}}
+
+cxx.poptions =+ "-I$out_base" "-I$src_base" -DDATABASE_$ucase($database)
+
+# @@ TMP Until https://github.com/build2-packaging/boost/issues/2 is fixed.
+#
+if ($cxx.target.class == 'windows')
+  cxx.libs += ($cxx.target.system == 'mingw32' ? -lbcrypt : bcrypt.lib)
+
+# Testscript's run-time prerequisites.
+#
+# @@ BUILD2: Eventually we should be able to mark it as test.input once
+#    this is supported for testscript tests.
+#
+exe{driver}: ../alias{database-client}: include = adhoc
+
+testscript@./: schema = employee

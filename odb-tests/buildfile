@@ -11,4 +11,7 @@
 
 ./: evolution/: include = (!$multi)
 
+./: boost/: include = $boost
+./: qt/:    include = $qt
+
 ./: testscript{*}: include = adhoc

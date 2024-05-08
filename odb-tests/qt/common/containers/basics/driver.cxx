@@ -4,7 +4,7 @@
 // Test basic Qt containers persistence.
 //
 
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
 #include <cassert>
 #include <iostream>
 
@@ -13,10 +13,13 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <common/common.hxx>
+#include <libcommon/common.hxx>
 
 #include "test.hxx"
 #include "test-odb.hxx"
+
+#undef NDEBUG
+#include <cassert>
 
 using namespace std;
 using namespace odb::core;
@@ -28,7 +31,7 @@ main (int argc, char* argv[])
 
   try
   {
-    auto_ptr<database> db (create_database (argc, argv));
+    unique_ptr<database> db (create_database (argc, argv));
 
     for (unsigned short i (0); i < 2; ++i)
     {
@@ -72,17 +75,6 @@ main (int argc, char* argv[])
 
       med.cl.push_back (comp (123, "aaa"));
       med.cl.push_back (comp (234, "bbbb"));
-
-      // linked list
-      //
-      med.sll.push_back ("aaa");
-      med.sll.push_back ("bbbb");
-
-      med.nll.push_back (123);
-      med.nll.push_back (234);
-
-      med.cll.push_back (comp (123, "aaa"));
-      med.cll.push_back (comp (234, "bbbb"));
 
       // set
       //
@@ -184,20 +176,6 @@ main (int argc, char* argv[])
       full.cl.push_back (comp (2345, "bbbbb"));
       full.cl.push_back (comp (3456, "cccccc"));
 
-      // linked list
-      //
-      full.sll.push_back ("aaaa");
-      full.sll.push_back ("bbbbb");
-      full.sll.push_back ("cccccc");
-
-      full.nll.push_back (1234);
-      full.nll.push_back (2345);
-      full.nll.push_back (3456);
-
-      full.cll.push_back (comp (1234, "aaaa"));
-      full.cll.push_back (comp (2345, "bbbbb"));
-      full.cll.push_back (comp (3456, "cccccc"));
-
       // set
       //
       full.ns.insert (1234);
@@ -288,9 +266,9 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> e (db->load<object> ("empty"));
-        auto_ptr<object> m (db->load<object> ("medium"));
-        auto_ptr<object> f (db->load<object> ("full"));
+        unique_ptr<object> e (db->load<object> ("empty"));
+        unique_ptr<object> m (db->load<object> ("medium"));
+        unique_ptr<object> f (db->load<object> ("full"));
         t.commit ();
 
         assert (empty == *e);
@@ -317,12 +295,6 @@ main (int argc, char* argv[])
       empty.sl.push_back ("aa");
       empty.nl.push_back (12);
       empty.cl.push_back (comp (12, "aa"));
-
-      // linked list
-      //
-      empty.nll.push_back (12);
-      empty.sll.push_back ("aa");
-      empty.cll.push_back (comp (12, "aa"));
 
       // set
       //
@@ -385,12 +357,6 @@ main (int argc, char* argv[])
       med.sl.clear ();
       med.nl.clear ();
       med.cl.clear ();
-
-      // linked list
-      //
-      med.nll.clear ();
-      med.sll.clear ();
-      med.cll.clear ();
 
       // set
       //
@@ -456,18 +422,6 @@ main (int argc, char* argv[])
       full.cl.back ().num++;
       full.cl.back ().str += "c";
       full.cl.push_back (comp (4567, "ddddddd"));
-
-      // linked list
-      //
-      full.sll.back () += "c";
-      full.sll.push_back ("ddddddd");
-
-      full.nll.back ()++;
-      full.nll.push_back (4567);
-
-      full.cll.back ().num++;
-      full.cll.back ().str += "c";
-      full.cll.push_back (comp (4567, "ddddddd"));
 
       // set
       //
@@ -539,9 +493,9 @@ main (int argc, char* argv[])
       //
       {
         transaction t (db->begin ());
-        auto_ptr<object> e (db->load<object> ("empty"));
-        auto_ptr<object> m (db->load<object> ("medium"));
-        auto_ptr<object> f (db->load<object> ("full"));
+        unique_ptr<object> e (db->load<object> ("empty"));
+        unique_ptr<object> m (db->load<object> ("medium"));
+        unique_ptr<object> f (db->load<object> ("full"));
         t.commit ();
 
         assert (empty == *e);
