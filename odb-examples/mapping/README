@@ -13,6 +13,9 @@ person.hxx
 traits.hxx
 traits-mysql.hxx
 traits-sqlite.hxx
+traits-pgsql.hxx
+traits-oracle.hxx
+traits-mssql.hxx
   ODB 'value_traits' template specializations for the 'bool' and 'date'
   types. These specializations implement conversion between these types
   and their database counterparts.
@@ -31,7 +34,7 @@ person.sql
   --hxx-prologue "#include \"traits.hxx\"" person.hxx
 
   Where <database> stands for the database system we are using, for example,
-  'mysql'.
+  'pgsql'.
 
   The --hxx-prologue option included the traits.hxx header at the beginning
   of the generated person-odb.hxx file. This makes the 'value_traits'
@@ -52,25 +55,25 @@ driver.cxx
   instance. It then persists a number of 'person' objects in the database
   and executes a query to find objects matching certain criteria.
 
-To compile and link the example manually from the command line we can use
-the following commands (using  MySQL as an example; replace 'c++' with your
+To compile and link the example manually from the command line we can use the
+following commands (using PostgreSQL as an example; replace 'c++' with your
 C++ compiler name):
 
-c++ -DDATABASE_MYSQL -c person-odb.cxx
-c++ -DDATABASE_MYSQL -c driver.cxx
-c++ -o driver driver.o person-odb.o -lodb-mysql -lodb
+c++ -DDATABASE_PGSQL -c person-odb.cxx
+c++ -DDATABASE_PGSQL -c driver.cxx
+c++ -o driver driver.o person-odb.o -lodb-pgsql -lodb
 
 To run the example we may first need to create the database schema (for some
 database systems, such as SQLite, the schema is embedded into the generated
-code which makes this step unnecessary). Using MySQL as an example, this
+code which makes this step unnecessary). Using PostgreSQL as an example, this
 can be achieved with the following command:
 
-mysql --user=odb_test --database=odb_test < person.sql
+psql --username=odb_test --dbname=odb_test -f person.sql
 
 Here we use 'odb_test' as the database login and also 'odb_test' as the
 database name.
 
-Once the database schema is ready, we can run the example (using MySQL as
+Once the database schema is ready, we can run the example (using PostgreSQL as
 the database):
 
 ./driver --user odb_test --database odb_test

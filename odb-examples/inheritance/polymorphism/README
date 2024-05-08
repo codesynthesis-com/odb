@@ -28,7 +28,7 @@ employee.sql
   odb --std c++11 -d <database> --generate-schema --generate-query employee.hxx
 
   Where <database> stands for the database system we are using, for example,
-  'mysql'.
+  'pgsql'.
 
 database.hxx
   Contains the create_database() function which instantiates the concrete
@@ -53,26 +53,26 @@ driver.cxx
   each object. Finally, the driver erases the state of the persistent
   objects from the database, again using the base class interface.
 
-To compile and link the example manually from the command line we can use
-the following commands (using  MySQL as an example; replace 'c++' with your
+To compile and link the example manually from the command line we can use the
+following commands (using PostgreSQL as an example; replace 'c++' with your
 C++ compiler name):
 
 c++ -c employee.cxx
 c++ -c employee-odb.cxx
-c++ -DDATABASE_MYSQL -c driver.cxx
-c++ -o driver driver.o employee.o employee-odb.o -lodb-mysql -lodb
+c++ -DDATABASE_PGSQL -c driver.cxx
+c++ -o driver driver.o employee.o employee-odb.o -lodb-pgsql -lodb
 
 To run the example we may first need to create the database schema (for some
 database systems, such as SQLite, the schema is embedded into the generated
-code which makes this step unnecessary). Using MySQL as an example, this
+code which makes this step unnecessary). Using PostgreSQL as an example, this
 can be achieved with the following command:
 
-mysql --user=odb_test --database=odb_test < employee.sql
+psql --username=odb_test --dbname=odb_test -f employee.sql
 
 Here we use 'odb_test' as the database login and also 'odb_test' as the
 database name.
 
-Once the database schema is ready, we can run the example (using MySQL as
+Once the database schema is ready, we can run the example (using PostgreSQL as
 the database):
 
 ./driver --user odb_test --database odb_test
