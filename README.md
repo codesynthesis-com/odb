@@ -110,6 +110,9 @@ bdep init @install -d odb
 b install: ../odb-install/odb/
 ```
 
+To test relocatable installation, add `config.install.relocatable=true` to
+the `bdep-config-create` command above.
+
 Note that if building manually (that is, without `bdep`) and in-source, then
 the checked out `odb/odb/version.hxx`, `libodb/odb/version.hxx`, and
 `libodb-*/odb/*/version.hxx` files will be overwritten during the build but

@@ -30,6 +30,8 @@ if ($cxx.target.class != 'windows')
 #
 # NOTE: see ODB_GCC_PLUGIN_DIR when adding this support.
 #
+# NOTE: also think about relocatable installation.
+#
 plugin{*}: install = bin/
 
 import libs  = libcutl%lib{cutl}
@@ -43,11 +45,19 @@ import libs += libstudxml%lib{studxml}
 # We, however, don't want to install via the driver since the same driver
 # build could be used with multiple plugin builds (e.g., for different GCC
 # versions, which is something distribution packagers sometimes want to do).
-# @@ For this we will have to wait for operation-specific values support.
 #
 exe{odb}: cxx{odb}
 exe{odb}: libus{odb}: bin.whole = false
-exe{odb}: plugin{odb}: include = adhoc
+exe{odb}: plugin{odb}:
+{
+  include = adhoc
+
+  # @@ This work but triggers "incompatible libs{cutl} build". Feels like to
+  #    solve this we will also need to say update_for_install=false which
+  #    we currently cant.
+  #
+  #install = false
+}
 
 # Target metadata, see also --build2-metadata in odb.cxx.
 #

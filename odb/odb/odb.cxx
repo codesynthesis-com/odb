@@ -185,6 +185,9 @@ main (int argc, char* argv[])
 
     // Also modify LD_LIBRARY_PATH to include the lib path.
     //
+    // @@ Hm, I wonder why we are doing this? (One some platforms, like
+    //    Fedora, the directory could be called something else, like lib64).
+    //
 #ifndef _WIN32
     {
 #ifdef __APPLE__
@@ -546,12 +549,12 @@ main (int argc, char* argv[])
       //
       // To allow executing the ODB compiler in-place we add the odb.exe.dlls/
       // directory to PATH. It is a bit of hack but then DLL assemblies for
-      // DLLs is whole new level of insanity that we are unlikely to ever
+      // DLLs is a whole new level of insanity that we are unlikely to ever
       // touch.
       //
       // And it turns out we have the same problem in the installed case: if
       // the installation directory is not in PATH, then GCC won't find the
-      // DLLs the plugin needs. So we handle both here.
+      // DLLs the plugin needs. So we handle both cases here.
       //
       {
         path d (plugin.directory ());
@@ -1616,8 +1619,8 @@ plugin_path (path const& drv,
   char const plugin_ext[] = ".dll";
 
 // While GCC 8 switched to using .dylib as the plugin extension, there is a
-// bug in the extension stripping code. So for now we use the .so extension
-// everywhere (see also buildfile if changing this).
+// bug (86358) in the extension stripping code. So for now we use the .so
+// extension everywhere (see also buildfile if changing this).
 //
 //#elif defined(__APPLE__)
 //  char const plugin_ext[] = ".dylib";
@@ -1638,7 +1641,7 @@ plugin_path (path const& drv,
 
   if (dp.empty ())
   {
-    cerr << drv << ": error: unable to resolve ODB driver path" << endl;
+    cerr << drv << ": error: unable to resolve ODB compiler driver path" << endl;
     return path ();
   }
 
