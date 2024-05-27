@@ -12,7 +12,7 @@ doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
 src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
-builds: all
+builds: all relocatable
 builds: -( +windows -gcc ) ; Requires MinGW GCC.
 builds: &gcc               ; Requires GCC with plugin support enabled.
 builds: &gcc-5+            ; Requires GCC 5 or later.
