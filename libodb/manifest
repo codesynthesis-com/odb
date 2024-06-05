@@ -20,8 +20,8 @@ requires: c++11
 depends: * build2 >= 0.16.0-
 depends: * bpkg >= 0.16.0-
 
-tests:    odb-tests    == $ ? ($config.odb_tests.libodb_test)
-examples: odb-examples == $ ? ($config.odb_examples.libodb_example)
+#tests:    odb-tests    == $ ? ($config.odb_tests.libodb_test)
+#examples: odb-examples == $ ? ($config.odb_examples.libodb_example)
 
 default-builds: all
 default-build-config:

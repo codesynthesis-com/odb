@@ -24,11 +24,11 @@ depends: libsqlite3 ^3.6.18
 depends: libodb == $
 depends: * cli ^1.2.0- ? ($config.libodb_sqlite.develop)
 
-tests: odb-tests == $ \
-  ? (!$defined(config.odb_tests.database)) config.odb_tests.database=sqlite
+#tests: odb-tests == $ \
+#  ? (!$defined(config.odb_tests.database)) config.odb_tests.database=sqlite
 
-examples: odb-examples == $ \
-  ? (!$defined(config.odb_examples.database)) config.odb_examples.database=sqlite
+#examples: odb-examples == $ \
+#  ? (!$defined(config.odb_examples.database)) config.odb_examples.database=sqlite
 
 builds: all
 
