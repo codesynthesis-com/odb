@@ -1,6 +1,6 @@
 : 1
 name: odb-tests
-version: 2.5.0-b.26.z
+version: 2.5.0-b.27
 project: odb
 type: tests
 language: c++

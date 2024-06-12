@@ -61,14 +61,14 @@ $libodb.check(LIBODB_VERSION_FULL, LIBODB_SNAPSHOT)$
 //
 // NOTE: also hardcoded in *.options.
 //
-#define ODB_BOOST_VERSION     2047600
-#define ODB_BOOST_VERSION_STR "2.5.0-b.26"
+#define ODB_BOOST_VERSION     2047700
+#define ODB_BOOST_VERSION_STR "2.5.0-b.27"
 
 // libodb-boost version: odb interface version plus the bugfix version. Note
 // that LIBODB_BOOST_VERSION is always greater or equal to ODB_BOOST_VERSION
 // since if the Boost interface virsion is incremented then the bugfix version
 // must be incremented as well.
 //
-#define LIBODB_BOOST_VERSION 2049976
+#define LIBODB_BOOST_VERSION 2049977
 
 #endif // LIBODB_BOOST_VERSION

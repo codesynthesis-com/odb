@@ -45,10 +45,10 @@
 // 2.2.0.a1    02019901
 // 3.0.0.b2    02999952
 //
-#define ODB_COMPILER_VERSION_OLD 2049976
+#define ODB_COMPILER_VERSION_OLD 2049977
 
 // ODB interface version: minor, major, and alpha/beta versions.
 //
-#define ODB_VERSION 20476
+#define ODB_VERSION 20477
 
 #endif // ODB_COMPILER_VERSION

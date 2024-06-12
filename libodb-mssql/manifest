@@ -1,6 +1,6 @@
 : 1
 name: libodb-mssql
-version: 2.5.0-b.26.z
+version: 2.5.0-b.27
 project: odb
 summary: Microsoft SQL Server ODB runtime library
 license: other: ODB NCUEL   ; Non-Commercial Use and Evaluation License.
