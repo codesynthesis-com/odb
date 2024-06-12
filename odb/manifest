@@ -31,4 +31,4 @@ depends: libcutl ^1.11.0-
 #depends: libstudxml == 1.1.0-b.10
 #depends: libcutl == 1.11.0-b.9
 
-depends: * cli ^1.2.0- ? ($config.odb.develop)
+depends: * cli ^1.2.0 ? ($config.odb.develop)
