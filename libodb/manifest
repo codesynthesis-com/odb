@@ -17,8 +17,8 @@ requires: c++11
 
 # @@ TMP Bump the toolchain version to 0.17.0 after it is released.
 #
-depends: * build2 >= 0.16.0-
-depends: * bpkg >= 0.16.0-
+depends: * build2 >= 0.16.0
+depends: * bpkg >= 0.16.0
 
 #tests:    odb-tests    == $ ? ($config.odb_tests.libodb_test)
 #examples: odb-examples == $ ? ($config.odb_examples.libodb_example)
