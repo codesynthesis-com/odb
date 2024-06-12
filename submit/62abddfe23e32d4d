@@ -1,0 +1,7 @@
+: 1
+name: libodb
+version: 2.5.0-b.27
+project: odb
+summary: Common ODB runtime library
+license: GPL-2.0-only
+license: other: proprietary; Not free/open source.
