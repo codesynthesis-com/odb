@@ -1,0 +1,7 @@
+: 1
+name: libodb-mysql
+version: 2.5.0-b.27
+project: odb
+summary: MySQL ODB runtime library
+license: GPL-2.0-only
+license: other: proprietary; Not free/open source.

@@ -1,0 +1,7 @@
+: 1
+name: libodb-sqlite
+version: 2.5.0-b.27
+project: odb
+summary: SQLite ODB runtime library
+license: GPL-2.0-only
+license: other: proprietary; Not free/open source.
