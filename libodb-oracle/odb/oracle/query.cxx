@@ -195,7 +195,7 @@ namespace odb
     void query_base::
     optimize ()
     {
-      // Remove a single TRUE literal or one that is followe by one of
+      // Remove a single TRUE literal or one that is followed by one of
       // the other clauses. This avoids useless WHERE clauses like
       //
       // WHERE TRUE GROUP BY foo

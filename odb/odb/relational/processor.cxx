@@ -1181,11 +1181,11 @@ namespace relational
             string q (upcase (vq.literal));
 
             //@@ We need to recognize database-specific list of prefixes. For
-            //   example, PG has WITH. Alternatively (or in addition) we could
-            //   do the same comment trick (e.g., /*SELECT*/ to treat it as a
-            //   SELECT-like queiry).
+            //   now any unrecognized prefix can be worked around with the
+            //   /*SELECT*/ comment prefix.
             //
-            if (q.compare (0, 7, "SELECT ") == 0)
+            if (q.compare (0, 7, "SELECT ") == 0 ||
+                q.compare (0, 5, "WITH ") == 0)
               vq.kind = view_query::complete_select;
             else if (q.compare (0, 5, "EXEC ") == 0 ||
                      q.compare (0, 5, "CALL ") == 0 ||
@@ -1200,21 +1200,30 @@ namespace relational
               vq.literal = string (vq.literal, q[8] == ' ' ? 9 : 8);
               vq.kind = view_query::complete_execute;
             }
+            //
+            // Hint that what follows is a SELECT-like query.
+            //
+            else if (q.compare (0, 10, "/*SELECT*/") == 0)
+            {
+              vq.literal = string (vq.literal, q[10] == ' ' ? 11 : 10);
+              vq.kind = view_query::complete_select;
+            }
             else
               vq.kind = view_query::condition;
           }
           else if (!vq.expr.empty ())
           {
-            // If the first token in the expression is a string and
-            // it starts with "SELECT " or is equal to "SELECT" or
-            // one of the stored procedure call keywords, then we
-            // have a complete query.
+            // If the first token in the expression is a string and it starts
+            // with "SELECT " or is equal to "SELECT" (or equivalent) or one
+            // of the stored procedure call keywords, then we have a complete
+            // query.
             //
             if (vq.expr.front ().type == CPP_STRING)
             {
               string q (upcase (vq.expr.front ().literal));
 
-              if (q.compare (0, 7, "SELECT ") == 0 || q == "SELECT")
+              if (q.compare (0, 7, "SELECT ") == 0 || q == "SELECT" ||
+                  q.compare (0, 5, "WITH ") == 0   || q == "WITH")
                 vq.kind = view_query::complete_select;
               else if (q.compare (0, 5, "EXEC ") == 0 || q == "EXEC" ||
                        q.compare (0, 5, "CALL ") == 0 || q == "CALL" ||
@@ -1225,6 +1234,12 @@ namespace relational
                 vq.expr.front ().literal =
                   string (vq.expr.front ().literal, q[8] == ' ' ? 9 : 8);
                 vq.kind = view_query::complete_execute;
+              }
+              else if (q.compare (0, 10, "/*SELECT*/") == 0)
+              {
+                vq.expr.front ().literal =
+                  string (vq.expr.front ().literal, q[10] == ' ' ? 11 : 10);
+                vq.kind = view_query::complete_select;
               }
               else
                 vq.kind = view_query::condition;
