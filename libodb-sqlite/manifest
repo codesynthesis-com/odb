@@ -1,6 +1,6 @@
 : 1
 name: libodb-sqlite
-version: 2.5.0-b.27
+version: 2.5.0-b.28.z
 project: odb
 summary: SQLite ODB runtime library
 license: GPL-2.0-only
@@ -17,8 +17,8 @@ requires: c++11
 
 # @@ TMP Bump the toolchain version to 0.17.0 after it is released.
 #
-depends: * build2 >= 0.16.0
-depends: * bpkg >= 0.16.0
+depends: * build2 >= 0.17.0
+depends: * bpkg >= 0.17.0
 
 depends: libsqlite3 ^3.6.18
 depends: libodb == $

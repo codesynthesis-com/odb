@@ -1,6 +1,6 @@
 : 1
 name: odb
-version: 2.5.0-b.27
+version: 2.5.0-b.28.z
 summary: ODB compiler
 license: GPL-3.0-only
 topics: C++, ORM, source code generation, object persistence, \
@@ -22,8 +22,8 @@ requires: c++11
 
 # @@ TMP Bump the toolchain version to 0.17.0 after it is released.
 #
-depends: * build2 >= 0.16.0
-depends: * bpkg >= 0.16.0
+depends: * build2 >= 0.17.0
+depends: * bpkg >= 0.17.0
 
 #depends: libstudxml ^1.1.0-
 #depends: libcutl ^1.11.0

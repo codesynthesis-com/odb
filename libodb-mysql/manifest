@@ -1,6 +1,6 @@
 : 1
 name: libodb-mysql
-version: 2.5.0-b.27
+version: 2.5.0-b.28.z
 project: odb
 summary: MySQL ODB runtime library
 license: GPL-2.0-only
@@ -17,8 +17,8 @@ requires: c++11
 
 # @@ TMP Bump the toolchain version to 0.17.0 after it is released.
 #
-depends: * build2 >= 0.16.0
-depends: * bpkg >= 0.16.0
+depends: * build2 >= 0.17.0
+depends: * bpkg >= 0.17.0
 
 #depends: libmysqlclient >= 5.0.3 | libmariadb ^10.2.2
 depends: libmysqlclient >= 5.0.3
