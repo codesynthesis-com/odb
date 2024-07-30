@@ -25,11 +25,11 @@ depends: libmysqlclient >= 5.0.3
 depends: libodb == $
 depends: * cli ^1.2.0 ? ($config.libodb_mysql.develop)
 
-#tests: odb-tests == $ \
-#  ? (!$defined(config.odb_tests.database)) config.odb_tests.database=mysql
+tests: odb-tests == $ \
+  ? (!$defined(config.odb_tests.database)) config.odb_tests.database=mysql
 
-#examples: odb-examples == $ \
-#  ? (!$defined(config.odb_examples.database)) config.odb_examples.database=mysql
+examples: odb-examples == $ \
+  ? (!$defined(config.odb_examples.database)) config.odb_examples.database=mysql
 
 # Note: common for all the build configurations.
 #
