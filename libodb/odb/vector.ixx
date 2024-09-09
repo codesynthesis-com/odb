@@ -233,8 +233,10 @@ namespace odb
   inline void vector<T, A LIBODB_VECTOR_ARG_USE>::
   insert (iterator p, I f, I l)
   {
+    bool t (_tracking ());
+
     size_type i, n;
-    if (_tracking ())
+    if (t)
     {
       i = static_cast<size_type> (p.base () - v_.begin ());
       n = v_.size ();
@@ -242,7 +244,7 @@ namespace odb
 
     v_.insert (p.base (), f, l);
 
-    if (_tracking ())
+    if (t)
       impl_.insert (i, v_.size () - n);
   }
 
