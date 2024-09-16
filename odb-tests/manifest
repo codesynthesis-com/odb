@@ -39,8 +39,8 @@ depends: libQt5Core ? ($qt && $qt_ver == 5)
 depends: libQt6Core ? ($qt && $qt_ver == 6)
 
 # Reflect whether libodb-pgsql is likely to support bulk operations. This is
-# normally the case on POSIX platforms if libodb-pgsql is linked against libpq
-# of the version 14 or above.
+# normally the case if libodb-pgsql is linked against libpq of the version 14
+# or above.
 #
 # Note, though, that this approach doesn't work well for libodb-pgsql
 # configured as a system package, since the version of libpq it is linked to

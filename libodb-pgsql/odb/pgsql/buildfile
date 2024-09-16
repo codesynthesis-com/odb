@@ -40,6 +40,11 @@ lib{odb-pgsql}:
 liba{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_STATIC
 libs{odb-pgsql}: cxx.export.poptions += -DLIBODB_PGSQL_SHARED
 
+# Required for pipelining support on Windows.
+#
+if ($cxx.target.class == 'windows')
+  cxx.libs += ($cxx.target.system == 'mingw32' ? -lws2_32 : ws2_32.lib)
+
 # For pre-releases use the complete version to make sure they cannot be used
 # in place of another pre-release or the final version. See the version module
 # for details on the version.* variable values.

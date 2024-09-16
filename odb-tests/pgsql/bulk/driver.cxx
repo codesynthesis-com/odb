@@ -10,12 +10,17 @@
 #include <stdio.h>
 #include <string.h>
 #include <stddef.h>
-#include <sys/select.h>
+
+#ifndef _WIN32
+#  include <sys/select.h>
+#  include <arpa/inet.h>
+#else
+#  include <winsock2.h>
+#endif
 
 // Note: hack (also, some platforms, like Mac OS, provide it).
 //
-#include <arpa/inet.h>
-#ifndef htonll
+#if !defined(_MSC_VER) && !defined(htonll)
 #  define htonll(x) ((((long long)htonl(x)) << 32) + htonl((x) >> 32))
 #endif
 
@@ -51,7 +56,7 @@ init (const struct data* d)
   lengths[1] = sizeof (d->idata);
 
   values[2] = (char*)d->sdata;
-  lengths[2] = strlen (d->sdata);
+  lengths[2] = (int)strlen (d->sdata);
 }
 
 static void
@@ -85,6 +90,7 @@ execute (PGconn* conn, const struct data* ds, size_t n)
     FD_ZERO (&rds);
     FD_SET (sock, &rds);
 
+#ifndef _WIN32
     if (select (sock + 1, &rds, wdone ? NULL : &wds, NULL, NULL) == -1)
     {
       if (errno == EINTR)
@@ -92,6 +98,10 @@ execute (PGconn* conn, const struct data* ds, size_t n)
 
       assert (false);
     }
+#else
+    if (select (sock + 1, &rds, wdone ? NULL : &wds, NULL, NULL) == SOCKET_ERROR)
+      assert (false);
+#endif
 
     // Try to minimize the chance of blocking the server by first processing
     // the result and then sending more queries.

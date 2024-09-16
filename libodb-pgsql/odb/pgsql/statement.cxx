@@ -9,6 +9,8 @@
 #  ifndef _WIN32
 #    include <errno.h>
 #    include <sys/select.h>
+#  else
+#    include <winsock2.h>
 #  endif
 #endif
 
@@ -568,7 +570,7 @@ namespace odb
       return r;
     }
 
-#if defined(LIBPQ_HAS_PIPELINING) && !defined(_WIN32)
+#if defined(LIBPQ_HAS_PIPELINING)
 
     // Note that this function always marks the connection as failed.
     //
@@ -650,10 +652,16 @@ namespace odb
           FD_ZERO (&rds);
           FD_SET (sock, &rds);
 
+#ifndef _WIN32
           if (select (sock + 1, &rds, write ? &wds : 0, 0, 0) != -1)
             break;
 
           if (errno != EINTR)
+#else
+          if (select (sock + 1, &rds, write ? &wds : 0, 0, 0) != SOCKET_ERROR)
+            break;
+          else
+#endif
           {
             if (throw_)
               translate_connection_error (conn);
@@ -1241,7 +1249,7 @@ namespace odb
       return true;
     }
 
-#if defined(LIBPQ_HAS_PIPELINING) && !defined(_WIN32)
+#if defined(LIBPQ_HAS_PIPELINING)
 
     struct insert_data
     {
@@ -1380,7 +1388,7 @@ namespace odb
       return affected_row_count (h);
     }
 
-#if defined(LIBPQ_HAS_PIPELINING) && !defined(_WIN32)
+#if defined(LIBPQ_HAS_PIPELINING)
 
     static bool
     process_update_result (size_t i, PGresult* r, bool gr, void* data)
@@ -1506,7 +1514,7 @@ namespace odb
       return affected_row_count (h);
     }
 
-#if defined(LIBPQ_HAS_PIPELINING) && !defined(_WIN32)
+#if defined(LIBPQ_HAS_PIPELINING)
 
     static bool
     process_delete_result (size_t i, PGresult* r, bool gr, void* data)

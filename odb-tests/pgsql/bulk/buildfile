@@ -34,6 +34,9 @@ odb_options = --table-prefix pgsql_bulk_ \
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 
+if ($cxx.target.class == 'windows')
+  cxx.libs += ($cxx.target.system == 'mingw32' ? -lws2_32 : ws2_32.lib)
+
 # Testscript's run-time prerequisites.
 #
 exe{driver}: ../../alias{pgsql-client}: include = adhoc

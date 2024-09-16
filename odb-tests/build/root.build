@@ -172,8 +172,7 @@ config [string] config.odb_tests.pgsql.port
 # Note: config.odb_tests.pgsql.bulk_default is reflected from manifest.
 #
 config [bool] config.odb_tests.pgsql.bulk_default ?= false
-config [bool] config.odb_tests.pgsql.bulk ?= ($cxx.target.class != 'windows' && \
-                                              $config.odb_tests.pgsql.bulk_default)
+config [bool] config.odb_tests.pgsql.bulk ?= $config.odb_tests.pgsql.bulk_default
 pgsql_bulk = $config.odb_tests.pgsql.bulk
 
 # Oracle
