@@ -79,48 +79,48 @@ builds: -static            ; Implementation uses plugins and requires -fPIC.
 # And they allow CI'ing odb-tests by itself (thus we specify the bot keys both
 # in libodb* and here).
 #
-custom-builds: latest ; Requires latest config with GCC as host compiler.
+custom-builds: default ; Requires default config with GCC as host compiler.
 custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-build-bot: -- see below.
 
-custom-multi-builds: latest ; Requires latest config with GCC as host compiler.
+custom-multi-builds: default ; Requires default config with GCC as host compiler.
 custom-multi-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-multi-build-bot: -- see below.
 
-custom-multi-oracle-builds: latest ; Requires proprietary software.
+custom-multi-oracle-builds: default ; Requires proprietary software.
 custom-multi-oracle-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-multi-oracle-build-bot: -- see below.
 
-custom-multi-mssql-builds: latest ; Requires proprietary software.
+custom-multi-mssql-builds: default ; Requires proprietary software.
 custom-multi-mssql-builds: -static ; Implementation uses plugins and requires -fPIC.
 #custom-multi-mssql-build-bot: -- see below.
 
 # @@ TMP
 #
-#boost-custom-builds: latest ; Requires proprietary software.
+#boost-custom-builds: default ; Requires proprietary software.
 #boost-custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 ##boost-custom-build-bot: -- see below.
-boost-custom-builds: latest ; Requires latest config with GCC as host compiler.
+boost-custom-builds: default ; Requires default config with GCC as host compiler.
 boost-custom-builds: &( +( +windows &msvc ) +( +linux &gcc ) ) ; Only test on Windows and Linux with main compiler.
 boost-custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 boost-custom-builds: -( +macos &gcc ) ; Not supported by libboost-*.
 
 # @@ TMP
 #
-#qt5-custom-builds: latest ; Requires proprietary software.
+#qt5-custom-builds: default ; Requires proprietary software.
 #qt5-custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 ##qt5-custom-build-bot: -- see below.
-qt5-custom-builds: latest ; Requires latest config with GCC as host compiler.
+qt5-custom-builds: default ; Requires default config with GCC as host compiler.
 qt5-custom-builds: &( +( +windows &msvc ) +( +linux &gcc ) ) ; Only test on Windows and Linux with main compiler.
 qt5-custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 qt5-custom-builds: -( +macos &gcc ) ; Not supported by libQt5Core.
 
 # @@ TMP
 #
-#qt6-custom-builds: latest ; Requires proprietary software.
+#qt6-custom-builds: default ; Requires proprietary software.
 #qt6-custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 ##qt6-custom-build-bot: -- see below.
-qt6-custom-builds: latest ; Requires latest config with GCC as host compiler.
+qt6-custom-builds: default ; Requires default config with GCC as host compiler.
 qt6-custom-builds: &( +( +windows &msvc ) +( +linux &gcc ) ) ; Only test on Windows and Linux with main compiler.
 qt6-custom-builds: -static ; Implementation uses plugins and requires -fPIC.
 qt6-custom-builds: -( +macos &gcc ) ; Not supported by libQt6Core.
