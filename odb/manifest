@@ -19,9 +19,6 @@ builds: &gcc-5+            ; Requires GCC 5 or later.
 builds: -static            ; Implementation uses plugins and requires -fPIC.
 requires: host
 requires: c++11
-
-# @@ TMP Bump the toolchain version to 0.17.0 after it is released.
-#
 depends: * build2 >= 0.17.0
 depends: * bpkg >= 0.17.0
 
@@ -32,3 +29,86 @@ depends: libstudxml == 1.1.0-b.10
 depends: libcutl ~1.11.0
 
 depends: * cli ^1.2.0 ? ($config.odb.develop)
+
+# Binary distribution packages. Overall notes:
+#
+# - Link dependencies that don't come from system packages statically, but
+#   compile them with -fPIC since they are linked to the ODB plugin shared
+#   library. Note that duplicate symbols are not an issue since the plugin
+#   shared library is loaded by the GCC compiler, not ODB.
+#
+# - We suppress generating binary packages for dependencies (libstudxml,
+#   libcutl) with --recursive=auto since they are linked statically.
+#
+# - Note that Fedora's rpmbuild and Ubuntu's dpkg-buildpackage compile the
+#   ODB's sources with the -flto=auto option, which breaks the plugin. Thus,
+#   we always disable the link-time optimization by adding -fno-lto.
+#   Specifically (@@ TMP move comments when have support):
+#
+#   # Prepend system package manager options instead of overriding.
+#   #
+#   bpkg.bindist.debian:--debian-buildflags=prepend
+#
+#   # Reset common options for dependencies (because we are prepending).
+#   #
+#   bpkg.create:config.cc.*=[null]
+#
+#   # Append custom options for dependencies.
+#   #
+#   bpkg.create:config.c.coptions="-fPIC -fno-lto"
+#   bpkg.create:config.cxx.coptions="-fPIC -fno-lto"
+#
+#   # Reset common options for odb (because we are prepending).
+#   #
+#   bpkg.configure.build:.../config.cc.*=[null]
+#
+#   # Append custom options for odb.
+#   #
+#   bpkg.configure.build:.../config.cxx.coptions=-fno-lto
+#
+
+bindist-debian-builds: bindist
+bindist-debian-build-include: linux_debian*-**
+bindist-debian-build-include: linux_ubuntu*-**
+bindist-debian-build-exclude: **
+bindist-debian-build-config:
+\
++bpkg.bindist.debian:
++bbot.bindist.upload:
+bpkg.bindist.debian:--recursive=auto
+bpkg.bindist.debian:--debian-main-extradep=g++
+bpkg.bindist.debian:--debian-buildflags=prepend
+bpkg.create:config.bin.lib=static
+bpkg.create:config.cc.poptions=[null]
+bpkg.create:config.cc.coptions=[null]
+bpkg.create:config.cc.loptions=[null]
+bpkg.create:config.c.coptions="-fPIC -fno-lto"
+bpkg.create:config.cxx.coptions="-fPIC -fno-lto"
+bpkg.configure.build:.../config.cc.poptions=[null]
+bpkg.configure.build:.../config.cc.coptions=[null]
+bpkg.configure.build:.../config.cc.loptions=[null]
+bpkg.configure.build:.../config.cxx.coptions=-fno-lto
+\
+
+bindist-fedora-builds: bindist
+bindist-fedora-build-include: linux_fedora*-**
+bindist-fedora-build-include: linux_rhel*-**
+bindist-fedora-build-exclude: **
+bindist-fedora-build-config:
+\
++bpkg.bindist.fedora:
++bbot.bindist.upload:
+bpkg.bindist.fedora:--recursive=auto
+bpkg.bindist.fedora:--fedora-main-extrareq=g++
+bpkg.bindist.fedora:--fedora-buildflags=prepend
+bpkg.create:config.bin.lib=static
+bpkg.create:config.cc.poptions=[null]
+bpkg.create:config.cc.coptions=[null]
+bpkg.create:config.cc.loptions=[null]
+bpkg.create:config.c.coptions="-fPIC -fno-lto"
+bpkg.create:config.cxx.coptions="-fPIC -fno-lto"
+bpkg.configure.build:.../config.cc.poptions=[null]
+bpkg.configure.build:.../config.cc.coptions=[null]
+bpkg.configure.build:.../config.cc.loptions=[null]
+bpkg.configure.build:.../config.cxx.coptions=-fno-lto
+\

@@ -14,9 +14,6 @@ src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
 requires: c++11
-
-# @@ TMP Bump the toolchain version to 0.17.0 after it is released.
-#
 depends: * build2 >= 0.17.0
 depends: * bpkg >= 0.17.0
 
@@ -218,4 +215,32 @@ zNo31cCPmBRYzABcIc6ADYvexVK4uCwaim8xs7RK5Ug2Gv6vUWoRNZW8grIgDwUY
 f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
 9MLA+cE/nNJ/rMI//MZ1+kcCAwEAAQ==
 -----END PUBLIC KEY-----
+\
+
+# Binary distribution packages. Overall notes:
+#
+# - Build as C++11 for maximum compatibility (this is a C++11 codebase).
+
+bindist-debian-builds: bindist
+bindist-debian-build-include: linux_debian*-**
+bindist-debian-build-include: linux_ubuntu*-**
+bindist-debian-build-exclude: **
+bindist-debian-build-config:
+\
++bpkg.bindist.debian:
++bbot.bindist.upload:
+b.create:config.cxx.std=c++11
+?sys:libsqlite3
+\
+
+bindist-fedora-builds: bindist
+bindist-fedora-build-include: linux_fedora*-**
+bindist-fedora-build-include: linux_rhel*-**
+bindist-fedora-build-exclude: **
+bindist-fedora-build-config:
+\
++bpkg.bindist.fedora:
++bbot.bindist.upload:
+b.create:config.cxx.std=c++11
+?sys:libsqlite3
 \

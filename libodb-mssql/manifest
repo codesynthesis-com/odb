@@ -16,9 +16,6 @@ build-warning-email: odb-builds@codesynthesis.com
 requires: c++11
 # @@ DEP
 #requires: ? libunixodbc ; Only on UNIX.
-
-# @@ TMP Bump the toolchain version to 0.17.0 after it is released.
-#
 depends: * build2 >= 0.17.0
 depends: * bpkg >= 0.17.0
 
