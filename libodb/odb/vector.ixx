@@ -233,9 +233,9 @@ namespace odb
   inline void vector<T, A LIBODB_VECTOR_ARG_USE>::
   insert (iterator p, I f, I l)
   {
-    bool t (_tracking ());
+    const bool t (_tracking ());
 
-    size_type i, n;
+    size_type i (0), n (0); // Suppress GCC -Wmaybe-uninitialized.
     if (t)
     {
       i = static_cast<size_type> (p.base () - v_.begin ());
