@@ -4,6 +4,8 @@
 #ifndef ODB_MYSQL_DETAILS_CONFIG_HXX
 #define ODB_MYSQL_DETAILS_CONFIG_HXX
 
+// NOTE: included in public interface (version.hxx.in).
+
 // no pre
 
 #ifdef ODB_COMPILER
@@ -16,6 +18,35 @@
 #  error mysql headers must be included with mysql/ prefix
 #elif !defined(LIBODB_MYSQL_INCLUDE_LONG)
 #  define LIBODB_MYSQL_INCLUDE_LONG 1
+#endif
+
+// Define LIBODB_MYSQL_MARIADB macro if MariaDB is installed in the
+// libmysqlclient compatibility mode.
+//
+#ifndef LIBODB_MYSQL_MARIADB
+
+// Note that MariaDB issues the 'should not be included by clients' warning
+// when <mysql/mysql_version.h> is included directly. Let's just suppress this
+// warning.
+//
+// Also note that this approach doesn't work for GCC prior to the version 13.
+// To suppress this warning for the older GCC versions the -Wno-cpp compiler
+// option needs to be specified.
+//
+#  if defined(__clang__) || defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wcpp"
+#  endif
+
+#  include <mysql/mysql_version.h>
+
+#  if defined(__clang__) || defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#  endif
+
+#  ifdef MARIADB_VERSION_ID
+#    define LIBODB_MYSQL_MARIADB
+#  endif
 #endif
 
 // no post

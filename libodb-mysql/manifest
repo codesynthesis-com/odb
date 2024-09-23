@@ -378,6 +378,12 @@ f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
 #
 # - Build as C++11 for maximum compatibility (this is a C++11 codebase).
 
+# Note that on Debian 11, 12 the builds end up with the MariaDB's 'should not
+# be included by clients' warning (see odb/mysql/details/config.hxx for
+# details). We suppress it with the -Wno-cpp GCC option.
+#
+# @@ For the later Debian versions review if this option is still required.
+#
 bindist-debian-builds: bindist
 bindist-debian-build-include: linux_debian*-**
 bindist-debian-build-include: linux_ubuntu*-**
@@ -386,7 +392,14 @@ bindist-debian-build-config:
 \
 +bpkg.bindist.debian:
 +bbot.bindist.upload:
+bpkg.bindist.debian:--debian-buildflags=prepend
 b.create:config.cxx.std=c++11
+bpkg.configure.build:.../config.cc.poptions=[null]
+bpkg.configure.build:.../config.cc.coptions=[null]
+bpkg.configure.build:.../config.cc.loptions=[null]
+bpkg.configure.build:.../config.cxx.coptions=-Wno-cpp
+b.test-installed.create:config.cxx.coptions=-Wno-cpp
+bpkg.test-separate-installed.create:config.cxx.coptions=-Wno-cpp
 ?sys:libmysqlclient
 ?sys:mysql-client
 

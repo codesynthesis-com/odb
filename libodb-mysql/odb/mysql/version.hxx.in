@@ -3,6 +3,8 @@
 
 #ifndef LIBODB_MYSQL_VERSION // Note: using the version macro itself.
 
+#include <odb/mysql/details/config.hxx> // LIBODB_MYSQL_MARIADB
+
 // New numeric version format is AAAAABBBBBCCCCCDDDE where:
 //
 // AAAAA - major version number
