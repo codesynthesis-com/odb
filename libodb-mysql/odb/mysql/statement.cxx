@@ -12,6 +12,8 @@
 #include <odb/mysql/statement.hxx>
 #include <odb/mysql/error.hxx>
 
+#include <odb/mysql/details/config.hxx> // LIBODB_MYSQL_MARIADB
+
 using namespace std;
 
 namespace odb
@@ -362,9 +364,14 @@ namespace odb
             translate_error (conn_, stmt_);
 
           // mysql_stmt_num_rows() returns the number of rows that have been
-          // fetched by store_result.
+          // fetched by store_result for MySQL and the total number of rows
+          // in the result set for MariaDB.
           //
+#ifndef LIBODB_MYSQL_MARIADB
           size_ = rows_ + static_cast<size_t> (mysql_stmt_num_rows (stmt_));
+#else
+          size_ = static_cast<size_t> (mysql_stmt_num_rows (stmt_));
+#endif
         }
         else
           size_ = rows_;
@@ -603,6 +610,19 @@ namespace odb
 
       if (param_version_ != param_.version)
       {
+        // It turns out that MariaDB requires the variable referenced by
+        // MYSQL_BIND::length member to be initialized even for the NULL
+        // values. Otherwise, mysql_stmt_execute() may fail with the
+        // CR_OUT_OF_MEMORY error.
+        //
+#ifdef LIBODB_MYSQL_MARIADB
+        for (MYSQL_BIND *b (param_.bind), *e (b + param_.count); b != e; ++b)
+        {
+          if (b->is_null != 0 && *b->is_null && b->length != 0)
+            *b->length = 0;
+        }
+#endif
+
         size_t count (process_bind (param_.bind, param_.count));
 
         if (mysql_stmt_bind_param (stmt_, param_.bind))
@@ -710,6 +730,18 @@ namespace odb
 
       if (param_version_ != param_.version)
       {
+        // It turns out that MariaDB requires the variable referenced by
+        // MYSQL_BIND::length member to be initialized even for the NULL
+        // values (see above for details).
+        //
+#ifdef LIBODB_MYSQL_MARIADB
+        for (MYSQL_BIND *b (param_.bind), *e (b + param_.count); b != e; ++b)
+        {
+          if (b->is_null != 0 && *b->is_null && b->length != 0)
+            *b->length = 0;
+        }
+#endif
+
         size_t count (process_bind (param_.bind, param_.count));
 
         if (mysql_stmt_bind_param (stmt_, param_.bind))
