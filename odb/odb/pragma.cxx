@@ -159,12 +159,17 @@ parse_expression (cxx_lexer& l,
                   string& tl,
                   tree& tn,
                   cxx_tokens& ts,
-                  string const& prag)
+                  string const& prag,
+                  bool balance_angles = false)
 {
   // Keep reading tokens until we see a mis-matching ')' or ',' while
-  // keeping track of the '()' and '{}' balance.
+  // keeping track of the '()', '{}', and '<>' balance.
   //
-  size_t p_balance (0), b_balance (0);
+  // @@ The below implementation of the '<>' balance tracking doesn't
+  //    distinguish angle brackets from the comparison/stream operators and
+  //    should be fixed one day.
+  //
+  size_t p_balance (0), b_balance (0), a_balance (0);
 
   for (; tt != CPP_EOF; tt = l.next (tl, &tn))
   {
@@ -173,6 +178,34 @@ parse_expression (cxx_lexer& l,
 
     switch (tt)
     {
+    case CPP_LESS:
+      {
+        if (balance_angles)
+          a_balance++;
+
+        break;
+      }
+    case CPP_GREATER:
+      {
+        if (balance_angles)
+          a_balance--;
+
+        break;
+      }
+    case CPP_LSHIFT:
+      {
+        if (balance_angles)
+          a_balance += 2;
+
+        break;
+      }
+    case CPP_RSHIFT:
+      {
+        if (balance_angles)
+          a_balance -= 2;
+
+        break;
+      }
     case CPP_OPEN_BRACE:
       {
         b_balance++;
@@ -190,7 +223,7 @@ parse_expression (cxx_lexer& l,
       }
     case CPP_CLOSE_PAREN:
       {
-        if (p_balance == 0 && b_balance == 0)
+        if (p_balance == 0 && b_balance == 0 && a_balance == 0)
           done = true;
         else
           p_balance--;
@@ -198,7 +231,7 @@ parse_expression (cxx_lexer& l,
       }
     case CPP_COMMA:
       {
-        if (p_balance == 0 && b_balance == 0)
+        if (p_balance == 0 && b_balance == 0 && a_balance == 0)
           done = true;
         else
           break;
@@ -1202,7 +1235,7 @@ handle_pragma (cxx_lexer& l,
     tt = l.next (tl, &tn);
     if (tt != CPP_CLOSE_PAREN) // Empty expression are ok.
     {
-      if (!parse_expression (l, tt, tl, tn, ma.expr, p))
+      if (!parse_expression (l, tt, tl, tn, ma.expr, p, true /* balance_angles */))
         return; // Diagnostics has already been issued.
 
       if (tt != CPP_CLOSE_PAREN)
