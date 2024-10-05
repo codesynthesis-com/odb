@@ -84,7 +84,7 @@ main (int argc, char* argv[])
 
       print (*j);
 
-      // Ann another nickname.
+      // Add another nickname.
       //
       j->nicknames ().push_back ("Cleaner");
 
