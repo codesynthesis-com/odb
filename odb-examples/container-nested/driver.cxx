@@ -45,10 +45,10 @@ print (const person& p)
   {
     cout << "  emergency contact: " << i->first_name << ' ' << i->last_name;
 
-    for (phone_numbers::const_iterator j (i->phone_numbers.begin ());
-         j != i->phone_numbers.end (); ++j)
+    for (phone_numbers::const_iterator j (i->numbers.begin ());
+         j != i->numbers.end (); ++j)
     {
-      if (j != i->phone_numbers.begin ())
+      if (j != i->numbers.begin ())
         cout << ',';
 
       cout << ' ' << *j;
@@ -91,11 +91,11 @@ main (int argc, char* argv[])
     {
       person joe ("Joe", "Dirt");
 
-      joe.trips ().push_back (trip {country {"Colombia", 1},
-                                    country {"Peru", 2}});
+      joe.trips ().push_back (trip {country_stay {"Colombia", 1},
+                                    country_stay {"Peru", 2}});
 
-      joe.trips ().push_back (trip {country {"France", 3},
-                                    country {"Italy", 4}});
+      joe.trips ().push_back (trip {country_stay {"France", 3},
+                                    country_stay {"Italy", 4}});
 
       joe.emergency_contacts ().push_back ({
         emergency_contact {
@@ -125,8 +125,8 @@ main (int argc, char* argv[])
 
       // Add another trip.
       //
-      j->trips ().push_back (trip {country {"China", 6},
-                                   country {"Japan", 7}});
+      j->trips ().push_back (trip {country_stay {"China", 6},
+                                   country_stay {"Japan", 7}});
 
       // Update an existing trip.
       //
@@ -140,7 +140,7 @@ main (int argc, char* argv[])
 
       // Update an existing emergency contact.
       //
-      j->emergency_contacts ()[0].phone_numbers[1] = "198-23-33";
+      j->emergency_contacts ()[0].numbers[1] = "198-23-33";
 
       // Add another age weights.
       //

@@ -171,6 +171,61 @@ namespace odb
     }
   }
 
+  // 1-level nesting by the std::vector-like containers of value types which
+  // contain the std::vector-like containers.
+  //
+  template <typename OC, // For example, OC = vector<T1> (class T1{ IC m; }).
+            typename IC, // For example, IC = vector<T2>.
+            typename K = nested_key<IC>>
+  typename std::enable_if<std::is_same<typename OC::value_type,
+                                       typename nested1_type<OC>::type>::value,
+                          std::map<K, typename nested1_type<IC>::type>>::type
+  nested_get (const OC& oc, IC OC::value_type::* m)
+  {
+    using namespace std;
+
+    using V = typename nested1_type<IC>::type;
+
+    map<K, V> r;
+    for (size_t o (0); o != oc.size (); ++o)
+    {
+      const IC& ic (oc[o].*m);
+      for (size_t i (0); i != ic.size (); ++i)
+        r.emplace (K (o, i), ic[i]);
+    }
+    return r;
+  }
+
+  template <typename K, typename V, typename OC, typename IC>
+  typename std::enable_if<
+    std::is_same<typename OC::value_type,
+                 typename nested1_type<OC>::type>::value>::type
+  nested_set (OC& oc, IC OC::value_type::* m, std::map<K, V>&& r)
+  {
+    using namespace std;
+
+    for (auto& o: oc)
+    {
+      auto& c (o.*m);
+      c.erase (c.begin (), c.end ());
+    }
+
+    for (auto& p: r)
+    {
+      size_t o (p.first.outer);
+      V& v (p.second);
+
+      if (o >= oc.size ())
+        oc.resize (o + 1);
+
+      IC& ic (oc[o].*m);
+
+      assert (p.first.inner == ic.size ());
+
+      ic.push_back (move (v));
+    }
+  }
+
   // 1-level nesting of the std::vector-like containers in the std::map-like
   // containers.
   //

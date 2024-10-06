@@ -137,7 +137,7 @@ private:
   trips_type trips_;
 
   using _trip_key = odb::nested_key<trip>;
-  using _trips_type = std::map<_trip_key, country>;
+  using _trips_type = std::map<_trip_key, country_stay>;
 
   #pragma db value(_trip_key)
   //#pragma db member(_trip_key::outer) column("trip_index")
@@ -147,7 +147,7 @@ private:
     virtual(_trips_type) \
     get(odb::nested_get (this.trips_)) \
     set(odb::nested_set (this.trips_, std::move (?))) \
-    //id_column("person") key_column("") value_column("country_")
+    //id_column("person") key_column("") value_column("country_stay_")
 
 
   // emergency_contacts
@@ -156,43 +156,8 @@ private:
   //
   emergency_contacts_type emergency_contacts_;
 
-  // Note that ODB doesn't support containers of value types which contain
-  // containers. Thus, we will persist/load
-  // emergency_contacts_type::phone_numbers via a separate nested container
-  // (virtual emergency_contact_phone_numbers member) using an adapter class
-  // (emergency_contact_phone_numbers).
-  //
-  class emergency_contact_phone_numbers: public std::vector<phone_numbers>
-  {
-  public:
-    emergency_contact_phone_numbers () {}
-
-    explicit
-    emergency_contact_phone_numbers (const emergency_contacts_type& cs)
-    {
-      reserve (cs.size ());
-
-      for (emergency_contacts_type::const_iterator i (cs.begin ());
-           i != cs.end (); ++i)
-        push_back (i->phone_numbers);
-    }
-
-    void
-    to_emergency_contacts (emergency_contacts_type& cs) &&
-    {
-      // Note that the empty trailing entries will be missing (see ODB's
-      // nested-container.hxx for details).
-      //
-      assert (size () <= cs.size ());
-
-      auto i (cs.begin ());
-      for (iterator j (begin ()); j != end (); ++j)
-        i++->phone_numbers = std::move (*j);
-    }
-  };
-
-  typedef odb::nested_key<phone_numbers> _phone_numbers_key;
-  typedef std::map<_phone_numbers_key, std::string> _phone_numbers_type;
+  using _phone_numbers_key = odb::nested_key<phone_numbers>;
+  using _phone_numbers_type = std::map<_phone_numbers_key, std::string>;
 
   #pragma db value(_phone_numbers_key)
   //#pragma db member(_phone_numbers_key::outer) column("contact_index")
@@ -201,12 +166,11 @@ private:
   #pragma db member(emergency_contact_phone_numbers) \
     virtual(_phone_numbers_type) \
     after(emergency_contacts_) \
-    get(odb::nested_get ( \
-          person::emergency_contact_phone_numbers ( \
-            this.emergency_contacts_))) \
-    set(person::emergency_contact_phone_numbers ns; \
-        odb::nested_set (ns, std::move (?)); \
-        std::move (ns).to_emergency_contacts (this.emergency_contacts_)) \
+    get(odb::nested_get (this.emergency_contacts_, \
+                         &emergency_contact::numbers)) \
+    set(odb::nested_set (this.emergency_contacts_, \
+                         &emergency_contact::numbers, \
+                         std::move (?))) \
     //id_column("person") key_column("") value_column("phone_number")
 
 
