@@ -23,6 +23,8 @@ namespace odb
   // vector<vector<V>>, as map<nested_key, V> where nested_key is a composite
   // key consisting of the outer and inner container indexes.
   //
+  // See container-nested in odb-examples for some examples.
+  //
   // Note that with this approach the empty trailing entries of the outer
   // container will not be added on load. It is assumed that the user handles
   // that on their own, for example, by pre-loading the outer container entry
@@ -113,7 +115,7 @@ namespace odb
   struct nested3_type:
     std::remove_reference<decltype (std::declval<C> ()[0][0][0])> {};
 
-  // 1-level nesting of the std::vector-like containers.
+  // 1-level nesting of std::vector-like containers.
   //
   template <typename OC, // For example, OC = vector<vector<V>>.
             typename K = nested_key<typename nested1_type<OC>::type>>
@@ -137,7 +139,7 @@ namespace odb
     return r;
   }
 
-  template <typename K, typename V, typename OC>
+  template <typename OC, typename K, typename V>
   typename std::enable_if<
     std::is_same<typename OC::value_type,
                  typename nested1_type<OC>::type>::value>::type
@@ -149,10 +151,10 @@ namespace odb
     //
     // Note that the entries of the outer container may potentially be value
     // types derived from a container type. This value type may potentially
-    // override the container's clear() function, which signature is quite
-    // common. Thus, to clean up the nested containers let's use their
-    // erase(iterator,iterator) function, which is unlikely be overridden by
-    // the value type.
+    // override the container's clear() function (its signature is quite
+    // common). Thus, to clean up the nested containers let's use their
+    // erase(iterator,iterator) function, which is unlikely to be overridden
+    // by the value type.
     //
     for (auto& c: oc)
       c.erase (c.begin (), c.end ());
@@ -171,8 +173,8 @@ namespace odb
     }
   }
 
-  // 1-level nesting by the std::vector-like containers of value types which
-  // contain the std::vector-like containers.
+  // 1-level nesting in std::vector-like containers of value types which
+  // contain std::vector-like containers.
   //
   template <typename OC, // For example, OC = vector<T1> (class T1{ IC m; }).
             typename IC, // For example, IC = vector<T2>.
@@ -196,7 +198,7 @@ namespace odb
     return r;
   }
 
-  template <typename K, typename V, typename OC, typename IC>
+  template <typename OC, typename IC, typename K, typename V>
   typename std::enable_if<
     std::is_same<typename OC::value_type,
                  typename nested1_type<OC>::type>::value>::type
@@ -226,7 +228,7 @@ namespace odb
     }
   }
 
-  // 1-level nesting of the std::vector-like containers in the std::map-like
+  // 1-level nesting in std::map-like containers of std::vector-like
   // containers.
   //
   template <typename OC, // For example, OC = map<K,vector<V>>.
@@ -253,7 +255,7 @@ namespace odb
     return r;
   }
 
-  template <typename K, typename V, typename OC>
+  template <typename OC, typename K, typename V>
   typename std::enable_if<
     std::is_same<typename OC::mapped_type,
                  typename OC::value_type::second_type>::value>::type
@@ -278,7 +280,7 @@ namespace odb
     }
   }
 
-  // 2-level nesting of the std::vector-like containers.
+  // 2-level nesting of std::vector-like containers.
   //
   template <typename OC, // For example, OC = vector<vector<vector<V>>>.
             typename K = nested2_key<typename nested1_type<OC>::type>>
@@ -305,7 +307,7 @@ namespace odb
     return r;
   }
 
-  template <typename K, typename V, typename OC>
+  template <typename OC, typename K, typename V>
   void
   nested2_set (OC& oc, std::map<K, V>&& r)
   {
