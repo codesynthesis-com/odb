@@ -23,12 +23,12 @@ exe{driver}: libue{person-meta} $libs
   depdb dyndep --dyn-target --target-what 'generated schema' --format lines \
   -- echo ($sqlite ? '' : "$out_base/person.sql")
 
-  $odb --std c++11               \
-       --database $database      \
-       --generate-schema         \
-       --output-dir $out_base    \
-       --table-prefix cont_nest_ \
-       "-I$src_base" $pops       \
+  $odb --std c++11            \
+       --database $database   \
+       --generate-schema      \
+       --output-dir $out_base \
+       --table-prefix cn_     \
+       "-I$src_base" $pops    \
        $path($<[0])
 }}
 
