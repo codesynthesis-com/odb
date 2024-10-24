@@ -71,9 +71,9 @@ namespace odb
           i.day = d.day ();
 
           const time_duration& t (v.time_of_day ());
-          i.hour = t.hours ();
-          i.minute = t.minutes ();
-          i.second = t.seconds ();
+          i.hour = static_cast<unsigned int> (t.hours ());
+          i.minute = static_cast<unsigned int> (t.minutes ());
+          i.second = static_cast<unsigned int> (t.seconds ());
 
           unsigned long long ms (t.fractional_seconds ());
           ms = ms * 1000000ULL / time_duration::ticks_per_second ();
@@ -140,9 +140,9 @@ namespace odb
           i.day = d.day ();
 
           const time_duration& t (v.time_of_day ());
-          i.hour = t.hours ();
-          i.minute = t.minutes ();
-          i.second = t.seconds ();
+          i.hour = static_cast<unsigned int> (t.hours ());
+          i.minute = static_cast<unsigned int> (t.minutes ());
+          i.second = static_cast<unsigned int> (t.seconds ());
 
           unsigned long long ms (t.fractional_seconds ());
           ms = ms * 1000000ULL / time_duration::ticks_per_second ();
@@ -205,9 +205,9 @@ namespace odb
           i.month = 0;
           i.day = 0;
 
-          i.hour = std::abs (v.hours ());
-          i.minute = std::abs (v.minutes ());
-          i.second = std::abs (v.seconds ());
+          i.hour = static_cast<unsigned int> (std::abs (v.hours ()));
+          i.minute = static_cast<unsigned int> (std::abs (v.minutes ()));
+          i.second = static_cast<unsigned int> (std::abs (v.seconds ()));
 
           // Some compilers, e.g., VC8, don't have 64-bit abs() overload.
           //
