@@ -68,7 +68,7 @@ clear()
 
 template <typename T>
 inline T& QOdbList<T>::
-modify (int i)
+modify (size_type i)
 {
   T& r (l_[i]);
   if (_tracking ())
@@ -78,7 +78,7 @@ modify (int i)
 
 template <typename T>
 inline void QOdbList<T>::
-reserve (int n)
+reserve (size_type n)
 {
   l_.reserve (n);
   if (_tracking ())
@@ -114,7 +114,7 @@ prepend (const T& x)
 
 template <typename T>
 inline void QOdbList<T>::
-insert (int i, const T& x)
+insert (size_type i, const T& x)
 {
   l_.insert (i, x);
   if (_tracking ())
@@ -123,7 +123,7 @@ insert (int i, const T& x)
 
 template <typename T>
 inline void QOdbList<T>::
-replace (int i, const T& x)
+replace (size_type i, const T& x)
 {
   l_.insert (i, x);
   if (_tracking ())
@@ -132,7 +132,7 @@ replace (int i, const T& x)
 
 template <typename T>
 inline void QOdbList<T>::
-removeAt (int i)
+removeAt (size_type i)
 {
   l_.removeAt (i);
   if (_tracking ())
@@ -140,14 +140,14 @@ removeAt (int i)
 }
 
 template <typename T>
-inline int QOdbList<T>::
+inline typename QOdbList<T>::size_type QOdbList<T>::
 removeAll (const T& x)
 {
   // We have to re-implement this one ourselves since we need to
   // know the indexes of the removed elements.
   //
-  int r (0);
-  for (int i (l_.indexOf (x)); i != -1; i = l_.indexOf (x, i))
+  size_type r (0);
+  for (size_type i (l_.indexOf (x)); i != -1; i = l_.indexOf (x, i))
   {
     removeAt (i);
     r++;
@@ -162,7 +162,7 @@ removeOne (const T& x)
   // We have to re-implement this one ourselves since we need to
   // know the index of the removed element.
   //
-  int i (l_.indexOf (x));
+  size_type i (l_.indexOf (x));
   if (i != -1)
     removeAt (i);
   return i != -1;
@@ -170,7 +170,7 @@ removeOne (const T& x)
 
 template <typename T>
 inline T QOdbList<T>::
-takeAt (int i)
+takeAt (size_type i)
 {
   if (_tracking ())
     impl_.erase (static_cast<std::size_t> (i));
@@ -197,7 +197,7 @@ takeLast ()
 
 template <typename T>
 inline void QOdbList<T>::
-move (int from, int to)
+move (size_type from, size_type to)
 {
   l_.move (from, to);
   if (_tracking ())
@@ -209,7 +209,7 @@ move (int from, int to)
 
 template <typename T>
 inline void QOdbList<T>::
-swap (int i, int j)
+swap (size_type i, size_type j)
 {
   l_.swapItemsAt (i, j);
   if (_tracking ())

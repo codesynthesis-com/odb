@@ -38,6 +38,14 @@ public:
   typedef QList<T> base_list_type;
   typedef typename base_list_type::iterator base_iterator_type;
 
+  typedef typename base_list_type::size_type size_type;
+  typedef T value_type;
+  typedef value_type *pointer;
+  typedef const value_type *const_pointer;
+  typedef value_type &reference;
+  typedef const value_type &const_reference;
+  typedef typename base_list_type::difference_type difference_type;
+
   QOdbList() {}
   QOdbList(const QOdbList &x): vector_base (x), l_ (x.l_) {}
   // ~QOdbList();
@@ -67,7 +75,7 @@ public:
   bool operator==(const QList<T> &x) const {return l_ == x;}
   bool operator!=(const QList<T> &x) const {return l_ != x;}
 
-  int size() const {return l_.size ();}
+  size_type size() const {return l_.size ();}
   void detach() {l_.detach ();}
 
 #if QT_VERSION < 0x060000
@@ -82,31 +90,32 @@ public:
   bool isEmpty() const {return l_.isEmpty ();}
   void clear();
 
-  const T &at(int i) const {return l_.at (i);}
-  const T &operator[](int i) const {return l_[i];}
-  //T &operator[](int i);
-  T &modify (int i);
+  const T &at(size_type i) const {return l_.at (i);}
+  const T &operator[](size_type i) const {return l_[i];}
+  //T &operator[](size_type i);
+  T &modify (size_type i);
 
-  void reserve(int size);
+  void reserve(size_type size);
   void append(const T &t);
   void append(const QList<T> &t); // Implicit conversion.
   void prepend(const T &t);
-  void insert(int i, const T &t);
-  void replace(int i, const T &t);
-  void removeAt(int i);
-  int removeAll(const T &t);
+  void insert(size_type i, const T &t);
+  void replace(size_type i, const T &t);
+  void removeAt(size_type i);
+  size_type removeAll(const T &t);
   bool removeOne(const T &t);
-  T takeAt(int i);
+  T takeAt(size_type i);
   T takeFirst();
   T takeLast();
-  void move(int from, int to);
-  void swap(int i, int j);
+  void move(size_type from, size_type to);
+  void swap(size_type i, size_type j);
 
-  int indexOf(const T &t, int from = 0) const {return l_.indexOf (t, from);}
-  int lastIndexOf(const T &t, int from = -1) const
+  size_type indexOf(const T &t, size_type from = 0) const
+  {return l_.indexOf (t, from);}
+  size_type lastIndexOf(const T &t, size_type from = -1) const
   {return l_.lastIndexOf (t, from);}
   bool contains(const T &t) const {return l_.contains (t);}
-  int count(const T &t) const {return l_.count (t);}
+  size_type count(const T &t) const {return l_.count (t);}
 
   typedef QOdbListIteratorImpl<QOdbList> iterator;
   typedef typename base_list_type::const_iterator const_iterator;
@@ -137,8 +146,8 @@ public:
   typedef iterator Iterator;
   typedef const_iterator ConstIterator;
 
-  int count() const {return l_.count ();}
-  int length() const {return l_.length ();}
+  size_type count() const {return l_.count ();}
+  size_type length() const {return l_.length ();}
   //T& first();
   T& modifyFirst();
   const T& first() const {return l_.first ();}
@@ -149,10 +158,11 @@ public:
   void removeLast();
   bool startsWith(const T &t) const {return l_.startsWith (t);}
   bool endsWith(const T &t) const {return l_.endsWith (t);}
-  QList<T> mid(int pos, int length = -1) const {return l_.mid (pos, length);}
+  QList<T> mid(size_type pos, size_type length = -1) const
+  {return l_.mid (pos, length);}
 
-  T value(int i) const {return l_.value (i);}
-  T value(int i, const T &defValue) const {return l_.value (i, defValue);}
+  T value(size_type i) const {return l_.value (i);}
+  T value(size_type i, const T &defValue) const {return l_.value (i, defValue);}
 
   // stl compatibility
   void push_back(const T &t) {append(t);}
@@ -166,14 +176,6 @@ public:
   void pop_front() {removeFirst();}
   void pop_back() {removeLast();}
   bool empty() const {return l_.empty ();}
-
-  typedef int size_type;
-  typedef T value_type;
-  typedef value_type *pointer;
-  typedef const value_type *const_pointer;
-  typedef value_type &reference;
-  typedef const value_type &const_reference;
-  typedef typename base_list_type::difference_type difference_type;
 
   // comfort
   // Implicit conversion.
@@ -264,12 +266,12 @@ public:
   QOdbListIteratorImpl  operator-- (int)
   {return QOdbListIteratorImpl (l_, i_--);}
 
-  QOdbListIteratorImpl operator+ (int n) const
+  QOdbListIteratorImpl operator+ (size_type n) const
   {return QOdbListIteratorImpl (l_, i_ + n);}
-  QOdbListIteratorImpl& operator+= (int n) {i_ += n; return *this;}
-  QOdbListIteratorImpl operator- (int n) const
+  QOdbListIteratorImpl& operator+= (size_type n) {i_ += n; return *this;}
+  QOdbListIteratorImpl operator- (size_type n) const
   {return QOdbListIteratorImpl (l_, i_ - n);}
-  QOdbListIteratorImpl& operator-= (int n) {i_ -= n; return *this;}
+  QOdbListIteratorImpl& operator-= (size_type n) {i_ -= n; return *this;}
 
 private:
   list_type* l_;
