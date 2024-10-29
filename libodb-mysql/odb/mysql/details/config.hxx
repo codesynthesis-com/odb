@@ -35,7 +35,15 @@
 //
 #  if defined(__clang__) || defined(__GNUC__)
 #    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wcpp"
+
+// Note that the older versions of Clang don't recognize the -Wcpp warning
+// group. For them we use the synonym -W#warnings instead.
+//
+#    if defined(__clang__) && __clang_major__ < 6
+#      pragma GCC diagnostic ignored "-W#warnings"
+#    else
+#      pragma GCC diagnostic ignored "-Wcpp"
+#    endif
 #  endif
 
 #  include <mysql/mysql_version.h>
