@@ -326,7 +326,7 @@ namespace odb
         case select_statement::success:
           {
             svi.migration = migration != 0;
-            assert (st.fetch () == select_statement::no_data);
+            assert (st.fetch () == select_statement::no_data); // NDEBUG-ok.
             break;
           }
         case select_statement::no_data:

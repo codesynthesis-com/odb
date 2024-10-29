@@ -254,7 +254,8 @@ namespace semantics
                 // namespace) but we only use this function to print names
                 // of anonymous types.
                 //
-                assert (l.next (t) == CPP_SCOPE);
+                cpp_ttype tt (l.next (t));
+                assert (tt == CPP_SCOPE);
                 continue;
               }
             }

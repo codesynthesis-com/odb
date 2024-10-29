@@ -210,13 +210,13 @@ struct pragma_set: std::multimap<std::string, pragma>
       if (r.first != r.second)
       {
         i = r.first;
-        assert (++r.first == r.second);
+        assert (++r.first == r.second); // NDEBUG-ok (unused).
 
         i->second = p;
       }
     }
     else if (r.first != r.second)
-      assert ((--r.second)->second.loc <= p.loc);
+      assert ((--r.second)->second.loc <= p.loc); // NDEBUG-ok (unused).
 
     if (i == end ())
       i = base::insert (base::value_type (n, p));

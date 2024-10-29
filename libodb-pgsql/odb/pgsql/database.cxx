@@ -353,7 +353,7 @@ namespace odb
         {
         case select_statement::success:
           {
-            assert (st.fetch () == select_statement::no_data);
+            assert (st.fetch () == select_statement::no_data); // NDEBUG-ok.
             break;
           }
         case select_statement::no_data:
@@ -393,7 +393,7 @@ namespace odb
             {
               value_traits<unsigned long long, id_bigint>::set_value (
                 svi.version, version, rnull[0]);
-              assert (st.fetch () == select_statement::no_data);
+              assert (st.fetch () == select_statement::no_data); // NDEBUG-ok.
               break;
             }
           case select_statement::no_data:

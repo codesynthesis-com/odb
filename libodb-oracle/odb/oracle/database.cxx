@@ -326,7 +326,7 @@ namespace odb
             value_traits<unsigned long long, id_big_int>::set_value (
               svi.version, version, rsize[0], rind[0] == -1);
             svi.migration = migration != 0;
-            assert (st.fetch () == select_statement::no_data);
+            assert (st.fetch () == select_statement::no_data); // NDEBUG-ok.
             break;
           }
         case select_statement::no_data:
