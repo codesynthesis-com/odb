@@ -46,3 +46,91 @@ bindist-fedora-build-config:
 +bbot.bindist.upload:
 b.create:config.cxx.std=c++11
 \
+
+# Windows binary distribution archives (release and debug).
+#
+# - Don't bundle libodb dependency, assuming that the archive will normally be
+#   extracted into the directory with the database-specific runtime libraries
+#   and, thus, containing libodb.
+#
+# - Build using the same custom bot which is used to build libodb.
+#
+# - For Debug we only produce the shared library (if we wanted to also do
+#   static, then would need to use /Z7), adding the `D` suffix to the library
+#   name.
+#
+bindist-windows-release-builds: bindist
+bindist-windows-release-build-include: windows*-msvc**
+bindist-windows-release-build-exclude: **
+#bindist-windows-release-build-bot: -- see below.
+bindist-windows-release-build-config:
+\
++bpkg.bindist.archive:
++bbot.bindist.upload:
+
+# Relocatable by default (see target configuration for details).
+#
+#bpkg.bindist.archive:config.install.relocatable=true
+
+b.create:config.cc.coptions="/W2 /O2"
+b.create:config.cxx.std=c++11
+\
+
+bindist-windows-debug-builds: bindist
+bindist-windows-debug-build-include: windows*-msvc**
+bindist-windows-debug-build-exclude: **
+#bindist-windows-debug-build-bot: -- see below.
+bindist-windows-debug-build-config:
+\
++bpkg.bindist.archive:
++bbot.bindist.upload:
+
+# Relocatable by default (see target configuration for details).
+#
+#bpkg.bindist.archive:config.install.relocatable=true
+
+bpkg.bindist.archive:--archive-build-meta=+debug
+bpkg.create:config.bin.lib=shared
+bpkg.create:config.bin.lib.suffix=D
+b.create:config.cc.coptions="/W2 /Zi /MDd"
+b.create:config.cc.loptions="/DEBUG:FULL"
+b.test-installed.create:config.cc.coptions="/W2 /MDd"
+b.test-installed.create:config.import.libodb_boost.odb_boost.lib=odb-boostD
+b.create:config.cxx.std=c++11
+\
+
+bindist-windows-release-build-bot:
+\
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuF4YmJmPHY52Q6N+YO0M
+lt/fCovdezleb2tVplyTnvbyAiPdmYCIIjVrsqUn3y46PdFtWEiSdsrCcncoxi6H
+8KelOB/oQ9pNTyEvwGKEH5ZIU7noLZYdXEfoNdvdL/pbY/7uLBZOSekfdQShZtbe
+uOZCM2Mhg2DD76TP/VAwaXuDCnEvxxU/yneUl5ZaBo62AWNrYJuSGAliCOpVpl6X
+X1kbHOvnCx7c9e3LxgaVivPaeZRKYg0OaFt96SBYEZzNPvjA8pMuKuj/vatHaCQ3
+NO9+r3TJ+4dQd7qN6Ju3zUJq9J/ndSh4lPvUalvvhdykecefhcyHwRZOG4xyFMFE
+nJM4sM+aZu6WoKATIKtk7On70inVr0sZJXwJ4Lt4oqaK2VthcSTby3wf2Yv4p5hL
+zNo31cCPmBRYzABcIc6ADYvexVK4uCwaim8xs7RK5Ug2Gv6vUWoRNZW8grIgDwUY
+5pZ4Zk3hW4ii2vehTaVrrmdW6XipIsT+ayiVX7eWuHHNxAeCojXVjOJu9B0ExMlD
+5tHZCs+SNdV5MceexecbptB7fZtRebP120yjLiSnZ5FpaQ1stusr0hSg+VQaX4np
+f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
+9MLA+cE/nNJ/rMI//MZ1+kcCAwEAAQ==
+-----END PUBLIC KEY-----
+\
+
+bindist-windows-debug-build-bot:
+\
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuF4YmJmPHY52Q6N+YO0M
+lt/fCovdezleb2tVplyTnvbyAiPdmYCIIjVrsqUn3y46PdFtWEiSdsrCcncoxi6H
+8KelOB/oQ9pNTyEvwGKEH5ZIU7noLZYdXEfoNdvdL/pbY/7uLBZOSekfdQShZtbe
+uOZCM2Mhg2DD76TP/VAwaXuDCnEvxxU/yneUl5ZaBo62AWNrYJuSGAliCOpVpl6X
+X1kbHOvnCx7c9e3LxgaVivPaeZRKYg0OaFt96SBYEZzNPvjA8pMuKuj/vatHaCQ3
+NO9+r3TJ+4dQd7qN6Ju3zUJq9J/ndSh4lPvUalvvhdykecefhcyHwRZOG4xyFMFE
+nJM4sM+aZu6WoKATIKtk7On70inVr0sZJXwJ4Lt4oqaK2VthcSTby3wf2Yv4p5hL
+zNo31cCPmBRYzABcIc6ADYvexVK4uCwaim8xs7RK5Ug2Gv6vUWoRNZW8grIgDwUY
+5pZ4Zk3hW4ii2vehTaVrrmdW6XipIsT+ayiVX7eWuHHNxAeCojXVjOJu9B0ExMlD
+5tHZCs+SNdV5MceexecbptB7fZtRebP120yjLiSnZ5FpaQ1stusr0hSg+VQaX4np
+f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
+9MLA+cE/nNJ/rMI//MZ1+kcCAwEAAQ==
+-----END PUBLIC KEY-----
+\

@@ -19,6 +19,7 @@ depends: * build2 >= 0.17.0
 depends: * bpkg >= 0.17.0
 
 depends: libpq >= 7.4.0
+depends: psql >= 7.4.0 ? ($config.libodb_pgsql.psql)
 depends: libodb == $
 depends: * cli ^1.2.0 ? ($config.libodb_pgsql.develop)
 
@@ -49,6 +50,14 @@ default-build-config:
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+# Configure odb-{tests,examples} packages' dependencies libodb and libpq as
+# system on the bpkg.test-separate-installed.configure.build step, since they
+# are already installed as dependencies of libodb-pqsql.
+#
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 # Only build this package configuration where it can be tested via odb-tests
@@ -70,6 +79,10 @@ multi-build-config:
   config.odb_tests.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_tests.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-tests
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 # Complements the default configuration (see odb-{tests,examples} for
@@ -94,6 +107,10 @@ custom-build-config:
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 # Complements the multi configuration (see odb-tests for background).
@@ -112,6 +129,10 @@ custom-multi-build-config:
   config.odb_tests.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_tests.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-tests
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 # Only build the {boost,qt5,qt6}-default package configurations where they can
@@ -144,6 +165,10 @@ boost-default-build-config:
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 qt5-default-builds: default
@@ -172,6 +197,10 @@ qt5-default-build-config:
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 qt6-default-builds: default
@@ -200,6 +229,10 @@ qt6-default-build-config:
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 # The {boost,qt5,qt6}-custom configurations complement the
@@ -230,6 +263,10 @@ boost-custom-build-config:
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 qt5-custom-builds: default ; Requires default config with GCC as host compiler.
@@ -256,6 +293,10 @@ qt5-custom-build-config:
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 qt6-custom-builds: default ; Requires default config with GCC as host compiler.
@@ -282,6 +323,10 @@ qt6-custom-build-config:
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
 \
 
 custom-build-bot:
@@ -403,6 +448,8 @@ b.create:config.cxx.std=c++11
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+{ --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
 
 bindist-fedora-builds: bindist
@@ -430,4 +477,143 @@ b.create:config.cxx.std=c++11
   config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
   config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
 }+ odb-examples
+
+{ --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
+\
+
+# Windows binary distribution archives (release and debug).
+#
+# - Bundle the dependencies (libpq, etc) with --recursive=full, so that if the
+#   user needs to link any of these libraries directly, they can use their
+#   bundled versions, compatible with libodb-pgsql.
+#
+# - Also bundle the database client program so that the user can use it, if
+#   they need to. Only for release.
+#
+# - Don't bundle libodb since it is packaged separately.
+#
+# - For Debug we only produce the shared library (if we wanted to also do
+#   static, then would need to use /Z7), adding the `D` suffix to the library
+#   name.
+#
+bindist-windows-release-builds: bindist
+bindist-windows-release-build-include: windows*-msvc**
+bindist-windows-release-build-exclude: **
+#bindist-windows-release-build-bot: -- see below.
+bindist-windows-release-build-config:
+\
++bpkg.bindist.archive:
++bbot.bindist.upload:
+bpkg.bindist.archive:--recursive=full
+bpkg.bindist.archive:--recursive=?libodb=separate
+
+# Relocatable by default (see target configuration for details).
+#
+#bpkg.bindist.archive:config.install.relocatable=true
+
+b.create:config.cc.coptions="/W2 /O2"
+b.create:config.cxx.std=c++11
+
+{ config.libodb_pgsql.psql=true }+ libodb-pgsql
+
+{
+  config.odb_tests.pgsql.user=$getenv(DATABASE_USER)
+  config.odb_tests.pgsql.database=$getenv(DATABASE_NAME)
+  config.odb_tests.pgsql.host=$getenv(DATABASE_HOST)
+  config.odb_tests.pgsql.port=$getenv(DATABASE_PORT)
+}+ odb-tests
+
+{
+  config.odb_examples.pgsql.user=$getenv(DATABASE_USER)
+  config.odb_examples.pgsql.database=$getenv(DATABASE_NAME)
+  config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
+  config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
+}+ odb-examples
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
+\
+
+bindist-windows-debug-builds: bindist
+bindist-windows-debug-build-include: windows*-msvc**
+bindist-windows-debug-build-exclude: **
+#bindist-windows-debug-build-bot: -- see below.
+bindist-windows-debug-build-config:
+\
++bpkg.bindist.archive:
++bbot.bindist.upload:
+bpkg.bindist.archive:--recursive=full
+bpkg.bindist.archive:--recursive=?libodb=separate
+
+# Relocatable by default (see target configuration for details).
+#
+#bpkg.bindist.archive:config.install.relocatable=true
+
+bpkg.bindist.archive:--archive-build-meta=+debug
+bpkg.create:config.bin.lib=shared
+bpkg.create:config.bin.lib.suffix=D
+b.create:config.cc.coptions="/W2 /Zi /MDd"
+b.create:config.cc.loptions="/DEBUG:FULL"
+b.test-installed.create:config.cc.coptions="/W2 /MDd"
+b.test-installed.create:config.import.libodb_pgsql.odb_pgsql.lib=odb-pgsqlD
+bpkg.test-separate-installed.create:config.cc.coptions="/W2 /MDd"
+bpkg.test-separate-installed.create:config.import.libodb_pgsql.odb_pgsql.lib=odb-pgsqlD
+bpkg.test-separate-installed.create:config.import.libodb.odb.lib=odbD
+bpkg.test-separate-installed.create:config.import.libpq.pq.lib=pqD
+b.create:config.cxx.std=c++11
+
+{
+  config.odb_tests.pgsql.user=$getenv(DATABASE_USER)
+  config.odb_tests.pgsql.database=$getenv(DATABASE_NAME)
+  config.odb_tests.pgsql.host=$getenv(DATABASE_HOST)
+  config.odb_tests.pgsql.port=$getenv(DATABASE_PORT)
+}+ odb-tests
+
+{
+  config.odb_examples.pgsql.user=$getenv(DATABASE_USER)
+  config.odb_examples.pgsql.database=$getenv(DATABASE_NAME)
+  config.odb_examples.pgsql.host=$getenv(DATABASE_HOST)
+  config.odb_examples.pgsql.port=$getenv(DATABASE_PORT)
+}+ odb-examples
+
+{
+  --config-uuid=00000000-0000-0000-0000-000000000005
+}+ { ?sys:libodb/* ?sys:libpq/* }
+\
+
+bindist-windows-release-build-bot:
+\
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuF4YmJmPHY52Q6N+YO0M
+lt/fCovdezleb2tVplyTnvbyAiPdmYCIIjVrsqUn3y46PdFtWEiSdsrCcncoxi6H
+8KelOB/oQ9pNTyEvwGKEH5ZIU7noLZYdXEfoNdvdL/pbY/7uLBZOSekfdQShZtbe
+uOZCM2Mhg2DD76TP/VAwaXuDCnEvxxU/yneUl5ZaBo62AWNrYJuSGAliCOpVpl6X
+X1kbHOvnCx7c9e3LxgaVivPaeZRKYg0OaFt96SBYEZzNPvjA8pMuKuj/vatHaCQ3
+NO9+r3TJ+4dQd7qN6Ju3zUJq9J/ndSh4lPvUalvvhdykecefhcyHwRZOG4xyFMFE
+nJM4sM+aZu6WoKATIKtk7On70inVr0sZJXwJ4Lt4oqaK2VthcSTby3wf2Yv4p5hL
+zNo31cCPmBRYzABcIc6ADYvexVK4uCwaim8xs7RK5Ug2Gv6vUWoRNZW8grIgDwUY
+5pZ4Zk3hW4ii2vehTaVrrmdW6XipIsT+ayiVX7eWuHHNxAeCojXVjOJu9B0ExMlD
+5tHZCs+SNdV5MceexecbptB7fZtRebP120yjLiSnZ5FpaQ1stusr0hSg+VQaX4np
+f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
+9MLA+cE/nNJ/rMI//MZ1+kcCAwEAAQ==
+-----END PUBLIC KEY-----
+\
+
+bindist-windows-debug-build-bot:
+\
+-----BEGIN PUBLIC KEY-----
+MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuF4YmJmPHY52Q6N+YO0M
+lt/fCovdezleb2tVplyTnvbyAiPdmYCIIjVrsqUn3y46PdFtWEiSdsrCcncoxi6H
+8KelOB/oQ9pNTyEvwGKEH5ZIU7noLZYdXEfoNdvdL/pbY/7uLBZOSekfdQShZtbe
+uOZCM2Mhg2DD76TP/VAwaXuDCnEvxxU/yneUl5ZaBo62AWNrYJuSGAliCOpVpl6X
+X1kbHOvnCx7c9e3LxgaVivPaeZRKYg0OaFt96SBYEZzNPvjA8pMuKuj/vatHaCQ3
+NO9+r3TJ+4dQd7qN6Ju3zUJq9J/ndSh4lPvUalvvhdykecefhcyHwRZOG4xyFMFE
+nJM4sM+aZu6WoKATIKtk7On70inVr0sZJXwJ4Lt4oqaK2VthcSTby3wf2Yv4p5hL
+zNo31cCPmBRYzABcIc6ADYvexVK4uCwaim8xs7RK5Ug2Gv6vUWoRNZW8grIgDwUY
+5pZ4Zk3hW4ii2vehTaVrrmdW6XipIsT+ayiVX7eWuHHNxAeCojXVjOJu9B0ExMlD
+5tHZCs+SNdV5MceexecbptB7fZtRebP120yjLiSnZ5FpaQ1stusr0hSg+VQaX4np
+f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
+9MLA+cE/nNJ/rMI//MZ1+kcCAwEAAQ==
+-----END PUBLIC KEY-----
 \

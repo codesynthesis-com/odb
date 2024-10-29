@@ -3,6 +3,12 @@
 
 config [bool] config.libodb_sqlite.develop ?= false
 
+# Enable the dependency on the sqlite3 package to, for example, ease its
+# bundling into the binary distribution package (see the bindist-windows-*
+# package build configurations hack for the use case).
+#
+config [bool] config.libodb_sqlite.sqlite3 ?= false
+
 cxx.std = latest
 
 using cxx

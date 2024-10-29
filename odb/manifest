@@ -33,41 +33,23 @@ depends: * cli ^1.2.0 ? ($config.odb.develop)
 
 # Binary distribution packages. Overall notes:
 #
-# - Link dependencies that don't come from system packages statically, but
-#   compile them with -fPIC since they are linked to the ODB plugin shared
-#   library. Note that duplicate symbols are not an issue since the plugin
-#   shared library is loaded by the GCC compiler, not ODB.
+# - Link dependencies that don't come from system packages statically. Note
+#   that duplicate symbols are not an issue since the plugin shared library is
+#   loaded by the GCC compiler, not ODB.
 #
 # - We suppress generating binary packages for dependencies (libstudxml,
 #   libcutl) with --recursive=auto since they are linked statically.
 #
+
+# Linux binary distributions packages.
+#
+# - Compile (static) dependencies with -fPIC since they are linked to the ODB
+#   plugin shared library.
+#
 # - Note that Fedora's rpmbuild and Ubuntu's dpkg-buildpackage compile the
 #   ODB's sources with the -flto=auto option, which breaks the plugin. Thus,
 #   we always disable the link-time optimization by adding -fno-lto.
-#   Specifically (@@ TMP move comments when have support):
 #
-#   # Prepend system package manager options instead of overriding.
-#   #
-#   bpkg.bindist.debian:--debian-buildflags=prepend
-#
-#   # Reset common options for dependencies (because we are prepending).
-#   #
-#   bpkg.create:config.cc.*=[null]
-#
-#   # Append custom options for dependencies.
-#   #
-#   bpkg.create:config.c.coptions="-fPIC -fno-lto"
-#   bpkg.create:config.cxx.coptions="-fPIC -fno-lto"
-#
-#   # Reset common options for odb (because we are prepending).
-#   #
-#   bpkg.configure.build:.../config.cc.*=[null]
-#
-#   # Append custom options for odb.
-#   #
-#   bpkg.configure.build:.../config.cxx.coptions=-fno-lto
-#
-
 bindist-debian-builds: bindist
 bindist-debian-build-include: linux_debian*-**
 bindist-debian-build-include: linux_ubuntu*-**
@@ -78,16 +60,32 @@ bindist-debian-build-config:
 +bbot.bindist.upload:
 bpkg.bindist.debian:--recursive=auto
 bpkg.bindist.debian:--debian-main-extradep=g++
+
+# Prepend system package manager options instead of overriding.
+#
 bpkg.bindist.debian:--debian-buildflags=prepend
+
 bpkg.create:config.bin.lib=static
+
+# Reset common options for dependencies (because we are prepending).
+#
 bpkg.create:config.cc.poptions=[null]
 bpkg.create:config.cc.coptions=[null]
 bpkg.create:config.cc.loptions=[null]
+
+# Append custom options for dependencies.
+#
 bpkg.create:config.c.coptions="-fPIC -fno-lto"
 bpkg.create:config.cxx.coptions="-fPIC -fno-lto"
+
+# Reset common options for odb (because we are prepending).
+#
 bpkg.configure.build:.../config.cc.poptions=[null]
 bpkg.configure.build:.../config.cc.coptions=[null]
 bpkg.configure.build:.../config.cc.loptions=[null]
+
+# Append custom options for odb.
+#
 bpkg.configure.build:.../config.cxx.coptions=-fno-lto
 \
 
@@ -101,15 +99,74 @@ bindist-fedora-build-config:
 +bbot.bindist.upload:
 bpkg.bindist.fedora:--recursive=auto
 bpkg.bindist.fedora:--fedora-main-extrareq=g++
+
+# Prepend system package manager options instead of overriding.
+#
 bpkg.bindist.fedora:--fedora-buildflags=prepend
+
 bpkg.create:config.bin.lib=static
+
+# Reset common options for dependencies (because we are prepending).
+#
 bpkg.create:config.cc.poptions=[null]
 bpkg.create:config.cc.coptions=[null]
 bpkg.create:config.cc.loptions=[null]
+
+# Append custom options for dependencies.
+#
 bpkg.create:config.c.coptions="-fPIC -fno-lto"
 bpkg.create:config.cxx.coptions="-fPIC -fno-lto"
+
+# Reset common options for odb (because we are prepending).
+#
 bpkg.configure.build:.../config.cc.poptions=[null]
 bpkg.configure.build:.../config.cc.coptions=[null]
 bpkg.configure.build:.../config.cc.loptions=[null]
+
+# Append custom options for odb.
+#
 bpkg.configure.build:.../config.cxx.coptions=-fno-lto
+\
+
+# Windows binary distribution archive.
+#
+# - Note that the contents of this archive need to be supplemented with the
+#   GCC compiler and run-time libraries by overlaying it with the contents of
+#   the build2-mingw-X.Y.Z-x86_64-windows.tar.xz archive (located at
+#   https://download.build2.org/) extracted into the mingw/ subdirectory
+#   and mingw/bin/{libgcc_s_seh-*,libstdc++-*,libwinpthread-*}.dll files
+#   copied into the bin/ subdirectory.
+#
+# - Also note that the contents of this archive can be overlaid with the
+#   contents of the ODB runtime library archives extracted into the root
+#   directory.
+#
+# - Strip the default compiler name from metadata in the archive name since it
+#   is built with GCC and the run-time libraries are supposed to be bundled.
+#
+bindist-windows-builds: bindist
+bindist-windows-build-include: windows*-gcc**
+bindist-windows-build-exclude: **
+bindist-windows-build-config:
+\
++bpkg.bindist.archive:
++bbot.bindist.upload:
+bpkg.bindist.archive:--recursive=auto
+bpkg.bindist.archive:--archive-lang-impl=cc=
+
+# Relocatable by default (see target configuration for details).
+#
+#bpkg.bindist.archive:config.install.relocatable=true
+
+bpkg.create:config.bin.lib=static
+b.create:config.cc.coptions="-Wall -O3"
+
+# At the bpkg.bindist.archive step, configure odb to refer to g++ using the
+# relative ../mingw/bin/g++ path (see above for details). Note that g++ is not
+# available at this path on the b.test-installed.test step, thus we disable
+# it. @@ TODO: once we have support for script hooks, we can prepare complete
+# archive and re-enable this step.
+#
+bpkg.bindist.archive:config.odb.gxx_name=../mingw/bin/g++
+-b.test-installed.test:
 \

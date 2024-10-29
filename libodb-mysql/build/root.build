@@ -3,6 +3,12 @@
 
 config [bool] config.libodb_mysql.develop ?= false
 
+# Enable the dependency on the mysql-client package to, for example, ease its
+# bundling into the binary distribution package (see the bindist-windows-*
+# package build configurations hack for the use case).
+#
+config [bool] config.libodb_mysql.mysql_client ?= false
+
 # Configure which database client library to use for build2 versions greater
 # than 0.12.0 and always use MySQL client library otherwise (due to the lack
 # of the project configuration variables support).

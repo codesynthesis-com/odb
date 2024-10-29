@@ -3,6 +3,12 @@
 
 config [bool] config.libodb_pgsql.develop ?= false
 
+# Enable the dependency on the psql package to, for example, ease its bundling
+# into the binary distribution package (see the bindist-windows-* package
+# build configurations hack for the use case).
+#
+config [bool] config.libodb_pgsql.psql ?= false
+
 cxx.std = latest
 
 using cxx
