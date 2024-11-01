@@ -117,7 +117,7 @@ namespace test4
 
     view2a () {}
     view2a (const view2a& v)
-        : o1 (v.o1), o2 (v.o2)
+        : o1 (v.o1), o2 (v.o2), o2_null (v.o2_null)
     {
       if (v.o2.o1 != 0)
       {
