@@ -54,11 +54,24 @@ bdep init @mssql  -d libodb -d libodb-mssql  -d odb-tests -d odb-examples
 
 Note that while the target configurations can use any compiler (and you can
 create multiple such configurations for different compilers), the host
-configuration must use GCC because the ODB compiler is implemented as a GCC
-plugin.
+configuration must use GCC with plugin support enabled because the ODB
+compiler is implemented as a GCC plugin. GCC plugin headers are usually
+distributed as a separate package which is not installed by default. To
+install it on Debian and alike distributions (where `N` is the GCC major
+version):
 
-You can use system-installed versions of the client libraries and tools
-instead of building them from source. For example:
+```
+apt-get install gcc-N-plugin-dev
+```
+
+To install it on Fedora and alike distributions:
+
+```
+dnf install gcc-plugin-devel
+```
+
+You can use system-installed versions of the database client libraries and
+tools instead of building them from source. For example:
 
 ```
 bdep config link @pgsql @host

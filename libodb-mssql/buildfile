@@ -2,11 +2,10 @@
 # license   : ODB NCUEL; see accompanying LICENSE file
 
 ./: {*/ -build/} \
-    doc{INSTALL NEWS README PACKAGE-README.md} \
+    doc{NEWS README PACKAGE-README.md} \
     legal{NCUEL LICENSE} \
     manifest
 
-# Don't install tests or the INSTALL file.
+# Don't install tests.
 #
-tests/:          install = false
-doc{INSTALL}@./: install = false
+tests/: install = false
