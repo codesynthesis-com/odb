@@ -6,6 +6,7 @@ license: GPL-3.0-only
 topics: C++, ORM, source code generation, object persistence, \
   relational database
 description-file: README
+package-description-file: PACKAGE-README.md
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/
 doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml

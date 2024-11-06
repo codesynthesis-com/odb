@@ -7,6 +7,7 @@ license: other: ODB NCUEL   ; Non-Commercial Use and Evaluation License.
 license: other: proprietary ; Not free/open source.
 topics: C++, ORM, Microsoft SQL Server, SQL
 description-file: README
+package-description-file: PACKAGE-README.md
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/
 doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml

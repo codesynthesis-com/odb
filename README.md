@@ -1,9 +1,9 @@
 # ODB - ORM for C++
 
 ODB is an open-source, cross-platform, and cross-database object-relational
-mapping (ORM) system for C++. It allows you to persist C++ objects to a
+mapping (ORM) system for C++. It allows you to persist C++ classes to a
 relational database without having to deal with tables, columns, or SQL and
-without manually writing any mapping code. ODB supports MySQL, SQLite,
+without manually writing any mapping code. ODB supports the MySQL, SQLite,
 PostgreSQL, Oracle, and Microsoft SQL Server relational databases. It also
 comes with optional profiles for Boost and Qt which allow you to seamlessly
 use value types, containers, and smart pointers from these libraries in your

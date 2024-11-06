@@ -1,6 +1,6 @@
 # odb-examples - ODB compiler usage examples
 
-This package contains examples of using `odb`, object-relational mapping (ORM)
+This package contains examples of using `ODB`, object-relational mapping (ORM)
 compiler for C++. The following list gives an overview of the available
 examples. See the `README` file accompanying each example for more
 information. See `odb-tests/README.md` for instructions on setting up various

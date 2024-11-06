@@ -1,6 +1,6 @@
 # odb-tests - tests for ODB compiler
 
-This package contains tests for `odb`, object-relational mapping (ORM)
+This package contains tests for `ODB`, object-relational mapping (ORM)
 compiler for C++.
 
 ## Setting up PostgreSQL for running tests
