@@ -3,7 +3,7 @@
 
 ./: {*/ -build/} \
     doc{README.md PACKAGE-README.md NEWS} \
-    legal{LICENSE} \
+    legal{GPLv2 LICENSE} \
     manifest
 
 # Don't install tests.
