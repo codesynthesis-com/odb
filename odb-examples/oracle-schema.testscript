@@ -1,5 +1,5 @@
 # file      : oracle-schema.testscript
-# license   : GNU GPL v2; see accompanying LICENSE file
+# license   : not copyrighted - public domain
 
 # Create the Oracle database schema creation canned command base.
 #

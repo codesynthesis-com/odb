@@ -1,5 +1,5 @@
 # file      : build/bootstrap.build
-# license   : GNU GPL v2; see accompanying LICENSE file
+# license   : not copyrighted - public domain
 
 project = odb-examples
 

@@ -1,5 +1,5 @@
 # file      : build/root.build
-# license   : GNU GPL v2; see accompanying LICENSE file
+# license   : not copyrighted - public domain
 
 cxx.std = latest
 

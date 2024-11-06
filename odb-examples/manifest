@@ -5,7 +5,7 @@ project: odb
 type: examples
 language: c++
 summary: ODB compiler usage examples
-license: GPL-2.0-only
+license: Unlicense
 description-file: README.md
 url: https://www.codesynthesis.com/products/odb/
 doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml

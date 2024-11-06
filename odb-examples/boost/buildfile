@@ -1,5 +1,5 @@
 # file      : boost/buildfile
-# license   : GNU GPL v2; see accompanying LICENSE file
+# license   : not copyrighted - public domain
 
 import meta_libs  = libodb%lib{odb}
 import meta_libs += libodb-boost%lib{odb-boost}

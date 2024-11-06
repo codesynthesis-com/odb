@@ -1,5 +1,5 @@
 # file      : database-options.testscript
-# license   : GNU GPL v2; see accompanying LICENSE file
+# license   : not copyrighted - public domain
 
 # For the enabled databases create the example driver option lists (*_options)
 # for subsequent use in the examples. Also create the database-specific client

@@ -1,5 +1,5 @@
 # file      : pimpl/buildfile
-# license   : GNU GPL v2; see accompanying LICENSE file
+# license   : not copyrighted - public domain
 
 import libodb = libodb%lib{odb}
 

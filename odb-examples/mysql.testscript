@@ -1,5 +1,5 @@
 # file      : mysql.testscript
-# license   : GNU GPL v2; see accompanying LICENSE file
+# license   : not copyrighted - public domain
 
 # Create the MySQL database schema creation canned command and setup the
 # example driver command line for the subsequent examples.
