@@ -6,7 +6,7 @@ summary: Oracle ODB runtime library
 license: other: ODB NCUEL   ; Non-Commercial Use and Evaluation License.
 license: other: proprietary ; Not free/open source.
 topics: C++, ORM, Oracle, SQL
-description-file: README
+description-file: README.md
 package-description-file: PACKAGE-README.md
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/

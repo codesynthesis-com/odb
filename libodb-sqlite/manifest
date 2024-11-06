@@ -6,7 +6,7 @@ summary: SQLite ODB runtime library
 license: GPL-2.0-only
 license: other: proprietary ; Not free/open source.
 topics: C++, ORM, SQLite, SQL
-description-file: README
+description-file: README.md
 package-description-file: PACKAGE-README.md
 changes-file: NEWS
 url: https://www.codesynthesis.com/products/odb/

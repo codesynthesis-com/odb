@@ -2,7 +2,7 @@
 # license   : ODB NCUEL; see accompanying LICENSE file
 
 ./: {*/ -build/}\
-    doc{NEWS README PACKAGE-README.md} \
+    doc{README.md PACKAGE-README.md NEWS} \
     legal{NCUEL LICENSE} \
     manifest
 

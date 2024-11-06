@@ -1,10 +1,18 @@
-# odb-examples - ODB compiler usage examples
+# odb-examples - ODB usage examples
 
-This package contains examples of using `ODB`, object-relational mapping (ORM)
-compiler for C++. The following list gives an overview of the available
-examples. See the `README` file accompanying each example for more
-information. See `odb-tests/README.md` for instructions on setting up various
-databases to run these examples.
+ODB is an open-source, cross-platform, and cross-database object-relational
+mapping (ORM) system for C++. It allows you to persist C++ classes to a
+relational database without having to deal with tables, columns, or SQL and
+without manually writing any mapping code.
+
+For further information, including licensing conditions, documentation, and
+binary packages, refer to the [ODB project
+page](https://codesynthesis.com/products/odb/).
+
+This package contains examples of using ODB with the following list giving an
+overview of the available examples. See the `README` file accompanying each
+example for more information. See `odb-tests/README.md` for instructions on
+setting up various databases to run these examples.
 
 Note also that most of the examples use the --table-prefix ODB compiler
 option to assign a unique prefix to tables created by each example. This

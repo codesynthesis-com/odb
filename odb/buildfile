@@ -2,7 +2,7 @@
 # license   : GNU GPL v3; see accompanying LICENSE file
 
 ./: {*/ -build/ -m4/} \
-    doc{README PACKAGE-README.md NEWS} \
+    doc{README.md PACKAGE-README.md NEWS} \
     legal{GPLv3 LICENSE} \
     manifest
 

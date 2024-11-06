@@ -2,7 +2,7 @@
 # license   : GNU GPL v2; see accompanying LICENSE file
 
 ./: {*/ -build/} \
-    doc{NEWS README PACKAGE-README.md} \
+    doc{README.md PACKAGE-README.md NEWS} \
     legal{LICENSE} \
     manifest
 
