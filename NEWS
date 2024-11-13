@@ -2,10 +2,13 @@ Version 2.5.0
 
  * Support for mapping C++ types as other C++ types. For example:
 
-   #pragma db map type(bool) as(std::string) \
-     to((?) ? "true" : "false") from((?) == "true")
+   #pragma db map type(bool)                 \
+                  as(std::string)            \
+                  to((?) ? "true" : "false") \
+		  from((?) == "true")
 
-   @@ Ref to the manual.
+   See Section 14.8.1, "C++ Type Mapping Pragmas" in the ODB manual for
+   details.
 
  * Support for custom table definition options in addition to column
    definition options. For details, refer to Section 14.1.16, "options" in

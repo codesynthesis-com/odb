@@ -645,7 +645,12 @@ for consistency.
             <th>14.7</th><td><a href="#14.7">Index Definition Pragmas</a></td>
           </tr>
           <tr>
-            <th>14.8</th><td><a href="#14.8">Database Type Mapping Pragmas</a></td>
+            <th>14.8</th><td><a href="#14.8">Type Mapping Pragmas</a>
+              <table class="toc">
+		<tr><th>14.8.1</th><td><a href="#14.8.1">C++ Type Mapping Pragmas</a></td></tr>
+		<tr><th>14.8.2</th><td><a href="#14.8.2">Database Type Mapping Pragmas</a></td></tr>
+              </table>
+	    </td>
           </tr>
           <tr>
             <th>14.9</th><td><a href="#14.9">C++ Compiler Warnings</a>
@@ -18133,7 +18138,104 @@ class object
 
   <h2><a name="14.8">14.8 Database Type Mapping Pragmas</a></h2>
 
-  <p>A pragma with the <code>map</code> qualifier describes a
+  <p>A pragma with the <code>map</code> qualifier describes a mapping between
+     either two C++ types (<a href="#14.8.1">Section 14.8.1, "C++ Type Mapping
+     Pragmas"</a>) or two database types (<a href="#14.8.2">Section 14.8.2,
+     "Database Type Mapping Pragmas"</a>).</p>
+
+  <h3><a name="14.8.1">14.8.1 C++ Type Mapping Pragmas</a></h3>
+
+  <p>A pragma with the <code>map</code> qualifier can describe a mapping
+     between two C++ types. For each database system ODB provides built-in
+     support for mapping a standard set of C++ types, such as integers,
+     strings, binary, etc. However, many codebases may use custom versions of
+     corresponding (or similar) C++ types. While it is possible to add support
+     for such custom types by providing a suitable specialization of the
+     <code>value_traits</code> class template, it is often simpler to define
+     their mapping in terms of one of the already supported types by
+     specifying the conversion between the two types. This mechanism can also
+     be used to redefine the mapping for one of the standard types. For
+     example, we could map <code>bool</code> to <code>std::string</code> in
+     order to save boolean values as string literals. This mechanism can also
+     be used with composite value types.</p>
+
+  <p>The <code>map</code> pragma for C++ types has the following format:</p>
+
+<pre class="cxx">
+#pragma db map type(&lt;name>)  \
+               as(&lt;name>)    \
+               [to(&lt;expr>)]  \
+               [from(&lt;expr>)]
+</pre>
+
+  <p>The <code>type</code> clause specifies the name of the C++ type
+     that we are mapping. We will refer to it as the <em>mapped type</em>
+     from now on.</p>
+
+  <p>The <code>as</code> clause specifies the name of the C++ type that we are
+     mapping the mapped type to. We will refer to it as the <em>interface
+     type</em> from now on.</p>
+
+  <p>The optional <code>to</code> and <code>from</code> clauses specify the
+     C++ conversion expressions between the mapped type and the
+     interface type. The <code>to</code> expression converts from the
+     interface type to the mapped type and <code>from</code> converts
+     in the other direction. If no explicit conversion is required for
+     either direction, then the corresponding clause can be omitted.
+
+     If the conversion expressions are specified, then they must contain the
+     special <code>(?)</code> placeholder which will be replaced with the
+     actual value to be converted.</p>
+
+  <p>As an example, suppose we have the <code>path</code> type which
+     represents a filesystem path and which we wish to store in the
+     database. Suppose also that it has a constructor that allows implicit
+     conversion of <code>std::string</code> to <code>path</code> as well as
+     the <code>string()</code> member function which returns the
+     <code>std::string</code> representation of <code>path</code>. This is
+     how we can map <code>path</code> to <code>std::string</code> to be able
+     to store it in the database:</p>
+
+<pre class="cxx">
+#pragma db map type(path)        \
+               as(std::string)   \
+               from((?).string ())
+</pre>
+
+  <p>Notice that we could omit the <code>to</code> expression because
+     <code>std::string</code> can be implicitly converted to
+     <code>path</code>. In this case the implied expression is equivalent
+     to <code>to((?))</code>.</p>
+
+  <p>As a more elaborate example, the following <code>map</code> pragma maps
+     the standard <code>chrono</code> <code>time_point</code> type (that is, a
+     timestamp) as <code>uint64</code> with the stored values representing the
+     number of nanoseconds since the UNIX epoch:</p>
+
+<pre class="cxx">
+#pragma db map                                                        \
+  type(std::chrono::system_clock::time_point)                         \
+  as(std::uint64_t)                                                   \
+  to(std::chrono::duration_cast&lt;std::chrono::nanoseconds> (           \
+       (?).time_since_epoch ()).count ())                             \
+  from(std::chrono::system_clock::time_point (                        \
+    std::chrono::duration_cast&lt;std::chrono::system_clock::duration> ( \
+      std::chrono::nanoseconds (?))))
+</pre>
+
+  <p>And the following example shows how to redefine the mapping for one of
+     the standard types:</p>
+
+<pre class="cxx">
+#pragma db map type(bool)                 \
+               as(std::string)            \
+               to((?) ? "true" : "false") \
+               from((?) == "true")
+</pre>
+
+  <h3><a name="14.8.2">14.8.2 Database Type Mapping Pragmas</a></h3>
+
+  <p>A pragma with the <code>map</code> qualifier can describe a
      mapping between two database types. For each database system
      ODB provides built-in support for a core set of database types,
      such as integers, strings, binary, etc. However, many database
@@ -18146,10 +18248,14 @@ class object
      and thus establish a mapping between an extended database type and
      its C++ equivalent.</p>
 
-  <p>The <code>map</code> pragma has the following format:</p>
+  <p>The <code>map</code> pragma for database types has the following
+  format:</p>
 
 <pre class="cxx">
-#pragma db map type("regex") as("subst") [to("subst")] [from("subst")]
+#pragma db map type("&lt;regex>")  \
+               as("&lt;subst>")    \
+               [to("&lt;subst>")]  \
+               [from("&lt;subst>")]
 </pre>
 
   <p>The <code>type</code> clause specifies the name of the database type
