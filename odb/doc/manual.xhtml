@@ -621,6 +621,7 @@ for consistency.
 		<tr><th>14.4.34</th><td><a href="#14.4.34"><code>index_column</code></a></td></tr>
 		<tr><th>14.4.35</th><td><a href="#14.4.35"><code>key_column</code></a></td></tr>
 		<tr><th>14.4.36</th><td><a href="#14.4.36"><code>value_column</code></a></td></tr>
+		<tr><th>14.4.36</th><td><a href="#14.4.37"><code>points_to</code></a></td></tr>
               </table>
             </td>
           </tr>
@@ -16091,6 +16092,12 @@ typedef std::map&lt;unsigned short, float> age_weight_map;
       <td><a href="#14.4.36">14.4.36</a></td>
     </tr>
 
+    <tr>
+      <td><code>points_to</code></td>
+      <td>establish relationship without object pointer</td>
+      <td><a href="#14.4.37">14.4.37</a></td>
+    </tr>
+
   </table>
 
   <p>Many of the member specifiers have corresponding value type
@@ -17678,6 +17685,32 @@ class person
 
   <p>If the column name is not specified, then <code>value</code>
      is used by default.</p>
+
+  <h3><a name="14.4.37">14.4.37 <code>points_to</code></a></h3>
+
+  <p>The <code>points_to</code> specifier allows the establishment of
+     object relationships without using object pointers. For example:</p>
+
+<pre class="cxx">
+
+#pragma db object
+class employer
+{
+  ...
+
+  #pragma db id
+  std::string id_;
+};
+
+#pragma db object
+class person
+{
+  ...
+
+  #pragma db points_to(employer)
+  std::string employer_;
+};
+  </pre>
 
   <h2><a name="14.5">14.5 Namespace Pragmas</a></h2>
 
