@@ -739,21 +739,22 @@ for consistency.
           </tr>
           <tr><th>18.2</th><td><a href="#18.2">SQLite Database Class</a></td></tr>
           <tr><th>18.3</th><td><a href="#18.3">SQLite Connection and Connection Factory</a></td></tr>
-	  <tr><th>18.4</th><td><a href="#18.4">SQLite Exceptions</a></td></tr>
+	  <tr><th>18.4</th><td><a href="#18.4">Attached SQLite Databases</a></td></tr>
+	  <tr><th>18.5</th><td><a href="#18.5">SQLite Exceptions</a></td></tr>
           <tr>
-            <th>18.5</th><td><a href="#18.5">SQLite Limitations</a>
+            <th>18.6</th><td><a href="#18.6">SQLite Limitations</a>
               <table class="toc">
-                <tr><th>18.5.1</th><td><a href="#18.5.1">Query Result Caching</a></td></tr>
-		<tr><th>18.5.2</th><td><a href="#18.5.2">Automatic Assignment of Object Ids</a></td></tr>
-		<tr><th>18.5.3</th><td><a href="#18.5.3">Foreign Key Constraints</a></td></tr>
-		<tr><th>18.5.4</th><td><a href="#18.5.4">Constraint Violations</a></td></tr>
-		<tr><th>18.5.5</th><td><a href="#18.5.5">Sharing of Queries</a></td></tr>
-		<tr><th>18.5.6</th><td><a href="#18.5.6">Forced Rollback</a></td></tr>
-		<tr><th>18.5.7</th><td><a href="#18.5.7">Database Schema Evolution</a></td></tr>
+                <tr><th>18.6.1</th><td><a href="#18.6.1">Query Result Caching</a></td></tr>
+		<tr><th>18.6.2</th><td><a href="#18.6.2">Automatic Assignment of Object Ids</a></td></tr>
+		<tr><th>18.6.3</th><td><a href="#18.6.3">Foreign Key Constraints</a></td></tr>
+		<tr><th>18.6.4</th><td><a href="#18.6.4">Constraint Violations</a></td></tr>
+		<tr><th>18.6.5</th><td><a href="#18.6.5">Sharing of Queries</a></td></tr>
+		<tr><th>18.6.6</th><td><a href="#18.6.6">Forced Rollback</a></td></tr>
+		<tr><th>18.6.7</th><td><a href="#18.6.7">Database Schema Evolution</a></td></tr>
               </table>
             </td>
           </tr>
-          <tr><th>18.6</th><td><a href="#18.6">SQLite Index Definition</a></td></tr>
+          <tr><th>18.7</th><td><a href="#18.7">SQLite Index Definition</a></td></tr>
         </table>
       </td>
     </tr>
@@ -21645,7 +21646,7 @@ namespace odb
      values, refer to the <code>sqlite3_open_v2()</code> function description
      in the SQLite C API documentation. The <code>foreign_keys</code>
      argument specifies whether foreign key constraints checking
-     should be enabled. See <a href="#18.5.3">Section 18.5.3,
+     should be enabled. See <a href="#18.6.3">Section 18.6.3,
      "Foreign Key Constraints"</a> for more information on foreign
      keys. The <code>vfs</code> argument specifies the SQLite
      virtual file system module that should be used to access the
@@ -21701,7 +21702,7 @@ auto_ptr&lt;odb::database> db (
 
   <p>The third constructor throws the <code>odb::sqlite::cli_exception</code>
      exception if the SQLite option values are missing or invalid.
-     See <a href="#18.4">Section 18.4, "SQLite Exceptions"</a>
+     See <a href="#18.5">Section 18.5, "SQLite Exceptions"</a>
      for more information on this exception.</p>
 
   <p>The static <code>print_usage()</code> function prints the list of options
@@ -22010,7 +22011,111 @@ main (int argc, char* argv[])
 }
   </pre>
 
-  <h2><a name="18.4">18.4 SQLite Exceptions</a></h2>
+
+  <h2><a name="18.4">18.4 Attached SQLite Databases</a></h2>
+
+  <p>The SQLite database class provides support for attaching additional
+     databases to the main database connections using the SQLite <code>ATTACH
+     DATABASE</code> statement. Good understanding of the SQLite attached
+     database semantics and ODB connection management is strongly recommended
+     when using this functionality.</p>
+
+  <p>The relevant part of the SQLite database class interface is shown
+     below:</p>
+
+  <pre class="cxx">
+namespace odb
+{
+  namespace sqlite
+  {
+    class database: public odb::database
+    {
+    public:
+
+      ...
+
+      database (const connection_ptr&amp;,
+                const std::string&amp; name,
+                const std::string&amp; schema,
+                std::[auto|unique]_ptr&lt;attached_connection_factory> = 0);
+
+      void
+      detach ();
+
+      database&amp;
+      main_database ();
+
+      const std::string&amp;
+      schema () const;
+    };
+  }
+}
+  </pre>
+
+  <p>The shown constructor attaches to the specified connection a database
+     with the specified name as the specified schema.</p>
+
+  <p>The resulting database instance is referred to as an <em>attached
+     database</em> and the connection it returns as an <em>attached
+     connection</em> (which is just a proxy for the main connection). Database
+     operations executed on the attached database or attached connection are
+     automatically translated to refer to the specified schema rather than
+     <code>"main"</code>. For uniformity attached databases can also be
+     created for the pre-attached <code>"main"</code> and <code>"temp"</code>
+     schemas (in this case the <code>name</code> argument can be
+     anything).</p>
+
+  <p>The automatic translation of the statements relies on their text having
+     references to top-level database entities (tables, indexes, etc)
+     qualified with the <code>"main"</code> schema. To achieve this, compile
+     your headers with the <code>--schema main</code> option and, if using
+     schema migration, with the <code>--schema-version-table
+     main.schema_version</code> option. You must also not
+     use <code>"main"</code> as an object/table alias in views of native
+     statements. For optimal translation performance use 4-character schema
+     names.</p>
+
+  <p>The main connection and attached to it databases and connections are all
+     meant to be used within the same thread. In particular, the attached
+     database holds a counted reference to the main connection which means the
+     connection will not be released until all the attached to this connection
+     databases are destroyed.</p>
+
+  <p>Note that in this model the attached databases are attached to the main
+     connection, not to the (main) database, which mimics the underlying
+     semantics of SQLite. An alternative model would have been to notionally
+     attach the databases to the main database and under the hood
+     automatically attach them to each returned connection. While this may
+     seem like a more convenient model in some cases, it is also less
+     flexible: the current model allows attaching a different set of databases
+     to different connections, attaching them on demand as the transaction
+     progresses, etc. Also, the more convenient model can be implemented on
+     top of this model by deriving an application-specific database class
+     and/or providing custom connection factories.</p>
+
+  <p>Note also that unless the name is a URI with appropriate mode, the
+     attached database is opened with the
+     <code>SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE</code> flags. In
+     particular, if you want just <code>SQLITE_OPEN_READWRITE</code>, then you
+     will need to verify the database file existence manually prior to calling
+     this constructor.</p>
+
+  <p>Note that attaching/detaching databases within a transaction is only
+     supported since SQLite 3.21.0.</p>
+
+  <p>The <code>detach()</code> function detaches the attached database. The
+     database is automatically detached on destruction but a failure to detach
+     is ignored. To detect such a failure perform explicit detach. For
+     uniformity detaching a main database is a no-op.</p>
+
+  <p>The <code>main_database()</code> function returns the main database of an
+     attached database. If this database is main, return itself.</p>
+
+  <p>The <code>schema()</code> function returns the schema name under which
+     this database was attached or empty if this is the main database.</p>
+
+
+  <h2><a name="18.5">18.5 SQLite Exceptions</a></h2>
 
   <p>The SQLite ODB runtime library defines the following SQLite-specific
      exceptions:</p>
@@ -22058,7 +22163,7 @@ namespace odb
 
   <p>The <code>odb::sqlite::forced_rollback</code> exception is thrown if
      SQLite is forcing the current transaction to roll back. For more
-     information on this behavior refer to <a href="#18.5.6">Section 18.5.6,
+     information on this behavior refer to <a href="#18.6.6">Section 18.6.6,
      "Forced Rollback"</a>.</p>
 
   <p>The <code>odb::sqlite::database_exception</code> is thrown if
@@ -22075,12 +22180,12 @@ namespace odb
      of an error.</p>
 
 
-  <h2><a name="18.5">18.5 SQLite Limitations</a></h2>
+  <h2><a name="18.6">18.6 SQLite Limitations</a></h2>
 
   <p>The following sections describe SQLite-specific limitations imposed by
      the current SQLite and ODB runtime versions.</p>
 
-  <h3><a name="18.5.1">18.5.1 Query Result Caching</a></h3>
+  <h3><a name="18.6.1">18.6.1 Query Result Caching</a></h3>
 
   <p>SQLite ODB runtime implementation does not perform query result caching
      (<a href="#4.4">Section 4.4, "Query Result"</a>) even when explicitly
@@ -22095,7 +22200,7 @@ namespace odb
      thrown. Future versions of the SQLite ODB runtime library may add support
      for result caching.</p>
 
-  <h3><a name="18.5.2">18.5.2 Automatic Assignment of Object Ids</a></h3>
+  <h3><a name="18.6.2">18.6.2 Automatic Assignment of Object Ids</a></h3>
 
   <p>Due to SQLite API limitations, every automatically assigned object id
      (<a href="#14.4.2">Section 14.4.2, "<code>auto</code>"</a>) should have
@@ -22121,7 +22226,7 @@ class person
 };
   </pre>
 
-  <h3><a name="18.5.3">18.5.3 Foreign Key Constraints</a></h3>
+  <h3><a name="18.6.3">18.6.3 Foreign Key Constraints</a></h3>
 
   <p>By default the SQLite ODB runtime enables foreign key constraints
      checking (<code>PRAGMA foreign_keys=ON</code>). You can disable foreign
@@ -22191,7 +22296,7 @@ CREATE TABLE Employee (
      which you persist, update, and erase objects within a transaction
      becomes important.</p>
 
-  <h3><a name="18.5.4">18.5.4 Constraint Violations</a></h3>
+  <h3><a name="18.6.4">18.6.4 Constraint Violations</a></h3>
 
   <p>Due to the granularity of the SQLite error codes, it is impossible
      to distinguish between the duplicate primary key and other constraint
@@ -22200,7 +22305,7 @@ CREATE TABLE Employee (
      <code>object_already_persistent</code> exception (<a href="#3.14">Section
      3.14, "ODB Exceptions"</a>).</p>
 
-  <h3><a name="18.5.5">18.5.5 Sharing of Queries</a></h3>
+  <h3><a name="18.6.5">18.6.5 Sharing of Queries</a></h3>
 
   <p>As discussed in <a href="#4.3">Section 4.3, "Executing a Query"</a>, a
      query instance that does not have any by-reference parameters is
@@ -22209,7 +22314,7 @@ CREATE TABLE Employee (
      functionality. Future versions of the library will remove this
      limitation.</p>
 
-  <h3><a name="18.5.6">18.5.6 Forced Rollback</a></h3>
+  <h3><a name="18.6.6">18.6.6 Forced Rollback</a></h3>
 
   <p>In SQLite 3.7.11 or later, if one of the connections participating in
      the shared cache rolls back a transaction, then ongoing transactions
@@ -22220,12 +22325,12 @@ CREATE TABLE Employee (
 
   <p>If a transaction is being forced to roll back by SQLite, then ODB
      throws <code>odb::sqlite::forced_rollback</code>
-     (<a href="#18.4">Section 18.4, "SQLite Exceptions"</a>) which is
+     (<a href="#18.5">Section 18.5, "SQLite Exceptions"</a>) which is
      a recoverable exception (<a href="#3.7">3.7 Error Handling and
      Recovery</a>). As a result, the recommended way to handle this
      exception is to re-execute the affected transaction.</p>
 
-  <h3><a name="18.5.7">18.5.7 Database Schema Evolution</a></h3>
+  <h3><a name="18.6.7">18.6.7 Database Schema Evolution</a></h3>
 
   <p>From the list of schema migration changes supported by ODB
      (<a href="#13.2">Section 13.2, "Schema Migration"</a>), the
@@ -22297,7 +22402,7 @@ CREATE TABLE Employee (
      avoid composite object ids if we are planning to use object
      relationships.</p>
 
-  <h2><a name="18.6">18.6 SQLite Index Definitions</a></h2>
+  <h2><a name="18.7">18.7 SQLite Index Definitions</a></h2>
 
   <p>When the <code>index</code> pragma (<a href="#14.7">Section 14.7,
      "Index Definition Pragmas"</a>) is used to define an SQLite index,

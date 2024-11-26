@@ -84,9 +84,9 @@ namespace odb
                   details::transfer_ptr<connection_factory> ());
 
       // Attach to the specified connection a database with the specified name
-      // as the specified schema. Good understanding of SQLite ATTACH/DETACH
-      // DATABASE statements semantics and ODB connection management is
-      // strongly recommended when using this mechanism.
+      // as the specified schema. Good understanding of the SQLite
+      // ATTACH/DETACH DATABASE statements semantics and ODB connection
+      // management is strongly recommended when using this mechanism.
       //
       // The resulting database instance is referred to as an "attached
       // database" and the connection it returns as an "attached connection"
@@ -128,7 +128,7 @@ namespace odb
       // you want just SQLITE_OPEN_READWRITE, then you will need to verify its
       // existence manually prior to calling this constructor.
       //
-      // Note that attaching/detaching databases withing a transaction is only
+      // Note that attaching/detaching databases within a transaction is only
       // supported since SQLite 3.21.0.
       //
       database (const connection_ptr&,
