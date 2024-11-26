@@ -21809,14 +21809,46 @@ namespace odb
      <code>connect()</code> function is called whenever a database
      connection is requested.</p>
 
-  <p>The three implementations of the <code>connection_factory</code>
+  <p>The four implementations of the <code>connection_factory</code>
      interface provided by the SQLite ODB runtime library are
+     <code>serial_connection_factory</code>,
      <code>single_connection_factory</code>,
      <code>new_connection_factory</code>, and
      <code>connection_pool_factory</code>. You will need to include
      the <code>&lt;odb/sqlite/connection-factory.hxx></code>
      header file to make the <code>connection_factory</code> interface
      and these implementation classes available in your application.</p>
+
+  <p>The <code>serial_connection_factory</code> class creates a single
+     connection that is expected to be used by an application in a serialized
+     manner. For example, a single-threaded application that executes all the
+     database operations via the database instance and without dealing with
+     multiple connections/transactions would qualify. The
+     <code>serial_connection_factory</code> class has the following
+     interface:</p>
+
+  <pre class="cxx">
+namespace odb
+{
+  namespace sqlite
+  {
+    class serial_connection_factory: public connection_factory
+    {
+    public:
+      serial_connection_factory ();
+
+    protected:
+      virtual connection_ptr
+      create ();
+    };
+};
+  </pre>
+
+  <p>The <code>create()</code> virtual function is called when the
+     factory needs to create the connection. By deriving from the
+     <code>serial_connection_factory</code> class and overriding this
+     function we can implement custom connection establishment
+     and configuration.</p>
 
   <p>The <code>single_connection_factory</code> class creates a
      single connection that is shared between all the threads in
