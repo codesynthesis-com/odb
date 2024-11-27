@@ -23240,7 +23240,7 @@ person_range (IN min_age SMALLINT,
 RETURNS SETOF RECORD AS $$
   SELECT age, first, last
   FROM person
-  WHERE age >= min_age AND age <= max_age;
+  WHERE age >= min_age AND age &lt;= max_age;
 $$ LANGUAGE SQL STABLE;
   </pre>
 
