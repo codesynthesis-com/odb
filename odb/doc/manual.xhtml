@@ -787,6 +787,7 @@ for consistency.
             </td>
           </tr>
 	  <tr><th>19.6</th><td><a href="#19.6">PostgreSQL Index Definition</a></td></tr>
+	  <tr><th>19.7</th><td><a href="#19.7">PostgreSQL Stored Procedures and Functions</a></td></tr>
         </table>
       </td>
     </tr>
@@ -23217,6 +23218,71 @@ class object
   <p>Index names in PostgreSQL are schema-global. To avoid name clashes,
      ODB automatically prefixes each index name with the table name on
      which it is defined.</p>
+
+
+  <h2><a name="19.7">19.7 PostgreSQL Stored Procedures and Functions</a></h2>
+
+  <p>ODB native views (<a href="#10.6">Section 10.6, "Native Views"</a>) can
+     be used to call PostgreSQL stored procedures and functions. For example,
+     assuming we are using the <code>person</code> class
+     from <a href="#2">Chapter 2, "Hello World Example"</a> (and the
+     corresponding <code>person</code> table), we can create a stored
+     function that given the min and max ages returns some information about
+     all the people in that range:</p>
+
+  <pre class="sql">
+CREATE FUNCTION
+person_range (IN min_age SMALLINT,
+              IN max_age SMALLINT,
+              OUT age SMALLINT,
+              OUT first TEXT,
+              OUT last TEXT)
+RETURNS SETOF RECORD AS $$
+  SELECT age, first, last
+  FROM person
+  WHERE age >= min_age AND age <= max_age;
+$$ LANGUAGE SQL STABLE;
+  </pre>
+
+  <p>Given the above stored function we can then define an ODB view that can
+     be used to call it and retrieve its result:</p>
+
+  <pre class="cxx">
+#pragma db view query("/*CALL*/ SELECT * FROM person_range (?)")
+struct person_range
+{
+  unsigned short age;
+  std::string first;
+  std::string last;
+};
+  </pre>
+
+  <p>Notice the special <code>/*CALL*/</code> prefix: because PostgreSQL uses
+     ordinary <code>SELECT</code> queries to call functions, we need to
+     communicate to ODB that the query is actually a function call.</p>
+
+  <p>The following example shows how we can use the above view to
+     print the list of people in a specific age range:</p>
+
+  <pre class="cxx">
+typedef odb::query&lt;person_range> query;
+typedef odb::result&lt;person_range> result;
+
+transaction t (db.begin ());
+
+result r (
+  db.query&lt;person_range> (
+    query::_val (1) + "," + query::_val (18)));
+
+for (result::iterator i (r.begin ()); i != r.end (); ++i)
+  cerr &lt;&lt; i->first &lt;&lt; " " &lt;&lt; i->last &lt;&lt; " " &lt;&lt; i->age &lt;&lt; endl;
+
+t.commit ();
+  </pre>
+
+   <p>Note that as with all native views, the order and types of data members
+      must match those returned by the stored function.</p>
+
 
   <!-- CHAPTER -->
 
