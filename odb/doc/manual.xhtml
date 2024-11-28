@@ -1874,8 +1874,8 @@ main (int argc, char* argv[])
       ...
     }
 
-    typedef odb::query&lt;person> query;
-    typedef odb::result&lt;person> result;
+    using query = odb::query&lt;person>;
+    using result = odb::result&lt;person>;
 
     // Say hello to those over 30.
     //
@@ -1904,10 +1904,10 @@ main (int argc, char* argv[])
      replaced with "..." in the above listing for brevity. Again, let's
      examine the rest of it piece by piece.</p>
 
-  <p>The two <code>typedef</code>s create convenient aliases for two
-     template instantiations that will be used a lot in our application.
-     The first is the query type for the <code>person</code> objects
-     and the second is the result type for that query.</p>
+  <p>The two <code>using</code> declarations create convenient aliases for two
+     template instantiations that will be used a lot in our application. The
+     first is the query type for the <code>person</code> objects and the
+     second is the result type for that query.</p>
 
   <p>Then we begin a new transaction and call the <code>query()</code>
      database function. We pass a query expression
@@ -3224,8 +3224,8 @@ namespace odb
   class transaction
   {
   public:
-    typedef odb::database database_type;
-    typedef odb::connection connection_type;
+    using database_type = odb::database;
+    using connection_type = odb::connection;
 
     explicit
     transaction (transaction_impl*, bool make_current = true);
@@ -3470,7 +3470,7 @@ namespace odb
   class connection
   {
   public:
-    typedef odb::database database_type;
+    using database_type = odb::database;
 
     transaction
     begin () = 0;
@@ -3488,7 +3488,7 @@ namespace odb
     database ();
   };
 
-  typedef details::shared_ptr&lt;connection> connection_ptr;
+  using connection_ptr = details::shared_ptr&lt;connection>;
 }
   </pre>
 
@@ -4037,7 +4037,7 @@ t.commit ();
      specify the object type we are erasing. For example:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;person> query;
+using query = odb::query&lt;person>;
 
 transaction t (db.begin ());
 
@@ -4063,7 +4063,7 @@ t.commit ();
      classes.</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee> query;
+using query = odb::query&lt;employee>;
 
 transaction t (db.begin ());
 
@@ -4648,8 +4648,8 @@ namespace odb
      introductory chapters. Below is another, more interesting, example:</p>
 
   <pre class="cxx">
-  typedef odb::query&lt;person> query;
-  typedef odb::result&lt;person> result;
+  using query = odb::query&lt;person>;
+  using result = odb::result&lt;person>;
 
   unsigned short age;
   query q (query::first == "John" &amp;&amp; query::age &lt; query::_ref (age));
@@ -4711,7 +4711,7 @@ namespace odb
      <code>||</code> (OR), and <code>!</code> (NOT). For example:</p>
 
   <pre class="cxx">
-  typedef odb::query&lt;person> query;
+  using query = odb::query&lt;person>;
 
   query q (query::first == "John" || query::age == 31);
   </pre>
@@ -4934,8 +4934,8 @@ namespace odb
      explicitly specify the object type we are querying. For example:</p>
 
   <pre class="cxx">
-  typedef odb::query&lt;person> query;
-  typedef odb::result&lt;person> result;
+  using query = odb::query&lt;person>;
+  using result = odb::result&lt;person>;
 
   result all (db.query&lt;person> ());
   result johns (db.query&lt;person> (query::first == "John"));
@@ -4989,7 +4989,7 @@ result r (find_minors (db, query::first == "John"));
      <code>database::query_value()</code> shortcut functions, for example:</p>
 
   <pre class="cxx">
-  typedef odb::query&lt;person> query;
+  using query = odb::query&lt;person>;
 
   unique_ptr&lt;person> p (
     db.query_one&lt;person> (
@@ -5078,8 +5078,8 @@ result r (find_minors (db, query::first == "John"));
      class template, for example:</p>
 
   <pre class="cxx">
-  typedef odb::query&lt;person> query;
-  typedef odb::result&lt;person> result;
+  using query = odb::query&lt;person>;
+  using result = odb::result&lt;person>;
 
   result johns (db.query&lt;person> (query::first == "John"));
   </pre>
@@ -5104,7 +5104,7 @@ namespace odb
   class result
   {
   public:
-    typedef odb::result_iterator&lt;T> iterator;
+    using iterator = odb::result_iterator&lt;T>;
 
   public:
     result ();
@@ -5423,8 +5423,8 @@ namespace odb
      querying. For example:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;person> query;
-typedef odb::prepared_query&lt;person> prep_query;
+using query = odb::query&lt;person>;
+using prep_query = odb::prepared_query&lt;person>;
 
 prep_query pq (
   db.prepare_query&lt;person> ("person-age-query", query::age > 50));
@@ -5534,9 +5534,9 @@ namespace odb
      <code>odb-examples</code> package.</p>
 
   <pre class="cxx">
-typedef odb::query&lt;person> query;
-typedef odb::prepared_query&lt;person> prep_query;
-typedef odb::result&lt;person> result;
+using query = odb::query&lt;person>;
+using prep_query = odb::prepared_query&lt;person>;
+using result = odb::result&lt;person>;
 
 transaction t (db.begin ());
 
@@ -6346,7 +6346,7 @@ namespace odb
 
     // Iterators.
     //
-    typedef typename std::vector&lt;T, A>::const_iterator const_iterator;
+    using const_iterator = typename std::vector&lt;T, A>::const_iterator;
 
     class iterator
     {
@@ -6647,8 +6647,8 @@ unsigned long john_id, jane_id;
      employees of Example Inc that have the Doe last name:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee> query;
-typedef odb::result&lt;employee> result;
+using query = odb::query&lt;employee>;
+using result = odb::result&lt;employee>;
 
 session s;
 transaction t (db.begin ());
@@ -7584,7 +7584,7 @@ public:
      presented earlier.</p>
 
   <pre class="cxx">
-typedef std::vector&lt;lazy_weak_ptr&lt;employee>> employees;
+using employees = std::vector&lt;lazy_weak_ptr&lt;employee>>;
 
 session s;
 transaction t (db.begin ());
@@ -7834,7 +7834,7 @@ class basic_name
   std::string last_;
 };
 
-typedef std::vector&lt;basic_name> basic_names;
+using basic_names = std::vector&lt;basic_name>;
 
 #pragma db value
 class name_extras
@@ -7899,7 +7899,7 @@ struct point
   T z;
 };
 
-typedef point&lt;int> int_point;
+using int_point = point&lt;int>;
 #pragma db value(int_point)
 
 #pragma db object
@@ -7914,7 +7914,7 @@ class object
   <p>Note that the database support code for such a composite value type
      is generated when compiling the header containing the
      <code>db&nbsp;value</code> pragma and not the header containing
-     the template definition or the <code>typedef</code> name. This
+     the template definition or the <code>using</code> alias. This
      allows us to use templates defined in other files, such as
      <code>std::pair</code> defined in the <code>utility</code>
      standard header file:</p>
@@ -7922,7 +7922,7 @@ class object
   <pre class="cxx">
 #include &lt;utility> // std::pair
 
-typedef std::pair&lt;std::string, std::string> phone_numbers;
+using phone_numbers = std::pair&lt;std::string, std::string>;
 #pragma db value(phone_numbers)
 
 #pragma db object
@@ -7951,8 +7951,8 @@ class person
      objects. For example:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;person> query;
-typedef odb::result&lt;person> result;
+using query = odb::query&lt;person>;
+using result = odb::result&lt;person>;
 
 transaction t (db.begin ());
 
@@ -8237,7 +8237,7 @@ namespace odb
   class nullable
   {
   public:
-    typedef T value_type;
+    using value_type = T;
 
     nullable ();
     nullable (const T&amp;);
@@ -8806,8 +8806,8 @@ unsigned long id1, id2;
 // Query.
 //
 {
-  typedef odb::query&lt;person> query;
-  typedef odb::result&lt;person> result;
+  using query = odb::query&lt;person>;
+  using result = odb::result&lt;person>;
 
   transaction t (db.begin ());
 
@@ -8866,8 +8866,8 @@ unsigned long id1, id2;
      instantiating the object. For example:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;person> query;
-typedef odb::result&lt;person> result;
+using query = odb::query&lt;person>;
+using result = odb::result&lt;person>;
 
 transaction t (db.begin ());
 
@@ -9079,7 +9079,7 @@ struct contractor_manager
      be used in the query condition. For example:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee> query;
+using query = odb::query&lt;employee>;
 
 transaction t (db.begin ());
 db.erase_query&lt;employee> (query::permanent);     // Ok.
@@ -9509,7 +9509,7 @@ class person
 {
   ...
 
-  typedef std::array&lt;char, 1024> key_type;
+  using key_type = std::array&lt;char, 1024>;
 
   const key_type&amp;
   public_key () const {return public_key_;}
@@ -9952,8 +9952,8 @@ struct employee_name
      employees that are younger than 31:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee_name> query;
-typedef odb::result&lt;employee_name> result;
+using query = odb::query&lt;employee_name>;
+using result = odb::result&lt;employee_name>;
 
 transaction t (db.begin ());
 
@@ -10232,7 +10232,7 @@ struct employee_count
      querying the database for an object. For example:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee_count> query;
+using query = odb::query&lt;employee_count>;
 
 transaction t (db.begin ());
 
@@ -10282,8 +10282,8 @@ struct employee_employer
      For example:</p>
 
   <pre class="cxx">
-typedef odb::result&lt;employee_employer> result;
-typedef odb::query&lt;employee_employer> query;
+using result = odb::result&lt;employee_employer>;
+using query = odb::query&lt;employee_employer>;
 
 transaction t (db.begin ());
 
@@ -10315,8 +10315,8 @@ struct employee_country
      country of residence and nationality:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee_country> query;
-typedef odb::result&lt;employee_country> result;
+using query = odb::query&lt;employee_country>;
+using result = odb::result&lt;employee_country>;
 
 transaction t (db.begin ());
 
@@ -10334,8 +10334,8 @@ t.commit ();
      the following query is invalid:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee_name> query;
-typedef odb::result&lt;employee_name> result;
+using query = odb::query&lt;employee_name>;
+using result = odb::result&lt;employee_name>;
 
 transaction t (db.begin ());
 
@@ -10400,7 +10400,7 @@ struct employee_employer
      point to the loaded objects. For example:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee_employer> query;
+using query = odb::query&lt;employee_employer>;
 
 transaction t (db.begin ());
 
@@ -10432,7 +10432,7 @@ struct employer_view
      employ seniors:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employer_view> query;
+using query = odb::query&lt;employer_view>;
 
 db.query&lt;employer_view> (query::employee::age > 65)
   </pre>
@@ -10539,7 +10539,7 @@ struct employee_employer
      of our transaction that uses the <code>employee_employer</code> view:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee_employer> query;
+using query = odb::query&lt;employee_employer>;
 
 transaction t (db.begin ());
 odb::session s;
@@ -10599,7 +10599,7 @@ t.commit ();
   object(country = res: employee::residence_) transient
 struct employee_res_country
 {
-  typedef country* country_ptr;
+  using country_ptr = country*;
 
   #pragma db member(res_) virtual(country_ptr) get(&amp;this.res) \
     set(this.res_null = ((?) == nullptr))
@@ -10630,7 +10630,7 @@ struct employee_res_country
   object(country = res: employee::residence_) transient
 struct employee_res_country
 {
-  typedef country* country_ptr;
+  using country_ptr = country*;
 
   #pragma db member(res_) virtual(country_ptr) get(&amp;this.res) set()
 
@@ -10661,7 +10661,7 @@ struct employee_country
   <p>And here is how we can use this view:</p>
 
   <pre class="cxx">
-typedef odb::result&lt;employee_country> result;
+using result = odb::result&lt;employee_country>;
 
 transaction t (db.begin ());
 
@@ -10901,8 +10901,8 @@ struct employee_leave
      For example:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee_leave> query;
-typedef odb::result&lt;employee_leave> result;
+using query = odb::query&lt;employee_leave>;
+using result = odb::result&lt;employee_leave>;
 
 transaction t (db.begin ());
 
@@ -10945,8 +10945,8 @@ struct employee_vacation
      involve table columns. For example:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;employee_vacation> query;
-typedef odb::result&lt;employee_vacation> result;
+using query = odb::query&lt;employee_vacation>;
+using result = odb::result&lt;employee_vacation>;
 
 transaction t (db.begin ());
 
@@ -11236,8 +11236,8 @@ struct sequence_value
   <p>Given this view, we can perform the following queries:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;sequence_value> query;
-typedef odb::result&lt;sequence_value> result;
+using query = odb::query&lt;sequence_value>;
+using result = odb::result&lt;sequence_value>;
 
 string seq_name = ...
 
@@ -12759,7 +12759,7 @@ CREATE TABLE "schema_version" (
   <pre class="cxx">
 namespace odb
 {
-  typedef unsigned long long schema_version;
+  using schema_version = unsigned long long;
 
   struct LIBODB_EXPORT schema_version_migration
   {
@@ -13244,7 +13244,7 @@ namespace odb
                   schema_version = 0,
                   const std::string&amp; name = "");
 
-    typedef void data_migration_function_type (database&amp;);
+    using data_migration_function_type = void (database&amp;);
 
     // Common (for all the databases) data migration, C++98/03 version:
     //
@@ -13628,7 +13628,7 @@ class person
 static void
 migrate_gender (odb::database&amp; db)
 {
-  typedef odb::query&lt;person> query;
+  using query = odb::query&lt;person>;
 
   for (person&amp; p: db.query&lt;person> (query::gender.is_null ()))
   {
@@ -15447,7 +15447,7 @@ class person
      columns that allow <code>NULL</code> values. For example:</p>
 
   <pre class="cxx">
-typedef std::shared_ptr&lt;std::string> string_ptr;
+using string_ptr = std::shared_ptr&lt;std::string>;
 #pragma db value(string_ptr) type("TEXT") null
 
 #pragma db object
@@ -15458,7 +15458,7 @@ class person
   string_ptr name_; // Mapped to TEXT NULL.
 };
 
-typedef std::shared_ptr&lt;person> person_ptr;
+using person_ptr = std::shared_ptr&lt;person>;
 #pragma db value(person_ptr) not_null
   </pre>
 
@@ -15655,7 +15655,7 @@ class object
      not be the same as the order in which they were stored. For example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;std::string> names;
+using names = std::vector&lt;std::string>;
 #pragma db value(names) unordered
   </pre>
 
@@ -15673,7 +15673,7 @@ typedef std::vector&lt;std::string> names;
      database type is expected to be an integer type. For example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;std::string> names;
+using names = std::vector&lt;std::string>;
 #pragma db value(names) index_type("SMALLINT UNSIGNED")
   </pre>
 
@@ -15687,7 +15687,7 @@ typedef std::vector&lt;std::string> names;
      example:</p>
 
   <pre class="cxx">
-typedef std::map&lt;unsigned short, float> age_weight_map;
+using age_weight_map = std::map&lt;unsigned short, float>;
 #pragma db value(age_weight_map) key_type("INT UNSIGNED")
   </pre>
 
@@ -15701,7 +15701,7 @@ typedef std::map&lt;unsigned short, float> age_weight_map;
      example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;std::string> names;
+using names = std::vector&lt;std::string>;
 #pragma db value(names) value_type("VARCHAR(255)")
   </pre>
 
@@ -15728,7 +15728,7 @@ class account
   ...
 };
 
-typedef std::vector&lt;std::shared_ptr&lt;account>> accounts;
+using accounts = std::vector&lt;std::shared_ptr&lt;account>>;
 #pragma db value(accounts) value_not_null
   </pre>
 
@@ -15744,7 +15744,7 @@ typedef std::vector&lt;std::shared_ptr&lt;account>> accounts;
      id column. For example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;std::string> nicknames;
+using nicknames = std::vector&lt;std::string>;
 #pragma db value(nicknames) id_options("COLLATE binary")
   </pre>
 
@@ -15761,7 +15761,7 @@ typedef std::vector&lt;std::string> nicknames;
      index column. For example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;std::string> nicknames;
+using nicknames = std::vector&lt;std::string>;
 #pragma db value(nicknames) index_options("ZEROFILL")
   </pre>
 
@@ -15778,7 +15778,7 @@ typedef std::vector&lt;std::string> nicknames;
      key column. For example:</p>
 
   <pre class="cxx">
-typedef std::map&lt;std::string, std::string> properties;
+using properties = std::map&lt;std::string, std::string>;
 #pragma db value(properties) key_options("COLLATE binary")
   </pre>
 
@@ -15795,7 +15795,7 @@ typedef std::map&lt;std::string, std::string> properties;
      value column. For example:</p>
 
   <pre class="cxx">
-typedef std::set&lt;std::string> nicknames;
+using nicknames = std::set&lt;std::string>;
 #pragma db value(nicknames) value_options("COLLATE binary")
   </pre>
 
@@ -15812,7 +15812,7 @@ typedef std::set&lt;std::string> nicknames;
      container's table. For example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;std::string> names;
+using names = std::vector&lt;std::string>;
 #pragma db value(names) id_column("id")
   </pre>
 
@@ -15826,7 +15826,7 @@ typedef std::vector&lt;std::string> names;
      ordered container's table. For example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;std::string> names;
+using names = std::vector&lt;std::string>;
 #pragma db value(names) index_column("name_number")
   </pre>
 
@@ -15840,7 +15840,7 @@ typedef std::vector&lt;std::string> names;
      container's table. For example:</p>
 
   <pre class="cxx">
-typedef std::map&lt;unsigned short, float> age_weight_map;
+using age_weight_map = std::map&lt;unsigned short, float>;
 #pragma db value(age_weight_map) key_column("age")
   </pre>
 
@@ -15854,7 +15854,7 @@ typedef std::map&lt;unsigned short, float> age_weight_map;
      container's table. For example:</p>
 
   <pre class="cxx">
-typedef std::map&lt;unsigned short, float> age_weight_map;
+using age_weight_map = std::map&lt;unsigned short, float>;
 #pragma db value(age_weight_map) value_column("weight")
   </pre>
 
@@ -18401,9 +18401,9 @@ namespace odb
     class value_traits&lt;std::vector&lt;int>, id_string>
     {
     public:
-      typedef std::vector&lt;int> value_type;
-      typedef value_type query_type;
-      typedef details::buffer image_type;
+      using value_type = std::vector&lt;int>;
+      using query_type = value_type;
+      using image_type = details::buffer;
 
       static void
       set_value (value_type&amp; v,
@@ -18484,7 +18484,7 @@ class object
      write:</p>
 
 <pre class="cxx">
-typedef std::vector&lt;int> int_vector;
+using int_vector = std::vector&lt;int>;
 #pragma db value(int_vector) type("INTEGER[]")
 
 #pragma db object
@@ -18702,7 +18702,7 @@ namespace odb
     static const unsigned short event_rollback = 0x02;
     static const unsigned short event_all = event_commit | event_rollback;
 
-    typedef void (*callback_type) (
+    using callback_type = void (*) (
       unsigned short event, void* key, unsigned long long data);
 
     void
@@ -18854,7 +18854,7 @@ class person
   T last_;
 };
 
-typedef person&lt;std::string> std_person;
+using std_person = person&lt;std::string>;
 
 #pragma db object(std_person)
 #pragma db member(std_person::last_) id
@@ -18863,13 +18863,13 @@ typedef person&lt;std::string> std_person;
   <p>Note that the database support code for such a persistent object
      is generated when compiling the header containing the
      <code>db&nbsp;object</code> pragma and not the header containing
-     the template definition or the <code>typedef</code> name. This
+     the template definition or the <code>using</code> alias. This
      allows us to use templates defined in other files, for example:</p>
 
   <pre class="cxx">
 #include &lt;utility> // std::pair
 
-typedef std::pair&lt;unsigned int, std::string> person;
+using person = std::pair&lt;unsigned int, std::string>;
 #pragma db object(person)
 #pragma db member(person::first) id auto column("id")
 #pragma db member(person::second) column("name")
@@ -18915,7 +18915,7 @@ class base: public base_common
   T value;
 };
 
-typedef base&lt;std::string> string_base;
+using string_base = base&lt;std::string>;
 #pragma db object(string_base) abstract
 
 #pragma db object
@@ -19102,7 +19102,7 @@ struct person_entry
   ...
 };
 
-typedef std::vector&lt;person_entry> people;
+using people = std::vector&lt;person_entry>;
 
 void
 persist (odb::database&amp; db, people&amp; p)
@@ -19175,10 +19175,10 @@ struct multiple_exceptions: odb::exception
 
   // Iteration.
   //
-  typedef std::set&lt;value_type> set_type;
+  using set_type = std::set&lt;value_type>;
 
-  typedef set_type::const_iterator iterator;
-  typedef set_type::const_iterator const_iterator;
+  using iterator = set_type::const_iterator;
+  using const_iterator = set_type::const_iterator;
 
   iterator
   begin () const;
@@ -19570,8 +19570,8 @@ odb --odb-file-suffix common:-odb-common ...
 
 odb::database&amp; db = ...
 
-typedef odb::query&lt;person> query;
-typedef odb::result&lt;person> result;
+using query = odb::query&lt;person>;
+using result = odb::result&lt;person>;
 
 odb::transaction t (db.begin ());
 result r (db.query&lt;person> (query::age &lt; 30));
@@ -19587,8 +19587,8 @@ t.commit ();
 
 odb::sqlite::database&amp; db = ...
 
-typedef odb::sqlite::query&lt;person> query;
-typedef odb::result&lt;person> result;      // odb:: not odb::sqlite::
+using query = odb::sqlite::query&lt;person>;
+using result = odb::result&lt;person>;      // odb:: not odb::sqlite::
 
 odb::sqlite::transaction t (db.begin ());
 result r (db.query&lt;person> (query::age &lt; 30));
@@ -19629,8 +19629,8 @@ odb::database&amp; db = ...
 {
   using namespace odb::core;
 
-  typedef query&lt;person> person_query;
-  typedef result&lt;person> person_result;
+  using person_query = query&lt;person>;
+  using person_result = result&lt;person>;
 
   transaction t (db.begin ());
   person_result r (db.query&lt;person> (person_query::age &lt; 30));
@@ -19654,8 +19654,8 @@ odb::sqlite::database&amp; db = ...
 {
   using namespace odb::sqlite::core;
 
-  typedef query&lt;person> person_query;
-  typedef result&lt;person> person_result;
+  using person_query = query&lt;person>;
+  using person_result = result&lt;person>;
 
   transaction t (db.begin ());
   person_result r (db.query&lt;person> (person_query::age &lt; 30));
@@ -19679,9 +19679,9 @@ namespace sl = odb::sqlite;
 pg::database&amp; pg_db = ...
 sl::database&amp; sl_db = ...
 
-typedef pg::query&lt;person> pg_query;
-typedef sl::query&lt;person> sl_query;
-typedef odb::result&lt;person> result;
+using pg_query = pg::query&lt;person>;
+using sl_query = sl::query&lt;person>;
+using result = odb::result&lt;person>;
 
 // First check the local cache.
 //
@@ -19822,8 +19822,8 @@ if (p == 0)
 void
 print (odb::database&amp; db, unsigned short age, unsigned long limit)
 {
-  typedef odb::query&lt;person> query;
-  typedef odb::result&lt;person> result;
+  using query = odb::query&lt;person>;
+  using result = odb::result&lt;person>;
 
   odb::transaction t (db.begin ());
 
@@ -19836,7 +19836,7 @@ print (odb::database&amp; db, unsigned short age, unsigned long limit)
     // add the LIMIT clause to the query.
     //
     namespace pg = odb::pgsql;
-    typedef pg::query&lt;person> pg_query;
+    using pg_query = pg::query&lt;person>;
 
     pg::database&amp; pg_db (static_cast&lt;pg::database&amp;> (db));
     pg_query pg_q (pg_query (q) + "LIMIT" + pg_query::_val (limit));
@@ -20339,7 +20339,7 @@ class object
   <p>Alternatively, this can be done on the per-type basis, for example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;char> buffer;
+using buffer = std::vector&lt;char>;
 #pragma db value(buffer) type("BLOB")
 
 #pragma db object
@@ -20584,7 +20584,7 @@ namespace odb
       handle ();
     };
 
-    typedef details::shared_ptr&lt;connection> connection_ptr;
+    using connection_ptr = details::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -20675,7 +20675,7 @@ namespace odb
         pooled_connection (database_type&amp;, MYSQL*);
       };
 
-      typedef details::shared_ptr&lt;pooled_connection> pooled_connection_ptr;
+      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
 
       virtual pooled_connection_ptr
       create ();
@@ -20892,8 +20892,8 @@ struct person_range
      print the list of people in a specific age range:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;person_range> query;
-typedef odb::result&lt;person_range> result;
+using query = odb::query&lt;person_range>;
+using result = odb::result&lt;person_range>;
 
 transaction t (db.begin ());
 
@@ -20954,7 +20954,7 @@ struct person_min_max_age
   </pre>
 
   <pre class="cxx">
-typedef odb::query&lt;person_min_max_age> query;
+using query = odb::query&lt;person_min_max_age>;
 
 transaction t (db.begin ());
 
@@ -21197,7 +21197,7 @@ class object
   <p>Alternatively, this can be done on the per-type basis, for example:</p>
 
   <pre class="cxx">
-typedef std::array&lt;char, 128> name_type;
+using name_type = std::array&lt;char, 128>;
 #pragma db value(name_type) type("TEXT")
 
 #pragma db object
@@ -21248,7 +21248,7 @@ class object
   <p>Alternatively, this can be done on the per-type basis, for example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;char> buffer;
+using buffer = std::vector&lt;char>;
 #pragma db value(buffer) type("BLOB")
 
 #pragma db object
@@ -21545,7 +21545,7 @@ struct load_b
   odb::sqlite::blob b;
 };
 
-typedef odb::query&lt;load_b> query;
+using query = odb::query&lt;load_b>;
 
 transaction tx (db.begin ());
 
@@ -21822,7 +21822,7 @@ namespace odb
       handle ();
     };
 
-    typedef details::shared_ptr&lt;connection> connection_ptr;
+    using connection_ptr = details::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -21940,7 +21940,7 @@ namespace odb
         single_connection (database&amp;, sqlite3*);
       };
 
-      typedef details::shared_ptr&lt;single_connection> single_connection_ptr;
+      using single_connection_ptr = details::shared_ptr&lt;single_connection>;
 
       virtual single_connection_ptr
       create ();
@@ -21995,7 +21995,7 @@ namespace odb
         pooled_connection (database_type&amp;, sqlite3*);
       };
 
-      typedef details::shared_ptr&lt;pooled_connection> pooled_connection_ptr;
+      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
 
       virtual pooled_connection_ptr
       create ();
@@ -22751,7 +22751,7 @@ class object
   <p>Alternatively, this can be done on the per-type basis, for example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;char> buffer;
+using buffer = std::vector&lt;char>;
 #pragma db value(buffer) type("BYTEA")
 
 #pragma db object
@@ -22947,7 +22947,7 @@ namespace odb
       handle ();
     };
 
-    typedef details::shared_ptr&lt;connection> connection_ptr;
+    using connection_ptr = details::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -23037,7 +23037,7 @@ namespace odb
         pooled_connection (database_type&amp;, PGconn*);
       };
 
-      typedef details::shared_ptr&lt;pooled_connection> pooled_connection_ptr;
+      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
 
       virtual pooled_connection_ptr
       create ();
@@ -23327,8 +23327,8 @@ struct person_range
      print the list of people in a specific age range:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;person_range> query;
-typedef odb::result&lt;person_range> result;
+using query = odb::query&lt;person_range>;
+using result = odb::result&lt;person_range>;
 
 transaction t (db.begin ());
 
@@ -23606,7 +23606,7 @@ class object
   <p>Alternatively, this can be done on the per-type basis, for example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;char> buffer;
+using buffer = std::vector&lt;char>;
 #pragma db value(buffer) type("BLOB")
 
 #pragma db object
@@ -23836,7 +23836,7 @@ namespace odb
       lob_buffer ();
     };
 
-    typedef details::shared_ptr&lt;connection> connection_ptr;
+    using connection_ptr = details::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -23941,7 +23941,7 @@ namespace odb
         pooled_connection (database_type&amp;, OCISvcCtx*);
       };
 
-      typedef details::shared_ptr&lt;pooled_connection> pooled_connection_ptr;
+      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
 
       virtual pooled_connection_ptr
       create ();
@@ -24036,10 +24036,10 @@ namespace odb
         message () const;
       };
 
-      typedef std::vector&lt;record> records;
+      using records = std::vector&lt;record>;
 
-      typedef records::size_type size_type;
-      typedef records::const_iterator iterator;
+      using size_type = records::size_type;
+      using iterator = records::const_iterator;
 
       iterator
       begin () const;
@@ -24585,7 +24585,7 @@ class object
   <p>Alternatively, this can be done on the per-type basis, for example:</p>
 
   <pre class="cxx">
-typedef std::vector&lt;char> buffer;
+using buffer = std::vector&lt;char>;
 #pragma db value(buffer) type("VARBINARY(max)")
 
 #pragma db object
@@ -24684,8 +24684,8 @@ class object
   std::string str_;
 };
 
-typedef odb::query&lt;object> query;
-typedef odb::result&lt;object> result;
+using query = odb::query&lt;object>;
+using result = odb::result&lt;object>;
 
 transaction t (db.begin ());
 
@@ -24740,8 +24740,8 @@ namespace odb
     class database: public odb::database
     {
     public:
-      typedef protocol protocol_type;
-      typedef transaction_isolation transaction_isolation_type;
+      using protocol_type = protocol;
+      using transaction_isolation_type = transaction_isolation;
 
       database (const std::string&amp; user,
                 const std::string&amp; password,
@@ -25061,7 +25061,7 @@ namespace odb
       long_data_buffer ();
     };
 
-    typedef details::shared_ptr&lt;connection> connection_ptr;
+    using connection_ptr = details::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -25162,7 +25162,7 @@ namespace odb
         pooled_connection (database_type&amp;, SQLHDBC handle);
       };
 
-      typedef details::shared_ptr&lt;pooled_connection> pooled_connection_ptr;
+      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
 
       virtual pooled_connection_ptr
       create ();
@@ -25260,10 +25260,10 @@ namespace odb
         message () const;
       };
 
-      typedef std::vector&lt;record> records;
+      using records = std::vector&lt;record>;
 
-      typedef records::size_type size_type;
-      typedef records::const_iterator iterator;
+      using size_type = records::size_type;
+      using iterator = records::const_iterator;
 
       iterator
       begin () const;
@@ -25484,8 +25484,8 @@ struct person_range
      print the list of people in a specific age range:</p>
 
   <pre class="cxx">
-typedef odb::query&lt;person_range> query;
-typedef odb::result&lt;person_range> result;
+using query = odb::query&lt;person_range>;
+using result = odb::result&lt;person_range>;
 
 transaction t (db.begin ());
 
@@ -25812,14 +25812,14 @@ class person
 {
   ...
 
-  typedef
-  mi::multi_index_container&lt;
-    std::string,
-    mi::indexed_by&lt;
-      mi::sequenced&lt;>,
-      mi::ordered_unique&lt;mi::identity&lt;std::string>>
-    >
-  > emails;
+  using emails =
+    mi::multi_index_container&lt;
+      std::string,
+      mi::indexed_by&lt;
+        mi::sequenced&lt;>,
+        mi::ordered_unique&lt;mi::identity&lt;std::string>>
+      >
+    >;
 
   emails emails_;
 };
@@ -25862,19 +25862,19 @@ class person
 {
   ...
 
-  typedef
-  mi::multi_index_container&lt;
-    name,
-    mi::indexed_by&lt;
-      mi::ordered_unique&lt;mi::identity&lt;name>>
-      mi::ordered_non_unique&lt;
-        mi::member&lt;name, std::string, &amp;name::first>
-      >,
-      mi::ordered_non_unique&lt;
-        mi::member&lt;name, std::string, &amp;name::last>
+  using aliases =
+    mi::multi_index_container&lt;
+      name,
+      mi::indexed_by&lt;
+        mi::ordered_unique&lt;mi::identity&lt;name>>
+        mi::ordered_non_unique&lt;
+          mi::member&lt;name, std::string, &amp;name::first>
+        >,
+        mi::ordered_non_unique&lt;
+          mi::member&lt;name, std::string, &amp;name::last>
+        >
       >
-    >
-  > aliases;
+    > ;
 
   aliases aliases_;
 };
@@ -27007,7 +27007,7 @@ class QOdbList
 
   // Iterators.
   //
-  typedef typename QList&lt;T>::const_iterator const_iterator;
+  using const_iterator = typename QList&lt;T>::const_iterator;
 
   class iterator
   {
