@@ -1286,14 +1286,11 @@ for consistency.
 
   <h2><a name="1.3">1.3 Supported C++ Standards</a></h2>
 
-  <p>ODB provides support for ISO/IEC C++ 1998/2003 (C++98/03),
-     ISO/IEC TR 19768 C++ Library Extensions (C++ TR1), and
-     ISO/IEC C++ 2011 (C++11). While the majority of the examples in
-     this manual use C++98/03, support for the new functionality and
-     library components introduced in TR1 and C++11 are discussed
-     throughout the document. The <code>c++11</code> example in the
-     <code>odb-examples</code> package also shows ODB support for
-     various C++11 features.</p>
+  <p>ODB provides support for ISO/IEC C++ 1998/2003 (C++98/03), ISO/IEC C++
+     2011 (C++11), as well later standards with the majority of the examples
+     in this manual using C++11. The <code>c++11</code> example in the
+     <code>odb-examples</code> package shows ODB support for various
+     features new in C++11.</p>
 
   <!-- CHAPTER -->
 
@@ -2047,11 +2044,10 @@ main (int argc, char* argv[])
      made this object persistent. While here we use
      <code>std::auto_ptr</code> to manage the returned object, we
      could have also used another smart pointer, for example
-     <code>std::unique_ptr</code> from C++11 or <code>shared_ptr</code>
-     from TR1, C++11, or Boost. For more information
-     on the object lifetime management and the smart pointers that we
-     can use for that, see <a href="#3.3">Section 3.3, "Object
-     and View Pointers"</a>.</p>
+     <code>std::unique_ptr</code> from C++11 or <code>shared_ptr</code> from
+     C++11 or Boost. For more information on the object lifetime management
+     and the smart pointers that we can use for that,
+     see <a href="#3.3">Section 3.3, "Object and View Pointers"</a>.</p>
 
   <p>With the instantiated object in hand we increment the age
      and call the <code>update()</code> function to update
@@ -2919,14 +2915,14 @@ class name
      or view that is returned as a raw pointer from a database operation
      can be assigned to a smart pointer of our choice, for example
      <code>std::auto_ptr</code>,  <code>std::unique_ptr</code> from C++11, or
-     <code>shared_ptr</code> from TR1, C++11, or Boost.</p>
+     <code>shared_ptr</code> from C++11 or Boost.</p>
 
   <p>However, to avoid any possibility of a mistake, such as forgetting
      to use a smart pointer for a returned object or view, as well as to
      simplify the use of more advanced ODB functionality, such as sessions
      and bidirectional object relationships, it is recommended that you use
      smart pointers with the sharing semantics as object pointers.
-     The <code>shared_ptr</code> smart pointer from TR1, C++11, or Boost
+     The <code>shared_ptr</code> smart pointer from C++11 or Boost
      is a good default choice. However, if sharing is not required and
      sessions are not used, then <code>std::unique_ptr</code> or
      <code>std::auto_ptr</code> can be used just as well.</p>
@@ -2936,7 +2932,7 @@ class name
      we can use the <code>db&nbsp;pointer</code> pragma, for example:</p>
 
   <pre class="cxx">
-#pragma db object pointer(std::tr1::shared_ptr)
+#pragma db object pointer(std::shared_ptr)
 class person
 {
   ...
@@ -2947,7 +2943,7 @@ class person
      views at the namespace level:</p>
 
   <pre class="cxx">
-#pragma db namespace pointer(std::tr1::shared_ptr)
+#pragma db namespace pointer(std::shared_ptr)
 namespace accounting
 {
   #pragma db object
@@ -2971,14 +2967,14 @@ namespace accounting
      The typical usage is shown below:</p>
 
   <pre class="terminal">
---default-pointer std::tr1::shared_ptr
+--default-pointer std::shared_ptr
   </pre>
 
   <p>An alternative to this method with the same effect is to specify the
      default pointer for the  global namespace:</p>
 
   <pre class="terminal">
-#pragma db namespace() pointer(std::tr1::shared_ptr)
+#pragma db namespace() pointer(std::shared_ptr)
   </pre>
 
   <p>Note that we can always override the default pointer specified
@@ -3010,13 +3006,13 @@ namespace accounting
      (namespace)"</a> for more information on these mechanisms.</p>
 
   <p>Built-in support that is provided by the ODB runtime library allows us
-     to use <code>shared_ptr</code> (TR1 or C++11),
-     <code>std::unique_ptr</code> (C++11), or <code>std::auto_ptr</code> as
-     pointer types. Plus, ODB profile libraries, that are available for
-     commonly used frameworks and libraries (such as Boost and Qt),
-     provide support for smart pointers found in these frameworks and
-     libraries (<a href="#III">Part III, "Profiles"</a>). It is also
-     easy to add support for our own smart pointers, as described in
+     to use <code>std::shared_ptr</code> (C++11),
+     <code>std::unique_ptr</code> (C++11), or <code>std::auto_ptr</code>
+     (C++98/03 only) as pointer types. Plus, ODB profile libraries, that are
+     available for commonly used frameworks and libraries (such as Boost and
+     Qt), provide support for smart pointers found in these frameworks and
+     libraries (<a href="#III">Part III, "Profiles"</a>). It is also easy to
+     add support for our own smart pointers, as described in
      <a href="#6.5"> Section 6.5, "Using Custom Smart Pointers"</a>.</p>
 
   <h2><a name="3.4">3.4 Database</a></h2>
@@ -5627,8 +5623,8 @@ for (age = 90; age > 40; age -= 10)
      query on the connection. The second overloaded version of
      <code>cache_query()</code> also takes a pointer to the
      by-reference query parameters. In C++98/03 it should be
-     <code>std::auto_ptr</code> while in C++11 <code>std::auto_ptr</code>
-     or <code>std::unique_ptr</code> can be used. The
+     <code>std::auto_ptr</code> while in C++11
+     &mdash; <code>std::unique_ptr</code>. The
      <code>cache_query()</code> function assumes ownership of the
      passed <code>params</code> argument. If a prepared query
      with the same name is already cached on this connection,
@@ -6327,7 +6323,7 @@ for (;;)
   <pre class="cxx">
 namespace odb
 {
-  template &lt;class T, class A = std::allocator&lt;T> >
+  template &lt;class T, class A = std::allocator&lt;T>>
   class vector
   {
     ...
@@ -6492,19 +6488,19 @@ std::sort (v.mbegin (), v.mend ());
 
   <p>Relationships between persistent objects are expressed with pointers or
      containers of pointers. The ODB runtime library provides built-in support
-     for <code>shared_ptr</code>/<code>weak_ptr</code> (TR1 or C++11),
+     for <code>std::shared_ptr</code>/<code>std::weak_ptr</code> (C++11),
      <code>std::unique_ptr</code> (C++11),
-     <code>std::auto_ptr</code>, and raw pointers. Plus, ODB profile
-     libraries, that are available for commonly used frameworks and libraries
-     (such as Boost and Qt), provide support for smart pointers found in these
-     frameworks and libraries (<a href="#III">Part III, "Profiles"</a>). It is
-     also easy to add support for a custom smart pointer as discussed later
-     in <a href="#6.5"> Section 6.5, "Using Custom Smart Pointers"</a>. Any
-     supported smart pointer can be used in a data member as long as it can be
-     explicitly constructed from the canonical object pointer
-     (<a href="#3.3">Section 3.3, "Object and View Pointers"</a>).  For
-     example, we can use <code>weak_ptr</code> if the object pointer
-     is <code>shared_ptr</code>.</p>
+     <code>std::auto_ptr</code> (C++98/03 only), and raw pointers. Plus, ODB
+     profile libraries, that are available for commonly used frameworks and
+     libraries (such as Boost and Qt), provide support for smart pointers
+     found in these frameworks and libraries (<a href="#III">Part III,
+     "Profiles"</a>). It is also easy to add support for a custom smart
+     pointer as discussed later in <a href="#6.5"> Section 6.5, "Using Custom
+     Smart Pointers"</a>. Any supported smart pointer can be used in a data
+     member as long as it can be explicitly constructed from the canonical
+     object pointer (<a href="#3.3">Section 3.3, "Object and View
+     Pointers"</a>).  For example, we can use <code>weak_ptr</code> if the
+     object pointer is <code>shared_ptr</code>.</p>
 
   <p>When an object containing a pointer to another object is loaded,
      the pointed-to object is loaded as well. In some situations this
@@ -6521,8 +6517,8 @@ std::sort (v.mbegin (), v.mend ());
 
   <p>As a simple example, consider the following employee-employer
      relationship. Code examples presented in this chapter
-     will use the <code>shared_ptr</code> and <code>weak_ptr</code>
-     smart pointers from the TR1 (<code>std::tr1</code>) namespace.</p>
+     will use the C++11 <code>shared_ptr</code> and <code>weak_ptr</code>
+     smart pointers from the <code>std</code> namespace.</p>
 
   <pre class="cxx">
 #pragma db object
@@ -6568,7 +6564,7 @@ class employee
   shared_ptr&lt;employer> current_employer_;
 
   #pragma db value_not_null
-  std::vector&lt;shared_ptr&lt;employer> > previous_employers_;
+  std::vector&lt;shared_ptr&lt;employer>> previous_employers_;
 };
   </pre>
 
@@ -6787,7 +6783,7 @@ class employee
   unsigned long id_;
 
   #pragma db value_not_null unordered
-  std::vector&lt;shared_ptr&lt;project> > projects_;
+  std::vector&lt;shared_ptr&lt;project>> projects_;
 };
   </pre>
 
@@ -6817,7 +6813,7 @@ class employee
 
   #pragma db value_not_null unordered \
              id_column("employee_id") value_column("project_name")
-  std::vector&lt;shared_ptr&lt;project> > projects_;
+  std::vector&lt;shared_ptr&lt;project>> projects_;
 };
   </pre>
 
@@ -7108,7 +7104,7 @@ class employer
   std::string name_;
 
   #pragma db value_not_null inverse(employer_)
-  std::vector&lt;weak_ptr&lt;employee> > employees_
+  std::vector&lt;weak_ptr&lt;employee>> employees_
 };
 
 #pragma db object
@@ -7173,7 +7169,7 @@ class project
   std::string name_;
 
   #pragma db value_not_null inverse(projects_)
-  std::vector&lt;weak_ptr&lt;employee> > employees_;
+  std::vector&lt;weak_ptr&lt;employee>> employees_;
 };
 
 #pragma db object
@@ -7185,7 +7181,7 @@ class employee
   unsigned long id_;
 
   #pragma db value_not_null unordered
-  std::vector&lt;shared_ptr&lt;project> > projects_;
+  std::vector&lt;shared_ptr&lt;project>> projects_;
 };
   </pre>
 
@@ -7389,7 +7385,7 @@ class employer
   std::string name_;
 
   #pragma db value_not_null inverse(employer_)
-  std::vector&lt;weak_ptr&lt;employee> > employees_;
+  std::vector&lt;weak_ptr&lt;employee>> employees_;
 };
 
 #pragma db object
@@ -7442,16 +7438,12 @@ t.commit ();
      supported pointers, namely:
      <code>odb::lazy_shared_ptr</code>/<code>lazy_weak_ptr</code>
      for C++11 <code>std::shared_ptr</code>/<code>weak_ptr</code>,
-     <code>odb::tr1::lazy_shared_ptr</code>/<code>lazy_weak_ptr</code>
-     for TR1 <code>std::tr1::shared_ptr</code>/<code>weak_ptr</code>,
      <code>odb::lazy_unique_ptr</code> for C++11 <code>std::unique_ptr</code>,
-     <code>odb::lazy_auto_ptr</code> for <code>std::auto_ptr</code>,
-     and <code>odb::lazy_ptr</code> for raw pointers. The TR1 lazy
-     pointers are defined in the <code>&lt;odb/tr1/lazy-ptr.hxx></code>
-     header while all the others &mdash; in
-     <code>&lt;odb/lazy-ptr.hxx></code>. The ODB profile
-     libraries also provide lazy pointer implementations for smart pointers
-     from popular frameworks and libraries (<a href="#III">Part III,
+     <code>odb::lazy_auto_ptr</code> for C++98/03 <code>std::auto_ptr</code>,
+     and <code>odb::lazy_ptr</code> for raw pointers. All these lazy pointers
+     are defined in the <code>&lt;odb/lazy-ptr.hxx></code> header. The ODB
+     profile libraries also provide lazy pointer implementations for smart
+     pointers from popular frameworks and libraries (<a href="#III">Part III,
      "Profiles"</a>).</p>
 
   <p>While we will discuss the interface of lazy pointers in more detail
@@ -7477,7 +7469,7 @@ class employer
   ...
 
   #pragma db value_not_null inverse(employer_)
-  std::vector&lt;lazy_weak_ptr&lt;employee> > employees_;
+  std::vector&lt;lazy_weak_ptr&lt;employee>> employees_;
 };
 
 #pragma db object
@@ -7594,7 +7586,7 @@ public:
      presented earlier.</p>
 
   <pre class="cxx">
-typedef std::vector&lt;lazy_weak_ptr&lt;employee> > employees;
+typedef std::vector&lt;lazy_weak_ptr&lt;employee>> employees;
 
 session s;
 transaction t (db.begin ());
@@ -8353,12 +8345,12 @@ class person
   </pre>
 
   <p>The ODB compiler includes built-in support for using
-     <code>std::auto_ptr</code>, <code>std::unique_ptr</code> (C++11),
-     and <code>shared_ptr</code> (TR1 or C++11) as pointers to values.
-     Plus, ODB profile libraries, that are
-     available for commonly used frameworks and libraries (such as Boost and
-     Qt), provide support for smart pointers found in these frameworks
-     and libraries (<a href="#III">Part III, "Profiles"</a>).</p>
+     <code>std::auto_ptr</code> (C++98/03 only), <code>std::unique_ptr</code>
+     (C++11), and <code>std::shared_ptr</code> (C++11) as pointers to values.
+     Plus, ODB profile libraries, that are available for commonly used
+     frameworks and libraries (such as Boost and Qt), provide support for
+     smart pointers found in these frameworks and libraries
+     (<a href="#III">Part III, "Profiles"</a>).</p>
 
   <p>ODB also supports the <code>NULL</code> semantics for composite
      values. In the relational database the <code>NULL</code> composite
@@ -8395,7 +8387,7 @@ class person
 {
   ...
 
-  std::auto_ptr&lt;std::vector&lt;std::string> > aliases_;
+  std::auto_ptr&lt;std::vector&lt;std::string>> aliases_;
 };
   </pre>
 
@@ -14435,7 +14427,7 @@ class person
      class. For example:</p>
 
   <pre class="cxx">
-#pragma db object pointer(std::tr1::shared_ptr&lt;person>)
+#pragma db object pointer(std::shared_ptr&lt;person>)
 class person
 {
   ...
@@ -14451,7 +14443,7 @@ class person
      equivalent to the one above:</p>
 
   <pre class="cxx">
-#pragma db object pointer(std::tr1::shared_ptr)
+#pragma db object pointer(std::shared_ptr)
 class person
 {
   ...
@@ -15457,9 +15449,7 @@ class person
      columns that allow <code>NULL</code> values. For example:</p>
 
   <pre class="cxx">
-using std::tr1::shared_ptr;
-
-typedef shared_ptr&lt;std::string> string_ptr;
+typedef std::shared_ptr&lt;std::string> string_ptr;
 #pragma db value(string_ptr) type("TEXT") null
 
 #pragma db object
@@ -15470,7 +15460,7 @@ class person
   string_ptr name_; // Mapped to TEXT NULL.
 };
 
-typedef shared_ptr&lt;person> person_ptr;
+typedef std::shared_ptr&lt;person> person_ptr;
 #pragma db value(person_ptr) not_null
   </pre>
 
@@ -15734,15 +15724,13 @@ typedef std::vector&lt;std::string> names;
      For example:</p>
 
   <pre class="cxx">
-using std::tr1::shared_ptr;
-
 #pragma db object
 class account
 {
   ...
 };
 
-typedef std::vector&lt;shared_ptr&lt;account> > accounts;
+typedef std::vector&lt;std::shared_ptr&lt;account>> accounts;
 #pragma db value(accounts) value_not_null
   </pre>
 
@@ -16498,8 +16486,6 @@ private:
      to columns that allow <code>NULL</code> values. For example:</p>
 
   <pre class="cxx">
-using std::tr1::shared_ptr;
-
 #pragma db object
 class person
 {
@@ -16515,7 +16501,7 @@ class account
   ...
 
   #pragma db not_null
-  shared_ptr&lt;person> holder_;
+  std::shared_ptr&lt;person> holder_;
 };
   </pre>
 
@@ -17125,26 +17111,23 @@ private:
      member name in the referenced object. For example:</p>
 
   <pre class="cxx">
-using std::tr1::shared_ptr;
-using std::tr1::weak_ptr;
-
 class person;
 
-#pragma db object pointer(shared_ptr)
+#pragma db object pointer(std::shared_ptr)
 class employer
 {
   ...
 
-  std::vector&lt;shared_ptr&lt;person> > employees_;
+  std::vector&lt;std::shared_ptr&lt;person>> employees_;
 };
 
-#pragma db object pointer(shared_ptr)
+#pragma db object pointer(std::shared_ptr)
 class person
 {
   ...
 
   #pragma db inverse(employee_)
-  weak_ptr&lt;employer> employer_;
+  std::weak_ptr&lt;employer> employer_;
 };
   </pre>
 
@@ -17534,8 +17517,6 @@ class person
      For example:</p>
 
   <pre class="cxx">
-using std::tr1::shared_ptr;
-
 #pragma db object
 class person
 {
@@ -17548,7 +17529,7 @@ class account
   ...
 
   #pragma db value_not_null
-  std::vector&lt;shared_ptr&lt;person> > holders_;
+  std::vector&lt;std::shared_ptr&lt;person>> holders_;
 };
   </pre>
 
@@ -17832,7 +17813,7 @@ namespace test
      example:</p>
 
   <pre class="cxx">
-#pragma db namespace pointer(std::tr1::shared_ptr)
+#pragma db namespace pointer(std::shared_ptr)
 namespace accounting
 {
   #pragma db object
@@ -25838,7 +25819,7 @@ class person
     std::string,
     mi::indexed_by&lt;
       mi::sequenced&lt;>,
-      mi::ordered_unique&lt;mi::identity&lt;std::string> >
+      mi::ordered_unique&lt;mi::identity&lt;std::string>>
     >
   > emails;
 
@@ -25887,7 +25868,7 @@ class person
   mi::multi_index_container&lt;
     name,
     mi::indexed_by&lt;
-      mi::ordered_unique&lt;mi::identity&lt;name> >
+      mi::ordered_unique&lt;mi::identity&lt;name>>
       mi::ordered_non_unique&lt;
         mi::member&lt;name, std::string, &amp;name::first>
       >,
