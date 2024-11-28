@@ -42,8 +42,8 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    typedef odb::query<person> query;
-    typedef odb::result<person> result;
+    using query = odb::query<person>;
+    using result = odb::result<person>;
 
     // Say hello to those over 30.
     //

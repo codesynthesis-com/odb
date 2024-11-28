@@ -33,7 +33,7 @@ main (int argc, char* argv[])
     }
 
     {
-      typedef odb::result<person> result;
+      using result = odb::result<person>;
 
       transaction t (db->begin ());
       result r (db->query<person> ());

@@ -34,7 +34,7 @@ public:
 
   // Employees of this employer.
   //
-  typedef std::vector<odb::lazy_weak_ptr<employee>> employees_type;
+  using employees_type = std::vector<odb::lazy_weak_ptr<employee>>;
 
   const employees_type&
   employees () const
@@ -64,7 +64,7 @@ private:
 class employee
 {
 public:
-  typedef ::employer employer_type;
+  using employer_type = ::employer;
 
   employee (const std::string& first,
             const std::string& last,
@@ -89,7 +89,7 @@ public:
 
   // Emails.
   //
-  typedef std::unordered_set<std::string> emails_type;
+  using emails_type = std::unordered_set<std::string>;
 
   const emails_type&
   emails () const
@@ -153,7 +153,7 @@ public:
 
   // Members of this fund.
   //
-  typedef std::vector<odb::lazy_shared_ptr<employee>> members_type;
+  using members_type = std::vector<odb::lazy_shared_ptr<employee>>;
 
   const members_type&
   members () const

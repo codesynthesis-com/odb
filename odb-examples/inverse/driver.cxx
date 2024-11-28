@@ -173,8 +173,8 @@ main (int argc, char* argv[])
     // Find all Software Engineers.
     //
     {
-      typedef odb::query<position> query;
-      typedef odb::result<position> result;
+      using query = odb::query<position>;
+      using result = odb::result<position>;
 
       session s;
       transaction t (db->begin ());
@@ -199,7 +199,7 @@ main (int argc, char* argv[])
     // a Software Engineer on Complex Software.
     //
     {
-      typedef odb::query<employee> query;
+      using query = odb::query<employee>;
 
       session s;
       transaction t (db->begin ());
@@ -233,8 +233,8 @@ main (int argc, char* argv[])
     // of the pointed-to objects in the queries.
     //
     {
-      typedef odb::query<employee> query;
-      typedef odb::result<employee> result;
+      using query = odb::query<employee>;
+      using result = odb::result<employee>;
 
       session s;
       transaction t (db->begin ());

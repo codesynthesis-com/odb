@@ -39,7 +39,7 @@ private:
   std::string last_;
 };
 
-typedef std::vector<basic_name> basic_names;
+using basic_names = std::vector<basic_name>;
 
 
 #pragma db value
@@ -126,7 +126,7 @@ private:
 // instantiation. Here we use std::pair to store person's phone
 // numbers, in the order of preference.
 //
-typedef std::pair<std::string, std::string> phone_numbers;
+using phone_numbers = std::pair<std::string, std::string>;
 #pragma db value(phone_numbers)
 
 // We can also use a composite value type as an object id.
@@ -191,7 +191,7 @@ public:
 
   // Name.
   //
-  typedef ::name name_type;
+  using name_type = ::name;
 
   const name_type&
   name () const

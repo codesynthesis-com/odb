@@ -83,7 +83,7 @@ main (int argc, char* argv[])
     // Query the database for a person object.
     //
     {
-      typedef odb::query<person> query;
+      using query = odb::query<person>;
 
       transaction t (db->begin ());
 

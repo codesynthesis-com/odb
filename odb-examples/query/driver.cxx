@@ -18,8 +18,8 @@ using namespace std;
 using odb::database;
 using odb::transaction;
 
-typedef odb::query<person> query;
-typedef odb::result<person> result;
+using query = odb::query<person>;
+using result = odb::result<person>;
 
 static void
 print (person& p)
@@ -49,7 +49,7 @@ main (int argc, char* argv[])
     unique_ptr<database> db (create_database (argc, argv));
 
     {
-      typedef vector<person> people;
+      using people = vector<person>;
 
       people p;
 

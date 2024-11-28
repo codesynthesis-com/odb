@@ -25,9 +25,9 @@ namespace odb
     class value_traits<bool, id_string>
     {
     public:
-      typedef bool value_type;
-      typedef bool query_type;
-      typedef char* image_type;
+      using value_type = bool;
+      using query_type = bool;
+      using image_type = char*;
 
       static void
       set_value (bool& v,
@@ -58,9 +58,9 @@ namespace odb
     class value_traits<date, id_date>
     {
     public:
-      typedef date value_type;
-      typedef date query_type;
-      typedef char* image_type;
+      using value_type = date;
+      using query_type = date;
+      using image_type = char*;
 
       static void
       set_value (date& v, const char* b, bool is_null)

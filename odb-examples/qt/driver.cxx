@@ -155,8 +155,8 @@ main (int argc, char* argv[])
     // April 1978.
     //
     {
-      typedef odb::query<Employee> query;
-      typedef odb::result<Employee> result;
+      using query = odb::query<Employee>;
+      using result = odb::result<Employee>;
 
       session s;
       transaction t (db->begin ());

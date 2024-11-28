@@ -21,8 +21,8 @@ main (int argc, char* argv[])
 {
   try
   {
-    typedef odb::query<person> query;
-    typedef odb::result<person> result;
+    using query = odb::query<person>;
+    using result = odb::result<person>;
 
     unique_ptr<database> db (create_database (argc, argv));
 

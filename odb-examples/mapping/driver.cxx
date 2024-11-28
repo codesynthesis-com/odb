@@ -41,8 +41,8 @@ main (int argc, char* argv[])
     // Query for a person using data members of our custom-mapped types.
     //
     {
-      typedef odb::query<person> query;
-      typedef odb::result<person> result;
+      using query = odb::query<person>;
+      using result = odb::result<person>;
 
       transaction t (db->begin ());
 

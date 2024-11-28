@@ -33,8 +33,8 @@ using boost::gregorian::date;
 class employer;
 class employee;
 
-typedef boost::unordered_set<std::string> emails;
-typedef std::vector<lazy_weak_ptr<employee> > employees;
+using emails = boost::unordered_set<std::string>;
+using employees = std::vector<lazy_weak_ptr<employee>>;
 
 #pragma db object
 class employer
@@ -53,7 +53,7 @@ public:
 
   // Employees of this employer.
   //
-  typedef ::employees employees_type;
+  using employees_type = ::employees;
 
   const employees_type&
   employees () const
@@ -83,7 +83,7 @@ private:
 class employee
 {
 public:
-  typedef ::employer employer_type;
+  using employer_type = ::employer;
 
   employee (const std::string& first,
             const std::string& last,
@@ -146,7 +146,7 @@ public:
 
   // Emails.
   //
-  typedef ::emails emails_type;
+  using emails_type = ::emails;
 
   const emails_type&
   emails () const

@@ -57,8 +57,8 @@ main (int argc, char* argv[])
     // Query for temporary employees that have John as the first name.
     //
     {
-      typedef odb::query<temporary_employee> query;
-      typedef odb::result<temporary_employee> result;
+      using query = odb::query<temporary_employee>;
+      using result = odb::result<temporary_employee>;
 
       transaction t (db->begin ());
 

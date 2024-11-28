@@ -11,9 +11,9 @@
 
 #include <odb/core.hxx>
 
-typedef std::vector<std::string> names;
-typedef std::set<std::string> emails;
-typedef std::map<unsigned short, float> age_weight_map;
+using names = std::vector<std::string>;
+using emails = std::set<std::string>;
+using age_weight_map = std::map<unsigned short, float>;
 
 #pragma db object
 class person
@@ -52,7 +52,7 @@ public:
 
   // Emails.
   //
-  typedef ::emails emails_type;
+  using emails_type = ::emails;
 
   const emails_type&
   emails () const

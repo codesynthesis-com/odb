@@ -133,8 +133,8 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    typedef odb::query<employee> query;
-    typedef odb::result<employee> result;
+    using query = odb::query<employee>;
+    using result = odb::result<employee>;
 
     // Search for Complex Systems Inc employees that were born before
     // April 1978.

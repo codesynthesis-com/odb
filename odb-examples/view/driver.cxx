@@ -154,8 +154,8 @@ main (int argc, char* argv[])
     // view.
     //
     {
-      typedef odb::query<employee_name> query;
-      typedef odb::result<employee_name> result;
+      using query = odb::query<employee_name>;
+      using result = odb::result<employee_name>;
 
       transaction t (db->begin ());
 
@@ -194,8 +194,8 @@ main (int argc, char* argv[])
     // Doe last name using the employee_employer view.
     //
     {
-      typedef odb::query<employee_employer> query;
-      typedef odb::result<employee_employer> result;
+      using query = odb::query<employee_employer>;
+      using result = odb::result<employee_employer>;
 
       transaction t (db->begin ());
 
@@ -217,7 +217,7 @@ main (int argc, char* argv[])
     // Calculate min/max employee ages for each employer.
     //
     {
-      typedef odb::result<employer_age> result;
+      using result = odb::result<employer_age>;
 
       transaction t (db->begin ());
 
@@ -227,7 +227,7 @@ main (int argc, char* argv[])
       //
       // This one restricts the calculation to a specific employer:
       //
-      // typedef odb::query<employer_age> query;
+      // using query = odb::query<employer_age>;
       //
       // result r (db->query<employer_age> (
       //             query::employer::name == "Simple Tech Ltd"));
@@ -253,8 +253,8 @@ main (int argc, char* argv[])
     // and nationality.
     //
     {
-      typedef odb::query<employee_country> query;
-      typedef odb::result<employee_country> result;
+      using query = odb::query<employee_country>;
+      using result = odb::result<employee_country>;
 
       transaction t (db->begin ());
 
@@ -278,8 +278,8 @@ main (int argc, char* argv[])
     // The same but using the object loading view.
     //
     {
-      typedef odb::query<employee_country_objects> query;
-      typedef odb::result<employee_country_objects> result;
+      using query = odb::query<employee_country_objects>;
+      using result = odb::result<employee_country_objects>;
 
       transaction t (db->begin ());
 
@@ -315,7 +315,7 @@ main (int argc, char* argv[])
     // Get the list of employers that have any employees.
     //
     {
-      typedef odb::result<employer_with_employees> result;
+      using result = odb::result<employer_with_employees>;
 
       shared_ptr<employer> es (new employer (3, "Empty Shell LLC"));
 
@@ -338,7 +338,7 @@ main (int argc, char* argv[])
     // Get the list of employees that have accumulated vacation days.
     //
     {
-      typedef odb::result<employee_vacation> result;
+      using result = odb::result<employee_vacation>;
 
       transaction t (db->begin ());
 
@@ -364,7 +364,7 @@ main (int argc, char* argv[])
     // time using the improved employee_vacation2 view.
     //
     {
-      typedef odb::result<employee_vacation2> result;
+      using result = odb::result<employee_vacation2>;
 
       transaction t (db->begin ());
 
@@ -387,7 +387,7 @@ main (int argc, char* argv[])
     // Show the previous employers using the employee_prev_employer view.
     //
     {
-      typedef odb::result<employee_prev_employer> result;
+      using result = odb::result<employee_prev_employer>;
 
       transaction t (db->begin ());
 

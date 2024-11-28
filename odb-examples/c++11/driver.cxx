@@ -176,8 +176,8 @@ main (int argc, char* argv[])
     // Search for Complex Systems Inc employees with the John first name.
     //
     {
-      typedef odb::query<employee> query;
-      typedef odb::result<employee> result;
+      using query = odb::query<employee>;
+      using result = odb::result<employee>;
 
       session s;
       transaction t (db->begin ());

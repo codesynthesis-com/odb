@@ -48,7 +48,7 @@ public:
 
   // Nicknames.
   //
-  typedef odb::vector<std::string> names;
+  using names = odb::vector<std::string>;
 
   const names&
   nicknames () const

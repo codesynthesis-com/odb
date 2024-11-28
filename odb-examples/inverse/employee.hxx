@@ -30,8 +30,8 @@ class position;
 class project;
 class employee;
 
-typedef std::vector<odb::lazy_shared_ptr<project>> projects;
-typedef std::vector<odb::lazy_weak_ptr<employee>> employees;
+using projects = std::vector<odb::lazy_shared_ptr<project>>;
+using employees = std::vector<odb::lazy_weak_ptr<employee>>;
 
 #pragma db object
 class employer
@@ -50,7 +50,7 @@ public:
 
   // Employees of this employer.
   //
-  typedef ::employees employees_type;
+  using employees_type = ::employees;
 
   const employees_type&
   employees () const
@@ -93,7 +93,7 @@ public:
 
   // Employee that fills this position. NULL if the position is vacant.
   //
-  typedef ::employee employee_type;
+  using employee_type = ::employee;
 
   const odb::lazy_weak_ptr<employee_type>&
   employee () const
@@ -138,7 +138,7 @@ public:
 
   // Employees working on this project.
   //
-  typedef ::employees employees_type;
+  using employees_type = ::employees;
 
   const employees_type&
   employees () const
@@ -168,8 +168,8 @@ private:
 class employee
 {
 public:
-  typedef ::employer employer_type;
-  typedef ::position position_type;
+  using employer_type = ::employer;
+  using position_type = ::position;
 
   employee (const std::string& first,
             const std::string& last,
@@ -225,7 +225,7 @@ public:
 
   // Projects.
   //
-  typedef ::projects projects_type;
+  using projects_type = ::projects;
 
   const projects_type&
   projects () const

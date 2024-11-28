@@ -26,7 +26,7 @@ class employer;
 class project;
 class employee;
 
-typedef std::vector<std::shared_ptr<project>> projects;
+using projects = std::vector<std::shared_ptr<project>>;
 
 #pragma db object
 class employer
@@ -80,7 +80,7 @@ private:
 class employee
 {
 public:
-  typedef ::employer employer_type;
+  using employer_type = ::employer;
 
   employee (const std::string& first,
             const std::string& last,
@@ -119,7 +119,7 @@ public:
 
   // Projects.
   //
-  typedef ::projects projects_type;
+  using projects_type = ::projects;
 
   const projects_type&
   projects () const

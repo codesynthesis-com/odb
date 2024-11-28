@@ -204,8 +204,8 @@ main (int argc, char* argv[])
     // Load employees with "Doe" as the last name and print what we've got.
     //
     {
-      typedef odb::query<employee> query;
-      typedef odb::result<employee> result;
+      using query = odb::query<employee>;
+      using result = odb::result<employee>;
 
       session s;
       transaction t (db->begin ());

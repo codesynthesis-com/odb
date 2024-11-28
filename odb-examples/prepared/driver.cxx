@@ -27,7 +27,7 @@ struct params
 static void
 query_factory (const char* name, connection& c)
 {
-  typedef odb::query<person> query;
+  using query = odb::query<person>;
 
   unique_ptr<params> p (new params);
   query q (query::age > query::_ref (p->age) &&
@@ -72,9 +72,9 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
-    typedef odb::query<person> query;
-    typedef odb::prepared_query<person> prep_query;
-    typedef odb::result<person> result;
+    using query = odb::query<person>;
+    using prep_query = odb::prepared_query<person>;
+    using result = odb::result<person>;
 
     // Example of an uncached prepared query in the same transaction.
     //
@@ -205,8 +205,8 @@ main (int argc, char* argv[])
     // following example.
     //
     {
-      typedef odb::query<person_count> query;
-      typedef odb::prepared_query<person_count> prep_query;
+      using query = odb::query<person_count>;
+      using prep_query = odb::prepared_query<person_count>;
 
       transaction t (db->begin ());
 

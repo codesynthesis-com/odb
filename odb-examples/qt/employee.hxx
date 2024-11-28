@@ -20,8 +20,8 @@
 //
 class Employee;
 
-typedef QSet<QString> Emails;
-typedef QList<QLazyWeakPointer<Employee> > Employees;
+using Emails = QSet<QString>;
+using Employees = QList<QLazyWeakPointer<Employee>>;
 
 #pragma db object
 class Employer

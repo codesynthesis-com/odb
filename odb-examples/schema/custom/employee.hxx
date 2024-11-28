@@ -10,7 +10,7 @@
 
 #include <odb/core.hxx>
 
-typedef std::vector<std::string> degrees;
+using degrees = std::vector<std::string>;
 
 #pragma db value
 class name
@@ -71,7 +71,7 @@ private:
 class employee
 {
 public:
-  typedef ::employer employer_type;
+  using employer_type = ::employer;
 
   employee (unsigned long long id,
             const std::string& first,
@@ -83,7 +83,7 @@ public:
 
   // Name.
   //
-  typedef ::name name_type;
+  using name_type = ::name;
 
   const name_type&
   name () const
@@ -93,7 +93,7 @@ public:
 
   // Degrees.
   //
-  typedef ::degrees degrees_type;
+  using degrees_type = ::degrees;
 
   const degrees_type&
   degrees () const
