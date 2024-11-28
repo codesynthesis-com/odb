@@ -23292,8 +23292,8 @@ class object
 
   <pre class="sql">
 CREATE FUNCTION
-person_range (IN min_age SMALLINT,
-              IN max_age SMALLINT,
+person_range (IN min_age INTEGER,
+              IN max_age INTEGER,
               OUT age SMALLINT,
               OUT first TEXT,
               OUT last TEXT)
@@ -23308,7 +23308,7 @@ $$ LANGUAGE SQL STABLE;
      be used to call it and retrieve its result:</p>
 
   <pre class="cxx">
-#pragma db view query("/*CALL*/ SELECT * FROM person_range (?)")
+#pragma db view query("/*CALL*/ SELECT * FROM person_range((?))")
 struct person_range
 {
   unsigned short age;

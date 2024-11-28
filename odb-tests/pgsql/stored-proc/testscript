@@ -1,0 +1,63 @@
+# file      : pgsql/stored-proc/testscript
+# license   : GNU GPL v2; see accompanying LICENSE file
+
+.include ../../database-options.testscript
+.include ../../pgsql.testscript
+
++$create_schema
+
+: basics
+:
+$* >>~%EOO%
+  Jane Doe 32
+  Joe Dirt 30
+
+
+  Jane Doe 32
+  Joe Dirt 30
+
+  Jane Doe 32
+
+  Jane Doe 32
+
+    0
+
+  Jane Doe 32
+
+  3
+
+  John Doe 33
+  Jane Doe 33
+  Joe Dirt 31
+
+  John Doe 33
+  Jane Doe 33
+  Joe Dirt 32
+
+  %(John|Jane) Doe 32%
+
+  John Doe 32
+  Jane Doe 32
+  Joe Dirt 31
+
+  John Doe 31
+
+  John Doe 31
+  Jane Doe 32
+  Joe Dirt 31
+
+    1000
+
+  John Doe 31
+  Jane Doe 32
+  Joe Dirt 31
+
+  John Doe 30
+  Jane Doe 32
+  Joe Dirt 31
+
+  John Doe 29
+  Jane Doe 31
+  Joe Dirt 30
+
+  EOO
