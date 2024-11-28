@@ -1371,7 +1371,7 @@ private:
   friend class odb::access; // (4)
 
   #pragma db id auto        // (5)
-  unsigned long id_;        // (5)
+  unsigned long long id_;   // (5)
 
   std::string first_;
   std::string last_;
@@ -1655,7 +1655,7 @@ main (int argc, char* argv[])
   {
     unique_ptr&lt;database> db (new odb::mysql::database (argc, argv));
 
-    unsigned long john_id, jane_id, joe_id;
+    unsigned long long john_id, jane_id, joe_id;
 
     // Create a few persistent person objects.
     //
@@ -1996,7 +1996,7 @@ main (int argc, char* argv[])
   {
     ...
 
-    unsigned long john_id, jane_id, joe_id;
+    unsigned long long john_id, jane_id, joe_id;
 
     // Create a few persistent person objects.
     //
@@ -2732,7 +2732,7 @@ class person
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 };
   </pre>
 
@@ -2796,7 +2796,7 @@ private:
   person () {}
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string name_;
 };
@@ -2830,15 +2830,15 @@ public:
 
   ...
 
-  unsigned long id () const;
-  void id (unsigned long);
+  unsigned long long id () const;
+  void id (unsigned long long);
 
   const std::string&amp; get_name () const;
   std::string&amp; set_name ();
 
 private:
   #pragma db id
-  unsigned long id_; // Uses id() for access.
+  unsigned long long id_; // Uses id() for access.
 
   std::string name_; // Uses get_name()/set_name() for access.
 };
@@ -3394,7 +3394,7 @@ update_age (database&amp; db, person&amp; p)
 
   <pre class="cxx">
 void
-update_age (database&amp; db, unsigned long id)
+update_age (database&amp; db, unsigned long long id)
 {
   transaction t (db.begin ());
 
@@ -3686,7 +3686,7 @@ shared_ptr&lt;person> jane (new person ("Jane", "Doe", 32));
 transaction t (db.begin ());
 
 db.persist (john);
-unsigned long jane_id (db.persist (jane));
+unsigned long long jane_id (db.persist (jane));
 
 t.commit ();
 
@@ -3852,8 +3852,8 @@ t.commit ();
   <pre class="cxx">
 void
 transfer (database&amp; db,
-          unsigned long from_acc,
-          unsigned long to_acc,
+          unsigned long long from_acc,
+          unsigned long long to_acc,
           unsigned int amount)
 {
   bank_account from, to;
@@ -3981,7 +3981,7 @@ t.commit ();
   <pre class="cxx">
 person&amp; john = ...
 shared_ptr&lt;jane> jane = ...
-unsigned long joe_id = ...
+unsigned long long joe_id = ...
 
 transaction t (db.begin ());
 
@@ -5323,7 +5323,7 @@ namespace odb
      identifier. For example:</p>
 
   <pre class="cxx">
-  std::set&lt;unsigned long> set = ...; // Persons of interest.
+  std::set&lt;unsigned long long> set = ...; // Persons of interest.
 
   result r (db.query&lt;person> (query::first == "John"));
 
@@ -5933,7 +5933,7 @@ class person
   ...
 private:
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   std::vector&lt;std::string> nicknames_;
   ...
@@ -6028,7 +6028,7 @@ class person
   ...
 private:
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   std::set&lt;std::string> emails_;
   ...
@@ -6095,7 +6095,7 @@ class person
   ...
 private:
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   std::map&lt;unsigned short, float> age_weight_map_;
   ...
@@ -6534,7 +6534,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string first_name_;
   std::string last_name_;
@@ -6580,7 +6580,7 @@ class employee
   <pre class="cxx">
 // Create an employer and a few employees.
 //
-unsigned long john_id, jane_id;
+unsigned long long john_id, jane_id;
 {
   shared_ptr&lt;employer> er (new employer ("Example Inc"));
   shared_ptr&lt;employee> john (new employee ("John", "Doe"));
@@ -6737,7 +6737,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db not_null
   shared_ptr&lt;employer> employer_;
@@ -6778,7 +6778,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db value_not_null unordered
   std::vector&lt;shared_ptr&lt;project>> projects_;
@@ -6843,7 +6843,7 @@ class position
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   weak_ptr&lt;employee> employee_;
 };
@@ -6854,7 +6854,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db not_null
   shared_ptr&lt;position> position_;
@@ -7041,7 +7041,7 @@ class position
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db inverse(position_)
   weak_ptr&lt;employee> employee_;
@@ -7053,7 +7053,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db not_null
   shared_ptr&lt;position> position_;
@@ -7111,7 +7111,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db not_null
   shared_ptr&lt;employer> employer_;
@@ -7176,7 +7176,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db value_not_null unordered
   std::vector&lt;shared_ptr&lt;project>> projects_;
@@ -7247,7 +7247,7 @@ class position
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db inverse(position_)
   weak_ptr&lt;employee> employee_;
@@ -7265,7 +7265,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db not_null
   shared_ptr&lt;position> position_;
@@ -7392,7 +7392,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db not_null
   shared_ptr&lt;employer> employer_;
@@ -7403,7 +7403,7 @@ class employee
      name given the employee id:</p>
 
   <pre class="cxx">
-unsigned long id = ...
+unsigned long long id = ...
 string name;
 
 session s;
@@ -7483,7 +7483,7 @@ class employee
   <p>And the transaction is changed like this:</p>
 
   <pre class="cxx">
-unsigned long id = ...
+unsigned long long id = ...
 string name;
 
 session s;
@@ -8022,7 +8022,7 @@ class person
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   name name_;
 };
@@ -8559,7 +8559,7 @@ class employee: public person
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 };
 
 // Concrete permanent_employee class. Note that it doesn't define
@@ -8705,7 +8705,7 @@ class person
   ~person () = 0; // Automatically abstract.
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string first_;
   std::string last_;
@@ -8778,7 +8778,7 @@ class contractor: public person
      example:</p>
 
   <pre class="cxx">
-unsigned long id1, id2;
+unsigned long long id1, id2;
 
 // Persist.
 //
@@ -8957,7 +8957,7 @@ CREATE TABLE contractor (
      difference:</p>
 
   <pre class="cxx">
-unsigned long id;
+unsigned long long id;
 
 {
   employee e (...);
@@ -9879,7 +9879,7 @@ class employer
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string name_;
 };
@@ -9890,7 +9890,7 @@ class employee
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string first_;
   std::string last_;
@@ -10775,7 +10775,7 @@ struct view
 struct employee_vacation
 {
   #pragma db column("employee_id") type("INTEGER")
-  unsigned long employee_id;
+  unsigned long long employee_id;
 
   #pragma db column("vacation_days") type("INTEGER")
   unsigned short vacation_days;
@@ -10886,7 +10886,7 @@ CREATE TABLE employee_health(
 struct employee_leave
 {
   #pragma db column("extra.employee_id") type("INTEGER")
-  unsigned long employee_id;
+  unsigned long long employee_id;
 
   #pragma db column("vacation_days") type("INTEGER")
   unsigned short vacation_days;
@@ -11139,7 +11139,7 @@ struct employer_info
 struct employee_vacation
 {
   #pragma db type("INTEGER")
-  unsigned long employee_id;
+  unsigned long long employee_id;
 
   #pragma db type("INTEGER")
   unsigned short vacation_days;
@@ -11542,7 +11542,7 @@ shared_ptr&lt;person> p (new person ("John", "Doe"));
 session s;
 transaction t (db.begin ());
 
-unsigned long id (db.persist (p));            // p is cached in s.
+unsigned long long id (db.persist (p));             // p is cached in s.
 shared_ptr&lt;person> p1 (db.load&lt;person> (id)); // p1 same as p.
 
 t.commit ();
@@ -11581,7 +11581,7 @@ void save (database&amp; db, shared_ptr&lt;const person> p)
 session s;
 
 shared_ptr&lt;const person> p1 (new const person ("John", "Doe"));
-unsigned long id1 (save (db, p1)); // p1 is cached in s as non-const.
+unsigned long long id1 (save (db, p1)); // p1 is cached in s as non-const.
 
 {
   transaction t (db.begin ());
@@ -11591,7 +11591,7 @@ unsigned long id1 (save (db, p1)); // p1 is cached in s as non-const.
 }
 
 shared_ptr&lt;const person> p2 (new person ("Jane", "Doe"));
-unsigned long id2 (save (db, p2)); // p2 is cached in s as non-const.
+unsigned long long id2 (save (db, p2)); // p2 is cached in s as non-const.
 
 {
   transaction t (db.begin ());
@@ -11764,7 +11764,7 @@ public:
      updating the object in another database transaction. For example:</p>
 
   <pre class="cxx">
-unsigned long id = ...;
+unsigned long long id = ...;
 person p;
 
 {
@@ -11824,7 +11824,7 @@ class person
   ...
 
   #pragma db version
-  unsigned long version_;
+  unsigned long long version_;
 };
   </pre>
 
@@ -11847,7 +11847,7 @@ class person
   ...
 
   #pragma db version
-  const unsigned long version_;
+  const unsigned long long version_;
 };
   </pre>
 
@@ -11870,7 +11870,7 @@ class person
      transaction using the second recovery option:</p>
 
   <pre class="cxx">
-unsigned long id = ...;
+unsigned long long id = ...;
 person p;
 
 {
@@ -11922,7 +11922,7 @@ p.age (age);
      application transaction:</p>
 
   <pre class="cxx">
-unsigned long id = ...;
+unsigned long long id = ...;
 person p;
 
 {
@@ -11951,7 +11951,7 @@ if (answer == "yes")
      using optimistic concurrency:</p>
 
   <pre class="cxx">
-unsigned long id = ...;
+unsigned long long id = ...;
 person p;
 
 {
@@ -12287,7 +12287,7 @@ class person
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string first_;
   std::string last_;
@@ -12334,7 +12334,7 @@ class person
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string first_;
   std::string middle_;
@@ -13712,7 +13712,7 @@ class person
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db deleted(4)
   std::string first_;
@@ -13775,7 +13775,7 @@ private:
   friend class odb::access;
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db deleted(4)
   std::string first_;
@@ -13850,7 +13850,7 @@ class person
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db added(4)
   std::string name_;
@@ -13920,7 +13920,7 @@ class employee
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string name_;
   gender gender_;
@@ -14148,7 +14148,7 @@ class person
   ...
 private:
   #pragma db member id
-  unsigned long id_;
+  unsigned long long id_;
   ...
 };
   </pre>
@@ -14162,7 +14162,7 @@ private:
 
   <pre class="cxx">
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
   </pre>
 
   <p>Note also that if the C++ declaration immediately following a
@@ -14171,7 +14171,7 @@ private:
 
   <pre class="cxx">
   #pragma db object  // Error: expected class instead of data member.
-  unsigned long id_;
+  unsigned long long id_;
   </pre>
 
   <p>While keeping the C++ declarations and database declarations close
@@ -14187,7 +14187,7 @@ class person
 {
   ...
 private:
-  unsigned long id_;
+  unsigned long long id_;
   ...
 };
 
@@ -14207,7 +14207,7 @@ namespace db
   {
     ...
   private:
-    unsigned long id_;
+    unsigned long long id_;
     ...
   };
 }
@@ -14545,7 +14545,7 @@ class person
   ...
 
   #pragma db version
-  unsigned long version_;
+  unsigned long long version_;
 };
   </pre>
 
@@ -16152,16 +16152,15 @@ class person
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 };
   </pre>
 
-  <p>Note that automatically-assigned object ids are not reused.
-     If you have a high object turnover (that is, objects are routinely
-     made persistent and then erased), then care must be taken not to
-     run out of object ids. In such situations, using
-     <code>unsigned&nbsp;long&nbsp;long</code> as the identifier type
-     is a safe choice.</p>
+  <p>Note that automatically-assigned object ids are not reused.  If you have
+     a high object turnover (that is, objects are routinely made persistent
+     and then erased), then care must be taken not to run out of object
+     ids. In such situations, using a 64-bit integer as the identifier type is
+     a safe choice.</p>
 
   <p>For additional information on the automatic identifier assignment,
      refer to <a href="#3.8">Section 3.8, "Making Objects Persistent"</a>.</p>
@@ -16703,7 +16702,7 @@ class person
   ...
 
   #pragma db id column("person_id")
-  unsigned long id_;
+  unsigned long long id_;
 };
   </pre>
 
@@ -16935,7 +16934,7 @@ class person
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db member(first) virtual(std::string) before
   #pragma db member(last)  virtual(std::string) after(first)
@@ -17163,7 +17162,7 @@ class employer
   ...
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 };
 
 #pragma db object
@@ -17175,7 +17174,7 @@ class person
   employer* employer_;
 };
 
-unsigned long id;
+unsigned long long id;
 
 {
   employer e;
@@ -17280,16 +17279,15 @@ class person
   ...
 
   #pragma db version
-  unsigned long version_;
+  unsigned long long version_;
 };
   </pre>
 
-  <p>A version member must be of an integral C++ type and must map to
-     an integer or similar database type. Note also that object versions
-     are not reused. If you have a high update frequency, then care must
-     be taken not to run out of versions. In such situations, using
-     <code>unsigned&nbsp;long&nbsp;long</code> as the version type is a safe
-     choice.</p>
+  <p>A version member must be of an integral C++ type and must map to an
+     integer or similar database type. Note also that object versions are not
+     reused. If you have a high update frequency, then care must be taken not
+     to run out of versions. In such situations, using a 64-bit integer as the
+     version type is a safe choice.</p>
 
   <p>For a more detailed discussion of optimistic concurrency, refer to
      <a href="#12">Chapter 12, "Optimistic Concurrency"</a>.</p>
@@ -18530,7 +18528,7 @@ class person
   ...
 
   PRAGMA_DB(id)
-  unsigned long id_;
+  unsigned long long id_;
 };
   </pre>
 
@@ -18544,7 +18542,7 @@ class person
 {
   ...
 
-  unsigned long id_;
+  unsigned long long id_;
 };
 
 #ifdef ODB_COMPILER
@@ -18596,7 +18594,7 @@ class person
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 };
 
 #pragma warning (pop)
@@ -18662,7 +18660,7 @@ class person
   ...
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 };
 
 #pragma clang diagnostic pop
@@ -18904,7 +18902,7 @@ class base_common
   ...
 
   #pragma db id auto
-  unsigned long id;
+  unsigned long long id;
 };
 
 template &lt;typename T>
@@ -18973,7 +18971,7 @@ class person
   ...
 
   #pragma db id auto
-  unsigned long id;
+  unsigned long long id;
 };
   </pre>
 
@@ -19127,7 +19125,7 @@ persist (odb::database&amp; db, people&amp; p)
      have to specify the object type explicitly, for example:</p>
 
   <pre class="cxx">
-std::vector&lt;unsigned long> ids {1, 2};
+std::vector&lt;unsigned long long> ids {1, 2};
 
 db.erase&lt;person> (ids.begin (), ids.end ());
   </pre>
@@ -21300,7 +21298,7 @@ class object
 {
 public
   #pragma db id auto
-  unsigned long id;
+  unsigned long long id;
 
   odb::sqlite::blob b; // Mapped to BLOB.
   odb::sqlite::text t; // Mapped to TEXT.
