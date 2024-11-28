@@ -12,3 +12,6 @@ page](https://codesynthesis.com/products/odb/).
 This package contains the Microsoft SQL Server (MSSQL) ODB runtime library.
 Applications that include code generated for the MSSQL database will need to
 link this library.
+
+This runtime library in turn depends on `libunixodbc` (Linux only) and the SQL
+Server Native Client ODBC driver.

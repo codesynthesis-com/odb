@@ -10,5 +10,7 @@ binary packages, refer to the [ODB project
 page](https://codesynthesis.com/products/odb/).
 
 This package contains the MySQL ODB runtime library. Applications that include
-code generated for the MySQL database will need to link this library. Note
-that MariaDB can be used instead of MySQL.
+code generated for the MySQL database will need to link this library.
+
+This runtime library in turn depends on `libmysqlclient`, MySQL client
+library. Note that the MariaDB client library can be used instead of MySQL.

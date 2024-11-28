@@ -12,3 +12,5 @@ page](https://codesynthesis.com/products/odb/).
 This package contains the PostgreSQL ODB runtime library. Applications that
 include code generated for the PostgreSQL database will need to link this
 library.
+
+This runtime library in turn depends on `libpq`, PostgreSQL client library.

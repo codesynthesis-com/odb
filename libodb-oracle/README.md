@@ -11,3 +11,5 @@ page](https://codesynthesis.com/products/odb/).
 
 This package contains the Oracle ODB runtime library. Applications that
 include code generated for the Oracle database will need to link this library.
+
+This runtime library in turn depends on OCI, Oracle client library.
