@@ -1,5 +1,8 @@
 Version 2.5.0
 
+ * Database classes are now move-constructible. This means they can be
+   returned by value from functions in C++11 and later.
+
  * Support for mapping C++ types as other C++ types. For example:
 
    #pragma db map type(bool)                 \
@@ -14,7 +17,15 @@ Version 2.5.0
    definition options. For details, refer to Section 14.1.16, "options" in
    the ODB manual.
 
- * Support for nested object ids. Now the 'id' pragma specifier can optionally
+ * New helper header, <odb/nested-container.hxx>, provides manual nested
+   container support. For details, see the container-nested example in
+   odb-examples.
+
+ * New helper header, <odb/c-array-traits.hxx>, provides optional
+   mapping of C arrays as containers. Note that this mapping is not
+   enabled by default. See instructions inside the header for details.
+
+ * Support for nested object ids. Now the `id` pragma specifier can optionally
    include the data member path to the id inside a composite value. For
    example:
 
@@ -22,57 +33,36 @@ Version 2.5.0
    std::pair<int, int> p;
 
    Note that one somewhat counter-intuitive aspect of this new feature is
-   that the whole member marked with id ('p' in the above example) and not
-   just the actual id member ('p.first' in the above example) is treated as
-   readonly.
+   that the whole member marked with id (`p` in the above example) and not
+   just the actual id member (p.first in the above example) is treated as
+   read-only.
 
-   Such nested id also cannot be automatically assigned ('auto' specifier).
+   Such nested id also cannot be automatically assigned (that is, use the
+   `auto` specifier).
+
+   To match this support the `inverse` pragma specifier now also allows
+   nested data members.
 
  * Support for defining views as instantiations of C++ class templates,
    similar to objects and composite value types.
 
- * Allow the use of object pointers as map keys. Also remove the restriction
-   for map keys and set values to be NOT NULL.
+ * Support for using object pointers as map keys. Also the restriction for map
+   keys and set values to be NOT NULL was removed.
 
- * New 'points_to' pragma allows the establishment of relationship without
-   using object pointers.
+ * New `points_to` pragma allows the establishment of relationships without
+   using object pointers. See Section 14.4.37, "points_to" in the ODB manual
+   for details.
 
- * The 'inverse' pragma now supports nested data members.
+ * A statement in a view that is prefixed with the /*SELECT*/ comment is
+   recognized and handled as a SELECT statement. This can be used to work
+   around unrecognized SELECT query prefixes.
 
- * Helper header (<odb/nested-container.hxx>) for nested container emulation.
-   It is still fairly experimental and only supports vector<vector<T>>. For
-   example:
+ * Support for ordering virtual data members. For details, see Section
+   14.4.13, "virtual" in the ODB manual.
 
-   #include <odb/nested-container.hxx>
-
-   #pragma db object
-   class package
-   {
-     using licenses_type = std::vector<std::string>
-     using license_alternatives_type = std::vector<licenses_type>
-
-     license_alternatives_type license_alternatives;
-
-     // Database mapping.
-     //
-     using _license_key = odb::nested_key<licenses_type>;
-     using _licenses_type = std::map<_license_key, std::string>;
-
-     #pragma db value(_license_key)
-     #pragma db member(_license_key::outer) column("alternative_index")
-     #pragma db member(_license_key::inner) column("index")
-
-     #pragma db member(license_alternatives) id_column("") value_column("")
-     #pragma db member(licenses)                                       \
-       virtual(_licenses_type)                                         \
-       after(license_alternatives)                                     \
-       get(odb::nested_get (this.license_alternatives))                \
-       set(odb::nested_set (this.license_alternatives, std::move (?))) \
-       id_column("") key_column("") value_column("license")
-   };
-
- * Database classes are now move-constructible. This means they can be
-   returned by value from a function in C++11.
+ * The special (!) placeholder denotes the database instance in the modifier
+   expressions. For details, see Section 14.4.5, "get/set/access" in the
+   ODB manual.
 
  * Support for bulk operations in PostgreSQL 14 using the new pipeline mode.
    For details on bulk operations see Section 15.3, "Bulk Database Operations"
@@ -81,19 +71,55 @@ Version 2.5.0
    7.4 or later. The development of this support was sponsored by Qube
    Research & Technologies Limited.
 
- * Support for SQLite ATTACH DATABASE. Attached databases are represented as
-   special odb::sqlite::database instances. @@ TODO: doc ref.
+ * Support for calling PostgreSQL stored procedures and functions. For
+   details and limitations refer to Section 19.7, "PostgreSQL Stored
+   Procedures and Functions" in the ODB manual.
+
+ * New serial_connection_factory in the SQLite runtime.
+
+   This factory can be used when the database access is guaranteed to be
+   serial. See Section 18.3, "SQLite Connection and Connection Factory"
+   in the ODB manual for details.
+
+ * Support for attaching additional SQLite databases to the main database
+   connections (ATTACH DATABASE statement). See Section 18.4, "Attached
+   SQLite  Databases" in the ODB manual for details.
 
  * Support for SQLite incremental BLOB/TEXT I/O (the sqlite3_blob_open()
    functionality). For details, refer to Section 18.1.3, "Incremental
    BLOB/TEXT I/O" in the ODB manual.
 
- * In PostgreSQL a SELECT statement in a view that is prefixed with the
-   /*CALL*/ comment is recognized and handled as a stored procedure call.
+ * Support for mixed auto/manual id assignment in SQLite.
+
+   Now one can do:
+
+   #pragma db id auto
+   odb::nullable<int64_t> id;
+
+   And then set the id to NULL to get auto-assignment or to the actual value
+   to use a manual id.
+
+ * Support for mixed auto/0 id assignment in MySQL.
+
+   Now one can do:
+
+   #pragma db id auto
+   odb::nullable<int64_t> id;
+
+   And then, when used with NO_AUTO_VALUE_ON_ZERO, set the id to NULL to get
+   auto-assignment or to 0 to use 0 as the id.
+
+ * Map string object ids to MySQL VARCHAR(128) instead of 255 to support
+   4-byte UTF-8.
+
+   This is a backwards-incompatible change in that it may change your schema.
+   To obtain the old behavior you will have to explicitly re-map std::string
+   with the id_type pragma or explicitly specify the database type for each
+   affected id member with the type pragma.
 
  * Due to warnings issued by some compiler, std::auto_ptr is no longer mapped
-   as an object pointer or wrapper in the C++11 mode. Use std::unique_ptr
-   instead.
+   as an object pointer or wrapper in the C++11 and later modes. Use
+   std::unique_ptr instead.
 
 Version 2.4.0
 
