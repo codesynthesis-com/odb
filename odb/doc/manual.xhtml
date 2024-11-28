@@ -706,6 +706,7 @@ for consistency.
               <table class="toc">
                 <tr><th>17.1.1</th><td><a href="#17.1.1">String Type Mapping</a></td></tr>
                 <tr><th>17.1.2</th><td><a href="#17.1.2">Binary Type Mapping</a></td></tr>
+                <tr><th>17.1.3</th><td><a href="#17.1.3">Mixed Automatic/0 Object Id Assignment</a></td></tr>
               </table>
             </td>
           </tr>
@@ -734,6 +735,7 @@ for consistency.
                 <tr><th>18.1.1</th><td><a href="#18.1.1">String Type Mapping</a></td></tr>
                 <tr><th>18.1.2</th><td><a href="#18.1.2">Binary Type Mapping</a></td></tr>
 		<tr><th>18.1.3</th><td><a href="#18.1.3">Incremental <code>BLOB</code>/<code>TEXT</code> I/O</a></td></tr>
+		<tr><th>18.1.4</th><td><a href="#18.1.4">Mixed Automatic/Manual Object Id Assignment</a></td></tr>
               </table>
             </td>
           </tr>
@@ -20336,6 +20338,23 @@ db.query&lt;object> ("uuid = " + query::_val&lt;odb::mysql::id_blob> (u));
 db.query&lt;object> (query::uuid == query::_ref (u));
   </pre>
 
+
+  <h3><a name="17.1.3">17.1.3 Mixed Automatic/0 Object Id Assignment</a></h3>
+
+  <p>In MySQL an automatic object id can also be set manually to
+     <code>0</code>. For example:</p>
+
+  <pre class="cxx">
+  #pragma db id auto
+  odb::nullable&lt;int64_t> id;
+  </pre>
+
+  <p>Then, when used with the <code>NO_AUTO_VALUE_ON_ZERO</code> mode, set the
+    id member to <code>NULL</code> to get auto-assignment or to <code>0</code>
+    to use <code>0</code> as the id. This functionality is normally used to
+    assign the special <code>0</code> id to a special object.</p>
+
+
   <h2><a name="17.2">17.2 MySQL Database Class</a></h2>
 
   <p>The MySQL <code>database</code> class has the following
@@ -20873,16 +20892,15 @@ t.commit ();
 
    <p>In MySQL, a stored procedure can produce multiple results.
       For example, if a stored procedure executes several
-      <code>SELECT</code> statements, then the result of calling such
-      a procedure consists of two row sets, one for each <code>SELECT</code>
-      statement. Additionally, if the procedure has any <code>OUT</code>
-      or <code>INOUT</code> parameters, then their values are returned as
-      an additional special row set containing only a single row.
-      Because such multiple row sets can contain varying number
-      and type of columns, they cannot be all extracted into a
-      single view. As a result, an ODB view will only extract the
-      data from the first row set and ignore all the subsequent
-      ones.</p>
+      <code>SELECT</code> statements, then the result of calling such a
+      procedure consists of multiple row sets, one for
+      each <code>SELECT</code> statement. Additionally, if the procedure has
+      any <code>OUT</code> or <code>INOUT</code> parameters, then their values
+      are returned as an additional special row set containing only a single
+      row.  Because such multiple row sets can contain varying number and type
+      of columns, they cannot be all extracted into a single view. As a
+      result, an ODB view will only extract the data from the first row set
+      and ignore all the subsequent ones.</p>
 
    <p>In particular, this means that we can use an ODB view to extract
       the values of the <code>OUT</code> and <code>INOUT</code>
@@ -21573,6 +21591,22 @@ tx.commit ();
      the encoding used by the database (<code>UTF-8</code> by
      default; see SQLite <code>PRAGMA encoding</code> documentation
      for details).</p>
+
+  <h3><a name="18.1.4">18.1.4 Mixed Automatic/Manual Object Id Assignment</a></h3>
+
+  <p>In SQLite an automatic object id can also be assigned manually. For
+     example:</p>
+
+  <pre class="cxx">
+  #pragma db id auto
+  odb::nullable&lt;int64_t> id;
+  </pre>
+
+  <p>Then set the id member to <code>NULL</code> to get auto-assignment or to
+     the actual value to use a manual id. This functionality is normally
+     used to reserve a special id, typically <code>0</code>, for a special
+     object.</p>
+
 
   <h2><a name="18.2">18.2 SQLite Database Class</a></h2>
 
@@ -25492,12 +25526,12 @@ t.commit ();
 
   <p>In SQL Server, a stored procedure can produce multiple results.
      For example, if a stored procedure executes several
-     <code>SELECT</code> statements, then the result of calling such
-     a procedure consists of two row sets, one for each <code>SELECT</code>
-     statement. Because such multiple row sets can contain varying number
-     and type of columns, they cannot be all extracted into a
-     single view. Consequently, these kind of stored procedures are
-     currently not supported.</p>
+     <code>SELECT</code> statements, then the result of calling such a
+     procedure consists of multiple row sets, one for each <code>SELECT</code>
+     statement. Because such multiple row sets can contain varying number and
+     type of columns, they cannot be all extracted into a single
+     view. Consequently, these kind of stored procedures are currently not
+     supported.</p>
 
   <p>A stored procedure may also produce no row sets at all. For
      example, a stored procedure that only executes DML statements
