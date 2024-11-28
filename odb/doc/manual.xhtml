@@ -1634,7 +1634,7 @@ mysql --user=odb_test --database=odb_test &lt; person.sql
 // driver.cxx
 //
 
-#include &lt;memory>   // std::auto_ptr
+#include &lt;memory>   // std::unique_ptr
 #include &lt;iostream>
 
 #include &lt;odb/database.hxx>
@@ -1653,7 +1653,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr&lt;database> db (new odb::mysql::database (argc, argv));
+    unique_ptr&lt;database> db (new odb::mysql::database (argc, argv));
 
     unsigned long john_id, jane_id, joe_id;
 
@@ -2015,7 +2015,7 @@ main (int argc, char* argv[])
     {
       transaction t (db->begin ());
 
-      auto_ptr&lt;person> joe (db->load&lt;person> (joe_id));
+      unique_ptr&lt;person> joe (db->load&lt;person> (joe_id));
       joe->age (joe->age () + 1);
       db->update (*joe);
 
@@ -2042,12 +2042,11 @@ main (int argc, char* argv[])
      <code>person</code> object with Joe's persistent state. We
      pass Joe's object identifier that we stored earlier when we
      made this object persistent. While here we use
-     <code>std::auto_ptr</code> to manage the returned object, we
+     <code>std::unique_ptr</code> to manage the returned object, we
      could have also used another smart pointer, for example
-     <code>std::unique_ptr</code> from C++11 or <code>shared_ptr</code> from
-     C++11 or Boost. For more information on the object lifetime management
-     and the smart pointers that we can use for that,
-     see <a href="#3.3">Section 3.3, "Object and View Pointers"</a>.</p>
+     <code>shared_ptr</code> from C++11 or Boost. For more information on the
+     object lifetime management and the smart pointers that we can use for
+     that, see <a href="#3.3">Section 3.3, "Object and View Pointers"</a>.</p>
 
   <p>With the instantiated object in hand we increment the age
      and call the <code>update()</code> function to update
@@ -2083,7 +2082,7 @@ Hello, Joe!
       // database so we use the query_one() shortcut instead of
       // manually iterating over the result returned by query().
       //
-      auto_ptr&lt;person> joe (
+      unique_ptr&lt;person> joe (
         db->query_one&lt;person> (query::first == "Joe" &amp;&amp;
                                query::last == "Dirt"));
 
@@ -2219,7 +2218,7 @@ max age: 33
       // Here we know that there can be only one John Doe in our
       // database so we use the query_one() shortcut again.
       //
-      auto_ptr&lt;person> john (
+      unique_ptr&lt;person> john (
         db->query_one&lt;person> (query::first == "John" &amp;&amp;
                                query::last == "Doe"));
 
@@ -2413,7 +2412,7 @@ odb --multi-database dynamic -d common -d mysql -d pgsql \
      is how we create the database instance. Specifically, this line:</p>
 
   <pre class="cxx">
-auto_ptr&lt;database> db (new odb::mysql::database (argc, argv));
+unique_ptr&lt;database> db (new odb::mysql::database (argc, argv));
   </pre>
 
   <p>Now our example is capable of storing its data either in MySQL or
@@ -2432,7 +2431,7 @@ auto_ptr&lt;database> db (new odb::mysql::database (argc, argv));
 //
 
 #include &lt;string>
-#include &lt;memory>   // std::auto_ptr
+#include &lt;memory>   // std::unique_ptr
 #include &lt;iostream>
 
 #include &lt;odb/database.hxx>
@@ -2447,10 +2446,10 @@ auto_ptr&lt;database> db (new odb::mysql::database (argc, argv));
 using namespace std;
 using namespace odb::core;
 
-auto_ptr&lt;database>
+unique_ptr&lt;database>
 create_database (int argc, char* argv[])
 {
-  auto_ptr&lt;database> r;
+  unique_ptr&lt;database> r;
 
   if (argc &lt; 2)
   {
@@ -2475,7 +2474,7 @@ main (int argc, char* argv[])
 {
   try
   {
-    auto_ptr&lt;database> db (create_database (argc, argv));
+    unique_ptr&lt;database> db (create_database (argc, argv));
 
     if (db.get () == 0)
       return 1; // Diagnostics has already been issued.
@@ -2914,8 +2913,8 @@ class name
      or object relationships. In particular, a dynamically allocated object
      or view that is returned as a raw pointer from a database operation
      can be assigned to a smart pointer of our choice, for example
-     <code>std::auto_ptr</code>,  <code>std::unique_ptr</code> from C++11, or
-     <code>shared_ptr</code> from C++11 or Boost.</p>
+     <code>std::auto_ptr</code> (C++98/03 only), <code>std::unique_ptr</code>
+     from C++11, or <code>shared_ptr</code> from C++11 or Boost.</p>
 
   <p>However, to avoid any possibility of a mistake, such as forgetting
      to use a smart pointer for a returned object or view, as well as to
@@ -3033,7 +3032,7 @@ namespace accounting
 #include &lt;odb/database.hxx>
 #include &lt;odb/mysql/database.hxx>
 
-auto_ptr&lt;odb::database> db (
+unique_ptr&lt;odb::database> db (
   new odb::mysql::database (
     "test_user"     // database login name
     "test_password" // database password
@@ -3399,7 +3398,7 @@ update_age (database&amp; db, unsigned long id)
 {
   transaction t (db.begin ());
 
-  auto_ptr&lt;person> p (db.load&lt;person> (id));
+  unique_ptr&lt;person> p (db.load&lt;person> (id));
   p.age (p.age () + 1);
   db.update (p);
 
@@ -3745,7 +3744,7 @@ cerr &lt;&lt; "Jane's id: " &lt;&lt; jane_id &lt;&lt; endl;
   <pre class="cxx">
 transaction t (db.begin ());
 
-auto_ptr&lt;person> jane (db.load&lt;person> (jane_id));
+unique_ptr&lt;person> jane (db.load&lt;person> (jane_id));
 
 db.load (jane_id, *jane);
 
@@ -4992,7 +4991,7 @@ result r (find_minors (db, query::first == "John"));
   <pre class="cxx">
   typedef odb::query&lt;person> query;
 
-  auto_ptr&lt;person> p (
+  unique_ptr&lt;person> p (
     db.query_one&lt;person> (
       query::email == "jon@example.com"));
   </pre>
@@ -5291,7 +5290,7 @@ namespace odb
   {
     if (i->last == "Doe")
     {
-      auto_ptr p (i.load ());
+      unique_ptr p (i.load ());
       ...
     }
   }
@@ -5685,7 +5684,7 @@ for (unsigned short age (90); age > 40; age -= 10)
 
   if (!pq)
   {
-    auto_ptr&lt;unsigned short> p (new unsigned short);
+    unique_ptr&lt;unsigned short> p (new unsigned short);
     age_param = p.get ();
     query q (query::age > query::_ref (*age_param));
     pq = db.prepare_query&lt;person> ("person-age-query", q);
@@ -5754,7 +5753,7 @@ struct params
 static void
 query_factory (const char* name, connection&amp; c)
 {
-  auto_ptr&lt;params> p (new params);
+  unique_ptr&lt;params> p (new params);
   query q (query::age > query::_ref (p->age) &amp;&amp;
            query::first == query::_ref (p->first));
   prep_query pq (c.prepare_query&lt;person> (name, q));
@@ -5780,8 +5779,7 @@ for (unsigned short age (90); age > 40; age -= 10)
 }
   </pre>
 
-  <p>In C++11 we could have instead used a lambda function as well as
-     <code>unique_ptr</code> rather than <code>auto_ptr</code>:</p>
+  <p>Instead of a static function we could have used a lambda:</p>
 
   <pre>
 db.query_factory (
@@ -6206,7 +6204,7 @@ p.names.pop_back ();
 
 {
   transaction t (db.begin ());
-  auto_ptr&lt;person> p1 (db.load&lt;person> (...)); // Start change tracking.
+  unique_ptr&lt;person> p1 (db.load&lt;person> (...)); // Start change tracking.
   p1->names.insert (p1->names.begin (), "Joe Do");
   db.update (*p1); // One UPDATE, one INSERT; reset change state.
   t.commit ();
@@ -8338,7 +8336,7 @@ class person
   std::string first_;
 
   #pragma db null
-  std::auto_ptr&lt;std::string> middle_;
+  std::unique_ptr&lt;std::string> middle_;
 
   std::string last_;
 };
@@ -8387,7 +8385,7 @@ class person
 {
   ...
 
-  std::auto_ptr&lt;std::vector&lt;std::string>> aliases_;
+  std::unique_ptr&lt;std::vector&lt;std::string>> aliases_;
 };
   </pre>
 
@@ -8670,7 +8668,7 @@ employee e;
 person&amp; r1 (p);
 person&amp; r2 (e);
 
-auto_ptr&lt;person> p1 (new employee);
+unique_ptr&lt;person> p1 (new employee);
   </pre>
 
   <p>In the above example, the <code>r1</code> reference's both static
@@ -9157,7 +9155,7 @@ class person
 
 transaction t (db.begin ());
 
-auto_ptr&lt;person> p (db.load&lt;person> (...)); // Keys are not loaded.
+unique_ptr&lt;person> p (db.load&lt;person> (...)); // Keys are not loaded.
 
 if (need_keys)
 {
@@ -9386,7 +9384,7 @@ private:
   ...
 };
 
-auto_ptr&lt;person> p (db.load&lt;person> (...));
+unique_ptr&lt;person> p (db.load&lt;person> (...));
 
 section s (p->keys ());
 db.load (*p, s);            // Throw section_not_in_object, copy.
@@ -9423,7 +9421,7 @@ private:
   ...
 };
 
-auto_ptr&lt;person> p (db.load&lt;person> (...));
+unique_ptr&lt;person> p (db.load&lt;person> (...));
 
 section&amp; s (p->keys ());
 db.load (*p, s);            // Ok, reference.
@@ -9477,7 +9475,7 @@ person p ("John", "Doe"); // Section state is undefined (transient).
 
 db.persist (p);           // Section state: loaded, unchanged.
 
-auto_ptr&lt;person> l (
+unique_ptr&lt;person> l (
   db.load&lt;person> (...)); // Section state: unloaded, unchanged.
 
 db.update (*l);           // Section not updated since not loaded.
@@ -9558,7 +9556,7 @@ private:
      the previous example):</p>
 
   <pre class="cxx">
-auto_ptr&lt;person> p;
+unique_ptr&lt;person> p;
 
 try
 {
@@ -9616,7 +9614,7 @@ class employee: public person
 
 transaction t (db.begin ());
 
-auto_ptr&lt;person> p (db.load&lt;person> (...)); // Person or employee.
+unique_ptr&lt;person> p (db.load&lt;person> (...)); // Person or employee.
 db.load (*p, p->print_); // Load data members needed for print.
 p->print ();
 
@@ -9660,7 +9658,7 @@ class manager: public employee
   ...
 };
 
-auto_ptr&lt;manager> m (db.load&lt;manager> (...));
+unique_ptr&lt;manager> m (db.load&lt;manager> (...));
 
 person&amp; p (*m);
 employee&amp; e (*m);
@@ -9696,7 +9694,7 @@ class person
   std::string bio_;
 };
 
-auto_ptr&lt;person> p;
+unique_ptr&lt;person> p;
 
 {
   transaction t (db.begin ());
@@ -9788,7 +9786,7 @@ class employee
 
 transaction t (db.begin ());
 
-auto_ptr&lt;employee> e (db.load&lt;employee> (...)); // employer_ is NULL.
+unique_ptr&lt;employee> e (db.load&lt;employee> (...)); // employer_ is NULL.
 
 db.load (*e, e->extras_); // employer_ contains valid employer id.
 
@@ -9820,7 +9818,7 @@ class person
 
 transaction t (db.begin ());
 
-auto_ptr&lt;person> p (db.load&lt;person> (...));
+unique_ptr&lt;person> p (db.load&lt;person> (...));
 db.load (*p, p->extras_);
 
 p->nicknames_.push_back ("JD");
@@ -16823,7 +16821,7 @@ class person
 {
   ...
 
-  const std::auto_ptr&lt;const date> born_;
+  const std::unique_ptr&lt;const date> born_;
 };
   </pre>
 
@@ -20751,10 +20749,10 @@ namespace odb
 int
 main (int argc, char* argv[])
 {
-  auto_ptr&lt;odb::mysql::connection_factory> f (
+  unique_ptr&lt;odb::mysql::connection_factory> f (
     new odb::mysql::connection_pool_factory (20));
 
-  auto_ptr&lt;odb::database> db (
+  unique_ptr&lt;odb::database> db (
     new mysql::database (argc, argv, false, 0, f));
 }
   </pre>
@@ -21484,7 +21482,7 @@ object o;
 //
 {
   transaction tx (db.begin ());
-  auto_ptr&lt;object> p (db.load&lt;object> (o.id));
+  unique_ptr&lt;object> p (db.load&lt;object> (o.id));
 
   text_stream ts (p->t, false); // Open for reading.
   vector&lt;char> t (ts.size () + 1, '\0');
@@ -21601,7 +21599,7 @@ text_stream ts (o.t, true);
   <pre class="cxx">
 transaction tx (db.begin ());
 
-auto_ptr&lt;object> p (db.load&lt;object> (o.id));
+unique_ptr&lt;object> p (db.load&lt;object> (o.id));
 p->name = "foo"; // Update some other member.
 db.update (*p);  // Bad behavior: incremental BLOB/TEXT invalidated.
 
@@ -21723,7 +21721,7 @@ namespace odb
      database in the read-write mode and create it if it does not exist:</p>
 
   <pre class="cxx">
-auto_ptr&lt;odb::database> db (
+unique_ptr&lt;odb::database> db (
   new odb::sqlite::database (
     "test.db",
     SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE));
@@ -22068,10 +22066,10 @@ namespace odb
 int
 main (int argc, char* argv[])
 {
-  auto_ptr&lt;odb::sqlite::connection_factory> f (
+  unique_ptr&lt;odb::sqlite::connection_factory> f (
     new odb::sqlite::connection_pool_factory (20));
 
-  auto_ptr&lt;odb::database> db (
+  unique_ptr&lt;odb::database> db (
     new sqlite::database (argc, argv, false, SQLITE_OPEN_READWRITE, f));
 }
   </pre>
@@ -23103,10 +23101,10 @@ namespace odb
 int
 main (int argc, char* argv[])
 {
-  auto_ptr&lt;odb::pgsql::connection_factory> f (
+  unique_ptr&lt;odb::pgsql::connection_factory> f (
     new odb::pgsql::connection_pool_factory (20));
 
-  auto_ptr&lt;odb::database> db (
+  unique_ptr&lt;odb::database> db (
     new pgsql::database (argc, argv, false, "", f));
 }
   </pre>
@@ -24007,10 +24005,10 @@ namespace odb
 int
 main (int argc, char* argv[])
 {
-  auto_ptr&lt;odb::oracle::connection_factory> f (
+  unique_ptr&lt;odb::oracle::connection_factory> f (
     new odb::oracle::connection_pool_factory (20));
 
-  auto_ptr&lt;odb::database> db (
+  unique_ptr&lt;odb::database> db (
     new oracle::database (argc, argv, false, 0, 0, 0, f));
 }
   </pre>
@@ -25228,10 +25226,10 @@ namespace odb
 int
 main (int argc, char* argv[])
 {
-  auto_ptr&lt;odb::mssql::connection_factory> f (
+  unique_ptr&lt;odb::mssql::connection_factory> f (
     new odb::mssql::connection_pool_factory (20));
 
-  auto_ptr&lt;odb::database> db (
+  unique_ptr&lt;odb::database> db (
     new mssql::database (argc, argv, false, "", 0, f));
 }
   </pre>
