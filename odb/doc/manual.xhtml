@@ -16912,6 +16912,34 @@ class person
 #pragma db member(person::name) virtual(std::string) access(name_)
   </pre>
 
+  <p>The order of data members determines the order of columns in the
+     resulting table. The order of virtual data members in relation to other
+     data members (virtual or not) is the order of declaration, with virtual
+     data members declared outside of the class coming last. This order,
+     however, can be adjusted with the <code>before</code>
+     and <code>after</code> specifiers. One of these specifiers without a
+     parameter places the virtual member at the beginning or at the end of the
+     members list, respectively. Alternatively, we can specify the member
+     (virtual or not) before/after which this virtual member should be
+     placed. For example:</p>
+
+  <pre class="cxx">
+#pragma db object
+class person
+{
+  ...
+
+  #pragma db id auto
+  unsigned long id_;
+
+  #pragma db member(first) virtual(std::string) before
+  #pragma db member(last)  virtual(std::string) after(first)
+};
+  </pre>
+
+  <p>The order of columns in the resulting table will be: <code>first</code>,
+     <code>last</code>, <code>id</code>.</p>
+
   <p>While in the above examples using virtual data members doesn't
      seem to yield any benefits, this mechanism can be useful in a
      number of situations. As one example, consider the need to
