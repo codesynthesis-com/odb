@@ -26,7 +26,7 @@ main (int argc, char* argv[])
     //
     // At this point the initial version (1) is assigned.
     //
-    unsigned long id;
+    unsigned long long id;
     {
       person p ("John", "Doe", 21);
 

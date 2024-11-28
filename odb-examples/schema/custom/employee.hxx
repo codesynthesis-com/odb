@@ -73,7 +73,7 @@ class employee
 public:
   typedef ::employer employer_type;
 
-  employee (unsigned long id,
+  employee (unsigned long long id,
             const std::string& first,
             const std::string& last,
             std::shared_ptr<employer_type> employer)
@@ -127,7 +127,7 @@ private:
   employee (): name_ ("", "") {}
 
   #pragma db id type("INTEGER") column("ssn")
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db column("") // No column prefix.
   name_type name_;

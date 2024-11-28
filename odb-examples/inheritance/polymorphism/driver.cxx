@@ -22,7 +22,7 @@ main (int argc, char* argv[])
   {
     unique_ptr<database> db (create_database (argc, argv));
 
-    unsigned long id1, id2;
+    unsigned long long id1, id2;
 
     // Add a few employee and contractor objects to the database.
     //

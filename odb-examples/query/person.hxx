@@ -58,7 +58,7 @@ private:
   person () {}
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string first_;
   odb::nullable<std::string> middle_;

@@ -41,7 +41,7 @@ private:
 class employer
 {
 public:
-  employer (unsigned long id, const std::string& name)
+  employer (unsigned long long id, const std::string& name)
       : id_ (id), name_ (name)
   {
   }
@@ -58,7 +58,7 @@ private:
   employer () {}
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string name_;
 };
@@ -67,7 +67,7 @@ private:
 class employee
 {
 public:
-  employee (unsigned long id,
+  employee (unsigned long long id,
             const std::string& first,
             const std::string& last,
             unsigned short age,
@@ -131,7 +131,7 @@ private:
   employee () {}
 
   #pragma db id
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string first_;
   std::string last_;
@@ -280,7 +280,7 @@ struct employer_with_employees
 struct employee_vacation
 {
   #pragma db type("INTEGER")
-  unsigned long id;
+  unsigned long long id;
 
   #pragma db type("INTEGER")
   unsigned short days;
@@ -293,7 +293,7 @@ struct employee_vacation
 struct employee_vacation1
 {
   #pragma db column("employee_id") type("INTEGER")
-  unsigned long id;
+  unsigned long long id;
 
   #pragma db column("vacation_days") type("INTEGER")
   unsigned short days;

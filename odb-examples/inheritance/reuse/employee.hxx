@@ -52,7 +52,7 @@ public:
   {
   }
 
-  unsigned long
+  unsigned long long
   number () const
   {
     return id_;
@@ -64,7 +64,7 @@ protected:
 
 private:
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 };
 
 // Concrete permanent_employee class. Note that it doesn't define any

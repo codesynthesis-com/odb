@@ -95,7 +95,7 @@ private:
   person (): born_ (0, 0, 0) {}
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   std::string first_;
   std::string last_;

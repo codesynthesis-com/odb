@@ -44,7 +44,7 @@ public:
     age_ = age;
   }
 
-  unsigned long
+  unsigned long long
   version () const
   {
     return version_;
@@ -54,10 +54,10 @@ private:
   friend class odb::access;
 
   #pragma db id auto
-  unsigned long id_;
+  unsigned long long id_;
 
   #pragma db version
-  unsigned long version_;
+  unsigned long long version_;
 
   std::string first_;
   std::string last_;
