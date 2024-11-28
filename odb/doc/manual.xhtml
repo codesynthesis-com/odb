@@ -16324,21 +16324,29 @@ private:
      single or multiple (separated by semicolon) C++ statements
      with the effect of setting the new member value.</p>
 
-  <p>There are two special placeholders that are recognized by the
+  <p>There are three special placeholders that are recognized by the
      ODB compiler in accessor and modifier expressions. The first
      is the <code>this</code> keyword which denotes a reference
      (note: not a pointer) to the persistent object. In accessor
      expressions this reference is <code>const</code> while in
      modifier expressions it is non-<code>const</code>. If an
      expression does not contain the <code>this</code> placeholder,
-     then the ODB compiler automatically prefixes it with <code>this.</code>
-     sequence.</p>
+     then the ODB compiler automatically prefixes it with the
+     <code>this.</code> sequence.</p>
 
   <p>The second placeholder, the <code>(?)</code> sequence, is used
      to denote the new value in by-value modifier expressions. The
      ODB compiler replaces the question mark with the variable name,
-     keeping the surrounding parenthesis. The following example shows
-     a few more interesting accessor and modifier expressions:</p>
+     keeping the surrounding parenthesis.</p>
+
+  <p>The third placeholder, the <code>(!)</code> sequence, is used to denote
+     the database instance in the modifier expressions. The ODB compiler
+     replaces the exclamation mark with the reference to the database,
+     keeping the surrounding parenthesis. The database instance can, for
+     example, be used to load an object pointer.</p>
+
+  <p>The following example shows a few more interesting accessor and
+     modifier expressions:</p>
 
   <pre class="cxx">
 #pragma db value
