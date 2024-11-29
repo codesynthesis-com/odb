@@ -75,8 +75,12 @@ namespace odb
       image_type image_;
       std::size_t image_version_;
       binding image_binding_;
-      bind image_bind_[view_traits::column_count];
-      bool image_truncated_[view_traits::column_count];
+      bind image_bind_[view_traits::column_count != 0
+                       ? view_traits::column_count
+                       : 1];
+      bool image_truncated_[view_traits::column_count != 0
+                            ? view_traits::column_count
+                            : 1];
     };
   }
 }
