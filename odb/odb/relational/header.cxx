@@ -862,7 +862,7 @@ traverse_view (type& c)
       os << "," << endl
          << "const schema_version_migration&";
 
-    os << ")" << (columns != 0 ? ";\n" : "{}");
+    os << ")" << (columns != 0 ? ";\n" : "{return false;}");
   }
 
   // bind (image_type)
