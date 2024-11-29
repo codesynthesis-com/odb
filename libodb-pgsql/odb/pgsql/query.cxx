@@ -272,7 +272,9 @@ namespace odb
           s.compare (0, (n = 6), "HAVING") == 0 ||
           s.compare (0, (n = 6), "having") == 0 ||
           s.compare (0, (n = 4), "WITH") == 0 ||
-          s.compare (0, (n = 4), "with") == 0)
+          s.compare (0, (n = 4), "with") == 0 ||
+          s.compare (0, (n = 4), "CALL") == 0 ||
+          s.compare (0, (n = 4), "call") == 0)
       {
         // It either has to be an exact match, or there should be
         // a whitespace following the keyword.
