@@ -560,12 +560,22 @@ namespace odb
         }
       }
 
-      // Make sure that the number of columns in the result returned by
-      // the database matches the number that we expect. A common cause
-      // of this assertion is a native view with a number of data members
-      // not matching the number of columns in the SELECT-list.
+      // Make sure that the number of columns in the result returned by the
+      // database matches the number that we expect. A common cause of this
+      // assertion is a native view with a number of data members not matching
+      // the number of columns in the SELECT-list.
       //
-      assert (col == col_count);
+      // The only legitimate case for such a mismatch is the native view which
+      // calls the void-returning function and which has no members in the
+      // associated structure. Such a function, unless it is returns SETOF,
+      // produces a single row with a single column containing the NULL value
+      // (see odb-tests/pgsql/stored-proc/ test for details).
+      //
+      assert (col == col_count ||
+              (bs.count == 0  &&
+               col_count == 1 &&
+               row == 0       &&
+               PQftype (result, 0) == void_oid));
 
       return r;
     }

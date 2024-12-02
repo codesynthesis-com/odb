@@ -37,6 +37,8 @@ namespace odb
       bit_oid = 1560,
       varbit_oid = 1562,
 
+      void_oid = 2278,
+
       uuid_oid = 2950
     };
   }
