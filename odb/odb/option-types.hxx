@@ -23,7 +23,9 @@ struct cxx_version
     cxx11,
     cxx14,
     cxx17,
-    cxx20
+    cxx20,
+    cxx23,
+    cxx26
   };
 
   cxx_version (value v = value (0)) : v_ (v) {}

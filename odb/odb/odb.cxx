@@ -709,6 +709,16 @@ main (int argc, char* argv[])
           args[3] = "-std=c++2a";
           break;
         }
+      case cxx_version::cxx23:
+        {
+          args[3] = "-std=c++2b";
+          break;
+        }
+      case cxx_version::cxx26:
+        {
+          args[3] = "-std=c++2c";
+          break;
+        }
       }
     }
 
