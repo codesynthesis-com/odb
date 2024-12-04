@@ -49,7 +49,7 @@ struct person_range
 #pragma db view query("/*CALL*/ SELECT * FROM person_count()")
 struct person_count
 {
-  std::size_t count;
+  unsigned long long count;
 };
 
 #pragma db view query("/*CALL*/ SELECT * FROM person_age_increment((?))")

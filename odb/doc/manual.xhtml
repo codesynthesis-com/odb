@@ -49,8 +49,8 @@ for consistency.
   }
 
   pre {
-    padding    : 0 0 0 0em;
-    margin     : 0em 0em 0em 0;
+    padding    : 0 0 0 0;
+    margin     : 0 0 0 0;
 
     font-size  : 102%
   }
@@ -23299,8 +23299,8 @@ person_range (IN min_age INTEGER,
               OUT last TEXT)
 RETURNS SETOF RECORD AS $$
   SELECT age, first, last
-  FROM person
-  WHERE age >= min_age AND age &lt;= max_age;
+    FROM person
+    WHERE age >= min_age AND age &lt;= max_age;
 $$ LANGUAGE SQL STABLE;
   </pre>
 
@@ -23340,9 +23340,171 @@ for (result::iterator i (r.begin ()); i != r.end (); ++i)
 t.commit ();
   </pre>
 
-   <p>Note that as with all native views, the order and types of data members
-      must match those returned by the stored function.</p>
+  <p>Note that as with all native views, the order and types of data members
+     must match those returned by the stored function or procedure.</p>
 
+  <p>In the above example, the stored function returned a set of rows. Other
+     common cases are functions that return a single row, a single value, or
+     nothing (<code>VOID</code>). An example of a function returning a single
+     row via the <code>OUT</code> parameters:</p>
+
+  <pre class="sql">
+CREATE FUNCTION
+person_age_range (IN last_name TEXT,
+                  OUT min_age SMALLINT,
+                  OUT max_age SMALLINT)
+AS $$
+  SELECT min(age), max(age)
+    FROM person
+    WHERE last == last_name;
+$$ LANGUAGE SQL STABLE;
+  </pre>
+
+  <pre class="cxx">
+#pragma db view query("/*CALL*/ SELECT * FROM person_age_range((?))")
+struct person_age_range
+{
+  unsigned short min_age;
+  unsigned short max_age;
+};
+  </pre>
+
+  <pre class="cxx">
+using query = odb::query&lt;person_age_range>;
+
+person_age_range r (
+  db->query_value&lt;person_age_range> (
+    query::_val ("John")));
+  </pre>
+
+  <p>An example of a function returning a single value:</p>
+
+  <pre class="sql">
+CREATE FUNCTION
+person_count ()
+RETURNS BIGINT AS $$
+  SELECT count(id)
+    FROM person;
+$$ LANGUAGE SQL STABLE;
+  </pre>
+
+  <pre class="cxx">
+#pragma db view query("/*CALL*/ SELECT * FROM person_count()")
+struct person_count
+{
+  unsigned long long count;
+};
+  </pre>
+
+  <pre class="cxx">
+unsigned long long count (db->query_value&lt;person_count> ().count);
+  </pre>
+
+  <p>Finally, a function that returns <code>VOID</code>:</p>
+
+  <pre class="sql">
+CREATE FUNCTION
+person_increment_age (IN min_age INTEGER,
+                      IN max_age INTEGER)
+RETURNS VOID AS $$
+  UPDATE person
+    SET age = age + 1
+    WHERE age >= min_age AND age &lt;= max_age;
+$$ LANGUAGE SQL;
+  </pre>
+
+  <pre class="cxx">
+#pragma db view query("/*CALL*/ SELECT * FROM person_increment_age((?))")
+struct person_increment_age {};
+  </pre>
+
+  <pre class="cxx">
+using query = odb::query&lt;person_increment_age>;
+
+db->query_value&lt;person_increment_age> (
+  query::_val (1) + ","  +
+  query::_val (18));
+  </pre>
+
+ <p>We can reuse a single view to call several functions (or procedure; see
+    below) that return <code>VOID</code> or, more generally, return the same
+    result, by specifying the function (or procedure) at the call site rather
+    than in the view definition. For example:</p>
+
+  <pre class="cxx">
+#pragma db view
+struct no_result {};
+
+using query = odb::query&lt;no_result>;
+
+db.query_one&lt;no_result> (
+  "/*CALL*/ SELECT * FROM person_increment_age(" +
+  query::_val (1) + "," +
+  query::_val (18) + ")");
+  </pre>
+
+  <p>In contrast to functions, stored procedures in PostgreSQL are called with
+     the <code>CALL</code> statement. They can only return a single set of
+     values via the <code>OUT</code> parameters. If there are no output
+     parameters, then a stored procedure doesn't return anything. For
+     example:</p>
+
+  <pre class="sql">
+CREATE PROCEDURE
+person_increment_age (IN id BIGINT,
+                      OUT first TEXT,
+                      OUT last TEXT,
+                      OUT age SMALLINT)
+AS $$
+  UPDATE person
+    SET age = age + 1
+    WHERE person.id = id
+    RETURNING first, last, age;
+$$ LANGUAGE SQL;
+  </pre>
+
+  <pre class="cxx">
+#pragma db view query("CALL person_increment_age((?))")
+struct person_increment_age
+{
+  std::string first;
+  std::string last;
+  unsigned short age;
+};
+  </pre>
+
+  <pre class="cxx">
+using query = odb::query&lt;person_increment_age>;
+
+person_increment_age r (
+  db->query_value&lt;person_increment_age> (
+    query::_val (123)));
+  </pre>
+
+  <p>A stored procedure that doesn't return anything and has no parameters can
+     be called with <code>execute()</code> (<a href="#3.12">3.12 Executing
+     Native SQL Statements</a>) rather than <code>query()</code>. Such a
+     procedure can also control transactions. For example:</p>
+
+  <pre class="sql">
+CREATE PROCEDURE
+person_increment_all_ages ()
+AS $$
+BEGIN
+  UPDATE person
+    SET age = age + 1;
+  COMMIT;
+END;
+$$ LANGUAGE PLPGSQL;
+  </pre>
+
+  <pre class="cxx">
+db->connection ()->execute ("CALL person_increment_all_ages()");
+  </pre>
+
+  <p>For more information on how to call stored procedures and functions with
+     the various return approaches refer to the <code>pgsql/stored-proc</code>
+     test in the <code>odb-tests</code> package.</p>
 
   <!-- CHAPTER -->
 
