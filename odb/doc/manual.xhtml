@@ -23356,7 +23356,7 @@ person_age_range (IN last_name TEXT,
 AS $$
   SELECT min(age), max(age)
     FROM person
-    WHERE last == last_name;
+    WHERE last = last_name;
 $$ LANGUAGE SQL STABLE;
   </pre>
 
@@ -23373,8 +23373,8 @@ struct person_age_range
 using query = odb::query&lt;person_age_range>;
 
 person_age_range r (
-  db->query_value&lt;person_age_range> (
-    query::_val ("John")));
+  db.query_value&lt;person_age_range> (
+    query::_val ("Doe")));
   </pre>
 
   <p>An example of a function returning a single value:</p>
@@ -23397,7 +23397,7 @@ struct person_count
   </pre>
 
   <pre class="cxx">
-unsigned long long count (db->query_value&lt;person_count> ().count);
+unsigned long long count (db.query_value&lt;person_count> ().count);
   </pre>
 
   <p>Finally, a function that returns <code>VOID</code>:</p>
@@ -23421,7 +23421,7 @@ struct person_increment_age {};
   <pre class="cxx">
 using query = odb::query&lt;person_increment_age>;
 
-db->query_value&lt;person_increment_age> (
+db.query_value&lt;person_increment_age> (
   query::_val (1) + ","  +
   query::_val (18));
   </pre>
@@ -23477,9 +23477,12 @@ struct person_increment_age
 using query = odb::query&lt;person_increment_age>;
 
 person_increment_age r (
-  db->query_value&lt;person_increment_age> (
-    query::_val (123)));
+  db.query_value&lt;person_increment_age> (
+    query::_val (123) + ",NULL,NULL,NULL"));
   </pre>
+
+  <p>Note that in the <code>CALL</code> statement, output parameters must
+    be included in the argument list, normally as <code>NULL</code>.</p>
 
   <p>A stored procedure that doesn't return anything and has no parameters can
      be called with <code>execute()</code> (<a href="#3.12">3.12 Executing
@@ -23499,7 +23502,7 @@ $$ LANGUAGE PLPGSQL;
   </pre>
 
   <pre class="cxx">
-db->connection ()->execute ("CALL person_increment_all_ages()");
+db.connection ()->execute ("CALL person_increment_all_ages()");
   </pre>
 
   <p>For more information on how to call stored procedures and functions with

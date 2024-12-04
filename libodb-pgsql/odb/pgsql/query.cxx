@@ -283,6 +283,18 @@ namespace odb
           return true;
       }
 
+      // Note that the '/*CALL*/' prefix is normally used as a hint for the
+      // ODB compiler for the SELECT statements in the view definitions that
+      // are used for the stored function calls. Since the ODB compiler
+      // removes this prefix from these statements, this check is actually not
+      // necessary for them. We, however, still recognize this prefix at
+      // runtime in case the user specify it on the query call site rather
+      // than in the view definition. Also note that we don't remove the
+      // prefix here since PostgreSQL allows comments in SQL statements.
+      //
+      if (s.compare (0, (n = 8), "/*CALL*/") == 0)
+        return true;
+
       return false;
     }
 

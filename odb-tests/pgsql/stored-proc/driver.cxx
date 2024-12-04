@@ -190,8 +190,7 @@ main (int argc, char* argv[])
       // Return multiple rows.
       //
       {
-        result r (
-          db->query<person_range> (query (query::_val (32))));
+        result r (db->query<person_range> (query::_val (32)));
 
         for (result::iterator i (r.begin ()); i != r.end (); ++i)
           cout << i->first << " " << i->last << " " << i->age << endl;
@@ -274,8 +273,7 @@ main (int argc, char* argv[])
       // Return the first row of the multiple ones.
       //
       {
-        person_range r (
-          db->query_value<person_range> (query (query::_val (32))));
+        person_range r (db->query_value<person_range> (query::_val (32)));
 
         cout << r.first << " " << r.last << " " << r.age << endl
              << endl;
@@ -290,7 +288,7 @@ main (int argc, char* argv[])
       create_function (*db,
                        "person_count ()",
                        "RETURNS BIGINT AS $$\n"
-                       "  SELECT count(age)\n"
+                       "  SELECT count(id)\n"
                        "    FROM pgsql_stored_proc_person;\n"
                        "$$ LANGUAGE SQL STABLE;");
 
@@ -550,7 +548,7 @@ main (int argc, char* argv[])
 
       {
         unique_ptr<person_age_decrement_void> fr (
-          db->query_one<person_age_decrement_void> (query (query::_val (1))));
+          db->query_one<person_age_decrement_void> (query::_val (1)));
 
         assert (fr == nullptr);
 

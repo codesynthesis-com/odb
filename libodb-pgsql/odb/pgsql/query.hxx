@@ -192,8 +192,10 @@ namespace odb
         append (table, column);
       }
 
+      // Don't use the 'explicit' specifier to support stored procedure and
+      // function parameters.
+      //
       template <typename T>
-      explicit
       query_base (val_bind<T> v)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
@@ -201,7 +203,6 @@ namespace odb
       }
 
       template <typename T, database_type_id ID>
-      explicit
       query_base (val_bind_typed<T, ID> v)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
@@ -209,7 +210,6 @@ namespace odb
       }
 
       template <typename T>
-      explicit
       query_base (ref_bind<T> r)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
@@ -217,7 +217,6 @@ namespace odb
       }
 
       template <typename T, database_type_id ID>
-      explicit
       query_base (ref_bind_typed<T, ID> r)
         : binding_ (0, 0), native_binding_ (0, 0, 0, 0)
       {
