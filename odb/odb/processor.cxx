@@ -1883,7 +1883,14 @@ namespace
       // specialization for this type.
       //
       tree inst (
-        lookup_template_class (t, args, 0, 0, 0, tf_warning_or_error));
+        lookup_template_class (t,
+                               args,
+                               0,
+                               0,
+#if BUILDING_GCC_MAJOR < 15
+                               0 /* entering_scope */,
+#endif
+                               tf_warning_or_error));
 
       if (inst == error_mark_node)
       {

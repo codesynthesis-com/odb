@@ -25,8 +25,12 @@
 #  undef SAFE_CTYPE_H
 #  include <coretypes.h>
 
+#if BUILDING_GCC_MAJOR >= 15
+#  include <line-map.h> // location_t (included anyway by above headers)
+#else
 typedef unsigned int source_location; // <line-map.h>
 typedef source_location location_t;   // <input.h>
+#endif
 
 #else // GCC < 6
 

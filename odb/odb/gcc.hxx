@@ -176,7 +176,7 @@ INCLUDED_FROM (line_maps* set, const line_map_ordinary* map)
   return linemap_included_from_linemap (set, map);
 }
 
-inline source_location
+inline location_t
 LAST_SOURCE_LINE_LOCATION (const line_map_ordinary* map)
 {
   return (((map[1].start_location - 1
