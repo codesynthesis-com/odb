@@ -1,0 +1,8 @@
+: 1
+name: odb-examples
+version: 2.5.0-b.29+1
+type: examples
+language: c++
+project: odb
+summary: ODB compiler usage examples
+license: Unlicense

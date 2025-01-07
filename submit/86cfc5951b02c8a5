@@ -1,0 +1,5 @@
+: 1
+name: odb
+version: 2.5.0-b.29+1
+summary: ODB compiler
+license: GPL-3.0-only
