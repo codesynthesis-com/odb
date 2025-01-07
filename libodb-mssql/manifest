@@ -64,6 +64,12 @@ custom-build-config:
   config.odb_examples.mssql.port=$getenv(DATABASE_PORT)
   config.odb_examples.mssql.driver=$getenv(MSSQL_ODBC_DRIVER)
 }+ odb-examples
+
+# Configure odb-{tests,examples} packages' dependency libodb as system on the
+# bpkg.test-separate-installed.configure.build step, since it is already
+# installed as a dependency of libodb-mssql.
+#
+{ --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
 
 # Instead of the multi configuration (see odb-tests for background).
@@ -84,6 +90,8 @@ custom-multi-build-config:
   config.odb_tests.mssql.port=$getenv(DATABASE_PORT)
   config.odb_tests.mssql.driver=$getenv(MSSQL_ODBC_DRIVER)
 }+ odb-tests
+
+{ --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
 
 # The {boost,qt5,qt6}-custom configurations replace the
@@ -118,6 +126,8 @@ boost-custom-build-config:
   config.odb_examples.mssql.port=$getenv(DATABASE_PORT)
   config.odb_examples.mssql.driver=$getenv(MSSQL_ODBC_DRIVER)
 }+ odb-examples
+
+{ --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
 
 qt5-custom-builds: default ; Requires proprietary software.
@@ -148,6 +158,8 @@ qt5-custom-build-config:
   config.odb_examples.mssql.port=$getenv(DATABASE_PORT)
   config.odb_examples.mssql.driver=$getenv(MSSQL_ODBC_DRIVER)
 }+ odb-examples
+
+{ --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
 
 qt6-custom-builds: default ; Requires proprietary software.
@@ -178,6 +190,8 @@ qt6-custom-build-config:
   config.odb_examples.mssql.port=$getenv(DATABASE_PORT)
   config.odb_examples.mssql.driver=$getenv(MSSQL_ODBC_DRIVER)
 }+ odb-examples
+
+{ --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
 
 custom-build-bot:
