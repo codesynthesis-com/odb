@@ -1,0 +1,8 @@
+: 1
+name: odb-tests
+version: 2.5.0-b.29
+type: tests
+language: c++
+project: odb
+summary: ODB compiler tests
+license: GPL-2.0-only
