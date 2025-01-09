@@ -20,8 +20,8 @@ struct point
   point () {}
   point (double x_, double y_): x (x_), y (y_) {}
 
-  double x;
-  double y;
+  double x = 0;
+  double y = 0;
 };
 
 inline bool
