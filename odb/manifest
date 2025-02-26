@@ -98,7 +98,7 @@ bindist-fedora-build-config:
 +bpkg.bindist.fedora:
 +bbot.bindist.upload:
 bpkg.bindist.fedora:--recursive=auto
-bpkg.bindist.fedora:--fedora-main-extrareq=g++
+bpkg.bindist.fedora:--fedora-main-extrareq=gcc-c++
 
 # Prepend system package manager options instead of overriding.
 #
