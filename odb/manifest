@@ -130,19 +130,12 @@ bpkg.configure.build:.../config.cxx.coptions=-fno-lto
 
 # Windows binary distribution archive.
 #
-# - Note that the contents of this archive need to be supplemented with the
-#   GCC compiler and run-time libraries by overlaying it with the contents of
-#   the build2-mingw-X.Y.Z-x86_64-windows.tar.xz archive (located at
-#   https://download.build2.org/) extracted into the mingw/ subdirectory
-#   and mingw/bin/{libgcc_s_seh-*,libstdc++-*,libwinpthread-*}.dll files
-#   copied into the bin/ subdirectory.
-#
-# - Also note that the contents of this archive can be overlaid with the
-#   contents of the ODB runtime library archives extracted into the root
-#   directory.
-#
 # - Strip the default compiler name from metadata in the archive name since it
-#   is built with GCC and the run-time libraries are supposed to be bundled.
+#   is built with GCC and the run-time libraries are supposed to be bundled
+#   (see below for details).
+#
+# - Note that the contents of this archive can be overlaid with the contents
+#   of the ODB runtime library archives extracted into the root directory.
 #
 bindist-windows-builds: bindist
 bindist-windows-build-include: windows*-gcc**
@@ -158,15 +151,20 @@ bpkg.bindist.archive:--archive-lang-impl=cc=
 #
 #bpkg.bindist.archive:config.install.relocatable=true
 
-bpkg.create:config.bin.lib=static
-b.create:config.cc.coptions="-Wall -O3"
+# Supplement the generated archive with the GCC compiler and run-time
+# libraries by overlaying it with the contents of the
+# build2-mingw-X.Y.Z-x86_64-windows.tar.xz archive (located at
+# https://download.build2.org/) extracted into the mingw/ subdirectory and
+# mingw/bin/{libgcc_s_seh-*,libstdc++-*,libwinpthread-*}.dll files copied into
+# the bin/ subdirectory.
+#
++bpkg.bindist.archive.post:build/bindist-archive-post.bx
 
 # At the bpkg.bindist.archive step, configure odb to refer to g++ using the
-# relative ../mingw/bin/g++ path (see above for details). Note that g++ is not
-# available at this path on the b.test-installed.test step, thus we disable
-# it. @@ TODO: once we have support for script hooks, we can prepare complete
-# archive and re-enable this step.
+# relative ../mingw/bin/g++ path (see above for details).
 #
 bpkg.bindist.archive:config.odb.gxx_name=../mingw/bin/g++
--b.test-installed.test:
+
+bpkg.create:config.bin.lib=static
+b.create:config.cc.coptions="-Wall -O3"
 \

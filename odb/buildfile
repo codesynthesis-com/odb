@@ -6,6 +6,11 @@
     legal{GPLv3 LICENSE} \
     manifest
 
+# bbot worker hook script (see bindist-windows build configuration for
+# details).
+#
+./: build/file{bindist-archive-post.bx}
+
 # Don't install tests.
 #
 tests/: install = false

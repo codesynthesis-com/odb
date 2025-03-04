@@ -1,0 +1,134 @@
+# file      : build/bindist-archive-post.bx
+# license   : GNU GPL v3; see accompanying LICENSE file
+
+# Overlay the ODB compiler Windows distribution archive with the contents of
+# the MinGW GCC distribution archive (see odb/manifest for details).
+#
+# Usage: $0 <odb-archive>
+#
+# Note that we expect to be operating in a clean temporary directory.
+
+info = [cmdline] echo 1>&2
+
+odb_path = [path] $1
+
+if $empty($odb_path)
+  exit "ODB archive path is not specified"
+end
+
+# Extract the top directory name from the ODB archive path.
+#
+# Note that we expect the archive path to contain the directory prefix since
+# it cannot be located in the current directory (see above).
+#
+odb_name = [dir_path] $regex.match(                  \
+  $odb_path,                                         \
+  '.+[/\\](odb-[^/\\]+-x86_64-windows[^/\\]+)\.zip', \
+  return_subs)
+
+if $null($odb_name)
+  exit "unable to extract top directory name from ODB archive path '$odb_path'"
+end
+
+# Discover the URL of the GCC distribution archive (assumed to be named as
+# build2-mingw-X.Y.Z-x86_64-windows.tar.xz). While at it, retrieve the archive
+# checksum.
+#
+base_url = ($shell.version.stage           \
+            ? 'https://stage.build2.org/0' \
+            : 'https://download.build2.org')
+
+u = "$base_url/toolchain.sha256"
+
+$info "fetching $u"
+
+curl -sS $u                                                   | \
+  sed -n -e 's/^([^ ]+) \*([^ ]+build2-mingw-[^ ]+)$/\1 \2/p' | \
+  set -w mi [strings]
+
+if $empty($mi)
+  exit "unable to obtain MinGW GCC distribution info from $u"
+end
+
+mingw_checksum = ($mi[0])
+mingw_url = "$base_url/($mi[1])"
+
+# Download the GCC distribution archive.
+#
+mingw_file = [path] $regex.match($mingw_url, '.+/([^/]+)', return_subs)
+
+if $null($mingw_file)
+  exit "unable to extract archive file name from '$mingw_url'"
+end
+
+$info "fetching $mingw_url"
+
+curl -sSf -o $mingw_file $mingw_url
+
+# Verify the checksum of the downloaded GCC distribution archive.
+#
+# Make sure we match a single line in the program's output.
+#
+certutil -hashfile $mingw_file SHA256 | \
+  sed -n -e 's/^([0-9a-fA-F]+)$/\1/p' | \
+  set -n checksum [string]
+
+if $empty($checksum)
+  exit "unable to extract checksum of $mingw_file"
+end
+
+if ($checksum != $mingw_checksum)
+  exit "$mingw_file checksum $checksum does not match expected $mingw_checksum"
+end
+
+# Overlay the original ODB archive with the downloaded GCC distribution
+# archive.
+#
+$info "overlaying $odb_path with $mingw_file"
+
+bsdtar -xf $odb_path
+
+mkdir $odb_name/mingw
+bsdtar -xf $mingw_file -C $odb_name/mingw --strip-components=1
+rm $mingw_file
+
+# While at it, verify that the version of the system g++ (used to build ODB)
+# matches the version of the being bundled g++.
+#
+# Note: compare only the (first) `g++...` lines of `g++ --version` outputs.
+#
+g++ --version                    | \
+  sed -n -e 's/^(g\+\+.+)$/\1/p' | \
+  set -n system_gcc_ver [string]
+
+if $empty($system_gcc_ver)
+  exit "unable to extract version of system g++"
+end
+
+# Note that the below $path_search() function calls expect absolute path as a
+# pattern argument.
+#
+mingw_bin = [dir_path] $~/$odb_name/mingw/bin
+
+$mingw_bin/g++ --version         | \
+  sed -n -e 's/^(g\+\+.+)$/\1/p' | \
+  set -n bundled_gcc_ver [string]
+
+if $empty($bundled_gcc_ver)
+  exit "unable to extract version of bundled g++"
+end
+
+if ($system_gcc_ver != $bundled_gcc_ver)
+  exit "version of system g++ '$system_gcc_ver' does not match version of bundled g++ '$bundled_gcc_ver'"
+end
+
+cp $path_search($mingw_bin/libgcc_s_seh-*.dll)  $odb_name/bin/
+cp $path_search($mingw_bin/libstdc++-*.dll)     $odb_name/bin/
+cp $path_search($mingw_bin/libwinpthread-*.dll) $odb_name/bin/
+
+# Note that on Windows bsdtar doesn't like trailing slashes, so let's use
+# $odb_name's string representation.
+#
+rm $odb_path
+bsdtar -a --options=compression-level=9 -cf $odb_path $string($odb_name)
+rm -r $odb_name
