@@ -1,6 +1,6 @@
 : 1
 name: odb-tests
-version: 2.5.0
+version: 2.6.0-b.1.z
 project: odb
 type: tests
 language: c++
@@ -11,8 +11,8 @@ url: https://www.codesynthesis.com/products/odb/
 doc-url: https://www.codesynthesis.com/products/odb/doc/manual.xhtml
 src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com ; Mailing list
-depends: * build2 >= 0.17.0
-depends: * bpkg >= 0.17.0
+depends: * build2 >= 0.18.0-
+depends: * bpkg >= 0.18.0-
 
 depends: * odb == $
 

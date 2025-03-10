@@ -1,6 +1,6 @@
 : 1
 name: libodb-mssql
-version: 2.5.0
+version: 2.6.0-b.1.z
 project: odb
 summary: Microsoft SQL Server ODB runtime library
 license: other: ODB NCUEL   ; Non-Commercial Use and Evaluation License.
@@ -16,8 +16,8 @@ email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
 requires: c++11
 requires: mssql-odbc ; MS SQL Server ODBC driver.
-depends: * build2 >= 0.17.0
-depends: * bpkg >= 0.17.0
+depends: * build2 >= 0.18.0-
+depends: * bpkg >= 0.18.0-
 
 depends: libodb == $
 depends: * cli ^1.2.0 ? ($config.libodb_mssql.develop)

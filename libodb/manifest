@@ -1,6 +1,6 @@
 : 1
 name: libodb
-version: 2.5.0
+version: 2.6.0-b.1.z
 project: odb
 summary: Common ODB runtime library
 license: GPL-2.0-only
@@ -15,8 +15,8 @@ src-url: https://git.codesynthesis.com/cgit/odb/odb/
 email: odb-users@codesynthesis.com
 build-warning-email: odb-builds@codesynthesis.com
 requires: c++11
-depends: * build2 >= 0.17.0
-depends: * bpkg >= 0.17.0
+depends: * build2 >= 0.18.0-
+depends: * bpkg >= 0.18.0-
 
 tests:    odb-tests    == $ ? ($config.odb_tests.libodb_test)
 examples: odb-examples == $ ? ($config.odb_examples.libodb_example)
