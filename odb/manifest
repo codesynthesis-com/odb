@@ -158,7 +158,11 @@ bpkg.bindist.archive:--archive-lang-impl=cc=
 # mingw/bin/{libgcc_s_seh-*,libstdc++-*,libwinpthread-*}.dll files copied into
 # the bin/ subdirectory.
 #
+# Note that since the resulting archive is quite big (about 120MB for zip), we
+# use the tar.xz archive type to reduce its size (to about 45MB).
+#
 +bpkg.bindist.archive.post:build/bindist-archive-post.bx
+bpkg.bindist.archive:--archive-type=tar.xz
 
 # At the bpkg.bindist.archive step, configure odb to refer to g++ using the
 # relative ../mingw/bin/g++ path (see above for details).

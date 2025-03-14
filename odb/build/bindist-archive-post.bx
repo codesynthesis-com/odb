@@ -21,9 +21,9 @@ end
 # Note that we expect the archive path to contain the directory prefix since
 # it cannot be located in the current directory (see above).
 #
-odb_name = [dir_path] $regex.match(                  \
-  $odb_path,                                         \
-  '.+[/\\](odb-[^/\\]+-x86_64-windows[^/\\]+)\.zip', \
+odb_name = [dir_path] $regex.match(                                    \
+  $odb_path,                                                           \
+  '.+[/\\](odb-[^/\\]+-x86_64-windows[^/\\]+)\.(?:zip|tar\.[^./\\]+)', \
   return_subs)
 
 if $null($odb_name)
