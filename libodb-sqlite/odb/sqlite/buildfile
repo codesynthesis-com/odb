@@ -113,7 +113,6 @@ if $develop
      diff $d/options.ixx $path($>[1]) >- && \
      diff $d/options.cxx $path($>[2]) >-
     exit
-  end
 
   cp $path($>[0]) $d/options.hxx
   cp $path($>[1]) $d/options.ixx

@@ -458,7 +458,7 @@ if $mysql
 {
   .include ../../mysql.testscript
 
-  $create_schema;
+  $create_schema
   $*
 }
 
@@ -477,29 +477,28 @@ if ($pgsql && $pgsql_bulk)
 {
   .include ../../pgsql.testscript
 
-  $create_schema;
+  $create_schema
 
   # Query the PostgreSQL server version and only run the test if it is 7.4 or
   # above.
   #
   $pgsql_client_cmd --tuples-only -c 'SELECT VERSION()' | \
   sed -n -e 's/.*PostgreSQL (\d+\.\d+).*/\1/p'          | \
-  set version [string];
+  set version [string]
 
   if ("$version" == "")
     exit "unable to obtain PostgreSQL server version"
-  end;
 
-  sed -n -e 's/(.+)\..+/\1/p' <"$version" | set major_version [uint64];
-  sed -n -e 's/.+\.(.+)/\1/p' <"$version" | set minor_version [uint64];
+  sed -n -e 's/(.+)\..+/\1/p' <"$version" | set major_version [uint64]
+  sed -n -e 's/.+\.(.+)/\1/p' <"$version" | set minor_version [uint64]
 
   if (($major_version == 7 && minor_version >= 4) || $major_version > 7)
+  {
     if $multi
       $* # Noop.
     else
       $* >>>../pgsql-output
-    end
-  end
+  }
 }
 
 : oracle
@@ -508,13 +507,12 @@ if $oracle
 {
   .include ../../oracle.testscript
 
-  $create_schema;
+  $create_schema
 
   if $multi
     $* # Noop.
   else
     $* >>>../output
-  end
 }
 
 : mssql
@@ -523,11 +521,10 @@ if $mssql
 {
   .include ../../mssql.testscript
 
-  $create_schema;
+  $create_schema
 
   if $multi
     $* # Noop.
   else
     $* >>>../output
-  end
 }

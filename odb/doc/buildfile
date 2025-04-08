@@ -83,7 +83,6 @@ if $develop
   #
   if! diff $src_base/pregenerated/odb.1 $path($>) >-
     cp $path($>) $src_base/pregenerated/odb.1
-  end
 }}
 
 xhtml{odb}: ../odb/cli{options} file{odb-prologue.xhtml odb-epilogue.xhtml} $cli
@@ -97,7 +96,6 @@ if $develop
 
   if! diff $src_base/pregenerated/odb.xhtml $path($>) >-
     cp $path($>) $src_base/pregenerated/odb.xhtml
-  end
 }}
 
 #

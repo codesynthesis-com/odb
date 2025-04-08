@@ -126,7 +126,7 @@ if $mysql
 {
   .include ../../../mysql.testscript
 
-  $create_schema;
+  $create_schema
   $*
 }
 
@@ -145,7 +145,7 @@ if $pgsql
 {
   .include ../../../pgsql.testscript
 
-  $create_schema;
+  $create_schema
   $*
 }
 
@@ -155,7 +155,7 @@ if $oracle
 {
   .include ../../../oracle.testscript
 
-  $create_schema;
+  $create_schema
   $*
 }
 
@@ -165,6 +165,6 @@ if $mssql
 {
   .include ../../../mssql.testscript
 
-  $create_schema;
+  $create_schema
   $*
 }

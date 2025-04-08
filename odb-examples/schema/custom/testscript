@@ -7,7 +7,6 @@ test.arguments += $($(database)_options)
 
 +if $sqlite
   test.cleanups += &odb-test.db
-end
 
 : basics
 :

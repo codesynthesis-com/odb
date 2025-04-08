@@ -7,145 +7,164 @@
 # be used as a base for the data manipulation commands.
 #
 +if $mysql
-   mysql_options = --user $config.odb_tests.mysql.user \
-                   --database $config.odb_tests.mysql.database
+{
+  mysql_options = --user $config.odb_tests.mysql.user \
+                  --database $config.odb_tests.mysql.database
 
-   mysql_client_options = --user $config.odb_tests.mysql.user \
-                          --database $config.odb_tests.mysql.database
+  mysql_client_options = --user $config.odb_tests.mysql.user \
+                         --database $config.odb_tests.mysql.database
 
-   if $defined(config.odb_tests.mysql.passwd)
-     mysql_options        += --password $config.odb_tests.mysql.passwd
-     mysql_client_options += --password=$config.odb_tests.mysql.passwd
-   end
+  if $defined(config.odb_tests.mysql.passwd)
+  {
+    mysql_options        += --password $config.odb_tests.mysql.passwd
+    mysql_client_options += --password=$config.odb_tests.mysql.passwd
+  }
 
-   if $defined(config.odb_tests.mysql.host)
-     mysql_options        += --host $config.odb_tests.mysql.host
-     mysql_client_options += --host $config.odb_tests.mysql.host
-   end
+  if $defined(config.odb_tests.mysql.host)
+  {
+    mysql_options        += --host $config.odb_tests.mysql.host
+    mysql_client_options += --host $config.odb_tests.mysql.host
+  }
 
-   if $defined(config.odb_tests.mysql.port)
-     mysql_options        += --port $config.odb_tests.mysql.port
-     mysql_client_options += --port $config.odb_tests.mysql.port
-   end
+  if $defined(config.odb_tests.mysql.port)
+  {
+    mysql_options        += --port $config.odb_tests.mysql.port
+    mysql_client_options += --port $config.odb_tests.mysql.port
+  }
 
-   if $defined(config.odb_tests.mysql.socket)
-     mysql_options        += --socket $config.odb_tests.mysql.socket
-     mysql_client_options += --socket $config.odb_tests.mysql.socket
-   end
+  if $defined(config.odb_tests.mysql.socket)
+  {
+    mysql_options        += --socket $config.odb_tests.mysql.socket
+    mysql_client_options += --socket $config.odb_tests.mysql.socket
+  }
 
-   mysql_client_cmd = $path($mysql_client) $mysql_client_options
-end
+  mysql_client_cmd = $path($mysql_client) $mysql_client_options
+}
 
 +if $sqlite
+{
   sqlite_options = --database odb-test.db
 
   # Note that we currently don't manipulate the data using the sqlite3
   # utility. Thus, we don't create the sqlite client option list and command
   # line.
   #
-end
+}
 
 +if $pgsql
-   pgsql_options = --user $config.odb_tests.pgsql.user \
-                   --database $config.odb_tests.pgsql.database
+{
+  pgsql_options = --user $config.odb_tests.pgsql.user \
+                  --database $config.odb_tests.pgsql.database
 
-   pgsql_client_options = --quiet \
-                          --set ON_ERROR_STOP=1 \
-                          --username $config.odb_tests.pgsql.user \
-                          --dbname $config.odb_tests.pgsql.database
+  pgsql_client_options = --quiet \
+                         --set ON_ERROR_STOP=1 \
+                         --username $config.odb_tests.pgsql.user \
+                         --dbname $config.odb_tests.pgsql.database
 
   if $defined(config.odb_tests.pgsql.host)
+  {
     pgsql_options        += --host $config.odb_tests.pgsql.host
     pgsql_client_options += --host $config.odb_tests.pgsql.host
-  end
+  }
 
   if $defined(config.odb_tests.pgsql.port)
+  {
     pgsql_options        += --port $config.odb_tests.pgsql.port
     pgsql_client_options += --port $config.odb_tests.pgsql.port
-  end
+  }
 
   pgsql_client_cmd = $path($pgsql_client) $pgsql_client_options
 
   export PGOPTIONS=--client-min-messages=warning
-end
+}
 
 +if $oracle
-   oracle_options = --user $config.odb_tests.oracle.user
+{
+  oracle_options = --user $config.odb_tests.oracle.user
 
-   oracle_client_options = -L -S
-   oracle_logon = $config.odb_tests.oracle.user
+  oracle_client_options = -L -S
+  oracle_logon = $config.odb_tests.oracle.user
 
-   if $defined(config.odb_tests.oracle.passwd)
-     oracle_options += --password $config.odb_tests.oracle.passwd
-     oracle_logon = "$oracle_logon/$config.odb_tests.oracle.passwd"
-   end
+  if $defined(config.odb_tests.oracle.passwd)
+  {
+    oracle_options += --password $config.odb_tests.oracle.passwd
+    oracle_logon = "$oracle_logon/$config.odb_tests.oracle.passwd"
+  }
 
-   if ($defined(config.odb_tests.oracle.host) || \
-       $defined(config.odb_tests.oracle.port))
-     if $defined(config.odb_tests.oracle.host)
-       oracle_options += --host $config.odb_tests.oracle.host
-       oracle_logon = "$oracle_logon@//$config.odb_tests.oracle.host"
-     else
-       oracle_logon = "$oracle_logon@//localhost"
-     end
+  if ($defined(config.odb_tests.oracle.host) || \
+      $defined(config.odb_tests.oracle.port))
+  {
+    if $defined(config.odb_tests.oracle.host)
+    {
+      oracle_options += --host $config.odb_tests.oracle.host
+      oracle_logon = "$oracle_logon@//$config.odb_tests.oracle.host"
+    }
+    else
+      oracle_logon = "$oracle_logon@//localhost"
 
-     if $defined(config.odb_tests.oracle.port)
-       oracle_options += --port $config.odb_tests.oracle.port
-       oracle_logon = "$oracle_logon:$config.odb_tests.oracle.port"
-     end
+    if $defined(config.odb_tests.oracle.port)
+    {
+      oracle_options += --port $config.odb_tests.oracle.port
+      oracle_logon = "$oracle_logon:$config.odb_tests.oracle.port"
+    }
 
-     if $defined(config.odb_tests.oracle.service)
-       oracle_options += --service $config.odb_tests.oracle.service
-       oracle_logon = "$oracle_logon/$config.odb_tests.oracle.service"
-     end
-   elif $defined(config.odb_tests.oracle.service)
-     oracle_options += --service $config.odb_tests.oracle.service
-     oracle_logon = "$oracle_logon@$config.odb_tests.oracle.service"
-   end
+    if $defined(config.odb_tests.oracle.service)
+    {
+      oracle_options += --service $config.odb_tests.oracle.service
+      oracle_logon = "$oracle_logon/$config.odb_tests.oracle.service"
+    }
+  }
+  elif $defined(config.odb_tests.oracle.service)
+  {
+    oracle_options += --service $config.odb_tests.oracle.service
+    oracle_logon = "$oracle_logon@$config.odb_tests.oracle.service"
+  }
 
-   oracle_client_cmd = $path($oracle_client) $oracle_client_options $oracle_logon
-end
+  oracle_client_cmd = $path($oracle_client) $oracle_client_options $oracle_logon
+}
 
 +if $mssql
-   mssql_options = --user $config.odb_tests.mssql.user \
-                   --database $config.odb_tests.mssql.database
+{
+  mssql_options = --user $config.odb_tests.mssql.user \
+                  --database $config.odb_tests.mssql.database
 
-   mssql_client_options = -C -x -r 1 -b \
-                          -U $config.odb_tests.mssql.user \
-                          -d $config.odb_tests.mssql.database
+  mssql_client_options = -C -x -r 1 -b \
+                         -U $config.odb_tests.mssql.user \
+                         -d $config.odb_tests.mssql.database
 
-   if $defined(config.odb_tests.mssql.passwd)
-     mssql_options        += --password $config.odb_tests.mssql.passwd
-     mssql_client_options += -P $config.odb_tests.mssql.passwd
-   end
+  if $defined(config.odb_tests.mssql.passwd)
+  {
+    mssql_options        += --password $config.odb_tests.mssql.passwd
+    mssql_client_options += -P $config.odb_tests.mssql.passwd
+  }
 
-   if ($defined(config.odb_tests.mssql.host) || \
-       $defined(config.odb_tests.mssql.port))
-     mssql_server = \
-       "tcp:($defined(config.odb_tests.mssql.host) ? $config.odb_tests.mssql.host : localhost)"
+  if ($defined(config.odb_tests.mssql.host) || \
+      $defined(config.odb_tests.mssql.port))
+  {
+    mssql_server = \
+      "tcp:($defined(config.odb_tests.mssql.host) ? $config.odb_tests.mssql.host : localhost)"
 
-     if $defined(config.odb_tests.mssql.port)
-       mssql_server = "$mssql_server,$config.odb_tests.mssql.port"
-     end
-   elif $defined(config.odb_tests.mssql.server)
-     mssql_server = $config.odb_tests.mssql.server
-   else
-     mssql_server = [null]
-   end
+    if $defined(config.odb_tests.mssql.port)
+      mssql_server = "$mssql_server,$config.odb_tests.mssql.port"
+  }
+  elif $defined(config.odb_tests.mssql.server)
+    mssql_server = $config.odb_tests.mssql.server
+  else
+    mssql_server = [null]
 
-   if ($mssql_server != [null])
-     mssql_options        += --server $mssql_server
-     mssql_client_options += -S $mssql_server
-   end
+  if ($mssql_server != [null])
+  {
+    mssql_options        += --server $mssql_server
+    mssql_client_options += -S $mssql_server
+  }
 
-   if ($defined(config.odb_tests.mssql.driver)  && \
-       $config.odb_tests.mssql.driver != [null] && \
-       $config.odb_tests.mssql.driver != '')
-     mssql_options += --driver $config.odb_tests.mssql.driver
-   end
+  if ($defined(config.odb_tests.mssql.driver)  && \
+      $config.odb_tests.mssql.driver != [null] && \
+      $config.odb_tests.mssql.driver != '')
+    mssql_options += --driver $config.odb_tests.mssql.driver
 
-   mssql_client_cmd = $path($mssql_client) $mssql_client_options
-end
+  mssql_client_cmd = $path($mssql_client) $mssql_client_options
+}
 
 # Set the default schema file name, which can be overridden by the subsequent
 # tests in their own scopes.

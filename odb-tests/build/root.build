@@ -326,7 +326,6 @@ if! $skeleton
 
     if ($db == '') # *-odb.?xx target group?
       db = ($multi ? 'common' : $databases[0])
-    end
 
     # If the external SQL schema file will be generated, then add it as a
     # dynamic target group member.
@@ -338,18 +337,19 @@ if! $skeleton
     # will never appear as standalone option values.
     #
     if ($db != 'common' && $regex.find_match($odb_options, '--generate-schema'))
+    {
       schema_format = ($db == 'sqlite' ? 'embedded' : 'sql')
 
       for o: $odb_options
+      {
         if ($o == '--schema-format')
           schema_format = [null] # Indicate that the schema format comes next.
         elif ($schema_format == [null])
           schema_format = $o
-        end
-      end
+      }
+    }
     else
       schema_format = ''
-    end
 
     ts = ($schema_format == 'sql'                                               \
           ? "$directory($hp)/$regex.replace($bn, '(.+)-odb(-.+)?', '\1\2').sql" \
@@ -365,6 +365,7 @@ if! $skeleton
     std = false
 
     for o: $odb_options
+    {
       if ($o == '--changelog')
         changelog = [null] # Indicate that the changelog path comes next.
       elif ($changelog == [null])
@@ -375,15 +376,15 @@ if! $skeleton
         suppress_migration = true
       elif ($o == '--std')
         std = true
-      end
-    end
+    }
 
     if ($changelog != '')
+    {
       if ($init_changelog)
         ts = ($ts == '' ? "$changelog" : "$ts$\n$changelog")
-      end
 
       if ($schema_format == 'sql' && !$suppress_migration)
+      {
         n = $base($leaf($path($<[0])))
 
         # Note that it's not easy to deduce the object model migration files
@@ -392,11 +393,12 @@ if! $skeleton
         # variable.
         #
         for v: $schema_versions
+        {
           ns = "$out_base/$n-$v-pre.sql$\n$out_base/$n-$v-post.sql"
           ts = ($ts == '' ? "$ns" : "$ts$\n$ns")
-        end
-      end
-    end
+        }
+      }
+    }
 
     depdb dyndep --dyn-target --target-what 'generated schema' --format lines \
     -- echo "$ts"

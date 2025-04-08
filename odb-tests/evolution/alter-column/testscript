@@ -10,25 +10,25 @@ test.arguments += $($(db)_options)
 :
 if! $sqlite
 {
-  ss =; # Schema modification base file names.
+  ss = # Schema modification base file names.
 
   # Drop everything.
   #
   for s: $schemas
     ss =+ $s
-  end;
 
   # Add base schema.
   #
-  ss += test3-002-pre test3-002-post;
+  ss += test3-002-pre test3-002-post
 
   # Add migration.
   #
-  ss += test3-003-pre test3-003-post;
+  ss += test3-003-pre test3-003-post
 
   # Run tests.
   #
   for s: $ss
+  {
     f = $out_base/"$s".sql
 
     if $mysql
@@ -39,7 +39,6 @@ if! $sqlite
       $create_schema_cmd "@$f"
     elif $mssql
       $create_schema_cmd -i $f
-    end
 
     if ($s == 'test3-002-post')
       $* 1
@@ -47,8 +46,7 @@ if! $sqlite
       $* 2
     elif ($s == 'test3-003-post')
       $* 3
-    end
-  end
+  }
 }
 else
 {

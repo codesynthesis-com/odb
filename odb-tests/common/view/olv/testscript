@@ -11,7 +11,6 @@ if $mysql
 
   for s: $schemas
     cat $out_base/"$s"($multi ? '-mysql' : '').sql | $create_schema_cmd
-  end;
 
   $* ($multi ? 'mysql' : ) $mysql_options
 }
@@ -33,7 +32,6 @@ if $pgsql
 
   for s: $schemas
     $create_schema_cmd -f $out_base/"$s"($multi ? '-pgsql' : '').sql
-  end;
 
   $* ($multi ? 'pgsql' : ) $pgsql_options
 }
@@ -46,7 +44,6 @@ if $oracle
 
   for s: $schemas
     $create_schema_cmd "@$out_base/$s"($multi ? '-oracle' : '').sql
-  end;
 
   $* ($multi ? 'oracle' : ) $oracle_options
 }
@@ -59,7 +56,6 @@ if $mssql
 
   for s: $schemas
     $create_schema_cmd -i $out_base/"$s"($multi ? '-mssql' : '').sql
-  end;
 
   $* ($multi ? 'mssql' : ) $mssql_options
 }

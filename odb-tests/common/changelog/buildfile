@@ -24,7 +24,6 @@ file{odb.options}: libue{test-meta}
 
   for o: $pops
     echo $o >+$f
-  end
 }}
 
 # Testscript's run-time prerequisites.

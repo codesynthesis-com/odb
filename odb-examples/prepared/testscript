@@ -6,7 +6,6 @@
 
 +if! $sqlite
   $create_schema
-end
 
 : basics
 :

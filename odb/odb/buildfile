@@ -163,7 +163,6 @@ if $develop
      diff $src_base/pregenerated/odb/options.ixx $path($>[1]) >- && \
      diff $src_base/pregenerated/odb/options.cxx $path($>[2]) >-
     exit
-  end
 
   cp $path($>[0]) $src_base/pregenerated/odb/options.hxx
   cp $path($>[1]) $src_base/pregenerated/odb/options.ixx

@@ -9,13 +9,13 @@ test.arguments += $($(db)_options)
 :
 if! $sqlite
 {
-  $* 1;
-  $* 2;
+  $* 1
+  $* 2
   $* 3
 }
 else
 {
-  $* 1 &odb-test.db;
-  $* 2;
+  $* 1 &odb-test.db
+  $* 2
   $* 3
 }

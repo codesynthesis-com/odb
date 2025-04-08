@@ -14,7 +14,6 @@ odb_path = [path] $1
 
 if $empty($odb_path)
   exit "ODB archive path is not specified"
-end
 
 # Extract the top directory name from the ODB archive path.
 #
@@ -28,7 +27,6 @@ odb_name = [dir_path] $regex.match(                                    \
 
 if $null($odb_name)
   exit "unable to extract top directory name from ODB archive path '$odb_path'"
-end
 
 # Discover the URL of the GCC distribution archive (assumed to be named as
 # build2-mingw-X.Y.Z-x86_64-windows.tar.xz). While at it, retrieve the archive
@@ -48,7 +46,6 @@ curl -sS $u                                                   | \
 
 if $empty($mi)
   exit "unable to obtain MinGW GCC distribution info from $u"
-end
 
 mingw_checksum = ($mi[0])
 mingw_url = "$base_url/($mi[1])"
@@ -59,7 +56,6 @@ mingw_file = [path] $regex.match($mingw_url, '.+/([^/]+)', return_subs)
 
 if $null($mingw_file)
   exit "unable to extract archive file name from '$mingw_url'"
-end
 
 $info "fetching $mingw_url"
 
@@ -75,11 +71,9 @@ certutil -hashfile $mingw_file SHA256 | \
 
 if $empty($checksum)
   exit "unable to extract checksum of $mingw_file"
-end
 
 if ($checksum != $mingw_checksum)
   exit "$mingw_file checksum $checksum does not match expected $mingw_checksum"
-end
 
 # Overlay the original ODB archive with the downloaded GCC distribution
 # archive.
@@ -103,7 +97,6 @@ g++ --version                    | \
 
 if $empty($system_gcc_ver)
   exit "unable to extract version of system g++"
-end
 
 # Note that the below $path_search() function calls expect absolute path as a
 # pattern argument.
@@ -116,11 +109,9 @@ $mingw_bin/g++ --version         | \
 
 if $empty($bundled_gcc_ver)
   exit "unable to extract version of bundled g++"
-end
 
 if ($system_gcc_ver != $bundled_gcc_ver)
   exit "version of system g++ '$system_gcc_ver' does not match version of bundled g++ '$bundled_gcc_ver'"
-end
 
 cp $path_search($mingw_bin/libgcc_s_seh-*.dll)  $odb_name/bin/
 cp $path_search($mingw_bin/libstdc++-*.dll)     $odb_name/bin/
