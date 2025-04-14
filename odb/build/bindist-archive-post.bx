@@ -63,14 +63,7 @@ curl -sSf -o $mingw_file $mingw_url
 
 # Verify the checksum of the downloaded GCC distribution archive.
 #
-# Make sure we match a single line in the program's output.
-#
-certutil -hashfile $mingw_file SHA256 | \
-  sed -n -e 's/^([0-9a-fA-F]+)$/\1/p' | \
-  set -n checksum [string]
-
-if $empty($checksum)
-  exit "unable to extract checksum of $mingw_file"
+sha256sum -b --sum-only $mingw_file | set checksum [string]
 
 if ($checksum != $mingw_checksum)
   exit "$mingw_file checksum $checksum does not match expected $mingw_checksum"
