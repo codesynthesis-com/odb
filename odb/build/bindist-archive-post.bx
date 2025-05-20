@@ -12,7 +12,7 @@ info = [cmdline] echo 1>&2
 
 odb_path = [path] $1
 
-if $empty($odb_path)
+ife $odb_path
   exit "ODB archive path is not specified"
 
 # Extract the top directory name from the ODB archive path.
@@ -25,7 +25,7 @@ odb_name = [dir_path] $regex.match(                                    \
   '.+[/\\](odb-[^/\\]+-x86_64-windows[^/\\]+)\.(?:zip|tar\.[^./\\]+)', \
   return_subs)
 
-if $null($odb_name)
+ifn $odb_name
   exit "unable to extract top directory name from ODB archive path '$odb_path'"
 
 # Discover the URL of the GCC distribution archive (assumed to be named as
@@ -44,7 +44,7 @@ curl -sS $u                                                   | \
   sed -n -e 's/^([^ ]+) \*([^ ]+build2-mingw-[^ ]+)$/\1 \2/p' | \
   set -w mi [strings]
 
-if $empty($mi)
+ife $mi
   exit "unable to obtain MinGW GCC distribution info from $u"
 
 mingw_checksum = ($mi[0])
@@ -54,7 +54,7 @@ mingw_url = "$base_url/($mi[1])"
 #
 mingw_file = [path] $regex.match($mingw_url, '.+/([^/]+)', return_subs)
 
-if $null($mingw_file)
+ifn $mingw_file
   exit "unable to extract archive file name from '$mingw_url'"
 
 $info "fetching $mingw_url"
@@ -88,7 +88,7 @@ g++ --version                    | \
   sed -n -e 's/^(g\+\+.+)$/\1/p' | \
   set -n system_gcc_ver [string]
 
-if $empty($system_gcc_ver)
+ife $system_gcc_ver
   exit "unable to extract version of system g++"
 
 # Note that the below $path_search() function calls expect absolute path as a
@@ -100,7 +100,7 @@ $mingw_bin/g++ --version         | \
   sed -n -e 's/^(g\+\+.+)$/\1/p' | \
   set -n bundled_gcc_ver [string]
 
-if $empty($bundled_gcc_ver)
+ife $bundled_gcc_ver
   exit "unable to extract version of bundled g++"
 
 if ($system_gcc_ver != $bundled_gcc_ver)
