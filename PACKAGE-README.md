@@ -59,7 +59,7 @@ Or along these lines if using PostgreSQL and the Boost profile:
 import! [metadata] odb = odb%exe{odb}
 
 import libs  = libodb%lib{odb}
-import libs += libodb-sqlite%lib{odb-sqlite}
+import libs += libodb-pgsql%lib{odb-pgsql}
 import libs += libodb-boost%lib{odb-boost}
 ```
 
