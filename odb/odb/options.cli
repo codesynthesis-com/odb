@@ -127,8 +127,8 @@ class options
   bool --generate-schema-only
   {
     "Generate only the database schema. Note that this option is only valid
-     when generating schema as a standalone SQL file (see \cb{--schema-format}
-     for details)."
+     when generating schema into a separate file (SQL or C++; see
+     \cb{--schema-format} for details)."
   };
 
   bool --suppress-migration
