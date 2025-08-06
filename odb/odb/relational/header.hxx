@@ -489,21 +489,15 @@ namespace relational
           semantics::names* hint;
           semantics::type& t (utype (m, hint));
 
-          if (semantics::type* wt = wrapper (t))
+          semantics::names* whint;
+          if (semantics::type* wt = wrapper (t, whint))
           {
-            // Use the hint from the wrapper unless the wrapped type is
-            // qualified. In this case use the hint for the unqualified
-            // type.
+            // wt sans cv-qualification and c are the same.
             //
-            hint = t.get<semantics::names*> ("wrapper-hint");
-            utype (*wt, hint);
-
-            os << c.fq_name (hint);
+            os << wrapped_fq_name (*wt, whint, t, hint);
           }
           else
-            // t and c are the same.
-            //
-            os << t.fq_name (hint);
+            os << t.fq_name (hint); // t and c are the same.
         }
 
         os << " container_type;";

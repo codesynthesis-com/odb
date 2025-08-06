@@ -958,7 +958,8 @@ namespace
         return false;
       }
 
-      // @@ This points to the primary template, not the specialization.
+      // @@ This points to the primary template, not the specialization. Maybe
+      //    not anymore?
       //
       tree decl (TYPE_NAME (inst));
 
@@ -1025,7 +1026,9 @@ namespace
         //
         // If we can't find any, then try to fallback to the wrapped_type
         // alias inside wrapper_traits. This requires an explicit
-        // wrapper_traits instantiation (see above).
+        // wrapper_traits instantiation by the user (see above). Note that for
+        // this to work the wrapper template id needs to be named before the
+        // instantiation.
         //
         semantics::names* wh (find_hint (unit, decl));
 

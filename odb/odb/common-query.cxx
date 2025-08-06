@@ -650,14 +650,19 @@ bool query_columns::
 traverse_column (semantics::data_member& m, string const& column, bool)
 {
   semantics::names* hint;
-  semantics::type* t (&utype (m, hint));
+  semantics::type& t (utype (m, hint));
 
   // Unwrap it if it is a wrapper.
   //
-  if (semantics::type* wt = wrapper (*t, hint))
-    t = &utype (*wt, hint);
+  string tn;
 
-  column_common (m, t->fq_name (hint), column);
+  semantics::names* whint;
+  if (semantics::type* wt = wrapper (t, whint))
+    tn = wrapped_fq_name (*wt, whint, t, hint);
+  else
+    tn = t.fq_name (hint);
+
+  column_common (m, tn, column);
 
   if (decl_)
   {

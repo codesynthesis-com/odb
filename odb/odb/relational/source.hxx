@@ -2197,7 +2197,7 @@ namespace relational
         // For simple values this is taken care of by the value_traits
         // specializations.
         //
-        if (mi.wrapper != 0 && comp != 0)
+        if (mi.wt != 0 && comp != 0)
         {
           // The wrapper type, not the wrapped type.
           //
@@ -2207,7 +2207,7 @@ namespace relational
           // we need to handle the NULL value.
           //
           if (null (mi.m, key_prefix_) &&
-              mi.wrapper->template get<bool> ("wrapper-null-handler"))
+              mi.wt->template get<bool> ("wrapper-null-handler"))
           {
             os << "if (wrapper_traits< " << wt << " >::get_null (" <<
               member << "))" << endl
@@ -2321,10 +2321,10 @@ namespace relational
             set_null (mi);
         }
 
-        if (mi.wrapper != 0 && comp != 0)
+        if (mi.wt != 0 && comp != 0)
         {
           if (null (mi.m, key_prefix_) &&
-              mi.wrapper->template get<bool> ("wrapper-null-handler"))
+              mi.wt->template get<bool> ("wrapper-null-handler"))
             os << "}";
         }
 
@@ -2666,7 +2666,7 @@ namespace relational
         // simple values this is taken care of by the value_traits
         // specializations.
         //
-        if (mi.wrapper != 0 && comp != 0)
+        if (mi.wt != 0 && comp != 0)
         {
           // The wrapper type, not the wrapped type.
           //
@@ -2676,7 +2676,7 @@ namespace relational
           // we need to handle the NULL value.
           //
           if (null (mi.m, key_prefix_) &&
-              mi.wrapper->template get<bool> ("wrapper-null-handler"))
+              mi.wt->template get<bool> ("wrapper-null-handler"))
           {
             os << "if (composite_value_traits< " << mi.fq_type () <<
               ", id_" << db << " >::get_null (" << endl
@@ -2805,10 +2805,10 @@ namespace relational
 
         // Wrap back (so to speak).
         //
-        if (mi.wrapper != 0 && composite (mi.t) != 0)
+        if (mi.wt != 0 && composite (mi.t) != 0)
         {
           if (null (mi.m, key_prefix_) &&
-              mi.wrapper->template get<bool> ("wrapper-null-handler"))
+              mi.wt->template get<bool> ("wrapper-null-handler"))
             os << "}";
 
           member = wrap_member;

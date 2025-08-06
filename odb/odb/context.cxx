@@ -1104,8 +1104,7 @@ null (data_member_path const& mp) const
 bool context::
 null (semantics::data_member& m) const
 {
-  semantics::names* hint;
-  semantics::type& t (utype (m, hint));
+  semantics::type& t (utype (m));
 
   if (object_pointer (t))
   {
@@ -1154,8 +1153,7 @@ null (semantics::data_member& m) const
           // Otherwise, check the wrapped type.
           //
           pt = t.get<semantics::type*> ("wrapper-type");
-          hint = t.get<semantics::names*> ("wrapper-hint");
-          pt = &utype (*pt, hint);
+          pt = &utype (*pt);
 
           if (pt->count ("null"))
             return true;

@@ -99,9 +99,10 @@ namespace relational
       semantics::class_* ptr;    // Pointed-to object if m is an object
                                  // pointer. In this case t is the id type
                                  // while fq_type_ is the pointer fq-type.
-      semantics::type* wrapper;  // Wrapper type if member is a composite or
+      semantics::type* wt;       // Wrapper type if member is a composite or
                                  // container wrapper, also cvr-unqualified.
                                  // In this case t is the wrapped type.
+      semantics::names* whint;   // Name hint for the wrapper type (wt).
       bool cq;                   // True if the original (wrapper) type
                                  // is const-qualified.
       T const* st;               // Member SQL type (only simple values).
@@ -114,14 +115,13 @@ namespace relational
       {
         semantics::names* hint;
 
-        if (wrapper != 0 && unwrap)
+        if (wt != 0 && unwrap)
         {
           // Use the hint from the wrapper unless the wrapped type
           // is qualified.
           //
-          hint = wrapper->get<semantics::names*> ("wrapper-hint");
-          utype (*context::wrapper (*wrapper), hint);
-          return t.fq_name (hint);
+          semantics::type& t (*context::wrapper (*wt, hint));
+          return wrapped_fq_name (t, hint, *wt, whint);
         }
 
         // Use the original type from 'm' instead of 't' since the hint may
@@ -167,7 +167,8 @@ namespace relational
       member_info (semantics::data_member& m_,
                    semantics::type& t_,
                    const custom_cxx_type* ct_,
-                   semantics::type* wrapper_,
+                   semantics::type* wt_,
+                   semantics::names* whint_,
                    bool cq_,
                    string& var_,
                    string const& fq_type)
@@ -175,7 +176,8 @@ namespace relational
             t (t_),
             ct (ct_),
             ptr (0),
-            wrapper (wrapper_),
+            wt (wt_),
+            whint (whint_),
             cq (cq_),
             st (0),
             var (var_),

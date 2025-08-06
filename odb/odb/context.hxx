@@ -839,6 +839,40 @@ public:
       return 0;
   }
 
+  // Return fq-name of a cv-unqualified wrapped type as returned by the above
+  // wrapper() call.  The first two arguments describe the wrapped type (as
+  // returned by wrapper()) while the second -- the wrapper type (as returned
+  // by utype(), normally).
+  //
+  static std::string
+  wrapped_fq_name (semantics::type& wt,
+                   semantics::names* whint,
+                   semantics::type& t,
+                   semantics::names* hint)
+  {
+    // Use the hint from the wrapper unless the wrapped type is qualified. In
+    // this case use the hint for the unqualified type.
+    //
+    semantics::type& ut (utype (wt, whint));
+
+    auto named = [] (semantics::type& t, semantics::names* h)
+    {
+      // If we have a name hint or it's a named class, then we have a name.
+      //
+      return h != nullptr || (t.is_a<semantics::class_> () &&
+                              !t.is_a<semantics::class_instantiation> ());
+    };
+
+    // If the wrapped type is not named but the wrapper is, go through its
+    // alias.
+    //
+    if (named (ut, whint) || !named (t, hint))
+      return ut.fq_name (whint);
+    else
+      return "::odb::wrapper_traits< " + t.fq_name (hint) + " >::" +
+        (&ut == &wt ? "wrapped_type" : "unrestricted_wrapped_type");
+  }
+
   // Composite value type is a class type that was explicitly marked
   // as value type and there was no database type mapping provided for
   // it by the user (specifying the database type makes the value type
