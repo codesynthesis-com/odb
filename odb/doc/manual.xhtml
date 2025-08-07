@@ -634,7 +634,8 @@ for consistency.
 		<tr><th>14.4.34</th><td><a href="#14.4.34"><code>index_column</code></a></td></tr>
 		<tr><th>14.4.35</th><td><a href="#14.4.35"><code>key_column</code></a></td></tr>
 		<tr><th>14.4.36</th><td><a href="#14.4.36"><code>value_column</code></a></td></tr>
-		<tr><th>14.4.36</th><td><a href="#14.4.37"><code>points_to</code></a></td></tr>
+		<tr><th>14.4.37</th><td><a href="#14.4.37"><code>points_to</code></a></td></tr>
+		<tr><th>14.4.38</th><td><a href="#14.4.38"><code>direct_load</code>/<code>indirect_load</code></a></td></tr>
               </table>
             </td>
           </tr>
@@ -16101,6 +16102,12 @@ using age_weight_map = std::map&lt;unsigned short, float>;
       <td><a href="#14.4.37">14.4.37</a></td>
     </tr>
 
+    <tr>
+      <td><code>direct_load</code>/<code>indirect_load</code></td>
+      <td>control object pointer loading semantics</td>
+      <td><a href="#14.4.38">14.4.38</a></td>
+    </tr>
+
   </table>
 
   <p>Many of the member specifiers have corresponding value type
@@ -17755,6 +17762,75 @@ class person
   std::string employer_;
 };
   </pre>
+
+
+  <h3><a name="14.4.38">14.4.38 <code>direct_load</code>/<code>indirect_load</code></a></h3>
+
+  <p>The <code>direct_load</code> and <code>indirect_load</code> specifiers
+     along with the <code>--indirect-load</code> command line option control
+     the object pointer loading semantics.</p>
+
+  <p>Object pointers can be loaded directly or indirectly. With indirect
+     load, only the pointed-to object id is loaded as part of the initial
+     query (that is, the query that loads the pointing object or one of its
+     containers). Then, if applicable, the session is checked for the object's
+     presence. If not present, the object is then loaded with a separate
+     query.</p>
+
+  <p>With direct load, the pointed-to object is loaded fully as part of the
+     initial query. Then, if applicable, the session is checked for the
+     object's presence and if present, the loaded data is discarded.</p>
+
+  <p>Unless overridden with <code>--indirect-load</code>, the default is to
+     load object pointers directly wherever possible. While this usually
+     results in best performance, there could be cases where indirect load
+     performs better. The pathological example would be a to-many relationship
+     where you expect most of the objects to be in the session cache, the
+     pointed-to object containing a large amount of data (for
+     example, <code>BLOB</code>s), and separate queries being relatively
+     inexpensive (for example, due to using an in-process database system such
+     as SQLite). In this case returning and then discarding most of the data
+     for pointed-to objects as part of the initial query could very well be
+     more expensive than performing a few separate queries to load objects
+     that were not in the session cache.</p>
+
+  <p>For situations like this you can customize the object pointer loading
+     behavior on the per-data member (and, potentially, per-database system)
+     basis. For example:</p>
+
+  <pre class="cxx">
+
+#pragma db object
+class data
+{
+  ...
+
+  #pragma db type("BLOB")
+  std::vector&lt;char> buffer_;
+};
+
+#pragma db object
+class object
+{
+  ...
+
+  #pragma db sqlite:indirect_load
+  std::vector&lt;std::shared_ptr&lt;data>> data_;
+};
+  </pre>
+
+  <p>Note that there is currently no mechanism to make this decision at
+     runtime. However, this functionality may be added in the future.</p>
+
+  <p>Note also that there is a number of cases where the load is always
+     indirect:</p>
+
+  <ul class="list">
+    <li>Lazy pointers.</li>
+    <li>Pointers to polymorphic objects.</li>
+    <li>Relationships established with <code>db points_to</code>.</li>
+  </ul>
+
 
   <h2><a name="14.5">14.5 Namespace Pragmas</a></h2>
 

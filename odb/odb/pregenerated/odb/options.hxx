@@ -826,6 +826,15 @@ class options
   void
   session_type_specified (bool);
 
+  const bool&
+  indirect_load () const;
+
+  bool&
+  indirect_load ();
+
+  void
+  indirect_load (const bool&);
+
   const std::string&
   profile () const;
 
@@ -2162,6 +2171,7 @@ class options
   bool default_pointer_specified_;
   std::string session_type_;
   bool session_type_specified_;
+  bool indirect_load_;
   std::string profile_;
   bool profile_specified_;
   bool at_once_;

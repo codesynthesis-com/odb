@@ -927,6 +927,24 @@ session_type_specified (bool x)
   this->session_type_specified_ = x;
 }
 
+inline const bool& options::
+indirect_load () const
+{
+  return this->indirect_load_;
+}
+
+inline bool& options::
+indirect_load ()
+{
+  return this->indirect_load_;
+}
+
+inline void options::
+indirect_load (const bool& x)
+{
+  this->indirect_load_ = x;
+}
+
 inline const std::string& options::
 profile () const
 {

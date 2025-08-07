@@ -240,6 +240,17 @@ class options
      achieved with the \cb{--hxx-prologue*} options."
   };
 
+  bool --indirect-load
+  {
+    "Load object pointers indirectly, that is, by first loading the object
+     id and then the object as a separate query (checking the session in
+     between, if applicable). The default is to load object pointers directly,
+     that is, by loading the object as part of the initial query. Note that
+     the loading semantics can be further adjusted on the per data member
+     basis with the \cb{db direct_load} and \cb{db indirect_load} pragmas.
+     See these pragmas' documentation for details."
+  }
+
   // The following option is "fake" in that it is actually handled by
   // argv_file_scanner. We have it here to get the documentation.
   //

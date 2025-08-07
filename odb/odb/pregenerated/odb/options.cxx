@@ -807,6 +807,7 @@ options ()
   default_pointer_specified_ (false),
   session_type_ ("odb::session"),
   session_type_specified_ (false),
+  indirect_load_ (),
   profile_ (),
   profile_specified_ (false),
   at_once_ (),
@@ -1020,6 +1021,7 @@ options (int& argc,
   default_pointer_specified_ (false),
   session_type_ ("odb::session"),
   session_type_specified_ (false),
+  indirect_load_ (),
   profile_ (),
   profile_specified_ (false),
   at_once_ (),
@@ -1236,6 +1238,7 @@ options (int start,
   default_pointer_specified_ (false),
   session_type_ ("odb::session"),
   session_type_specified_ (false),
+  indirect_load_ (),
   profile_ (),
   profile_specified_ (false),
   at_once_ (),
@@ -1452,6 +1455,7 @@ options (int& argc,
   default_pointer_specified_ (false),
   session_type_ ("odb::session"),
   session_type_specified_ (false),
+  indirect_load_ (),
   profile_ (),
   profile_specified_ (false),
   at_once_ (),
@@ -1670,6 +1674,7 @@ options (int start,
   default_pointer_specified_ (false),
   session_type_ ("odb::session"),
   session_type_specified_ (false),
+  indirect_load_ (),
   profile_ (),
   profile_specified_ (false),
   at_once_ (),
@@ -1884,6 +1889,7 @@ options (::cli::scanner& s,
   default_pointer_specified_ (false),
   session_type_ ("odb::session"),
   session_type_specified_ (false),
+  indirect_load_ (),
   profile_ (),
   profile_specified_ (false),
   at_once_ (),
@@ -2124,6 +2130,11 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--session-type <type>         Use <type> as the alternative session type" << ::std::endl
      << "                              instead of the default odb::session." << ::std::endl;
+
+  os << "--indirect-load               Load object pointers indirectly, that is, by" << ::std::endl
+     << "                              first loading the object id and then the object" << ::std::endl
+     << "                              as a separate query (checking the session in" << ::std::endl
+     << "                              between, if applicable)." << ::std::endl;
 
   os << "--profile|-p <name>           Specify a profile that should be used during" << ::std::endl
      << "                              compilation." << ::std::endl;
@@ -2663,6 +2674,15 @@ fill (::cli::options& os)
     ::cli::option_names a;
     std::string dv ("odb::session");
     ::cli::option o ("--session-type", a, false, dv);
+    os.push_back (o);
+  }
+
+  // --indirect-load
+  //
+  {
+    ::cli::option_names a;
+    std::string dv;
+    ::cli::option o ("--indirect-load", a, true, dv);
     os.push_back (o);
   }
 
@@ -3579,6 +3599,8 @@ struct _cli_options_map_init
     _cli_options_map_["--session-type"] =
     &::cli::thunk< options, std::string, &options::session_type_,
       &options::session_type_specified_ >;
+    _cli_options_map_["--indirect-load"] =
+    &::cli::thunk< options, &options::indirect_load_ >;
     _cli_options_map_["--profile"] =
     &::cli::thunk< options, std::string, &options::profile_,
       &options::profile_specified_ >;
