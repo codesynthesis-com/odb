@@ -683,6 +683,17 @@ check_spec_decl_type (declaration const& d,
       return false;
     }
   }
+  else if (p == "direct_load" || p == "indirect_load")
+  {
+    // Direct/indirect can only be specified for data members (for now).
+    //
+    if (tc != FIELD_DECL)
+    {
+      error (l) << "name '" << name << "' in db pragma " << p << " does "
+                << "not refer to a data member" << endl;
+      return false;
+    }
+  }
   else if (p == "virtual")
   {
     // Virtual is specified for a member.
@@ -2808,6 +2819,24 @@ handle_pragma (cxx_lexer& l,
 
     tt = l.next (tl, &tn);
   }
+  else if (p == "direct_load" || p == "indirect_load")
+  {
+    // direct_load
+    // indirect_load
+    //
+
+    // Make sure we've got the correct declaration type.
+    //
+    if (decl && !check_spec_decl_type (decl, decl_name, p, loc))
+      return;
+
+    // Reduce to direct-load=true|false.
+    //
+    name = "direct-load";
+    val = (p == "direct_load");
+
+    tt = l.next (tl, &tn);
+  }
   else if (p == "virtual")
   {
     // Stray virtual specifier (i.e., without explicit member name).
@@ -3880,7 +3909,9 @@ handle_pragma_qualifier (cxx_lexer& l, string p)
            p == "added" ||
            p == "deleted" ||
            p == "version" ||
-           p == "virtual")
+           p == "virtual" ||
+           p == "direct_load" ||
+           p == "indirect_load")
   {
     handle_pragma (l, db, p, "member", val, declaration (), "", false);
     return;
@@ -4338,6 +4369,8 @@ register_odb_pragmas (void*, void*)
   // (though this happens anyway if we have multiple specifiers in a single
   // pragma). Once the GCC folks fix this, we can go back to the namespace
   // approach.
+  //
+  // NOTE: the commented-out old code (above and below) is outdated.
   //
   c_register_pragma_with_expansion (0, "db", handle_pragma_db);
 
