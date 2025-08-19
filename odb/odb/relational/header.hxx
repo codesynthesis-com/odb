@@ -221,8 +221,8 @@ namespace relational
     {
       typedef container_traits base;
 
-      container_traits (semantics::class_& c)
-          : object_members_base (true, false, false), c_ (c)
+      container_traits (semantics::class_& c, bool fwd)
+          : object_members_base (true, false, false), c_ (c), fwd_ (fwd)
       {
       }
 
@@ -262,6 +262,18 @@ namespace relational
       {
         using semantics::type;
         using semantics::class_;
+
+        string name (flat_prefix_ + public_name (m) + "_traits");
+
+        if (fwd_)
+        {
+          os << "// " << m.name () << endl
+             << "//" << endl
+             << "struct " << name << ";"
+             << endl;
+
+          return;
+        }
 
         // Figure out if this member is from a base object or composite
         // value and if it's from an object, whether it is reuse-abstract.
@@ -320,8 +332,6 @@ namespace relational
         bool smart (!inverse &&
                     (ck != ck_ordered || ordered) &&
                     container_smart (c));
-
-        string name (flat_prefix_ + public_name (m) + "_traits");
 
         // Figure out column counts.
         //
@@ -416,9 +426,14 @@ namespace relational
           m.set ("data-column-count", data_columns);
         }
 
+        // Note: definition is outside of the object/composite traits.
+        //
         os << "// " << m.name () << endl
            << "//" << endl
-           << "struct " << exp << name;
+           << "struct " << exp << "access::" <<
+          (object (c_) ? "object_traits_impl" : "composite_value_traits") <<
+          "< " << class_fq_name (c_) << ", id_" << db << " >::" << endl
+           << name;
 
         if (base)
         {
@@ -989,6 +1004,7 @@ namespace relational
 
     protected:
       semantics::class_& c_;
+      bool fwd_; // True if only generating forward declarations.
     };
 
     //

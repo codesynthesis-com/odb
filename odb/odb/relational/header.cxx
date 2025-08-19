@@ -167,11 +167,11 @@ traverse_object (type& c)
        << endl;
 
   //
-  // Containers (abstract and concrete).
+  // Containers (abstract and concrete): forward declaration.
   //
-
   {
-    instance<container_traits> t (c);
+    bool fwd (true);
+    instance<container_traits> t (c, fwd);
     t->traverse (c);
   }
 
@@ -809,10 +809,11 @@ traverse_composite (type& c)
   //
   image_type_->traverse (c);
 
-  // Containers.
+  // Containers: forward declaration.
   //
   {
-    instance<container_traits> t (c);
+    bool fwd (true);
+    instance<container_traits> t (c, fwd);
     t->traverse (c);
   }
 
@@ -912,8 +913,23 @@ traverse_composite (type& c)
 //
 
 void relational::header::class2::
-traverse_object (type&)
+traverse_object (type& c)
 {
+  if (has_a (c, test_container))
+  {
+    os << "// " << class_name (c) << endl
+       << "//" << endl
+       << endl;
+
+    //
+    // Containers (abstract and concrete): definition.
+    //
+    {
+      bool fwd (false);
+      instance<container_traits> t (c, fwd);
+      t->traverse (c);
+    }
+  }
 }
 
 void relational::header::class2::
@@ -1099,8 +1115,22 @@ traverse_view (type& c)
 }
 
 void relational::header::class2::
-traverse_composite (type&)
+traverse_composite (type& c)
 {
+  if (has_a (c, test_container))
+  {
+    os << "// " << class_name (c) << endl
+       << "//" << endl
+       << endl;
+
+    // Containers: definition.
+    //
+    {
+      bool fwd (false);
+      instance<container_traits> t (c, fwd);
+      t->traverse (c);
+    }
+  }
 }
 
 void relational::header::
@@ -1138,6 +1168,8 @@ generate ()
     unit.dispatch (ctx.unit);
   }
 
+  //os << "// PASS 2" << endl;
+
   // Pass 2.
   //
   {
@@ -1160,6 +1192,8 @@ generate ()
 
     unit.dispatch (ctx.unit);
   }
+
+  //os << "// PASS 3" << endl;
 
   // Pass 3.
   //
