@@ -114,6 +114,21 @@ namespace relational
       };
       entry<class1> class1_entry_;
 
+      struct class2: relational::class2
+      {
+        class2 (base const& x): base (x) {}
+
+        virtual void
+        view_public_extra_post (type&)
+        {
+          // Statement names.
+          //
+          os << "static const char query_statement_name[];"
+             << endl;
+        }
+      };
+      entry<class2> class2_entry_;
+
       struct container_traits: relational::container_traits, context
       {
         container_traits (base const& x): base (x) {}

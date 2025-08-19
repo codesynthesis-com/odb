@@ -1231,7 +1231,7 @@ namespace relational
     };
 
     // First pass over objects, views, and composites. Some code must be
-    // split into two parts to deal with yet undefined types.
+    // split into several parts to deal with yet undefined types.
     //
     struct class1: traversal::class_, virtual context
     {
@@ -1276,8 +1276,8 @@ namespace relational
 
         switch (ck)
         {
-        case class_object: traverse_object (c); break;
-        case class_view: traverse_view (c); break;
+        case class_object:    traverse_object (c);    break;
+        case class_view:                              break;
         case class_composite: traverse_composite (c); break;
         default: break;
         }
@@ -1291,6 +1291,67 @@ namespace relational
       virtual void
       object_public_extra_post (type&)
       {
+      }
+
+      virtual void
+      traverse_object (type&);
+
+      virtual void
+      traverse_composite (type&);
+
+    private:
+      traversal::defines defines_;
+      typedefs typedefs_;
+
+      instance<image_type> image_type_;
+      instance<image_member> id_image_member_;
+      instance<image_member> version_image_member_;
+      instance<image_member> discriminator_image_member_;
+
+      instance<query_columns_type> query_columns_type_;
+      instance<query_columns_type> pointer_query_columns_type_;
+    };
+
+    // Second pass over objects, views, and composites.
+    //
+    struct class2: traversal::class_, virtual context
+    {
+      typedef class2 base;
+
+      class2 ()
+          : typedefs_ (false)
+      {
+        *this >> defines_ >> *this;
+        *this >> typedefs_ >> *this;
+      }
+
+      class2 (class2 const&)
+          : root_context (), //@@ -Wextra
+            context (),
+            typedefs_ (false)
+      {
+        *this >> defines_ >> *this;
+        *this >> typedefs_ >> *this;
+      }
+
+      virtual void
+      traverse (type& c)
+      {
+        class_kind_type ck (class_kind (c));
+
+        if (ck == class_other ||
+            (!options.at_once () && class_file (c) != unit.file ()))
+          return;
+
+        names (c);
+
+        switch (ck)
+        {
+        case class_object:    traverse_object (c);    break;
+        case class_view:      traverse_view (c);      break;
+        case class_composite: traverse_composite (c); break;
+        default: break;
+        }
       }
 
       virtual void
@@ -1317,21 +1378,15 @@ namespace relational
       typedefs typedefs_;
 
       instance<image_type> image_type_;
-      instance<image_member> id_image_member_;
-      instance<image_member> version_image_member_;
-      instance<image_member> discriminator_image_member_;
-
-      instance<query_columns_type> query_columns_type_;
-      instance<query_columns_type> pointer_query_columns_type_;
     };
 
-    // Second pass over objects, views, and composites.
+    // Third pass over objects, views, and composites.
     //
-    struct class2: traversal::class_, virtual context
+    struct class3: traversal::class_, virtual context
     {
-      typedef class2 base;
+      typedef class3 base;
 
-      class2 ()
+      class3 ()
           : typedefs_ (false),
             query_columns_type_ (false, true, false),
             query_columns_type_inst_ (false, false, true),
@@ -1341,7 +1396,7 @@ namespace relational
         *this >> typedefs_ >> *this;
       }
 
-      class2 (class2 const&)
+      class3 (class3 const&)
           : root_context (), //@@ -Wextra
             context (),
             typedefs_ (false),
