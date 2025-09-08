@@ -3141,7 +3141,7 @@ namespace
 {
   struct has_a_impl: object_members_base
   {
-    has_a_impl (unsigned short flags, object_section* s)
+    has_a_impl (std::uint32_t flags, object_section* s)
         : object_members_base ((flags & context::include_base) != 0, s),
           r_ (0),
           flags_ (flags)
@@ -3215,12 +3215,14 @@ namespace
 
       // We don't cross the container boundaries (separate table).
       //
-      unsigned short f (flags_ & (context::test_container |
-                                  context::test_straight_container |
-                                  context::test_inverse_container |
-                                  context::test_readonly_container |
-                                  context::test_readwrite_container |
-                                  context::test_smart_container));
+      std::uint32_t f (flags_ & (context::test_container |
+                                 context::test_straight_container |
+                                 context::test_inverse_container |
+                                 context::test_readonly_container |
+                                 context::test_readwrite_container |
+                                 context::test_smart_container));
+
+      // @@ We now allow pointers in keys!
 
       if (context::is_a (member_path_,
                          member_scope_,
@@ -3270,14 +3272,14 @@ namespace
 
   private:
     size_t r_;
-    unsigned short flags_;
+    std::uint32_t flags_;
   };
 }
 
 bool context::
 is_a (data_member_path const& mp,
       data_member_scope const& ms,
-      unsigned short f,
+      std::uint32_t f,
       semantics::type& t,
       string const& kp)
 {
@@ -3293,6 +3295,9 @@ is_a (data_member_path const& mp,
 
   if (f & test_lazy_pointer)
     r = r || (object_pointer (t) && lazy_pointer (t));
+
+  if (f & test_direct_load_pointer)
+    r = r || (object_pointer (t) && direct_load_pointer (m));
 
   semantics::type* c;
   if ((f & (test_container |
@@ -3326,7 +3331,7 @@ is_a (data_member_path const& mp,
 }
 
 size_t context::
-has_a (semantics::class_& c, unsigned short flags, object_section* s)
+has_a (semantics::class_& c, std::uint32_t flags, object_section* s)
 {
   has_a_impl impl (flags, s);
   impl.dispatch (c);
