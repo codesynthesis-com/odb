@@ -15,6 +15,7 @@
 #include <memory>  // std::unique_ptr
 #include <ostream>
 #include <cstddef> // std::size_t
+#include <cstdint> // std::uint*_t
 #include <iostream>
 
 #include <libcutl/re.hxx>
@@ -1610,6 +1611,15 @@ public:
     return m.count (k) ? &m.get<data_member_path> (k) : 0;
   }
 
+  // Note: member must be an object pointer. Does not cover containers of
+  // object pointers.
+  //
+  static bool
+  direct_load_pointer (semantics::data_member& m)
+  {
+    return m.get<bool> ("direct-load");
+  }
+
   // Container information.
   //
 public:
@@ -1667,41 +1677,43 @@ public:
   // cross the container boundaries.
   //
 public:
-  static unsigned short const test_pointer = 0x01;
-  static unsigned short const test_eager_pointer = 0x02;
-  static unsigned short const test_lazy_pointer = 0x04;
-  static unsigned short const test_container = 0x08;
-  static unsigned short const test_straight_container = 0x10;
-  static unsigned short const test_inverse_container = 0x20;
-  static unsigned short const test_readonly_container = 0x40;
-  static unsigned short const test_readwrite_container = 0x80;
-  static unsigned short const test_smart_container = 0x100;
+  static std::uint32_t const test_pointer             = 0x01;
+  static std::uint32_t const test_eager_pointer       = 0x02;
+  static std::uint32_t const test_lazy_pointer        = 0x04;
+  static std::uint32_t const test_direct_load_pointer = 0x08;
+
+  static std::uint32_t const test_container           = 0x010;
+  static std::uint32_t const test_straight_container  = 0x020;
+  static std::uint32_t const test_inverse_container   = 0x040;
+  static std::uint32_t const test_readonly_container  = 0x080;
+  static std::uint32_t const test_readwrite_container = 0x100;
+  static std::uint32_t const test_smart_container     = 0x200;
 
   // Exclude versioned containers.
   //
-  static unsigned short const exclude_versioned = 0x200;
+  static std::uint32_t const exclude_versioned = 0x1000;
 
   // Treat eager loaded members as belonging to the main section.
   // If this flag is specified, then section must be main_section.
   //
-  static unsigned short const include_eager_load = 0x800;
+  static std::uint32_t const include_eager_load = 0x2000;
 
   // Exclude added/deleted members.
   //
-  static unsigned short const exclude_added   = 0x1000;
-  static unsigned short const exclude_deleted = 0x2000;
+  static std::uint32_t const exclude_added   = 0x10000;
+  static std::uint32_t const exclude_deleted = 0x20000;
 
   // By default the test goes into bases for non-polymorphic
   // hierarchies and doesn't go for polymorphic. The following
   // flags can be used to alter this behavior.
   //
-  static unsigned short const exclude_base = 0x4000;
-  static unsigned short const include_base = 0x8000;
+  static std::uint32_t const exclude_base = 0x40000;
+  static std::uint32_t const include_base = 0x80000;
 
   bool
   is_a (data_member_path const& mp,
         data_member_scope const& ms,
-        unsigned short flags)
+        std::uint32_t flags)
   {
     return is_a (mp, ms, flags, utype (*mp.back ()), "");
   }
@@ -1709,15 +1721,19 @@ public:
   bool
   is_a (data_member_path const&,
         data_member_scope const&,
-        unsigned short flags,
+        std::uint32_t flags,
         semantics::type&,
         string const& key_prefix);
 
   // Return the number of matching entities. Can be used as a just
   // a bool value (0 means no match).
   //
+  // If section is not NULL then only consider member from the specified
+  // section (but see also include_eager_load). Otherwise, consider members
+  // from all sections.
+  //
   size_t
-  has_a (semantics::class_&, unsigned short flags, object_section* = 0);
+  has_a (semantics::class_&, std::uint32_t flags, object_section* = 0);
 
 public:
   // Process include path by adding the prefix, putting it through
