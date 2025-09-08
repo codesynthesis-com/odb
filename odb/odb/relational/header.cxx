@@ -787,6 +787,11 @@ traverse_composite (type& c)
 
   string const& type (class_fq_name (c));
 
+  /*
+  bool dload (has_a (c, test_direct_load_pointer));
+  cerr << type << " has dlp: " << dload << endl;
+  */
+
   os << "// " << class_name (c) << endl
      << "//" << endl;
 

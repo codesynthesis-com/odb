@@ -67,13 +67,18 @@ namespace relational
       virtual void
       traverse_pointer (member_info& mi)
       {
-        // Object pointers in views require special treatment.
+        // Directly-loaded object pointers require special treatment.
         //
         if (view_member (mi.m))
+        //if (direct_load_pointer (mi.m)) @@ TMP
         {
           using semantics::class_;
 
           class_& c (*mi.ptr);
+
+          // Note: currently direct loading of polymorphic objects is only
+          // supported in views (see processor::process_object_pointer()).
+          //
           class_* poly_root (polymorphic (c));
           bool poly_derived (poly_root != 0 && poly_root != &c);
 
