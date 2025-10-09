@@ -17263,6 +17263,20 @@ p.employer_ = &amp;e;
      object pointer data members. If the <code>set_null</code> semantics
      is used, then the pointer must allow the <code>NULL</code> value.</p>
 
+  <p>Finally, note that <code>on_delete</code> with the <code>cascade</code>
+     semantics is of limited use in polymorphic objects
+     (<a href="#8.2">Section 8.2, "Polymorphism Inheritance"</a>).
+     Specifically, if an object pointer data member
+     with <code>on_delete(cascade)</code> resides in the ultimate base class,
+     then the entire object hierarchy will always be cleaned up. But if it
+     resides in one of the derived classes, then rows residing in tables
+     corresponding to base or further derived classes will not be
+     automatically cleaned up if the object is deleted via
+     the <code>cascade</code> mechanism. One potential workaround for this
+     limitation is to use <code>set_null</code> instead and handle such
+     "NULL'ed" objects in the application, for example, by detecting and
+     ignoring and/or cleaning them up.</p>
+
   <h3><a name="14.4.16">14.4.16 <code>version</code></a></h3>
 
   <p>The <code>version</code> specifier specifies that the data member stores
