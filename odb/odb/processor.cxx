@@ -1194,6 +1194,8 @@ namespace
                             semantics::type& t,
                             string const& kp = string ())
     {
+      // NOTE: see process_points_to() below for the points_to case.
+
       using semantics::class_;
       using semantics::data_member;
 
@@ -1513,7 +1515,7 @@ namespace
 
           if (lazy || poly)
             ;
-          else if (options.indirect_load ()) // @@ TMP
+          else if (options.warn_unspecified_load ())
           {
             const location& l (m.location ());
 

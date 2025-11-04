@@ -217,14 +217,6 @@ implementation to be use by the persistent classes\. Note that you will also
 need to include the definition of the custom session type into the generated
 header file\. This is normally achieved with the \fB--hxx-prologue*\fR
 options\.
-.IP "\fB--indirect-load\fR"
-Load object pointers indirectly, that is, by first loading the object id and
-then the object as a separate query (checking the session in between, if
-applicable)\. The default is to load object pointers directly, that is, by
-loading the object as part of the initial query\. Note that the loading
-semantics can be further adjusted on the per data member basis with the \fBdb
-direct_load\fR and \fBdb indirect_load\fR pragmas\. See these pragmas'
-documentation for details\.
 .IP "\fB--profile\fR|\fB-p\fR \fIname\fR"
 Specify a profile that should be used during compilation\. A profile is an
 options file\. The ODB compiler first looks for a database-specific version
@@ -277,6 +269,10 @@ Warn about hard-deleted data members and persistent classes\.
 .IP "\fB--warn-hard\fR"
 Warn about both hard-added and hard-deleted data members and persistent
 classes\.
+.IP "\fB--warn-unspecified-load\fR"
+Warn about object pointers that are not explicitly annotated with either the
+\fBdb direct_load\fR or \fBdb indirect_load\fR pragma\. See these pragmas'
+documentation for details\.
 .IP "\fB--output-dir\fR|\fB-o\fR \fIdir\fR"
 Write the generated files to \fIdir\fR instead of the current directory\.
 .IP "\fB--input-name\fR \fIname\fR"
