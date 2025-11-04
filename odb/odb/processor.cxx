@@ -1514,6 +1514,12 @@ namespace
 
           if (lazy || poly)
             ;
+          else if (in_obj)
+          {
+            // @@ N+1: Don't warn about something we don't yet support. Note
+            //         that will still warn about composites since don't know
+            //         how will be used.
+          }
           else if (options.warn_unspecified_load ())
           {
             const location& l (m.location ());
