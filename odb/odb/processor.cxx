@@ -1414,7 +1414,6 @@ namespace
       class_kind_type kind (class_kind (scope));
       assert (kind != class_kind_type::class_other);
 
-#if 1
       // @@ N+1: for now we don't support direct loading of member object
       // pointers (which would be loaded as part of the object itself).
       // See also the check in data_member::traverse() above for object
@@ -1547,61 +1546,6 @@ namespace
 
         m.set ("direct-load", r);
       }
-
-#else
-      // @@ N+1: for now we don't support direct loading of member object
-      // pointers that would have to be loaded as part of the object itself.
-      //
-      // Note that a composite value type with member object pointers have to
-      // support dual interface since we don't know in which context (object
-      // member or container or both) it will be used.
-      //
-      bool in_obj (kind == class_kind_type::class_object && kp.empty ());
-
-      if (m.count ("direct-load"))
-      {
-        bool v (m.get<bool> ("direct-load"));
-        location_t l (m.get<location_t> ("direct-load-location"));
-
-        // An object pointer in view is always loaded directly.
-        //
-        if (kind == class_kind_type::class_view)
-        {
-          error (l) << "'#pragma db " << (v ? "direct_load" : "indirect_load")
-                    << "' specified for object pointer in view" << endl;
-          throw operation_failed ();
-        }
-
-        if ((in_obj || lazy || poly) && v)
-        {
-          if (in_obj)
-            error (l) << "'#pragma db direct_load' is not yet supported for "
-                      << "member object pointers, only for containers of "
-                      << "object pointers" << endl;
-
-          if (lazy)
-            error (l) << "'#pragma db direct_load' specified for lazy object "
-                      << "pointer" << endl;
-
-          if (poly)
-            error (l) << "'#pragma db direct_load' specified for pointer to "
-                      << "polymorphic object" << endl;
-
-          throw operation_failed ();
-        }
-      }
-      else
-      {
-        // Mark a pointer in a view as direct_load so we can handle things
-        // uniformly where possible.
-        //
-        m.set ("direct-load",
-               kind == class_kind_type::class_view ||
-               (!in_obj && !lazy && !poly && /*!*/options.indirect_load ())); // @@ TMP
-      }
-#endif
-
-      //info (m.location ()) << "direct " << m.get<bool> ("direct-load") << endl;
 
       return c;
     }
