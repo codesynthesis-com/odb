@@ -263,16 +263,6 @@
     custom session type into the generated header file. This is normally
     achieved with the <code><b>--hxx-prologue*</b></code> options.</dd>
 
-    <dt><code><b>--indirect-load</b></code></dt>
-    <dd>Load object pointers indirectly, that is, by first loading the object
-    id and then the object as a separate query (checking the session in
-    between, if applicable). The default is to load object pointers directly,
-    that is, by loading the object as part of the initial query. Note that the
-    loading semantics can be further adjusted on the per data member basis
-    with the <code><b>db direct_load</b></code> and <code><b>db
-    indirect_load</b></code> pragmas. See these pragmas' documentation for
-    details.</dd>
-
     <dt><code><b>--profile</b></code>|<code><b>-p</b></code> <code><i>name</i></code></dt>
     <dd>Specify a profile that should be used during compilation. A profile is
     an options file. The ODB compiler first looks for a database-specific
@@ -340,6 +330,12 @@
     <dt><code><b>--warn-hard</b></code></dt>
     <dd>Warn about both hard-added and hard-deleted data members and
     persistent classes.</dd>
+
+    <dt><code><b>--warn-unspecified-load</b></code></dt>
+    <dd>Warn about object pointers that are not explicitly annotated with
+    either the <code><b>db direct_load</b></code> or <code><b>db
+    indirect_load</b></code> pragma. See these pragmas' documentation for
+    details.</dd>
 
     <dt><code><b>--output-dir</b></code>|<code><b>-o</b></code> <code><i>dir</i></code></dt>
     <dd>Write the generated files to <code><i>dir</i></code> instead of the

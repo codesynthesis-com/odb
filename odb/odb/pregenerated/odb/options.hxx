@@ -826,15 +826,6 @@ class options
   void
   session_type_specified (bool);
 
-  const bool&
-  indirect_load () const;
-
-  bool&
-  indirect_load ();
-
-  void
-  indirect_load (const bool&);
-
   const std::string&
   profile () const;
 
@@ -945,6 +936,15 @@ class options
 
   void
   warn_hard (const bool&);
+
+  const bool&
+  warn_unspecified_load () const;
+
+  bool&
+  warn_unspecified_load ();
+
+  void
+  warn_unspecified_load (const bool&);
 
   const std::string&
   output_dir () const;
@@ -2171,7 +2171,6 @@ class options
   bool default_pointer_specified_;
   std::string session_type_;
   bool session_type_specified_;
-  bool indirect_load_;
   std::string profile_;
   bool profile_specified_;
   bool at_once_;
@@ -2186,6 +2185,7 @@ class options
   bool warn_hard_add_;
   bool warn_hard_delete_;
   bool warn_hard_;
+  bool warn_unspecified_load_;
   std::string output_dir_;
   bool output_dir_specified_;
   std::string input_name_;
