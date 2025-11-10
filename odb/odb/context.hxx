@@ -1615,13 +1615,14 @@ public:
     return m.count (k) ? &m.get<data_member_path> (k) : 0;
   }
 
-  // Note: member must be an object pointer. Does not cover containers of
-  // object pointers.
+  // Note: member must be an object pointer.
   //
   static bool
-  direct_load_pointer (semantics::data_member& m)
+  direct_load_pointer (semantics::data_member& m,
+                       string const& key_prefix = string ())
   {
-    return m.get<bool> ("direct-load");
+    return m.get<bool> (key_prefix + (key_prefix.empty () ? "" : "-") +
+                        "direct-load");
   }
 
   // Container information.
@@ -1722,6 +1723,8 @@ public:
     return is_a (mp, ms, flags, utype (*mp.back ()), "");
   }
 
+  // Note: the key_prefix only applies to *_container tests.
+  //
   bool
   is_a (data_member_path const&,
         data_member_scope const&,

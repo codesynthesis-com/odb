@@ -1498,6 +1498,19 @@ namespace
             throw operation_failed ();
           }
         }
+
+        // @@ N+1: Later we may add key_direct_load, value_direct_load, etc.
+        //         For now, we treat direct_load to mean both (and the
+        //         workaround if one only needs key or value would be to wrap
+        //         it in a composite value type).
+        //
+        if (!kp.empty ())
+        {
+          // Note: do not remove "direct-load" since we may need it for
+          // another key prefix.
+          //
+          m.set (kp + "-direct-load", v);
+        }
       }
       else
       {
@@ -1550,7 +1563,7 @@ namespace
           }
         }
 
-        m.set ("direct-load", r);
+        m.set (kp + (kp.empty () ? "": "-") + "direct-load", r);
       }
 
       return c;
