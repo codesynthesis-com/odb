@@ -35,15 +35,44 @@ namespace odb
       data_id_binding_version_ = 0;
     }
 
-    // smart_container_statements
+    // direct_container_statements
     //
     template <typename T>
-    smart_container_statements<T>::
+    direct_container_statements<T>::
+    direct_container_statements (connection_type& conn,
+                                 binding& id,
+                                 native_binding& idn,
+                                 const Oid* idt)
+        : conn_ (conn),
+          id_binding_ (id),
+          id_native_binding_ (idn),
+          id_types_ (idt),
+          functions_ (this),
+          insert_image_binding_ (0, 0),              // Initialized by impl.
+          insert_image_native_binding_ (0, 0, 0, 0), // Initialized by impl.
+          select_image_binding_ (0, 0),              // Initialized by impl.
+          svm_ (0)
+    {
+      functions_.insert_ = &traits::insert;
+      functions_.select_ = &traits::select;
+      functions_.delete__ = &traits::delete_;
+
+      data_image_.version = 0;
+      data_image_version_ = 0;
+      data_id_binding_version_ = 0;
+
+      select_image_version_ = 0;
+    }
+
+    // smart_container_statements
+    //
+    template <typename T, template <typename> class B>
+    smart_container_statements<T, B>::
     smart_container_statements (connection_type& conn,
                                 binding& id,
                                 native_binding& idn,
                                 const Oid* idt)
-        : container_statements<T> (conn, id, idn, idt),
+        : B<T> (conn, id, idn, idt),
           cond_image_binding_ (0, 0),                 // Initialized by impl.
           cond_image_native_binding_ (0, 0, 0, 0),    // Initialized by impl.
           update_image_binding_ (0, 0),               // Initialized by impl.
@@ -110,15 +139,61 @@ namespace odb
       this->versioned_ = traits::versioned;
     }
 
-    // smart_container_statements_impl
+    // direct_container_statements_impl
     //
     template <typename T>
-    smart_container_statements_impl<T>::
+    direct_container_statements_impl<T>::
+    direct_container_statements_impl (connection_type& conn,
+                                      binding& id,
+                                      native_binding& idn,
+                                      const Oid* idt)
+        : base (conn, id, idn, idt)
+    {
+      this->select_image_truncated_ = select_image_truncated_array_;
+
+      this->insert_image_binding_.bind = data_image_bind_;
+      this->insert_image_binding_.count = traits::data_column_count;
+
+      this->select_image_binding_.bind = select_image_bind_;
+      this->select_image_binding_.count = traits::select_column_count;
+
+      this->insert_image_native_binding_.values = data_image_values_;
+      this->insert_image_native_binding_.lengths = data_image_lengths_;
+      this->insert_image_native_binding_.formats = data_image_formats_;
+      this->insert_image_native_binding_.count = traits::data_column_count;
+
+      std::memset (data_image_bind_, 0, sizeof (data_image_bind_));
+      std::memset (select_image_bind_, 0, sizeof (select_image_bind_));
+      std::memset (select_image_truncated_array_,
+                   0,
+                   sizeof (select_image_truncated_array_));
+
+      for (std::size_t i (0); i < traits::select_column_count; ++i)
+        select_image_bind_[i].truncated = select_image_truncated_array_ + i;
+
+      this->insert_name_ = traits::insert_name;
+      this->insert_text_ = traits::insert_statement;
+      this->insert_types_ = traits::insert_types;
+      this->insert_count_ = traits::data_column_count;
+
+      this->select_name_ = traits::select_name;
+      this->select_text_ = traits::select_statement;
+
+      this->delete_name_ = traits::delete_name;
+      this->delete_text_ = traits::delete_statement;
+
+      this->versioned_ = traits::versioned;
+    }
+
+    // smart_container_statements_impl
+    //
+    template <typename T, template <typename> class B>
+    smart_container_statements_impl<T, B>::
     smart_container_statements_impl (connection_type& conn,
                                      binding& id,
                                      native_binding& idn,
                                      const Oid* idt)
-        : container_statements_impl<T> (conn, id, idn, idt)
+        : B<T> (conn, id, idn, idt)
     {
       this->cond_image_binding_.bind = cond_image_bind_;
       this->cond_image_binding_.count = traits::cond_column_count;

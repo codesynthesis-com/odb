@@ -4387,8 +4387,6 @@ namespace relational
               break;
             }
           }
-
-          os << endl;
         }
 
         // init (data)
@@ -4714,12 +4712,12 @@ namespace relational
         //
         if (eager_ptr)
         {
-          os << "if (sts.data_binding_test_version ())"
+          os << "if (sts.select_binding_test_version ())"
              << "{"
              << "const binding& id (sts.id_binding ());"
-             << "bind (sts.data_bind (), id.bind, id.count, di" <<
+             << "bind (sts.select_bind (), id.bind, id.count, di" <<
             (versioned ? ", svm" : "") << ");"
-             << "sts.data_binding_update_version ();"
+             << "sts.select_binding_update_version ();"
              << "}";
         }
 
@@ -4735,13 +4733,13 @@ namespace relational
              << "grow (di, sts.select_image_truncated ()" <<
             (versioned ? ", svm" : "") << ");"
              << endl
-             << "if (sts.data_binding_test_version ())"
+             << "if (sts.select_binding_test_version ())"
              << "{"
             // Id cannot change.
             //
-             << "bind (sts.data_bind (), 0, sts.id_binding ().count, di" <<
+             << "bind (sts.select_bind (), 0, sts.id_binding ().count, di" <<
             (versioned ? ", svm" : "") << ");"
-             << "sts.data_binding_update_version ();"
+             << "sts.select_binding_update_version ();"
              << "st.refetch ();"
              << "}"
              << "}";
@@ -4866,13 +4864,14 @@ namespace relational
            << "using namespace " << db << ";"
            << "using " << db << "::select_statement;" // Conflicts.
            << endl
+           << "data_image_type& di (sts.data_image ());"
            << "const binding& id (sts.id_binding ());"
            << endl
-           << "if (sts.data_binding_test_version ())"
+           << "if (sts.select_binding_test_version ())"
            << "{"
-           << "bind (sts.data_bind (), id.bind, id.count, sts.data_image ()" <<
+           << "bind (sts.select_bind (), id.bind, id.count, di" <<
           (versioned ? ", svm" : "") << ");"
-           << "sts.data_binding_update_version ();"
+           << "sts.select_binding_update_version ();"
            << "}"
           // We use the id binding directly so no need to check cond binding.
           //
@@ -4892,17 +4891,16 @@ namespace relational
           os << endl
              << "if (r == select_statement::truncated)"
              << "{"
-             << "data_image_type& di (sts.data_image ());"
              << "grow (di, sts.select_image_truncated ()" <<
             (versioned ? ", svm" : "") << ");"
              << endl
-             << "if (sts.data_binding_test_version ())"
+             << "if (sts.select_binding_test_version ())"
              << "{"
             // Id cannot change.
             //
-             << "bind (sts.data_bind (), 0, id.count, di" <<
+             << "bind (sts.select_bind (), 0, id.count, di" <<
             (versioned ? ", svm" : "") << ");"
-             << "sts.data_binding_update_version ();"
+             << "sts.select_binding_update_version ();"
              << "st.refetch ();"
              << "}"
              << "}";
@@ -4997,9 +4995,19 @@ namespace relational
 
         string traits (flat_prefix_ + public_name (m) + "_traits");
 
-        os << db << "::" << (smart ? "smart_" : "") <<
-          "container_statements_impl< " << traits << " > " <<
-          flat_prefix_ << m.name () << ";";
+        string csi ("container_statements_impl"); // @@ N+1: direct/indirect
+
+        if (smart)
+        {
+          os << db << "::smart_container_statements_impl<" << endl
+             << traits << "," << endl
+             << db << "::" << csi << "> " << flat_prefix_ << m.name () << ";";
+        }
+        else
+        {
+          os << db << "::" << csi << "< " << traits << " > " <<
+            flat_prefix_ << m.name () << ";";
+        }
       }
     };
 

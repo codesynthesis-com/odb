@@ -69,8 +69,7 @@ namespace relational
       {
         // Directly-loaded object pointers require special treatment.
         //
-        if (view_member (mi.m))
-        //if (direct_load_pointer (mi.m)) @@ TMP
+        if (direct_load_pointer (mi.m))
         {
           using semantics::class_;
 
@@ -83,6 +82,9 @@ namespace relational
           bool poly_derived (poly_root != 0 && poly_root != &c);
 
           if (poly_derived)
+          {
+            assert (view_member (mi.m));
+
             // Use a helper to create a complete chain of images all
             // the way to the root (see libodb/odb/view-image.hxx).
             //
@@ -90,6 +92,7 @@ namespace relational
                << "  " << class_fq_name (c) << "," << endl
                << "  " << class_fq_name (*poly_root) << "," << endl
                << "  id_" << db << " >";
+          }
           else
             os << "object_traits_impl< " << class_fq_name (c) << ", " <<
               "id_" << db << " >::image_type";
@@ -573,9 +576,25 @@ namespace relational
           }
         }
 
-        os << "typedef " << db << "::" << (smart ? "smart_" : "")
-           << "container_statements< " << name << " > statements_type;"
-           << endl;
+        {
+          string cs ("container_statements"); // @@ N+1: direct/indirect
+
+          if (smart)
+          {
+            os << "typedef" << endl
+               << db << "::smart_container_statements<" << endl
+               << name << "," << endl
+               << db << "::" << cs << ">" << endl
+               << "statements_type;"
+               << endl;
+          }
+          else
+          {
+            os << "typedef " << db << "::" << cs << "< " << name <<
+              " > statements_type;"
+               << endl;
+          }
+        }
 
         // cond_image_type (object id is taken from the object image).
         //
