@@ -69,7 +69,7 @@ namespace relational
       {
         // Directly-loaded object pointers require special treatment.
         //
-        if (direct_load_pointer (mi.m))
+        if (direct_load_pointer (mi.m, key_prefix_))
         {
           using semantics::class_;
 
