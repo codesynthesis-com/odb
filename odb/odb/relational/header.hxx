@@ -341,6 +341,24 @@ namespace relational
                     (ck != ck_ordered || ordered) &&
                     container_smart (c));
 
+        auto test_direct_load = [this, &m] (type& t, const string& kp) -> bool
+        {
+          if (object_pointer (t) && direct_load_pointer (m, kp))
+            return true;
+
+          if (semantics::class_* ct = composite_wrapper (t))
+            return has_a (*ct, test_direct_load_pointer);
+
+          return false;
+        };
+
+        bool direct_load (test_direct_load (vt, "value") ||
+                          (kt != nullptr && test_direct_load (*kt, "key")));
+
+        // Store for the source generator.
+        //
+        m.set ("direct-load-container", direct_load);
+
         // Figure out column counts.
         //
         size_t id_columns, value_columns, data_columns, cond_columns;
@@ -577,7 +595,9 @@ namespace relational
         }
 
         {
-          string cs ("container_statements"); // @@ N+1: direct/indirect
+          const char* cs (direct_load
+                          ? "direct_container_statements"
+                          : "container_statements");
 
           if (smart)
           {
@@ -602,6 +622,9 @@ namespace relational
         //
         if (smart)
         {
+          // @@ N+1: Would need to override direct and force indirect (we
+          //         currently only support ordered smart containers).
+
           os << "struct cond_image_type"
              << "{";
 

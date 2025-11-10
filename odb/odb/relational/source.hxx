@@ -4993,9 +4993,15 @@ namespace relational
                     !unordered (m) &&
                     container_smart (c));
 
+        // Saved by the header generator.
+        //
+        bool direct_load (m.get<bool> ("direct-load-container"));
+
         string traits (flat_prefix_ + public_name (m) + "_traits");
 
-        string csi ("container_statements_impl"); // @@ N+1: direct/indirect
+        const char* csi (direct_load
+                         ? "direct_container_statements_impl"
+                         : "container_statements_impl");
 
         if (smart)
         {
