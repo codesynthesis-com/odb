@@ -1527,7 +1527,7 @@ namespace relational
 
           // See column_count_impl for details on what's going on here.
           //
-          bool select (false); // Select is handled.
+          bool select (false); // Select is handled specially.
           if (mi.ptr != 0 && direct_load_pointer (mi.m, key_prefix_))
           {
             bool viewm (view_member (mi.m));
@@ -1650,21 +1650,44 @@ namespace relational
       virtual void
       traverse_pointer (member_info& mi)
       {
-        // Object pointers in views require special treatment.
-        //
-        if (view_member (mi.m))
+        bool select (false); // Select is handled specially.
+
+        if (direct_load_pointer (mi.m, key_prefix_))
         {
+          bool viewm (view_member (mi.m));
+
           semantics::class_& c (*mi.ptr);
           semantics::class_* poly_root (polymorphic (c));
           bool poly_derived (poly_root != 0 && poly_root != &c);
+
+          // Only views support direct loading of polymorphic objects.
+          //
+          assert (poly_root == nullptr || viewm);
+
+          if (!viewm)
+            os << "if (sk == statement_select)"
+               << "{";
 
           os << "object_traits_impl< " << class_fq_name (c) << ", id_" <<
             db << " >::bind (" << endl
              << "b + n, " << (poly_derived ? "0, 0, " : "") << arg << "." <<
             mi.var << "value, sk" << (versioned (c) ? ", svm" : "") << ");";
+
+          if (viewm)
+            return; // No insert/update in views.
+
+          os << "}";
+          select = true;
         }
-        else
-          member_base_impl<T>::traverse_pointer (mi);
+
+        if (select)
+          os << "else"
+             << "{";
+
+        member_base_impl<T>::traverse_pointer (mi);
+
+        if (select)
+          os << "}";
       }
 
       virtual void
@@ -1956,11 +1979,11 @@ namespace relational
       virtual void
       traverse_pointer (member_info& mi)
       {
-        // Object pointers in views require special treatment. They
-        // can only be immediate members of the view class.
-        //
-        if (view_member (mi.m))
+        if (direct_load_pointer (mi.m, key_prefix_))
         {
+          // Note: object pointers in views can only be immediate members of
+          // the view class.
+          //
           semantics::class_& c (*mi.ptr);
 
           os << "if (object_traits_impl< " << class_fq_name (c) <<
@@ -2650,7 +2673,7 @@ namespace relational
 
           os << "{";
 
-          if (mi.ptr != 0 && view_member (mi.m))
+          if (mi.ptr != 0 && view_member (mi.m)) // @@@ N+1: fuzzy (and below)
             return true; // That's enough for the object pointer in view.
 
           // Set the member using the modifier expression.
@@ -2807,7 +2830,7 @@ namespace relational
       {
         if (mi.ptr != 0)
         {
-          if (view_member (mi.m))
+          if (view_member (mi.m)) // @@@ N+1: fuzzy (and above).
           {
             // The object pointer in view doesn't need any of this.
             os << "}";
@@ -2908,7 +2931,7 @@ namespace relational
       {
         // Object pointers in views require special treatment.
         //
-        if (view_member (mi.m))
+        if (view_member (mi.m)) // @@@ N+1: fuzzy (and pre/post above).
         {
           // This is the middle part. The pre and post parts are generated
           // by init_view_pointer_member below.

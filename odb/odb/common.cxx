@@ -17,7 +17,12 @@ traverse_simple (semantics::data_member&)
 void object_members_base::
 traverse_pointer (semantics::data_member& m, semantics::class_& c)
 {
-  if (!view_member (m)) // Not really "as if" pointed-to id member.
+  // Not really "as if" pointed-to id member.
+  //
+  // Note: the check is not for a direct load pointer, which is not "as if"
+  // only for select.
+  //
+  if (!view_member (m))
     traverse_member (m, utype (*id_member (c)));
 }
 
@@ -244,7 +249,12 @@ traverse_column (semantics::data_member&, string const&, bool)
 void object_columns_base::
 traverse_pointer (semantics::data_member& m, semantics::class_& c)
 {
-  if (!view_member (m)) // Not really "as if" pointed-to id column.
+  // Not really "as if" pointed-to id column.
+  //
+  // Note: the check is not for a direct load pointer, which is not "as if"
+  // only for select.
+  //
+  if (!view_member (m))
     traverse_member (m, utype (*id_member (c)));
 }
 
