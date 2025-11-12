@@ -2993,24 +2993,33 @@ namespace
 {
   struct column_count_impl: object_members_base
   {
-    column_count_impl (object_section* section = 0)
-        : object_members_base (false, section)
+    explicit
+    column_count_impl (bool select, object_section* section = 0)
+        : object_members_base (false, section),
+          select_ (select)
     {
     }
 
     virtual void
     traverse_pointer (semantics::data_member& m, semantics::class_& c)
     {
-      // Object pointers in views require special treatment.
+      size_t t (c_.total);
+
+      // Directly-loaded object pointers require special treatment.
       //
-      if (view_member (m))
+      if (select_ && direct_load_pointer (m))
       {
         using semantics::class_;
 
         column_count_type cc;
 
+        // Note: currently direct loading of polymorphic objects is only
+        // supported in views (see processor::process_object_pointer()).
+        //
         if (class_* root = polymorphic (c))
         {
+          assert (view_member (m));
+
           // For a polymorphic class we are going to load all the members
           // from all the bases (i.e., equivalent to the first statement
           // in the list of SELECT statements generated for the object).
@@ -3019,7 +3028,7 @@ namespace
           //
           for (class_* b (&c);; b = &polymorphic_base (*b))
           {
-            column_count_type const& ccb (column_count (*b, section_));
+            column_count_type const& ccb (column_count (*b, select_, section_));
 
             cc.total += ccb.total - (b != root ? ccb.id : 0);
             cc.separate_load += ccb.separate_load;
@@ -3030,30 +3039,28 @@ namespace
           }
         }
         else
-          cc = column_count (c, section_);
+          cc = column_count (c, select_, section_);
 
         c_.total += cc.total - cc.separate_load;
 
+        // @@ N+1: not tracking added/deleted currently (not used).
+        //
         if (added (member_path_) != 0 || deleted (member_path_) != 0)
           c_.soft += cc.total;
         else
           c_.soft += cc.soft;
       }
       else
-      {
-        size_t t (c_.total);
-
         object_members_base::traverse_pointer (m, c);
 
-        if (context::inverse (m))
-        {
-          size_t n (c_.total - t);
+      if (context::inverse (m))
+      {
+        size_t n (c_.total - t);
 
-          c_.inverse += n;
+        c_.inverse += n;
 
-          if (separate_update (member_path_))
-            c_.separate_update -= n;
-        }
+        if (separate_update (member_path_))
+          c_.separate_update -= n;
       }
     }
 
@@ -3109,29 +3116,32 @@ namespace
         c_.separate_update++;
     }
 
+    bool select_;
     context::column_count_type c_;
   };
 }
 
 context::column_count_type context::
-column_count (semantics::class_& c, object_section* s)
+column_count (semantics::class_& c, bool select, object_section* s)
 {
   if (s == 0)
   {
+    const char* key (select ? "select-column-count" : "column-count");
+
     // Whole class.
     //
-    if (!c.count ("column-count"))
+    if (!c.count (key))
     {
-      column_count_impl t;
+      column_count_impl t (select);
       t.traverse (c);
-      c.set ("column-count", t.c_);
+      c.set (key, t.c_);
     }
 
-    return c.get<column_count_type> ("column-count");
+    return c.get<column_count_type> (key);
   }
   else
   {
-    column_count_impl t (s);
+    column_count_impl t (select, s);
     t.traverse (c);
     return t.c_;
   }

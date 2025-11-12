@@ -248,7 +248,7 @@ namespace test7
     object (int n = 999, const std::string& s = "xxx", bool b = false)
     {
       sn1 = sn2 = n;
-      ss1 = ss2 = s;
+      ss0 = ss1 = ss2 = s;
       sb2 = b;
     }
 
@@ -257,6 +257,8 @@ namespace test7
 
     #pragma db section(s2)
     bool sb2;
+
+    std::string ss0;
   };
 }
 

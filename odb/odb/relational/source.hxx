@@ -829,7 +829,10 @@ namespace relational
         //
         else if (!query_)
         {
+          // Note: polymorphic object are not directly loaded.
+          //
           column_count_type const& cc (column_count (c));
+
           if (cc.total == cc.id + cc.separate_load)
             skip = true;
         }
@@ -1522,16 +1525,21 @@ namespace relational
           if (av != 0 || dv != 0)
             os << "}";
 
-          if (mi.ptr != 0 && view_member (mi.m))
+          // See column_count_impl for details on what's going on here.
+          //
+          bool select (false); // Select is handled.
+          if (mi.ptr != 0 && direct_load_pointer (mi.m, key_prefix_))
           {
-            // See column_count_impl for details on what's going on here.
-            //
+            bool viewm (view_member (mi.m));
+
             column_count_type cc;
             if (semantics::class_* root = polymorphic (*mi.ptr))
             {
+              assert (viewm);
+
               for (semantics::class_* b (mi.ptr);; b = &polymorphic_base (*b))
               {
-                column_count_type const& ccb (column_count (*b));
+                column_count_type const& ccb (column_count (*b, true /*select*/));
 
                 cc.total += ccb.total - (b != root ? ccb.id : 0);
                 cc.separate_load += ccb.separate_load;
@@ -1541,14 +1549,36 @@ namespace relational
               }
             }
             else
-              cc = column_count (*mi.ptr);
+              cc = column_count (*mi.ptr, true /* select */);
+
+            if (!viewm)
+            {
+              os << "if (sk == statement_select)" << endl;
+              select = true;
+            }
 
             os << "n += " << cc.total - cc.separate_load << "UL;";
           }
+
+          if (mi.ptr != 0 && view_member (mi.m))
+            ; // No insert/update in views.
           else if (comp != 0)
           {
+            if (!select && has_a (*comp, test_direct_load_pointer))
+            {
+              column_count_type const& cc (column_count (*comp, true /*select*/));
+
+              os << "if (sk == statement_select)" << endl
+                 << "n += " << cc.total << "UL;";
+
+              select = true;
+            }
+
             bool ro (readonly (*comp));
             column_count_type const& cc (column_count (*comp));
+
+            if (select)
+              os << "else" << endl;
 
             os << "n += " << cc.total << "UL";
 
@@ -1558,8 +1588,10 @@ namespace relational
             //
             if (cc.inverse != 0 || (!ro && cc.readonly != 0))
             {
-              os << " - (" << endl
-                 << "sk == statement_select ? 0 : ";
+              os << " - (" << endl;
+
+              if (!select)
+                os << "sk == statement_select ? 0 : ";
 
               if (cc.inverse != 0)
                 os << cc.inverse << "UL";
@@ -1580,7 +1612,12 @@ namespace relational
             os << ";";
           }
           else
+          {
+            if (select)
+              os << "else" << endl;
+
             os << "n++;";
+          }
 
           bool block (false);
 
@@ -1679,8 +1716,6 @@ namespace relational
         os << class_fq_name (c) << ", id_" << db << " >::bind (b + n, i, sk" <<
           (versioned (c) ? ", svm" : "") << ");";
 
-        column_count_type const& cc (column_count (c));
-
         os << "n += ";
 
         // select = total - separate_load
@@ -1688,9 +1723,19 @@ namespace relational
         // update = total - inverse - optimistic_managed - id - readonly -
         //  separate_update
         //
-        size_t select (cc.total - cc.separate_load);
+        column_count_type const& cc (column_count (c));
+
+        size_t select;
         size_t insert (cc.total - cc.inverse - cc.optimistic_managed);
         size_t update (insert - cc.id - cc.readonly - cc.separate_update);
+
+        if (has_a (c, test_direct_load_pointer))
+        {
+          column_count_type const& scc (column_count (c, true /* select */));
+          select = scc.total - scc.separate_load;
+        }
+        else
+          select = cc.total - cc.separate_load;
 
         data_member_path* id;
         if (!insert_send_auto_id && (id = id_member (c)) != 0 && auto_ (*id))
@@ -1875,16 +1920,20 @@ namespace relational
             os << "}";
         }
 
-        if (mi.ptr != 0 && view_member (mi.m))
+        // See column_count_impl for details on what's going on here.
+        //
+        // Note: grow is always for select, so no statement kind checks.
+        //
+        if (mi.ptr != 0 && direct_load_pointer (mi.m, key_prefix_))
         {
-          // See column_count_impl for details on what's going on here.
-          //
           column_count_type cc;
           if (semantics::class_* root = polymorphic (*mi.ptr))
           {
+            assert (view_member (mi.m));
+
             for (semantics::class_* b (mi.ptr);; b = &polymorphic_base (*b))
             {
-              column_count_type const& ccb (column_count (*b));
+              column_count_type const& ccb (column_count (*b, true /*select*/));
 
               cc.total += ccb.total - (b != root ? ccb.id : 0);
               cc.separate_load += ccb.separate_load;
@@ -1894,12 +1943,12 @@ namespace relational
             }
           }
           else
-            cc = column_count (*mi.ptr);
+            cc = column_count (*mi.ptr, true /* select */);
 
           index_ += cc.total - cc.separate_load;
         }
         else if (comp != 0)
-          index_ += column_count (*comp).total;
+          index_ += column_count (*comp, true /* select */).total;
         else
           index_++;
       }
@@ -1974,7 +2023,11 @@ namespace relational
            << "grew = true;"
            << endl;
 
-        index_ += column_count (c).total;
+        // Note: grow is always for select.
+        //
+        column_count_type const& cc (column_count (c, true /* select */));
+
+        index_ += cc.total - cc.separate_load;
       }
 
     protected:
@@ -4075,8 +4128,25 @@ namespace relational
               bm->traverse (m);
 
               if (semantics::class_* c = composite_wrapper (*kt))
-                os << "n += " << column_count (*c).total << "UL;"
-                   << endl;
+              {
+                size_t cc (column_count (*c).total);
+
+                os << "n += ";
+
+                if (has_a (*c, test_direct_load_pointer))
+                {
+                  // The column count depends on statement.
+                  //
+                  size_t scc (column_count (*c, true /* select */).total);
+
+                  os << "sk == statement_select ? " << scc << "UL : " <<
+                    cc << "UL;";
+                }
+                else
+                  os << cc << "UL;";
+
+                os << endl;
+              }
               else
                 os << "n++;"
                    << endl;

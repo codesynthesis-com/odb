@@ -352,24 +352,33 @@ namespace relational
           return false;
         };
 
-        bool direct_load (test_direct_load (vt, "value") ||
-                          (kt != nullptr && test_direct_load (*kt, "key")));
+        bool v_direct_load (test_direct_load (vt, "value"));
+        bool k_direct_load (kt != nullptr && test_direct_load (*kt, "key"));
+        bool direct_load (v_direct_load || k_direct_load);
 
         // Store for the source generator.
         //
         m.set ("direct-load-container", direct_load);
 
+        // @@ N+1: select_versioned. See also process_container()
+        // (force_versionsed, etc).
+        //
+        bool versioned (context::versioned (m));
+
         // Figure out column counts.
         //
-        size_t id_columns, value_columns, data_columns, cond_columns;
-        bool versioned (context::versioned (m));
+        size_t id_columns (0);
+        size_t value_columns (0);  // Note: always indirect (like data).
+        size_t data_columns (0);
+        size_t cond_columns (0);   // Smart only.
+        size_t select_columns (0); // Direct only.
 
         if (!reuse_abst)
         {
           type& idt (container_idt (m));
 
           if (class_* idc = composite_wrapper (idt))
-            id_columns = column_count (*idc).total;
+            id_columns = column_count (*idc).total; // Same insert vs select.
           else
             id_columns = 1;
 
@@ -387,6 +396,9 @@ namespace relational
 
                 if (smart)
                   cond_columns++;
+
+                if (direct_load)
+                  select_columns++;
               }
               break;
             }
@@ -406,6 +418,26 @@ namespace relational
                 n = 1;
 
               data_columns += n;
+
+              if (direct_load)
+              {
+                if (k_direct_load)
+                {
+                  if (ptr != nullptr)
+                  {
+                    const column_count_type& cc (column_count (*ptr, true));
+                    select_columns += cc.total - cc.separate_load;
+                  }
+                  else if (class_* c = composite_wrapper (*kt))
+                  {
+                    select_columns += column_count (*c, true).total;
+                  }
+                  else
+                    assert (false);
+                }
+                else
+                  select_columns += n;
+              }
 
               // Key is not currently used (see also bind()).
               //
@@ -442,6 +474,26 @@ namespace relational
               value_columns = 1;
 
             data_columns += value_columns;
+
+            if (direct_load)
+            {
+              if (v_direct_load)
+              {
+                if (ptr != nullptr)
+                {
+                  const column_count_type& cc (column_count (*ptr, true));
+                  select_columns += cc.total - cc.separate_load;
+                }
+                else if (class_* c = composite_wrapper (vt))
+                {
+                  select_columns += column_count (*c, true).total;
+                }
+                else
+                  assert (false);
+              }
+              else
+                select_columns += value_columns;
+            }
           }
 
           // Store column counts for the source generator.
@@ -450,6 +502,7 @@ namespace relational
           m.set ("value-column-count", value_columns);
           m.set ("cond-column-count", cond_columns);
           m.set ("data-column-count", data_columns);
+          m.set ("select-column-count", select_columns);
         }
 
         // Note: definition is outside of the object/composite traits.
@@ -492,9 +545,16 @@ namespace relational
               cond_columns << "UL;";
 
           os << "static const std::size_t data_column_count = " <<
-            data_columns << "UL;"
-             << endl;
+            data_columns << "UL;";
 
+          if (direct_load)
+            os << "static const std::size_t select_column_count = " <<
+              select_columns << "UL;";
+
+          os << endl;
+
+          // Versioned flag.
+          //
           os << "static const bool versioned = " << versioned << ";"
              << endl;
 
