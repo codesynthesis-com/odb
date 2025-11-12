@@ -1555,8 +1555,22 @@ public:
     size_t separate_update; // Only readwrite.
   };
 
+  // If select is true, then include columns from directly-loaded object
+  // pointers. Note that in this case added/deleted/soft include counts
+  // from the pointed-to objects. As a result, these counts are always
+  // greater or equal to the ones obtained with select=false (or, in other
+  // words, we may be select-versioned and not insert/update-versioned,
+  // but not the other way around).
+  //
+  // @@ N+1: In the future we may want to drop default value for select, once
+  //         we support direct loading in more places.
+  //
+  //         In fact, if/when we have the insert/update vs select split
+  //         everywhere, we could probably get rid of inverse and readonly
+  //         counts.
+  //
   static column_count_type
-  column_count (semantics::class_&, object_section* = 0);
+  column_count (semantics::class_&, bool select = false, object_section* = 0);
 
   static data_member_path*
   id_member (semantics::class_& c)

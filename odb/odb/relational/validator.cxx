@@ -493,7 +493,7 @@ namespace relational
         {
           // Allow all the members to be deleted.
           //
-          column_count_type const& cc (column_count (c));
+          column_count_type const& cc (column_count (c, true /* select */));
 
           if (cc.total == 0)
           {

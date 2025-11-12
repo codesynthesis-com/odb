@@ -1940,7 +1940,7 @@ namespace
           }
 
           if (force_versioned || (comp != 0 && column_count (*comp).soft != 0))
-            t.set ("versioned", true);
+            t.set ("versioned", true); // @@ N+1: not select_versioned
         }
       }
 
@@ -2619,7 +2619,7 @@ namespace
       //
       for (user_sections::iterator i (uss.begin ()); i != uss.end (); ++i)
       {
-        column_count_type cc (column_count (c, &*i));
+        column_count_type cc (column_count (c, false /* select */, &*i));
         i->total = cc.total;
         i->inverse = cc.inverse;
         i->readonly = cc.readonly;

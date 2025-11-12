@@ -433,7 +433,7 @@ traverse_object (type& c)
     {
       os << "if (bv)"
          << "{"
-         << "n += " << column_count (c).id << ";"
+         << "n += " << column_count (c).id << ";" // Same for insert vs select.
          << endl;
 
       bind_version_member_->traverse (*opt);
@@ -4552,7 +4552,7 @@ traverse_view (type& c)
   string traits ("access::view_traits_impl< " + type + ", id_" +
                  db.string () + " >");
 
-  size_t columns (column_count (c).total);
+  size_t columns (column_count (c, true /* select */).total);
 
   // Schema name as a string literal or empty.
   //

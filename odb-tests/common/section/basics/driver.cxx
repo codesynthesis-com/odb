@@ -671,8 +671,7 @@ main (int argc, char* argv[])
       }
     }
 
-    // Test value-only and container-only section. Also multiple sections
-    // in an object.
+    // Test sections and reuse inheritance.
     //
     {
       using namespace test7;
@@ -712,6 +711,7 @@ main (int argc, char* argv[])
       //
       o.sn1++;
       o.sn2++;
+      o.ss0 += 'd';
       o.ss1 += 'd';
       o.ss2 += 'd';
       o.sb2 = !o.sb2;
@@ -727,7 +727,8 @@ main (int argc, char* argv[])
         unique_ptr<object> p (db->load<object> (o.id));
         db->load (*p, p->s1);
         db->load (*p, p->s2);
-        assert (p->sn1 == o.sn1 && p->ss1 == o.ss1 &&
+        assert (p->ss0 == o.ss0 &&
+                p->sn1 == o.sn1 && p->ss1 == o.ss1 &&
                 p->sn2 == o.sn2 && p->ss2 == o.ss2 && p->sb2 == o.sb2);
         t.commit ();
       }

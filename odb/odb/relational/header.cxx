@@ -903,6 +903,11 @@ traverse_composite (type& c)
        << endl;
   }
 
+  // Note: doesn't seem to be currently used anywhere.
+  //
+  // @@ N+1: add select_ for completeness or drop? Or change to include
+  //         direct? Or rename to direct_ and indirect_ column_count?
+  //
   column_count_type const& cc (column_count (c));
   os << "static const std::size_t column_count = " << cc.total << "UL;";
 
@@ -938,7 +943,7 @@ traverse_view (type& c)
   bool versioned (context::versioned (c));
 
   string const& type (class_fq_name (c));
-  size_t columns (column_count (c).total);
+  size_t columns (column_count (c, true /* select */).total);
   size_t obj_count (c.get<size_t> ("object-count"));
 
   os << "// " << class_name (c) << endl
