@@ -119,7 +119,12 @@ namespace relational
   void member_base_impl<T>::
   traverse_pointer (member_info& mi)
   {
-    if (!view_member (mi.m)) // Not really "as if" pointed-to id member.
+    // Not really "as if" pointed-to id member.
+    //
+    // Note: the check is not for a direct load pointer, which is not "as if"
+    // only for select.
+    //
+    if (!view_member (mi.m))
     {
       if (composite (mi.t)) // Already unwrapped.
         traverse_composite (mi);
