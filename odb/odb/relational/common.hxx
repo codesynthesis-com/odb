@@ -186,6 +186,13 @@ namespace relational
       }
     };
 
+    static string
+    member_var_name (semantics::data_member& m)
+    {
+      string const& name (m.name ());
+      return name + (name[name.size () - 1] == '_' ? "" : "_");
+    }
+
     bool
     container (member_info& mi)
     {
