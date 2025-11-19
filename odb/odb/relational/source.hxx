@@ -3581,6 +3581,8 @@ namespace relational
 
         container_kind_type ck (container_kind (t));
 
+        bool direct_load (m.get<bool> ("direct-load-container"));
+
         const custom_cxx_type* vct (0);
         const custom_cxx_type* ict (0);
         const custom_cxx_type* kct (0);
@@ -4069,7 +4071,7 @@ namespace relational
              << "//" << endl
              << "if (id != 0)" << endl
              << "std::memcpy (&b[n], id, id_size * sizeof (id[0]));"
-             << "n += id_size;" // Not in if for "id unchanged" optimization.
+             << "n += id_size;" // Not in `if` for "id unchanged" optimization.
              << endl;
 
           // We don't need to update the bind index since this is the
@@ -4142,11 +4144,22 @@ namespace relational
              << endl;
 
           os << "// object_id" << endl
-             << "//" << endl
-             << "if (id != 0)" << endl
+             << "//" << endl;
+
+          // There is no id binding to skip for direct load select.
+          //
+          if (direct_load)
+            os << "if (sk != statement_select)"
+               << "{";
+
+          os << "if (id != 0)" << endl
              << "std::memcpy (&b[n], id, id_size * sizeof (id[0]));"
-             << "n += id_size;" // Not in if for "id unchanged" optimization.
-             << endl;
+             << "n += id_size;"; // Not in `if` for "id unchanged" optimization.
+
+          if (direct_load)
+            os << "}";
+          else
+            os << endl;
 
           switch (ck)
           {
@@ -4261,7 +4274,7 @@ namespace relational
              << "//" << endl
              << "if (id != 0)" << endl
              << "std::memcpy (&b[n], id, id_size * sizeof (id[0]));"
-             << "n += id_size;" // Not in if for "id unchanged" optimization.
+             << "n += id_size;" // Not in `if` for "id unchanged" optimization.
              << endl;
 
           // We don't need to update the bind index since this is the
@@ -5824,7 +5837,7 @@ namespace relational
                << "//" << endl
                << "if (id != 0)" << endl
                << "std::memcpy (&b[n], id, id_size * sizeof (id[0]));"
-               << "n += id_size;" // Not in if for "id unchanged" optimization.
+               << "n += id_size;" // Not in `if` for "id unchanged" optimization.
                << endl;
 
           os << "return n;"
