@@ -4116,11 +4116,17 @@ namespace relational
         // bind (data_image_type)
         //
         {
+          // Note that in the case of containers, insert and select column
+          // sets are the same since we can't have inverse members as
+          // container elements. The reason we still pass statement_kind is
+          // for the direct load logic.
+          //
           os << "void " << scope << "::" << endl
              << "bind (" << bind_vector << " b," << endl
              << "const " << bind_vector << " id," << endl
              << "std::size_t id_size," << endl
-             << "data_image_type& d";
+             << "data_image_type& d," << endl
+             << db << "::statement_kind sk";
 
           if (versioned)
             os << "," << endl
@@ -4130,11 +4136,6 @@ namespace relational
              << "{"
              << "using namespace " << db << ";"
              << endl
-            // In the case of containers, insert and select column sets are
-            // the same since we can't have inverse members as container
-            // elements.
-            //
-             << "statement_kind sk (statement_select);"
              << "ODB_POTENTIALLY_UNUSED (sk);"
              << endl
              << "size_t n (0);"
@@ -4668,8 +4669,8 @@ namespace relational
                << "if (sts.data_binding_test_version ())"
                << "{"
                << "const binding& id (sts.id_binding ());"
-               << "bind (sts.data_bind (), id.bind, id.count, di" <<
-              (versioned ? ", svm" : "") << ");"
+               << "bind (sts.data_bind (), id.bind, id.count, di, " <<
+              "statement_insert" << (versioned ? ", svm" : "") << ");"
                << "sts.data_binding_update_version ();"
                << "}"
                << "if (!sts.insert_statement ().execute ())" << endl
@@ -4830,8 +4831,8 @@ namespace relational
           os << "if (sts.select_binding_test_version ())"
              << "{"
              << "const binding& id (sts.id_binding ());"
-             << "bind (sts.select_bind (), id.bind, id.count, di" <<
-            (versioned ? ", svm" : "") << ");"
+             << "bind (sts.select_bind (), id.bind, id.count, di, " <<
+            "statement_select" << (versioned ? ", svm" : "") << ");"
              << "sts.select_binding_update_version ();"
              << "}";
         }
@@ -4852,8 +4853,8 @@ namespace relational
              << "{"
             // Id cannot change.
             //
-             << "bind (sts.select_bind (), 0, sts.id_binding ().count, di" <<
-            (versioned ? ", svm" : "") << ");"
+             << "bind (sts.select_bind (), 0, sts.id_binding ().count, di, " <<
+            "statement_select" << (versioned ? ", svm" : "") << ");"
              << "sts.select_binding_update_version ();"
              << "st.refetch ();"
              << "}"
@@ -4984,8 +4985,8 @@ namespace relational
            << endl
            << "if (sts.select_binding_test_version ())"
            << "{"
-           << "bind (sts.select_bind (), id.bind, id.count, di" <<
-          (versioned ? ", svm" : "") << ");"
+           << "bind (sts.select_bind (), id.bind, id.count, di, " <<
+          "statement_select" << (versioned ? ", svm" : "") << ");"
            << "sts.select_binding_update_version ();"
            << "}"
           // We use the id binding directly so no need to check cond binding.
@@ -5013,8 +5014,8 @@ namespace relational
              << "{"
             // Id cannot change.
             //
-             << "bind (sts.select_bind (), 0, id.count, di" <<
-            (versioned ? ", svm" : "") << ");"
+             << "bind (sts.select_bind (), 0, id.count, di, " <<
+            "statement_select" << (versioned ? ", svm" : "") << ");"
              << "sts.select_binding_update_version ();"
              << "st.refetch ();"
              << "}"

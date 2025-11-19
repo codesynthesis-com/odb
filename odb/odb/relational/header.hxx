@@ -786,7 +786,8 @@ namespace relational
            << "bind (" << bind_vector << "," << endl
            << "const " << bind_vector << " id," << endl
            << "std::size_t id_size," << endl
-           << "data_image_type&";
+           << "data_image_type&," << endl
+           << db << "::statement_kind";
 
         if (versioned)
           os << "," << endl
