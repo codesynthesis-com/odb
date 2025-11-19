@@ -32,6 +32,8 @@
 #include <odb/semantics/relational/model.hxx>
 #include <odb/traversal.hxx>
 
+using std::move;
+
 using std::endl;
 using std::cerr;
 

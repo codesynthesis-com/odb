@@ -1650,9 +1650,9 @@ namespace relational
       virtual void
       traverse_pointer (member_info& mi)
       {
-        bool select (false); // Select is handled specially.
+        bool direct_load (direct_load_pointer (mi.m, key_prefix_));
 
-        if (direct_load_pointer (mi.m, key_prefix_))
+        if (direct_load)
         {
           bool viewm (view_member (mi.m));
 
@@ -1677,17 +1677,30 @@ namespace relational
             return; // No insert/update in views.
 
           os << "}";
-          select = true;
         }
 
-        if (select)
+        string ovar;
+        if (direct_load)
+        {
+          ovar = mi.var;
+
+          // Get to id inside object image.
+          //
+          mi.var += "value.";
+          mi.var += member_base_impl<T>::member_var_name (
+            *id_member (*mi.ptr)->front ());
+
           os << "else"
              << "{";
+        }
 
         member_base_impl<T>::traverse_pointer (mi);
 
-        if (select)
+        if (direct_load)
+        {
           os << "}";
+          mi.var = move (ovar);
+        }
       }
 
       virtual void
@@ -2308,6 +2321,15 @@ namespace relational
 
         if (mi.ptr != 0)
         {
+          if (direct_load_pointer (mi.m, key_prefix_))
+          {
+            // Get to id inside object image.
+            //
+            mi.var += "value.";
+            mi.var += member_base_impl<T>::member_var_name (
+              *id_member (*mi.ptr)->front ());
+          }
+
           // When handling a pointer, mi.t is the id type of the referenced
           // object.
           //

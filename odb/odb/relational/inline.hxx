@@ -60,6 +60,15 @@ namespace relational
              << "{";
         }
 
+        if (mi.ptr != nullptr && direct_load_pointer (mi.m, key_prefix_))
+        {
+          // Get to id inside object image.
+          //
+          mi.var += "value.";
+          mi.var += member_base_impl<T>::member_var_name (
+            *id_member (*mi.ptr)->front ());
+        }
+
         // If the whole value type is readonly, then set will never be
         // called with sk == statement_update.
         //

@@ -19,10 +19,7 @@ namespace relational
     if (!var_override_.empty ())
       var = var_override_;
     else
-    {
-      string const& name (m.name ());
-      var = name + (name[name.size () - 1] == '_' ? "" : "_");
-    }
+      var = member_var_name (m);
 
     bool cq (type_override_ != 0 ? false : const_member (m));
 
