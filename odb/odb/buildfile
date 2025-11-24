@@ -36,6 +36,7 @@ plugin{*}: install = bin/
 
 import libs  = libcutl%lib{cutl}
 import libs += libstudxml%lib{studxml}
+import libs += libstud-optional%lib{stud-optional}
 
 ./: exe{odb} plugin{odb}
 
