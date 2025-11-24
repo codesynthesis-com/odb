@@ -94,16 +94,27 @@ namespace relational
     {
       typedef object_columns base;
 
-      // If provided, used to resolve table/alias names for inverse
-      // pointed-to and base objects. Returns qualified name.
+      // If provided, used to resolve table/alias names for direct load and
+      // inverse pointed-to as well as polymorphic base objects. Returns
+      // qualified name.
       //
       struct table_name_resolver
       {
+        // The default_name argument is the default table/alias name. The
+        // table_name argument is the actual table name. Both are qualified
+        // and can be the same (e.g., for containers). If table_name is empty,
+        // then no qualification is used and the result should be empty as
+        // well.
+        //
         virtual string
-        resolve_pointer (semantics::data_member&) const = 0;
+        resolve_pointer (semantics::data_member&, semantics::class_&,
+                         const string& key_prefix,
+                         const column_prefix&,
+                         string default_name,
+                         string table_name) = 0;
 
         virtual string
-        resolve_base (semantics::class_&) const = 0;
+        resolve_base (semantics::class_&) = 0;
       };
 
       object_columns (statement_kind sk,
@@ -214,10 +225,15 @@ namespace relational
         if (imp != 0 && sk_ != statement_select)
           return;
 
+        bool direct_load (direct_load_pointer (m, key_prefix_));
+
         // Inverse object pointers come from a joined table.
         //
         if (imp != 0)
         {
+          // Note that direct loading of inverse pointers is (for now) handled
+          // directly in traverse_container().
+
           bool poly (polymorphic (c) != 0);
           semantics::data_member& imf (*imp->front ());
           semantics::data_member& imb (*imp->back ());
@@ -244,12 +260,11 @@ namespace relational
             string table;
 
             if (!table_name_.empty ())
-            {
-              if (table_name_resolver_ != 0)
-                table = table_name_resolver_->resolve_pointer (m);
-              else
-                table = table_qname (imc, *imp);
-            }
+              table = table_qname (imc, *imp);
+
+            if (table_name_resolver_ != 0)
+              table = table_name_resolver_->resolve_pointer (
+                m, c, key_prefix_, column_prefix_, table, table);
 
             instance<object_columns> oc (table, sk_, sc_);
             oc->traverse (imb, idt, "id", "object_id", &imc);
@@ -272,45 +287,106 @@ namespace relational
 
             if (!table_name_.empty ())
             {
-              if (table_name_resolver_ != 0)
-                alias = table_name_resolver_->resolve_pointer (m);
+              string n;
+              if (composite_wrapper (idt))
+              {
+                n = column_prefix (m, key_prefix_, default_name_).prefix;
+
+                if (n.empty ())
+                  n = public_name_db (m);
+                else if (n[n.size () - 1] == '_')
+                  n.resize (n.size () - 1); // Remove trailing underscore.
+              }
               else
               {
-                string n;
-
-                if (composite_wrapper (idt))
-                {
-                  n = column_prefix (m, key_prefix_, default_name_).prefix;
-
-                  if (n.empty ())
-                    n = public_name_db (m);
-                  else if (n[n.size () - 1] == '_')
-                    n.resize (n.size () - 1); // Remove trailing underscore.
-                }
-                else
-                {
-                  bool dummy;
-                  n = column_name (m, key_prefix_, default_name_, dummy);
-                }
-
-                alias = column_prefix_.prefix + n;
-
-                if (poly)
-                {
-                  qname const& table (table_name (imc));
-                  alias = quote_id (alias + "_" + table.uname ());
-                }
-                else
-                  alias = quote_id (alias);
+                bool dummy;
+                n = column_name (m, key_prefix_, default_name_, dummy);
               }
+
+              alias = column_prefix_.prefix + n;
+
+              if (poly)
+              {
+                qname const& table (table_name (imc));
+                alias = quote_id (alias + "_" + table.uname ());
+              }
+              else
+                alias = quote_id (alias);
             }
+
+            if (table_name_resolver_ != 0)
+              alias = table_name_resolver_->resolve_pointer (
+                m, c,
+                key_prefix_, column_prefix_,
+                move (alias),
+                !table_name_.empty () ? table_qname (imc) : string ());
 
             instance<object_columns> oc (alias, sk_, sc_);
             oc->traverse (id);
           }
         }
         else
-          object_columns_base::traverse_pointer (m, c);
+        {
+          if (sk_ == statement_select && direct_load)
+          {
+            // Direct loading of polymorphic objects is only supported in
+            // views, which have their own view_columns.
+            //
+            assert (!polymorphic (c));
+
+            // Derive the alias similar to the inverse case above.
+            //
+            string alias;
+            if (container (m))
+            {
+              // Can only be top-level container (no containers of containers).
+              //
+              assert (!key_prefix_.empty ());
+
+              // Use the key prefix as an alias in case we have both key and
+              // value pointing to the same object.
+              //
+              alias = quote_id (key_prefix_);
+            }
+            else
+            {
+              semantics::type& idt (utype (*id_member (c)));
+
+              string n;
+              if (composite_wrapper (idt))
+              {
+                n = column_prefix (m, key_prefix_, default_name_).prefix;
+
+                if (n.empty ())
+                  n = public_name_db (m);
+                else if (n[n.size () - 1] == '_')
+                  n.resize (n.size () - 1); // Remove trailing underscore.
+              }
+              else
+              {
+                bool dummy;
+                n = column_name (m, key_prefix_, default_name_, dummy);
+              }
+
+              alias = quote_id (column_prefix_.prefix + n);
+            }
+
+            if (table_name_resolver_ != 0)
+              alias = table_name_resolver_->resolve_pointer (
+                m, c,
+                key_prefix_, column_prefix_,
+                move (alias), table_qname (c));
+
+            statement_kind sk (statement_select); // Imperfect forwarding.
+            object_section* s (&main_section); // Imperfect forwarding.
+            size_t poly_depth (1); // Imperfect forwarding.
+            instance<object_columns> oc (
+              alias, sk, sc_, poly_depth, s, table_name_resolver_);
+            oc->traverse (c);
+          }
+          else
+            object_columns_base::traverse_pointer (m, c);
+        }
       }
 
       virtual bool
@@ -388,8 +464,15 @@ namespace relational
       // Implementation of table_name_resolver for object_columns.
       //
       virtual string
-      resolve_pointer (semantics::data_member& m) const
+      resolve_pointer (semantics::data_member& m,
+                       semantics::class_& c,
+                       const string& key_prefix,
+                       const column_prefix&,
+                       string /*default_name*/,
+                       string table_name_)
       {
+        assert (key_prefix.empty () && !table_name_.empty ());
+
         view_object& us (*ptr_->get<view_object*> ("view-object"));
 
         data_member_path& imp (*inverse (m));
@@ -463,7 +546,7 @@ namespace relational
         //
         // This code follows the normal JOIN generation code.
         //
-        class_* o (object_pointer (utype (m)));
+        class_* o (&c);
         if (class_* root = polymorphic (*o))
         {
           o = &static_cast<class_&> (imf.scope ());
@@ -552,7 +635,7 @@ namespace relational
       }
 
       virtual string
-      resolve_base (semantics::class_& b) const
+      resolve_base (semantics::class_& b)
       {
         view_object& vo (*ptr_->get<view_object*> ("view-object"));
 
@@ -909,6 +992,22 @@ namespace relational
         id_cols_->traverse (id_);
       }
 
+      object_joins (semantics::class_& scope,
+                    string table_qname,
+                    string from,
+                    bool query,
+                    size_t depth,
+                    object_section* section = 0)
+          : object_columns_base (true, true, section),
+            query_ (query),
+            depth_ (depth),
+            table_ (move (table_qname)),
+            from_ (move (from)),
+            id_ (*id_member (scope))
+      {
+        id_cols_->traverse (id_);
+      }
+
       virtual bool
       section_test (data_member_path const& mp)
       {
@@ -1009,6 +1108,9 @@ namespace relational
             //
             t = table_qname (imc, *imp);
 
+            if (t == from_) // Avoid self-JOIN.
+              return;
+
             // Container's value is our id.
             //
             instance<object_columns_list> id_cols;
@@ -1063,6 +1165,10 @@ namespace relational
             qname const& table (table_name (imc));
 
             t = quote_id (table);
+
+            if (t == from_) // Avoid self-JOIN.
+              return;
+
             a = quote_id (poly ? alias + "_" + table.uname () : alias);
 
             instance<object_columns_list> id_cols;
@@ -1093,6 +1199,10 @@ namespace relational
           qname const& table (table_name (c));
 
           t = quote_id (table);
+
+          if (t == from_) // Avoid self-JOIN.
+            return;
+
           a = quote_id (poly ? alias + "_" + table.uname () : alias);
 
           instance<object_columns_list> oid_cols (column_prefix_);
@@ -1191,6 +1301,7 @@ namespace relational
       bool query_;
       size_t depth_;
       string table_;
+      string from_; // The FROM table (if any) to avoid self-JOIN.
       data_member_path& id_;
       instance<object_columns_list> id_cols_;
     };
@@ -3557,6 +3668,159 @@ namespace relational
       {
       }
 
+      // Table name resolver for directly loaded object pointers.
+      //
+      struct direct_load_table_name_resolver:
+        object_columns::table_name_resolver
+      {
+        direct_load_table_name_resolver (semantics::data_member& self,
+                                         const string& table_name, // Quoted.
+                                         strings& from)
+            : self_ (self), table_name_ (table_name), from_ (from)
+        {
+          // An inverse container shouldn't need the resolver since it can
+          // only contain a single direct load pointer (its value) and that is
+          // handled directly in traverse_container() below.
+          //
+          assert (!inverse (self, "value"));
+        }
+
+        virtual string
+        resolve_pointer (semantics::data_member& m,
+                         semantics::class_& c,
+                         const string& key_prefix,
+                         const column_prefix& col_prefix,
+                         string default_name,
+                         string table_name) override
+        {
+          assert (!table_name.empty ()); // Should not happen.
+
+          bool direct_load (direct_load_pointer (m, key_prefix));
+
+#if 0
+          info (m.location ()) << table_name_ << " "
+                               << (direct_load ? "directl: " : "inverse: ")
+                               << m.name () << " "
+                               << key_prefix << " "
+                               << table_name << " AS '"
+                               << default_name << "'" << endl;
+#endif
+
+          // This can be inverse pointer (in one of the direct load objects)
+          // or direct load (but not both, see comment in the ctor). We don't
+          // need to do anything for inverse.
+          //
+          if (!direct_load)
+            return default_name;
+
+          // Direct loading of polymorphic objects is only supported in views.
+          //
+          assert (!polymorphic (c));
+
+          // Ending up here means we are a non-inverse container that contains
+          // a direct load pointer. This pointer cannot be inverse (see
+          // comment in ctor) nor can it be a nested container (we don't
+          // support containers of containers).
+          //
+          assert (!inverse (m, key_prefix));
+
+          context& ctx (context::current ());
+
+          // Come up with JOIN clause for the directly-loaded object. Similar
+          // to the normal JOIN generation code.
+          //
+          // Left and right-hand side table names/aliases. Left is us (the
+          // container table). Right is the object we are loading.
+          //
+          const string& lt (table_name_);
+          const string& rt (default_name);
+
+          string l ("LEFT JOIN ");
+
+          if (rt == table_name) // No alias.
+          {
+            l += rt;
+          }
+          else
+          {
+            l += table_name;
+            l += (ctx.need_alias_as ? " AS " : " ") + rt;
+          }
+
+          l += " ON";
+          from_.push_back (l);
+
+          instance<object_columns_list> l_cols; // Our id columns.
+          instance<object_columns_list> r_cols; // Other side id columns.
+
+          if (container (m))
+          {
+            // Pointer is key or value.
+            //
+            assert (!key_prefix.empty ());
+
+            l_cols->traverse (m, utype (m, key_prefix), key_prefix, key_prefix);
+          }
+          else
+            l_cols->traverse (m, col_prefix);
+
+          r_cols->traverse (*id_member (c));
+
+          for (object_columns_list::iterator b (l_cols->begin ()), i (b),
+                 j (r_cols->begin ()); i != l_cols->end (); ++i, ++j)
+          {
+            l.clear ();
+
+            if (i != b)
+              l += "AND ";
+
+            l += lt;
+            l += '.';
+            l += ctx.quote_id (i->name);
+            l += '=';
+            l += rt;
+            l += '.';
+            l += ctx.quote_id (j->name);
+
+            from_.push_back (l);
+          }
+
+          // Join tables of inverse members (recursively).
+          //
+          // Note: we pass the from argument to skip joining itself (which
+          // could happen if we are the direct side of an inverse side we are
+          // directly loading).
+          //
+          {
+            bool f (false); // @@ (im)perfect forwarding
+            size_t d (1);
+            object_section* s (&main_section); // @@ (im)perfect forwarding
+            instance<object_joins> j (
+              c, default_name, table_name_ /* from */, f, d, s);
+            j->traverse (c);
+
+            for (strings::const_iterator i (j->begin ()); i != j->end (); ++i)
+              from_.push_back (*i);
+          }
+
+          return default_name;
+        }
+
+        virtual string
+        resolve_base (semantics::class_&) override
+        {
+          // Direct loading of polymorphic objects is only supported in views.
+          //
+          assert (false);
+          return string ();
+        }
+
+      private:
+        semantics::data_member& self_;
+        const string& table_name_;
+        strings& from_;
+      };
+
       virtual void
       traverse_container (semantics::data_member& m, semantics::type& t)
       {
@@ -3710,12 +3974,20 @@ namespace relational
             // for the table name, etc.
             //
             if (polymorphic (*c))
+            {
+              // Direct loading of polymorphic objects is only supported
+              // in view.
+              //
+              assert (!direct_load);
+
               c = &dynamic_cast<semantics::class_&> (imf.scope ());
+            }
 
             data_member_path& inv_id (*id_member (*c));
 
             qname inv_table;                            // Other table name.
             string inv_qtable;
+            string dir_qtable;                          // Direct load table.
             instance<object_columns_list> inv_id_cols;  // Other id column.
             instance<object_columns_list> inv_fid_cols; // Other foreign id
                                                         // column (ref to us).
@@ -3732,24 +4004,37 @@ namespace relational
               inv_table = table_name (*c, *imp);
               inv_qtable = quote_id (inv_table);
 
-              inv_id_cols->traverse (imb, utype (inv_id), "id", "object_id", c);
               inv_fid_cols->traverse (imb, idt, "value", "value");
 
-              for (object_columns_list::iterator i (inv_id_cols->begin ());
-                   i != inv_id_cols->end (); ++i)
+              inv_id_cols->traverse (imb, utype (inv_id), "id", "object_id", c);
+
+              if (direct_load)
               {
-                // If this is a simple id, then pass the "id" key prefix. If
-                // it is a composite id, then the members have no prefix.
-                //
-                sc.push_back (
-                  statement_column (
-                    inv_qtable,
-                    convert_from (inv_qtable + "." + quote_id (i->name),
-                                  i->type,
-                                  *i->member),
-                    i->type,
-                    *i->member,
-                    inv_id_cols->size () == 1 ? "id" : ""));
+                dir_qtable = table_qname (*c);
+
+                statement_kind sk (statement_select); // Imperfect forwarding.
+                size_t depth (1); // Imperfect forwarding.
+                instance<object_columns> t (dir_qtable, sk, sc, depth);
+                t->traverse (*c);
+              }
+              else
+              {
+                for (object_columns_list::iterator i (inv_id_cols->begin ());
+                     i != inv_id_cols->end (); ++i)
+                {
+                  // If this is a simple id, then pass the "id" key prefix. If
+                  // it is a composite id, then the members have no prefix.
+                  //
+                  sc.push_back (
+                    statement_column (
+                      inv_qtable,
+                      convert_from (inv_qtable + "." + quote_id (i->name),
+                                    i->type,
+                                    *i->member),
+                      i->type,
+                      *i->member,
+                      inv_id_cols->size () == 1 ? "id" : ""));
+                }
               }
             }
             else
@@ -3759,20 +4044,33 @@ namespace relational
               inv_table = table_name (*c);
               inv_qtable = quote_id (inv_table);
 
-              inv_id_cols->traverse (inv_id);
               inv_fid_cols->traverse (imb, column_prefix (*imp));
 
-              for (object_columns_list::iterator i (inv_id_cols->begin ());
-                   i != inv_id_cols->end (); ++i)
+              if (direct_load)
               {
-                sc.push_back (
-                  statement_column (
-                    inv_qtable,
-                    convert_from (inv_qtable + "." + quote_id (i->name),
-                                  i->type,
-                                  *i->member),
-                    i->type,
-                    *i->member));
+                dir_qtable = inv_qtable;
+
+                statement_kind sk (statement_select); // Imperfect forwarding.
+                size_t depth (1); // Imperfect forwarding.
+                instance<object_columns> t (dir_qtable, sk, sc, depth);
+                t->traverse (*c);
+              }
+              else
+              {
+                inv_id_cols->traverse (inv_id);
+
+                for (object_columns_list::iterator i (inv_id_cols->begin ());
+                     i != inv_id_cols->end (); ++i)
+                {
+                  sc.push_back (
+                    statement_column (
+                      inv_qtable,
+                      convert_from (inv_qtable + "." + quote_id (i->name),
+                                    i->type,
+                                    *i->member),
+                      i->type,
+                      *i->member));
+                }
               }
             }
 
@@ -3790,6 +4088,62 @@ namespace relational
             instance<query_parameters> qp (statement_select, inv_table);
             os << strlit ("FROM " + inv_qtable + sep) << endl;
 
+            if (direct_load)
+            {
+              // In the many-to-many case, FROM is the container table and we
+              // have to JOIN the object table. Note that there is no alias
+              // for the object table.
+              //
+              if (container (imb))
+              {
+                os << strlit ("LEFT JOIN " + dir_qtable + " ON" + sep) << endl;
+
+                instance<object_columns_list> r_cols;
+                r_cols->traverse (inv_id);
+
+                string l;
+                for (object_columns_list::iterator b (inv_id_cols->begin ()),
+                       i (b), j (r_cols->begin ());
+                     i != inv_id_cols->end ();
+                     ++i, ++j)
+                {
+                  l.clear ();
+
+                  if (i != b)
+                    l += "AND ";
+
+                  l += inv_qtable;
+                  l += '.';
+                  l += quote_id (i->name);
+                  l += '=';
+                  l += dir_qtable;
+                  l += '.';
+                  l += quote_id (j->name);
+
+                  os << strlit (l + sep) << endl;
+                }
+              }
+
+              // Join tables of inverse members (recursively).
+              //
+              // Note: feel like we don't need to pass the from argument since
+              // we are loading the direct side, but it won't hurt.
+              //
+              {
+                bool f (false); // @@ (im)perfect forwarding
+                size_t d (1);
+                object_section* s (&main_section); // @@ (im)perfect forwarding
+                instance<object_joins> j (
+                  *c, dir_qtable, inv_qtable /* from */, f, d, s);
+                j->traverse (*c);
+
+                for (strings::const_iterator i (j->begin ());
+                     i != j->end ();
+                     ++i)
+                  os << strlit (*i + sep) << endl;
+              }
+            }
+
             string where ("WHERE ");
             for (object_columns_list::iterator b (inv_fid_cols->begin ()),
                    i (b); i != inv_fid_cols->end (); ++i)
@@ -3806,9 +4160,16 @@ namespace relational
           {
             id_cols->traverse (m, idt, "id", "object_id");
 
+            strings from;
+            from.push_back ("FROM " + qtable);
+
+            direct_load_table_name_resolver tns (m, qtable, from);
+
             statement_columns sc;
             statement_kind sk (statement_select); // Imperfect forwarding.
-            instance<object_columns> t (qtable, sk, sc);
+            size_t depth (1); // Imperfect forwarding.
+            object_section* section (nullptr); // Imperfect forwarding.
+            instance<object_columns> t (qtable, sk, sc, depth, section, &tns);
 
             switch (ck)
             {
@@ -3844,8 +4205,16 @@ namespace relational
               os << strlit (c + (++i != e ? "," : "") + sep) << endl;
             }
 
+            // FROM
+            //
+            for (strings::const_iterator i (from.begin ());
+                 i != from.end ();
+                 ++i)
+            {
+              os << strlit (*i + sep) << endl;
+            }
+
             instance<query_parameters> qp (statement_select, table);
-            os << strlit ("FROM " + qtable + sep) << endl;
 
             string where ("WHERE ");
             for (object_columns_list::iterator b (id_cols->begin ()), i (b);
