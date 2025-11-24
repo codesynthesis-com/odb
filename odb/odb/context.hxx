@@ -32,6 +32,7 @@
 #include <odb/semantics/relational/model.hxx>
 #include <odb/traversal.hxx>
 
+using std::string;
 using std::move;
 
 using std::endl;
@@ -1618,7 +1619,7 @@ public:
       : 0;
   }
 
-  data_member_path*
+  static data_member_path*
   inverse (semantics::data_member& m, string const& key_prefix)
   {
     if (key_prefix.empty ())
