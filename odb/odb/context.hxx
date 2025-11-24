@@ -18,6 +18,8 @@
 #include <cstdint> // std::uint*_t
 #include <iostream>
 
+#include <libstud/optional.hxx>
+
 #include <libcutl/re.hxx>
 #include <libcutl/shared-ptr.hxx>
 
@@ -34,6 +36,8 @@ using std::move;
 
 using std::endl;
 using std::cerr;
+
+using stud::optional;
 
 // Regex.
 //
