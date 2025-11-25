@@ -95,6 +95,7 @@ namespace test2
   #pragma db value
   struct value
   {
+    #pragma db indirect_load
     object* m_object;
   };
 

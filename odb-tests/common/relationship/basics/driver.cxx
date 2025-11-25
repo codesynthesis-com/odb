@@ -41,9 +41,9 @@ main (int argc, char* argv[])
     a.c.num = 123;
     a.c.o3.reset (new obj3 ("c"));
 
-    a.cv.push_back (comp (234, obj3_ptr (new obj3 ("cv 0"))));
-    a.cv.push_back (comp (235, obj3_ptr ()));
-    a.cv.push_back (comp (236, obj3_ptr (new obj3 ("cv 2"))));
+    a.cv.push_back (comp_d (234, obj3_ptr (new obj3 ("cv 0"))));
+    a.cv.push_back (comp_d (235, obj3_ptr ()));
+    a.cv.push_back (comp_d (236, obj3_ptr (new obj3 ("cv 2"))));
 
     a.v1.push_back (new obj1 ("v1 0", "v1 0"));
     a.v1.push_back (0);
