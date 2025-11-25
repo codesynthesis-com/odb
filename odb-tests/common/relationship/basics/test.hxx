@@ -177,23 +177,43 @@ operator== (const obj3& x, const obj3& y)
 // composite
 //
 #pragma db value
-struct comp
+struct comp_d
 {
-  comp () = default;
-  comp (int n, obj3_ptr o): num (n), o3 (o) {}
+  comp_d () = default;
+  comp_d (int n, obj3_ptr o): num (n), o3 (o) {}
 
   int num;
+
   obj3_ptr o3;
 };
 
 inline bool
-operator== (const comp& x, const comp& y)
+operator== (const comp_d& x, const comp_d& y)
 {
   return x.num == y.num &&
     (x.o3 ? (y.o3 && *x.o3 == *y.o3) : !y.o3);
 }
 
-typedef std::vector<comp> comp_vec;
+#pragma db value
+struct comp_i
+{
+  comp_i () = default;
+  comp_i (int n, obj3_ptr o): num (n), o3 (o) {}
+
+  int num;
+
+  #pragma db indirect_load
+  obj3_ptr o3;
+};
+
+inline bool
+operator== (const comp_i& x, const comp_i& y)
+{
+  return x.num == y.num &&
+    (x.o3 ? (y.o3 && *x.o3 == *y.o3) : !y.o3);
+}
+
+typedef std::vector<comp_d> comp_vec;
 
 //
 //
@@ -226,7 +246,7 @@ struct aggr
   obj2_vec v2;
 
   obj3_ptr o3;
-  comp c;
+  comp_i c;
   comp_vec cv;
 
   obj1_vec v1;

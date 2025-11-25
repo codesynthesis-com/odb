@@ -27,7 +27,7 @@ struct residence_info
 
   bool permanent;
 
-  #pragma db not_null
+  #pragma db not_null indirect_load
   shared_ptr<country> location;
 };
 
