@@ -196,7 +196,6 @@ traverse_object (type& c)
 
     // id (image)
     //
-    if (options.generate_query ())
     {
       os << traits << "::id_type" << endl
          << traits << "::" << endl
@@ -5291,9 +5290,9 @@ traverse_view (type& c)
          << db << "::transaction::current ().connection (*db));"
          << endl;
 
-    names (c, init_view_pointer_member_pre_names_);
+    names (c, init_direct_pointer_member_pre_names_);
     names (c, init_value_member_names_);
-    names (c, init_view_pointer_member_post_names_);
+    names (c, init_direct_pointer_member_post_names_);
 
     os << "}";
   }

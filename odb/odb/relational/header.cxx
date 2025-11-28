@@ -220,10 +220,11 @@ traverse_object (type& c)
          << "id (const id_image_type&);"
          << endl;
 
-    if (options.generate_query ())
-      os << "static id_type" << endl
-         << "id (const image_type&);"
-         << endl;
+    // Required by query and direct load support.
+    //
+    os << "static id_type" << endl
+       << "id (const image_type&);"
+       << endl;
 
     if (opt != 0)
       os << "static version_type" << endl

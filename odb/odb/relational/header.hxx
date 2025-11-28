@@ -358,6 +358,10 @@ namespace relational
 
         // Store for the source generator.
         //
+        // Note that these are recursive.
+        //
+        //m.set ("value-direct-load-container", v_direct_load);
+        //m.set ("key-direct-load-container", k_direct_load);
         m.set ("direct-load-container", direct_load);
 
         // @@ N+1: select_versioned. See also process_container()
