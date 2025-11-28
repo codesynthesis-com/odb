@@ -60,7 +60,7 @@ namespace relational
     object_section* section_;
 
     // True during the top-level call of pre() and post() below. Note that
-    // call via another tarverser (e.g., for a class) is not considered top-
+    // call via another traverser (e.g., for a class) is not considered top-
     // level.
     //
     bool top_level_;
@@ -228,7 +228,9 @@ namespace relational
     virtual void
     traverse_simple (member_info&) {}
 
-  private:
+    // Should only be called directly on container members.
+    //
+  public:
     virtual void
     traverse (semantics::data_member&);
   };

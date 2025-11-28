@@ -1561,6 +1561,15 @@ namespace
                        << " of '" << pcn << "::" << im.name () << "'" << endl;
             }
           }
+          /*
+          else
+          {
+            // @@@ N+1 TMP
+            //
+            //if (!in_com)
+              r = true;
+          }
+          */
         }
 
         m.set (kp + (kp.empty () ? "": "-") + "direct-load", r);
