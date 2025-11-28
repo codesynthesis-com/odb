@@ -3251,6 +3251,15 @@ namespace
       names (c);
     }
 
+    virtual void
+    traverse_composite (semantics::data_member*, semantics::class_& c) override
+    {
+      if ((flags_ & context::exclude_composite_base) == 0)
+        inherits (c);
+
+      names (c);
+    }
+
   private:
     bool
     check_soft ()
