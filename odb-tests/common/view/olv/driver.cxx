@@ -23,6 +23,7 @@
 #include "test7.hxx"
 #include "test8.hxx"
 #include "test9.hxx"
+#include "test10.hxx"
 
 #include "test1-odb.hxx"
 #include "test2-odb.hxx"
@@ -33,6 +34,7 @@
 #include "test7-odb.hxx"
 #include "test8-odb.hxx"
 #include "test9-odb.hxx"
+#include "test10-odb.hxx"
 
 #undef NDEBUG
 #include <cassert>
@@ -633,6 +635,35 @@ main (int argc, char* argv[])
           assert (r.s == "b" && r.n == 3 &&
                   r.o->n == 3 && r.o->s == "b" && r.o->b);
         }
+
+        t.commit ();
+      }
+    }
+
+    // Test loading objects with weak pointers.
+    //
+    {
+      using namespace test10;
+
+      shared_ptr<object1> o1 (new object1 (123));
+      shared_ptr<object2> o2 (new object2 ("abc"));
+
+      o1->o2 = o2;
+      o2->o1 = o1;
+
+      {
+        transaction t (db->begin ());
+        db->persist (o1);
+        db->persist (o2);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        session s;
+
+        view1 r (db->query_value<view1> (query<view1>::object1::n == 123));
+        assert (r.o1->o2 == r.o2.lock ());
 
         t.commit ();
       }
