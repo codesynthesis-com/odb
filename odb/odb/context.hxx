@@ -1732,6 +1732,10 @@ public:
   static std::uint32_t const exclude_base = 0x40000;
   static std::uint32_t const include_base = 0x80000;
 
+  // By default the test goes into composite bases.
+  //
+  static std::uint32_t const exclude_composite_base = 0x100000;
+
   bool
   is_a (data_member_path const& mp,
         data_member_scope const& ms,
