@@ -1149,6 +1149,24 @@ warn_hard (const bool& x)
   this->warn_hard_ = x;
 }
 
+inline const bool& options::
+warn_unspecified_load () const
+{
+  return this->warn_unspecified_load_;
+}
+
+inline bool& options::
+warn_unspecified_load ()
+{
+  return this->warn_unspecified_load_;
+}
+
+inline void options::
+warn_unspecified_load (const bool& x)
+{
+  this->warn_unspecified_load_ = x;
+}
+
 inline const std::string& options::
 output_dir () const
 {

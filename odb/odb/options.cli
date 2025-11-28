@@ -338,6 +338,13 @@ class options
      persistent classes."
   };
 
+  bool --warn-unspecified-load
+  {
+    "Warn about object pointers that are not explicitly annotated with either
+     the \cb{db direct_load} or \cb{db indirect_load} pragma. See these
+     pragmas' documentation for details."
+  }
+
   // Output.
   //
   std::string --output-dir | -o

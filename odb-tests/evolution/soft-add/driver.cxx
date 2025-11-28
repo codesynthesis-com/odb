@@ -1117,6 +1117,215 @@ main (int argc, char* argv[])
           }
         }
 
+        // Test soft-deleted direct load object pointer.
+        {
+          using namespace test23;
+
+          // None of the database operations should yet include the
+          // added members.
+          //
+          {
+            employer er (1);
+            er.employees.push_back (employee {make_shared<person> (1, "A"), "CEO"});
+            er.employees.push_back (employee {make_shared<person> (2, "B"), "CTO"});
+
+            transaction t (db->begin ());
+            db->persist (er.employees[0].resource);
+            db->persist (er.employees[1].resource);
+            db->persist (er);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            assert (p->employees.size () == 2 &&
+                    p->employees[0].resource == nullptr &&
+                    p->employees[1].resource == nullptr);
+            t.commit ();
+          }
+
+          employer er (2);
+          er.employees.push_back (employee {make_shared<person> (3, "C"), "CFO"});
+
+          {
+            transaction t (db->begin ());
+            db->persist (er.employees[0].resource);
+            db->persist (er);
+            t.commit ();
+          }
+
+          er.employees[0] = employee {make_shared<person> (1), "CEO"};
+
+          {
+            transaction t (db->begin ());
+
+            shared_ptr<employer> p (db->load<employer> (2));
+            assert (p->employees.size () == 1 &&
+                    p->employees[0].resource == nullptr);
+
+            db->update (er);
+
+            p = db->load<employer> (2);
+            assert (p->employees.size () == 1 &&
+                    p->employees[0].resource == nullptr);
+
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (er);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member in pointed-to object of direct load
+        // pointer.
+        {
+          using namespace test24;
+
+          // None of the database operations should yet include the
+          // added members.
+          //
+          {
+            employer er (1);
+            er.employees.push_back (make_shared<person> (1, "A"));
+            er.employees.push_back (make_shared<person> (2, "B"));
+
+            transaction t (db->begin ());
+            db->persist (er.employees[0]);
+            db->persist (er.employees[1]);
+            db->persist (er);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            assert (p->employees.size () == 2 &&
+                    p->employees[0] != nullptr &&
+                    p->employees[0]->id == 1 &&
+                    p->employees[0]->name.empty () &&
+                    p->employees[1] != nullptr &&
+                    p->employees[1]->id == 2 &&
+                    p->employees[1]->name.empty ());
+
+            t.commit ();
+          }
+
+          employer er (2);
+          er.employees.push_back (make_shared<person> (3, "C"));
+
+          {
+            transaction t (db->begin ());
+            db->persist (er.employees[0]);
+            db->persist (er);
+            t.commit ();
+          }
+
+          er.employees[0] = make_shared<person> (1);
+
+          {
+            transaction t (db->begin ());
+
+            shared_ptr<employer> p (db->load<employer> (2));
+            assert (p->employees.size () == 1 &&
+                    p->employees[0] != nullptr &&
+                    p->employees[0]->id == 3 &&
+                    p->employees[0]->name.empty ());
+
+            db->update (er);
+
+            p = db->load<employer> (2);
+            assert (p->employees.size () == 1 &&
+                    p->employees[0] != nullptr &&
+                    p->employees[0]->id == 1 &&
+                    p->employees[0]->name.empty ());
+
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (er);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member in pointed-to object of direct load
+        // pointer inside composite.
+        {
+          using namespace test25;
+
+          // None of the database operations should yet include the
+          // added members.
+          //
+          {
+            employer er (1);
+            er.employees.push_back (employee {make_shared<person> (1, "A"), "CEO"});
+            er.employees.push_back (employee {make_shared<person> (2, "B"), "CTO"});
+
+            transaction t (db->begin ());
+            db->persist (er.employees[0].resource);
+            db->persist (er.employees[1].resource);
+            db->persist (er);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            assert (p->employees.size () == 2 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 1 &&
+                    p->employees[0].resource->name.empty () &&
+                    p->employees[1].resource != nullptr &&
+                    p->employees[1].resource->id == 2 &&
+                    p->employees[1].resource->name.empty ());
+
+            t.commit ();
+          }
+
+          employer er (2);
+          er.employees.push_back (employee {make_shared<person> (3, "C"), "CFO"});
+
+          {
+            transaction t (db->begin ());
+            db->persist (er.employees[0].resource);
+            db->persist (er);
+            t.commit ();
+          }
+
+          er.employees[0] = employee {make_shared<person> (1), "CEO"};
+
+          {
+            transaction t (db->begin ());
+
+            shared_ptr<employer> p (db->load<employer> (2));
+            assert (p->employees.size () == 1 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 3 &&
+                    p->employees[0].resource->name.empty ());
+
+            db->update (er);
+
+            p = db->load<employer> (2);
+            assert (p->employees.size () == 1 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 1 &&
+                    p->employees[0].resource->name.empty ());
+
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (er);
+            t.commit ();
+          }
+        }
+
         break;
       }
     case 2:
@@ -1967,6 +2176,194 @@ main (int argc, char* argv[])
           }
         }
 
+        // Test soft-deleted direct load object pointer.
+        {
+          using namespace test23;
+
+          // All the database operations should now include the added
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            p->employees[0].resource = make_shared<person> (1);
+            p->employees[1].resource = make_shared<person> (2);
+            db->update (p);
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            assert (p->employees.size () == 2 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 1  &&
+                    p->employees[0].resource->name == "A" &&
+                    p->employees[1].resource != nullptr &&
+                    p->employees[1].resource->id == 2 &&
+                    p->employees[1].resource->name == "B");
+            t.commit ();
+          }
+
+          employer er (2);
+          er.employees.push_back (employee {make_shared<person> (3), "CFO"});
+
+          {
+            transaction t (db->begin ());
+            // db->persist (er.employees[0].resource); // Already persisted.
+            db->persist (er);
+            t.commit ();
+          }
+
+          er.employees[0] = employee {make_shared<person> (1), "CEO"};
+
+          {
+            transaction t (db->begin ());
+
+            shared_ptr<employer> p (db->load<employer> (2));
+            assert (p->employees.size () == 1 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 3 &&
+                    p->employees[0].resource->name == "C");
+
+            db->update (er);
+
+            p = db->load<employer> (2);
+            assert (p->employees.size () == 1 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 1 &&
+                    p->employees[0].resource->name == "A");
+
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (er);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member in pointed-to object of direct load
+        // pointer.
+        {
+          using namespace test24;
+
+          // All the database operations should now include the added
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            assert (p->employees.size () == 2 &&
+                    p->employees[0] != nullptr &&
+                    p->employees[0]->id == 1  &&
+                    p->employees[0]->name == "J" &&
+                    p->employees[1] != nullptr &&
+                    p->employees[1]->id == 2 &&
+                    p->employees[1]->name == "J");
+            t.commit ();
+          }
+
+          employer er (2);
+          er.employees.push_back (make_shared<person> (3));
+
+          {
+            transaction t (db->begin ());
+            // db->persist (er.employees[0]); // Already persisted.
+            db->persist (er);
+            t.commit ();
+          }
+
+          er.employees[0] = make_shared<person> (1);
+
+          {
+            transaction t (db->begin ());
+
+            shared_ptr<employer> p (db->load<employer> (2));
+            assert (p->employees.size () == 1 &&
+                    p->employees[0] != nullptr &&
+                    p->employees[0]->id == 3 &&
+                    p->employees[0]->name == "J");
+
+            db->update (er);
+
+            p = db->load<employer> (2);
+            assert (p->employees.size () == 1 &&
+                    p->employees[0] != nullptr &&
+                    p->employees[0]->id == 1 &&
+                    p->employees[0]->name == "J");
+
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (er);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member in pointed-to object of direct load
+        // pointer inside composite.
+        {
+          using namespace test25;
+
+          // All the database operations should now include the added
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            assert (p->employees.size () == 2 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 1  &&
+                    p->employees[0].resource->name == "J" &&
+                    p->employees[1].resource != nullptr &&
+                    p->employees[1].resource->id == 2 &&
+                    p->employees[1].resource->name == "J");
+            t.commit ();
+          }
+
+          employer er (2);
+          er.employees.push_back (employee {make_shared<person> (3), "CFO"});
+
+          {
+            transaction t (db->begin ());
+            // db->persist (er.employees[0].resource); // Already persisted.
+            db->persist (er);
+            t.commit ();
+          }
+
+          er.employees[0] = employee {make_shared<person> (1), "CEO"};
+
+          {
+            transaction t (db->begin ());
+
+            shared_ptr<employer> p (db->load<employer> (2));
+            assert (p->employees.size () == 1 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 3 &&
+                    p->employees[0].resource->name == "J");
+
+            db->update (er);
+
+            p = db->load<employer> (2);
+            assert (p->employees.size () == 1 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 1 &&
+                    p->employees[0].resource->name == "J");
+
+            t.commit ();
+          }
+
+          {
+            transaction t (db->begin ());
+            db->erase (er);
+            t.commit ();
+          }
+        }
+
         if (embedded)
         {
           transaction t (db->begin ());
@@ -2203,6 +2600,71 @@ main (int argc, char* argv[])
             unique_ptr<object> p (db->load<object> (1));
             db->load (*p, p->s);
             assert (p->num == 123 && p->vec[0] == 123);
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted direct load object pointer.
+        {
+          using namespace test23;
+
+          // All the database operations should still include the added
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            assert (p->employees.size () == 2 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 1  &&
+                    p->employees[0].resource->name == "A" &&
+                    p->employees[1].resource != nullptr &&
+                    p->employees[1].resource->id == 2 &&
+                    p->employees[1].resource->name == "B");
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member in pointed-to object of direct load
+        // pointer.
+        {
+          using namespace test24;
+
+          // All the database operations should still include the added
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            assert (p->employees.size () == 2 &&
+                    p->employees[0] != nullptr &&
+                    p->employees[0]->id == 1  &&
+                    p->employees[0]->name == "J" &&
+                    p->employees[1] != nullptr &&
+                    p->employees[1]->id == 2 &&
+                    p->employees[1]->name == "J");
+            t.commit ();
+          }
+        }
+
+        // Test soft-deleted member in pointed-to object of direct load
+        // pointer inside composite.
+        {
+          using namespace test25;
+
+          // All the database operations should still include the added
+          // members.
+          //
+          {
+            transaction t (db->begin ());
+            shared_ptr<employer> p (db->load<employer> (1));
+            assert (p->employees.size () == 2 &&
+                    p->employees[0].resource != nullptr &&
+                    p->employees[0].resource->id == 1  &&
+                    p->employees[0].resource->name == "J" &&
+                    p->employees[1].resource != nullptr &&
+                    p->employees[1].resource->id == 2 &&
+                    p->employees[1].resource->name == "J");
             t.commit ();
           }
         }

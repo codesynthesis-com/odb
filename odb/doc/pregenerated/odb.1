@@ -269,6 +269,10 @@ Warn about hard-deleted data members and persistent classes\.
 .IP "\fB--warn-hard\fR"
 Warn about both hard-added and hard-deleted data members and persistent
 classes\.
+.IP "\fB--warn-unspecified-load\fR"
+Warn about object pointers that are not explicitly annotated with either the
+\fBdb direct_load\fR or \fBdb indirect_load\fR pragma\. See these pragmas'
+documentation for details\.
 .IP "\fB--output-dir\fR|\fB-o\fR \fIdir\fR"
 Write the generated files to \fIdir\fR instead of the current directory\.
 .IP "\fB--input-name\fR \fIname\fR"

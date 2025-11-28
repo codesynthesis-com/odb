@@ -61,10 +61,26 @@ namespace odb
         traits::bind (b, id, id_size, i, sk);
       }
 
+      // Note: references to id_type, id_image_type should be pointers since
+      // for no-id objects these are aliased as void.
+      //
+      static void
+      bind (MYSQL_BIND* b, typename traits::id_image_type* i)
+      {
+        traits::bind (b, *i);
+      }
+
       static void
       init (T& o, const image_type& i, odb::database* db)
       {
         traits::init (o, i, db);
+      }
+
+      static void
+      init (typename traits::id_image_type* i,
+            const typename traits::id_type* id)
+      {
+        traits::init (*i, *id);
       }
 
       static bool
@@ -115,10 +131,23 @@ namespace odb
         traits::bind (b, id, id_size, i, sk, svm_);
       }
 
+      static void
+      bind (MYSQL_BIND* b, typename traits::id_image_type* i)
+      {
+        traits::bind (b, *i); // No svm (id cannot be added/removed).
+      }
+
       void
       init (T& o, const image_type& i, odb::database* db) const
       {
         traits::init (o, i, db, svm_);
+      }
+
+      static void
+      init (typename traits::id_image_type* i,
+            const typename traits::id_type* id)
+      {
+        traits::init (*i, *id); // No svm (id cannot be added/removed).
       }
 
       bool

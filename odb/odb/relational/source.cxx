@@ -196,7 +196,6 @@ traverse_object (type& c)
 
     // id (image)
     //
-    if (options.generate_query ())
     {
       os << traits << "::id_type" << endl
          << traits << "::" << endl
@@ -433,7 +432,7 @@ traverse_object (type& c)
     {
       os << "if (bv)"
          << "{"
-         << "n += " << column_count (c).id << ";"
+         << "n += " << column_count (c).id << ";" // Same for insert vs select.
          << endl;
 
       bind_version_member_->traverse (*opt);
@@ -4552,7 +4551,7 @@ traverse_view (type& c)
   string traits ("access::view_traits_impl< " + type + ", id_" +
                  db.string () + " >");
 
-  size_t columns (column_count (c).total);
+  size_t columns (column_count (c, true /* select */).total);
 
   // Schema name as a string literal or empty.
   //
@@ -5291,9 +5290,9 @@ traverse_view (type& c)
          << db << "::transaction::current ().connection (*db));"
          << endl;
 
-    names (c, init_view_pointer_member_pre_names_);
+    names (c, init_direct_pointer_member_pre_names_);
     names (c, init_value_member_names_);
-    names (c, init_view_pointer_member_post_names_);
+    names (c, init_direct_pointer_member_post_names_);
 
     os << "}";
   }

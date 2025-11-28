@@ -147,6 +147,7 @@ namespace test2
     comp (): o2 (0) {}
     ~comp () {delete o2;}
 
+    #pragma db indirect_load
     object2* o2;
   };
 

@@ -74,9 +74,9 @@ namespace odb
         return id_binding_;
       }
 
-      // Data image. The image is split into the id (that comes as a
-      // binding) and index/key plus value which are in data_image_type.
-      // The select binding is a subset of the full binding (no id).
+      // Data image. The image is split into the id (that comes as a binding)
+      // and index/key plus value which are in data_image_type. The select
+      // binding is a subset of the full binding (skipping id).
       //
       data_image_type&
       data_image ()
@@ -105,6 +105,24 @@ namespace odb
         data_image_version_ = data_image_.version;
         insert_image_binding_.version++;
         select_image_binding_.version++;
+      }
+
+      bind*
+      select_bind ()
+      {
+        return data_bind ();
+      }
+
+      bool
+      select_binding_test_version () const
+      {
+        return data_binding_test_version ();
+      }
+
+      void
+      select_binding_update_version ()
+      {
+        data_binding_update_version ();
       }
 
       //
@@ -186,8 +204,196 @@ namespace odb
       details::shared_ptr<delete_statement_type> delete_;
     };
 
+    // Similar to container_statements (indirect) but here we cannot share the
+    // binding between insert and select (so select gets its own).
+    //
     template <typename T>
-    class smart_container_statements: public container_statements<T>
+    class direct_container_statements
+    {
+    public:
+      typedef T traits;
+
+      typedef typename traits::data_image_type data_image_type;
+      typedef typename traits::functions_type functions_type;
+
+      typedef mssql::insert_statement insert_statement_type;
+      typedef mssql::select_statement select_statement_type;
+      typedef mssql::delete_statement delete_statement_type;
+
+      typedef mssql::connection connection_type;
+
+      direct_container_statements (connection_type&, binding& id_binding);
+
+      connection_type&
+      connection ()
+      {
+        return conn_;
+      }
+
+      // Functions.
+      //
+      functions_type&
+      functions ()
+      {
+        return functions_;
+      }
+
+      // Schema version.
+      //
+      const schema_version_migration&
+      version_migration () const {return *svm_;}
+
+      void
+      version_migration (const schema_version_migration& svm) {svm_ = &svm;}
+
+      // Id image binding (external).
+      //
+      const binding&
+      id_binding ()
+      {
+        return id_binding_;
+      }
+
+      // Data image. The image is split into the id (that comes as a binding)
+      // and index/key plus value which are in data_image_type. The select
+      // binding is separate since it has to bind pointed objects's images
+      // fully rather than just their ids.
+      //
+      data_image_type&
+      data_image ()
+      {
+        return data_image_;
+      }
+
+      bind*
+      data_bind ()
+      {
+        return insert_image_binding_.bind;
+      }
+
+      bool
+      data_binding_test_version () const
+      {
+        return data_id_binding_version_ != id_binding_.version ||
+          data_image_version_ != data_image_.version ||
+          insert_image_binding_.version == 0;
+      }
+
+      void
+      data_binding_update_version ()
+      {
+        data_id_binding_version_ = id_binding_.version;
+        data_image_version_ = data_image_.version;
+        insert_image_binding_.version++;
+      }
+
+      bind*
+      select_bind ()
+      {
+        return select_image_binding_.bind;
+      }
+
+      bool
+      select_binding_test_version () const
+      {
+        return select_image_version_ != data_image_.version ||
+          select_image_binding_.version == 0;
+      }
+
+      void
+      select_binding_update_version ()
+      {
+        select_image_version_ = data_image_.version;
+        select_image_binding_.version++;
+      }
+
+      //
+      // Statements.
+      //
+
+      insert_statement_type&
+      insert_statement ()
+      {
+        if (insert_ == 0)
+          insert_.reset (
+            new (details::shared) insert_statement_type (
+              conn_,
+              insert_text_,
+              versioned_,   // Process if versioned.
+              insert_image_binding_,
+              false,
+              false,
+              0,
+              false));
+
+        return *insert_;
+      }
+
+      select_statement_type&
+      select_statement ()
+      {
+        if (select_ == 0)
+          select_.reset (
+            new (details::shared) select_statement_type (
+              conn_,
+              select_text_,
+              versioned_,   // Process if versioned.
+              false,        // Don't optimize.
+              id_binding_,
+              select_image_binding_,
+              false));
+
+        return *select_;
+      }
+
+      delete_statement_type&
+      delete_statement ()
+      {
+        if (delete_ == 0)
+          delete_.reset (
+            new (details::shared) delete_statement_type (
+              conn_, delete_text_, id_binding_, false));
+
+        return *delete_;
+      }
+
+    private:
+      direct_container_statements (const direct_container_statements&);
+      direct_container_statements& operator= (const direct_container_statements&);
+
+    protected:
+      connection_type& conn_;
+      binding& id_binding_;
+
+      functions_type functions_;
+
+      data_image_type data_image_;
+      std::size_t data_image_version_;
+      std::size_t data_id_binding_version_;
+
+      binding insert_image_binding_;
+
+      std::size_t select_image_version_;
+      binding select_image_binding_;
+
+      const char* insert_text_;
+      const char* select_text_;
+      const char* delete_text_;
+
+      bool versioned_;
+      const schema_version_migration* svm_;
+
+      details::shared_ptr<insert_statement_type> insert_;
+      details::shared_ptr<select_statement_type> select_;
+      details::shared_ptr<delete_statement_type> delete_;
+    };
+
+    // B should be either container_statements or direct_container_statements
+    // (what smart adds is the same for direct/indirect, which only affects
+    // select).
+    //
+    template <typename T, template <typename> class B>
+    class smart_container_statements: public B<T>
     {
     public:
       typedef T traits;
@@ -309,7 +515,8 @@ namespace odb
       details::shared_ptr<update_statement_type> update_;
     };
 
-    // Template argument is the generated concrete container traits type.
+    // Template argument is the generated concrete container traits type
+    // (direct/indirect should be consistent with T::statements_type).
     //
     template <typename T>
     class container_statements_impl: public T::statements_type
@@ -330,7 +537,29 @@ namespace odb
     };
 
     template <typename T>
-    class smart_container_statements_impl: public container_statements_impl<T>
+    class direct_container_statements_impl: public T::statements_type
+    {
+    public:
+      typedef T traits;
+      typedef typename T::statements_type base;
+      typedef mssql::connection connection_type;
+
+      direct_container_statements_impl (connection_type&, binding&);
+
+    private:
+      direct_container_statements_impl (const direct_container_statements_impl&);
+      direct_container_statements_impl& operator= (const direct_container_statements_impl&);
+
+    private:
+      bind data_image_bind_[traits::data_column_count];
+      bind select_image_bind_[traits::select_column_count];
+    };
+
+    // B should be either container_statements_impl or
+    // direct_container_statements_impl.
+    //
+    template <typename T, template <typename> class B>
+    class smart_container_statements_impl: public B<T>
     {
     public:
       typedef T traits;

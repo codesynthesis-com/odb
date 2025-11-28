@@ -94,16 +94,27 @@ namespace relational
     {
       typedef object_columns base;
 
-      // If provided, used to resolve table/alias names for inverse
-      // pointed-to and base objects. Returns qualified name.
+      // If provided, used to resolve table/alias names for direct load and
+      // inverse pointed-to as well as polymorphic base objects. Returns
+      // qualified name.
       //
       struct table_name_resolver
       {
+        // The default_name argument is the default table/alias name. The
+        // table_name argument is the actual table name. Both are qualified
+        // and can be the same (e.g., for containers). If table_name is empty,
+        // then no qualification is used and the result should be empty as
+        // well.
+        //
         virtual string
-        resolve_pointer (semantics::data_member&) const = 0;
+        resolve_pointer (semantics::data_member&, semantics::class_&,
+                         const string& key_prefix,
+                         const column_prefix&,
+                         string default_name,
+                         string table_name) = 0;
 
         virtual string
-        resolve_base (semantics::class_&) const = 0;
+        resolve_base (semantics::class_&) = 0;
       };
 
       object_columns (statement_kind sk,
@@ -214,10 +225,15 @@ namespace relational
         if (imp != 0 && sk_ != statement_select)
           return;
 
+        bool direct_load (direct_load_pointer (m, key_prefix_));
+
         // Inverse object pointers come from a joined table.
         //
         if (imp != 0)
         {
+          // Note that direct loading of inverse pointers is (for now) handled
+          // directly in traverse_container().
+
           bool poly (polymorphic (c) != 0);
           semantics::data_member& imf (*imp->front ());
           semantics::data_member& imb (*imp->back ());
@@ -244,12 +260,11 @@ namespace relational
             string table;
 
             if (!table_name_.empty ())
-            {
-              if (table_name_resolver_ != 0)
-                table = table_name_resolver_->resolve_pointer (m);
-              else
-                table = table_qname (imc, *imp);
-            }
+              table = table_qname (imc, *imp);
+
+            if (table_name_resolver_ != 0)
+              table = table_name_resolver_->resolve_pointer (
+                m, c, key_prefix_, column_prefix_, table, table);
 
             instance<object_columns> oc (table, sk_, sc_);
             oc->traverse (imb, idt, "id", "object_id", &imc);
@@ -272,45 +287,106 @@ namespace relational
 
             if (!table_name_.empty ())
             {
-              if (table_name_resolver_ != 0)
-                alias = table_name_resolver_->resolve_pointer (m);
+              string n;
+              if (composite_wrapper (idt))
+              {
+                n = column_prefix (m, key_prefix_, default_name_).prefix;
+
+                if (n.empty ())
+                  n = public_name_db (m);
+                else if (n[n.size () - 1] == '_')
+                  n.resize (n.size () - 1); // Remove trailing underscore.
+              }
               else
               {
-                string n;
-
-                if (composite_wrapper (idt))
-                {
-                  n = column_prefix (m, key_prefix_, default_name_).prefix;
-
-                  if (n.empty ())
-                    n = public_name_db (m);
-                  else if (n[n.size () - 1] == '_')
-                    n.resize (n.size () - 1); // Remove trailing underscore.
-                }
-                else
-                {
-                  bool dummy;
-                  n = column_name (m, key_prefix_, default_name_, dummy);
-                }
-
-                alias = column_prefix_.prefix + n;
-
-                if (poly)
-                {
-                  qname const& table (table_name (imc));
-                  alias = quote_id (alias + "_" + table.uname ());
-                }
-                else
-                  alias = quote_id (alias);
+                bool dummy;
+                n = column_name (m, key_prefix_, default_name_, dummy);
               }
+
+              alias = column_prefix_.prefix + n;
+
+              if (poly)
+              {
+                qname const& table (table_name (imc));
+                alias = quote_id (alias + "_" + table.uname ());
+              }
+              else
+                alias = quote_id (alias);
             }
+
+            if (table_name_resolver_ != 0)
+              alias = table_name_resolver_->resolve_pointer (
+                m, c,
+                key_prefix_, column_prefix_,
+                move (alias),
+                !table_name_.empty () ? table_qname (imc) : string ());
 
             instance<object_columns> oc (alias, sk_, sc_);
             oc->traverse (id);
           }
         }
         else
-          object_columns_base::traverse_pointer (m, c);
+        {
+          if (sk_ == statement_select && direct_load)
+          {
+            // Direct loading of polymorphic objects is only supported in
+            // views, which have their own view_columns.
+            //
+            assert (!polymorphic (c));
+
+            // Derive the alias similar to the inverse case above.
+            //
+            string alias;
+            if (container (m))
+            {
+              // Can only be top-level container (no containers of containers).
+              //
+              assert (!key_prefix_.empty ());
+
+              // Use the key prefix as an alias in case we have both key and
+              // value pointing to the same object.
+              //
+              alias = quote_id (key_prefix_);
+            }
+            else
+            {
+              semantics::type& idt (utype (*id_member (c)));
+
+              string n;
+              if (composite_wrapper (idt))
+              {
+                n = column_prefix (m, key_prefix_, default_name_).prefix;
+
+                if (n.empty ())
+                  n = public_name_db (m);
+                else if (n[n.size () - 1] == '_')
+                  n.resize (n.size () - 1); // Remove trailing underscore.
+              }
+              else
+              {
+                bool dummy;
+                n = column_name (m, key_prefix_, default_name_, dummy);
+              }
+
+              alias = quote_id (column_prefix_.prefix + n);
+            }
+
+            if (table_name_resolver_ != 0)
+              alias = table_name_resolver_->resolve_pointer (
+                m, c,
+                key_prefix_, column_prefix_,
+                move (alias), table_qname (c));
+
+            statement_kind sk (statement_select); // Imperfect forwarding.
+            object_section* s (&main_section); // Imperfect forwarding.
+            size_t poly_depth (1); // Imperfect forwarding.
+            instance<object_columns> oc (
+              alias, sk, sc_, poly_depth, s, table_name_resolver_);
+            oc->traverse (c);
+          }
+          else
+            object_columns_base::traverse_pointer (m, c);
+        }
       }
 
       virtual bool
@@ -388,8 +464,15 @@ namespace relational
       // Implementation of table_name_resolver for object_columns.
       //
       virtual string
-      resolve_pointer (semantics::data_member& m) const
+      resolve_pointer (semantics::data_member& m,
+                       semantics::class_& c,
+                       const string& key_prefix,
+                       const column_prefix&,
+                       string /*default_name*/,
+                       string table_name_)
       {
+        assert (key_prefix.empty () && !table_name_.empty ());
+
         view_object& us (*ptr_->get<view_object*> ("view-object"));
 
         data_member_path& imp (*inverse (m));
@@ -463,7 +546,7 @@ namespace relational
         //
         // This code follows the normal JOIN generation code.
         //
-        class_* o (object_pointer (utype (m)));
+        class_* o (&c);
         if (class_* root = polymorphic (*o))
         {
           o = &static_cast<class_&> (imf.scope ());
@@ -552,7 +635,7 @@ namespace relational
       }
 
       virtual string
-      resolve_base (semantics::class_& b) const
+      resolve_base (semantics::class_& b)
       {
         view_object& vo (*ptr_->get<view_object*> ("view-object"));
 
@@ -829,7 +912,10 @@ namespace relational
         //
         else if (!query_)
         {
+          // Note: polymorphic object are not directly loaded.
+          //
           column_count_type const& cc (column_count (c));
+
           if (cc.total == cc.id + cc.separate_load)
             skip = true;
         }
@@ -901,6 +987,22 @@ namespace relational
             query_ (query),
             depth_ (depth),
             table_ (table_qname (scope)),
+            id_ (*id_member (scope))
+      {
+        id_cols_->traverse (id_);
+      }
+
+      object_joins (semantics::class_& scope,
+                    string table_qname,
+                    string from,
+                    bool query,
+                    size_t depth,
+                    object_section* section = 0)
+          : object_columns_base (true, true, section),
+            query_ (query),
+            depth_ (depth),
+            table_ (move (table_qname)),
+            from_ (move (from)),
             id_ (*id_member (scope))
       {
         id_cols_->traverse (id_);
@@ -1006,6 +1108,9 @@ namespace relational
             //
             t = table_qname (imc, *imp);
 
+            if (t == from_) // Avoid self-JOIN.
+              return;
+
             // Container's value is our id.
             //
             instance<object_columns_list> id_cols;
@@ -1060,6 +1165,10 @@ namespace relational
             qname const& table (table_name (imc));
 
             t = quote_id (table);
+
+            if (t == from_) // Avoid self-JOIN.
+              return;
+
             a = quote_id (poly ? alias + "_" + table.uname () : alias);
 
             instance<object_columns_list> id_cols;
@@ -1090,6 +1199,10 @@ namespace relational
           qname const& table (table_name (c));
 
           t = quote_id (table);
+
+          if (t == from_) // Avoid self-JOIN.
+            return;
+
           a = quote_id (poly ? alias + "_" + table.uname () : alias);
 
           instance<object_columns_list> oid_cols (column_prefix_);
@@ -1188,6 +1301,7 @@ namespace relational
       bool query_;
       size_t depth_;
       string table_;
+      string from_; // The FROM table (if any) to avoid self-JOIN.
       data_member_path& id_;
       instance<object_columns_list> id_cols_;
     };
@@ -1522,16 +1636,21 @@ namespace relational
           if (av != 0 || dv != 0)
             os << "}";
 
-          if (mi.ptr != 0 && view_member (mi.m))
+          // See column_count_impl for details on what's going on here.
+          //
+          bool select (false); // Select is handled specially.
+          if (mi.ptr != 0 && direct_load_pointer (mi.m, key_prefix_))
           {
-            // See column_count_impl for details on what's going on here.
-            //
+            bool viewm (view_member (mi.m));
+
             column_count_type cc;
             if (semantics::class_* root = polymorphic (*mi.ptr))
             {
+              assert (viewm);
+
               for (semantics::class_* b (mi.ptr);; b = &polymorphic_base (*b))
               {
-                column_count_type const& ccb (column_count (*b));
+                column_count_type const& ccb (column_count (*b, true /*select*/));
 
                 cc.total += ccb.total - (b != root ? ccb.id : 0);
                 cc.separate_load += ccb.separate_load;
@@ -1541,14 +1660,36 @@ namespace relational
               }
             }
             else
-              cc = column_count (*mi.ptr);
+              cc = column_count (*mi.ptr, true /* select */);
+
+            if (!viewm)
+            {
+              os << "if (sk == statement_select)" << endl;
+              select = true;
+            }
 
             os << "n += " << cc.total - cc.separate_load << "UL;";
           }
+
+          if (mi.ptr != 0 && view_member (mi.m))
+            ; // No insert/update in views.
           else if (comp != 0)
           {
+            if (!select && has_a (*comp, test_direct_load_pointer))
+            {
+              column_count_type const& cc (column_count (*comp, true /*select*/));
+
+              os << "if (sk == statement_select)" << endl
+                 << "n += " << cc.total << "UL;";
+
+              select = true;
+            }
+
             bool ro (readonly (*comp));
             column_count_type const& cc (column_count (*comp));
+
+            if (select)
+              os << "else" << endl;
 
             os << "n += " << cc.total << "UL";
 
@@ -1558,8 +1699,10 @@ namespace relational
             //
             if (cc.inverse != 0 || (!ro && cc.readonly != 0))
             {
-              os << " - (" << endl
-                 << "sk == statement_select ? 0 : ";
+              os << " - (" << endl;
+
+              if (!select)
+                os << "sk == statement_select ? 0 : ";
 
               if (cc.inverse != 0)
                 os << cc.inverse << "UL";
@@ -1580,7 +1723,12 @@ namespace relational
             os << ";";
           }
           else
+          {
+            if (select)
+              os << "else" << endl;
+
             os << "n++;";
+          }
 
           bool block (false);
 
@@ -1613,21 +1761,57 @@ namespace relational
       virtual void
       traverse_pointer (member_info& mi)
       {
-        // Object pointers in views require special treatment.
-        //
-        if (view_member (mi.m))
+        bool direct_load (direct_load_pointer (mi.m, key_prefix_));
+
+        if (direct_load)
         {
+          bool viewm (view_member (mi.m));
+
           semantics::class_& c (*mi.ptr);
           semantics::class_* poly_root (polymorphic (c));
           bool poly_derived (poly_root != 0 && poly_root != &c);
+
+          // Only views support direct loading of polymorphic objects.
+          //
+          assert (poly_root == nullptr || viewm);
+
+          if (!viewm)
+            os << "if (sk == statement_select)"
+               << "{";
 
           os << "object_traits_impl< " << class_fq_name (c) << ", id_" <<
             db << " >::bind (" << endl
              << "b + n, " << (poly_derived ? "0, 0, " : "") << arg << "." <<
             mi.var << "value, sk" << (versioned (c) ? ", svm" : "") << ");";
+
+          if (viewm)
+            return; // No insert/update in views.
+
+          os << "}";
         }
-        else
-          member_base_impl<T>::traverse_pointer (mi);
+
+        string ovar;
+        if (direct_load)
+        {
+          ovar = mi.var;
+
+          // Get to id inside object image.
+          //
+          mi.var += "value.";
+          mi.var += member_base_impl<T>::member_var_name (
+            *id_member (*mi.ptr)->front ());
+
+          os << "else"
+             << "{";
+        }
+
+        member_base_impl<T>::traverse_pointer (mi);
+
+        if (direct_load)
+        {
+          os << "}";
+          mi.var = move (ovar);
+        }
       }
 
       virtual void
@@ -1679,8 +1863,6 @@ namespace relational
         os << class_fq_name (c) << ", id_" << db << " >::bind (b + n, i, sk" <<
           (versioned (c) ? ", svm" : "") << ");";
 
-        column_count_type const& cc (column_count (c));
-
         os << "n += ";
 
         // select = total - separate_load
@@ -1688,9 +1870,19 @@ namespace relational
         // update = total - inverse - optimistic_managed - id - readonly -
         //  separate_update
         //
-        size_t select (cc.total - cc.separate_load);
+        column_count_type const& cc (column_count (c));
+
+        size_t select;
         size_t insert (cc.total - cc.inverse - cc.optimistic_managed);
         size_t update (insert - cc.id - cc.readonly - cc.separate_update);
+
+        if (has_a (c, test_direct_load_pointer))
+        {
+          column_count_type const& scc (column_count (c, true /* select */));
+          select = scc.total - scc.separate_load;
+        }
+        else
+          select = cc.total - cc.separate_load;
 
         data_member_path* id;
         if (!insert_send_auto_id && (id = id_member (c)) != 0 && auto_ (*id))
@@ -1875,16 +2067,20 @@ namespace relational
             os << "}";
         }
 
-        if (mi.ptr != 0 && view_member (mi.m))
+        // See column_count_impl for details on what's going on here.
+        //
+        // Note: grow is always for select, so no statement kind checks.
+        //
+        if (mi.ptr != 0 && direct_load_pointer (mi.m, key_prefix_))
         {
-          // See column_count_impl for details on what's going on here.
-          //
           column_count_type cc;
           if (semantics::class_* root = polymorphic (*mi.ptr))
           {
+            assert (view_member (mi.m));
+
             for (semantics::class_* b (mi.ptr);; b = &polymorphic_base (*b))
             {
-              column_count_type const& ccb (column_count (*b));
+              column_count_type const& ccb (column_count (*b, true /*select*/));
 
               cc.total += ccb.total - (b != root ? ccb.id : 0);
               cc.separate_load += ccb.separate_load;
@@ -1894,12 +2090,12 @@ namespace relational
             }
           }
           else
-            cc = column_count (*mi.ptr);
+            cc = column_count (*mi.ptr, true /* select */);
 
           index_ += cc.total - cc.separate_load;
         }
         else if (comp != 0)
-          index_ += column_count (*comp).total;
+          index_ += column_count (*comp, true /* select */).total;
         else
           index_++;
       }
@@ -1907,11 +2103,11 @@ namespace relational
       virtual void
       traverse_pointer (member_info& mi)
       {
-        // Object pointers in views require special treatment. They
-        // can only be immediate members of the view class.
-        //
-        if (view_member (mi.m))
+        if (direct_load_pointer (mi.m, key_prefix_))
         {
+          // Note: object pointers in views can only be immediate members of
+          // the view class.
+          //
           semantics::class_& c (*mi.ptr);
 
           os << "if (object_traits_impl< " << class_fq_name (c) <<
@@ -1974,7 +2170,11 @@ namespace relational
            << "grew = true;"
            << endl;
 
-        index_ += column_count (c).total;
+        // Note: grow is always for select.
+        //
+        column_count_type const& cc (column_count (c, true /* select */));
+
+        index_ += cc.total - cc.separate_load;
       }
 
     protected:
@@ -2232,6 +2432,15 @@ namespace relational
 
         if (mi.ptr != 0)
         {
+          if (direct_load_pointer (mi.m, key_prefix_))
+          {
+            // Get to id inside object image.
+            //
+            mi.var += "value.";
+            mi.var += member_base_impl<T>::member_var_name (
+              *id_member (*mi.ptr)->front ());
+          }
+
           // When handling a pointer, mi.t is the id type of the referenced
           // object.
           //
@@ -2478,7 +2687,7 @@ namespace relational
       }
 
       virtual void
-      get_null (string const& /*var*/) const {};
+      get_null (string const& /*var*/) const {assert (false);};
 
     protected:
       string member_override_;
@@ -2536,6 +2745,11 @@ namespace relational
         {
           os << "{";
           member = member_override_;
+
+          // That's enough for direct load object pointer.
+          //
+          if (mi.ptr != 0 && direct_load_pointer (mi.m, key_prefix_))
+            return true;
         }
         else
         {
@@ -2597,8 +2811,10 @@ namespace relational
 
           os << "{";
 
-          if (mi.ptr != 0 && view_member (mi.m))
-            return true; // That's enough for the object pointer in view.
+          // That's enough for direct load object pointer.
+          //
+          if (mi.ptr != 0 && direct_load_pointer (mi.m, key_prefix_))
+            return true;
 
           // Set the member using the modifier expression.
           //
@@ -2754,12 +2970,19 @@ namespace relational
       {
         if (mi.ptr != 0)
         {
-          if (view_member (mi.m))
+          if (direct_load_pointer (mi.m, key_prefix_))
           {
-            // The object pointer in view doesn't need any of this.
+            // @@ N+1: do we need the equivalent of the "wrap back" logic
+            //         below? Do we even support wrapped object pointers?
+
+            // The direct load object pointer doesn't need any of this.
+            //
             os << "}";
             return;
           }
+
+          // Note: see similar code in init_direct_load_pointer_member
+          // (non-view post case).
 
           // Restore the member variable name.
           //
@@ -2853,19 +3076,26 @@ namespace relational
       virtual void
       traverse_pointer (member_info& mi)
       {
-        // Object pointers in views require special treatment.
+        // Direct load object pointers require special treatment.
         //
-        if (view_member (mi.m))
+        if (direct_load_pointer (mi.m, key_prefix_))
         {
-          // This is the middle part. The pre and post parts are generated
-          // by init_view_pointer_member below.
+          // This is the middle part. The pre and post parts are generated by
+          // init_direct_load_pointer_member below (refer there for
+          // background).
           //
           using semantics::class_;
+
+          bool viewm (view_member (mi.m));
 
           class_& c (*mi.ptr);
           class_* poly_root (polymorphic (c));
           bool poly (poly_root != 0);
           bool poly_derived (poly && poly_root != &c);
+
+          // Direct loading of polymorphic object is only supported in views.
+          //
+          assert (!poly || viewm);
 
           string o_tp (mi.var + "object_type");
           string o_tr (mi.var + "object_traits");
@@ -2874,6 +3104,7 @@ namespace relational
 
           string id (mi.var + "id");
           string o  (mi.var + "o");
+          string ig (mi.var + "ig"); // Cache insert guard.
           string pi (mi.var + "pi"); // Polymorphic type info.
 
           // If load_() will be loading containers or the rest of the
@@ -2881,6 +3112,9 @@ namespace relational
           // things. We need to initialize the id image in the object
           // statements. We also have to lock the statements so that
           // nobody messes up this id image.
+          //
+          // Note that we have to call load_() regardless since it may need to
+          // do other housekeeping (reset sections, etc).
           //
           bool init_id (
             poly ||
@@ -2916,12 +3150,21 @@ namespace relational
 
             if (init_id)
             {
-              // This can only be top-level call so lock must succeed.
-              //
-              os << r_tr << "::statements_type::auto_lock l (sts);"
-                 << "assert (l.locked ()) /* Must be a top-level call. */;"
-                 << endl
-                 << r_tr << "::id_image_type& i (sts.id_image ());"
+              os << r_tr << "::statements_type::auto_lock l (sts);";
+
+              if (viewm)
+              {
+                // This can only be top-level call so lock must succeed.
+                //
+                os << "assert (l.locked ()) /* Must be a top-level call. */;"
+                   << endl;
+              }
+              else
+                os << endl
+                   << "if (l.locked ())"
+                   << "{";
+
+              os << r_tr << "::id_image_type& i (sts.id_image ());"
                  << r_tr << "::init (i, " << id << ");"
                  << db << "::binding& idb (sts.id_image_binding ());"
                  << "if (i.version != sts.id_image_version () || " <<
@@ -2951,8 +3194,21 @@ namespace relational
                  << "}";
 
             if (init_id)
+            {
               os << "sts.load_delayed (" << (versioned ? "&svm" : "0") << ");"
                  << "l.unlock ();";
+
+              // @@ MOVE id
+              //
+              if (!viewm)
+                os << "}" // if (l.locked ())
+                   << "else"
+                   << "{"
+                   << "sts.delay_load (" << id << ", *" << o << ", " <<
+                  ig << ".position (), 0, true);" // Pre-init'ed.
+                   << o << " = 0;" // Skip calling callbacks in post.
+                   << "}";
+            }
           }
 
           os << "}";
@@ -2991,27 +3247,72 @@ namespace relational
     // This class generates the pre and post parts. The middle part is
     // generated by init_value_member above.
     //
-    struct init_view_pointer_member: virtual member_base,
-                                     member_base_impl<bool> // Dummy SQL type.
+    // The reason we need to generate "parallel" pre/middle/post parts for all
+    // the pointers is recursive loading: we need to allocate and enter into
+    // cache all the objects we are going to load before calling their init()
+    // functions since they may need to load the same objects (in which case
+    // they should reuse what we have cached rather creating duplicate
+    // instances).
+    //
+    struct init_direct_load_pointer_member:
+      virtual member_base, member_base_impl<bool> // Dummy SQL type.
     {
-      typedef init_view_pointer_member base;
+      typedef init_direct_load_pointer_member base;
 
-      init_view_pointer_member (bool pre, init_value_member const& ivm)
+      init_direct_load_pointer_member (bool pre, init_value_member const& ivm)
           : member_base (0, 0, string (), string (), 0),
             pre_ (pre), init_value_member_ (ivm) {}
+
+      init_direct_load_pointer_member (string const& var,
+                                       string const& member,
+                                       semantics::type& t,
+                                       const custom_cxx_type* ct,
+                                       string const& fq_type,
+                                       string const& key_prefix,
+                                       bool pre, init_value_member const& ivm)
+          : member_base (var, &t, ct, fq_type, key_prefix),
+            member_override_ (member),
+            pre_ (pre), init_value_member_ (ivm)
+      {
+      }
 
       virtual bool
       pre (member_info& mi)
       {
-        // Only interested in object pointers inside views.
+        // Only interested in direct load object pointers.
         //
-        return mi.ptr != 0 && view_member (mi.m);
+        if (mi.ptr == 0 || !direct_load_pointer (mi.m, key_prefix_))
+          return false;
+
+        // Recreate the ignore semantics as in init_value_member_impl above.
+        //
+        if (container (mi))
+          return false;
+
+        if (section_ != 0 && *section_ != section (mi.m))
+          return false;
+
+        if (!member_override_.empty ())
+          ;
+        else
+        {
+          // Ignore separately loaded members.
+          //
+          if (section_ == 0 && separate_load (mi.m))
+            return false;
+
+          // Note: we handle member versioning in traverse_pointer() below.
+        }
+
+        return true;
       }
 
       virtual void
       traverse_pointer (member_info& mi)
       {
         using semantics::class_;
+
+        bool viewm (view_member (mi.m));
 
         class_& c (*mi.ptr);
         bool abst (abstract (c));
@@ -3020,9 +3321,14 @@ namespace relational
         bool poly_derived (poly && poly_root != &c);
         size_t poly_depth (poly_derived ? polymorphic_depth (c) : 1);
 
+        // Direct loading of polymorphic objects is only supported in view.
+        //
+        assert (!poly || viewm);
+
         data_member_path* idm (id_member (poly ? *poly_root : c));
 
-        os << "// " << mi.m.name () << (pre_ ? " pre" : " post") << endl
+        os << "// " << (key_prefix_.empty () ? mi.m.name () : key_prefix_) <<
+          (pre_ ? " pre" : " post") << endl
            << "//" << endl;
 
         string o_tp (mi.var + "object_type");
@@ -3037,11 +3343,17 @@ namespace relational
         string p  (mi.var + "p");  // Object pointer.
         string pg (mi.var + "pg"); // Pointer guard.
         string ig (mi.var + "ig"); // Cache insert guard.
-        string o  (mi.var + "o");  // Object.
+        string o  (mi.var + "o");  // Object (as raw pointer).
         string pi (mi.var + "pi"); // Polymorphic type info.
 
+        // The special "initialized raw member pointer is by value load" only
+        // applied to views.
+        //
+        // Note that if mp_raw is false, then op_raw is irrelevant, except for
+        // NULL initialization.
+        //
+        bool mp_raw (viewm && utype (mi.m).is_a<semantics::pointer> ());
         bool op_raw (c.get<bool> ("object-pointer-raw"));
-        bool mp_raw (utype (mi.m).is_a<semantics::pointer> ());
 
         // Output aliases and variables before any schema version if-
         // blocks since we need to be able to access them across all
@@ -3084,6 +3396,18 @@ namespace relational
         //
         unsigned long long av (added (mi.m));
         unsigned long long dv (deleted (mi.m));
+
+        // If the addition/deletion version is the same as the section's,
+        // then we don't need the test.
+        //
+        if (user_section* s = dynamic_cast<user_section*> (section_))
+        {
+          if (av == added (*s->member))
+            av = 0;
+
+          if (dv == deleted (*s->member))
+            dv = 0;
+        }
 
         if (av != 0 || dv != 0)
         {
@@ -3243,7 +3567,7 @@ namespace relational
             os << "}"  // Cache.
                << "}"; // NULL.
         }
-        else
+        else // post
         {
           os << "if (" << o << " != 0)"
              << "{";
@@ -3256,96 +3580,190 @@ namespace relational
             os << o_tr << "::callback (*db, *" << o <<
               ", callback_event::post_load);";
 
-          if (idm != 0)
+          if (viewm)
           {
-            if (mp_raw && !op_raw && !poly)
-              os << "if (!" << p_tr << "::null_ptr (" << p << "))"
-                 << "{";
+            if (idm != 0)
+            {
+              if (mp_raw && !op_raw && !poly)
+                os << "if (!" << p_tr << "::null_ptr (" << p << "))"
+                   << "{";
+
+              os << c_tr << "::load (" << ig << ".position ());"
+                 << ig << ".release ();";
+
+              if (mp_raw && !op_raw && !poly)
+                os << "}";
+            }
+
+            os << pg << ".release ();";
+
+            os << "}";
+          }
+          else
+          {
+            // For direct load pointers outside views we also use NULL object
+            // pointer to signal delayed load (see the middle part). Which
+            // means we must release guards unconditionally.
 
             os << c_tr << "::load (" << ig << ".position ());"
-               << ig << ".release ();";
-
-            if (mp_raw && !op_raw && !poly)
-              os << "}";
+               << "}"
+               << ig << ".release ();"
+               << pg << ".release ();"
+               << endl;
           }
 
-          os << pg  << ".release ();";
-
-          os << "}";
-
-          // If member pointer is not raw, then result is in p.
+          // If member pointer is not raw, then the result is in p.
           // If both member and object are raw, then result is in o.
           // If member is raw but object is not, then result is in
           // p if it is not NULL, and in o (either NULL or the same
           // as the member value) otherwise.
           //
-          member_access& ma (mi.m.get<member_access> ("set"));
-
-          if (ma.empty () && !poly)
+          if (!viewm)
           {
-            // It is ok to have empty modifier expression as long as
-            // the member pointer is raw. This is the by-value load
-            // and the user is not interested in learning whether the
-            // object is NULL.
-            //
-            if (!mp_raw)
-            {
-              error (ma.loc) << "non-empty modifier expression required " <<
-                "for loading an object via a smart pointer" << endl;
-              throw operation_failed ();
-            }
+            bool weak (weak_pointer (utype (mi.m, key_prefix_)));
+            bool nullable (null (mi.m, key_prefix_));
 
-            os << "// Empty modifier expression was specified for this\n"
-               << "// object so make sure we have actually loaded the\n"
-               << "// data into the existing instance rather than, say,\n"
-               << "// finding the object in the cache or creating a new one.\n"
-               << "//\n"
-               << "assert (" << p_tr << "::null_ptr (" << p << "));";
+            if (weak && nullable)
+              os << "bool is_null (" << p_tr << "::null_ptr (" << p << "));"
+                 << endl;
+
+            // This is a simplified version of the view logic below with some
+            // elements of non-direct logic from init_value_member.
+            //
+            string r (options.std () >= cxx_version::cxx11
+                      ? "std::move (" + p + ")"
+                      : p);
+
+            r = p_tr + "::pointer_type (" + r + ")";
+
+            os << "// If a compiler error points to the line below, then" << endl
+               << "// it most likely means that a pointer used in a member" << endl
+               << "// cannot be initialized from an object pointer." << endl
+               << "//" << endl;
+
+            if (member_override_.empty ())
+              set_member (mi.m, "o", r, "db");
+            else
+              os << member_override_ << " = " << r << ";";
+
+            if (weak)
+            {
+              // Note that the object pointer type and the member pointer
+              // types may not be the same. And we need the member type.
+              //
+              os << endl
+                 << "typedef odb::pointer_traits< " << mi.ptr_fq_type () <<
+                " > wptr_traits;"
+                 << endl;
+
+              member_access* ma (
+                member_override_.empty ()
+                ? &mi.m.get<member_access> ("get")
+                : nullptr);
+
+              // If this is not a synthesized expression, then output
+              // its location for easier error tracking.
+              //
+              if (ma != nullptr && !ma->synthesized)
+                os << "// From " << location_string (ma->loc, true) << endl;
+
+              os << "if (";
+
+              if (nullable)
+                os << "!is_null &&" << endl;
+
+              os << "odb::pointer_traits<" <<
+                "wptr_traits::strong_pointer_type>::null_ptr (" << endl
+                 <<  "wptr_traits::lock (";
+
+              if (ma != nullptr)
+                os << ma->translate ("o");
+              else
+                os << member_override_;
+
+              os << ")))" << endl
+                 << "throw session_required ();";
+            }
           }
           else
           {
-            if (!(mp_raw && op_raw) || poly)
+            member_access& ma (mi.m.get<member_access> ("set"));
+
+            if (ma.empty () && !poly)
             {
-              string r (options.std () >= cxx_version::cxx11
-                        ? "std::move (" + p + ")"
-                        : p);
-
-              if (poly_derived)
-                // This pointer could have come from cache, so use dynamic
-                // cast.
-                //
-                r = p_tr + "::dynamic_pointer_cast<" + o_tp + "> (\n" +
-                  r + ")";
-
-              // Unless the pointer is raw, explicitly construct the
-              // smart pointer from the object pointer so that we get
-              // the behavior similar to calling database::load() (in
-              // both cases we are the "ownership end-points"; unless
-              // the object was already in the session before loading
-              // this view (in which case using raw pointers as object
-              // pointers is a really stupid idea), this logic will do
-              // the right thing and what the user most likely expects.
+              // It is ok to have empty modifier expression as long as
+              // the member pointer is raw. This is the by-value load
+              // and the user is not interested in learning whether the
+              // object is NULL.
               //
               if (!mp_raw)
-                r = member_val_type (mi.m, false) + " (\n" + r + ")";
+              {
+                error (ma.loc) << "non-empty modifier expression required " <<
+                  "for loading an object via a smart pointer" << endl;
+                throw operation_failed ();
+              }
 
-              if (mp_raw && !op_raw)
-                os << "if (!" << p_tr << "::null_ptr (" << p << "))" << endl;
-
-              os << "// If a compiler error points to the line below, then\n"
-                 << "// it most likely means that a pointer used in view\n"
-                 << "// member cannot be initialized from an object pointer.\n"
-                 << "//" << endl;
-
-              set_member (mi.m, "o", r, "db");
+              os << "// Empty modifier expression was specified for this\n"
+                 << "// object so make sure we have actually loaded the\n"
+                 << "// data into the existing instance rather than, say,\n"
+                 << "// finding the object in the cache or creating a new one.\n"
+                 << "//\n"
+                 << "assert (" << p_tr << "::null_ptr (" << p << "));";
             }
-
-            if (mp_raw && !poly)
+            else
             {
-              if (!op_raw)
-                os << "else" << endl; // NULL p
+              if (!(mp_raw && op_raw) || poly)
+              {
+                string r (options.std () >= cxx_version::cxx11
+                          ? "std::move (" + p + ")"
+                          : p);
 
-              set_member (mi.m, "o", o, "db");
+                if (poly_derived)
+                  // This pointer could have come from cache, so use dynamic
+                  // cast.
+                  //
+                  r = p_tr + "::dynamic_pointer_cast<" + o_tp + "> (\n" +
+                    r + ")";
+
+                // Unless the pointer is raw, explicitly construct the
+                // smart pointer from the object pointer so that we get
+                // the behavior similar to calling database::load() (in
+                // both cases we are the "ownership end-points"; unless
+                // the object was already in the session before loading
+                // this view (in which case using raw pointers as object
+                // pointers is a really stupid idea), this logic will do
+                // the right thing and what the user most likely expects.
+                //
+                if (!mp_raw)
+                {
+                  // Note that we are doing this differently compared to
+                  // init_value_member for a reason (some tests do break).
+                  //
+#if 1
+                  r = member_val_type (mi.m, false) + " (\n" + r + ")";
+#else
+                  r = p_tr + "::pointer_type (" + r + ")";
+#endif
+                }
+
+                if (mp_raw && !op_raw)
+                  os << "if (!" << p_tr << "::null_ptr (" << p << "))" << endl;
+
+                os << "// If a compiler error points to the line below, then\n"
+                   << "// it most likely means that a pointer used in view\n"
+                   << "// member cannot be initialized from an object pointer.\n"
+                   << "//" << endl;
+
+                set_member (mi.m, "o", r, "db");
+              }
+
+              if (mp_raw && !poly)
+              {
+                if (!op_raw)
+                  os << "else" << endl; // NULL p
+
+                set_member (mi.m, "o", o, "db");
+              }
             }
           }
         }
@@ -3357,6 +3775,7 @@ namespace relational
       member_sql_type (semantics::data_member&) {return pre_;};
 
     protected:
+      string member_override_;
       bool pre_;
       init_value_member const& init_value_member_;
     };
@@ -3459,6 +3878,156 @@ namespace relational
       {
       }
 
+      // Table name resolver for directly loaded object pointers.
+      //
+      struct direct_load_table_name_resolver:
+        object_columns::table_name_resolver
+      {
+        direct_load_table_name_resolver (semantics::data_member& self,
+                                         const string& table_name, // Quoted.
+                                         strings& from)
+            : self_ (self), table_name_ (table_name), from_ (from)
+        {
+          // An inverse container shouldn't need the resolver since it can
+          // only contain a single direct load pointer (its value) and that is
+          // handled directly in traverse_container() below.
+          //
+          assert (!inverse (self, "value"));
+        }
+
+        virtual string
+        resolve_pointer (semantics::data_member& m,
+                         semantics::class_& c,
+                         const string& key_prefix,
+                         const column_prefix& col_prefix,
+                         string default_name,
+                         string table_name) override
+        {
+          assert (!table_name.empty ()); // Should not happen.
+
+          bool direct_load (direct_load_pointer (m, key_prefix));
+
+#if 0
+          info (m.location ()) << table_name_ << " "
+                               << (direct_load ? "directl: " : "inverse: ")
+                               << m.name () << " "
+                               << key_prefix << " "
+                               << table_name << " AS '"
+                               << default_name << "'" << endl;
+#endif
+
+          // This can be inverse pointer (in one of the direct load objects)
+          // or direct load (but not both, see comment in the ctor). We don't
+          // need to do anything for inverse.
+          //
+          if (!direct_load)
+            return default_name;
+
+          // Direct loading of polymorphic objects is only supported in views.
+          //
+          assert (!polymorphic (c));
+
+          // Ending up here means we are a non-inverse container that contains
+          // a direct load pointer. This pointer cannot be inverse (see
+          // comment in ctor) nor can it be a nested container (we don't
+          // support containers of containers).
+          //
+          assert (!inverse (m, key_prefix));
+
+          context& ctx (context::current ());
+
+          // Come up with JOIN clause for the directly-loaded object. Similar
+          // to the normal JOIN generation code.
+          //
+          // Left and right-hand side table names/aliases. Left is us (the
+          // container table). Right is the object we are loading.
+          //
+          const string& lt (table_name_);
+          const string& rt (default_name);
+
+          string l ("LEFT JOIN ");
+
+          if (rt == table_name) // No alias.
+          {
+            l += rt;
+          }
+          else
+          {
+            l += table_name;
+            l += (ctx.need_alias_as ? " AS " : " ") + rt;
+          }
+
+          l += " ON ";
+
+          instance<object_columns_list> l_cols; // Our id columns.
+          instance<object_columns_list> r_cols; // Other side id columns.
+
+          if (container (m))
+          {
+            // Pointer is key or value.
+            //
+            assert (!key_prefix.empty ());
+
+            l_cols->traverse (m, utype (m, key_prefix), key_prefix, key_prefix);
+          }
+          else
+            l_cols->traverse (m, col_prefix);
+
+          r_cols->traverse (*id_member (c));
+
+          for (object_columns_list::iterator b (l_cols->begin ()), i (b),
+                 j (r_cols->begin ()); i != l_cols->end (); ++i, ++j)
+          {
+            if (i != b)
+              l += " AND ";
+
+            l += lt;
+            l += '.';
+            l += ctx.quote_id (i->name);
+            l += '=';
+            l += rt;
+            l += '.';
+            l += ctx.quote_id (j->name);
+          }
+
+          from_.push_back (l);
+
+          // Join tables of inverse members (recursively).
+          //
+          // Note: we pass the from argument to skip joining itself (which
+          // could happen if we are the direct side of an inverse side we are
+          // directly loading).
+          //
+          {
+            bool f (false); // @@ (im)perfect forwarding
+            size_t d (1);
+            object_section* s (&main_section); // @@ (im)perfect forwarding
+            instance<object_joins> j (
+              c, default_name, table_name_ /* from */, f, d, s);
+            j->traverse (c);
+
+            for (strings::const_iterator i (j->begin ()); i != j->end (); ++i)
+              from_.push_back (*i);
+          }
+
+          return default_name;
+        }
+
+        virtual string
+        resolve_base (semantics::class_&) override
+        {
+          // Direct loading of polymorphic objects is only supported in views.
+          //
+          assert (false);
+          return string ();
+        }
+
+      private:
+        semantics::data_member& self_;
+        const string& table_name_;
+        strings& from_;
+      };
+
       virtual void
       traverse_container (semantics::data_member& m, semantics::type& t)
       {
@@ -3482,6 +4051,10 @@ namespace relational
         }
 
         container_kind_type ck (container_kind (t));
+
+        // Note that this is a recursive indicator.
+        //
+        bool direct_load (m.get<bool> ("direct-load-container"));
 
         const custom_cxx_type* vct (0);
         const custom_cxx_type* ict (0);
@@ -3610,12 +4183,20 @@ namespace relational
             // for the table name, etc.
             //
             if (polymorphic (*c))
+            {
+              // Direct loading of polymorphic objects is only supported
+              // in view.
+              //
+              assert (!direct_load);
+
               c = &dynamic_cast<semantics::class_&> (imf.scope ());
+            }
 
             data_member_path& inv_id (*id_member (*c));
 
             qname inv_table;                            // Other table name.
             string inv_qtable;
+            string dir_qtable;                          // Direct load table.
             instance<object_columns_list> inv_id_cols;  // Other id column.
             instance<object_columns_list> inv_fid_cols; // Other foreign id
                                                         // column (ref to us).
@@ -3632,24 +4213,37 @@ namespace relational
               inv_table = table_name (*c, *imp);
               inv_qtable = quote_id (inv_table);
 
-              inv_id_cols->traverse (imb, utype (inv_id), "id", "object_id", c);
               inv_fid_cols->traverse (imb, idt, "value", "value");
 
-              for (object_columns_list::iterator i (inv_id_cols->begin ());
-                   i != inv_id_cols->end (); ++i)
+              inv_id_cols->traverse (imb, utype (inv_id), "id", "object_id", c);
+
+              if (direct_load)
               {
-                // If this is a simple id, then pass the "id" key prefix. If
-                // it is a composite id, then the members have no prefix.
-                //
-                sc.push_back (
-                  statement_column (
-                    inv_qtable,
-                    convert_from (inv_qtable + "." + quote_id (i->name),
-                                  i->type,
-                                  *i->member),
-                    i->type,
-                    *i->member,
-                    inv_id_cols->size () == 1 ? "id" : ""));
+                dir_qtable = table_qname (*c);
+
+                statement_kind sk (statement_select); // Imperfect forwarding.
+                size_t depth (1); // Imperfect forwarding.
+                instance<object_columns> t (dir_qtable, sk, sc, depth);
+                t->traverse (*c);
+              }
+              else
+              {
+                for (object_columns_list::iterator i (inv_id_cols->begin ());
+                     i != inv_id_cols->end (); ++i)
+                {
+                  // If this is a simple id, then pass the "id" key prefix. If
+                  // it is a composite id, then the members have no prefix.
+                  //
+                  sc.push_back (
+                    statement_column (
+                      inv_qtable,
+                      convert_from (inv_qtable + "." + quote_id (i->name),
+                                    i->type,
+                                    *i->member),
+                      i->type,
+                      *i->member,
+                      inv_id_cols->size () == 1 ? "id" : ""));
+                }
               }
             }
             else
@@ -3659,20 +4253,33 @@ namespace relational
               inv_table = table_name (*c);
               inv_qtable = quote_id (inv_table);
 
-              inv_id_cols->traverse (inv_id);
               inv_fid_cols->traverse (imb, column_prefix (*imp));
 
-              for (object_columns_list::iterator i (inv_id_cols->begin ());
-                   i != inv_id_cols->end (); ++i)
+              if (direct_load)
               {
-                sc.push_back (
-                  statement_column (
-                    inv_qtable,
-                    convert_from (inv_qtable + "." + quote_id (i->name),
-                                  i->type,
-                                  *i->member),
-                    i->type,
-                    *i->member));
+                dir_qtable = inv_qtable;
+
+                statement_kind sk (statement_select); // Imperfect forwarding.
+                size_t depth (1); // Imperfect forwarding.
+                instance<object_columns> t (dir_qtable, sk, sc, depth);
+                t->traverse (*c);
+              }
+              else
+              {
+                inv_id_cols->traverse (inv_id);
+
+                for (object_columns_list::iterator i (inv_id_cols->begin ());
+                     i != inv_id_cols->end (); ++i)
+                {
+                  sc.push_back (
+                    statement_column (
+                      inv_qtable,
+                      convert_from (inv_qtable + "." + quote_id (i->name),
+                                    i->type,
+                                    *i->member),
+                      i->type,
+                      *i->member));
+                }
               }
             }
 
@@ -3690,6 +4297,59 @@ namespace relational
             instance<query_parameters> qp (statement_select, inv_table);
             os << strlit ("FROM " + inv_qtable + sep) << endl;
 
+            if (direct_load)
+            {
+              // In the many-to-many case, FROM is the container table and we
+              // have to JOIN the object table. Note that there is no alias
+              // for the object table.
+              //
+              if (container (imb))
+              {
+                string l ("LEFT JOIN " + dir_qtable + " ON ");
+
+                instance<object_columns_list> r_cols;
+                r_cols->traverse (inv_id);
+
+                for (object_columns_list::iterator b (inv_id_cols->begin ()),
+                       i (b), j (r_cols->begin ());
+                     i != inv_id_cols->end ();
+                     ++i, ++j)
+                {
+                  if (i != b)
+                    l += " AND ";
+
+                  l += inv_qtable;
+                  l += '.';
+                  l += quote_id (i->name);
+                  l += '=';
+                  l += dir_qtable;
+                  l += '.';
+                  l += quote_id (j->name);
+                }
+
+                os << strlit (l + sep) << endl;
+              }
+
+              // Join tables of inverse members (recursively).
+              //
+              // Note: feel like we don't need to pass the from argument since
+              // we are loading the direct side, but it won't hurt.
+              //
+              {
+                bool f (false); // @@ (im)perfect forwarding
+                size_t d (1);
+                object_section* s (&main_section); // @@ (im)perfect forwarding
+                instance<object_joins> j (
+                  *c, dir_qtable, inv_qtable /* from */, f, d, s);
+                j->traverse (*c);
+
+                for (strings::const_iterator i (j->begin ());
+                     i != j->end ();
+                     ++i)
+                  os << strlit (*i + sep) << endl;
+              }
+            }
+
             string where ("WHERE ");
             for (object_columns_list::iterator b (inv_fid_cols->begin ()),
                    i (b); i != inv_fid_cols->end (); ++i)
@@ -3706,9 +4366,16 @@ namespace relational
           {
             id_cols->traverse (m, idt, "id", "object_id");
 
+            strings from;
+            from.push_back ("FROM " + qtable);
+
+            direct_load_table_name_resolver tns (m, qtable, from);
+
             statement_columns sc;
             statement_kind sk (statement_select); // Imperfect forwarding.
-            instance<object_columns> t (qtable, sk, sc);
+            size_t depth (1); // Imperfect forwarding.
+            object_section* section (nullptr); // Imperfect forwarding.
+            instance<object_columns> t (qtable, sk, sc, depth, section, &tns);
 
             switch (ck)
             {
@@ -3744,8 +4411,16 @@ namespace relational
               os << strlit (c + (++i != e ? "," : "") + sep) << endl;
             }
 
+            // FROM
+            //
+            for (strings::const_iterator i (from.begin ());
+                 i != from.end ();
+                 ++i)
+            {
+              os << strlit (*i + sep) << endl;
+            }
+
             instance<query_parameters> qp (statement_select, table);
-            os << strlit ("FROM " + qtable + sep) << endl;
 
             string where ("WHERE ");
             for (object_columns_list::iterator b (id_cols->begin ()), i (b);
@@ -3971,7 +4646,7 @@ namespace relational
              << "//" << endl
              << "if (id != 0)" << endl
              << "std::memcpy (&b[n], id, id_size * sizeof (id[0]));"
-             << "n += id_size;" // Not in if for "id unchanged" optimization.
+             << "n += id_size;" // Not in `if` for "id unchanged" optimization.
              << endl;
 
           // We don't need to update the bind index since this is the
@@ -4018,11 +4693,17 @@ namespace relational
         // bind (data_image_type)
         //
         {
+          // Note that in the case of containers, insert and select column
+          // sets are the same since we can't have inverse members as
+          // container elements. The reason we still pass statement_kind is
+          // for the direct load logic.
+          //
           os << "void " << scope << "::" << endl
              << "bind (" << bind_vector << " b," << endl
              << "const " << bind_vector << " id," << endl
              << "std::size_t id_size," << endl
-             << "data_image_type& d";
+             << "data_image_type& d," << endl
+             << db << "::statement_kind sk";
 
           if (versioned)
             os << "," << endl
@@ -4032,22 +4713,28 @@ namespace relational
              << "{"
              << "using namespace " << db << ";"
              << endl
-            // In the case of containers, insert and select column sets are
-            // the same since we can't have inverse members as container
-            // elements.
-            //
-             << "statement_kind sk (statement_select);"
              << "ODB_POTENTIALLY_UNUSED (sk);"
              << endl
              << "size_t n (0);"
              << endl;
 
           os << "// object_id" << endl
-             << "//" << endl
-             << "if (id != 0)" << endl
+             << "//" << endl;
+
+          // There is no id binding to skip for direct load select.
+          //
+          if (direct_load)
+            os << "if (sk != statement_select)"
+               << "{";
+
+          os << "if (id != 0)" << endl
              << "std::memcpy (&b[n], id, id_size * sizeof (id[0]));"
-             << "n += id_size;" // Not in if for "id unchanged" optimization.
-             << endl;
+             << "n += id_size;"; // Not in `if` for "id unchanged" optimization.
+
+          if (direct_load)
+            os << "}";
+          else
+            os << endl;
 
           switch (ck)
           {
@@ -4074,12 +4761,36 @@ namespace relational
                 "key_", "d", *kt, kct, "key_type", "key");
               bm->traverse (m);
 
-              if (semantics::class_* c = composite_wrapper (*kt))
-                os << "n += " << column_count (*c).total << "UL;"
-                   << endl;
+              semantics::class_* c;
+              if ((c = composite_wrapper (*kt)) != nullptr)
+              {
+                size_t cc (column_count (*c).total);
+
+                os << "n += ";
+
+                if (has_a (*c, test_direct_load_pointer))
+                {
+                  // The column count depends on statement.
+                  //
+                  size_t scc (column_count (*c, true /* select */).total);
+
+                  os << "sk == statement_select ? " << scc << "UL : " <<
+                    cc << "UL;";
+                }
+                else
+                  os << cc << "UL;";
+              }
+              else if ((c = object_pointer (*kt)) != nullptr &&
+                       direct_load_pointer (m, "key"))
+              {
+                size_t scc (column_count (*c, true /* select */).total);
+
+                os << "n += sk == statement_select ? " << scc << "UL : 1UL;";
+              }
               else
-                os << "n++;"
-                   << endl;
+                os << "n++;";
+
+              os << endl;
               break;
             }
           case ck_set:
@@ -4145,7 +4856,7 @@ namespace relational
              << "//" << endl
              << "if (id != 0)" << endl
              << "std::memcpy (&b[n], id, id_size * sizeof (id[0]));"
-             << "n += id_size;" // Not in if for "id unchanged" optimization.
+             << "n += id_size;" // Not in `if` for "id unchanged" optimization.
              << endl;
 
           // We don't need to update the bind index since this is the
@@ -4387,91 +5098,173 @@ namespace relational
               break;
             }
           }
-
-          os << endl;
         }
 
         // init (data)
         //
-        os << "void " << scope << "::" << endl
-           << "init (";
-
-        switch (ck)
         {
-        case ck_ordered:
+          os << "void " << scope << "::" << endl
+             << "init (";
+
+          switch (ck)
           {
-            if (ordered)
-              os << "index_type& j," << endl;
-            break;
-          }
-        case ck_map:
-        case ck_multimap:
-          {
-            os << "key_type& k," << endl;
-            break;
-          }
-        case ck_set:
-        case ck_multiset:
-          break;
-        }
-
-        os << "value_type& v," << endl;
-        os << "const data_image_type& i," << endl
-           << "database* db";
-
-        if (versioned)
-          os << "," << endl
-             << "const schema_version_migration& svm";
-
-        os << ")"
-           << "{"
-           << "ODB_POTENTIALLY_UNUSED (db);"
-           << endl;
-
-        switch (ck)
-        {
-        case ck_ordered:
-          {
-            if (ordered)
+          case ck_ordered:
             {
-              os << "// index" << endl
+              if (ordered)
+                os << "index_type& j," << endl;
+              break;
+            }
+          case ck_map:
+          case ck_multimap:
+            {
+              os << "key_type& k," << endl;
+              break;
+            }
+          case ck_set:
+          case ck_multiset:
+            break;
+          }
+
+          os << "value_type& v," << endl;
+          os << "const data_image_type& i," << endl
+             << "database* db";
+
+          if (versioned)
+            os << "," << endl
+               << "const schema_version_migration& svm";
+
+          os << ")"
+             << "{"
+             << "ODB_POTENTIALLY_UNUSED (db);"
+             << endl;
+
+          // Note that here we care about immediate, not recursive.
+          //
+          bool k_dl (kt != nullptr &&
+                     object_pointer (*kt) && direct_load_pointer (m, "key"));
+          bool v_dl (object_pointer (vt) && direct_load_pointer (m, "value"));
+
+          if (k_dl || v_dl)
+            os << db << "::connection& conn (" << endl
+               << db << "::transaction::current ().connection (*db));"
+               << endl;
+
+          // pre
+          //
+          switch (ck)
+          {
+          case ck_ordered:
+            break;
+          case ck_map:
+          case ck_multimap:
+            {
+              if (k_dl)
+              {
+                instance<init_value_member> im (
+                  "key_", "k", *kt, kct, "key_type", "key");
+
+                instance<init_direct_load_pointer_member> pre (
+                  "key_", "k", *kt, kct, "key_type", "key", true, *im);
+
+                pre->traverse (m);
+              }
+
+              break;
+            }
+          case ck_set:
+          case ck_multiset:
+            break;
+          }
+
+          instance<init_value_member> im (
+            "value_", "v", vt, vct, "value_type", "value");
+
+          if (v_dl)
+          {
+            instance<init_direct_load_pointer_member> pre (
+              "value_", "v", vt, vct, "value_type", "value", true, *im);
+
+            pre->traverse (m);
+          }
+
+          // middle
+          //
+          switch (ck)
+          {
+          case ck_ordered:
+            {
+              if (ordered)
+              {
+                os << "// index" << endl
+                   << "//" << endl;
+
+                instance<init_value_member> im (
+                  "index_", "j", *it, ict, "index_type", "index");
+                im->traverse (m);
+              }
+
+              break;
+            }
+          case ck_map:
+          case ck_multimap:
+            {
+              os << "// key" << endl
                  << "//" << endl;
 
               instance<init_value_member> im (
-                "index_", "j", *it, ict, "index_type", "index");
+                "key_", "k", *kt, kct, "key_type", "key");
+
               im->traverse (m);
+
+              break;
             }
-
+          case ck_set:
+          case ck_multiset:
             break;
           }
-        case ck_map:
-        case ck_multimap:
-          {
-            os << "// key" << endl
-               << "//" << endl;
 
-            instance<init_value_member> im (
-              "key_", "k", *kt, kct, "key_type", "key");
-            im->traverse (m);
+          os << "// value" << endl
+             << "//" << endl;
 
-            break;
-          }
-        case ck_set:
-        case ck_multiset:
-          break;
-        }
-
-        os << "// value" << endl
-           << "//" << endl;
-        {
-          // If the value is an object pointer, pass the id type as a
-          // type override.
-          //
-          instance<init_value_member> im (
-            "value_", "v", vt, vct, "value_type", "value");
           im->traverse (m);
+
+          // post
+          //
+          switch (ck)
+          {
+          case ck_ordered:
+            break;
+          case ck_map:
+          case ck_multimap:
+            {
+              if (k_dl)
+              {
+                instance<init_value_member> im (
+                  "key_", "k", *kt, kct, "key_type", "key");
+
+                instance<init_direct_load_pointer_member> pre (
+                  "key_", "k", *kt, kct, "key_type", "key", false, *im);
+
+                pre->traverse (m);
+              }
+
+              break;
+            }
+          case ck_set:
+          case ck_multiset:
+            break;
+          }
+
+          if (v_dl)
+          {
+            instance<init_direct_load_pointer_member> pre (
+              "value_", "v", vt, vct, "value_type", "value", false, *im);
+
+            pre->traverse (m);
+          }
+
+          os << "}";
         }
-        os << "}";
 
         // insert
         //
@@ -4555,8 +5348,8 @@ namespace relational
                << "if (sts.data_binding_test_version ())"
                << "{"
                << "const binding& id (sts.id_binding ());"
-               << "bind (sts.data_bind (), id.bind, id.count, di" <<
-              (versioned ? ", svm" : "") << ");"
+               << "bind (sts.data_bind (), id.bind, id.count, di, " <<
+              "statement_insert" << (versioned ? ", svm" : "") << ");"
                << "sts.data_binding_update_version ();"
                << "}"
                << "if (!sts.insert_statement ().execute ())" << endl
@@ -4714,12 +5507,12 @@ namespace relational
         //
         if (eager_ptr)
         {
-          os << "if (sts.data_binding_test_version ())"
+          os << "if (sts.select_binding_test_version ())"
              << "{"
              << "const binding& id (sts.id_binding ());"
-             << "bind (sts.data_bind (), id.bind, id.count, di" <<
-            (versioned ? ", svm" : "") << ");"
-             << "sts.data_binding_update_version ();"
+             << "bind (sts.select_bind (), id.bind, id.count, di, " <<
+            "statement_select" << (versioned ? ", svm" : "") << ");"
+             << "sts.select_binding_update_version ();"
              << "}";
         }
 
@@ -4735,13 +5528,13 @@ namespace relational
              << "grow (di, sts.select_image_truncated ()" <<
             (versioned ? ", svm" : "") << ");"
              << endl
-             << "if (sts.data_binding_test_version ())"
+             << "if (sts.select_binding_test_version ())"
              << "{"
             // Id cannot change.
             //
-             << "bind (sts.data_bind (), 0, sts.id_binding ().count, di" <<
-            (versioned ? ", svm" : "") << ");"
-             << "sts.data_binding_update_version ();"
+             << "bind (sts.select_bind (), 0, sts.id_binding ().count, di, " <<
+            "statement_select" << (versioned ? ", svm" : "") << ");"
+             << "sts.select_binding_update_version ();"
              << "st.refetch ();"
              << "}"
              << "}";
@@ -4866,13 +5659,14 @@ namespace relational
            << "using namespace " << db << ";"
            << "using " << db << "::select_statement;" // Conflicts.
            << endl
+           << "data_image_type& di (sts.data_image ());"
            << "const binding& id (sts.id_binding ());"
            << endl
-           << "if (sts.data_binding_test_version ())"
+           << "if (sts.select_binding_test_version ())"
            << "{"
-           << "bind (sts.data_bind (), id.bind, id.count, sts.data_image ()" <<
-          (versioned ? ", svm" : "") << ");"
-           << "sts.data_binding_update_version ();"
+           << "bind (sts.select_bind (), id.bind, id.count, di, " <<
+          "statement_select" << (versioned ? ", svm" : "") << ");"
+           << "sts.select_binding_update_version ();"
            << "}"
           // We use the id binding directly so no need to check cond binding.
           //
@@ -4892,17 +5686,16 @@ namespace relational
           os << endl
              << "if (r == select_statement::truncated)"
              << "{"
-             << "data_image_type& di (sts.data_image ());"
              << "grow (di, sts.select_image_truncated ()" <<
             (versioned ? ", svm" : "") << ");"
              << endl
-             << "if (sts.data_binding_test_version ())"
+             << "if (sts.select_binding_test_version ())"
              << "{"
             // Id cannot change.
             //
-             << "bind (sts.data_bind (), 0, id.count, di" <<
-            (versioned ? ", svm" : "") << ");"
-             << "sts.data_binding_update_version ();"
+             << "bind (sts.select_bind (), 0, id.count, di, " <<
+            "statement_select" << (versioned ? ", svm" : "") << ");"
+             << "sts.select_binding_update_version ();"
              << "st.refetch ();"
              << "}"
              << "}";
@@ -4995,11 +5788,27 @@ namespace relational
                     !unordered (m) &&
                     container_smart (c));
 
+        // Saved by the header generator.
+        //
+        bool direct_load (m.get<bool> ("direct-load-container"));
+
         string traits (flat_prefix_ + public_name (m) + "_traits");
 
-        os << db << "::" << (smart ? "smart_" : "") <<
-          "container_statements_impl< " << traits << " > " <<
-          flat_prefix_ << m.name () << ";";
+        const char* csi (direct_load
+                         ? "direct_container_statements_impl"
+                         : "container_statements_impl");
+
+        if (smart)
+        {
+          os << db << "::smart_container_statements_impl<" << endl
+             << traits << "," << endl
+             << db << "::" << csi << "> " << flat_prefix_ << m.name () << ";";
+        }
+        else
+        {
+          os << db << "::" << csi << "< " << traits << " > " <<
+            flat_prefix_ << m.name () << ";";
+        }
       }
     };
 
@@ -5694,7 +6503,7 @@ namespace relational
                << "//" << endl
                << "if (id != 0)" << endl
                << "std::memcpy (&b[n], id, id_size * sizeof (id[0]));"
-               << "n += id_size;" // Not in if for "id unchanged" optimization.
+               << "n += id_size;" // Not in `if` for "id unchanged" optimization.
                << endl;
 
           os << "return n;"
@@ -6577,8 +7386,8 @@ namespace relational
             bind_discriminator_member_ ("discriminator_"),
             init_id_image_member_ ("id_", "id"),
             init_version_image_member_ ("version_", "(*v)"),
-            init_view_pointer_member_pre_ (true, *init_value_member_),
-            init_view_pointer_member_post_ (false, *init_value_member_),
+            init_direct_pointer_member_pre_ (true, *init_value_member_),
+            init_direct_pointer_member_post_ (false, *init_value_member_),
             init_id_value_member_ ("id"),
             init_id_value_member_id_image_ ("id", "id_"),
             init_version_value_member_ ("v"),
@@ -6606,8 +7415,8 @@ namespace relational
             bind_discriminator_member_ ("discriminator_"),
             init_id_image_member_ ("id_", "id"),
             init_version_image_member_ ("version_", "(*v)"),
-            init_view_pointer_member_pre_ (true, *init_value_member_),
-            init_view_pointer_member_post_ (false, *init_value_member_),
+            init_direct_pointer_member_pre_ (true, *init_value_member_),
+            init_direct_pointer_member_post_ (false, *init_value_member_),
             init_id_value_member_ ("id"),
             init_id_value_member_id_image_ ("id", "id_"),
             init_version_value_member_ ("v"),
@@ -6640,8 +7449,8 @@ namespace relational
         init_value_base_inherits_ >> init_value_base_;
         init_value_member_names_ >> init_value_member_;
 
-        init_view_pointer_member_pre_names_ >> init_view_pointer_member_pre_;
-        init_view_pointer_member_post_names_ >> init_view_pointer_member_post_;
+        init_direct_pointer_member_pre_names_ >> init_direct_pointer_member_pre_;
+        init_direct_pointer_member_post_names_ >> init_direct_pointer_member_post_;
       }
 
       virtual void
@@ -7010,8 +7819,27 @@ namespace relational
 
         os << endl;
 
-        inherits (c, init_value_base_inherits_);
-        names (c, init_value_member_names_);
+        {
+          // Note that here we care about immediate, not recursive.
+          //
+          bool dl (has_a (c, (test_direct_load_pointer |
+                              exclude_composite_base)));
+
+          if (dl)
+            os << db << "::connection& conn (" << endl
+               << db << "::transaction::current ().connection (*db));"
+               << endl;
+
+          inherits (c, init_value_base_inherits_);
+
+          if (dl)
+            names (c, init_direct_pointer_member_pre_names_);
+
+          names (c, init_value_member_names_);
+
+          if (dl)
+            names (c, init_direct_pointer_member_post_names_);
+        }
 
         os << "}";
       }
@@ -7053,10 +7881,10 @@ namespace relational
       instance<init_value_member> init_value_member_;
       traversal::names init_value_member_names_;
 
-      instance<init_view_pointer_member> init_view_pointer_member_pre_;
-      instance<init_view_pointer_member> init_view_pointer_member_post_;
-      traversal::names init_view_pointer_member_pre_names_;
-      traversal::names init_view_pointer_member_post_names_;
+      instance<init_direct_load_pointer_member> init_direct_pointer_member_pre_;
+      instance<init_direct_load_pointer_member> init_direct_pointer_member_post_;
+      traversal::names init_direct_pointer_member_pre_names_;
+      traversal::names init_direct_pointer_member_post_names_;
 
       instance<init_value_member> init_id_value_member_;
       instance<init_value_member> init_id_value_member_id_image_;

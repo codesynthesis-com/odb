@@ -498,6 +498,130 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     #pragma db member(object::vec) transient
 #endif
   }
+
+  // Test soft-added direct load object pointer.
+  //
+  #pragma db namespace table("t23_") pointer(std::shared_ptr)
+  namespace test23
+  {
+    #pragma db object
+    struct person
+    {
+      person (unsigned long i = 0, const char* n = ""): id (i), name (n) {}
+
+      #pragma db id
+      unsigned long id;
+
+      std::string name;
+    };
+
+    #pragma db value
+    struct employee
+    {
+      #pragma db direct_load
+      std::shared_ptr<person> resource;
+      std::string title;
+    };
+
+    #pragma db object
+    struct employer
+    {
+      employer (unsigned long i = 0): id (i) {}
+
+      #pragma db id
+      unsigned long id;
+
+      #pragma db oracle:table("er_ees")
+      std::vector<employee> employees;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(employee::resource) added(3)
+#else
+    #pragma db member(employee::resource) transient
+#endif
+  }
+
+  // Test soft-added member in pointed-to object of direct load pointer.
+  //
+  #pragma db namespace table("t24_") pointer(std::shared_ptr)
+  namespace test24
+  {
+    #pragma db object
+    struct person
+    {
+      person (unsigned long i = 0, const char* n = ""): id (i), name (n) {}
+
+      #pragma db id
+      unsigned long id;
+
+      std::string name;
+    };
+
+    #pragma db object
+    struct employer
+    {
+      employer (unsigned long i = 0): id (i) {}
+
+      #pragma db id
+      unsigned long id;
+
+      #pragma db direct_load oracle:table("er_ees")
+      std::vector<std::shared_ptr<person>> employees;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(person::name) added(3) default("J") \
+      mysql:type("VARCHAR(255)")
+#else
+    #pragma db member(person::name) transient
+#endif
+  }
+
+  // Test soft-added member in pointed-to object of direct load pointer
+  // inside composite.
+  //
+  #pragma db namespace table("t25_") pointer(std::shared_ptr)
+  namespace test25
+  {
+    #pragma db object
+    struct person
+    {
+      person (unsigned long i = 0, const char* n = ""): id (i), name (n) {}
+
+      #pragma db id
+      unsigned long id;
+
+      std::string name;
+    };
+
+    #pragma db value
+    struct employee
+    {
+      #pragma db direct_load
+      std::shared_ptr<person> resource;
+      std::string title;
+    };
+
+    #pragma db object
+    struct employer
+    {
+      employer (unsigned long i = 0): id (i) {}
+
+      #pragma db id
+      unsigned long id;
+
+      #pragma db oracle:table("er_ees")
+      std::vector<employee> employees;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(person::name) added(3) default("J") \
+      mysql:type("VARCHAR(255)")
+#else
+    #pragma db member(person::name) transient
+#endif
+  }
 }
 
 #undef MODEL_NAMESPACE

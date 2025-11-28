@@ -821,6 +821,7 @@ options ()
   warn_hard_add_ (),
   warn_hard_delete_ (),
   warn_hard_ (),
+  warn_unspecified_load_ (),
   output_dir_ (),
   output_dir_specified_ (false),
   input_name_ (),
@@ -1034,6 +1035,7 @@ options (int& argc,
   warn_hard_add_ (),
   warn_hard_delete_ (),
   warn_hard_ (),
+  warn_unspecified_load_ (),
   output_dir_ (),
   output_dir_specified_ (false),
   input_name_ (),
@@ -1250,6 +1252,7 @@ options (int start,
   warn_hard_add_ (),
   warn_hard_delete_ (),
   warn_hard_ (),
+  warn_unspecified_load_ (),
   output_dir_ (),
   output_dir_specified_ (false),
   input_name_ (),
@@ -1466,6 +1469,7 @@ options (int& argc,
   warn_hard_add_ (),
   warn_hard_delete_ (),
   warn_hard_ (),
+  warn_unspecified_load_ (),
   output_dir_ (),
   output_dir_specified_ (false),
   input_name_ (),
@@ -1684,6 +1688,7 @@ options (int start,
   warn_hard_add_ (),
   warn_hard_delete_ (),
   warn_hard_ (),
+  warn_unspecified_load_ (),
   output_dir_ (),
   output_dir_specified_ (false),
   input_name_ (),
@@ -1898,6 +1903,7 @@ options (::cli::scanner& s,
   warn_hard_add_ (),
   warn_hard_delete_ (),
   warn_hard_ (),
+  warn_unspecified_load_ (),
   output_dir_ (),
   output_dir_specified_ (false),
   input_name_ (),
@@ -2152,6 +2158,10 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--warn-hard                   Warn about both hard-added and hard-deleted data" << ::std::endl
      << "                              members and persistent classes." << ::std::endl;
+
+  os << "--warn-unspecified-load       Warn about object pointers that are not" << ::std::endl
+     << "                              explicitly annotated with either the db" << ::std::endl
+     << "                              direct_load or db indirect_load pragma." << ::std::endl;
 
   os << "--output-dir|-o <dir>         Write the generated files to <dir> instead of the" << ::std::endl
      << "                              current directory." << ::std::endl;
@@ -2745,6 +2755,15 @@ fill (::cli::options& os)
     ::cli::option_names a;
     std::string dv;
     ::cli::option o ("--warn-hard", a, true, dv);
+    os.push_back (o);
+  }
+
+  // --warn-unspecified-load
+  //
+  {
+    ::cli::option_names a;
+    std::string dv;
+    ::cli::option o ("--warn-unspecified-load", a, true, dv);
     os.push_back (o);
   }
 
@@ -3605,6 +3624,8 @@ struct _cli_options_map_init
     &::cli::thunk< options, &options::warn_hard_delete_ >;
     _cli_options_map_["--warn-hard"] =
     &::cli::thunk< options, &options::warn_hard_ >;
+    _cli_options_map_["--warn-unspecified-load"] =
+    &::cli::thunk< options, &options::warn_unspecified_load_ >;
     _cli_options_map_["--output-dir"] =
     &::cli::thunk< options, std::string, &options::output_dir_,
       &options::output_dir_specified_ >;

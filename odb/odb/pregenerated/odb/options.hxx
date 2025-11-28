@@ -937,6 +937,15 @@ class options
   void
   warn_hard (const bool&);
 
+  const bool&
+  warn_unspecified_load () const;
+
+  bool&
+  warn_unspecified_load ();
+
+  void
+  warn_unspecified_load (const bool&);
+
   const std::string&
   output_dir () const;
 
@@ -2176,6 +2185,7 @@ class options
   bool warn_hard_add_;
   bool warn_hard_delete_;
   bool warn_hard_;
+  bool warn_unspecified_load_;
   std::string output_dir_;
   bool output_dir_specified_;
   std::string input_name_;

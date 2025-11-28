@@ -57,6 +57,8 @@ namespace
       if (transient (m))
         return;
 
+      using semantics::class_;
+
       semantics::names* hint;
       semantics::type& t (utype (m, hint));
 
@@ -64,8 +66,6 @@ namespace
       //
       if (t.fq_name () == "::odb::section")
       {
-        using semantics::class_;
-
         class_& c (dynamic_cast<class_&> (m.scope ()));
         class_* poly_root (polymorphic (c));
         semantics::data_member* opt (optimistic (c));
@@ -150,8 +150,41 @@ namespace
 
       process_points_to (m);
 
-      if (composite_wrapper (t))
+      if (class_* cc = composite_wrapper (t))
+      {
+        // If this is an object, make sure this composite member doesn't have
+        // any directly-loaded object pointers (see process_object_pointer()
+        // for background).
+        //
+        // Note that the composite value should have already been defined and
+        // thus processed (see verify_composite_location() in validator).
+        //
+        class_& c (dynamic_cast<class_&> (m.scope ()));
+
+        if (class_kind (c) == class_kind_type::class_object)
+        {
+          if (has_a (*cc, test_direct_load_pointer))
+          {
+            const location& l (m.location ());
+            const location& cl (cc->location ());
+
+            error (l) << "direct loading is not yet supported for member "
+                      << "object pointers, only for containers of object "
+                      << "pointers" << endl;
+
+            // Would have been nice to point at the member, but that's not
+            // easy.
+            //
+            info (cl) << "composite value '" << class_name (*cc) << "' "
+                      << "contains directly-loaded object pointer" << endl;
+
+            throw operation_failed ();
+          }
+        }
+
         return;
+      }
+
 
       // Process object pointer. The resulting column will be a simple
       // or composite value.
@@ -1161,6 +1194,8 @@ namespace
                             semantics::type& t,
                             string const& kp = string ())
     {
+      // NOTE: see process_points_to() below for the points_to case.
+
       using semantics::class_;
       using semantics::data_member;
 
@@ -1315,15 +1350,16 @@ namespace
       // See if this is the inverse side of a bidirectional relationship.
       // If so, then resolve the member path and cache it in the context.
       //
+      data_member_path imp; // Inverse data member path.
       if (m.count ("inverse"))
       {
         string name (m.get<string> ("inverse"));
         location_t l (m.get<location_t> ("inverse-location"));
-        data_member_path mp (resolve_data_members (*c, name, l, lex_));
+        imp = resolve_data_members (*c, name, l, lex_);
 
         {
           string tl;
-          data_member& m (*mp.back ());
+          data_member& m (*imp.back ());
 
           if (container (m) && lex_.next (tl) != CPP_EOF)
           {
@@ -1335,9 +1371,9 @@ namespace
 
         // Validate each member.
         //
-        for (data_member_path::iterator i (mp.begin ()); i != mp.end (); ++i)
+        for (data_member_path::iterator i (imp.begin ()); i != imp.end (); ++i)
         {
-          data_member& im (**i);
+          const data_member& im (**i);
           const string& n (im.name ());
 
           if (im.count ("transient"))
@@ -1365,7 +1401,178 @@ namespace
         // yet. Need to do in validator, pass 2.
         //
         m.remove ("inverse");
-        m.set (kp + (kp.empty () ? "": "-") + "inverse", mp);
+        m.set (kp + (kp.empty () ? "": "-") + "inverse", imp); // No move.
+      }
+
+      // Calculate default or validate user-specified direct/indirect_load
+      // value.
+      //
+      bool lazy (t.get<bool> ("pointer-lazy"));
+      bool poly (polymorphic (*c));
+
+      class_& scope (dynamic_cast<class_&> (m.scope ()));
+      class_kind_type kind (class_kind (scope));
+      assert (kind != class_kind_type::class_other);
+
+      // @@ N+1: for now we don't support direct loading of member object
+      // pointers (which would be loaded as part of the object itself).
+      // See also the check in data_member::traverse() above for object
+      // member of composite value.
+      //
+      // Note that a composite value type with member object pointers may be
+      // used in different contexts (object member or container or both).
+      //
+      bool in_obj (kind == class_kind_type::class_object && kp.empty ());
+      bool in_com (kind == class_kind_type::class_composite && kp.empty ());
+
+      if (m.count ("direct-load"))
+      {
+        bool v (m.get<bool> ("direct-load"));
+        location_t l (m.get<location_t> ("direct-load-location"));
+
+        // An object pointer in view is always loaded directly.
+        //
+        if (kind == class_kind_type::class_view)
+        {
+          error (l) << "'#pragma db " << (v ? "direct_load" : "indirect_load")
+                    << "' specified for object pointer in view" << endl;
+          throw operation_failed ();
+        }
+
+        if (v && (in_obj || lazy || poly))
+        {
+          if (in_obj)
+            error (l) << "'#pragma db direct_load' is not yet supported for "
+                      << "member object pointers, only for containers of "
+                      << "object pointers" << endl;
+
+          if (lazy)
+            error (l) << "'#pragma db direct_load' specified for lazy object "
+                      << "pointer" << endl;
+
+          if (poly)
+            error (l) << "'#pragma db direct_load' specified for pointer to "
+                      << "polymorphic object" << endl;
+
+          throw operation_failed ();
+        }
+
+        // Make sure the pointed-to class is defined for directly-loaded
+        // pointers in composite values (since its image type has a by-value
+        // member of the object's image type).
+        //
+        if (v && in_com)
+        {
+          location_t cl;
+          location_t sl;
+
+          // If we are in the same file, then use real locations (as opposed
+          // to definition locations) since that's the order in which we will
+          // be generating the code.
+          //
+          if (class_file (*c) == class_file (scope))
+          {
+            cl = class_real_location (*c);
+            sl = class_real_location (scope);
+          }
+          else
+          {
+            cl = class_location (*c);
+            sl = class_location (scope);
+          }
+
+          // We cannot be in the scope of the pointed-to object either since
+          // the composite's traits will be generated before the object's.
+          //
+          if (sl < cl || scope.in_scope (*c))
+          {
+            const string& cn (class_name (*c));
+
+            error (l) << "directly-loaded object pointer '"
+                      << class_name (scope) << "::" << m.name ()
+                      << "' in a composite value must point to an already "
+                      << "defined object '" << cn << "'" << endl;
+
+            info (cl) << "class '" << cn << "' is define here" << endl;
+
+            throw operation_failed ();
+          }
+        }
+
+        // @@ N+1: Later we may add key_direct_load, value_direct_load, etc.
+        //         For now, we treat direct_load to mean both (and the
+        //         workaround if one only needs key or value would be to wrap
+        //         it in a composite value type).
+        //
+        if (!kp.empty ())
+        {
+          // Note: do not remove "direct-load" since we may need it for
+          // another key prefix.
+          //
+          m.set (kp + "-direct-load", v);
+        }
+      }
+      else
+      {
+        bool r;
+
+        // Mark a pointer in a view as direct_load so we can handle things
+        // uniformly where possible.
+        //
+        if (kind == class_kind_type::class_view)
+          r = true;
+        else
+        {
+          r = false;
+
+          if (lazy || poly)
+            ;
+          else if (in_obj)
+          {
+            // @@ N+1: Don't warn about something we don't yet support. Note
+            //         that will still warn about composites since don't know
+            //         how will be used.
+          }
+          else if (options.warn_unspecified_load ())
+          {
+            const location& l (m.location ());
+
+            const string& cn (class_name (scope));
+            const string& mn (m.name ());
+            const string& pcn (class_name (*c));
+
+            warn (l) << "no explicit '#pragma db direct_load/indirect_load' "
+                     << "for " << (kind == class_kind_type::class_object
+                                   ? "object"
+                                   : "composite value")
+                     << " data member '" << cn << "::" << mn << "' pointing "
+                     << "to object '" << pcn << "'" << endl;
+
+            // Note: while it would have been nice to also mention if this is
+            // the direct side, that class may not have been processed yet
+            // (see above).
+            //
+            if (!imp.empty ())
+            {
+              const data_member& im (*imp.back ());
+              const location& l (im.location ());
+
+              info (l) << "'" << cn << "::" << mn << "' is an inverse side "
+                       << " of '" << pcn << "::" << im.name () << "'" << endl;
+            }
+          }
+          // This can be used to default to direct load for testing.
+          //
+#if 0
+          else
+          {
+            //if (!in_com)
+            r = true;
+          }
+#endif
+        }
+
+        m.set (kp + (kp.empty () ? "": "-") + "direct-load", r);
       }
 
       return c;
@@ -1393,6 +1600,14 @@ namespace
       {
         error (l) << "name specified with '#pragma db points_to' does "
                   << "not refer to an object" << endl;
+        throw operation_failed ();
+      }
+
+      if (m.count ("direct-load") && m.get<bool> ("direct-load"))
+      {
+        location_t l (m.get<location_t> ("direct-load-location"));
+        error (l) << "'#pragma db direct_load' specified for points_to member"
+                  << endl;
         throw operation_failed ();
       }
 
@@ -1437,7 +1652,8 @@ namespace
       semantics::names* ih (0);
       semantics::names* kh (0);
 
-      if (t.count ("container-kind"))
+      bool process_type (!t.count ("container-kind"));
+      if (!process_type)
       {
         ck = t.get<container_kind_type> ("container-kind");
         smart = t.get<bool> ("container-smart");
@@ -1580,7 +1796,6 @@ namespace
           vh = find_hint (unit, decl);
         }
 
-
         t.set ("value-tree-type", vt);
         t.set ("value-tree-hint", vh);
         vt = &utype (m, vh, "value"); // Map.
@@ -1687,55 +1902,6 @@ namespace
 
         if (kt != 0)
           process_wrapper (*kt);
-
-        // Check if we are versioned. For now we are not allowing for
-        // soft-add/delete in container keys (might be used in WHERE,
-        // primary key).
-        //
-        {
-          semantics::class_* comp (0);
-          switch (ck)
-          {
-          case ck_ordered:
-            {
-              comp = composite_wrapper (*vt);
-              break;
-            }
-          case ck_map:
-          case ck_multimap:
-            {
-              comp = composite_wrapper (*kt);
-              if (comp == 0 || column_count (*comp).soft == 0)
-              {
-                comp = composite_wrapper (*vt);
-                break;
-              }
-
-              error (ml) << "map key type cannot have soft-added/deleted " <<
-                "data members" << endl;
-              info (kt->location ()) << "key type is defined here" << endl;
-              throw operation_failed ();
-            }
-          case ck_set:
-          case ck_multiset:
-            {
-              comp = composite_wrapper (*vt);
-              if (comp == 0 || column_count (*comp).soft == 0)
-              {
-                comp = 0;
-                break;
-              }
-
-              error (ml) << "set value type cannot have soft-added/deleted " <<
-                "data members" << endl;
-              info (vt->location ()) << "value type is defined here" << endl;
-              throw operation_failed ();
-            }
-          }
-
-          if (force_versioned || (comp != 0 && column_count (*comp).soft != 0))
-            t.set ("versioned", true);
-        }
       }
 
       // Process member data.
@@ -1751,6 +1917,124 @@ namespace
 
       if (kt != 0)
         process_container_value (*kt, m, "key", true);
+
+      // Check if we are versioned. For now we are not allowing for
+      // soft-add/delete in container keys (might be used in WHERE,
+      // primary key).
+      //
+      // Note: must be done after process_container_value() (which will
+      // process pointers, etc).
+      //
+      if (process_type)
+      {
+        bool v (false);
+
+        // Factor in direct load objects (see column_count() for background).
+        //
+        // Note that for containers with direct load object pointers we could
+        // have split the versioned flag into insert/update and select. But
+        // that feels like a substantial complication for some theoretical
+        // performance gain. So let's keep it simple for now.
+        //
+        auto test_versioned = [&m] (semantics::type& t, const string& kp)
+        {
+          semantics::class_* c;
+
+          if ((c = composite_wrapper (t)) != nullptr)
+            ;
+          else if ((c = object_pointer (t)) != nullptr &&
+                   direct_load_pointer (m, kp))
+            ;
+          else
+            return false;
+
+          return column_count (*c, true /* select */).soft != 0;
+        };
+
+        switch (ck)
+        {
+        case ck_ordered:
+          {
+            v = test_versioned (*vt, "value");
+            break;
+          }
+        case ck_map:
+        case ck_multimap:
+          {
+            // Note: here we don't care about direct load.
+            //
+            semantics::class_* c (composite_wrapper (*kt));
+            if (c != nullptr && column_count (*c).soft != 0)
+            {
+              error (ml) << "map key type cannot have soft-added/deleted " <<
+                "data members" << endl;
+              info (kt->location ()) << "key type is defined here" << endl;
+              throw operation_failed ();
+            }
+
+            v = test_versioned (*vt, "value") ||
+              test_versioned (*kt, "key");
+            break;
+          }
+        case ck_set:
+        case ck_multiset:
+          {
+            // Note: here we don't care about direct load.
+            //
+            semantics::class_* c (composite_wrapper (*vt));
+            if (c != nullptr && column_count (*c).soft != 0)
+            {
+              error (ml) << "set value type cannot have soft-added/deleted " <<
+                "data members" << endl;
+              info (vt->location ()) << "value type is defined here" << endl;
+              throw operation_failed ();
+            }
+
+            v = test_versioned (*vt, "value");
+            break;
+          }
+        }
+
+        if (v || force_versioned)
+          t.set ("versioned", true);
+      }
+
+      // Specifying direct_load on a container while pointers are in composite
+      // values is a common mistake so diagnose it.
+      //
+      if (m.count ("direct-load"))
+      {
+        if (object_pointer (*vt) || (kt != nullptr && object_pointer (*kt)))
+          ;
+        else
+        {
+          bool v (m.get<bool> ("direct-load"));
+          location_t l (m.get<location_t> ("direct-load-location"));
+
+          error (l) << "'#pragma db " << (v ? "direct_load" : "indirect_load")
+                    << "' specified for container member without object "
+                    << "pointer elements" << endl;
+
+          if (semantics::class_* c = composite_wrapper (*vt))
+          {
+            info (c->location ()) << "did you mean to specify it for "
+                                  << "pointer inside composite value '"
+                                  << class_name (*c) << "'?" << endl;
+          }
+
+          if (kt != nullptr)
+          {
+            if (semantics::class_* c = composite_wrapper (*kt))
+            {
+              info (c->location ()) << "did you mean to specify it for "
+                                    << "pointer inside composite value '"
+                                    << class_name (*c) << "'?" << endl;
+            }
+          }
+
+          throw operation_failed ();
+        }
+      }
 
       // A map cannot be an inverse container.
       //
@@ -2413,7 +2697,7 @@ namespace
       //
       for (user_sections::iterator i (uss.begin ()); i != uss.end (); ++i)
       {
-        column_count_type cc (column_count (c, &*i));
+        column_count_type cc (column_count (c, false /* select */, &*i));
         i->total = cc.total;
         i->inverse = cc.inverse;
         i->readonly = cc.readonly;
@@ -2588,9 +2872,10 @@ namespace
     virtual void
     traverse_composite_post (type& c)
     {
-      // Figure out if we are versioned.
+      // Figure out if we are versioned. Note: factor in direct load objects
+      // (see column_count() for background).
       //
-      if (force_versioned || column_count (c).soft != 0)
+      if (force_versioned || column_count (c, true /* select */).soft != 0)
       {
         c.set ("versioned", true);
 

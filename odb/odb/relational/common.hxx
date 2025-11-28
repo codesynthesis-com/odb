@@ -60,7 +60,7 @@ namespace relational
     object_section* section_;
 
     // True during the top-level call of pre() and post() below. Note that
-    // call via another tarverser (e.g., for a class) is not considered top-
+    // call via another traverser (e.g., for a class) is not considered top-
     // level.
     //
     bool top_level_;
@@ -113,7 +113,7 @@ namespace relational
       string
       fq_type (bool unwrap = true) const
       {
-        semantics::names* hint;
+        semantics::names* hint (nullptr);
 
         if (wt != 0 && unwrap)
         {
@@ -186,6 +186,13 @@ namespace relational
       }
     };
 
+    static string
+    member_var_name (semantics::data_member& m)
+    {
+      string const& name (m.name ());
+      return name + (name[name.size () - 1] == '_' ? "" : "_");
+    }
+
     bool
     container (member_info& mi)
     {
@@ -221,7 +228,9 @@ namespace relational
     virtual void
     traverse_simple (member_info&) {}
 
-  private:
+    // Should only be called directly on container members.
+    //
+  public:
     virtual void
     traverse (semantics::data_member&);
   };
