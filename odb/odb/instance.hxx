@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <cstddef>  // std::size_t
+#include <utility>  // std::forward()
 #include <typeinfo>
 
 #include <odb/option-types.hxx>
@@ -23,7 +24,7 @@ template <typename B>
 struct factory
 {
   static B*
-  create (B const& prototype)
+  create (const B& prototype)
   {
     std::string kind, name;
     database db (context::current ().options.database ()[0]);
@@ -82,7 +83,7 @@ private:
       delete factory<B>::map_;
   }
 
-  typedef B* (*create_func) (B const&);
+  typedef B* (*create_func) (const B&);
   typedef std::map<std::string, create_func> map;
   static map* map_;
   static std::size_t count_;
@@ -117,7 +118,7 @@ struct entry: entry_base
   }
 
   static base*
-  create (base const& prototype)
+  create (const base& prototype)
   {
     return new D (prototype);
   }
@@ -134,97 +135,10 @@ struct instance
     delete x_;
   }
 
-  instance ()
+  template <typename... A>
+  instance (A&&... a)
   {
-    base_type prototype;
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1>
-  instance (A1& a1)
-  {
-    base_type prototype (a1);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1>
-  instance (A1 const& a1)
-  {
-    base_type prototype (a1);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2>
-  instance (A1& a1, A2& a2)
-  {
-    base_type prototype (a1, a2);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2>
-  instance (A1 const& a1, A2 const& a2)
-  {
-    base_type prototype (a1, a2);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2, typename A3>
-  instance (A1& a1, A2& a2, A3& a3)
-  {
-    base_type prototype (a1, a2, a3);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2, typename A3>
-  instance (A1 const& a1, A2 const& a2, A3 const& a3)
-  {
-    base_type prototype (a1, a2, a3);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2, typename A3, typename A4>
-  instance (A1& a1, A2& a2, A3& a3, A4& a4)
-  {
-    base_type prototype (a1, a2, a3, a4);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2, typename A3, typename A4>
-  instance (A1 const& a1, A2 const& a2, A3 const& a3, A4 const& a4)
-  {
-    base_type prototype (a1, a2, a3, a4);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2, typename A3, typename A4, typename A5>
-  instance (A1& a1, A2& a2, A3& a3, A4& a4, A5& a5)
-  {
-    base_type prototype (a1, a2, a3, a4, a5);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2, typename A3, typename A4, typename A5>
-  instance (A1 const& a1, A2 const& a2, A3 const& a3, A4 const& a4,
-            A5 const& a5)
-  {
-    base_type prototype (a1, a2, a3, a4, a5);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2, typename A3, typename A4, typename A5,
-            typename A6>
-  instance (A1& a1, A2& a2, A3& a3, A4& a4, A5& a5, A6 a6)
-  {
-    base_type prototype (a1, a2, a3, a4, a5, a6);
-    x_ = factory_type::create (prototype);
-  }
-
-  template <typename A1, typename A2, typename A3, typename A4, typename A5,
-            typename A6>
-  instance (A1 const& a1, A2 const& a2, A3 const& a3, A4 const& a4,
-            A5 const& a5, A6 const& a6)
-  {
-    base_type prototype (a1, a2, a3, a4, a5, a6);
+    base_type prototype (std::forward<A> (a)...);
     x_ = factory_type::create (prototype);
   }
 
