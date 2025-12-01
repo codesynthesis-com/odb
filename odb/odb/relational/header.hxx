@@ -686,7 +686,7 @@ namespace relational
         //
         if (smart)
         {
-          // @@ N+1: Would need to override direct and force indirect (we
+          // @@ N+1: Would need to override direct and force indirect (but we
           //         currently only support ordered smart containers).
 
           os << "struct cond_image_type"
