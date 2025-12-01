@@ -279,9 +279,10 @@ namespace odb
       delay_load (const id_type& id,
                   object_type& obj,
                   const typename pointer_cache_traits::position_type& p,
-                  loader_function l = 0)
+                  loader_function l = 0,
+                  bool pre_inited = false)
       {
-        delayed_.push_back (delayed_load (id, obj, p, l));
+        delayed_.push_back (delayed_load (id, obj, p, l, pre_inited));
       }
 
       void
@@ -610,8 +611,9 @@ namespace odb
         delayed_load (const id_type& i,
                       object_type& o,
                       const position_type& p,
-                      loader_function l)
-            : id (i), obj (&o), pos (p), loader (l)
+                      loader_function l,
+                      bool pi)
+            : id (i), obj (&o), pos (p), loader (l), pre_inited (pi)
         {
         }
 
@@ -619,6 +621,7 @@ namespace odb
         object_type* obj;
         position_type pos;
         loader_function loader;
+        bool pre_inited; // True if the object is already pre-init()'ed.
       };
 
       typedef std::vector<delayed_load> delayed_loads;
