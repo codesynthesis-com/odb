@@ -144,6 +144,11 @@ traverse_object (type& c)
          << "};";
     }
   }
+  else if (!reuse_abst)
+  {
+    os << "typedef void id_image_type;"
+       << endl;
+  }
 
   // Polymorphic map.
   //

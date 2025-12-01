@@ -1561,15 +1561,15 @@ namespace
                        << " of '" << pcn << "::" << im.name () << "'" << endl;
             }
           }
-          /*
+          // This can be used to default to direct load for testing.
+          //
+#if 0
           else
           {
-            // @@@ N+1 TMP
-            //
             //if (!in_com)
-              r = true;
+            r = true;
           }
-          */
+#endif
         }
 
         m.set (kp + (kp.empty () ? "": "-") + "direct-load", r);
