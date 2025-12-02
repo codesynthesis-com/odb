@@ -2972,8 +2972,8 @@ namespace relational
         {
           if (direct_load_pointer (mi.m, key_prefix_))
           {
-            // @@@ N+1: do we need the equivalent of the "wrap back" logic
-            //          below? Do we even support wrapped object pointers?
+            // @@ N+1: do we need the equivalent of the "wrap back" logic
+            //         below? Do we even support wrapped object pointers?
 
             // The direct load object pointer doesn't need any of this.
             //
@@ -4761,7 +4761,8 @@ namespace relational
                 "key_", "d", *kt, kct, "key_type", "key");
               bm->traverse (m);
 
-              if (semantics::class_* c = composite_wrapper (*kt))
+              semantics::class_* c;
+              if ((c = composite_wrapper (*kt)) != nullptr)
               {
                 size_t cc (column_count (*c).total);
 
@@ -4778,12 +4779,18 @@ namespace relational
                 }
                 else
                   os << cc << "UL;";
+              }
+              else if ((c = object_pointer (*kt)) != nullptr &&
+                       direct_load_pointer (m, "key"))
+              {
+                size_t scc (column_count (*c, true /* select */).total);
 
-                os << endl;
+                os << "n += sk == statement_select ? " << scc << "UL : 1UL;";
               }
               else
-                os << "n++;"
-                   << endl;
+                os << "n++;";
+
+              os << endl;
               break;
             }
           case ck_set:
