@@ -6,7 +6,7 @@
 #endif
 
 #include <string>
-#include <memory> // unique_ptr
+#include <memory> // unique_ptr, shared_ptr
 
 #include <odb/core.hxx>
 #include <odb/vector.hxx>
@@ -504,6 +504,120 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 
 #if MODEL_VERSION == 3
     #pragma db member(object::vec) deleted(3)
+#endif
+  }
+
+  // Test soft-deleted direct load object pointer.
+  //
+  #pragma db namespace table("t23_") pointer(std::shared_ptr)
+  namespace test23
+  {
+    #pragma db object
+    struct person
+    {
+      person (unsigned long i = 0, const char* n = ""): id (i), name (n) {}
+
+      #pragma db id
+      unsigned long id;
+
+      std::string name;
+    };
+
+    #pragma db value
+    struct employee
+    {
+      #pragma db direct_load
+      std::shared_ptr<person> resource;
+      std::string title;
+    };
+
+    #pragma db object
+    struct employer
+    {
+      employer (unsigned long i = 0): id (i) {}
+
+      #pragma db id
+      unsigned long id;
+
+      std::vector<employee> employees;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(employee::resource) deleted(3)
+#endif
+  }
+
+  // Test soft-deleted member in pointed-to object of direct load pointer.
+  //
+  #pragma db namespace table("t24_") pointer(std::shared_ptr)
+  namespace test24
+  {
+    #pragma db object
+    struct person
+    {
+      person (unsigned long i = 0, const char* n = ""): id (i), name (n) {}
+
+      #pragma db id
+      unsigned long id;
+
+      std::string name;
+    };
+
+    #pragma db object
+    struct employer
+    {
+      employer (unsigned long i = 0): id (i) {}
+
+      #pragma db id
+      unsigned long id;
+
+      #pragma db direct_load
+      std::vector<std::shared_ptr<person>> employees;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(person::name) deleted(3)
+#endif
+  }
+
+  // Test soft-deleted member in pointed-to object of direct load pointer
+  // inside composite.
+  //
+  #pragma db namespace table("t25_") pointer(std::shared_ptr)
+  namespace test25
+  {
+    #pragma db object
+    struct person
+    {
+      person (unsigned long i = 0, const char* n = ""): id (i), name (n) {}
+
+      #pragma db id
+      unsigned long id;
+
+      std::string name;
+    };
+
+    #pragma db value
+    struct employee
+    {
+      #pragma db direct_load
+      std::shared_ptr<person> resource;
+      std::string title;
+    };
+
+    #pragma db object
+    struct employer
+    {
+      employer (unsigned long i = 0): id (i) {}
+
+      #pragma db id
+      unsigned long id;
+
+      std::vector<employee> employees;
+    };
+
+#if MODEL_VERSION == 3
+    #pragma db member(person::name) deleted(3)
 #endif
   }
 }
