@@ -1652,7 +1652,8 @@ namespace
       semantics::names* ih (0);
       semantics::names* kh (0);
 
-      if (t.count ("container-kind"))
+      bool process_type (!t.count ("container-kind"));
+      if (!process_type)
       {
         ck = t.get<container_kind_type> ("container-kind");
         smart = t.get<bool> ("container-smart");
@@ -1795,7 +1796,6 @@ namespace
           vh = find_hint (unit, decl);
         }
 
-
         t.set ("value-tree-type", vt);
         t.set ("value-tree-hint", vh);
         vt = &utype (m, vh, "value"); // Map.
@@ -1902,55 +1902,6 @@ namespace
 
         if (kt != 0)
           process_wrapper (*kt);
-
-        // Check if we are versioned. For now we are not allowing for
-        // soft-add/delete in container keys (might be used in WHERE,
-        // primary key).
-        //
-        {
-          semantics::class_* comp (0);
-          switch (ck)
-          {
-          case ck_ordered:
-            {
-              comp = composite_wrapper (*vt);
-              break;
-            }
-          case ck_map:
-          case ck_multimap:
-            {
-              comp = composite_wrapper (*kt);
-              if (comp == 0 || column_count (*comp).soft == 0)
-              {
-                comp = composite_wrapper (*vt);
-                break;
-              }
-
-              error (ml) << "map key type cannot have soft-added/deleted " <<
-                "data members" << endl;
-              info (kt->location ()) << "key type is defined here" << endl;
-              throw operation_failed ();
-            }
-          case ck_set:
-          case ck_multiset:
-            {
-              comp = composite_wrapper (*vt);
-              if (comp == 0 || column_count (*comp).soft == 0)
-              {
-                comp = 0;
-                break;
-              }
-
-              error (ml) << "set value type cannot have soft-added/deleted " <<
-                "data members" << endl;
-              info (vt->location ()) << "value type is defined here" << endl;
-              throw operation_failed ();
-            }
-          }
-
-          if (force_versioned || (comp != 0 && column_count (*comp).soft != 0))
-            t.set ("versioned", true); // @@ N+1: not select_versioned
-        }
       }
 
       // Process member data.
@@ -1966,6 +1917,87 @@ namespace
 
       if (kt != 0)
         process_container_value (*kt, m, "key", true);
+
+      // Check if we are versioned. For now we are not allowing for
+      // soft-add/delete in container keys (might be used in WHERE,
+      // primary key).
+      //
+      // Note: must be done after process_container_value() (which will
+      // process pointers, etc).
+      //
+      if (process_type)
+      {
+        bool v (false);
+
+        // Factor in direct load objects (see column_count() for background).
+        //
+        // Note that for containers with direct load object pointers we could
+        // have split the versioned flag into insert/update and select. But
+        // that feels like a substantial complication for some theoretical
+        // performance gain. So let's keep it simple for now.
+        //
+        auto test_versioned = [&m] (semantics::type& t, const string& kp)
+        {
+          semantics::class_* c;
+
+          if ((c = composite_wrapper (t)) != nullptr)
+            ;
+          else if ((c = object_pointer (t)) != nullptr &&
+                   direct_load_pointer (m, kp))
+            ;
+          else
+            return false;
+
+          return column_count (*c, true /* select */).soft != 0;
+        };
+
+        switch (ck)
+        {
+        case ck_ordered:
+          {
+            v = test_versioned (*vt, "value");
+            break;
+          }
+        case ck_map:
+        case ck_multimap:
+          {
+            // Note: here we don't care about direct load.
+            //
+            semantics::class_* c (composite_wrapper (*kt));
+            if (c != nullptr && column_count (*c).soft != 0)
+            {
+              error (ml) << "map key type cannot have soft-added/deleted " <<
+                "data members" << endl;
+              info (kt->location ()) << "key type is defined here" << endl;
+              throw operation_failed ();
+            }
+
+            v = test_versioned (*vt, "value") ||
+              test_versioned (*kt, "key");
+            break;
+          }
+        case ck_set:
+        case ck_multiset:
+          {
+            // Note: here we don't care about direct load.
+            //
+            semantics::class_* c (composite_wrapper (*vt));
+            if (c != nullptr && column_count (*c).soft != 0)
+            {
+              error (ml) << "set value type cannot have soft-added/deleted " <<
+                "data members" << endl;
+              info (vt->location ()) << "value type is defined here" << endl;
+              throw operation_failed ();
+            }
+
+            v = test_versioned (*vt, "value");
+            break;
+          }
+        }
+
+        if (v || force_versioned)
+          t.set ("versioned", true);
+      }
 
       // A map cannot be an inverse container.
       //
@@ -2803,9 +2835,10 @@ namespace
     virtual void
     traverse_composite_post (type& c)
     {
-      // Figure out if we are versioned.
+      // Figure out if we are versioned. Note: factor in direct load objects
+      // (see column_count() for background).
       //
-      if (force_versioned || column_count (c).soft != 0)
+      if (force_versioned || column_count (c, true /* select */).soft != 0)
       {
         c.set ("versioned", true);
 

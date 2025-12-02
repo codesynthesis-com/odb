@@ -3957,8 +3957,7 @@ namespace relational
             l += (ctx.need_alias_as ? " AS " : " ") + rt;
           }
 
-          l += " ON";
-          from_.push_back (l);
+          l += " ON ";
 
           instance<object_columns_list> l_cols; // Our id columns.
           instance<object_columns_list> r_cols; // Other side id columns.
@@ -3979,10 +3978,8 @@ namespace relational
           for (object_columns_list::iterator b (l_cols->begin ()), i (b),
                  j (r_cols->begin ()); i != l_cols->end (); ++i, ++j)
           {
-            l.clear ();
-
             if (i != b)
-              l += "AND ";
+              l += " AND ";
 
             l += lt;
             l += '.';
@@ -3991,9 +3988,9 @@ namespace relational
             l += rt;
             l += '.';
             l += ctx.quote_id (j->name);
-
-            from_.push_back (l);
           }
+
+          from_.push_back (l);
 
           // Join tables of inverse members (recursively).
           //
@@ -4308,21 +4305,18 @@ namespace relational
               //
               if (container (imb))
               {
-                os << strlit ("LEFT JOIN " + dir_qtable + " ON" + sep) << endl;
+                string l ("LEFT JOIN " + dir_qtable + " ON ");
 
                 instance<object_columns_list> r_cols;
                 r_cols->traverse (inv_id);
 
-                string l;
                 for (object_columns_list::iterator b (inv_id_cols->begin ()),
                        i (b), j (r_cols->begin ());
                      i != inv_id_cols->end ();
                      ++i, ++j)
                 {
-                  l.clear ();
-
                   if (i != b)
-                    l += "AND ";
+                    l += " AND ";
 
                   l += inv_qtable;
                   l += '.';
@@ -4331,9 +4325,9 @@ namespace relational
                   l += dir_qtable;
                   l += '.';
                   l += quote_id (j->name);
-
-                  os << strlit (l + sep) << endl;
                 }
+
+                os << strlit (l + sep) << endl;
               }
 
               // Join tables of inverse members (recursively).

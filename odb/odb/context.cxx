@@ -3043,7 +3043,7 @@ namespace
 
         c_.total += cc.total - cc.separate_load;
 
-        // @@ N+1: not tracking added/deleted currently (not used).
+        // @@ N+1: not tracking added/deleted currently (but not used).
         //
         if (added (member_path_) != 0 || deleted (member_path_) != 0)
           c_.soft += cc.total;
