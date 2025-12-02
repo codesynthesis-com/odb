@@ -364,9 +364,6 @@ namespace relational
         //m.set ("key-direct-load-container", k_direct_load);
         m.set ("direct-load-container", direct_load);
 
-        // @@ N+1: select_versioned. See also process_container()
-        // (force_versionsed, etc).
-        //
         bool versioned (context::versioned (m));
 
         // Figure out column counts.
