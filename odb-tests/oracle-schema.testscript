@@ -3,4 +3,7 @@
 
 # Create the Oracle database schema creation canned command base.
 #
-create_schema_cmd = [cmdline] $oracle_client_cmd
+# Note: sqlplus prints diagnostics to stdout so redirect it to
+# stderr.
+#
+create_schema_cmd = [cmdline] $oracle_client_cmd 1>&2
