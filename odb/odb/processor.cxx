@@ -1999,6 +1999,43 @@ namespace
           t.set ("versioned", true);
       }
 
+      // Specifying direct_load on a container while pointers are in composite
+      // values is a common mistake so diagnose it.
+      //
+      if (m.count ("direct-load"))
+      {
+        if (object_pointer (*vt) || (kt != nullptr && object_pointer (*kt)))
+          ;
+        else
+        {
+          bool v (m.get<bool> ("direct-load"));
+          location_t l (m.get<location_t> ("direct-load-location"));
+
+          error (l) << "'#pragma db " << (v ? "direct_load" : "indirect_load")
+                    << "' specified for container member without object "
+                    << "pointer elements" << endl;
+
+          if (semantics::class_* c = composite_wrapper (*vt))
+          {
+            info (c->location ()) << "did you mean to specify it for "
+                                  << "pointer inside composite value '"
+                                  << class_name (*c) << "'?" << endl;
+          }
+
+          if (kt != nullptr)
+          {
+            if (semantics::class_* c = composite_wrapper (*kt))
+            {
+              info (c->location ()) << "did you mean to specify it for "
+                                    << "pointer inside composite value '"
+                                    << class_name (*c) << "'?" << endl;
+            }
+          }
+
+          throw operation_failed ();
+        }
+      }
+
       // A map cannot be an inverse container.
       //
       if (m.count ("value-inverse") && (ck == ck_map || ck == ck_multimap))
