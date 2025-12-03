@@ -110,27 +110,48 @@ namespace odb
         {
           object_traits_calls<T> tc (svm);
 
-          if (!tc.find_ (static_cast<STS&> (*this), &l.id))
-            throw object_not_persistent ();
+          if (!l.pre_inited)
+          {
+            if (!tc.find_ (static_cast<STS&> (*this), &l.id))
+              throw object_not_persistent ();
 
-          // Our find_() version delays result freeing.
-          //
-          auto_result ar (*find_);
+            // Our find_() version delays result freeing.
+            //
+            auto_result ar (*find_);
 
-          object_traits::callback (db, *l.obj, callback_event::pre_load);
+            object_traits::callback (db, *l.obj, callback_event::pre_load);
 
-          // Our calls to init/load below can result in additional delayed
-          // loads being added to the delayed_ vector. We need to process
-          // those before we call the post callback.
-          //
-          tc.init (*l.obj, image (), &db);
-          find_->stream_result ();
-          ar.free ();
+            tc.init (*l.obj, image (), &db);
+            find_->stream_result ();
+            ar.free ();
+          }
+          else
+          {
+            // Initialize the id image (required to load containers).
+            //
+            id_image_type& i (id_image ());
+            tc.init (&i, &l.id);
+
+            binding& b (id_image_binding ());
+            if (i.version != id_image_version () || b.version == 0)
+            {
+              tc.bind (b.bind, &i);
+              id_image_version (i.version);
+              b.version++;
+
+              if (binding* ob = od_.id_image_binding ())
+                ob->version++;
+            }
+          }
 
           // Load containers, etc.
           //
           tc.load_ (static_cast<STS&> (*this), *l.obj, false);
 
+          // Our calls to init/load below can result in additional delayed
+          // loads being added to the delayed_ vector. We need to process
+          // those before we call the post callback.
+          //
           if (!delayed_.empty ())
             load_delayed_<STS> (svm);
 

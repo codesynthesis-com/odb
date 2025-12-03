@@ -570,7 +570,8 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     };
 
 #if MODEL_VERSION == 3
-    #pragma db member(person::name) added(3) default("J")
+    #pragma db member(person::name) added(3) default("J") \
+      mysql:type("VARCHAR(255)")
 #else
     #pragma db member(person::name) transient
 #endif
@@ -613,7 +614,8 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     };
 
 #if MODEL_VERSION == 3
-    #pragma db member(person::name) added(3) default("J")
+    #pragma db member(person::name) added(3) default("J") \
+      mysql:type("VARCHAR(255)")
 #else
     #pragma db member(person::name) transient
 #endif

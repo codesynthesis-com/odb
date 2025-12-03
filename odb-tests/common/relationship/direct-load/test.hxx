@@ -37,7 +37,7 @@ namespace test1
     #pragma db id
     unsigned long id;
 
-    #pragma db direct_load
+    #pragma db direct_load oracle:table("er_ees")
     std::vector<std::shared_ptr<person>> employees;
   };
 }
@@ -96,7 +96,7 @@ namespace test3
 
     std::string name;
 
-    #pragma db direct_load
+    #pragma db direct_load oracle:table("p_ers")
     std::vector<std::weak_ptr<employer>> employers;
 
     std::vector<std::string> data; // Test container in delayed loading.
@@ -149,7 +149,7 @@ namespace test4
     #pragma db id
     unsigned long id;
 
-    #pragma db direct_load
+    #pragma db direct_load oracle:table("er_ees")
     std::vector<std::shared_ptr<person>> employees;
   };
 }
@@ -219,6 +219,7 @@ namespace test5
     #pragma db id
     unsigned long id;
 
+    #pragma db oracle:table("er_ees")
     std::vector<employee> employees;
   };
 }
@@ -247,7 +248,7 @@ namespace test6
     #pragma db id
     unsigned long id;
 
-    #pragma db direct_load
+    #pragma db direct_load oracle:table("er_ees")
     odb::vector<std::shared_ptr<person>> employees;
   };
 }
@@ -271,7 +272,7 @@ namespace test7
   #pragma db value
   struct human_resources
   {
-    #pragma db direct_load
+    #pragma db direct_load oracle:table("ees")
     std::vector<std::shared_ptr<person>> employees;
   };
 
@@ -324,7 +325,7 @@ namespace test8
     #pragma db id
     unsigned long id;
 
-    #pragma db direct_load
+    #pragma db direct_load oracle:table("er_ees")
     std::vector<std::shared_ptr<person>> employees;
   };
 }
@@ -355,7 +356,7 @@ namespace test9
     #pragma db id
     unsigned long id;
 
-    #pragma db direct_load
+    #pragma db direct_load oracle:table("er_ees")
     employees_map employees;
   };
 }
@@ -399,7 +400,7 @@ namespace test10
     #pragma db id
     unsigned long id;
 
-    #pragma db direct_load
+    #pragma db direct_load oracle:table("er_ees")
     employees_map employees;
   };
 }

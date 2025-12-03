@@ -315,7 +315,7 @@ namespace relational
       {
         scopes (bool warn)
             : tables ("table", "table", warn),
-              fkeys ("foreign key", "column", warn), // Change column name.
+              fkeys ("foreign key", "table/column", warn), // Change table or column name.
               indexes ("index", "index", warn),
               sequences ("sequence", "table", warn), // Change table name.
               columns ("column", "column", warn) {}
