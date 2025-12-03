@@ -113,7 +113,7 @@ namespace relational
       string
       fq_type (bool unwrap = true) const
       {
-        semantics::names* hint;
+        semantics::names* hint (nullptr);
 
         if (wt != 0 && unwrap)
         {
