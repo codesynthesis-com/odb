@@ -531,6 +531,7 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
       #pragma db id
       unsigned long id;
 
+      #pragma db oracle:table("er_ees")
       std::vector<employee> employees;
     };
 
@@ -565,7 +566,7 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
       #pragma db id
       unsigned long id;
 
-      #pragma db direct_load
+      #pragma db direct_load oracle:table("er_ees")
       std::vector<std::shared_ptr<person>> employees;
     };
 
@@ -610,6 +611,7 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
       #pragma db id
       unsigned long id;
 
+      #pragma db oracle:table("er_ees")
       std::vector<employee> employees;
     };
 
