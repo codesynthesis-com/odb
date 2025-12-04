@@ -719,6 +719,64 @@ main (int argc, char* argv[])
         t.commit ();
       }
     }
+
+    // Test direct load container in section.
+    //
+    {
+      using namespace test11;
+
+      employer e (1);
+      e.employees.push_back (make_shared<person> (1, "A"));
+      e.employees.push_back (make_shared<person> (2, "B"));
+
+      {
+        transaction t (db->begin ());
+        db->persist (e.employees[0]);
+        db->persist (e.employees[1]);
+        db->persist (e);
+        t.commit ();
+      }
+
+      {
+        select_counter sc;
+
+        transaction t (db->begin ());
+        t.tracer (sc);
+        shared_ptr<employer> e (db->load<employer> (1));
+        assert (!e->employees_s.loaded () &&
+                e->employees.size () == 0 &&
+                sc.count == 1);
+        db->load (*e, e->employees_s);
+        assert (e->employees.size () == 2 &&
+                e->employees[0] != nullptr &&
+                e->employees[0]->id == 1  &&
+                e->employees[0]->name == "A" &&
+                e->employees[1] != nullptr &&
+                e->employees[1]->id == 2 &&
+                e->employees[1]->name == "B" &&
+                sc.count == 2);
+        t.commit ();
+      }
+
+      e.employees.pop_back ();
+
+      {
+        transaction t (db->begin ());
+        db->update (e);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+        shared_ptr<employer> e (db->load<employer> (1));
+        db->load (*e, e->employees_s);
+        assert (e->employees.size () == 1 &&
+                e->employees[0] != nullptr &&
+                e->employees[0]->id == 1  &&
+                e->employees[0]->name == "A");
+        t.commit ();
+      }
+    }
   }
   catch (const odb::exception& e)
   {
