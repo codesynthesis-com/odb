@@ -405,4 +405,36 @@ namespace test10
   };
 }
 
+// Test direct load container in section.
+//
+#pragma db namespace table("t11_") pointer(std::shared_ptr)
+namespace test11
+{
+  #pragma db object
+  struct person
+  {
+    person (unsigned long i = 0, const char* n = ""): id (i), name (n) {}
+
+    #pragma db id
+    unsigned long id;
+
+    std::string name;
+  };
+
+  #pragma db object
+  struct employer
+  {
+    employer (unsigned long i = 0): id (i) {}
+
+    #pragma db id
+    unsigned long id;
+
+    #pragma db load(lazy) update(always)
+    odb::section employees_s;
+
+    #pragma db section(employees_s) direct_load oracle:table("er_ees")
+    std::vector<std::shared_ptr<person>> employees;
+  };
+}
+
 #endif // TEST_HXX
