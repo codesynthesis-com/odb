@@ -19,6 +19,8 @@
 // to-one  : employee -> employer
 // to-many : employee -> project
 //
+// The employee-projects relationship is loaded directly to avoid the
+// N+1 problem.
 
 // Forward declarations.
 //
@@ -147,7 +149,7 @@ private:
   #pragma db not_null
   std::shared_ptr<employer_type> employer_;
 
-  #pragma db value_not_null unordered
+  #pragma db value_not_null unordered direct_load
   projects_type projects_;
 };
 
