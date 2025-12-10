@@ -1,3 +1,19 @@
+Version 2.6.0
+
+ * Support for direct loading of containers of object pointers.
+
+   By default, object pointers are loaded indirectly, that is, we first
+   fetch their object ids and then we load each object with a separate
+   SELECT statement (unless said object is already in the session's object
+   cache). In certain situations this can lead to unacceptable performance
+   due to the so-called "N+1 Problem". With the direct load we fetch the
+   entire pointed-to objects as part of the initial SELECT statement, which
+   may result in improved performance.
+
+   For background and details, see Section 15.3, "Dealing with N+1 Problem".
+   The development of this functionality was sponsored by Qube Research &
+   Technologies Limited.
+
 Version 2.5.0
 
  * Database classes are now move-constructible. This means they can be

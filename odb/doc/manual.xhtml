@@ -429,7 +429,8 @@ for consistency.
           </tr>
 	  <tr><th>6.3</th><td><a href="#6.3">Circular Relationships</a></td></tr>
           <tr><th>6.4</th><td><a href="#6.4">Lazy Pointers</a></td></tr>
-          <tr><th>6.5</th><td><a href="#6.5">Using Custom Smart Pointers</a></td></tr>
+	  <tr><th>6.5</th><td><a href="#6.5">Dealing with N+1 Problem</a></td></tr>
+          <tr><th>6.6</th><td><a href="#6.6">Using Custom Smart Pointers</a></td></tr>
         </table>
       </td>
     </tr>
@@ -3013,7 +3014,7 @@ namespace accounting
      Qt), provide support for smart pointers found in these frameworks and
      libraries (<a href="#III">Part III, "Profiles"</a>). It is also easy to
      add support for our own smart pointers, as described in
-     <a href="#6.5"> Section 6.5, "Using Custom Smart Pointers"</a>.</p>
+     <a href="#6.6"> Section 6.6, "Using Custom Smart Pointers"</a>.</p>
 
   <h2><a name="3.4">3.4 Database</a></h2>
 
@@ -6494,11 +6495,11 @@ std::sort (v.mbegin (), v.mend ());
      libraries (such as Boost and Qt), provide support for smart pointers
      found in these frameworks and libraries (<a href="#III">Part III,
      "Profiles"</a>). It is also easy to add support for a custom smart
-     pointer as discussed later in <a href="#6.5"> Section 6.5, "Using Custom
+     pointer as discussed later in <a href="#6.6"> Section 6.6, "Using Custom
      Smart Pointers"</a>. Any supported smart pointer can be used in a data
      member as long as it can be explicitly constructed from the canonical
      object pointer (<a href="#3.3">Section 3.3, "Object and View
-     Pointers"</a>).  For example, we can use <code>weak_ptr</code> if the
+     Pointers"</a>). For example, we can use <code>weak_ptr</code> if the
      object pointer is <code>shared_ptr</code>.</p>
 
   <p>When an object containing a pointer to another object is loaded,
@@ -6513,6 +6514,14 @@ std::sort (v.mbegin (), v.mend ());
      Instead, we have to explicitly request the instantiation of the
      pointed-to object. Lazy pointers are discussed in
      detail in <a href="#6.4">Section 6.4, "Lazy Pointers"</a>.</p>
+
+  <p>Note also that by default pointed-to objects are
+     loaded <i>indirectly</i>, that is, we first only fetch their ids and then
+     load each object separately, unless it is already in the session's object
+     cache (discussed below). In certain situations this can lead to
+     unacceptable performance due to the so-called "N+1 Problem". This problem
+     and its solutions are discussed in detail in <a href="#6.5">Section 6.5,
+     "Dealing with N+1 Problem"</a>.</p>
 
   <p>As a simple example, consider the following employee-employer
      relationship. Code examples presented in this chapter
@@ -7671,7 +7680,267 @@ t.commit ();
      sections, refer to <a href="#9.3">Section 9.3, "Sections and
      Lazy Pointers"</a>.</p>
 
-  <h2><a name="6.5">6.5 Using Custom Smart Pointers</a></h2>
+
+  <h2><a name="6.5">6.5 Dealing with N+1 Problem</a></h2>
+
+  <p>The "N+1 Problem" refers to executing multiple SQL <code>SELECT</code>
+  statements when the same data could be more efficiently fetched with a
+  single statement. To illustrate the issue, consider the following
+  bidirectional, one-to-many relationship:</p>
+
+  <pre class="cxx">
+class person;
+
+#pragma db object
+class employer
+{
+  ...
+
+  #pragma db inverse(employer)
+  std::vector&lt;std::weak_ptr&lt;person>> employees;
+};
+
+#pragma db object
+class person
+{
+  ...
+
+  std::shared_ptr&lt;employer> employer;
+};
+  </pre>
+
+  <p>Both sides of this relationship can cause the N+1 problem. When we load
+  an <code>employer</code> object, its <code>employees</code> container and
+  all the <code>person</code> objects it points to must be loaded as well. By
+  default, this is done in three steps: first the <code>SELECT</code>
+  statement to load the <code>employer</code>'s non-container data members is
+  executed. Then a statement to load the object ids of all the
+  <code>person</code> objects it points to is executed. Finally, for each such
+  id, the <code>person</code> object is loaded with a separate statement,
+  unless this object is already in the session's object cache (<a
+  href="#11.1">Section 11.1, "Object Cache"</a>). Adding it all up, in the
+  worst case, we need the <code>1+1+N</code> <code>SELECT</code> statements to
+  load the <code>employer</code> object, where <code>N</code> is the number of
+  elements in its <code>employees</code> container.</p>
+
+  <p>Similarly, when we load a <code>person</code> object, the
+  <code>employer</code> object it points to must be loaded as well. This is
+  done in two steps: first the <code>SELECT</code> statement to load the
+  <code>person</code>'s data members is executed, which also loads the id of
+  the pointed-to employer. Then the <code>employer</code> object is loaded
+  with a separate statement, unless it is already in the session's object
+  cache. If we are loading a single <code>person</code> object, then we only
+  end up with the <code>1+1</code> <code>SELECT</code> statements. However,
+  if, for example, we are executing a query that returns <code>N</code>
+  <code>person</code> objects, then we have our <code>1+N</code> again: one
+  <code>SELECT</code> statement for the query plus one for each element it
+  returns (in order to load the pointed-to <code>employer</code>).</p>
+
+  <p>Generally, the solution to the N+1 problem is to replace multiple
+  <code>SELECT</code> statements with a single one that uses <code>JOIN</code>
+  to fetch the data for all the related objects at once. We will refer to such
+  a single-statement approach as <i>direct load</i> and to the default
+  multi-statement approach &#8211; <i>indirect load</i>.</p>
+
+  <p>Before discussing the specific ODB mechanisms that can be used to achieve
+  the direct load, it is important to understand that whether N+1 is actually
+  a problem or whether the "solution" will cause more problems than it solves,
+  depends on the nature of the relationship, how it is loaded by the
+  application, and which scenarios are considered performance-critical.</p>
+
+  <p>To start, let's consider the last example where we are executing a query
+  that returns <code>N</code> <code>person</code> objects. Given the
+  relationship we have (employee-employer), it is reasonable to assume that
+  there will be more employees than employers. As a result, when querying
+  <code>N</code> <code>person</code> objects, we will likely only end up with
+  a handful of distinct <code>employer</code> objects. Which means the result
+  of our single <code>SELECT</code> will likely contain quite a lot of
+  duplicate <code>employer</code> data. For a query that loads all the
+  <code>person</code> objects with the same employer, all the
+  <code>employer</code> data will be duplicate.</p>
+
+  <p>Is it then still worth going with the direct load in this case? The
+  answer depends on multiple factors: What queries are performance-critical to
+  the application?  Do we expect most of the referenced employer objects to be
+  already present in the object cache? Is duplicating <code>employer</code>
+  data expensive? For example, if the <code>employer</code> object contains
+  large <code>BLOB</code>s, duplicating them can prove costly. Plus, note that
+  the answers to some of these questions can be opposite for client-server and
+  in-process database systems.</p>
+
+  <p>To give two concrete examples for the above scenario, a query on the
+  client-server database system that references multiple <code>employer</code>
+  objects without any <code>BLOB</code>s and where we know that said employers
+  are not in the object cache, will most likely benefit form the direct load.
+  On the other hand, a query that loads all the <code>person</code> objects
+  with the same employer and where we know that said employer is in the object
+  cache, will perform better with the indirect load.</p>
+
+  <p>The above example was relatively easy to analyze. Things get more
+  complicated with bidirectional to-many relationships. To illustrate this,
+  consider a modified version of our employee-employer relationship where each
+  person can have multiple employers:</p>
+
+  <pre class="cxx">
+#pragma db object
+class employer
+{
+  ...
+
+  #pragma db inverse(employer)
+  std::vector&lt;std::weak_ptr&lt;person>> employees;
+};
+
+#pragma db object
+class person
+{
+  ...
+
+  std::vector&lt;std::shared_ptr&lt;employer>> employers;
+};
+  </pre>
+
+  <p>The nature of this relationship suggests that there will be more persons
+  than employers and that each person will only have a few employers,
+  typically just one.</p>
+
+  <p>Which side(s) of this relationship makes sense to load directly? Let's
+  consider what happens if we do it for both. To understand the implications,
+  it is helpful to write down the list of <code>SELECT</code> statements that
+  will be executed, for example, to load the <code>person</code> object with
+  id <code>1</code>. We consider a typical case where all the persons involved
+  only have one employer (with object id <code>1</code>):</p>
+
+  <pre>
+SELECT person1 -> person1
+SELECT person1.employers -> {employer1}
+SELECT employer1.employees -> {person1 person2 person3 ... personN}
+CACHE HIT person1
+SELECT person2.employers -> {employer1}
+CACHE HIT employer1
+SELECT person3.employers -> {employer1}
+CACHE HIT employer1
+...
+SELECT personN.employers -> {employer1}
+CACHE HIT employer1
+  </pre>
+
+  <p>The suboptimal part here are all the direct loads of the
+  <code>employers</code> container: for all the employees except the first,
+  the direct load is wasteful since the referenced employer is already in the
+  object cache. As a result, for this relationship, directly loading both
+  sides does not appear to be a good idea. In fact, making only the more
+  numerous <code>employees</code> side directly loaded is probably the winning
+  strategy here.</p>
+
+  <p>Based on this analysis it should now be clear why the indirect load is
+  the default: while it may not produce the best performance in all
+  situations, it is guaranteed to not perform any unnecessary work (fetch
+  unnecessary data). On the other hand, the direct load has the potential of
+  producing drastically worse performance in certain situations.</p>
+
+  <p>With this understanding, let's now discuss the mechanisms that allow us
+  to perform the direct load of relationships. ODB currently employs different
+  approaches to achieve this for to-one and to-many relationships.</p>
+
+  <p>For to-one relationships, where the object pointer is a data member, we
+  can use object loading views (<a href="#10.2">Section 10.2, "Object Loading
+  Views"</a>) to perform the direct load of the object itself and its specific
+  relationships (potentially recursively).</p>
+
+  <p>For to-many relationships, where the object pointer is an element of a
+    container, we can use the <code>direct_load</code> pragma
+    (<a href="#14.4.38">Section 14.4.38,
+    "<code>direct_load</code>/<code>indirect_load</code>"</a>) to request the
+    direct load. For example:</p>
+
+  <pre class="cxx">
+#pragma db object
+class employer
+{
+  ...
+
+  #pragma db inverse(employer) direct_load
+  std::vector&lt;std::weak_ptr&lt;person>> employees;
+};
+  </pre>
+
+  <p>Note that if the object pointer is a member of a composite value that is
+  an element of a container, then the <code>direct_load</code> pragma should
+  be specified for the pointer, not the container. For example:</p>
+
+  <pre class="cxx">
+#pragma db value
+struct employee
+{
+  std::string position;
+
+  #pragma db direct_load
+  std::weak_ptr&lt;person> resource;
+};
+
+#pragma db object
+class employer
+{
+  ...
+
+  std::vector&lt;employee> employees;
+};
+  </pre>
+
+  <p>In such cases, if directly loading multiple pointers, to avoid ending up
+  with duplicate instances, make sure that related object pointers reside in
+  the same composite value.</p>
+
+  <p>Note also that there is a number of cases where the
+  <code>direct_load</code> pragma cannot be used and the load is always
+  indirect:</p>
+
+  <ul>
+  <li>Lazy pointers.</li>
+
+  <li>Pointers to polymorphic objects.</li>
+
+  <li>Relationships established with the <code>points_to</code> pragma.</li>
+  </ul>
+
+  <p>In certain situations, the direct load may be beneficial only for certain
+  database systems. For example, if the pointed-to object contains
+  <code>BLOB</code>s, then loading such a relationship indirectly may be
+  preferable if executing separate statements is relatively inexpensive (for
+  example, due to using an in-process database system such as SQLite). For
+  situations like this you can customize the object pointer loading behavior
+  on the per-database system basis with the <code>indirect_load</code> pragma.
+  For example:</p>
+
+  <pre class="cxx">
+#pragma db object
+class data
+{
+  ...
+
+  #pragma db type("BLOB")
+  std::vector&lt;char> buffer_;
+};
+
+#pragma db object
+class object
+{
+  ...
+
+  #pragma db direct_load sqlite:indirect_load
+  std::vector&lt;std::shared_ptr&lt;data>> data_;
+};
+  </pre>
+
+  <p>When optimizing an existing codebase, it may be helpful to pin-point all
+  the to-many relationships where the direct load could be performed but
+  neither the <code>direct_load</code> nor <code>indirect_load</code> pragma
+  is specified. This can be achieved with the
+  <code>--warn-unspecified-load</code> ODB compiler command line option.</p>
+
+
+  <h2><a name="6.6">6.6 Using Custom Smart Pointers</a></h2>
 
   <p>While the ODB runtime and profile libraries provide support for
      the majority of widely-used pointers, it is also easy to add
@@ -11551,7 +11820,7 @@ t.commit ();
 
 
   <p>The per-object caching policies depend on the object pointer kind
-     (<a href="#6.5">Section 6.5, "Using Custom Smart Pointers"</a>).
+     (<a href="#6.6">Section 6.6, "Using Custom Smart Pointers"</a>).
      Objects with a unique pointer, such as <code>std::auto_ptr</code>
      or <code>std::unique_ptr</code>, as an object pointer are never
      cached since it is not possible to have two such pointers pointing
@@ -17767,69 +18036,9 @@ class person
   <h3><a name="14.4.38">14.4.38 <code>direct_load</code>/<code>indirect_load</code></a></h3>
 
   <p>The <code>direct_load</code> and <code>indirect_load</code> specifiers
-     along with the <code>--indirect-load</code> command line option control
-     the object pointer loading semantics.</p>
-
-  <p>Object pointers can be loaded directly or indirectly. With indirect
-     load, only the pointed-to object id is loaded as part of the initial
-     query (that is, the query that loads the pointing object or one of its
-     containers). Then, if applicable, the session is checked for the object's
-     presence. If not present, the object is then loaded with a separate
-     query.</p>
-
-  <p>With direct load, the pointed-to object is loaded fully as part of the
-     initial query. Then, if applicable, the session is checked for the
-     object's presence and if present, the loaded data is discarded.</p>
-
-  <p>Unless overridden with <code>--indirect-load</code>, the default is to
-     load object pointers directly wherever possible. While this usually
-     results in best performance, there could be cases where indirect load
-     performs better. The pathological example would be a to-many relationship
-     where you expect most of the objects to be in the session cache, the
-     pointed-to object containing a large amount of data (for
-     example, <code>BLOB</code>s), and separate queries being relatively
-     inexpensive (for example, due to using an in-process database system such
-     as SQLite). In this case returning and then discarding most of the data
-     for pointed-to objects as part of the initial query could very well be
-     more expensive than performing a few separate queries to load objects
-     that were not in the session cache.</p>
-
-  <p>For situations like this you can customize the object pointer loading
-     behavior on the per-data member (and, potentially, per-database system)
-     basis. For example:</p>
-
-  <pre class="cxx">
-
-#pragma db object
-class data
-{
-  ...
-
-  #pragma db type("BLOB")
-  std::vector&lt;char> buffer_;
-};
-
-#pragma db object
-class object
-{
-  ...
-
-  #pragma db sqlite:indirect_load
-  std::vector&lt;std::shared_ptr&lt;data>> data_;
-};
-  </pre>
-
-  <p>Note that there is currently no mechanism to make this decision at
-     runtime. However, this functionality may be added in the future.</p>
-
-  <p>Note also that there is a number of cases where the load is always
-     indirect:</p>
-
-  <ul class="list">
-    <li>Lazy pointers.</li>
-    <li>Pointers to polymorphic objects.</li>
-    <li>Relationships established with <code>db points_to</code>.</li>
-  </ul>
+     control the object pointer loading semantics for the to-many
+     relationships. Refer to <a href="#6.5">Section 6.5, "Dealing with N+1
+     Problem"</a> for background and details.</p>
 
 
   <h2><a name="14.5">14.5 Namespace Pragmas</a></h2>
