@@ -7730,11 +7730,13 @@ class person
   the pointed-to employer. Then the <code>employer</code> object is loaded
   with a separate statement, unless it is already in the session's object
   cache. If we are loading a single <code>person</code> object, then we only
-  end up with the <code>1+1</code> <code>SELECT</code> statements. However,
-  if, for example, we are executing a query that returns <code>N</code>
-  <code>person</code> objects, then we have our <code>1+N</code> again: one
-  <code>SELECT</code> statement for the query plus one for each element it
-  returns (in order to load the pointed-to <code>employer</code>).</p>
+  end up with the <code>1+1</code> <code>SELECT</code> statements (for now we
+  ignore loading of the <code>employer</code>'s <code>employees</code>
+  container). However, if, for example, we are executing a query that
+  returns <code>N</code> <code>person</code> objects, then we have
+  our <code>1+N</code> again: one <code>SELECT</code> statement for the query
+  plus one for each element it returns (in order to load the pointed-to
+  <code>employer</code>).</p>
 
   <p>Generally, the solution to the N+1 problem is to replace multiple
   <code>SELECT</code> statements with a single one that uses <code>JOIN</code>
