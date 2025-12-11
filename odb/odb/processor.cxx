@@ -152,6 +152,13 @@ namespace
 
       if (class_* cc = composite_wrapper (t))
       {
+        if (m.count ("inverse"))
+        {
+          error (m.location ()) << "inverse data member cannot be of a "
+                                << "composite value type" << endl;
+          throw operation_failed ();
+        }
+
         // If this is an object, make sure this composite member doesn't have
         // any directly-loaded object pointers (see process_object_pointer()
         // for background).
@@ -1367,6 +1374,14 @@ namespace
               m.name () << " in '#pragma db inverse'" << endl;
             throw operation_failed ();
           }
+
+          if (composite_wrapper (utype (m)) && !m.count ("points-to"))
+          {
+            error (l) << "data member '" << m.name () << "' specified with '"
+                      << "#pragma db inverse' is of composite value type"
+                      << endl;
+            throw operation_failed ();
+          }
         }
 
         // Validate each member.
@@ -1398,7 +1413,8 @@ namespace
         // @@ Would be good to check that the other end is actually
         // an object pointer/points_to and points to the correct
         // object. But the other class may not have been processed
-        // yet. Need to do in validator, pass 2.
+        // yet. Need to do in validator, pass 2. For now we check for
+        // composite above.
         //
         m.remove ("inverse");
         m.set (kp + (kp.empty () ? "": "-") + "inverse", imp); // No move.
@@ -1626,7 +1642,14 @@ namespace
                              bool obj_ptr)
     {
       if (composite_wrapper (t))
-        return;
+      {
+        if (m.count ("inverse"))
+        {
+          error (m.location ()) << "inverse container element cannot be of a "
+                                << "composite value type" << endl;
+          throw operation_failed ();
+        }
+      }
 
       if (obj_ptr)
         process_object_pointer (m, t, prefix);
@@ -2038,10 +2061,10 @@ namespace
 
       // A map cannot be an inverse container.
       //
-      if (m.count ("value-inverse") && (ck == ck_map || ck == ck_multimap))
+      if ((m.count ("value-inverse") || m.count ("key-inverse")) &&
+          (ck == ck_map || ck == ck_multimap))
       {
-        os << m.file () << ":" << m.line () << ":" << m.column () << ":"
-           << " error: inverse container cannot be a map" << endl;
+        error (m.location ()) << "inverse container cannot be a map" << endl;
         throw operation_failed ();
       }
 
