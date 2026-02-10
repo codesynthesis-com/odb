@@ -152,8 +152,13 @@ start_unit_callback (void*, void*)
   //
   cpp_buffer* b (cpp_get_buffer (parse_in));
   _cpp_file* f (cpp_get_file (b));
+#if BUILDING_GCC_MAJOR >= 16
+  cpp_dir* d (_cpp_get_file_dir (f));
+  char const* p (_cpp_get_file_path (f));
+#else
   cpp_dir* d (cpp_get_dir (f));
   char const* p (cpp_get_path (f));
+#endif
 
   cpp_file_prefix* fp (reinterpret_cast<cpp_file_prefix*> (f));
 
