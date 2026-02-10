@@ -44,3 +44,8 @@ test9-odb.?xx
 test9-odb-*.?xx
 test9.sql
 test9-*.sql
+
+test10-odb.?xx
+test10-odb-*.?xx
+test10.sql
+test10-*.sql
