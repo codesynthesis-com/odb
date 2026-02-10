@@ -4996,8 +4996,12 @@ namespace relational
           os << ")"
              << "{"
              << "using namespace " << db << ";"
-             << endl
-             << "statement_kind sk (statement_insert);"
+             << endl;
+
+          if (versioned)
+            os << "ODB_POTENTIALLY_UNUSED (svm);";
+
+          os << "statement_kind sk (statement_insert);"
              << "ODB_POTENTIALLY_UNUSED (sk);"
              << endl;
 
