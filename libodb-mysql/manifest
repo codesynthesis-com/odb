@@ -420,10 +420,10 @@ bindist-debian-build-config:
 +bbot.bindist.upload:
 bpkg.bindist.debian:--debian-buildflags=prepend
 b.create:config.cxx.std=c++11
-bpkg.configure.build:.../config.cc.poptions=[null]
-bpkg.configure.build:.../config.cc.coptions=[null]
-bpkg.configure.build:.../config.cc.loptions=[null]
-bpkg.configure.build:.../config.cxx.coptions=-Wno-cpp
+bpkg.configure.build:config.cc.poptions=[null]
+bpkg.configure.build:config.cc.coptions=[null]
+bpkg.configure.build:config.cc.loptions=[null]
+bpkg.configure.build:config.cxx.coptions=-Wno-cpp
 b.test-installed.create:config.cxx.coptions=-Wno-cpp
 bpkg.test-separate-installed.create:config.cxx.coptions=-Wno-cpp
 ?sys:libmysqlclient

@@ -82,13 +82,13 @@ bpkg.create:config.cxx.coptions="-fPIC -fno-lto"
 
 # Reset common options for odb (because we are prepending).
 #
-bpkg.configure.build:.../config.cc.poptions=[null]
-bpkg.configure.build:.../config.cc.coptions=[null]
-bpkg.configure.build:.../config.cc.loptions=[null]
+bpkg.configure.build:config.cc.poptions=[null]
+bpkg.configure.build:config.cc.coptions=[null]
+bpkg.configure.build:config.cc.loptions=[null]
 
 # Append custom options for odb.
 #
-bpkg.configure.build:.../config.cxx.coptions=-fno-lto
+bpkg.configure.build:config.cxx.coptions=-fno-lto
 \
 
 bindist-fedora-builds: bindist
@@ -121,13 +121,13 @@ bpkg.create:config.cxx.coptions="-fPIC -fno-lto"
 
 # Reset common options for odb (because we are prepending).
 #
-bpkg.configure.build:.../config.cc.poptions=[null]
-bpkg.configure.build:.../config.cc.coptions=[null]
-bpkg.configure.build:.../config.cc.loptions=[null]
+bpkg.configure.build:config.cc.poptions=[null]
+bpkg.configure.build:config.cc.coptions=[null]
+bpkg.configure.build:config.cc.loptions=[null]
 
 # Append custom options for odb.
 #
-bpkg.configure.build:.../config.cxx.coptions=-fno-lto
+bpkg.configure.build:config.cxx.coptions=-fno-lto
 \
 
 # Windows binary distribution archive.
