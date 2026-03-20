@@ -4,6 +4,7 @@
 # Create the MySQL database schema creation canned command base.
 #
 create_schema_cmd = [cmdline] \
-  $mysql_client_cmd 2>&1                                                    | \
-  sed -e "'"'s/^mysql: \[Warning\] Using a password on the command .*//'"'" | \
+  $mysql_client_cmd 2>&1                                                                   | \
+  sed -e "'"'s/^mysql: \[Warning\] Using a password on the command .*//'"'"                  \
+      -e "'"'s/^WARNING: .* is disabled, because of an insecure passwordless login.*//'"'" | \
   sed -n -e "'"'s/(.+)/\1/p'"'" >&2
