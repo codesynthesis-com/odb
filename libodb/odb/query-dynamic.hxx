@@ -86,7 +86,10 @@ namespace odb
   template <typename T>
   struct val_query_param: query_param
   {
-    val_query_param (const T& v): query_param (&copy), copy (v) {}
+    // Suppress GGC 16 -Wmaybe-uninitialized.
+    //
+    val_query_param (const T& v)
+        : query_param (nullptr /* value */), copy (v) {value = &copy;}
 
     T copy;
   };
