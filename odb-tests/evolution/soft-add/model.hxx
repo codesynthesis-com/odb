@@ -136,7 +136,7 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
       value (const std::string& s, unsigned long n): str (s), num (n) {}
 
       std::string str;
-      unsigned long num;
+      unsigned long num = 0;
     };
 
     #pragma db object
