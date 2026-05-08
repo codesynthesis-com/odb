@@ -21,7 +21,7 @@
 struct comp
 {
   comp () {}
-  comp (int n, const std::string& s) : num (n), str (s) {}
+  comp (int n, const std::string& s): num (n), str (s) {}
 
   #pragma db column("number")
   int num = 0;

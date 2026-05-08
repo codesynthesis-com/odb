@@ -1510,6 +1510,12 @@ namespace relational
         }
 
         virtual void
+        traverse_points_to (semantics::data_member& m, semantics::class_& c)
+        {
+          traverse_pointer (m, c);
+        }
+
+        virtual void
         traverse_container (semantics::data_member& m, semantics::type&)
         {
           if (semantics::class_* c =

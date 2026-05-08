@@ -4731,8 +4731,10 @@ traverse_view (type& c)
 
       if (container (m))
         c = object_pointer (container_vt (m));
-      else
-        c = object_pointer (utype (m));
+      else if ((c = object_pointer (utype (m))) == 0)
+        c = points_to (m);
+
+      assert (c != 0);
 
       view_object* vo (0);
 
@@ -5972,7 +5974,7 @@ namespace relational
           else
             t = &context::utype (*m);
 
-          if (context::object_pointer (*t))
+          if (context::object_pointer (*t) || context::points_to (*m))
             return e;
         }
 

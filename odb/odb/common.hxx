@@ -28,6 +28,9 @@ struct object_members_base: traversal::class_, virtual context
   virtual void
   traverse_pointer (semantics::data_member&, semantics::class_&);
 
+  virtual void
+  traverse_points_to (semantics::data_member&, semantics::class_&);
+
   // If you override this function, you can call the base to traverse
   // bases and members. The first argument is the data member and can
   // be NULL if we are traversing the root type or a base. The second

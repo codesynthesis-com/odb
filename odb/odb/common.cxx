@@ -27,6 +27,12 @@ traverse_pointer (semantics::data_member& m, semantics::class_& c)
 }
 
 void object_members_base::
+traverse_points_to (semantics::data_member& m, semantics::class_& c)
+{
+  traverse_member (m, utype (*id_member (c)));
+}
+
+void object_members_base::
 traverse_composite (semantics::data_member*, semantics::class_& c)
 {
   inherits (c);
@@ -224,6 +230,8 @@ traverse (semantics::data_member& m)
       om_.traverse_container (m, *c);
     else if (semantics::class_* c = object_pointer (t))
       om_.traverse_pointer (m, *c);
+    else if (semantics::class_* c = points_to (m))
+      om_.traverse_points_to (m, *c);
     else
       om_.traverse_member (m, t);
   }
@@ -259,9 +267,9 @@ traverse_pointer (semantics::data_member& m, semantics::class_& c)
 }
 
 void object_columns_base::
-traverse_points_to (semantics::data_member& m, semantics::class_&)
+traverse_points_to (semantics::data_member& m, semantics::class_& c)
 {
-  traverse_member (m, utype (m));
+  traverse_member (m, utype (*id_member (c)));
 }
 
 void object_columns_base::
@@ -301,8 +309,15 @@ traverse (semantics::data_member& m)
 {
   traverse_pre (m);
 
+  // Note that while we don't need the special points_to() logic here since
+  // the member type and pointed-to object id type should be the same (because
+  // this is the non-container case), we still do it in case the derived
+  // implementation needs to distinguish pointers and points_to.
+  //
   semantics::type& t (utype (m));
-  semantics::class_* c (object_pointer (t));
+  semantics::class_* op (object_pointer (t));
+  semantics::class_* pt (op == 0 ? points_to (m) : 0);
+  semantics::class_* c (op != 0 ? op : (pt != 0 ? pt : 0));
   semantics::type* rt (c == 0 ? &t : &utype (*id_member (*c)));
 
   root_ = &m;
@@ -318,9 +333,10 @@ traverse (semantics::data_member& m)
   root_op_ = (c != 0);
   root_null_ = context::null (m);
 
-
-  if (root_op_)
-    traverse_pointer (m, *c);
+  if (op != 0)
+    traverse_pointer (m, *op);
+  else if (pt != 0)
+    traverse_points_to (m, *pt);
   else
     traverse_member (m, *rt);
 
@@ -346,7 +362,9 @@ traverse (semantics::data_member& m,
   if (to != 0)
     context::top_object = to;
 
-  semantics::class_* c (object_pointer (t));
+  semantics::class_* op (object_pointer (t));
+  semantics::class_* pt (op == 0 && kp == "value" ? points_to (m) : 0);
+  semantics::class_* c (op != 0 ? op : (pt != 0 ? pt : 0));
   semantics::type* rt (c == 0 ? &t : &utype (*id_member (*c)));
 
   root_ = &m;
@@ -357,8 +375,10 @@ traverse (semantics::data_member& m,
   key_prefix_ = kp;
   default_name_ = dn;
 
-  if (root_op_)
-    traverse_pointer (m, *c);
+  if (op != 0)
+    traverse_pointer (m, *op);
+  else if (pt != 0)
+    traverse_points_to (m, *pt);
   else
     traverse_member (m, *rt);
 
