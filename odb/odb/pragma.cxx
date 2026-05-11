@@ -4344,6 +4344,8 @@ handle_pragma_db_virtual (cpp_reader* r)
 extern "C" void
 handle_pragma_db (cpp_reader*)
 {
+  sleep (1);
+
   cxx_pragma_lexer l;
   l.start ();
 
