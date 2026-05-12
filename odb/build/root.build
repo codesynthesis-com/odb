@@ -37,6 +37,14 @@ if ($cxx.target.system == 'win32-msvc')
 if ($cxx.class == 'msvc')
   cxx.coptions += /wd4251 /wd4275 /wd4800
 
+if ($cxx.id == 'gcc')
+{
+  # See GCC bugs 121840.
+  #
+  if ($cxx.version.major >= 16)
+    cxx.coptions += -Wno-uninitialized
+}
+
 cxx.poptions =+ "-I$out_root" "-I$src_root"
 
 # Specify the test target for cross-testing.
