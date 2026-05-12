@@ -31,7 +31,7 @@ exe{driver}: libue{test-meta} $libs
 # Specify the ODB custom options to be used by the odb_compile ad hoc rule
 # (see build/root.build for details).
 #
-odb_options = --std ($qt_ver == 5 ? c++11 : c++17) \
+odb_options = --std ($qt_ver == 6 ? c++17 : c++17) \
               --table-prefix qt_pgsql_dt_          \
               --profile qt/date-time               \
               --generate-schema

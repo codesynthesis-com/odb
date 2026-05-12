@@ -78,9 +78,8 @@ custom-multi-build-config:
 { --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
 
-# Only build the {boost,qt5,qt6}-default package configurations where they can
-# be tested via odb-{tests,examples} packages (see their manifest for
-# details).
+# Only build the {boost,qt6}-default package configurations where they can be
+# tested via odb-{tests,examples} packages (see their manifest for details).
 #
 boost-default-builds: default
 boost-default-builds: -( +windows -gcc ) ; Requires MinGW GCC.
@@ -92,20 +91,6 @@ boost-default-build-config:
 \
 { config.odb_tests.boost=true    }+ odb-tests
 { config.odb_examples.boost=true }+ odb-examples
-
-{ --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
-\
-
-qt5-default-builds: default
-qt5-default-builds: -( +windows -gcc ) ; Requires MinGW GCC.
-qt5-default-builds: &gcc               ; Requires GCC with plugin support enabled.
-qt5-default-builds: &gcc-5+            ; Requires GCC 5 or later.
-qt5-default-builds: -static            ; Implementation uses plugins and requires -fPIC.
-qt5-default-builds: -( +macos &gcc )   ; Not supported by libQt5Core.
-qt5-default-build-config:
-\
-{ config.odb_tests.qt=5    }+ odb-tests
-{ config.odb_examples.qt=5 }+ odb-examples
 
 { --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
@@ -124,9 +109,8 @@ qt6-default-build-config:
 { --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
 
-# The {boost,qt5,qt6}-custom configurations complement the
-# {boost,qt5,qt6}-default configurations (see odb-{tests,examples} for
-# background).
+# The {boost,qt6}-custom configurations complement the {boost,qt6}-default
+# configurations (see odb-{tests,examples} for background).
 #
 boost-custom-builds: default ; Requires default config with GCC as host compiler.
 boost-custom-builds: -static ; Implementation uses plugins and requires -fPIC.
@@ -136,18 +120,6 @@ boost-custom-build-config:
 \
 { config.odb_tests.boost=true    }+ odb-tests
 { config.odb_examples.boost=true }+ odb-examples
-
-{ --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
-\
-
-qt5-custom-builds: default ; Requires default config with GCC as host compiler.
-qt5-custom-builds: -static ; Implementation uses plugins and requires -fPIC.
-qt5-custom-builds: -( +macos &gcc ) ; Not supported by libQt5Core.
-#qt5-custom-build-bot: -- see below.
-qt5-custom-build-config:
-\
-{ config.odb_tests.qt=5    }+ odb-tests
-{ config.odb_examples.qt=5 }+ odb-examples
 
 { --config-uuid=00000000-0000-0000-0000-000000000005 }+ ?sys:libodb/*
 \
@@ -201,24 +173,6 @@ f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
 \
 
 boost-custom-build-bot:
-\
------BEGIN PUBLIC KEY-----
-MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuF4YmJmPHY52Q6N+YO0M
-lt/fCovdezleb2tVplyTnvbyAiPdmYCIIjVrsqUn3y46PdFtWEiSdsrCcncoxi6H
-8KelOB/oQ9pNTyEvwGKEH5ZIU7noLZYdXEfoNdvdL/pbY/7uLBZOSekfdQShZtbe
-uOZCM2Mhg2DD76TP/VAwaXuDCnEvxxU/yneUl5ZaBo62AWNrYJuSGAliCOpVpl6X
-X1kbHOvnCx7c9e3LxgaVivPaeZRKYg0OaFt96SBYEZzNPvjA8pMuKuj/vatHaCQ3
-NO9+r3TJ+4dQd7qN6Ju3zUJq9J/ndSh4lPvUalvvhdykecefhcyHwRZOG4xyFMFE
-nJM4sM+aZu6WoKATIKtk7On70inVr0sZJXwJ4Lt4oqaK2VthcSTby3wf2Yv4p5hL
-zNo31cCPmBRYzABcIc6ADYvexVK4uCwaim8xs7RK5Ug2Gv6vUWoRNZW8grIgDwUY
-5pZ4Zk3hW4ii2vehTaVrrmdW6XipIsT+ayiVX7eWuHHNxAeCojXVjOJu9B0ExMlD
-5tHZCs+SNdV5MceexecbptB7fZtRebP120yjLiSnZ5FpaQ1stusr0hSg+VQaX4np
-f5m1W/CcDr53PKWg/ayY9nWMUQaIwH4b69kLM+VTpYSbzu5UQJkmNBNq2EOHgoTv
-9MLA+cE/nNJ/rMI//MZ1+kcCAwEAAQ==
------END PUBLIC KEY-----
-\
-
-qt5-custom-build-bot:
 \
 -----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAuF4YmJmPHY52Q6N+YO0M

@@ -19,10 +19,6 @@ summary: ODB compiler repository
 
 #:
 #role: prerequisite
-#location: https://github.com/build2-packaging/Qt5.git##HEAD
-
-#:
-#role: prerequisite
 #location: https://github.com/build2-packaging/Qt6.git##HEAD
 
 :

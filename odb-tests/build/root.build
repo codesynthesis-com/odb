@@ -95,7 +95,7 @@ config [bool] config.odb_tests.boost ?= false
 boost = $config.odb_tests.boost
 
 # If defined, then, depending on the value, build and run the qt/* tests
-# against Qt5 (5) or Qt6 (6).
+# against Qt6 (6).
 #
 config [uint64] config.odb_tests.qt
 
@@ -105,8 +105,8 @@ if $qt
 {
   qt_ver = $config.odb_tests.qt
 
-  assert ($qt_ver == 5 || $qt_ver == 6) \
-    'config.odb_tests.qt value must be between 5 and 6'
+  assert ($qt_ver == 6) \
+    'config.odb_tests.qt value must be 6'
 }
 
 # Database connections.
