@@ -11,4 +11,4 @@ page](https://codesynthesis.com/products/odb/).
 
 This package contains the Qt ODB profile library. The Qt profile provides
 support for persisting Qt smart pointers, containers, and value types. Note
-that both Qt5 and Qt6 are supported.
+that only Qt6 is supported.

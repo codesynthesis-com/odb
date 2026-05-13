@@ -47,7 +47,7 @@ main (int argc, char* argv[])
     o.varchar2 = QString::fromStdString (medium_str);
     o.clob = QString::fromStdString (long_str);
 
-    // fromStdString() assumes ASCII in Qt4 and UTF-8 in Qt5.
+    // fromStdString() assumes UTF-8 from Qt5.
     //
     o.nchar= QString::fromUtf8 (unicode_str.c_str (),
                                 static_cast<int> (unicode_str.size ()));

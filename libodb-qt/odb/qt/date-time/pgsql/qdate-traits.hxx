@@ -50,7 +50,7 @@ namespace odb
         {
           is_null = false;
           const QDate pg_epoch (2000, 1, 1);
-          // In Qt5 daysTo() returns qint64.
+          // From Qt5 daysTo() returns qint64.
           //
           i = endian_traits::hton (static_cast<int> (pg_epoch.daysTo (v)));
         }
