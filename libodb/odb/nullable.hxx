@@ -192,6 +192,16 @@ namespace odb
   {
   }
 
+  // Suppress bogus maybe-uninitialized warning in GCC 10 and earlier. Seems
+  // to be triggered by the following construct when compiling with -O2:
+  //
+  // new (&value_) T (...);
+  //
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 11
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
   template <typename T>
   inline nullable<T>::
   nullable (const nullable& y)
@@ -393,6 +403,10 @@ namespace odb
       }
     }
   }
+
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 11
+#pragma GCC diagnostic pop
+#endif
 
   template <typename T>
   inline void nullable<T>::
