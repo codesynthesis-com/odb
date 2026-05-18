@@ -22,7 +22,7 @@ namespace odb
     }
 
     database_exception::
-    ~database_exception () ODB_NOTHROW_NOEXCEPT
+    ~database_exception () noexcept
     {
     }
 
@@ -51,7 +51,7 @@ namespace odb
     }
 
     const char* database_exception::
-    what () const ODB_NOTHROW_NOEXCEPT
+    what () const noexcept
     {
       return what_.c_str ();
     }
@@ -73,12 +73,12 @@ namespace odb
     }
 
     cli_exception::
-    ~cli_exception () ODB_NOTHROW_NOEXCEPT
+    ~cli_exception () noexcept
     {
     }
 
     const char* cli_exception::
-    what () const ODB_NOTHROW_NOEXCEPT
+    what () const noexcept
     {
       return what_.c_str ();
     }
@@ -94,7 +94,7 @@ namespace odb
     //
 
     const char* long_data_reload::
-    what () const ODB_NOTHROW_NOEXCEPT
+    what () const noexcept
     {
       return "attempt to re-load object or view with long data "
         "from query result";

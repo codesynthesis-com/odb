@@ -6,7 +6,7 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11, ODB_NOTHROW_NOEXCEPT
+#include <odb/details/config.hxx> // ODB_CXX11
 
 #include <new>
 #include <cstddef>   // std::size_t
@@ -48,7 +48,7 @@ operator new (std::size_t, odb::details::share) throw (std::bad_alloc);
 #endif
 
 LIBODB_EXPORT void
-operator delete (void*, odb::details::share) ODB_NOTHROW_NOEXCEPT;
+operator delete (void*, odb::details::share) noexcept;
 
 namespace odb
 {
@@ -86,10 +86,10 @@ namespace odb
 #endif
 
       void
-      operator delete (void*, share) ODB_NOTHROW_NOEXCEPT;
+      operator delete (void*, share) noexcept;
 
       void
-      operator delete (void*) ODB_NOTHROW_NOEXCEPT;
+      operator delete (void*) noexcept;
 
       struct refcount_callback
       {

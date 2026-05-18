@@ -9,7 +9,6 @@
 #include <string>
 
 #include <odb/exceptions.hxx>
-#include <odb/details/config.hxx> // ODB_NOTHROW_NOEXCEPT
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
@@ -28,7 +27,7 @@ namespace odb
     struct LIBODB_SQLITE_EXPORT forced_rollback: recoverable
     {
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual forced_rollback*
       clone () const;
@@ -40,7 +39,7 @@ namespace odb
                           int extended_error,
                           const std::string& message);
 
-      ~database_exception () ODB_NOTHROW_NOEXCEPT;
+      ~database_exception () noexcept;
 
       int
       error () const
@@ -61,7 +60,7 @@ namespace odb
       }
 
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual database_exception*
       clone () const;
@@ -76,10 +75,10 @@ namespace odb
     struct LIBODB_SQLITE_EXPORT cli_exception: odb::exception
     {
       cli_exception (const std::string& what);
-      ~cli_exception () ODB_NOTHROW_NOEXCEPT;
+      ~cli_exception () noexcept;
 
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual cli_exception*
       clone () const;

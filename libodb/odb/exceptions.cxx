@@ -12,7 +12,7 @@ using namespace std;
 namespace odb
 {
   const char* null_pointer::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "NULL pointer";
   }
@@ -24,7 +24,7 @@ namespace odb
   }
 
   const char* already_in_transaction::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "transaction already in progress in this thread";
   }
@@ -36,7 +36,7 @@ namespace odb
   }
 
   const char* not_in_transaction::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "operation can only be performed in transaction";
   }
@@ -48,7 +48,7 @@ namespace odb
   }
 
   const char* transaction_already_finalized::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "transaction already committed or rolled back";
   }
@@ -60,7 +60,7 @@ namespace odb
   }
 
   const char* already_in_session::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "session already in effect in this thread";
   }
@@ -72,7 +72,7 @@ namespace odb
   }
 
   const char* not_in_session::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "session not in effect in this thread";
   }
@@ -84,7 +84,7 @@ namespace odb
   }
 
   const char* session_required::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "session required to load this object relationship";
   }
@@ -96,7 +96,7 @@ namespace odb
   }
 
   const char* deadlock::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "transaction aborted due to deadlock";
   }
@@ -108,7 +108,7 @@ namespace odb
   }
 
   const char* connection_lost::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "connection to database lost";
   }
@@ -120,7 +120,7 @@ namespace odb
   }
 
   const char* timeout::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "database operation timeout";
   }
@@ -132,7 +132,7 @@ namespace odb
   }
 
   const char* object_not_persistent::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "object not persistent";
   }
@@ -144,7 +144,7 @@ namespace odb
   }
 
   const char* object_already_persistent::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "object already persistent";
   }
@@ -156,7 +156,7 @@ namespace odb
   }
 
   const char* object_changed::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "object changed concurrently";
   }
@@ -168,7 +168,7 @@ namespace odb
   }
 
   const char* result_not_cached::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "query result is not cached";
   }
@@ -180,7 +180,7 @@ namespace odb
   }
 
   const char* abstract_class::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "database operation on instance of abstract class";
   }
@@ -192,7 +192,7 @@ namespace odb
   }
 
   const char* no_type_info::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "no type information";
   }
@@ -213,12 +213,12 @@ namespace odb
   }
 
   prepared_already_cached::
-  ~prepared_already_cached () ODB_NOTHROW_NOEXCEPT
+  ~prepared_already_cached () noexcept
   {
   }
 
   const char* prepared_already_cached::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return what_.c_str ();
   }
@@ -239,12 +239,12 @@ namespace odb
   }
 
   prepared_type_mismatch::
-  ~prepared_type_mismatch () ODB_NOTHROW_NOEXCEPT
+  ~prepared_type_mismatch () noexcept
   {
   }
 
   const char* prepared_type_mismatch::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return what_.c_str ();
   }
@@ -265,12 +265,12 @@ namespace odb
   }
 
   unknown_schema::
-  ~unknown_schema () ODB_NOTHROW_NOEXCEPT
+  ~unknown_schema () noexcept
   {
   }
 
   const char* unknown_schema::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return what_.c_str ();
   }
@@ -292,12 +292,12 @@ namespace odb
   }
 
   unknown_schema_version::
-  ~unknown_schema_version () ODB_NOTHROW_NOEXCEPT
+  ~unknown_schema_version () noexcept
   {
   }
 
   const char* unknown_schema_version::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return what_.c_str ();
   }
@@ -309,7 +309,7 @@ namespace odb
   }
 
   const char* section_not_loaded::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "section is not loaded";
   }
@@ -321,7 +321,7 @@ namespace odb
   }
 
   const char* section_not_in_object::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return "section instance is not part of an object (section was copied?)";
   }
@@ -335,7 +335,7 @@ namespace odb
   // multiple_exceptions
   //
   multiple_exceptions::
-  ~multiple_exceptions () ODB_NOTHROW_NOEXCEPT {}
+  ~multiple_exceptions () noexcept {}
 
   void multiple_exceptions::
   insert (size_t p, bool maybe, const odb::exception& e, bool fatal)
@@ -417,7 +417,7 @@ namespace odb
   }
 
   const char* multiple_exceptions::
-  what () const ODB_NOTHROW_NOEXCEPT
+  what () const noexcept
   {
     return what_.c_str ();
   }

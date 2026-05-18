@@ -6,7 +6,6 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_NOTHROW_NOEXCEPT
 #include <odb/details/meta/class-p.hxx>
 #include <odb/details/meta/remove-const-volatile.hxx>
 
@@ -40,7 +39,7 @@ namespace odb
             t2 ();
 
             virtual
-            ~t2 () ODB_NOTHROW_NOEXCEPT;
+            ~t2 () noexcept;
           };
 
           static const bool result = sizeof (t1) == sizeof (t2);

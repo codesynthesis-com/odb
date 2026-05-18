@@ -8,7 +8,7 @@ namespace odb
   namespace details
   {
     const char* win32_exception::
-    what () const ODB_NOTHROW_NOEXCEPT
+    what () const noexcept
     {
       return "Win32 API error";
     }

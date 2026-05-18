@@ -10,7 +10,6 @@
 #include <vector>
 
 #include <odb/exceptions.hxx>
-#include <odb/details/config.hxx> // ODB_NOTHROW_NOEXCEPT
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
@@ -68,13 +67,13 @@ namespace odb
       }
 
     public:
-      ~database_exception () ODB_NOTHROW_NOEXCEPT;
+      ~database_exception () noexcept;
 
       database_exception ();
       database_exception (sb4 error, const std::string& message);
 
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual database_exception*
       clone () const;
@@ -90,7 +89,7 @@ namespace odb
     struct LIBODB_ORACLE_EXPORT lob_comparison: odb::exception
     {
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual lob_comparison*
       clone () const;
@@ -99,10 +98,10 @@ namespace odb
     struct LIBODB_ORACLE_EXPORT cli_exception: odb::exception
     {
       cli_exception (const std::string& what);
-      ~cli_exception () ODB_NOTHROW_NOEXCEPT;
+      ~cli_exception () noexcept;
 
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual cli_exception*
       clone () const;
@@ -114,7 +113,7 @@ namespace odb
     struct LIBODB_ORACLE_EXPORT invalid_oci_handle: odb::exception
     {
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual invalid_oci_handle*
       clone () const;

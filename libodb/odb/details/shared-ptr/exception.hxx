@@ -8,7 +8,6 @@
 
 #include <odb/exception.hxx>
 
-#include <odb/details/config.hxx> // ODB_NOTHROW_NOEXCEPT
 #include <odb/details/export.hxx>
 
 namespace odb
@@ -18,7 +17,7 @@ namespace odb
     struct LIBODB_EXPORT not_shared: exception
     {
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual not_shared*
       clone () const;

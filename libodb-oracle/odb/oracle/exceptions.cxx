@@ -22,7 +22,7 @@ namespace odb
     }
 
     database_exception::
-    ~database_exception () ODB_NOTHROW_NOEXCEPT
+    ~database_exception () noexcept
     {
     }
 
@@ -51,7 +51,7 @@ namespace odb
     }
 
     const char* database_exception::
-    what () const ODB_NOTHROW_NOEXCEPT
+    what () const noexcept
     {
       return what_.c_str ();
     }
@@ -67,7 +67,7 @@ namespace odb
     //
 
     const char* lob_comparison::
-    what () const ODB_NOTHROW_NOEXCEPT
+    what () const noexcept
     {
       return "comparison of LOB values in queries not supported";
     }
@@ -89,12 +89,12 @@ namespace odb
     }
 
     cli_exception::
-    ~cli_exception () ODB_NOTHROW_NOEXCEPT
+    ~cli_exception () noexcept
     {
     }
 
     const char* cli_exception::
-    what () const ODB_NOTHROW_NOEXCEPT
+    what () const noexcept
     {
       return what_.c_str ();
     }
@@ -110,7 +110,7 @@ namespace odb
     //
 
     const char* invalid_oci_handle::
-    what () const ODB_NOTHROW_NOEXCEPT
+    what () const noexcept
     {
       return "invalid oci handle passed or unable to allocate handle";
     }

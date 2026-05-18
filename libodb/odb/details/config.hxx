@@ -50,12 +50,6 @@
 #  endif
 #endif
 
-#ifdef ODB_CXX11_NOEXCEPT
-#  define ODB_NOTHROW_NOEXCEPT noexcept
-#else
-#  define ODB_NOTHROW_NOEXCEPT throw()
-#endif
-
 // Once we drop support for C++98, we can probably get rid of config.h except
 // for the autotools case by fixing ODB_THREADS_CXX11 (and perhaps supporting
 // the ODB_THREADS_NONE case via a "global" (command line) define).

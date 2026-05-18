@@ -10,7 +10,6 @@
 #include <vector>
 
 #include <odb/exceptions.hxx>
-#include <odb/details/config.hxx> // ODB_NOTHROW_NOEXCEPT
 
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
@@ -77,13 +76,13 @@ namespace odb
       }
 
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual database_exception*
       clone () const;
 
     public:
-      ~database_exception () ODB_NOTHROW_NOEXCEPT;
+      ~database_exception () noexcept;
 
       database_exception ();
       database_exception (SQLINTEGER error,
@@ -103,10 +102,10 @@ namespace odb
     struct LIBODB_MSSQL_EXPORT cli_exception: odb::exception
     {
       cli_exception (const std::string& what);
-      ~cli_exception () ODB_NOTHROW_NOEXCEPT;
+      ~cli_exception () noexcept;
 
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual cli_exception*
       clone () const;
@@ -118,7 +117,7 @@ namespace odb
     struct LIBODB_MSSQL_EXPORT long_data_reload: odb::exception
     {
       virtual const char*
-      what () const ODB_NOTHROW_NOEXCEPT;
+      what () const noexcept;
 
       virtual long_data_reload*
       clone () const;

@@ -105,13 +105,13 @@ namespace odb
 #endif
 
     inline void shared_base::
-    operator delete (void* p, share) ODB_NOTHROW_NOEXCEPT
+    operator delete (void* p, share) noexcept
     {
       ::operator delete (p);
     }
 
     inline void shared_base::
-    operator delete (void* p) ODB_NOTHROW_NOEXCEPT
+    operator delete (void* p) noexcept
     {
       ::operator delete (p);
     }
