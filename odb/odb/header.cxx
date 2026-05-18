@@ -775,34 +775,8 @@ namespace header
        << "#include <odb/traits.hxx>" << endl
        << "#include <odb/callback.hxx>" << endl
        << "#include <odb/wrapper-traits.hxx>" << endl
-       << "#include <odb/pointer-traits.hxx>" << endl;
-
-    // @@ TMP: drop after 2.5.0.
-    //
-#if 0
-    if (ctx.options.std () == cxx_version::cxx98)
-    {
-      // In case of a boost TR1 implementation, we cannot distinguish
-      // between the boost::shared_ptr and std::tr1::shared_ptr usage since
-      // the latter is just a using-declaration for the former. To resolve
-      // this we will include TR1 traits if the Boost TR1 header is included.
-      //
-      if (ctx.features.tr1_pointer)
-      {
-        os << "#include <odb/tr1/wrapper-traits.hxx>" << endl
-           << "#include <odb/tr1/pointer-traits.hxx>" << endl;
-      }
-      else if (ctx.features.boost_pointer)
-      {
-        os << "#ifdef BOOST_TR1_MEMORY_HPP_INCLUDED" << endl
-           << "#  include <odb/tr1/wrapper-traits.hxx>" << endl
-           << "#  include <odb/tr1/pointer-traits.hxx>" << endl
-           << "#endif" << endl;
-      }
-    }
-#endif
-
-    os << "#include <odb/container-traits.hxx>" << endl;
+       << "#include <odb/pointer-traits.hxx>" << endl
+       << "#include <odb/container-traits.hxx>" << endl;
 
     if (ctx.features.session_object)
     {

@@ -1165,10 +1165,7 @@ main (int argc, char* argv[])
             //
             os << "#line 1 \"<standard-odb-epilogue>\"" << endl;
 
-            // Includes for standard smart pointers. The Boost TR1 header
-            // may or may not delegate to the GCC implementation. In either
-            // case, the necessary declarations will be provided so we don't
-            // need to do anything.
+            // Includes for standard smart pointers.
             //
             os << "#include <memory>" << endl;
 
@@ -1183,19 +1180,6 @@ main (int argc, char* argv[])
             // Standard container traits.
             //
             os << "#include <odb/container-traits.hxx>" << endl;
-
-            // TR1 wrapper/pointer traits.
-            //
-            // @@ TMP: drop after 2.5.0.
-#if 0
-            if (ops.std () == cxx_version::cxx98)
-              os << endl
-                 << "#ifndef BOOST_TR1_MEMORY_HPP_INCLUDED" << endl
-                 << "#  include <tr1/memory>" << endl
-                 << "#endif" << endl
-                 << "#include <odb/tr1/wrapper-traits.hxx>" << endl
-                 << "#include <odb/tr1/pointer-traits.hxx>" << endl;
-#endif
           }
         }
 

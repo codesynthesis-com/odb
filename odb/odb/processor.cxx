@@ -1159,35 +1159,6 @@ namespace
         }
       }
 
-      // Check if the wrapper is a TR1 template instantiation.
-      //
-      if (tree ti = TYPE_TEMPLATE_INFO (t.tree_node ()))
-      {
-        tree decl (TI_TEMPLATE (ti)); // DECL_TEMPLATE
-
-        // Get to the most general template declaration.
-        //
-        while (DECL_TEMPLATE_INFO (decl))
-          decl = DECL_TI_TEMPLATE (decl);
-
-        bool& tr1 (features.tr1_pointer);
-        bool& boost (features.boost_pointer);
-
-        string n (decl_as_string (decl, TFF_PLAIN_IDENTIFIER));
-
-        // In case of a boost TR1 implementation, we cannot distinguish
-        // between the boost:: and std::tr1:: usage since the latter is
-        // just a using-declaration for the former.
-        //
-        tr1 = tr1
-          || n.compare (0, 8, "std::tr1") == 0
-          || n.compare (0, 10, "::std::tr1") == 0;
-
-        boost = boost
-          || n.compare (0, 17, "boost::shared_ptr") == 0
-          || n.compare (0, 19, "::boost::shared_ptr") == 0;
-      }
-
       t.set ("wrapper", true);
       return true;
     }
@@ -1242,35 +1213,6 @@ namespace
             throw operation_failed ();
 
           tn = TYPE_MAIN_VARIANT (TREE_TYPE (decl));
-
-          // Check if the pointer is a TR1 template instantiation.
-          //
-          if (tree ti = TYPE_TEMPLATE_INFO (t.tree_node ()))
-          {
-            decl = TI_TEMPLATE (ti); // DECL_TEMPLATE
-
-            // Get to the most general template declaration.
-            //
-            while (DECL_TEMPLATE_INFO (decl))
-              decl = DECL_TI_TEMPLATE (decl);
-
-            bool& tr1 (features.tr1_pointer);
-            bool& boost (features.boost_pointer);
-
-            string n (decl_as_string (decl, TFF_PLAIN_IDENTIFIER));
-
-            // In case of a boost TR1 implementation, we cannot distinguish
-            // between the boost:: and std::tr1:: usage since the latter is
-            // just a using-declaration for the former.
-            //
-            tr1 = tr1
-              || n.compare (0, 8, "std::tr1") == 0
-              || n.compare (0, 10, "::std::tr1") == 0;
-
-            boost = boost
-              || n.compare (0, 17, "boost::shared_ptr") == 0
-              || n.compare (0, 19, "::boost::shared_ptr") == 0;
-          }
         }
         catch (operation_failed const&)
         {
@@ -2990,7 +2932,7 @@ namespace
               raw = (TREE_CODE (TREE_TYPE (decl)) == POINTER_TYPE);
               ptr = p;
 
-              // This can be a typedef'ed alias for a TR1 template-id.
+              // This can be a typedef'ed alias for a template-id.
               //
               if (tree ti = TYPE_TEMPLATE_INFO (TREE_TYPE (decl)))
               {
@@ -3141,53 +3083,24 @@ namespace
         if (cp != 0 && cp_template && polymorphic (c) == &c)
           c.set ("pointer-template", cp);
 
-        // Check if we are using TR1.
+        // Extra sanity check.
         //
         if (decl != 0 || !decl_name.empty ())
         {
-          bool& tr1 (features.tr1_pointer);
-          bool& boost (features.boost_pointer);
+          if (decl == 0)
+            decl = resolve_name (decl_name, resolve_scope, false);
 
-          // First check the user-supplied name.
-          //
-          tr1 = tr1
-            || decl_name.compare (0, 8, "std::tr1") == 0
-            || decl_name.compare (0, 10, "::std::tr1") == 0;
-
-          // If there was no match, also resolve the name since it can be
-          // a using-declaration for a TR1 template.
-          //
-          if (!tr1)
+          if (TREE_CODE (decl) != TEMPLATE_DECL ||
+              !DECL_CLASS_TEMPLATE_P (decl))
           {
-            if (decl == 0)
-              decl = resolve_name (decl_name, resolve_scope, false);
-
-            if (TREE_CODE (decl) != TEMPLATE_DECL || !
-                DECL_CLASS_TEMPLATE_P (decl))
-            {
-              // This is only checked for the --default-pointer option.
-              //
-              error (c.file (), c.line (), c.column ())
-                << "name '" << decl_name << "' specified with the "
-                << "--default-pointer option does not name a class "
-                << "template" << endl;
-
-              throw operation_failed ();
-            }
-
-            string n (decl_as_string (decl, TFF_PLAIN_IDENTIFIER));
-
-            // In case of a boost TR1 implementation, we cannot distinguish
-            // between the boost:: and std::tr1:: usage since the latter is
-            // just a using-declaration for the former.
+            // This is only checked for the --default-pointer option.
             //
-            tr1 = tr1
-              || n.compare (0, 8, "std::tr1") == 0
-              || n.compare (0, 10, "::std::tr1") == 0;
+            error (c.file (), c.line (), c.column ())
+              << "name '" << decl_name << "' specified with the "
+              << "--default-pointer option does not name a class "
+              << "template" << endl;
 
-            boost = boost
-              || n.compare (0, 17, "boost::shared_ptr") == 0
-              || n.compare (0, 19, "::boost::shared_ptr") == 0;
+            throw operation_failed ();
           }
         }
 

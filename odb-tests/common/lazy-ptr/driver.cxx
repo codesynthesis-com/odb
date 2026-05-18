@@ -227,7 +227,7 @@ main (int argc, char* argv[])
       }
     }
 
-    // Shared pointer from C++11 or TR1.
+    // Shared pointer from C++11.
     //
     {
       using namespace test3;

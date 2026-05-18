@@ -12,8 +12,6 @@ struct features
 {
   features () {std::memset (this, 0, sizeof (features));}
 
-  bool tr1_pointer;
-  bool boost_pointer;
   bool simple_object;
   bool polymorphic_object;
   bool no_id_object;
