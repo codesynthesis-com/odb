@@ -129,14 +129,6 @@ namespace odb
     return connection_ptr (connection_ ());
   }
 
-#ifndef ODB_CXX11
-  inline void database::
-  query_factory (const char* name, query_factory_ptr f)
-  {
-    query_factory (name, query_factory_wrapper (f));
-  }
-#endif
-
   inline void database::
   tracer (tracer_type& t)
   {
@@ -686,7 +678,6 @@ namespace odb
     c.cache_query (pq);
   }
 
-#ifdef ODB_CXX11
   template <typename T, typename P>
   inline void database::
   cache_query (const prepared_query<T>& pq, std::unique_ptr<P> params)
@@ -694,15 +685,6 @@ namespace odb
     connection_type& c (transaction::current ().connection (*this));
     c.cache_query (pq, std::move (params));
   }
-#else
-  template <typename T, typename P>
-  inline void database::
-  cache_query (const prepared_query<T>& pq, std::auto_ptr<P> params)
-  {
-    connection_type& c (transaction::current ().connection (*this));
-    c.cache_query (pq, params);
-  }
-#endif
 
   template <typename T>
   inline prepared_query<T> database::

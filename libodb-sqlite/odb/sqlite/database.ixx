@@ -1,7 +1,7 @@
 // file      : odb/sqlite/database.ixx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <utility> // move()
+#include <utility> // std::move()
 
 #include <odb/sqlite/transaction.hxx>
 
@@ -9,7 +9,6 @@ namespace odb
 {
   namespace sqlite
   {
-#ifdef ODB_CXX11
     inline database::
     database (database&& db) // Has to be inline.
         : odb::database (std::move (db)),
@@ -22,7 +21,6 @@ namespace odb
     {
       factory_->database (*this); // New database instance.
     }
-#endif
 
     inline void database::
     detach ()

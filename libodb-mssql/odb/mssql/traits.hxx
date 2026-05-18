@@ -6,17 +6,12 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11
-
+#include <array>
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
 #include <cstring> // std::memcpy, std::memset, std::strlen
 #include <cwchar>  // std::wcslen
-
-#ifdef ODB_CXX11
-#  include <array>
-#endif
 
 #ifdef _WIN32
 typedef struct _GUID GUID;
@@ -688,7 +683,6 @@ namespace odb
 
     // std::array<char, N> (string) specialization.
     //
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_value_traits<std::array<char, N>, id_string>
     {
@@ -715,7 +709,6 @@ namespace odb
         c_array_value_traits_base::set_image (b, c, n, is_null, v.data (), N);
       }
     };
-#endif
 
     // char specialization.
     //
@@ -905,7 +898,6 @@ namespace odb
 
     // std::array<char, N> (long_string) specialization.
     //
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_value_traits<std::array<char, N>, id_long_string>
     {
@@ -931,7 +923,6 @@ namespace odb
           cb, context, is_null, v.data ());
       }
     };
-#endif
 
     // std::wstring specialization for nstring.
     //
@@ -1117,7 +1108,6 @@ namespace odb
 
     // std::array<wchar_t, N> (string) specialization.
     //
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_value_traits<std::array<wchar_t, N>, id_nstring>
     {
@@ -1144,7 +1134,6 @@ namespace odb
         c_warray_value_traits_base::set_image (b, c, n, is_null, v.data (), N);
       }
     };
-#endif
 
     // wchar_t specialization.
     //
@@ -1447,7 +1436,6 @@ namespace odb
 
     // std::array<wchar_t, N> (long_nstring) specialization.
     //
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_value_traits<std::array<wchar_t, N>, id_long_nstring>
     {
@@ -1474,7 +1462,6 @@ namespace odb
           cb, context, is_null, v.data ());
       }
     };
-#endif
 
     // std::vector (buffer) specialization for binary.
     //
@@ -1574,7 +1561,6 @@ namespace odb
     {
     };
 
-#ifdef ODB_CXX11
     // std::array (buffer) specialization for binary.
     //
     template <typename C, std::size_t N>
@@ -1617,7 +1603,6 @@ namespace odb
       array_binary_value_traits<unsigned char, N>
     {
     };
-#endif
 
     // std::vector<char> (buffer) specialization for long_binary.
     //
@@ -1782,7 +1767,6 @@ namespace odb
       typedef long_callback image_type;
     };
 
-#ifdef ODB_CXX11
     // std::array (buffer) specialization for long_binary.
     //
     template <std::size_t N>
@@ -1838,7 +1822,6 @@ namespace odb
           cb, context, is_null, v.data ());
       }
     };
-#endif
 
     // GUID specialization for uniqueidentifier.
     //
@@ -2068,7 +2051,6 @@ namespace odb
       static const database_type_id db_type_id = id_string;
     };
 
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_type_traits<std::array<char, N> >
     {
@@ -2076,7 +2058,6 @@ namespace odb
       //
       static const database_type_id db_type_id = id_string;
     };
-#endif
 
     template <>
     struct default_type_traits<char>
@@ -2113,7 +2094,6 @@ namespace odb
       static const database_type_id db_type_id = id_nstring;
     };
 
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_type_traits<std::array<wchar_t, N> >
     {
@@ -2121,7 +2101,6 @@ namespace odb
       //
       static const database_type_id db_type_id = id_nstring;
     };
-#endif
 
     template <>
     struct default_type_traits<wchar_t>
@@ -2149,13 +2128,11 @@ namespace odb
       static const database_type_id db_type_id = id_long_binary;
     };
 
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_type_traits<std::array<unsigned char, N> >
     {
       static const database_type_id db_type_id = id_long_binary;
     };
-#endif
 
     // GUID.
     //

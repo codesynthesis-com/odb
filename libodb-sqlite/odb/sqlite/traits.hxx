@@ -6,17 +6,12 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11
-
+#include <array>
 #include <string>
 #include <vector>
 #include <limits>  // std::numeric_limits
 #include <cstddef> // std::size_t
 #include <cstring> // std::memcpy, std::memset, std::strlen
-
-#ifdef ODB_CXX11
-#  include <array>
-#endif
 
 #include <odb/traits.hxx>
 #include <odb/wrapper-traits.hxx>
@@ -391,7 +386,6 @@ namespace odb
 
     // std::array<char, N> (string) specialization.
     //
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_value_traits<std::array<char, N>, id_text>
     {
@@ -417,7 +411,6 @@ namespace odb
         c_array_value_traits_base::set_image (b, n, is_null, v.data (), N);
       }
     };
-#endif
 
     // char specialization.
     //
@@ -562,7 +555,6 @@ namespace odb
 
     // std::array<wchar_t, N> (string) specialization.
     //
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct image_traits<std::array<wchar_t, N>, id_text>:
       wstring_image_traits {};
@@ -592,7 +584,6 @@ namespace odb
         c_warray_value_traits_base::set_image (b, n, is_null, v.data (), N);
       }
     };
-#endif
 
     // wchar_t specialization.
     //
@@ -766,7 +757,6 @@ namespace odb
       }
     };
 
-#ifdef ODB_CXX11
     // std::array<char, N> (buffer) specialization.
     //
     template <std::size_t N>
@@ -842,7 +832,6 @@ namespace odb
         std::memcpy (b.data (), v.data (), n);
       }
     };
-#endif
 
     // text (stream) specialization.
     //
@@ -1038,13 +1027,11 @@ namespace odb
       static const database_type_id db_type_id = id_text;
     };
 
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_type_traits<std::array<char, N> >
     {
       static const database_type_id db_type_id = id_text;
     };
-#endif
 
     template <>
     struct default_type_traits<char>
@@ -1072,13 +1059,11 @@ namespace odb
       static const database_type_id db_type_id = id_blob;
     };
 
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_type_traits<std::array<unsigned char, N> >
     {
       static const database_type_id db_type_id = id_blob;
     };
-#endif
 
     template <>
     struct default_type_traits<text>

@@ -6,12 +6,8 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11
-
-#ifdef ODB_CXX11
-#  include <functional>  // std::function
-#  include <type_traits> // std::enable_if, std::is_convertible
-#endif
+#include <functional>  // std::function
+#include <type_traits> // std::enable_if, std::is_convertible
 
 namespace odb
 {
@@ -30,7 +26,6 @@ namespace odb
       explicit
       function_wrapper (F* = 0);
 
-#ifdef ODB_CXX11
       typedef typename std::function<F> std_function_type;
 
       // This overload accepts lambdas and std::functions, but when the
@@ -46,7 +41,6 @@ namespace odb
       function_wrapper(F1,
                        typename std::enable_if<
                        !std::is_convertible<F1, F*>::value>::type* = 0);
-#endif
 
       // Destructive copy construction and assignment (aka move). These
       // should really only be called by containers when they need to

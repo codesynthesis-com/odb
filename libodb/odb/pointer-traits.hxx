@@ -7,10 +7,9 @@
 #include <odb/pre.hxx>
 
 #include <new>     // operators new/delete
-#include <memory>  // std::auto_ptr, std::unique_ptr, std::shared_ptr/weak_ptr
+#include <memory>  // std::unique_ptr, std::shared_ptr/weak_ptr
 #include <cstddef> // std::size_t
 
-#include <odb/details/config.hxx>            // ODB_CXX11
 #include <odb/details/meta/remove-const.hxx>
 
 namespace odb
@@ -157,82 +156,6 @@ namespace odb
       operator delete (p);
     }
   };
-
-  // Specialization for std::auto_ptr.
-  //
-#ifndef ODB_CXX11
-  template <typename T>
-  class pointer_traits< std::auto_ptr<T> >
-  {
-  public:
-    static const pointer_kind kind = pk_unique;
-    static const bool lazy = false;
-
-    typedef T element_type;
-    typedef std::auto_ptr<element_type> pointer_type;
-    typedef std::auto_ptr<const element_type> const_pointer_type;
-    typedef smart_ptr_guard<pointer_type> guard;
-
-    static element_type*
-    get_ptr (const pointer_type& p)
-    {
-      return p.get ();
-    }
-
-    static element_type&
-    get_ref (const pointer_type& p)
-    {
-      return *p;
-    }
-
-    static bool
-    null_ptr (const pointer_type& p)
-    {
-      return p.get () == 0;
-    }
-
-    // const_pointer_cast() is not provided.
-    //
-
-    // Note: transfers ownership.
-    //
-    template <typename T1>
-    static std::auto_ptr<T1>
-    static_pointer_cast (pointer_type& p)
-    {
-      return std::auto_ptr<T1> (static_cast<T1*> (p.release ()));
-    }
-
-    // Note: transfers ownership if successful.
-    //
-    template <typename T1>
-    static std::auto_ptr<T1>
-    dynamic_pointer_cast (pointer_type& p)
-    {
-      T1* p1 (dynamic_cast<T1*> (p.get ()));
-
-      if (p1 != 0)
-        p.release ();
-
-      return std::auto_ptr<T1> (p1);
-    }
-
-  public:
-    static void*
-    allocate (std::size_t n)
-    {
-      return operator new (n);
-    }
-
-    static void
-    free (void* p)
-    {
-      operator delete (p);
-    }
-  };
-#endif
-
-#ifdef ODB_CXX11
 
   // Specialization for C++11 std::unique_ptr.
   //
@@ -395,9 +318,6 @@ namespace odb
       return p.lock ();
     }
   };
-
-#endif // ODB_CXX11
-
 }
 
 #include <odb/post.hxx>

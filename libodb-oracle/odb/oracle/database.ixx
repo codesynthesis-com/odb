@@ -1,7 +1,7 @@
 // file      : odb/oracle/database.ixx
 // license   : ODB NCUEL; see accompanying LICENSE file
 
-#include <utility> // move()
+#include <utility> // std::move()
 
 #include <odb/oracle/transaction.hxx>
 
@@ -9,7 +9,6 @@ namespace odb
 {
   namespace oracle
   {
-#ifdef ODB_CXX11
     inline database::
     database (database&& db) // Has to be inline.
         : odb::database (std::move (db)),
@@ -27,7 +26,6 @@ namespace odb
     {
       factory_->database (*this); // New database instance.
     }
-#endif
 
     inline connection_ptr database::
     connection ()

@@ -55,11 +55,7 @@ namespace odb
     template <class T>
     template <class Y>
     inline lazy_shared_ptr<T>::
-#ifdef ODB_CXX11
     lazy_shared_ptr (std::unique_ptr<Y>&& r): p_ (std::move (r)) {}
-#else
-    lazy_shared_ptr (std::auto_ptr<Y>& r): p_ (r) {}
-#endif
 
     template <class T>
     inline lazy_shared_ptr<T>::
@@ -87,15 +83,9 @@ namespace odb
     template <class T>
     template <class Y>
     inline lazy_shared_ptr<T>& lazy_shared_ptr<T>::
-#ifdef ODB_CXX11
     operator= (std::unique_ptr<Y>&& r)
     {
       p_ = std::move (r);
-#else
-    operator= (std::auto_ptr<Y>& r)
-    {
-      p_ = r;
-#endif
       i_.reset ();
       return *this;
     }
@@ -276,13 +266,8 @@ namespace odb
     template <class T>
     template <class DB, class Y>
     inline lazy_shared_ptr<T>::
-#ifdef ODB_CXX11
     lazy_shared_ptr (DB& db, std::unique_ptr<Y>&& r)
       : p_ (std::move (r))
-#else
-    lazy_shared_ptr (DB& db, std::auto_ptr<Y>& r)
-      : p_ (r)
-#endif
     {
       if (p_)
         i_.reset_db (db);
@@ -359,15 +344,9 @@ namespace odb
     template <class T>
     template <class DB, class Y>
     inline void lazy_shared_ptr<T>::
-#ifdef ODB_CXX11
     reset (DB& db, std::unique_ptr<Y>&& r)
     {
       p_ = std::move (r);
-#else
-    reset (DB& db, std::auto_ptr<Y>& r)
-    {
-      p_ = r;
-#endif
 
       if (p_)
         i_.reset_db (db);

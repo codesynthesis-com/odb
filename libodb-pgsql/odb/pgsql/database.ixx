@@ -1,7 +1,7 @@
 // file      : odb/pgsql/database.ixx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <utility> // move()
+#include <utility> // std::move()
 
 #include <odb/pgsql/transaction.hxx>
 
@@ -9,7 +9,6 @@ namespace odb
 {
   namespace pgsql
   {
-#ifdef ODB_CXX11
     inline database::
     database (database&& db) // Has to be inline.
         : odb::database (std::move (db)),
@@ -25,7 +24,6 @@ namespace odb
     {
       factory_->database (*this); // New database instance.
     }
-#endif
 
     inline connection_ptr database::
     connection ()

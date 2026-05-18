@@ -14,7 +14,6 @@
 
 #include <odb/callback.hxx>
 
-#include <odb/details/config.hxx>    // ODB_CXX11
 #include <odb/details/type-info.hxx>
 
 #include <odb/polymorphic-info.hxx>
@@ -94,12 +93,7 @@ namespace odb
 
     // Implicit downcast.
     //
-#ifdef ODB_CXX11
-    root_pointer_type r (std::move (p));
-#else
-    root_pointer_type r (p);
-#endif
-    return r;
+    return root_pointer_type (std::move (p));
   }
 
   template <typename T, database_id DB, typename R>

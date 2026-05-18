@@ -5,20 +5,13 @@
 #define ODB_QT_CONTAINERS_LIST_HXX
 
 #include <odb/pre.hxx>
-#include <odb/details/config.hxx> // ODB_CXX11
 
 #include <list>
+#include <utility>          // std::move
+#include <initializer_list>
 
 #include <QtCore/QtGlobal> // QT_VERSION
 #include <QtCore/QList>
-
-#ifdef ODB_CXX11
-#  include <utility>          // std::move
-#  if defined(ODB_CXX11_INITIALIZER_LIST) && \
-  defined(Q_COMPILER_INITIALIZER_LISTS)
-#    include <initializer_list>
-#  endif
-#endif
 
 #include <odb/vector-impl.hxx>
 
@@ -55,7 +48,6 @@ public:
   void swap(QOdbList &other);
 #endif
 
-#ifdef ODB_CXX11
   QOdbList(QOdbList &&x) noexcept
     : vector_base (std::move (x)), l_ (std::move (x.l_)) {}
 
@@ -63,12 +55,7 @@ public:
   // impl_.
   //
   QOdbList &operator=(QOdbList &&other);
-
-#if defined(ODB_CXX11_INITIALIZER_LIST) && \
-  defined(Q_COMPILER_INITIALIZER_LISTS)
   QOdbList(std::initializer_list<T> il): l_ (il) {}
-#endif
-#endif
 
   // Implicit conversion.
   //
@@ -206,10 +193,8 @@ public:
   base_list_type& base () {return l_;}
   const base_list_type& base () const {return l_;}
 
-#ifdef ODB_CXX11
   QOdbList (base_list_type&& x): l_ (std::move (x)) {}
   QOdbList& operator= (base_list_type&&);
-#endif
 
   // Change tracking (the rest comes from vector_base).
   //

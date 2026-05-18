@@ -7,11 +7,9 @@ namespace odb
 {
   namespace details
   {
-#ifdef ODB_CXX11
     template <typename F>
     struct caller_impl;
 
-#ifdef ODB_CXX11_VARIADIC_TEMPLATE
     template <typename R, typename... A>
     struct caller_impl<R (A...)>
     {
@@ -21,27 +19,6 @@ namespace odb
         return (*static_cast<const std::function<R (A...)>*> (f)) (a...);
       }
     };
-#else
-    template <typename R, typename A1>
-    struct caller_impl<R (A1)>
-    {
-      static R
-      function (const void* f, A1 a1)
-      {
-        return (*static_cast<const std::function<R (A1)>*> (f)) (a1);
-      }
-    };
-
-    template <typename R, typename A1, typename A2>
-    struct caller_impl<R (A1, A2)>
-    {
-      static R
-      function (const void* f, A1 a1, A2 a2)
-      {
-        return (*static_cast<const std::function<R (A1, A2)>*> (f)) (a1, a2);
-      }
-    };
-#endif
 
     template <typename F>
     void
@@ -75,7 +52,6 @@ namespace odb
         std_function = new std_function_type (std::move (sf));
       }
     }
-#endif
 
     template <typename F>
     void function_wrapper<F>::

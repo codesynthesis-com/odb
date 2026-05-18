@@ -15,8 +15,6 @@
 #include <odb/result.hxx>
 #include <odb/pointer-traits.hxx>
 
-#include <odb/details/config.hxx>     // ODB_CXX11
-
 namespace odb
 {
   template <typename T>
@@ -85,7 +83,6 @@ namespace odb
     size () = 0;
 
   protected:
-#ifdef ODB_CXX11
     void
     current (pointer_type& p)
     {
@@ -98,14 +95,6 @@ namespace odb
     {
       current (p);
     }
-#else
-    void
-    current (pointer_type p)
-    {
-      current_ = p;
-      guard_.reset (current_);
-    }
-#endif
 
     bool begin_;
     bool end_;
@@ -179,11 +168,7 @@ namespace odb
     pointer_type
     load ()
     {
-#ifdef ODB_CXX11
       pointer_type r (std::move (res_->current ()));
-#else
-      pointer_type r (res_->current ());
-#endif
       res_->release ();
       return r;
     }

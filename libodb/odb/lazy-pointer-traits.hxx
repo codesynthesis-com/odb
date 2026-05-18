@@ -8,7 +8,6 @@
 
 #include <odb/pointer-traits.hxx>
 #include <odb/lazy-ptr.hxx>
-#include <odb/details/config.hxx> // ODB_CXX11
 
 namespace odb
 {
@@ -37,34 +36,6 @@ namespace odb
     }
   };
 
-#ifndef ODB_CXX11
-  template <typename T>
-  class pointer_traits< lazy_auto_ptr<T> >
-  {
-  public:
-    static const pointer_kind kind = pk_unique;
-    static const bool lazy = true;
-
-    typedef T element_type;
-    typedef lazy_auto_ptr<element_type> pointer_type;
-    typedef std::auto_ptr<element_type> eager_pointer_type;
-
-    static bool
-    null_ptr (const pointer_type& p)
-    {
-      return !p;
-    }
-
-    template <class O /* = T */>
-    static typename object_traits<O>::id_type
-    object_id (const pointer_type& p)
-    {
-      return p.template object_id<O> ();
-    }
-  };
-#endif
-
-#ifdef ODB_CXX11
   template <typename T, typename D>
   class pointer_traits<lazy_unique_ptr<T, D>>
   {
@@ -133,7 +104,6 @@ namespace odb
       return p.lock ();
     }
   };
-#endif // ODB_CXX11
 }
 
 #include <odb/post.hxx>

@@ -6,18 +6,13 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11
-
 #include <map>
 #include <string>
-#include <memory>  // std::auto_ptr, std::unique_ptr
-#include <cstddef> // std::size_t
-
-#ifdef ODB_CXX11
-#  include <utility>     // std::move
-#  include <functional>  // std::function
-#  include <type_traits> // std::enable_if, std::is_convertible
-#endif
+#include <memory>      // std::unique_ptr
+#include <cstddef>     // std::size_t
+#include <utility>     // std::move
+#include <functional>  // std::function
+#include <type_traits> // std::enable_if, std::is_convertible
 
 #include <odb/traits.hxx>
 #include <odb/forward.hxx>
@@ -45,8 +40,7 @@ namespace odb
     virtual
     ~database ();
 
-#ifdef ODB_CXX11
-    //database (database&&) = default; // VC 2013
+    //database (database&&) = default; // VC 2013 @@ TMP retest
 
     // Note: noexcept is not specified since *_map_ (std::map) can throw.
     //
@@ -60,15 +54,10 @@ namespace odb
           schema_version_seq_ (d.schema_version_seq_)
     {
     }
-#endif
 
-  private:
-    database (const database&);
-    database& operator= (const database&);
-
-#ifdef ODB_CXX11
-    database& operator= (const database&&);
-#endif
+    database (const database&) = delete;
+    database& operator= (const database&) = delete;
+    database& operator= (const database&&) = delete;
 
     // Object persistence API.
     //
@@ -367,15 +356,9 @@ namespace odb
     void
     cache_query (const prepared_query<T>&);
 
-#ifdef ODB_CXX11
     template <typename T, typename P>
     void
     cache_query (const prepared_query<T>&, std::unique_ptr<P> params);
-#else
-    template <typename T, typename P>
-    void
-    cache_query (const prepared_query<T>&, std::auto_ptr<P> params);
-#endif
 
     template <typename T>
     prepared_query<T>
@@ -395,10 +378,6 @@ namespace odb
     typedef details::function_wrapper<
       query_factory_type> query_factory_wrapper;
 
-#ifndef ODB_CXX11
-    void
-    query_factory (const char* name, query_factory_ptr);
-#else
     template <typename F>
     typename std::enable_if<
       std::is_convertible<
@@ -407,7 +386,6 @@ namespace odb
     {
       query_factory (name, query_factory_wrapper (std::move (f)));
     }
-#endif
 
     bool
     call_query_factory (const char* name, connection_type&) const;

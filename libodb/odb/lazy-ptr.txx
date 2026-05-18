@@ -38,8 +38,6 @@ namespace odb
       object_id<object_type1> () == r.template object_id<object_type2> ();
   }
 
-#ifdef ODB_CXX11
-
   //
   // lazy_unique_ptr
   //
@@ -109,6 +107,4 @@ namespace odb
     return i_.database () == r.i_.database () &&
       object_id<object_type1> () == r.template object_id<object_type2> ();
   }
-#endif // ODB_CXX11
-
 }

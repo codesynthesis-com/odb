@@ -13,7 +13,6 @@
 #include <odb/forward.hxx> // odb::database
 #include <odb/traits.hxx>
 #include <odb/lazy-ptr-impl.hxx>
-#include <odb/details/config.hxx> // ODB_CXX11
 
 template <class T>
 class QLazyWeakPointer;
@@ -173,11 +172,7 @@ public:
   template <class DB, class X>
   QLazySharedPointer (DB&, const QWeakPointer<X>&);
 
-#ifdef ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT
   template <class O = T>
-#else
-  template <class O /* = T */>
-#endif
   typename odb::object_traits<O>::id_type
   objectId () const;
 
@@ -358,11 +353,7 @@ public:
   // The objectId() function can only be called when the object is persistent,
   // or: toStrongRef().isNull() XOR loaded() (can use != for XOR).
   //
-#ifdef ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT
   template <class O = T>
-#else
-  template <class O /* = T */>
-#endif
   typename odb::object_traits<O>::id_type
   objectId () const;
 

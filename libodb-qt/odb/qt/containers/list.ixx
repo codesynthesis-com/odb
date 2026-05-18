@@ -25,7 +25,6 @@ operator= (const base_list_type& x)
   return *this;
 }
 
-#ifdef ODB_CXX11
 template <typename T>
 inline QOdbList<T>& QOdbList<T>::
 operator= (QOdbList&& x)
@@ -45,7 +44,6 @@ operator= (base_list_type&& x)
     impl_.assign (static_cast<std::size_t> (l_.size ()));
   return *this;
 }
-#endif
 
 #if QT_VERSION >= 0x040800
 template <typename T>

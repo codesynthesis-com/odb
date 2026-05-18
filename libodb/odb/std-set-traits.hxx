@@ -10,7 +10,6 @@
 #include <utility> // std::move
 
 #include <odb/container-traits.hxx>
-#include <odb/details/config.hxx>   // ODB_CXX11
 
 namespace odb
 {
@@ -44,11 +43,7 @@ namespace odb
       {
         value_type v;
         more = f.select (v);
-#ifdef ODB_CXX11
         c.insert (std::move (v));
-#else
-        c.insert (v);
-#endif
       }
     }
 
@@ -103,11 +98,7 @@ namespace odb
       {
         value_type v;
         more = f.select (v);
-#ifdef ODB_CXX11
         c.insert (std::move (v));
-#else
-        c.insert (v);
-#endif
       }
     }
 

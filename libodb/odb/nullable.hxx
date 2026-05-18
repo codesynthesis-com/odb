@@ -6,11 +6,7 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11
-
-#ifdef ODB_CXX11
-#  include <utility> // std::move
-#endif
+#include <utility> // std::move
 
 #include <odb/forward.hxx> // odb::core
 
@@ -31,7 +27,6 @@ namespace odb
     nullable& operator= (const nullable&);
     template <typename Y> nullable& operator= (const nullable<Y>&);
 
-#ifdef ODB_CXX11
     nullable (T&&);
     nullable (nullable&&);
     template <typename Y> explicit nullable (nullable<Y>&&);
@@ -41,7 +36,6 @@ namespace odb
     template <typename Y> nullable& operator= (nullable<Y>&&);
 
     ~nullable ();
-#endif
 
     void swap (nullable&);
 
@@ -67,18 +61,12 @@ namespace odb
   private:
     void true_value () {};
 
-#ifdef ODB_CXX11
     struct empty {};
-
     union
     {
       empty empty_;
       T value_;
     };
-#else
-    T value_;
-#endif
-
     bool null_;
   };
 
@@ -182,8 +170,6 @@ namespace odb
       : value_ (v), null_ (false)
   {
   }
-
-#ifdef ODB_CXX11
 
   template <typename T>
   inline nullable<T>::
@@ -426,79 +412,6 @@ namespace odb
     if (!null_)
       value_.~T ();
   }
-
-#else // C++98
-
-  template <typename T>
-  inline nullable<T>::
-  nullable (const nullable& y)
-      : value_ (y.value_), null_ (y.null_)
-  {
-  }
-
-  template <typename T>
-  template <typename Y>
-  inline nullable<T>::
-  nullable (const nullable<Y>& y)
-      : value_ (y.value_), null_ (y.null_)
-  {
-  }
-
-  template <typename T>
-  inline nullable<T>& nullable<T>::
-  operator= (const T& v)
-  {
-    value_ = v;
-    null_ = false;
-    return *this;
-  }
-
-  template <typename T>
-  inline nullable<T>& nullable<T>::
-  operator= (const nullable& y)
-  {
-    if (this != &y)
-    {
-      value_ = y.value_;
-      null_ = y.null_;
-    }
-
-    return *this;
-  }
-
-  template <typename T>
-  template <typename Y>
-  inline nullable<T>& nullable<T>::
-  operator= (const nullable<Y>& y)
-  {
-    value_ = y.value_;
-    null_ = y.null_;
-    return *this;
-  }
-
-  template <typename T>
-  inline void nullable<T>::
-  swap (nullable& y)
-  {
-    T v (value_);
-    bool n (null_);
-
-    value_ = y.value_;
-    null_ = y.null_;
-
-    y.value_ = v;
-    y.null_ = n;
-  }
-
-  template <typename T>
-  inline void nullable<T>::
-  reset ()
-  {
-    value_ = T ();
-    null_ = true;
-  }
-
-#endif
 }
 
 #include <odb/post.hxx>

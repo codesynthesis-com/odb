@@ -5,18 +5,12 @@
 #define ODB_VECTOR_HXX
 
 #include <odb/pre.hxx>
-#include <odb/details/config.hxx> // ODB_CXX11
 
 #include <vector>
 #include <iterator>
-#include <cstddef>  // std::ptrdiff_t
-
-#ifdef ODB_CXX11
-#  include <utility>          // std::move, std::forward
-#  ifdef ODB_CXX11_INITIALIZER_LIST
-#    include <initializer_list>
-#  endif
-#endif
+#include <cstddef>          // std::ptrdiff_t
+#include <utility>          // std::move, std::forward
+#include <initializer_list>
 
 #include <odb/vector-impl.hxx>
 
@@ -90,7 +84,6 @@ namespace odb
     allocator_type get_allocator() const /*noexcept*/
     {return v_.get_allocator ();}
 
-#ifdef ODB_CXX11
     vector(vector&& x) noexcept
       : vector_base (std::move (x)), v_ (std::move (x.v_)) {}
 
@@ -102,12 +95,9 @@ namespace odb
     // impl_.
     //
     vector& operator=(vector&&);
-#ifdef ODB_CXX11_INITIALIZER_LIST
     vector(std::initializer_list<T> il, const A& a = A()): v_ (il, a) {}
     vector& operator=(std::initializer_list<T>);
     void assign(std::initializer_list<T>);
-#endif
-#endif
 
     // iterators: (all /*noexcept*/)
     //
@@ -130,12 +120,10 @@ namespace odb
     base_reverse_iterator_type mrbegin ();
     base_reverse_iterator_type mrend () {return v_.rend ();}
 
-#ifdef ODB_CXX11
     const_iterator         cbegin() const {return v_.cbegin ();}
     const_iterator         cend() const {return v_.cend ();}
     const_reverse_iterator crbegin() const {return v_.crbegin ();}
     const_reverse_iterator crend() const {return v_.crend ();}
-#endif
 
     // capacity:
     //
@@ -147,9 +135,7 @@ namespace odb
     bool      empty() const /*noexcept*/ {return v_.empty ();}
     void      reserve(size_type);
 
-#ifdef ODB_CXX11
     void shrink_to_fit();
-#endif
 
     // element access:
     //
@@ -168,11 +154,9 @@ namespace odb
 
     // data access:
     //
-#ifdef ODB_CXX11
     //T*        data() noexcept;
     T*        modify_data() /*noexcept*/;
     const T*  data() const /*noexcept*/ {return v_.data ();}
-#endif
 
     // modifiers:
     //
@@ -187,7 +171,6 @@ namespace odb
     void     swap(vector&);
     void     clear() /*noexcept*/;
 
-#ifdef ODB_CXX11
     // In C++11 all modifiers use const_iterator instead of iterator
     // to represent position. However, some standard libraries (notably
     // GCC's) still use iterator and so we will do that as well, for now.
@@ -195,13 +178,10 @@ namespace odb
     void push_back(T&& x);
     iterator insert(iterator position, T&& x);
 
-#ifdef ODB_CXX11_VARIADIC_TEMPLATE
     template <class... Args>
     void emplace_back(Args&&... args);
     template <class... Args>
     iterator emplace(iterator position, Args&&... args);
-#endif
-#endif
 
     // Interfacing with the base vector.
     //
@@ -211,10 +191,8 @@ namespace odb
     base_vector_type& base () {return v_;}
     const base_vector_type& base () const {return v_;}
 
-#ifdef ODB_CXX11
     vector (base_vector_type&& x): v_ (std::move (x)) {}
     vector& operator= (base_vector_type&&);
-#endif
 
     // Change tracking (the rest comes from vector_base).
     //

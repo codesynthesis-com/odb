@@ -21,7 +21,6 @@ namespace odb
       explicit unique_ptr (T* p = 0): p_ (p) {}
       ~unique_ptr () {delete p_;}
 
-#ifdef ODB_CXX11
       unique_ptr (unique_ptr&& p) noexcept: p_ (p.p_) {p.p_ = 0;}
       unique_ptr& operator= (unique_ptr&& p) noexcept
       {
@@ -33,7 +32,6 @@ namespace odb
         }
         return *this;
       }
-#endif
 
     private:
       unique_ptr (const unique_ptr&);

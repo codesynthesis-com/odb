@@ -29,7 +29,6 @@ namespace odb
   {
   }
 
-#ifdef ODB_CXX11
   inline lazy_ptr_base::
   lazy_ptr_base (lazy_ptr_base&& r) noexcept
       : id_ (r.id_), db_ (r.db_), loader_ (r.loader_),
@@ -37,7 +36,6 @@ namespace odb
   {
     r.id_ = 0;
   }
-#endif
 
   inline void lazy_ptr_base::
   reset_id ()
@@ -76,7 +74,6 @@ namespace odb
     loader_ = 0;
   }
 
-#ifdef ODB_CXX11
   inline lazy_ptr_base& lazy_ptr_base::
   operator= (lazy_ptr_base&& r) noexcept
   {
@@ -94,7 +91,6 @@ namespace odb
     loader_ = r.loader_;
     return *this;
   }
-#endif
 
   inline lazy_ptr_base& lazy_ptr_base::
   operator= (const lazy_ptr_base& r)
@@ -269,7 +265,6 @@ namespace odb
     return *this;
   }
 
-#ifdef ODB_CXX11
   template <typename T>
   inline lazy_ptr_impl<T>::
   lazy_ptr_impl (lazy_ptr_impl&& r) noexcept
@@ -303,7 +298,6 @@ namespace odb
     b = std::move (r);
     return *this;
   }
-#endif
 
   template <typename T>
   template <typename DB, typename ID>

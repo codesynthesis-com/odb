@@ -6,14 +6,9 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11
-
 #include <new>
 #include <cstddef>   // std::size_t
-
-#ifdef ODB_CXX11
 #include <atomic>
-#endif
 
 #include <odb/details/export.hxx>
 #include <odb/details/shared-ptr/counter-type.hxx>
@@ -39,13 +34,8 @@ namespace odb
   }
 }
 
-#ifdef ODB_CXX11
 LIBODB_EXPORT void*
 operator new (std::size_t, odb::details::share);
-#else
-LIBODB_EXPORT void*
-operator new (std::size_t, odb::details::share) throw (std::bad_alloc);
-#endif
 
 LIBODB_EXPORT void
 operator delete (void*, odb::details::share) noexcept;
@@ -71,19 +61,11 @@ namespace odb
       std::size_t
       _ref_count () const;
 
-#ifdef ODB_CXX11
       void*
       operator new (std::size_t);
 
       void*
       operator new (std::size_t, share);
-#else
-      void*
-      operator new (std::size_t) throw (std::bad_alloc);
-
-      void*
-      operator new (std::size_t, share) throw (std::bad_alloc);
-#endif
 
       void
       operator delete (void*, share) noexcept;
@@ -101,11 +83,7 @@ namespace odb
       };
 
     protected:
-#ifdef ODB_CXX11
       std::atomic<std::size_t> counter_;
-#else
-      std::size_t counter_;
-#endif
       refcount_callback* callback_;
     };
 

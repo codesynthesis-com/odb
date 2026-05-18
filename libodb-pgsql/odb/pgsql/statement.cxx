@@ -1,8 +1,6 @@
 // file      : odb/pgsql/statement.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <odb/details/config.hxx> // ODB_CXX11
-
 #include <libpq-fe.h>
 
 #ifdef LIBPQ_HAS_PIPELINING
@@ -17,12 +15,7 @@
 #include <cstring> // strcmp
 #include <utility> // pair
 #include <cassert>
-
-#ifdef ODB_CXX11
-#  include <cstdlib> // strtoull
-#else
-#  include <sstream> // istringstream
-#endif
+#include <cstdlib> // strtoull
 
 #include <odb/tracer.hxx>
 
@@ -55,14 +48,7 @@ namespace odb
       if (s[0] != '\0' && s[1] == '\0')
         count = static_cast<unsigned long long> (s[0] - '0');
       else
-      {
-#ifdef ODB_CXX11
         count = strtoull (s, 0, 10);
-#else
-        istringstream ss (s);
-        ss >> count;
-#endif
-      }
 
       return count;
     }

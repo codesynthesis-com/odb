@@ -1,11 +1,7 @@
 // file      : odb/vector-impl.ixx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#ifdef ODB_CXX11
-#  include <utility> // std::swap, std::move
-#else
-#  include <algorithm> // std::swap
-#endif
+#include <utility> // std::swap, std::move
 
 namespace odb
 {
@@ -28,7 +24,6 @@ namespace odb
     std::swap (data_, x.data_);
   }
 
-#ifdef ODB_CXX11
   inline vector_impl::
   vector_impl (vector_impl&& x) noexcept
       : state_ (state_not_tracking),
@@ -36,7 +31,6 @@ namespace odb
   {
     swap (x);
   }
-#endif
 
   inline vector_impl::
   ~vector_impl ()
@@ -176,7 +170,6 @@ namespace odb
       swap_tran (x);
   }
 
-#ifdef ODB_CXX11
   inline vector_base::
   vector_base (vector_base&& x) noexcept
       : impl_ (std::move (x.impl_)), tran_ (0)
@@ -194,7 +187,6 @@ namespace odb
       _arm (*x.tran_);
     }
   }
-#endif
 
   inline void vector_base::
   _stop () const

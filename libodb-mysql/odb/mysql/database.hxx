@@ -10,7 +10,6 @@
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
-#include <odb/details/config.hxx> // ODB_CXX11
 #include <odb/details/unique-ptr.hxx>
 #include <odb/details/transfer-ptr.hxx>
 
@@ -120,9 +119,7 @@ namespace odb
       // Note: noexcept is not specified since odb::database(odb::database&&)
       // can throw.
       //
-#ifdef ODB_CXX11
       database (database&&);
-#endif
 
       static void
       print_usage (std::ostream&);

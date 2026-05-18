@@ -5,7 +5,6 @@
 #define ODB_VECTOR_IMPL_HXX
 
 #include <odb/pre.hxx>
-#include <odb/details/config.hxx> // ODB_CXX11
 
 #include <new>
 #include <cstddef> // std::size_t
@@ -43,10 +42,7 @@ namespace odb
     // copy keeps tracking changes, just like the original.
     //
     vector_impl (const vector_impl&);
-
-#ifdef ODB_CXX11
     vector_impl (vector_impl&&) noexcept;
-#endif
 
     void
     swap (vector_impl& x);
@@ -193,10 +189,7 @@ namespace odb
     ~vector_base ();
     vector_base ();
     vector_base (const vector_base&);
-
-#ifdef ODB_CXX11
     vector_base (vector_base&&) noexcept;
-#endif
 
     void
     swap (vector_base&);

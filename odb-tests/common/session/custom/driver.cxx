@@ -12,7 +12,6 @@
 #include <odb/database.hxx>
 #include <odb/session.hxx>
 #include <odb/transaction.hxx>
-#include <odb/details/config.hxx> // ODB_CXX11_*
 
 #include <libcommon/common.hxx>
 
@@ -90,11 +89,7 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
 
         st = db->load<employer> ("Simple Tech Ltd");
-#ifdef ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT
         ste = db->load<employee> (st->employees ()[0].object_id ());
-#else
-        ste = db->load<employee> (st->employees ()[0].object_id<employee> ());
-#endif
 
         // Test object cache.
         //
@@ -109,11 +104,7 @@ main (int argc, char* argv[])
         transaction t (db->begin ());
 
         cs = db->load<employer> ("Complex Systems Inc");
-#ifdef ODB_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGUMENT
         cse = db->load<employee> (cs->employees ()[0].object_id ());
-#else
-        cse = db->load<employee> (cs->employees ()[0].object_id<employee> ());
-#endif
         cs->employees ()[0].load ();
 
         t.commit ();

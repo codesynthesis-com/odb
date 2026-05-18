@@ -35,7 +35,6 @@ namespace odb
       impl_.assign (n);
   }
 
-#ifdef ODB_CXX11
   template <class T, class A LIBODB_VECTOR_ARG_DECL>
   inline vector<T, A LIBODB_VECTOR_ARG_USE>&
   vector<T, A LIBODB_VECTOR_ARG_USE>::
@@ -47,7 +46,6 @@ namespace odb
     return *this;
   }
 
-#ifdef ODB_CXX11_INITIALIZER_LIST
   template <class T, class A LIBODB_VECTOR_ARG_DECL>
   inline vector<T, A LIBODB_VECTOR_ARG_USE>&
   vector<T, A LIBODB_VECTOR_ARG_USE>::
@@ -67,8 +65,6 @@ namespace odb
     if (_tracking ())
       impl_.assign (v_.size ());
   }
-#endif
-#endif
 
   // iterators:
   //
@@ -122,7 +118,6 @@ namespace odb
       impl_.reserve (n);
   }
 
-#ifdef ODB_CXX11
   template <class T, class A LIBODB_VECTOR_ARG_DECL>
   inline void vector<T, A LIBODB_VECTOR_ARG_USE>::
   shrink_to_fit ()
@@ -130,7 +125,6 @@ namespace odb
     v_.shrink_to_fit ();
     impl_.shrink_to_fit ();
   }
-#endif
 
   // element access:
   //
@@ -178,7 +172,6 @@ namespace odb
     return r;
   }
 
-#ifdef ODB_CXX11
   template <class T, class A LIBODB_VECTOR_ARG_DECL>
   inline T* vector<T, A LIBODB_VECTOR_ARG_USE>::
   modify_data() /*noexcept*/
@@ -187,7 +180,6 @@ namespace odb
       impl_.modify (0, v_.size ());
     return v_.data ();
   }
-#endif
 
   // modifiers:
   //
@@ -286,7 +278,6 @@ namespace odb
       impl_.clear ();
   }
 
-#ifdef ODB_CXX11
   template <class T, class A LIBODB_VECTOR_ARG_DECL>
   inline void vector<T, A LIBODB_VECTOR_ARG_USE>::
   push_back(T&& x)
@@ -307,7 +298,6 @@ namespace odb
     return iterator (this, r);
   }
 
-#ifdef ODB_CXX11_VARIADIC_TEMPLATE
   template <class T, class A LIBODB_VECTOR_ARG_DECL>
   template <class... Args>
   inline void vector<T, A LIBODB_VECTOR_ARG_USE>::
@@ -330,8 +320,6 @@ namespace odb
       impl_.insert (static_cast<size_type> (r - v_.begin ()));
     return iterator (this, r);
   }
-#endif
-#endif
 
   // Interfacing with base vector.
   //
@@ -346,7 +334,6 @@ namespace odb
     return *this;
   }
 
-#ifdef ODB_CXX11
   template <class T, class A LIBODB_VECTOR_ARG_DECL>
   inline vector<T, A LIBODB_VECTOR_ARG_USE>&
   vector<T, A LIBODB_VECTOR_ARG_USE>::
@@ -357,5 +344,4 @@ namespace odb
       impl_.assign (v_.size ());
     return *this;
   }
-#endif
 }

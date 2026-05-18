@@ -42,11 +42,7 @@ namespace odb
 }
 
 void*
-#ifdef ODB_CXX11
 operator new (size_t n, odb::details::share s)
-#else
-operator new (size_t n, odb::details::share s) throw (std::bad_alloc)
-#endif
 {
   if (s == odb::details::shared)
   {

@@ -15,8 +15,6 @@
 #include <odb/object-result.hxx>
 #include <odb/pointer-traits.hxx>
 
-#include <odb/details/config.hxx>     // ODB_CXX11
-
 namespace odb
 {
   // Implementation for non-polymorphic objects with object id.
@@ -106,7 +104,6 @@ namespace odb
     size () = 0;
 
   protected:
-#ifdef ODB_CXX11
     void
     current (pointer_type& p, bool guard = true)
     {
@@ -123,18 +120,6 @@ namespace odb
     {
       current (p, guard);
     }
-#else
-    void
-    current (pointer_type p, bool guard = true)
-    {
-      current_ = p;
-
-      if (guard)
-        guard_.reset (current_);
-      else
-        guard_.reset ();
-    }
-#endif
 
     bool begin_;
     bool end_;
@@ -171,11 +156,7 @@ namespace odb
     pointer_type
     load ()
     {
-#ifdef ODB_CXX11
       pointer_type r (std::move (res_->current ()));
-#else
-      pointer_type r (res_->current ());
-#endif
       res_->release ();
       return r;
     }

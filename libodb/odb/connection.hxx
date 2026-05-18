@@ -17,7 +17,6 @@
 #include <odb/query.hxx>
 #include <odb/prepared-query.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11
 #include <odb/details/export.hxx>
 #include <odb/details/c-string.hxx>
 #include <odb/details/shared-ptr.hxx>
@@ -77,15 +76,9 @@ namespace odb
     void
     cache_query (const prepared_query<T>&);
 
-#ifdef ODB_CXX11
     template <typename T, typename P>
     void
     cache_query (const prepared_query<T>&, std::unique_ptr<P> params);
-#else
-    template <typename T, typename P>
-    void
-    cache_query (const prepared_query<T>&, std::auto_ptr<P> params);
-#endif
 
     template <typename T>
     prepared_query<T>

@@ -6,23 +6,17 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11
-
 #include <string>
-#include <cstddef> // std::size_t
-
-#ifdef ODB_CXX11
-#  include <utility>     // std::move
-#  include <functional>  // std::function
-#  include <type_traits> // std::enable_if, std::is_convertible
-#endif
+#include <cstddef>     // std::size_t
+#include <utility>     // std::move
+#include <functional>  // std::function
+#include <type_traits> // std::enable_if, std::is_convertible
 
 #include <odb/forward.hxx> // schema_version, odb::core
 #include <odb/database.hxx>
 
 #include <odb/details/export.hxx>
 #include <odb/details/unused.hxx>
-#include <odb/details/meta/static-assert.hxx>
 
 namespace odb
 {
@@ -88,16 +82,6 @@ namespace odb
     //
     // Data migration functions are called in the order of registration.
     //
-#ifndef ODB_CXX11
-    template <schema_version v, schema_version base>
-    static void
-    data_migration_function (data_migration_function_ptr f,
-                             const std::string& name = "")
-    {
-      data_migration_function<v, base> (id_common, f, name);
-    }
-
-#else
     template <schema_version v, schema_version base, typename F>
     static typename std::enable_if<
       std::is_convertible<
@@ -106,20 +90,9 @@ namespace odb
     {
       data_migration_function<v, base> (id_common, std::move (f), name);
     }
-#endif
 
     // Database-specific data migration.
     //
-#ifndef ODB_CXX11
-    template <schema_version v, schema_version base>
-    static void
-    data_migration_function (database& db,
-                             data_migration_function_ptr f,
-                             const std::string& name = "")
-    {
-      data_migration_function<v, base> (db.id (), f, name);
-    }
-#else
     template <schema_version v, schema_version base, typename F>
     static typename std::enable_if<
       std::is_convertible<
@@ -128,30 +101,7 @@ namespace odb
     {
       data_migration_function<v, base> (db.id (), std::move (f), name);
     }
-#endif
 
-#ifndef ODB_CXX11
-    template <schema_version v, schema_version base>
-    static void
-    data_migration_function (database_id id,
-                             data_migration_function_ptr f,
-                             const std::string& name = "")
-    {
-      // If the data migration version is below the base model version
-      // then it will never be called.
-      //
-
-      // Poor man's static_assert.
-      //
-      typedef details::meta::static_assert_test<(v > base || base == 0)>
-      data_migration_function_is_no_longer_necessary;
-
-      char sa [sizeof (data_migration_function_is_no_longer_necessary)];
-      ODB_POTENTIALLY_UNUSED (sa);
-
-      data_migration_function (id, v, f, name);
-    }
-#else
     template <schema_version v, schema_version base, typename F>
     static typename std::enable_if<
       std::is_convertible<
@@ -166,20 +116,10 @@ namespace odb
 
       data_migration_function (id, v, std::move (f), name);
     }
-#endif
 
     // The same as above but take the version as an argument and do
     // not check whether it is greater than the base model version.
     //
-#ifndef ODB_CXX11
-    static void
-    data_migration_function (schema_version v,
-                             data_migration_function_ptr f,
-                             const std::string& name = "")
-    {
-      data_migration_function (id_common, v, f, name);
-    }
-#else
     template <typename F>
     static typename std::enable_if<
       std::is_convertible<
@@ -190,18 +130,7 @@ namespace odb
     {
       data_migration_function (id_common, v, std::move (f), name);
     }
-#endif
 
-#ifndef ODB_CXX11
-    static void
-    data_migration_function (database& db,
-                             schema_version v,
-                             data_migration_function_ptr f,
-                             const std::string& name = "")
-    {
-      data_migration_function (db.id (), v, f, name);
-    }
-#else
     template <typename F>
     static typename std::enable_if<
       std::is_convertible<
@@ -213,21 +142,7 @@ namespace odb
     {
       data_migration_function (db.id (), v, std::move (f), name);
     }
-#endif
 
-#ifndef ODB_CXX11
-    static void
-    data_migration_function (database_id i,
-                             schema_version v,
-                             data_migration_function_ptr f,
-                             const std::string& name = "")
-    {
-      data_migration_function (i,
-                               v,
-                               data_migration_function_wrapper (f),
-                               name);
-    }
-#else
     template <typename F>
     static typename std::enable_if<
       std::is_convertible<
@@ -243,7 +158,6 @@ namespace odb
         data_migration_function_wrapper (std::move (f)),
         name);
     }
-#endif
 
   private:
     static void
@@ -339,12 +253,6 @@ namespace odb
   {
     typedef schema_catalog::data_migration_function_type function_type;
 
-#ifndef ODB_CXX11
-    data_migration_entry (function_type* f, const std::string& name = "")
-    {
-      schema_catalog::data_migration_function<v, base> (f, name);
-    }
-#else
     template <typename F>
     data_migration_entry (F f,
                           const std::string& name = "",
@@ -354,16 +262,7 @@ namespace odb
     {
       schema_catalog::data_migration_function<v, base> (std::move (f), name);
     }
-#endif
 
-#ifndef ODB_CXX11
-    data_migration_entry (database_id id,
-                          function_type *f,
-                          const std::string& name = "")
-    {
-      schema_catalog::data_migration_function<v, base> (id, v, f, name);
-    }
-#else
     template <typename F>
     data_migration_entry (database_id id,
                           F f,
@@ -377,7 +276,6 @@ namespace odb
                                                         std::move (f),
                                                         name);
     }
-#endif
   };
 
   namespace common

@@ -6,11 +6,10 @@
 
 #include <odb/pre.hxx>
 
-#include <memory> // std::auto_ptr, std::unique_ptr, std::shared_ptr/weak_ptr
+#include <memory> // std::unique_ptr, std::shared_ptr/weak_ptr
 
 #include <odb/nullable.hxx>
 
-#include <odb/details/config.hxx>            // ODB_CXX11
 #include <odb/details/meta/remove-const.hxx>
 
 namespace odb
@@ -73,58 +72,6 @@ namespace odb
     }
   };
 #endif
-
-  // Specialization for std::auto_ptr.
-  //
-#ifndef ODB_CXX11
-  template <typename T>
-  class wrapper_traits< std::auto_ptr<T> >
-  {
-  public:
-    // T can be const.
-    //
-    typedef T wrapped_type;
-    typedef std::auto_ptr<T> wrapper_type;
-
-    // T can be const.
-    //
-    typedef
-    typename odb::details::meta::remove_const<T>::result
-    unrestricted_wrapped_type;
-
-    static const bool null_handler = true;
-    static const bool null_default = false;
-
-    static bool
-    get_null (const wrapper_type& p)
-    {
-      return p.get () == 0;
-    }
-
-    static void
-    set_null (wrapper_type& p)
-    {
-      p.reset ();
-    }
-
-    static const wrapped_type&
-    get_ref (const wrapper_type& p)
-    {
-      return *p;
-    }
-
-    static unrestricted_wrapped_type&
-    set_ref (wrapper_type& p)
-    {
-      if (p.get () == 0)
-        p.reset (new unrestricted_wrapped_type ());
-
-      return const_cast<unrestricted_wrapped_type&> (*p);
-    }
-  };
-#endif
-
-#ifdef ODB_CXX11
 
   // Specialization for C++11 std::unique_ptr.
   //
@@ -219,8 +166,6 @@ namespace odb
       return const_cast<unrestricted_wrapped_type&> (*p);
     }
   };
-
-#endif // ODB_CXX11
 
   // Specialization for odb::nullable.
   //

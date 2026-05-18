@@ -6,16 +6,11 @@
 
 #include <odb/pre.hxx>
 
-#include <odb/details/config.hxx> // ODB_CXX11
-
+#include <array>
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
 #include <cstring> // std::memcpy, std::memset, std::strlen
-
-#ifdef ODB_CXX11
-#  include <array>
-#endif
 
 #include <odb/traits.hxx>
 #include <odb/wrapper-traits.hxx>
@@ -648,7 +643,6 @@ namespace odb
 
     // std::array<char, N> (string) specialization.
     //
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct std_array_value_traits
     {
@@ -683,7 +677,6 @@ namespace odb
     template <std::size_t N>
     struct default_value_traits<std::array<char, N>, id_nstring>:
       std_array_value_traits<N> {};
-#endif
 
     // char specialization.
     //
@@ -867,7 +860,6 @@ namespace odb
       }
     };
 
-#ifdef ODB_CXX11
     // std::array<char, N> (buffer) specialization for RAW.
     //
     template <std::size_t N>
@@ -931,7 +923,6 @@ namespace odb
         std::memcpy (b, v.data (), n);
       }
     };
-#endif
 
     // std::string specialization for LOBs.
     //
@@ -1211,7 +1202,6 @@ namespace odb
                       ub4 capacity);
     };
 
-#ifdef ODB_CXX11
     // std::array<char, N> (buffer) specialization for BLOBS.
     //
     template <std::size_t N>
@@ -1317,7 +1307,6 @@ namespace odb
                       void* temp_buffer,
                       ub4 capacity);
     };
-#endif
 
     //
     // type_traits
@@ -1439,13 +1428,11 @@ namespace odb
       static const database_type_id db_type_id = id_string;
     };
 
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_type_traits<std::array<char, N> >
     {
       static const database_type_id db_type_id = id_string;
     };
-#endif
 
     template <>
     struct default_type_traits<char>
@@ -1474,13 +1461,11 @@ namespace odb
       static const database_type_id db_type_id = id_raw;
     };
 
-#ifdef ODB_CXX11
     template <std::size_t N>
     struct default_type_traits<std::array<unsigned char, N> >
     {
       static const database_type_id db_type_id = id_raw;
     };
-#endif
   }
 }
 

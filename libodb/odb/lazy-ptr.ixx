@@ -220,278 +220,6 @@ namespace odb
   }
 
   //
-  // lazy_auto_ptr_ref
-  //
-#ifndef ODB_CXX11
-
-  template <class T>
-  inline lazy_auto_ptr_ref<T>::
-  lazy_auto_ptr_ref (T* p, const lazy_ptr_impl_ref& i): p_ (p), i_ (i) {}
-
-  //
-  // lazy_auto_ptr
-  //
-
-  template <class T>
-  inline lazy_auto_ptr<T>::
-  lazy_auto_ptr (T* p): p_ (p) {}
-
-  template <class T>
-  inline lazy_auto_ptr<T>::
-  lazy_auto_ptr (lazy_auto_ptr& r)
-      : p_ (r.p_), i_ (static_cast<lazy_ptr_impl_ref> (r.i_))
-  {
-  }
-
-  template <class T>
-  template <class Y>
-  inline lazy_auto_ptr<T>::
-  lazy_auto_ptr (lazy_auto_ptr<Y>& r)
-      : p_ (r.p_), i_ (static_cast<lazy_ptr_impl_ref> (r.i_))
-  {
-  }
-
-  template <class T>
-  inline lazy_auto_ptr<T>& lazy_auto_ptr<T>::
-  operator= (lazy_auto_ptr& r)
-  {
-    p_ = r.p_;
-    i_ = static_cast<lazy_ptr_impl_ref> (r.i_);
-    return *this;
-  }
-
-  template <class T>
-  template <class Y>
-  inline lazy_auto_ptr<T>& lazy_auto_ptr<T>::
-  operator= (lazy_auto_ptr<Y>& r)
-  {
-    p_ = r.p_;
-    i_ = static_cast<lazy_ptr_impl_ref> (r.i_);
-    return *this;
-  }
-
-  template <class T>
-  inline T& lazy_auto_ptr<T>::
-  operator* () const
-  {
-    return *p_;
-  }
-
-  template <class T>
-  inline T* lazy_auto_ptr<T>::
-  operator-> () const
-  {
-    return p_.operator-> ();
-  }
-
-  template <class T>
-  inline T* lazy_auto_ptr<T>::
-  get () const
-  {
-    return p_.get ();
-  }
-
-  template <class T>
-  inline T* lazy_auto_ptr<T>::
-  release ()
-  {
-    i_.reset ();
-    return p_.release ();
-  }
-
-  template <class T>
-  inline void lazy_auto_ptr<T>::
-  reset (T* p)
-  {
-    i_.reset ();
-    p_.reset (p);
-  }
-
-  template <class T>
-  inline lazy_auto_ptr<T>::
-  lazy_auto_ptr (const lazy_auto_ptr_ref<T>& r): p_ (r.p_), i_ (r.i_) {}
-
-  template <class T>
-  inline lazy_auto_ptr<T>& lazy_auto_ptr<T>::
-  operator= (const lazy_auto_ptr_ref<T>& r)
-  {
-    if (p_.get () != r.p_)
-      p_.reset (r.p_);
-
-    i_ = r.i_;
-    return *this;
-  }
-
-  template <class T>
-  template <class Y>
-  inline lazy_auto_ptr<T>::
-  operator lazy_auto_ptr_ref<Y> ()
-  {
-    return lazy_auto_ptr_ref<Y> (p_.release (), i_);
-  }
-
-  template <class T>
-  template <class Y>
-  inline lazy_auto_ptr<T>::
-  operator lazy_auto_ptr<Y> ()
-  {
-    return lazy_auto_ptr<Y> (*this);
-  }
-
-  template <class T>
-  template <class Y>
-  inline lazy_auto_ptr<T>::
-  lazy_auto_ptr (std::auto_ptr<Y>& r): p_ (r) {}
-
-  template <class T>
-  inline lazy_auto_ptr<T>::
-  lazy_auto_ptr (std::auto_ptr_ref<T> r): p_ (r) {}
-
-  template <class T>
-  template <class Y>
-  inline lazy_auto_ptr<T>& lazy_auto_ptr<T>::
-  operator= (std::auto_ptr<Y>& r)
-  {
-    p_ = r;
-    i_.reset ();
-    return *this;
-  }
-
-  template <class T>
-  inline lazy_auto_ptr<T>& lazy_auto_ptr<T>::
-  operator= (std::auto_ptr_ref<T> r)
-  {
-    p_ = r;
-    i_.reset ();
-    return *this;
-  }
-
-  template <class T>
-  inline bool lazy_auto_ptr<T>::
-  loaded () const
-  {
-    bool i (i_);
-    return (p_.get () == 0) != i; // XOR
-  }
-
-  template <class T>
-  inline std::auto_ptr<T>& lazy_auto_ptr<T>::
-  load () const
-  {
-    if (p_.get () == 0 && i_)
-    {
-      std::auto_ptr<T> tmp (i_.template load<T> (true)); // Reset id.
-      p_ = tmp;
-    }
-
-    return p_;
-  }
-
-  template <class T>
-  inline void lazy_auto_ptr<T>::
-  unload () const
-  {
-    typedef typename object_traits<T>::object_type object_type;
-
-    if (p_.get () != 0)
-    {
-      if (i_.database () != 0)
-        i_.reset_id (object_traits<object_type>::id (*p_));
-
-      p_.reset ();
-    }
-  }
-
-  template <class T>
-  inline std::auto_ptr<T>& lazy_auto_ptr<T>::
-  get_eager () const
-  {
-    return p_;
-  }
-
-  template <class T>
-  template <class DB, class ID>
-  inline lazy_auto_ptr<T>::
-  lazy_auto_ptr (DB& db, const ID& id): i_ (db, id) {}
-
-  template <class T>
-  template <class DB>
-  inline lazy_auto_ptr<T>::
-  lazy_auto_ptr (DB& db, T* p)
-      : p_ (p)
-  {
-    if (p)
-      i_.reset_db (db);
-  }
-
-  template <class T>
-  template <class DB, class Y>
-  inline lazy_auto_ptr<T>::
-  lazy_auto_ptr (DB& db, std::auto_ptr<Y>& p)
-      : p_ (p)
-  {
-    if (p_.get () != 0)
-      i_.reset_db (db);
-  }
-
-  template <class T>
-  template <class DB, class ID>
-  inline void lazy_auto_ptr<T>::
-  reset (DB& db, const ID& id)
-  {
-    p_.reset ();
-    i_.reset (db, id);
-  }
-
-  template <class T>
-  template <class DB>
-  inline void lazy_auto_ptr<T>::
-  reset (DB& db, T* p)
-  {
-    p_.reset (p);
-
-    if (p)
-      i_.reset_db (db);
-    else
-      i_.reset ();
-  }
-
-  template <class T>
-  template <class DB, class Y>
-  inline void lazy_auto_ptr<T>::
-  reset (DB& db, std::auto_ptr<Y>& p)
-  {
-    p_ = p;
-
-    if (p_.get () != 0)
-      i_.reset_db (db);
-    else
-      i_.reset ();
-  }
-
-  template <class T>
-  template <class O>
-  inline typename object_traits<O>::id_type lazy_auto_ptr<T>::
-  object_id () const
-  {
-    typedef typename object_traits<T>::object_type object_type;
-
-    return p_.get () != 0
-      ? object_traits<object_type>::id (*p_)
-      : i_.template object_id<O> ();
-  }
-
-  template <class T>
-  inline typename lazy_auto_ptr<T>::database_type& lazy_auto_ptr<T>::
-  database () const
-  {
-    return *i_.database ();
-  }
-#endif
-
-#ifdef ODB_CXX11
-
-  //
   // lazy_unique_ptr
   //
 
@@ -499,11 +227,9 @@ namespace odb
   lazy_unique_ptr<T, D>::
   lazy_unique_ptr () {}
 
-#ifdef ODB_CXX11_NULLPTR
   template <class T, class D>
   lazy_unique_ptr<T, D>::
   lazy_unique_ptr (std::nullptr_t) {}
-#endif
 
   template <class T, class D>
   lazy_unique_ptr<T, D>::
@@ -533,7 +259,6 @@ namespace odb
   // lazy_unique_ptr<T, D>::
   // lazy_unique_ptr (std::auto_ptr<T1>&& r): p_ (std::move (r)) {}
 
-#ifdef ODB_CXX11_NULLPTR
   template <class T, class D>
   lazy_unique_ptr<T, D>& lazy_unique_ptr<T, D>::
   operator= (std::nullptr_t)
@@ -541,7 +266,6 @@ namespace odb
     reset ();
     return *this;
   }
-#endif
 
   template <class T, class D>
   lazy_unique_ptr<T, D>& lazy_unique_ptr<T, D>::
@@ -583,14 +307,12 @@ namespace odb
     return p_.get ();
   }
 
-#ifdef ODB_CXX11_EXPLICIT_CONVERSION_OPERATOR
   template <class T, class D>
   lazy_unique_ptr<T, D>::
   operator bool() const
   {
     return p_ || i_;
   }
-#endif
 
   template <class T, class D>
   typename lazy_unique_ptr<T, D>::pointer lazy_unique_ptr<T, D>::
@@ -833,7 +555,6 @@ namespace odb
     return !a.equal (b);
   }
 
-#ifdef ODB_CXX11_NULLPTR
   template <class T, class D>
   inline bool
   operator== (const lazy_unique_ptr<T, D>& a, std::nullptr_t)
@@ -861,7 +582,6 @@ namespace odb
   {
     return bool (b); // Explicit to-bool conversion.
   }
-#endif
 
   //
   // lazy_shared_ptr
@@ -871,11 +591,9 @@ namespace odb
   inline lazy_shared_ptr<T>::
   lazy_shared_ptr () {}
 
-#ifdef ODB_CXX11_NULLPTR
   template <class T>
   inline lazy_shared_ptr<T>::
   lazy_shared_ptr (std::nullptr_t) {}
-#endif
 
   template <class T>
   template <class Y>
@@ -892,7 +610,6 @@ namespace odb
   inline lazy_shared_ptr<T>::
   lazy_shared_ptr (Y* p, D d, A a): p_ (p, d, a) {}
 
-#ifdef ODB_CXX11_NULLPTR
   template <class T>
   template <class D>
   inline lazy_shared_ptr<T>::
@@ -902,7 +619,6 @@ namespace odb
   template <class D, class A>
   inline lazy_shared_ptr<T>::
   lazy_shared_ptr (std::nullptr_t p, D d, A a): p_ (p, d, a) {}
-#endif
 
   template <class T>
   template <class Y>
@@ -1094,14 +810,12 @@ namespace odb
     return p_.use_count ();
   }
 
-#ifdef ODB_CXX11_EXPLICIT_CONVERSION_OPERATOR
   template <class T>
   inline lazy_shared_ptr<T>::
   operator bool () const
   {
     return p_ || i_;
   }
-#endif
 
   template <class T>
   template <class Y>
@@ -1373,7 +1087,6 @@ namespace odb
     return !a.equal (b);
   }
 
-#ifdef ODB_CXX11_NULLPTR
   template <class T>
   inline bool
   operator== (const lazy_shared_ptr<T>& p, std::nullptr_t)
@@ -1401,7 +1114,6 @@ namespace odb
   {
     return bool (p); // Explicit to-bool conversion.
   }
-#endif
 
   template <class T>
   inline void
@@ -1675,7 +1387,4 @@ namespace odb
   {
     a.swap (b);
   }
-
-#endif // ODB_CXX11
-
 }

@@ -65,7 +65,6 @@ namespace odb
       return true;
     }
 
-#ifdef ODB_CXX11
     //
     // default_value_traits<std::array<char, N>, id_blob>
     //
@@ -125,6 +124,5 @@ namespace odb
       *b = c;
       return true;
     }
-#endif
   }
 }
