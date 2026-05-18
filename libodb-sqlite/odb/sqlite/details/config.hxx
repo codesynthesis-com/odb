@@ -10,6 +10,8 @@
 #  error libodb-sqlite header included in odb-compiled header
 #endif
 
+#include <odb/details/config.hxx> // ODB_THREADS_*
+
 #include <sqlite3.h>
 
 #if SQLITE_VERSION_NUMBER >= 3006012 && !defined(ODB_THREADS_NONE)

@@ -6,6 +6,7 @@
 
 #include <odb/pre.hxx>
 
+#include <odb/details/config.hxx>
 #include <odb/details/mutex.hxx>
 
 #ifdef ODB_THREADS_CXX11
