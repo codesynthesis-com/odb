@@ -8,7 +8,7 @@
 
 #include <map>
 #include <string>
-#include <memory>   // std::auto_ptr, std::unique_ptr
+#include <memory>   // std::unique_ptr
 #include <cstddef>  // std::size_t
 #include <typeinfo>
 

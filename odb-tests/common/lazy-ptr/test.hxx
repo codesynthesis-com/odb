@@ -59,7 +59,7 @@ namespace test1
   }
 }
 
-// std::auto_ptr/std::unique_ptr
+// std::unique_ptr
 //
 #pragma db namespace table("t2_")
 namespace test2

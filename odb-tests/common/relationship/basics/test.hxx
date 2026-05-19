@@ -111,7 +111,7 @@ operator== (const obj1_map& x, const obj1_map& y)
   return true;
 }
 
-// auto_ptr/unique_ptr
+// unique_ptr
 //
 struct obj2;
 
@@ -242,7 +242,7 @@ struct aggr
 
   obj1* o1;
 
-  obj2_ptr o2; // std::auto_ptr or std::unique_ptr
+  obj2_ptr o2; // std::unique_ptr
   obj2_vec v2;
 
   obj3_ptr o3;

@@ -39,7 +39,7 @@ namespace odb
     {
     }
 
-    // To make this work with all kinds of pointers (raw, std::auto_ptr,
+    // To make this work with all kinds of pointers (raw, std::unique_ptr,
     // shared), we need to make sure we don't make any copies of the
     // pointer on the return path.
     //

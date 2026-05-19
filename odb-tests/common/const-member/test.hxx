@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <string>
-#include <memory> // std::auto_ptr
+#include <memory> // std::unique_ptr
 
 #include <odb/core.hxx>
 

@@ -6,7 +6,7 @@
 
 #include <odb/pre.hxx>
 
-#include <memory> // std::unique_ptr, std::auto_ptr
+#include <memory> // std::unique_ptr
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>

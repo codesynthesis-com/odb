@@ -6,7 +6,7 @@
 
 #include <odb/pre.hxx>
 
-#include <memory>  // std::auto_ptr, std::shared_ptr/weak_ptr
+#include <memory>  // std::unique_ptr, std::shared_ptr/weak_ptr
 #include <utility> // std::move
 
 #include <odb/forward.hxx>        // odb::core, odb::database

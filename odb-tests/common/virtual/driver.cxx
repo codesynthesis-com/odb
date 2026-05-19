@@ -4,7 +4,7 @@
 // Test virtual data members.
 //
 
-#include <memory>   // std::auto_ptr
+#include <memory>   // std::unique_ptr
 #include <iostream>
 
 #include <odb/session.hxx>
