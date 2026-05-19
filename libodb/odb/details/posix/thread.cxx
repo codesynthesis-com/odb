@@ -1,7 +1,8 @@
 // file      : odb/details/posix/thread.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <odb/details/unique-ptr.hxx>
+#include <memory> // std::unique_ptr
+
 #include <odb/details/posix/thread.hxx>
 #include <odb/details/posix/exceptions.hxx>
 
@@ -31,7 +32,7 @@ namespace odb
     thread (void* (*func) (void*), void* arg)
         : detached_ (false)
     {
-      unique_ptr<thread_data> data (new thread_data);
+      std::unique_ptr<thread_data> data (new thread_data);
       data->func = func;
       data->arg = arg;
 

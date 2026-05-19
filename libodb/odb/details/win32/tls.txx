@@ -1,7 +1,8 @@
 // file      : odb/details/win32/tls.txx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <odb/details/unique-ptr.hxx>
+#include <memory> // std::unique_ptr
+
 #include <odb/details/win32/exceptions.hxx>
 
 namespace odb
@@ -25,7 +26,7 @@ namespace odb
       if (void* v = _get (key_))
         return *static_cast<T*> (v);
 
-      unique_ptr<T> p (new T);
+      std::unique_ptr<T> p (new T);
       _set (key_, p.get ());
 
       T& r (*p);

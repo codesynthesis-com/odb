@@ -6,11 +6,12 @@
 
 #include <odb/pre.hxx>
 
+#include <memory> // std::unique_ptr
+
 #include <odb/connection.hxx>
 
 #include <odb/details/buffer.hxx>
 #include <odb/details/shared-ptr.hxx>
-#include <odb/details/unique-ptr.hxx>
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
@@ -149,7 +150,7 @@ namespace odb
       auto_handle<OCISvcCtx> handle_;
       bool failed_;
 
-      details::unique_ptr<statement_cache_type> statement_cache_;
+      std::unique_ptr<statement_cache_type> statement_cache_;
       details::buffer lob_buffer_;
     };
 

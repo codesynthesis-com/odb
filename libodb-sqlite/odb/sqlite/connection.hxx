@@ -8,13 +8,14 @@
 
 #include <sqlite3.h>
 
+#include <memory> // std::unique_ptr
+
 #include <odb/statement.hxx>
 #include <odb/connection.hxx>
 
 #include <odb/details/mutex.hxx>
 #include <odb/details/condition.hxx>
 #include <odb/details/shared-ptr.hxx>
-#include <odb/details/unique-ptr.hxx>
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
@@ -234,7 +235,7 @@ namespace odb
       // Keep statement_cache_ after handle_ so that it is destroyed before
       // the connection is closed.
       //
-      details::unique_ptr<statement_cache_type> statement_cache_;
+      std::unique_ptr<statement_cache_type> statement_cache_;
 
       // Note: using odb::statement in order to break the connection-statement
       // dependency cycle.

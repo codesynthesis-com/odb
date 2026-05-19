@@ -26,7 +26,6 @@
 #include <odb/details/export.hxx>
 #include <odb/details/mutex.hxx>
 #include <odb/details/c-string.hxx>
-#include <odb/details/unique-ptr.hxx>
 #include <odb/details/function-wrapper.hxx>
 #include <odb/details/meta/answer.hxx>
 
@@ -620,7 +619,7 @@ namespace odb
     tracer_type* tracer_;
     query_factory_map query_factory_map_;
 
-    details::unique_ptr<details::mutex> mutex_; // Dynamic for move support.
+    std::unique_ptr<details::mutex> mutex_; // Dynamic for move support.
     mutable schema_version_map schema_version_map_;
     std::string schema_version_table_;
     unsigned int schema_version_seq_;

@@ -6,13 +6,13 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>  // std::unique_ptr
 #include <vector>
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>
 
 #include <odb/details/export.hxx>
-#include <odb/details/unique-ptr.hxx>
 
 namespace odb
 {
@@ -181,7 +181,7 @@ namespace odb
 
   protected:
     bool finalized_;
-    details::unique_ptr<transaction_impl> impl_;
+    std::unique_ptr<transaction_impl> impl_;
 
     // Callbacks.
     //

@@ -8,11 +8,11 @@
 
 #include <sqlite3.h>
 
+#include <memory> // std::unique_ptr
 #include <string>
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
-#include <odb/details/unique-ptr.hxx>
 #include <odb/details/transfer-ptr.hxx>
 
 #include <odb/sqlite/version.hxx>
@@ -552,7 +552,7 @@ namespace odb
       // Note: keep last so that all other database members are still valid
       // during factory's destruction.
       //
-      details::unique_ptr<connection_factory> factory_;
+      std::unique_ptr<connection_factory> factory_;
     };
   }
 }

@@ -1,10 +1,11 @@
 // file      : odb/details/win32/thread.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <memory> // std::unique_ptr
+
 #include <odb/details/win32/windows.hxx>
 #include <process.h> // _beginthreadex, _endthreadex
 
-#include <odb/details/unique-ptr.hxx>
 #include <odb/details/win32/thread.hxx>
 #include <odb/details/win32/exceptions.hxx>
 
@@ -54,7 +55,7 @@ namespace odb
     thread::
     thread (void* (*func) (void*), void* arg)
     {
-      unique_ptr<data> d (new data);
+      std::unique_ptr<data> d (new data);
       d->func = func;
       d->arg = arg;
       d->count = 2; // One for the thread and one for us.

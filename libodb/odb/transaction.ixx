@@ -8,7 +8,7 @@ namespace odb
   inline transaction::
   transaction ()
       : finalized_ (true),
-        impl_ (0),
+        impl_ (nullptr),
         free_callback_ (max_callback_count),
         callback_count_ (0)
   {
@@ -17,7 +17,7 @@ namespace odb
   inline transaction::
   transaction (transaction_impl* impl, bool make_current)
       : finalized_ (true),
-        impl_ (0),
+        impl_ (nullptr),
         free_callback_ (max_callback_count),
         callback_count_ (0)
   {

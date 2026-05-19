@@ -6,11 +6,11 @@
 
 #include <odb/pre.hxx>
 
+#include <memory> // std::unique_ptr
 #include <string>
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
-#include <odb/details/unique-ptr.hxx>
 #include <odb/details/transfer-ptr.hxx>
 
 #include <odb/mssql/mssql-fwd.hxx>
@@ -614,7 +614,7 @@ namespace odb
       auto_handle<SQL_HANDLE_ENV> auto_environment_;
       SQLHENV environment_;
 
-      details::unique_ptr<connection_factory> factory_;
+      std::unique_ptr<connection_factory> factory_;
     };
   }
 }

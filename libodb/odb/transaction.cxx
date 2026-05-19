@@ -29,12 +29,12 @@ namespace odb
   void transaction::
   reset (transaction_impl* impl, bool make_current)
   {
-    details::unique_ptr<transaction_impl> i (impl);
+    std::unique_ptr<transaction_impl> i (impl);
 
     if (!finalized_)
       rollback ();
 
-    impl_.reset (i.release ());
+    impl_ = std::move (i);
 
     if (make_current && tls_get (current_transaction) != 0)
       throw already_in_transaction ();

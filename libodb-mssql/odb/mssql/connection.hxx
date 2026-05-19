@@ -6,11 +6,12 @@
 
 #include <odb/pre.hxx>
 
+#include <memory> // std::unique_ptr
+
 #include <odb/connection.hxx>
 
 #include <odb/details/buffer.hxx>
 #include <odb/details/shared-ptr.hxx>
-#include <odb/details/unique-ptr.hxx>
 
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
@@ -147,7 +148,7 @@ namespace odb
       // Statement handle for direct execution.
       //
       auto_handle<SQL_HANDLE_STMT> direct_stmt_;
-      details::unique_ptr<statement_cache_type> statement_cache_;
+      std::unique_ptr<statement_cache_type> statement_cache_;
       details::buffer long_data_buffer_;
     };
 

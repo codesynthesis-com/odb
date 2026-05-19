@@ -6,6 +6,7 @@
 
 #include <odb/pre.hxx>
 
+#include <memory> // std::unique_ptr
 #include <vector>
 
 #include <odb/connection.hxx>
@@ -19,7 +20,6 @@
 #include <odb/mysql/auto-handle.hxx>
 
 #include <odb/details/shared-ptr.hxx>
-#include <odb/details/unique-ptr.hxx>
 
 #include <odb/mysql/details/export.hxx>
 
@@ -186,7 +186,7 @@ namespace odb
       // Keep statement_cache_ after handle_ so that it is destroyed before
       // the connection is closed.
       //
-      details::unique_ptr<statement_cache_type> statement_cache_;
+      std::unique_ptr<statement_cache_type> statement_cache_;
 
       // List of "delayed" statement handles to be freed next time there
       // is no active statement.

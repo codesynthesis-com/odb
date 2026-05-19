@@ -6,10 +6,11 @@
 
 #include <odb/pre.hxx>
 
+#include <memory> // std::unique_ptr
+
 #include <odb/connection.hxx>
 
 #include <odb/details/shared-ptr.hxx>
-#include <odb/details/unique-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
@@ -144,7 +145,7 @@ namespace odb
       // Keep statement_cache_ after handle_ so that it is destroyed before
       // the connection is closed.
       //
-      details::unique_ptr<statement_cache_type> statement_cache_;
+      std::unique_ptr<statement_cache_type> statement_cache_;
     };
 
     class LIBODB_PGSQL_EXPORT connection_factory:

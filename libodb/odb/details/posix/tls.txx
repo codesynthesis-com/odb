@@ -1,7 +1,8 @@
 // file      : odb/details/posix/tls.txx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
-#include <odb/details/unique-ptr.hxx>
+#include <memory> // std::unique_ptr
+
 #include <odb/details/posix/exceptions.hxx>
 
 namespace odb
@@ -32,7 +33,7 @@ namespace odb
       if (void* v = pthread_getspecific (key_))
         return *static_cast<T*> (v);
 
-      unique_ptr<T> p (new T);
+      std::unique_ptr<T> p (new T);
 
       if ((e = pthread_setspecific (key_, p.get ())))
         throw posix_exception (e);

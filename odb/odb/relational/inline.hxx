@@ -535,7 +535,7 @@ namespace relational
              << "{";
 
           if (poly_derived)
-            os << "details::unique_ptr<base_traits::image_type> p (" << endl
+            os << "std::unique_ptr<base_traits::image_type> p (" << endl
                << "base_traits::clone_image (*i.base));"
                << "image_type* c (new image_type (i));"
                << "c->base = p.release ();"
@@ -691,9 +691,11 @@ namespace relational
           os << "#include <odb/schema-version.hxx>" << endl
              << endl;
 
-        if (features.polymorphic_object && options.generate_query ())
-          os << "#include <odb/details/unique-ptr.hxx>" << endl
-             << endl;
+        // <memory> is included unconditionally by the generated header.
+        //
+        //if (features.polymorphic_object && options.generate_query ())
+        //  os << "#include <memory> // std::unique_ptr" << endl
+        //     << endl;
       }
     };
   }
