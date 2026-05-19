@@ -1,6 +1,7 @@
 // file      : odb/pgsql/database.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move()
 #include <cstring> // strlen()
 #include <sstream>
 
@@ -20,8 +21,6 @@ namespace odb
 {
   namespace pgsql
   {
-    using odb::details::transfer_ptr;
-
     database::
     database (const string& user,
               const string& password,
@@ -29,7 +28,7 @@ namespace odb
               const string& host,
               unsigned int port,
               const string& extra_conninfo,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_pgsql),
           user_ (user),
           password_ (password),
@@ -37,7 +36,7 @@ namespace odb
           host_ (host),
           port_ (port),
           extra_conninfo_ (extra_conninfo),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       ostringstream ss;
 
@@ -77,7 +76,7 @@ namespace odb
               const string& host,
               const string& socket_ext,
               const string& extra_conninfo,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_pgsql),
           user_ (user),
           password_ (password),
@@ -86,7 +85,7 @@ namespace odb
           port_ (0),
           socket_ext_ (socket_ext),
           extra_conninfo_ (extra_conninfo),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       ostringstream ss;
 
@@ -120,11 +119,11 @@ namespace odb
     }
 
     database::
-    database (const string& conninfo, transfer_ptr<connection_factory> factory)
+    database (const string& conninfo, unique_ptr<connection_factory> factory)
         : odb::database (id_pgsql),
           port_ (0),
           conninfo_ (conninfo),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (!factory_)
         factory_.reset (new connection_pool_factory ());
@@ -137,8 +136,8 @@ namespace odb
               char* argv[],
               bool erase,
               const string& extra_conninfo,
-              transfer_ptr<connection_factory> factory)
-        : odb::database (id_pgsql), port_ (0), factory_ (factory.transfer ())
+              unique_ptr<connection_factory> factory)
+        : odb::database (id_pgsql), port_ (0), factory_ (std::move (factory))
     {
       using namespace details;
 

@@ -1,6 +1,7 @@
 // file      : odb/mysql/database.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move()
 #include <sstream>
 #include <cstring> // std::memset
 
@@ -20,8 +21,6 @@ namespace odb
 {
   namespace mysql
   {
-    using odb::details::transfer_ptr;
-
     database::
     ~database ()
     {
@@ -36,7 +35,7 @@ namespace odb
               const char* socket,
               const char* charset,
               unsigned long client_flags,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mysql),
           user_ (user ? user : ""),
           passwd_str_ (passwd ? passwd : ""),
@@ -48,7 +47,7 @@ namespace odb
           socket_ (socket ? socket_str_.c_str () : 0),
           charset_ (charset == 0 ? "" : charset),
           client_flags_ (client_flags),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (!factory_)
         factory_.reset (new connection_pool_factory ());
@@ -65,7 +64,7 @@ namespace odb
               const string* socket,
               const string& charset,
               unsigned long client_flags,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mysql),
           user_ (user),
           passwd_str_ (passwd),
@@ -77,7 +76,7 @@ namespace odb
           socket_ (socket ? socket_str_.c_str () : 0),
           charset_ (charset),
           client_flags_ (client_flags),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (!factory_)
         factory_.reset (new connection_pool_factory ());
@@ -94,7 +93,7 @@ namespace odb
               const string* socket,
               const string& charset,
               unsigned long client_flags,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mysql),
           user_ (user),
           passwd_str_ (passwd ? *passwd : ""),
@@ -106,7 +105,7 @@ namespace odb
           socket_ (socket ? socket_str_.c_str () : 0),
           charset_ (charset),
           client_flags_ (client_flags),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (!factory_)
         factory_.reset (new connection_pool_factory ());
@@ -123,7 +122,7 @@ namespace odb
               const string& socket,
               const string& charset,
               unsigned long client_flags,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mysql),
           user_ (user),
           passwd_str_ (passwd),
@@ -135,7 +134,7 @@ namespace odb
           socket_ (socket_str_.c_str ()),
           charset_ (charset),
           client_flags_ (client_flags),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (!factory_)
         factory_.reset (new connection_pool_factory ());
@@ -152,7 +151,7 @@ namespace odb
               const string& socket,
               const string& charset,
               unsigned long client_flags,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mysql),
           user_ (user),
           passwd_str_ (passwd ? *passwd : ""),
@@ -164,7 +163,7 @@ namespace odb
           socket_ (socket_str_.c_str ()),
           charset_ (charset),
           client_flags_ (client_flags),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (!factory_)
         factory_.reset (new connection_pool_factory ());
@@ -178,13 +177,13 @@ namespace odb
               bool erase,
               const string& charset,
               unsigned long client_flags,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mysql),
           passwd_ (0),
           socket_ (0),
           charset_ (charset),
           client_flags_ (client_flags),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       using namespace details;
 

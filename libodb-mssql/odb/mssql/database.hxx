@@ -11,7 +11,6 @@
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
-#include <odb/details/transfer-ptr.hxx>
 
 #include <odb/mssql/mssql-fwd.hxx>
 #include <odb/mssql/version.hxx>
@@ -66,8 +65,7 @@ namespace odb
                 const std::string& extra_connect_string = "",
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // By default connect to the default instance on localhost using
       // default protocol and the latest available SQL Server Native
@@ -85,8 +83,7 @@ namespace odb
                 const std::string& extra_connect_string = "",
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Connect using TCP/IP to the specified host and port. If port is
       // 0, use the default port (1433).
@@ -100,8 +97,7 @@ namespace odb
                 const std::string& extra_connect_string = "",
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Connect using a custom SQL Server Native Client ODBC driver
       // conection string.
@@ -109,8 +105,7 @@ namespace odb
       database (const std::string& connect_string,
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Extract the database parameters from the command line. The
       // following options are recognized:
@@ -133,8 +128,7 @@ namespace odb
                 const std::string& extra_connect_string = "",
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Move-constructible but not move-assignable.
       //

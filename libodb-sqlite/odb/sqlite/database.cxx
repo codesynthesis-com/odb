@@ -7,6 +7,7 @@
 
 #include <sqlite3.h>
 
+#include <utility> // std::move()
 #include <cassert>
 #include <sstream>
 
@@ -26,8 +27,6 @@ namespace odb
 {
   namespace sqlite
   {
-    using odb::details::transfer_ptr;
-
     database::
     ~database ()
     {
@@ -38,13 +37,13 @@ namespace odb
               int flags,
               bool foreign_keys,
               const string& vfs,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_sqlite),
           name_ (name),
           flags_ (flags),
           foreign_keys_ (foreign_keys),
           vfs_ (vfs),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (!factory_)
         factory_.reset (new connection_pool_factory ());
@@ -58,12 +57,12 @@ namespace odb
               int flags,
               bool foreign_keys,
               const string& vfs,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_sqlite),
           flags_ (flags),
           foreign_keys_ (foreign_keys),
           vfs_ (vfs),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       // Convert UTF-16 name to UTF-8 using the WideCharToMultiByte() Win32
       // function.
@@ -116,12 +115,12 @@ namespace odb
               int flags,
               bool foreign_keys,
               const string& vfs,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_sqlite),
           flags_ (flags),
           foreign_keys_ (foreign_keys),
           vfs_ (vfs),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       using namespace details;
 
@@ -155,12 +154,12 @@ namespace odb
     database (const connection_ptr& conn,
               const string& name,
               const string& schema,
-              transfer_ptr<attached_connection_factory> factory)
+              unique_ptr<attached_connection_factory> factory)
         : odb::database (id_sqlite),
           name_ (name),
           schema_ (schema),
           flags_ (0),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       assert (!schema_.empty ());
 

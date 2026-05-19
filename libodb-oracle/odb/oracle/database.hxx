@@ -11,7 +11,6 @@
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
-#include <odb/details/transfer-ptr.hxx>
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx>
@@ -39,8 +38,7 @@ namespace odb
                 ub2 charset = 0,
                 ub2 ncharset = 0,
                 OCIEnv* environment = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       database (const std::string& user,
                 const std::string& password,
@@ -50,8 +48,7 @@ namespace odb
                 ub2 charset = 0,
                 ub2 ncharset = 0,
                 OCIEnv* environment = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Extract the database parameters from the command line. The
       // following options are recognized:
@@ -75,8 +72,7 @@ namespace odb
                 ub2 charset = 0,
                 ub2 ncharset = 0,
                 OCIEnv* environment = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Move-constructible but not move-assignable.
       //

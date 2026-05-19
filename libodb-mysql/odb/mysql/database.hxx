@@ -11,7 +11,6 @@
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
-#include <odb/details/transfer-ptr.hxx>
 
 #include <odb/mysql/mysql.hxx>
 #include <odb/mysql/version.hxx>
@@ -43,8 +42,7 @@ namespace odb
                 const char* socket = 0,
                 const char* charset = 0,
                 unsigned long client_flags = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       database (const std::string& user,
                 const std::string& passwd,
@@ -54,8 +52,7 @@ namespace odb
                 const std::string* socket = 0,
                 const std::string& charset = "",
                 unsigned long client_flags = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       database (const std::string& user,
                 const std::string* passwd,
@@ -65,8 +62,7 @@ namespace odb
                 const std::string* socket = 0,
                 const std::string& charset = "",
                 unsigned long client_flags = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       database (const std::string& user,
                 const std::string& passwd,
@@ -76,8 +72,7 @@ namespace odb
                 const std::string& socket,
                 const std::string& charset = "",
                 unsigned long client_flags = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       database (const std::string& user,
                 const std::string* passwd,
@@ -87,8 +82,7 @@ namespace odb
                 const std::string& socket,
                 const std::string& charset = "",
                 unsigned long client_flags = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Extract the database parameters from the command line. The
       // following options are recognized:
@@ -111,8 +105,7 @@ namespace odb
                 bool erase = false,
                 const std::string& charset = "",
                 unsigned long client_flags = 0,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Move-constructible but not move-assignable.
       //

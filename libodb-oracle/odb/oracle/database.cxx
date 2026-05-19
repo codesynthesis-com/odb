@@ -3,6 +3,7 @@
 
 #include <oci.h>
 
+#include <utility> // std::move()
 #include <sstream>
 
 #include <odb/oracle/traits.hxx>
@@ -20,8 +21,6 @@ namespace odb
 {
   namespace oracle
   {
-    using odb::details::transfer_ptr;
-
     database::
     database (const string& user,
               const string& password,
@@ -29,7 +28,7 @@ namespace odb
               ub2 charset,
               ub2 ncharset,
               OCIEnv* environment,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_oracle),
           user_ (user),
           password_ (password),
@@ -38,7 +37,7 @@ namespace odb
           charset_ (charset),
           ncharset_ (ncharset),
           environment_ (environment),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (environment_ == 0)
       {
@@ -69,7 +68,7 @@ namespace odb
               ub2 charset,
               ub2 ncharset,
               OCIEnv* environment,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_oracle),
           user_ (user),
           password_ (password),
@@ -79,7 +78,7 @@ namespace odb
           charset_ (charset),
           ncharset_ (ncharset),
           environment_ (environment),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (environment_ == 0)
       {
@@ -128,13 +127,13 @@ namespace odb
               ub2 charset,
               ub2 ncharset,
               OCIEnv* environment,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_oracle),
           port_ (0),
           charset_ (charset),
           ncharset_ (ncharset),
           environment_ (environment),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       if (environment_ == 0)
       {

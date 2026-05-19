@@ -13,7 +13,6 @@
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
-#include <odb/details/transfer-ptr.hxx>
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
@@ -47,16 +46,14 @@ namespace odb
                 int flags = SQLITE_OPEN_READWRITE,
                 bool foreign_keys = true,
                 const std::string& vfs = "",
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
 #ifdef _WIN32
       database (const std::wstring& name,
                 int flags = SQLITE_OPEN_READWRITE,
                 bool foreign_keys = true,
                 const std::string& vfs = "",
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 #endif
 
       // Extract the database parameters from the command line. The
@@ -79,8 +76,7 @@ namespace odb
                 int flags = SQLITE_OPEN_READWRITE,
                 bool foreign_keys = true,
                 const std::string& vfs = "",
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Attach to the specified connection a database with the specified name
       // as the specified schema. Good understanding of the SQLite
@@ -133,8 +129,7 @@ namespace odb
       database (const connection_ptr&,
                 const std::string& name,
                 const std::string& schema,
-                details::transfer_ptr<attached_connection_factory> =
-                  details::transfer_ptr<attached_connection_factory> ());
+                std::unique_ptr<attached_connection_factory> = nullptr);
 
       // The database is automatically detached on destruction but a failure
       // to detach is ignored. To detect such a failure perform explicit

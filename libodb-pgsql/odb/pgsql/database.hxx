@@ -11,7 +11,6 @@
 #include <iosfwd> // std::ostream
 
 #include <odb/database.hxx>
-#include <odb/details/transfer-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
@@ -37,8 +36,7 @@ namespace odb
                 const std::string& host = "",
                 unsigned int port = 0,
                 const std::string& extra_conninfo = "",
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       database (const std::string& user,
                 const std::string& password,
@@ -46,13 +44,11 @@ namespace odb
                 const std::string& host,
                 const std::string& socket_ext,
                 const std::string& extra_conninfo = "",
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       explicit
       database (const std::string& conninfo,
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Extract the database parameters from the command line. The
       // following options are recognized:
@@ -73,8 +69,7 @@ namespace odb
                 char* argv[],
                 bool erase = false,
                 const std::string& extra_conninfo = "",
-                details::transfer_ptr<connection_factory> =
-                  details::transfer_ptr<connection_factory> ());
+                std::unique_ptr<connection_factory> = nullptr);
 
       // Move-constructible but not move-assignable.
       //

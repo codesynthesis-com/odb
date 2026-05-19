@@ -1,6 +1,7 @@
 // file      : odb/mssql/database.cxx
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <utility> // std::move()
 #include <cstring> // std::strcmp, std::strncmp
 #include <sstream>
 
@@ -19,8 +20,6 @@ namespace odb
 {
   namespace mssql
   {
-    using odb::details::transfer_ptr;
-
     database::
     database (const string& user,
               const string& password,
@@ -30,7 +29,7 @@ namespace odb
               const string& extra_connect_string,
               transaction_isolation_type transaction_isolation,
               SQLHENV environment,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mssql),
           user_ (user),
           password_ (password),
@@ -42,7 +41,7 @@ namespace odb
           extra_connect_string_ (extra_connect_string),
           transaction_isolation_ (transaction_isolation),
           environment_ (environment),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       init ();
     }
@@ -58,7 +57,7 @@ namespace odb
               const string& extra_connect_string,
               transaction_isolation_type transaction_isolation,
               SQLHENV environment,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mssql),
           user_ (user),
           password_ (password),
@@ -71,7 +70,7 @@ namespace odb
           extra_connect_string_ (extra_connect_string),
           transaction_isolation_ (transaction_isolation),
           environment_ (environment),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       init ();
     }
@@ -86,7 +85,7 @@ namespace odb
               const string& extra_connect_string,
               transaction_isolation_type transaction_isolation,
               SQLHENV environment,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mssql),
           user_ (user),
           password_ (password),
@@ -98,7 +97,7 @@ namespace odb
           extra_connect_string_ (extra_connect_string),
           transaction_isolation_ (transaction_isolation),
           environment_ (environment),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       init ();
     }
@@ -107,14 +106,14 @@ namespace odb
     database (const string& connect_string,
               transaction_isolation_type transaction_isolation,
               SQLHENV environment,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mssql),
           protocol_ (protocol_auto),
           port_ (0),
           transaction_isolation_ (transaction_isolation),
           connect_string_ (connect_string),
           environment_ (environment),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       init ();
     }
@@ -126,14 +125,14 @@ namespace odb
               const string& extra_connect_string,
               transaction_isolation_type transaction_isolation,
               SQLHENV environment,
-              transfer_ptr<connection_factory> factory)
+              unique_ptr<connection_factory> factory)
         : odb::database (id_mssql),
           protocol_ (protocol_auto),
           port_ (0),
           extra_connect_string_ (extra_connect_string),
           transaction_isolation_ (transaction_isolation),
           environment_ (environment),
-          factory_ (factory.transfer ())
+          factory_ (std::move (factory))
     {
       using namespace details;
 

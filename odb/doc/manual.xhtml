@@ -5609,7 +5609,7 @@ for (age = 90; age > 40; age -= 10)
   template &lt;typename T, typename P>
   void
   cache_query (const prepared_query&lt;T>&amp;,
-               std::[auto|unique]_ptr&lt;P> params);
+               std::unique_ptr&lt;P> params);
 
   template &lt;typename T>
   prepared_query&lt;T>
@@ -20703,7 +20703,7 @@ namespace odb
                 const char* socket = 0,
                 const char* charset = 0,
                 unsigned long client_flags = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; user,
                 const std::string&amp; passwd,
@@ -20713,7 +20713,7 @@ namespace odb
                 const std::string* socket = 0,
                 const std::string&amp; charset = "",
                 unsigned long client_flags = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; user,
                 const std::string* passwd,
@@ -20723,7 +20723,7 @@ namespace odb
                 const std::string* socket = 0,
                 const std::string&amp; charset = "",
                 unsigned long client_flags = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; user,
                 const std::string&amp; passwd,
@@ -20733,7 +20733,7 @@ namespace odb
                 const std::string&amp; socket,
                 const std::string&amp; charset = "",
                 unsigned long client_flags = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; user,
                 const std::string* passwd,
@@ -20743,14 +20743,14 @@ namespace odb
                 const std::string&amp; socket,
                 const std::string&amp; charset = "",
                 unsigned long client_flags = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (int&amp; argc,
                 char* argv[],
                 bool erase = false,
                 const std::string&amp; charset = "",
                 unsigned long client_flags = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       static void
       print_usage (std::ostream&amp;);
@@ -21952,14 +21952,14 @@ namespace odb
                 int flags = SQLITE_OPEN_READWRITE,
                 bool foreign_keys = true,
                 const std::string&amp; vfs = "",
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
 #ifdef _WIN32
       database (const std::wstring&amp; name,
                 int flags = SQLITE_OPEN_READWRITE,
                 bool foreign_keys = true,
                 const std::string&amp; vfs = "",
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 #endif
 
       database (int&amp; argc,
@@ -21968,7 +21968,7 @@ namespace odb
                 int flags = SQLITE_OPEN_READWRITE,
                 bool foreign_keys = true,
                 const std::string&amp; vfs = "",
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       static void
       print_usage (std::ostream&amp;);
@@ -22399,7 +22399,7 @@ namespace odb
       database (const connection_ptr&amp;,
                 const std::string&amp; name,
                 const std::string&amp; schema,
-                std::[auto|unique]_ptr&lt;attached_connection_factory> = 0);
+                std::unique_ptr&lt;attached_connection_factory> = nullptr);
 
       void
       detach ();
@@ -23097,7 +23097,7 @@ namespace odb
                 const std::string&amp; host = "",
                 unsigned int port = 0,
                 const std::string&amp; extra_conninfo = "",
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; user,
                 const std::string&amp; password,
@@ -23105,16 +23105,16 @@ namespace odb
                 const std::string&amp; host,
                 const std::string&amp; socket_ext,
                 const std::string&amp; extra_conninfo = "",
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; conninfo,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (int&amp; argc,
                 char* argv[],
                 bool erase = false,
                 const std::string&amp; extra_conninfo = "",
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       static void
       print_usage (std::ostream&amp;);
@@ -24118,7 +24118,7 @@ namespace odb
                 ub2 charset = 0,
                 ub2 ncharset = 0,
                 OCIEnv* environment = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; user,
                 const std::string&amp; password,
@@ -24128,7 +24128,7 @@ namespace odb
                 ub2 charset = 0,
                 ub2 ncharset = 0,
                 OCIEnv* environment = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (int&amp; argc,
                 char* argv[],
@@ -24136,7 +24136,7 @@ namespace odb
                 ub2 charset = 0,
                 ub2 ncharset = 0,
                 OCIEnv* environment = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       static void
       print_usage (std::ostream&amp;);
@@ -25215,7 +25215,7 @@ namespace odb
                 const std::string&amp; extra_connect_string = "",
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; user,
                 const std::string&amp; password,
@@ -25227,7 +25227,7 @@ namespace odb
                 const std::string&amp; extra_connect_string = "",
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; user,
                 const std::string&amp; password,
@@ -25238,12 +25238,12 @@ namespace odb
                 const std::string&amp; extra_connect_string = "",
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (const std::string&amp; connect_string,
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       database (int&amp; argc,
                 char* argv[],
@@ -25251,7 +25251,7 @@ namespace odb
                 const std::string&amp; extra_connect_string = "",
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
-                std::[auto|unique]_ptr&lt;connection_factory> = 0);
+                std::unique_ptr&lt;connection_factory> = nullptr);
 
       static void
       print_usage (std::ostream&amp;);
