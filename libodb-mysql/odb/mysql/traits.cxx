@@ -99,8 +99,6 @@ namespace odb
     //
     // default_value_traits<vector<char>, id_blob>
     //
-    // std::vector has to be qualified for Sun CC.
-    //
     void default_value_traits<std::vector<char>, id_blob>::
     set_image (details::buffer& b,
                size_t& n,
@@ -121,8 +119,6 @@ namespace odb
 
     //
     // default_value_traits<vector<unsigned char>, id_blob>
-    //
-    // std::vector has to be qualified for Sun CC.
     //
     void default_value_traits<std::vector<unsigned char>, id_blob>::
     set_image (details::buffer& b,

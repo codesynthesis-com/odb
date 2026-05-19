@@ -708,16 +708,7 @@ namespace odb
   inline void database::
   persist_ (I b, I e, bool cont)
   {
-    // Sun CC with non-standard STL does not have iterator_traits.
-    //
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
     typedef typename std::iterator_traits<I>::value_type value_type;
-#else
-    // Assume iterator is just a pointer.
-    //
-    typedef typename object_pointer_traits<I>::object_type value_type;
-#endif
-
     typedef object_pointer_traits<value_type> opt;
 
     persist_<I, typename opt::object_type, id_common> (

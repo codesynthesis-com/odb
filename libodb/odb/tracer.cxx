@@ -53,7 +53,7 @@ namespace odb
     virtual void
     deallocate (connection&, const statement&);
 
-    // Override the other version to get rid of a Sun CC warning.
+    // Override the other version to get rid of warnings.
     //
     virtual void
     execute (connection&, const statement&);

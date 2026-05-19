@@ -53,8 +53,6 @@ static counting_tracer tr;
 // do this if we have a fairly conforming compiler that implements the
 // complete std::vector interface.
 //
-
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
 #if defined (__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 7
 struct item {};
 template class odb::vector<item>;
@@ -62,7 +60,6 @@ template class odb::vector_iterator<odb::vector<item>,
                                     std::vector<item>::iterator>;
 template class odb::vector_iterator<odb::vector<item>,
                                std::vector<item>::reverse_iterator>;
-#endif
 #endif
 
 void
@@ -97,14 +94,9 @@ main (int argc, char* argv[])
       if (i != ov.end ())
         i = ov.end ();
 
-      // Things are just really borken in Sun CC, no matter which STL
-      // you use.
-      //
-#ifndef __SUNPRO_CC
       vector::const_reverse_iterator j (ov.rbegin ());
       if (j != ov.rend ())
         j = ov.rend ();
-#endif
     }
 
     unique_ptr<database> db (create_database (argc, argv));
@@ -370,23 +362,16 @@ main (int argc, char* argv[])
 
     {
       o.s.begin ().modify () += 'a';
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
       o.s.rbegin ().modify () += 'c';
-#endif
 
       transaction t (db->begin ());
       tr.reset (t);
       db->update (o);
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
       assert (tr.u == 3 && tr.t == 3);
-#else
-      assert (tr.u == 2 && tr.t == 2);
-#endif
       assert (*db->load<object> ("1") == o);
       t.commit ();
     }
 
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
     {
       (o.s.rbegin () + 1).modify (1) += 'a';
       (o.s.rbegin () + 1).modify (-1) += 'c';
@@ -398,7 +383,6 @@ main (int argc, char* argv[])
       assert (*db->load<object> ("1") == o);
       t.commit ();
     }
-#endif
 
     {
       o.s.mbegin ();

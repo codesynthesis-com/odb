@@ -24,6 +24,8 @@ namespace odb
 
     // query_base
     //
+    const query_base query_base::true_expr (true);
+
     query_base::
     query_base (const query_base& q)
         : clause_ (q.clause_),

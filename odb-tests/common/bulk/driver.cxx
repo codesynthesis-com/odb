@@ -26,16 +26,8 @@
 using namespace std;
 using namespace odb::core;
 
-// Sun CC with non-standard STL does not have iterator_traits in which
-// case we assume iterator is just a pointer.
-//
 template <typename I,
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
-          typename T = typename iterator_traits<I>::value_type
-#else
-          typename T = typename odb::details::meta::remove_pointer<I>::result
-#endif
-          >
+          typename T = typename iterator_traits<I>::value_type>
 struct element_traits;
 
 template <typename I, typename T>

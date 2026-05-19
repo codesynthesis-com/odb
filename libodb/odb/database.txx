@@ -280,15 +280,7 @@ namespace odb
   void database::
   update_ (I b, I e, bool cont)
   {
-    // Sun CC with non-standard STL does not have iterator_traits.
-    //
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
     typedef typename std::iterator_traits<I>::value_type value_type;
-#else
-    // Assume iterator is just a pointer.
-    //
-    typedef typename object_pointer_traits<I>::object_type value_type;
-#endif
 
     // object_pointer_traits<T>::object_type can be const.
     //
@@ -409,15 +401,7 @@ namespace odb
   void database::
   erase_object_ (I b, I e, bool cont)
   {
-    // Sun CC with non-standard STL does not have iterator_traits.
-    //
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
     typedef typename std::iterator_traits<I>::value_type value_type;
-#else
-    // Assume iterator is just a pointer.
-    //
-    typedef typename object_pointer_traits<I>::object_type value_type;
-#endif
 
     // object_pointer_traits<T>::object_type can be const.
     //

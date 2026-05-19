@@ -14,22 +14,6 @@
 
 #include <odb/vector-impl.hxx>
 
-// Because both std::vector and odb::vector are called 'vector' (who
-// cares about namespace qualifications, right?), Sun CC complains
-// with a bogus "Ambiguous partial specialization" error. A really
-// hideous workaround for this bug is to to add a dummy third template
-// argument (with a default value).
-//
-#ifdef __SUNPRO_CC
-#  define LIBODB_VECTOR_ARG_DEFAULT ,int = 0
-#  define LIBODB_VECTOR_ARG_DECL ,int DUMMY
-#  define LIBODB_VECTOR_ARG_USE ,DUMMY
-#else
-#  define LIBODB_VECTOR_ARG_DEFAULT
-#  define LIBODB_VECTOR_ARG_DECL
-#  define LIBODB_VECTOR_ARG_USE
-#endif
-
 namespace odb
 {
   // An std::vector-like container that keeps track of changes.
@@ -40,7 +24,7 @@ namespace odb
   template <class V, class I>
   class vector_iterator;
 
-  template <class T, class A = std::allocator<T> LIBODB_VECTOR_ARG_DEFAULT>
+  template <class T, class A = std::allocator<T>>
   class vector: public vector_base
   {
   public:
@@ -60,12 +44,8 @@ namespace odb
     typedef A                                           allocator_type;
     typedef typename base_vector_type::pointer          pointer;
     typedef typename base_vector_type::const_pointer    const_pointer;
-    // No non-const reverse iterator support for Sun CC with non-standard STL.
-    //
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
     typedef vector_iterator<vector, base_reverse_iterator_type>
                                                         reverse_iterator;
-#endif
     typedef typename base_vector_type::const_reverse_iterator
                                                         const_reverse_iterator;
     // construct/copy/destroy:
@@ -105,10 +85,8 @@ namespace odb
     iterator               end() {return iterator (this, v_.end ());}
     const_iterator         begin() const {return v_.begin ();}
     const_iterator         end() const {return v_.end ();}
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
     reverse_iterator       rbegin() {return reverse_iterator (this, v_.rbegin ());}
     reverse_iterator       rend() {return reverse_iterator (this, v_.rend ());}
-#endif
     const_reverse_iterator rbegin() const {return v_.rbegin ();}
     const_reverse_iterator rend() const {return v_.rend ();}
 
@@ -209,84 +187,84 @@ namespace odb
     using odb::vector;
   }
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator==(const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator==(const vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x.base () == y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator==(const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const std::vector<T,A>& y)
+  template <class T, class A>
+  inline bool operator==(const vector<T, A>& x,
+                         const std::vector<T, A>& y)
   {return x.base () == y;}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator==(const std::vector<T,A>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator==(const std::vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x == y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator< (const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator< (const vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x.base () < y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator<(const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                        const std::vector<T,A>& y)
+  template <class T, class A>
+  inline bool operator<(const vector<T, A>& x,
+                        const std::vector<T, A>& y)
   {return x.base () < y;}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator<(const std::vector<T,A>& x,
-                        const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator<(const std::vector<T, A>& x,
+                        const vector<T, A>& y)
   {return x < y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator!=(const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator!=(const vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x.base () != y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator!=(const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const std::vector<T,A>& y)
+  template <class T, class A>
+  inline bool operator!=(const vector<T, A>& x,
+                         const std::vector<T, A>& y)
   {return x.base () != y;}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator!=(const std::vector<T,A>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator!=(const std::vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x != y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator> (const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator> (const vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x.base () > y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator>=(const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator>=(const vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x.base () >= y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator>=(const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const std::vector<T,A>& y)
+  template <class T, class A>
+  inline bool operator>=(const vector<T, A>& x,
+                         const std::vector<T, A>& y)
   {return x.base () >= y;}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator>=(const std::vector<T,A>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator>=(const std::vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x >= y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator<=(const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator<=(const vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x.base () <= y.base ();}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator<=(const vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                         const std::vector<T,A>& y)
+  template <class T, class A>
+  inline bool operator<=(const vector<T, A>& x,
+                         const std::vector<T, A>& y)
   {return x.base () <= y;}
 
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline bool operator<=(const std::vector<T,A>& x,
-                         const vector<T,A LIBODB_VECTOR_ARG_USE>& y)
+  template <class T, class A>
+  inline bool operator<=(const std::vector<T, A>& x,
+                         const vector<T, A>& y)
   {return x <= y.base ();}
 
   template <class V, class I>
@@ -297,9 +275,6 @@ namespace odb
     typedef I base_iterator_type;
     typedef typename vector_type::const_iterator const_iterator_type;
 
-    // Sun CC with non-standard STL does not have iterator_traits.
-    //
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
     typedef std::iterator_traits<base_iterator_type> base_iterator_traits;
 
     typedef typename base_iterator_traits::value_type value_type;
@@ -307,15 +282,6 @@ namespace odb
     typedef typename base_iterator_traits::pointer pointer;
     typedef typename base_iterator_traits::reference reference;
     typedef typename base_iterator_traits::iterator_category iterator_category;
-#else
-    // Base iterator is just a pointer.
-    //
-    typedef typename vector_type::value_type value_type;
-    typedef typename vector_type::pointer pointer;
-    typedef typename vector_type::reference reference;
-    typedef std::random_access_iterator_tag iterator_category;
-    typedef std::ptrdiff_t difference_type;
-#endif
 
     typedef typename vector_type::size_type size_type;
     typedef typename vector_type::const_reference const_reference;
@@ -335,8 +301,6 @@ namespace odb
     const_reference operator[] (difference_type n) const {return i_[n];}
 
     // Modifiers.
-    //
-    // Buggy Sun CC cannot have them out of class.
     //
     reference modify () const
     {
@@ -376,7 +340,6 @@ namespace odb
     base_iterator_type i_;
   };
 
-#ifndef _RWSTD_NO_CLASS_PARTIAL_SPEC
   template <class V, class J>
   class vector_iterator<V, std::reverse_iterator<J> >
   {
@@ -453,7 +416,6 @@ namespace odb
     vector_type* v_;
     base_iterator_type i_;
   };
-#endif // _RWSTD_NO_CLASS_PARTIAL_SPEC
 
   // operator==
   //
@@ -599,9 +561,9 @@ namespace odb
 
 namespace std
 {
-  template <class T, class A LIBODB_VECTOR_ARG_DECL>
-  inline void swap(odb::vector<T,A LIBODB_VECTOR_ARG_USE>& x,
-                   odb::vector<T,A LIBODB_VECTOR_ARG_USE>& y) {x.swap (y);}
+  template <class T, class A>
+  inline void swap(odb::vector<T, A>& x,
+                   odb::vector<T, A>& y) {x.swap (y);}
 }
 
 #include <odb/vector.ixx>

@@ -482,8 +482,6 @@ namespace odb
     //
     // default_value_traits<std::vector<char>, id_long_binary>
     //
-    // std::vector has to be qualified for Sun CC.
-    //
     void default_value_traits<std::vector<char>, id_long_binary>::
     param_callback (const void* context,
                     size_t*,
@@ -551,8 +549,6 @@ namespace odb
 
     //
     // default_value_traits<std::vector<unsigned char>, id_long_binary>
-    //
-    // std::vector has to be qualified for Sun CC.
     //
     void default_value_traits<std::vector<unsigned char>, id_long_binary>::
     param_callback (const void* context,

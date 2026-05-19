@@ -3,8 +3,8 @@
 
 namespace odb
 {
-  template <typename V, typename A LIBODB_VECTOR_ARG_DECL>
-  bool access::container_traits<vector<V, A LIBODB_VECTOR_ARG_USE> >::
+  template <typename V, typename A>
+  bool access::container_traits<vector<V, A> >::
   changed (const container_type& c)
   {
     // Because modifications can cancel each other (e.g., push and pop),
@@ -31,8 +31,8 @@ namespace odb
     return false;
   }
 
-  template <typename V, typename A LIBODB_VECTOR_ARG_DECL>
-  void access::container_traits<vector<V, A LIBODB_VECTOR_ARG_USE> >::
+  template <typename V, typename A>
+  void access::container_traits<vector<V, A> >::
   update (const container_type& c, const functions& f)
   {
     bool u (false); // Updated flag.

@@ -38,7 +38,7 @@ struct transaction_tracer: odb::tracer
       cout << "rollback transaction" << endl;
   }
 
-  // Override the other version to get rid of a Sun CC warning.
+  // Override the other version to get rid of warnings.
   //
   virtual void
   execute (connection& c, const statement& s)
