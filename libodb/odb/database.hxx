@@ -26,7 +26,6 @@
 #include <odb/details/export.hxx>
 #include <odb/details/mutex.hxx>
 #include <odb/details/c-string.hxx>
-#include <odb/details/function-wrapper.hxx>
 #include <odb/details/meta/answer.hxx>
 
 namespace odb
@@ -371,11 +370,7 @@ namespace odb
     //
   public:
     typedef odb::connection connection_type;
-
     typedef void query_factory_type (const char* name, connection_type&);
-    typedef query_factory_type* query_factory_ptr;
-    typedef details::function_wrapper<
-      query_factory_type> query_factory_wrapper;
 
     template <typename F>
     typename std::enable_if<
@@ -383,7 +378,8 @@ namespace odb
       F, std::function<query_factory_type>>::value, void>::type
     query_factory (const char* name, F f)
     {
-      query_factory (name, query_factory_wrapper (std::move (f)));
+      query_factory_impl (name,
+                          std::function<query_factory_type> (std::move (f)));
     }
 
     bool
@@ -391,7 +387,7 @@ namespace odb
 
   private:
     void
-    query_factory (const char* name, query_factory_wrapper);
+    query_factory_impl (const char* name, std::function<query_factory_type>&&);
 
     // Native database statement execution.
     //
@@ -610,7 +606,9 @@ namespace odb
 
   protected:
     typedef
-    std::map<const char*, query_factory_wrapper, details::c_string_comparator>
+    std::map<const char*,
+             std::function<query_factory_type>,
+             details::c_string_comparator>
     query_factory_map;
 
     typedef std::map<std::string, schema_version_info> schema_version_map;

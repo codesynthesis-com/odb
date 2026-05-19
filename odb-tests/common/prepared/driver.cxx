@@ -240,8 +240,7 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
-      db->query_factory ("person-params-query",
-                         database::query_factory_ptr ());
+      db->query_factory ("person-params-query", nullptr);
     }
 
     // Cached query with wildcard factory.
@@ -265,7 +264,7 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
-      db->query_factory ("", database::query_factory_ptr ());
+      db->query_factory ("", nullptr);
     }
 
     // Cached query with lambda factory.
@@ -302,8 +301,7 @@ main (int argc, char* argv[])
         t.commit ();
       }
 
-      db->query_factory ("person-params-query-2",
-                         database::query_factory_ptr ());
+      db->query_factory ("person-params-query-2", nullptr);
     }
 
     // Cached query with lambda factory using closure. Forces nonoptimized

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <utility> // std::move()
 #include <cassert>
 
 #include <odb/exceptions.hxx>
@@ -37,15 +38,15 @@ namespace odb
 
   struct data_function
   {
-    typedef schema_catalog::data_migration_function_wrapper
-    function_wrapper_type;
+    typedef schema_catalog::data_migration_function_type function_type;
 
     data_function () {}
-    data_function (database_id i, function_wrapper_type m)
-        : id (i), migrate (m) {}
+    data_function (database_id i,
+                   std::function<function_type>&& m)
+        : id (i), migrate (std::move (m)) {}
 
     database_id id;
-    function_wrapper_type migrate;
+    std::function<function_type> migrate;
   };
   typedef vector<data_function> data_functions;
   typedef map<data_key, data_functions> data_map;
@@ -219,15 +220,7 @@ namespace odb
     {
       if (i->id == id_common || i->id == db.id ())
       {
-        const data_migration_function_wrapper &m = i->migrate;
-
-        if (m.std_function == 0)
-          m.function (db);
-        else
-        {
-          typedef void (*caller) (const void*, database&);
-          m.cast<caller> () (m.std_function, db);
-        }
+        i->migrate (db);
         r++;
       }
     }
@@ -236,10 +229,10 @@ namespace odb
   }
 
   void schema_catalog::
-  data_migration_function (database_id id,
-                           schema_version v,
-                           data_migration_function_wrapper f,
-                           const string& name)
+  data_migration_function_impl (database_id id,
+                                schema_version v,
+                                std::function<data_migration_function_type>&& f,
+                                const string& name)
   {
     // This function can be called from a static initializer in which
     // case the catalog might not have yet been created.
@@ -252,7 +245,7 @@ namespace odb
     }
 
     schema_catalog_impl& c (*schema_catalog_init::catalog);
-    c.data[data_key (name, v)].push_back (data_function (id, f));
+    c.data[data_key (name, v)].push_back (data_function (id, std::move (f)));
   }
 
   void schema_catalog::

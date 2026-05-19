@@ -5719,16 +5719,7 @@ for (unsigned short age (90); age > 40; age -= 10)
      query factory that will be called to prepare and cache a
      query during the call to <code>lookup_query()</code>. To
      register a factory we use the <code>database::query_factory()</code>
-     function. In C++98/03 it has the following signature:</p>
-
-  <pre class="cxx">
-  void
-  query_factory (const char* name,
-                 void (*factory) (const char* name, connection&amp;));
-  </pre>
-
-  <p>While in C++11 it uses the <code>std::function</code> class
-     template:</p>
+     function with the following signature:</p>
 
   <pre class="cxx">
   void
@@ -5736,11 +5727,12 @@ for (unsigned short age (90); age > 40; age -= 10)
                  std::function&lt;void (const char* name, connection&amp;)>);
   </pre>
 
-  <p>The first argument to the <code>query_factory()</code> function is
-     the prepared query name that this factory will be called to prepare
-     and cache. An empty name is treated as a fallback wildcard factory
-     that is capable of preparing any query. The second argument is the
-     factory function or, in C++11, function object or lambda.</p>
+  <p>The first argument to the <code>query_factory()</code> function is the
+     prepared query name that this factory will be called to prepare and
+     cache. An empty name is treated as a fallback wildcard factory that is
+     capable of preparing any query. The second argument is the factory
+     function, which can be an ordinary function, a function object, or
+     a lambda.</p>
 
   <p>The example fragment shows how we can use the prepared query
      factory:</p>
@@ -13518,35 +13510,15 @@ namespace odb
 
     using data_migration_function_type = void (database&amp;);
 
-    // Common (for all the databases) data migration, C++98/03 version:
-    //
-    template &lt;schema_version v, schema_version base>
-    static void
-    data_migration_function (data_migration_function_type*,
-                             const std::string&amp; name = "");
-
-    // Common (for all the databases) data migration, C++11 version:
+    // Common (for all the databases) data migration version:
     //
     template &lt;schema_version v, schema_version base>
     static void
     data_migration_function (std::function&lt;data_migration_function_type>,
                              const std::string&amp; name = "");
 
-    // Database-specific data migration, C++98/03 version:
-    //
-    template &lt;schema_version v, schema_version base>
-    static void
-    data_migration_function (database&amp;,
-                             data_migration_function_type*,
-                             const std::string&amp; name = "");
 
-    template &lt;schema_version v, schema_version base>
-    static void
-    data_migration_function (database_id,
-                             data_migration_function_type*,
-                             const std::string&amp; name = "");
-
-    // Database-specific data migration, C++11 version:
+    // Database-specific data migration version:
     //
     template &lt;schema_version v, schema_version base>
     static void
@@ -13561,20 +13533,7 @@ namespace odb
                              const std::string&amp; name = "");
   };
 
-  // Static data migration function registration, C++98/03 version:
-  //
-  template &lt;schema_version v, schema_version base>
-  struct data_migration_entry
-  {
-    data_migration_entry (data_migration_function_type*,
-                          const std::string&amp; name = "");
-
-    data_migration_entry (database_id,
-                          data_migration_function_type*,
-                          const std::string&amp; name = "");
-  };
-
-  // Static data migration function registration, C++11 version:
+  // Static data migration function registration version:
   //
   template &lt;schema_version v, schema_version base>
   struct data_migration_entry
@@ -13675,9 +13634,8 @@ migrate_gender_entry (&amp;migrate_gender);
      C++ compiler automatically identify all the data migration
      functions that can be removed.</p>
 
-  <p>In C++11 we can also create a template alias so that we don't
-     have to repeat the base model macro in every registration, for
-     example:</p>
+  <p>We can also create a template alias so that we don't have to repeat the
+     base model macro in every registration, for example:</p>
 
   <pre class="cxx">
 template &lt;schema_version v>
@@ -13693,8 +13651,8 @@ migrate_gender_entry (&amp;migrate_gender);
      functions that take the version as a function argument rather than
      as a template parameter.</p>
 
-  <p>In C++11 we can also use lambdas as migration functions, which makes
-     the migration code more concise:</p>
+  <p>We can also use lambdas as migration functions, which makes the migration
+     code more concise:</p>
 
   <pre class="cxx">
 static const migration_entry&lt;3>

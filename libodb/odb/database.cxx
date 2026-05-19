@@ -3,6 +3,8 @@
 
 #include <odb/database.hxx>
 
+#include <utility> // std::move()
+
 #include <odb/details/lock.hxx>
 
 using namespace std;
@@ -60,23 +62,17 @@ namespace odb
     if (i == query_factory_map_.end ())
       return false;
 
-    const query_factory_wrapper& fw (i->second);
-    if (fw.std_function == 0)
-      fw.function (name, c);
-    else
-    {
-      typedef void (*caller) (const void*, const char*, connection_type&);
-      fw.cast<caller> () (fw.std_function, name, c);
-    }
+    const std::function<query_factory_type>& fw (i->second);
+    fw (name, c);
 
     return true;
   }
 
   void database::
-  query_factory (const char* name, query_factory_wrapper w)
+  query_factory_impl (const char* name, std::function<query_factory_type>&& w)
   {
     if (w)
-      query_factory_map_[name] = w; // Destructive copy assignment (move).
+      query_factory_map_[name] = std::move (w);
     else
       query_factory_map_.erase (name);
   }

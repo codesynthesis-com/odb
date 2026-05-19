@@ -70,10 +70,6 @@ namespace odb
                   const std::string& name = "");
 
     typedef void data_migration_function_type (database&);
-    typedef data_migration_function_type* data_migration_function_ptr;
-
-    typedef details::function_wrapper<data_migration_function_type>
-    data_migration_function_wrapper;
 
     // The following three variants of the registration functions make
     // sure that the version is greater that the base model version.
@@ -152,19 +148,19 @@ namespace odb
                              F f,
                              const std::string& name = "")
     {
-      data_migration_function (
+      data_migration_function_impl (
         i,
         v,
-        data_migration_function_wrapper (std::move (f)),
+        std::function<data_migration_function_type> (std::move (f)),
         name);
     }
 
   private:
     static void
-    data_migration_function (database_id,
-                             schema_version,
-                             data_migration_function_wrapper,
-                             const std::string& name);
+    data_migration_function_impl (database_id,
+                                  schema_version,
+                                  std::function<data_migration_function_type>&&,
+                                  const std::string& name);
 
     // Combined schema and data migration.
     //
