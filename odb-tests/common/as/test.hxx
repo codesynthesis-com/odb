@@ -8,6 +8,8 @@
 #include <vector>
 #include <string>
 #include <utility> // pair
+#include <cstddef> // size
+#include <cassert>
 
 #include <odb/core.hxx>
 #include <odb/vector.hxx>
@@ -77,7 +79,7 @@ namespace test1
   };
 
   inline bool
-  operator== (const object& x, const object y)
+  operator== (const object& x, const object& y)
   {
     return
       x.b == y.b &&
@@ -128,7 +130,7 @@ namespace test2
   };
 
   inline bool
-  operator== (const object& x, const object y)
+  operator== (const object& x, const object& y)
   {
     return x.b == y.b && x.v == y.v;
   }
@@ -186,7 +188,7 @@ namespace test3
   };
 
   inline bool
-  operator== (const object& x, const object y)
+  operator== (const object& x, const object& y)
   {
     return x.np == y.np && x.ip == y.ip && x.npv == y.npv && x.ipv == y.ipv;
   }
@@ -222,7 +224,7 @@ namespace test4
   };
 
   inline bool
-  operator== (const object& x, const object y)
+  operator== (const object& x, const object& y)
   {
     return x.id == y.id && x.i == y.i && x.v == y.v;
   }
@@ -261,9 +263,151 @@ namespace test5
   };
 
   inline bool
-  operator== (const object& x, const object y)
+  operator== (const object& x, const object& y)
   {
     return x.id == y.id && x.v == y.v && x.i == y.i;
+  }
+}
+
+// Test id type mapping, where the mapped and interface types are not
+// implicitly convertible to each other (regression for GH issue #16).
+//
+#pragma db namespace table("t6_")
+namespace test6
+{
+  // Simple interface value type.
+  //
+  #pragma db namespace table("s_")
+  namespace simple_intf
+  {
+    struct object_id
+    {
+      object_id () {}
+      object_id (int v): value (v) {}
+
+      explicit
+      object_id (const std::string& s)
+      {
+        std::size_t n;
+        value = std::stoi (s, &n);
+
+        assert (n == s.size ());
+      }
+
+      std::string
+      string () const
+      {
+        return std::to_string (value);
+      }
+
+      int value;
+    };
+
+    inline bool
+    operator== (const object_id& x, const object_id& y)
+    {
+      return x.value == y.value;
+    }
+
+    inline bool
+    operator< (const object_id& x, const object_id& y)
+    {
+      return x.value < y.value;
+    }
+
+    #pragma db map type(object_id) as(std::string)  \
+      to((?).string ())                             \
+      from(test6::simple_intf::object_id (?))
+
+    #pragma db object
+    struct object
+    {
+      object () {}
+      object (int i, int r): id (i), ref (r) {}
+
+      #pragma db id
+      object_id id;
+
+      #pragma db points_to(object)
+      object_id ref;
+    };
+
+    inline bool
+    operator== (const object& x, const object& y)
+    {
+      return x.id == y.id && x.ref == y.ref;
+    }
+  }
+
+  // Composite interface value type.
+  //
+  #pragma db namespace table("c_")
+  namespace composite_intf
+  {
+    typedef std::pair<std::string, std::string> str_pair;
+    #pragma db value(str_pair)
+
+    struct object_id
+    {
+      object_id () {}
+      object_id (int v1, int v2): value1 (v1), value2 (v2) {}
+
+      explicit
+      object_id (const str_pair& sp)
+      {
+        std::size_t n;
+
+        value1 = std::stoi (sp.first, &n);
+        assert (n == sp.first.size ());
+
+        value2 = std::stoi (sp.second, &n);
+        assert (n == sp.second.size ());
+      }
+
+      int value1;
+      int value2;
+    };
+
+    inline str_pair
+    to_str_pair (const object_id& i)
+    {
+      return str_pair (std::to_string (i.value1), std::to_string (i.value2));
+    }
+
+    inline bool
+    operator== (const object_id& x, const object_id& y)
+    {
+      return x.value1 == y.value1 && x.value2 == y.value2;
+    }
+
+    inline bool
+    operator< (const object_id& x, const object_id& y)
+    {
+      return x.value1 != y.value1 ? x.value1 < y.value1 : x.value2 < y.value2;
+    }
+
+    #pragma db map type(object_id) as(str_pair)  \
+      to(test6::composite_intf::to_str_pair (?)) \
+      from(test6::composite_intf::object_id (?))
+
+    #pragma db object
+    struct object
+    {
+      object () {}
+      object (int i1, int i2, int r1, int r2): id (i1, i2), ref (r1, r2) {}
+
+      #pragma db id
+      object_id id;
+
+      #pragma db points_to(object)
+      object_id ref;
+    };
+
+    inline bool
+    operator== (const object& x, const object& y)
+    {
+      return x.id == y.id && x.ref == y.ref;
+    }
   }
 }
 

@@ -178,8 +178,15 @@ traverse_object (type& c)
     {
       {
         semantics::names* hint;
-        semantics::type& t (utype (*id, hint));
-        os << "typedef " << t.fq_name (hint) << " id_type;";
+        const custom_cxx_type* translation;
+        semantics::type& t (utype (*id, hint, string (), &translation));
+
+        if (translation == 0)
+          os << "typedef " << t.fq_name (hint) << " id_type;";
+        else
+          os << "typedef "
+             << translation->type->fq_name (translation->type_hint)
+             << " id_type;";
       }
 
       if (opt != 0)

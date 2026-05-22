@@ -339,6 +339,101 @@ main (int argc, char* argv[])
         assert (*p2 == o2);
       }
     }
+
+    // Test id type mapping, where the mapped and interface types are not
+    // implicitly convertible to each other.
+    //
+    {
+      using namespace test6;
+
+      // Simple interface value type.
+      //
+      {
+        using namespace simple_intf;
+
+        object o1 (1, 1);
+        object o2 (2, 1);
+
+        {
+          transaction t (db->begin ());
+          db->persist (o1);
+          db->persist (o2);
+          t.commit ();
+        }
+
+        {
+          transaction t (db->begin ());
+          unique_ptr<object> p1 (db->load<object> (o1.id));
+          unique_ptr<object> p2 (db->find<object> (o2.id));
+          unique_ptr<object> p3 (db->find<object> (1000));
+
+          assert (*p1 == o1);
+          assert (p2 != nullptr && *p2 == o2);
+          assert (p3 == nullptr);
+
+          using query = query<object>;
+
+          string id (o1.id.string ());
+
+          {
+            object o (db->query_value<object> (query::id == id));
+            assert (o == o1);
+          }
+
+          for (const object& o: db->query<object> (query::ref == id))
+            assert (o == o1 || o == o2);
+
+          t.commit ();
+        }
+      }
+
+      // Composite interface value type.
+      //
+      {
+        using namespace composite_intf;
+
+        object o1 (1, 2, 1, 2);
+        object o2 (2, 3, 1, 2);
+
+        {
+          transaction t (db->begin ());
+          db->persist (o1);
+          db->persist (o2);
+          t.commit ();
+        }
+
+        {
+          transaction t (db->begin ());
+          unique_ptr<object> p1 (db->load<object> (o1.id));
+          unique_ptr<object> p2 (db->find<object> (o2.id));
+          unique_ptr<object> p3 (db->find<object> (object_id (1000, 1000)));
+
+          assert (*p1 == o1);
+          assert (p2 != nullptr && *p2 == o2);
+          assert (p3 == nullptr);
+
+          using query = query<object>;
+
+          str_pair id (to_str_pair (o1.id));
+
+          {
+            object o (db->query_value<object> (query::id.first == id.first &&
+                                               query::id.second == id.second));
+
+            assert (o == o1);
+          }
+
+          for (const object& o:
+                 db->query<object> (query::ref.first == id.first &&
+                                    query::ref.second == id.second))
+          {
+            assert (o == o1 || o == o2);
+          }
+
+          t.commit ();
+        }
+      }
+    }
   }
   catch (const odb::exception& e)
   {
