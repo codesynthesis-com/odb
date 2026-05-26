@@ -7,12 +7,12 @@
 #include <odb/pre.hxx>
 
 #include <map>
+#include <memory> // std::unique_ptr
 #include <typeinfo>
 
 #include <odb/traits.hxx>
 #include <odb/forward.hxx>
 
-#include <odb/details/shared-ptr.hxx>
 #include <odb/details/type-info.hxx>
 
 #include <odb/details/export.hxx>
@@ -73,7 +73,7 @@ namespace odb
     session& operator= (const session&);
 
   public:
-    struct LIBODB_EXPORT object_map_base: details::shared_base
+    struct LIBODB_EXPORT object_map_base
     {
       virtual
       ~object_map_base ();
@@ -117,7 +117,7 @@ namespace odb
     //
   public:
     typedef std::map<const std::type_info*,
-                     details::shared_ptr<object_map_base>,
+                     std::unique_ptr<object_map_base>,
                      details::type_info_comparator> type_map;
 
     typedef std::map<database_type*, type_map> database_map;

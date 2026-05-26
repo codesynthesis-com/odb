@@ -10,10 +10,10 @@ namespace odb
                 const typename object_traits<T>::pointer_type& obj)
   {
     type_map& tm (db_map_[&db]);
-    details::shared_ptr<object_map_base>& pom (tm[&typeid (T)]);
+    std::unique_ptr<object_map_base>& pom (tm[&typeid (T)]);
 
     if (!pom)
-      pom.reset (new (details::shared) object_map<T>);
+      pom.reset (new object_map<T>);
 
     object_map<T>& om (static_cast<object_map<T>&> (*pom));
 
