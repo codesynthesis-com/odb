@@ -11,11 +11,10 @@
 #include <odb/forward.hxx>        // odb::core
 
 #include <odb/details/export.hxx>
-#include <odb/details/shared-ptr/base.hxx>
 
 namespace odb
 {
-  struct LIBODB_EXPORT exception: std::exception, details::shared_base
+  struct LIBODB_EXPORT exception: std::exception
   {
     virtual const char*
     what () const noexcept = 0;

@@ -340,7 +340,7 @@ namespace odb
   void multiple_exceptions::
   insert (size_t p, bool maybe, const odb::exception& e, bool fatal)
   {
-    details::shared_ptr<odb::exception> pe;
+    std::shared_ptr<odb::exception> pe;
 
     if (common_exception_ti_ != typeid (e))
       pe.reset (e.clone ());
@@ -352,7 +352,7 @@ namespace odb
       pe = common_exception_;
     }
 
-    set_.insert (value_type (delta_ + p, maybe, pe));
+    set_.insert (value_type (delta_ + p, maybe, std::move (pe)));
     fatal_ = fatal_ || fatal;
   }
 

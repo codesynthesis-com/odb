@@ -9,13 +9,13 @@
 #include <set>
 #include <string>
 #include <cstddef>  // std::size_t
+#include <memory>   // std::shared_ptr
 #include <typeinfo>
 
 #include <odb/forward.hxx>    // schema_version, odb::core
 #include <odb/exception.hxx>
 
 #include <odb/details/export.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 namespace odb
 {
@@ -307,18 +307,21 @@ namespace odb
 
       // Implementation details.
       //
+      // Normally there will be the same exception for the entire batch and so
+      // we try to keep a shared instance (see common_exception_ below).
+      //
     public:
       value_type (std::size_t p,
                   bool maybe,
-                  details::shared_ptr<odb::exception> e)
-          : m_ (maybe), p_ (p), e_ (e) {}
+                  std::shared_ptr<odb::exception> e)
+          : m_ (maybe), p_ (p), e_ (std::move (e)) {}
 
       value_type (std::size_t p): p_ (p) {} // "Key" for set lookup.
 
     private:
       bool m_;
       std::size_t p_;
-      details::shared_ptr<odb::exception> e_;
+      std::shared_ptr<odb::exception> e_;
     };
 
     struct comparator_type
@@ -472,7 +475,7 @@ namespace odb
 
   private:
     const std::type_info& common_exception_ti_;
-    details::shared_ptr<odb::exception> common_exception_;
+    std::shared_ptr<odb::exception> common_exception_;
 
     set_type set_;
     bool fatal_;
