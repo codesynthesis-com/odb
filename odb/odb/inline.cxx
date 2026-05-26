@@ -387,7 +387,7 @@ traverse_object (type& c)
          << "}";
 
       os << "inline" << endl
-         << "odb::details::shared_ptr<result_impl>" << endl
+         << "std::shared_ptr<result_impl>" << endl
          << traits << "::" << endl
          << "execute_query (prepared_query_impl& pq)"
          << "{"
@@ -457,7 +457,7 @@ traverse_view (type& c)
        << "}";
 
     os << "inline" << endl
-       << "odb::details::shared_ptr<result_impl>" << endl
+       << "std::shared_ptr<result_impl>" << endl
        << traits << "::" << endl
        << "execute_query (prepared_query_impl& pq)"
        << "{"

@@ -662,7 +662,7 @@ traverse_object (type& c)
           "const odb::query_base&);"
            << endl;
 
-      os << "static odb::details::shared_ptr<result_impl>" << endl
+      os << "static std::shared_ptr<result_impl>" << endl
          << "execute_query (prepared_query_impl&);"
          << endl;
     }
@@ -1101,7 +1101,7 @@ traverse_view (type& c)
         "const odb::query_base&);"
          << endl;
 
-    os << "static odb::details::shared_ptr<result_impl>" << endl
+    os << "static std::shared_ptr<result_impl>" << endl
        << "execute_query (prepared_query_impl&);"
        << endl;
   }

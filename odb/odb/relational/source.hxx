@@ -3195,7 +3195,8 @@ namespace relational
 
             if (init_id)
             {
-              os << "sts.load_delayed (" << (versioned ? "&svm" : "0") << ");"
+              os << "sts.load_delayed (" << (versioned ? "&svm" : "nullptr") <<
+                ");"
                  << "l.unlock ();";
 
               // @@ MOVE id

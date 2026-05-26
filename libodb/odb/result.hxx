@@ -6,17 +6,17 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>   // std::shared_ptr
 #include <cstddef>  // std::ptrdiff_t, std::size_t
 
 #include <odb/forward.hxx> // odb::core
 #include <odb/traits.hxx>
 
 #include <odb/details/export.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 namespace odb
 {
-  class LIBODB_EXPORT result_impl: public details::shared_base
+  class LIBODB_EXPORT result_impl
   {
   public:
     virtual
@@ -97,8 +97,8 @@ namespace odb
     }
 
     explicit
-    result (details::shared_ptr<result_impl_type> impl)
-        : impl_ (impl)
+    result (std::shared_ptr<result_impl_type> impl)
+        : impl_ (std::move (impl))
     {
     }
 
@@ -121,6 +121,8 @@ namespace odb
 
       return *this;
     }
+
+    // @@ CXX11: add move ctor/assign.
 
     // Conversion from result<T> to result<const T>.
     //
@@ -151,14 +153,12 @@ namespace odb
       return *this;
     }
 
+    // @@ CXX11: add move versions of above.
+
     void
     swap (result& r)
     {
-      // @@ add swap() to shared_ptr.
-      //
-      details::shared_ptr<result_impl_type> p (impl_);
-      impl_ = r.impl_;
-      r.impl_ = p;
+      impl_.swap (r.impl_);
     }
 
   public:
@@ -230,7 +230,7 @@ namespace odb
   private:
     friend class result<const T>;
 
-    details::shared_ptr<result_impl_type> impl_;
+    std::shared_ptr<result_impl_type> impl_;
   };
 
   namespace common

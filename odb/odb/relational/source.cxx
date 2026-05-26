@@ -3060,7 +3060,7 @@ traverse_object (type& c)
          << "pi.dispatch (info_type::call_load, db, &obj, &d);"
          << "}";
 
-    os << rsts << ".load_delayed (" << (versioned ? "&svm" : "0") << ");"
+    os << rsts << ".load_delayed (" << (versioned ? "&svm" : "nullptr") << ");"
        << "l.unlock ();";
 
     if (poly)
@@ -3173,7 +3173,7 @@ traverse_object (type& c)
         os << "ar.free ();";
 
       os << "load_ (sts, obj, false" << (versioned ? ", svm" : "") << ");"
-         << rsts << ".load_delayed (" << (versioned ? "&svm" : "0") << ");"
+         << rsts << ".load_delayed (" << (versioned ? "&svm" : "nullptr") << ");"
          << "l.unlock ();"
          << "callback (db, obj, callback_event::post_load);"
          << "reference_cache_traits::load (pos);"
@@ -3288,7 +3288,7 @@ traverse_object (type& c)
         os << "ar.free ();";
 
       os << "load_ (sts, obj, true" << (versioned ? ", svm" : "") << ");"
-         << rsts << ".load_delayed (" << (versioned ? "&svm" : "0") << ");"
+         << rsts << ".load_delayed (" << (versioned ? "&svm" : "nullptr") << ");"
          << "l.unlock ();"
          << "callback (db, obj, callback_event::post_load);"
          << "return true;";
@@ -3450,7 +3450,7 @@ traverse_object (type& c)
       os << "if (top)"
          << "{";
 
-    os << rsts << ".load_delayed (" << (versioned ? "&svm" : "0") << ");"
+    os << rsts << ".load_delayed (" << (versioned ? "&svm" : "nullptr") << ");"
        << "l.unlock ();";
 
     if (poly)
@@ -4221,11 +4221,11 @@ traverse_object (type& c)
       post_query_ (c, true);
 
       os << endl
-         << "shared_ptr< odb::" << result_type << " > r (" << endl
-         << "new (shared) " << db << "::" << result_type << " (" << endl
-         << "q, st, sts, " << (versioned ? "&svm" : "0") << "));"
+         << "std::shared_ptr<odb::" << result_type << "> r (" << endl
+         << "std::make_shared<" << db << "::" << result_type << "> (" << endl
+         << "q, st, sts, " << (versioned ? "&svm" : "nullptr") << "));"
          << endl
-         << "return result<object_type> (r);"
+         << "return result<object_type> (std::move (r));"
          << "}";
 
       // query(odb::query_base)
@@ -4366,17 +4366,15 @@ traverse_object (type& c)
 
       // execute_query
       //
-      os << "odb::details::shared_ptr<result_impl>" << endl
+      os << "std::shared_ptr<result_impl>" << endl
          << traits << "::" << endl
          << "execute_query (prepared_query_impl& q)"
          << "{"
          << "using namespace " << db << ";"
-         << "using odb::details::shared;"
-         << "using odb::details::shared_ptr;"
          << endl
          << db << "::prepared_query_impl& pq (" << endl
          << "static_cast<" << db << "::prepared_query_impl&> (q));"
-         << "shared_ptr<select_statement> st (" << endl
+         << "odb::details::shared_ptr<select_statement> st (" << endl
          << "odb::details::inc_ref (" << endl
          << "static_cast<select_statement*> (pq.stmt.get ())));"
          << endl;
@@ -4434,9 +4432,8 @@ traverse_object (type& c)
       post_query_ (c, false);
 
       os << endl
-         << "return shared_ptr<result_impl> (" << endl
-         << "new (shared) " << db << "::" << result_type << " (" << endl
-         << "pq.query, st, sts, " << (versioned ? "&svm" : "0") << "));"
+         << "return std::make_shared<" << db << "::" << result_type << "> (" << endl
+         << "pq.query, st, sts, " << (versioned ? "&svm" : "nullptr") << ");"
          << "}";
     }
   }
@@ -5577,11 +5574,11 @@ traverse_view (type& c)
     post_query_ (c, true);
 
     os << endl
-       << "shared_ptr< odb::view_result_impl<view_type> > r (" << endl
-       << "new (shared) " << db << "::view_result_impl<view_type> (" << endl
-       << "qs, st, sts, " << (versioned ? "&svm" : "0") << "));"
+       << "std::shared_ptr<odb::view_result_impl<view_type>> r (" << endl
+       << "std::make_shared<" << db << "::view_result_impl<view_type>> (" << endl
+       << "qs, st, sts, " << (versioned ? "&svm" : "nullptr") << "));"
        << endl
-       << "return result<view_type> (r);"
+       << "return result<view_type> (std::move (r));"
        << "}";
 
     // query(odb::query_base)
@@ -5667,17 +5664,15 @@ traverse_view (type& c)
 
     // execute_query
     //
-    os << "odb::details::shared_ptr<result_impl>" << endl
+    os << "std::shared_ptr<result_impl>" << endl
        << traits << "::" << endl
        << "execute_query (prepared_query_impl& q)"
        << "{"
        << "using namespace " << db << ";"
-       << "using odb::details::shared;"
-       << "using odb::details::shared_ptr;"
        << endl
        << db << "::prepared_query_impl& pq (" << endl
        << "static_cast<" << db << "::prepared_query_impl&> (q));"
-       << "shared_ptr<select_statement> st (" << endl
+       << "odb::details::shared_ptr<select_statement> st (" << endl
        << "odb::details::inc_ref (" << endl
        << "static_cast<select_statement*> (pq.stmt.get ())));"
        << endl;
@@ -5717,9 +5712,8 @@ traverse_view (type& c)
     post_query_ (c, false);
 
     os << endl
-       << "return shared_ptr<result_impl> (" << endl
-       << "new (shared) " << db << "::view_result_impl<view_type> (" << endl
-       << "pq.query, st, sts, " << (versioned ? "&svm" : "0") << "));"
+       << "return std::make_shared<" << db << "::view_result_impl<view_type>> (" << endl
+       << "pq.query, st, sts, " << (versioned ? "&svm" : "nullptr") << ");"
        << "}";
   }
 

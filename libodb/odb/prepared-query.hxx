@@ -6,6 +6,8 @@
 
 #include <odb/pre.hxx>
 
+#include <memory> // std::shared_ptr
+
 #include <odb/forward.hxx> // odb::core
 #include <odb/traits.hxx>
 #include <odb/result.hxx>
@@ -34,7 +36,7 @@ namespace odb
     connection& conn;
     const char* name;
     details::shared_ptr<statement> stmt;
-    details::shared_ptr<result_impl> (*execute) (prepared_query_impl&);
+    std::shared_ptr<result_impl> (*execute) (prepared_query_impl&);
 
   private:
     prepared_query_impl (const prepared_query_impl&);
@@ -80,10 +82,9 @@ namespace odb
       typename result_base<T, class_traits<T>::kind>::result_impl_type
       derived_type;
 
-      details::shared_ptr<result_impl> ri (impl_->execute (*impl_));
       result<T> r (
-        details::shared_ptr<derived_type> (
-          static_cast<derived_type*> (ri.release ())));
+        std::static_pointer_cast<derived_type> (
+          impl_->execute (*impl_)));
 
       if (cache)
         r.cache ();
