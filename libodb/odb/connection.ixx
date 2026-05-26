@@ -9,10 +9,10 @@ namespace odb
   inline connection::
   connection (connection_factory& f)
       : factory_ (f),
-        tracer_ (0),
-        results_ (0),
-        prepared_queries_ (0),
-        transaction_tracer_ (0)
+        tracer_ (nullptr),
+        results_ (nullptr),
+        uncached_prepared_queries_ (nullptr),
+        transaction_tracer_ (nullptr)
   {
   }
 
@@ -87,9 +87,9 @@ namespace odb
   {
     return prepared_query<T> (
       lookup_query_ (name,
-               typeid (T),
-               reinterpret_cast<void**> (&params),
-               &typeid (P)));
+                     typeid (T),
+                     reinterpret_cast<void**> (&params),
+                     &typeid (P)));
   }
 
   inline void connection::

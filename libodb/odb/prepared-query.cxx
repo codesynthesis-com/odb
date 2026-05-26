@@ -16,14 +16,14 @@ namespace odb
 
   prepared_query_impl::
   prepared_query_impl (connection& c)
-      : cached (false), conn (c), prev_ (0), next_ (this)
+      : cached (false), conn (c), prev_ (nullptr), next_ (this)
   {
     // Add to the list.
     //
-    next_ = conn.prepared_queries_;
-    conn.prepared_queries_ = this;
+    next_ = conn.uncached_prepared_queries_;
+    conn.uncached_prepared_queries_ = this;
 
-    if (next_ != 0)
+    if (next_ != nullptr)
       next_->prev_ = this;
   }
 
@@ -36,12 +36,14 @@ namespace odb
   void prepared_query_impl::
   list_remove ()
   {
-    (prev_ == 0 ? conn.prepared_queries_ : prev_->next_) = next_;
+    (prev_ == nullptr
+     ? conn.uncached_prepared_queries_
+     : prev_->next_) = next_;
 
-    if (next_ != 0)
+    if (next_ != nullptr)
       next_->prev_ = prev_;
 
-    prev_ = 0;
+    prev_ = nullptr;
     next_ = this;
   }
 }

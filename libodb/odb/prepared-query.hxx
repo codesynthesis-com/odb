@@ -18,7 +18,7 @@
 
 namespace odb
 {
-  class LIBODB_EXPORT prepared_query_impl: public details::shared_base
+  class LIBODB_EXPORT prepared_query_impl
   {
   public:
     virtual
@@ -61,18 +61,15 @@ namespace odb
   template <typename T>
   struct prepared_query
   {
-    // Cached version.
-    //
-    explicit
-    prepared_query (prepared_query_impl* impl = 0): impl_ (impl) {}
-
-    // Uncached version.
-    //
-    explicit
-    prepared_query (const details::shared_ptr<prepared_query_impl>& impl)
-        : impl_ (impl.get ())
+    prepared_query ()
+        : impl_ ()
     {
-      impl_->_inc_ref ();
+    }
+
+    explicit
+    prepared_query (std::shared_ptr<prepared_query_impl> impl)
+        : impl_ (std::move (impl))
+    {
     }
 
     result<T>
@@ -129,66 +126,36 @@ namespace odb
       return *impl_->stmt;
     }
 
-    typedef prepared_query_impl* prepared_query::*unspecified_bool_type;
-    operator unspecified_bool_type () const
+    explicit operator bool () const
     {
-      return impl_ ? &prepared_query::impl_ : 0;
+      return impl_ != nullptr;
     }
 
+    // Copying or assignment of a prepared query instance leads to one
+    // instance being an alias for another. Think of copying a query as
+    // copying a file handle -- the file you access through either of them is
+    // still the same.
+    //
   public:
-    ~prepared_query ()
-    {
-      if (impl_ != 0 && !impl_->cached && impl_->_dec_ref ())
-        delete impl_;
-    }
-
     prepared_query (const prepared_query& x)
         : impl_ (x.impl_)
     {
-      if (!impl_->cached)
-        impl_->_inc_ref ();
     }
 
     prepared_query&
     operator= (const prepared_query& x)
     {
       if (impl_ != x.impl_)
-      {
-        if (impl_ != 0 && !impl_->cached && impl_->_dec_ref ())
-          delete impl_;
-
         impl_ = x.impl_;
-
-        if (!impl_->cached)
-          impl_->_inc_ref ();
-      }
 
       return *this;
     }
 
+    // @@ CXX11: add move ctor/assign.
+
   private:
-    // Ideally, we would just use shared_ptr to manage the impl object.
-    // However, there is a problem if the prepared query is cached on
-    // the connection and the connection is released early when the
-    // transaction is committed or rolled back. In this case, the
-    // prepared_query object might still be around pointing to impl. If
-    // this connection and the prepared query are then used by another
-    // thread while we release the impl object, then we have a race
-    // condition.
-    //
-    // To work around this problem we will simply "reference" the impl
-    // object without counting if the prepared query is cached. For
-    // transition from pointer to reference, see cache_query_() in
-    // connection.cxx.
-    //
-    // You may also observe that in order to know whether this is a
-    // cached prepared query or not, we have to read the cached data
-    // member in the impl object. This does not cause a race because,
-    // unlike the reference count, this member is immutable once set
-    // to true.
-    //
     friend class connection;
-    prepared_query_impl* impl_;
+    std::shared_ptr<prepared_query_impl> impl_;
   };
 
   namespace common

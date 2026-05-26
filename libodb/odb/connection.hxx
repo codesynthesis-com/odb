@@ -131,13 +131,13 @@ namespace odb
     struct query_;
 
     virtual void
-    cache_query_ (prepared_query_impl* pq,
+    cache_query_ (std::shared_ptr<prepared_query_impl> pq,
                   const std::type_info& ti,
                   void* params,
                   const std::type_info* params_info,
                   void (*params_deleter) (void*));
 
-    prepared_query_impl*
+    std::shared_ptr<prepared_query_impl>
     lookup_query_ (const char* name,
                    const std::type_info& ti,
                    void** params, // out
@@ -156,7 +156,7 @@ namespace odb
   protected:
     struct prepared_entry_type
     {
-      details::shared_ptr<prepared_query_impl> prep_query;
+      std::shared_ptr<prepared_query_impl> prep_query;
       const std::type_info* type_info;
       void* params;
       const std::type_info* params_info;
@@ -185,12 +185,12 @@ namespace odb
     void
     invalidate_results ();
 
-    // Prepared but uncached query list (cached ones are stored in
-    // prepared_map_).
+    // Prepared but uncached doubly-linked query list (cached ones are stored
+    // in prepared_map_).
     //
   protected:
     friend class prepared_query_impl;
-    prepared_query_impl* prepared_queries_;
+    prepared_query_impl* uncached_prepared_queries_;
 
     // Implementation details.
     //

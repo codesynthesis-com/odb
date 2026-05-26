@@ -16,7 +16,7 @@ namespace odb
   connection::
   ~connection ()
   {
-    assert (prepared_queries_ == 0);
+    assert (uncached_prepared_queries_ == nullptr);
     assert (prepared_map_.empty ());
   }
 
@@ -36,17 +36,17 @@ namespace odb
   void connection::
   recycle ()
   {
-    while (prepared_queries_ != 0)
+    while (uncached_prepared_queries_ != nullptr)
     {
-      prepared_queries_->stmt.reset ();
-      prepared_queries_->list_remove ();
+      uncached_prepared_queries_->stmt.reset ();
+      uncached_prepared_queries_->list_remove ();
     }
   }
 
   void connection::
   invalidate_results ()
   {
-    while (results_ != 0)
+    while (results_ != nullptr)
     {
       results_->invalidate ();
       results_->list_remove ();
@@ -54,7 +54,7 @@ namespace odb
   }
 
   void connection::
-  cache_query_ (prepared_query_impl* pq,
+  cache_query_ (std::shared_ptr<prepared_query_impl> pq,
                 const type_info& ti,
                 void* params,
                 const type_info* params_info,
@@ -69,25 +69,20 @@ namespace odb
 
     prepared_entry_type& e (r.first->second);
 
-    // Mark this prepared query as cached , get its ref count to 1
-    // (prepared_query instances now reference this impl object),
-    // and remove it from the invalidation list.
+    // Mark this prepared query as cached and remove it from the invalidation
+    // list (prepared_query instances now reference this cached impl object).
     //
     pq->cached = true;
-
-    while (pq->_ref_count () > 1)
-      pq->_dec_ref ();
-
     pq->list_remove ();
 
-    e.prep_query.reset (pq);
+    e.prep_query = std::move (pq);
     e.type_info = &ti;
     e.params = params;
     e.params_info = params_info;
     e.params_deleter = params_deleter;
   }
 
-  prepared_query_impl* connection::
+  std::shared_ptr<prepared_query_impl> connection::
   lookup_query_ (const char* name,
                  const type_info& ti,
                  void** params,
@@ -120,6 +115,6 @@ namespace odb
       *params = i->second.params;
     }
 
-    return i->second.prep_query.get ();
+    return i->second.prep_query;
   }
 }

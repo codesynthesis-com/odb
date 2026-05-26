@@ -4279,14 +4279,13 @@ traverse_object (type& c)
     {
       // prepare_query
       //
-      os << "odb::details::shared_ptr<prepared_query_impl>" << endl
+      os << "std::shared_ptr<prepared_query_impl>" << endl
          << traits << "::" << endl
          << "prepare_query (connection& c, const char* n, " <<
         "const query_base_type& q)"
          << "{"
          << "using namespace " << db << ";"
          << "using odb::details::shared;"
-         << "using odb::details::shared_ptr;"
          << endl;
 
       os << db << "::connection& conn (" << endl
@@ -4339,8 +4338,8 @@ traverse_object (type& c)
          << "text += q.clause ();"
          << "}";
 
-      os << "shared_ptr<" << db << "::prepared_query_impl> r (" << endl
-         << "new (shared) " << db << "::prepared_query_impl (conn));"
+      os << "std::shared_ptr<" << db << "::prepared_query_impl> r (" << endl
+         << "std::make_shared<" << db << "::prepared_query_impl> (conn));"
          << "r->name = n;"
          << "r->execute = &execute_query;"
          << "r->query = q;"
@@ -4356,7 +4355,7 @@ traverse_object (type& c)
       // prepare_query(odb::query_base)
       //
       if (multi_dynamic)
-        os << "odb::details::shared_ptr<prepared_query_impl>" << endl
+        os << "std::shared_ptr<prepared_query_impl>" << endl
            << traits << "::" << endl
            << "prepare_query (connection& c, const char* n, " <<
           "const odb::query_base& q)"
@@ -5599,14 +5598,13 @@ traverse_view (type& c)
   {
     // prepare_query
     //
-    os << "odb::details::shared_ptr<prepared_query_impl>" << endl
+    os << "std::shared_ptr<prepared_query_impl>" << endl
        << traits << "::" << endl
        << "prepare_query (connection& c, const char* n, " <<
       "const query_base_type& q)"
        << "{"
        << "using namespace " << db << ";"
        << "using odb::details::shared;"
-       << "using odb::details::shared_ptr;"
        << endl;
 
     os << db << "::connection& conn (" << endl
@@ -5632,8 +5630,8 @@ traverse_view (type& c)
        << "imb.version++;"
        << "}";
 
-    os << "shared_ptr<" << db << "::prepared_query_impl> r (" << endl
-       << "new (shared) " << db << "::prepared_query_impl (conn));"
+    os << "std::shared_ptr<" << db << "::prepared_query_impl> r (" << endl
+       << "std::make_shared<" << db << "::prepared_query_impl> (conn));"
        << "r->name = n;"
        << "r->execute = &execute_query;";
 
@@ -5654,7 +5652,7 @@ traverse_view (type& c)
     // prepare_query(odb::query_base)
     //
     if (multi_dynamic)
-      os << "odb::details::shared_ptr<prepared_query_impl>" << endl
+      os << "std::shared_ptr<prepared_query_impl>" << endl
          << traits << "::" << endl
          << "prepare_query (connection& c, const char* n, " <<
         "const odb::query_base& q)"

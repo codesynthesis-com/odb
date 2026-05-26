@@ -377,7 +377,7 @@ traverse_object (type& c)
     if (options.generate_prepared ())
     {
       os << "inline" << endl
-         << "odb::details::shared_ptr<prepared_query_impl>" << endl
+         << "std::shared_ptr<prepared_query_impl>" << endl
          << traits << "::" << endl
          << "prepare_query (connection& c, const char* n, " <<
         "const query_base_type& q)"
@@ -447,7 +447,7 @@ traverse_view (type& c)
   if (options.generate_prepared ())
   {
     os << "inline" << endl
-       << "odb::details::shared_ptr<prepared_query_impl>" << endl
+       << "std::shared_ptr<prepared_query_impl>" << endl
        << traits << "::" << endl
        << "prepare_query (connection& c, const char* n, " <<
       "const query_base_type& q)"

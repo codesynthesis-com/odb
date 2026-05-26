@@ -435,10 +435,10 @@ traverse_object (type& c)
 
     if (options.generate_prepared ())
     {
-      os << "odb::details::shared_ptr<prepared_query_impl> " <<
+      os << "std::shared_ptr<prepared_query_impl> " <<
         "(*prepare_query) (connection&, const char*, const query_base_type&);";
 
-      os << "std::shared_ptr<result_impl> (*execute_query) (" << 
+      os << "std::shared_ptr<result_impl> (*execute_query) (" <<
         "prepared_query_impl&);";
     }
   }
@@ -529,7 +529,7 @@ traverse_object (type& c)
 
     if (options.generate_prepared ())
     {
-      os << "static odb::details::shared_ptr<prepared_query_impl>" << endl
+      os << "static std::shared_ptr<prepared_query_impl>" << endl
          << "prepare_query (connection&, const char*, const query_base_type&);"
          << endl;
 
@@ -627,7 +627,7 @@ traverse_view (type& c)
 
   if (options.generate_prepared ())
   {
-    os << "odb::details::shared_ptr<prepared_query_impl> " <<
+    os << "std::shared_ptr<prepared_query_impl> " <<
       "(*prepare_query) (connection&, const char*, const query_base_type&);"
        << endl;
 
@@ -651,7 +651,7 @@ traverse_view (type& c)
 
   if (options.generate_prepared ())
   {
-    os << "static odb::details::shared_ptr<prepared_query_impl>" << endl
+    os << "static std::shared_ptr<prepared_query_impl>" << endl
        << "prepare_query (connection&, const char*, const query_base_type&);"
        << endl;
 
