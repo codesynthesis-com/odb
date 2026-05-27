@@ -202,6 +202,8 @@ namespace odb
         ? stack_callbacks_ + free_callback_
         : &dyn_callbacks_[free_callback_ - stack_callback_count];
 
+      // @@ CXX11 pointer to size_t conversion, change to uintptr_t?
+      //
       free_callback_ = reinterpret_cast<size_t> (s->key);
     }
     // If we have space in the stack, grab that.

@@ -9,12 +9,12 @@
 #include <string>
 #include <vector>
 #include <cstddef> // std::size_t
+#include <cstdint> // std::uintptr_t
 
 #include <odb/forward.hxx>
 #include <odb/query.hxx>
 
 #include <odb/details/export.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 namespace odb
 {
@@ -72,12 +72,13 @@ namespace odb
 
   //
   //
-  struct LIBODB_EXPORT query_param: details::shared_base
+  struct LIBODB_EXPORT query_param
   {
     virtual ~query_param ();
-    query_param (const void* v): value (v) {}
+    query_param (const void* v): value (v), ref_counter (1) {}
 
     const void* value;
+    std::size_t ref_counter;
   };
 
   // For by-value parameters we have to make a copy since the original
@@ -149,7 +150,7 @@ namespace odb
       };
 
       kind_type kind;
-      std::size_t data;
+      std::uintptr_t data;
       const native_column_info* native_info;
     };
 
@@ -273,7 +274,7 @@ namespace odb
     // Operator.
     //
     void
-    append (clause_part::kind_type k, std::size_t data)
+    append (clause_part::kind_type k, std::uintptr_t data)
     {
       clause_.push_back (clause_part ());
       clause_.back ().kind = k;

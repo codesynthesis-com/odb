@@ -18,8 +18,8 @@ namespace odb
     p.data = 0; // In case new below throws.
     p.native_info = c;
 
-    query_param* qp (new (details::shared) val_query_param<T> (val));
-    p.data = reinterpret_cast<std::size_t> (qp);
+    query_param* qp (new val_query_param<T> (val));
+    p.data = reinterpret_cast<std::uintptr_t> (qp);
   }
 
   //

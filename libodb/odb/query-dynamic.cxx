@@ -26,7 +26,7 @@ namespace odb
       {
         query_param* qp (reinterpret_cast<query_param*> (i->data));
 
-        if (qp != 0 && qp->_dec_ref ())
+        if (qp != nullptr && --qp->ref_counter == 0)
           delete qp;
       }
     }
@@ -66,7 +66,7 @@ namespace odb
       case clause_part::kind_param_val:
       case clause_part::kind_param_ref:
         {
-          reinterpret_cast<query_param*> (d.data)->_inc_ref ();
+          reinterpret_cast<query_param*> (d.data)->ref_counter++;
           break;
         }
       case clause_part::kind_native:
@@ -116,8 +116,7 @@ namespace odb
     p.data = 0; // In case new below throws.
     p.native_info = c;
 
-    p.data = reinterpret_cast<std::size_t> (
-      new (details::shared) query_param (ref));
+    p.data = reinterpret_cast<std::uintptr_t> (new query_param (ref));
   }
 
   query_base& query_base::
