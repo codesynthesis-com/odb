@@ -71,7 +71,7 @@ namespace odb
   template <class T, class A>
   inline typename vector<T, A>::base_iterator_type
   vector<T, A>::
-  mbegin ()
+  mbegin () noexcept
   {
     if (_tracking ())
       impl_.modify (0, v_.size ());
@@ -82,7 +82,7 @@ namespace odb
   inline
   typename vector<T, A>::base_reverse_iterator_type
   vector<T, A>::
-  mrbegin ()
+  mrbegin () noexcept
   {
     if (_tracking ())
       impl_.modify (0, v_.size ());
@@ -174,7 +174,7 @@ namespace odb
 
   template <class T, class A>
   inline T* vector<T, A>::
-  modify_data() /*noexcept*/
+  modify_data() noexcept
   {
     if (_tracking ())
       impl_.modify (0, v_.size ());
@@ -271,7 +271,7 @@ namespace odb
 
   template <class T, class A>
   inline void vector<T, A>::
-  clear ()
+  clear () noexcept
   {
     v_.clear ();
     if (_tracking ())

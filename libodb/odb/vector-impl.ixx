@@ -67,7 +67,7 @@ namespace odb
   }
 
   inline bool vector_impl::
-  tracking () const
+  tracking () const noexcept
   {
     return state_ == state_tracking;
   }
@@ -85,7 +85,7 @@ namespace odb
   }
 
   inline vector_impl::element_state_type vector_impl::
-  state (std::size_t i) const
+  state (std::size_t i) const noexcept
   {
     std::size_t r (i % 4);
     unsigned char v (data_[i / 4]);
@@ -93,7 +93,7 @@ namespace odb
   }
 
   inline void vector_impl::
-  set (std::size_t i, element_state_type s)
+  set (std::size_t i, element_state_type s) noexcept
   {
     std::size_t r (i % 4);
     i /= 4;
@@ -103,7 +103,7 @@ namespace odb
   }
 
   inline void vector_impl::
-  modify (std::size_t i, std::size_t n)
+  modify (std::size_t i, std::size_t n) noexcept
   {
     for (; n != 0; --n, ++i)
       if (state (i) != state_inserted)
@@ -195,7 +195,7 @@ namespace odb
   }
 
   inline bool vector_base::
-  _tracking () const
+  _tracking () const noexcept
   {
     return impl_.tracking ();
   }
