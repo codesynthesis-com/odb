@@ -91,7 +91,7 @@ namespace odb
     // Shortcut for state() == state_tracking.
     //
     bool
-    tracking () const;
+    tracking () const noexcept;
 
     // Note that the returned size can be greater than the actual,
     // parallel vector size. In this case the difference is the
@@ -103,7 +103,7 @@ namespace odb
     // Get the change state of the specified element.
     //
     element_state_type
-    state (std::size_t) const;
+    state (std::size_t) const noexcept;
 
     // Change notifications.
     //
@@ -120,10 +120,10 @@ namespace odb
     erase (std::size_t, std::size_t n = 1);
 
     void
-    modify (std::size_t, std::size_t n = 1);
+    modify (std::size_t, std::size_t n = 1) noexcept;
 
     void
-    clear ();
+    clear () noexcept;
 
     void
     assign (std::size_t n);
@@ -141,7 +141,7 @@ namespace odb
     realloc (std::size_t);
 
     void
-    set (std::size_t, element_state_type);
+    set (std::size_t, element_state_type) noexcept;
 
     static const unsigned char mask_[4];
     static const unsigned char shift_[4];
@@ -172,7 +172,7 @@ namespace odb
     _stop () const;
 
     bool
-    _tracking () const;
+    _tracking () const noexcept;
 
     void
     _arm (transaction& t) const;

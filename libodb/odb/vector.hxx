@@ -61,7 +61,7 @@ namespace odb
     template <class I>
     void assign(I f, I l);
     void assign(size_type n, const T& u);
-    allocator_type get_allocator() const /*noexcept*/
+    allocator_type get_allocator() const noexcept
     {return v_.get_allocator ();}
 
     vector(vector&& x) noexcept
@@ -79,38 +79,38 @@ namespace odb
     vector& operator=(std::initializer_list<T>);
     void assign(std::initializer_list<T>);
 
-    // iterators: (all /*noexcept*/)
+    // iterators:
     //
-    iterator               begin() {return iterator (this, v_.begin ());}
-    iterator               end() {return iterator (this, v_.end ());}
-    const_iterator         begin() const {return v_.begin ();}
-    const_iterator         end() const {return v_.end ();}
-    reverse_iterator       rbegin() {return reverse_iterator (this, v_.rbegin ());}
-    reverse_iterator       rend() {return reverse_iterator (this, v_.rend ());}
-    const_reverse_iterator rbegin() const {return v_.rbegin ();}
-    const_reverse_iterator rend() const {return v_.rend ();}
+    iterator               begin() noexcept {return iterator (this, v_.begin ());}
+    iterator               end() noexcept {return iterator (this, v_.end ());}
+    const_iterator         begin() const noexcept {return v_.begin ();}
+    const_iterator         end() const noexcept {return v_.end ();}
+    reverse_iterator       rbegin() noexcept {return reverse_iterator (this, v_.rbegin ());}
+    reverse_iterator       rend() noexcept {return reverse_iterator (this, v_.rend ());}
+    const_reverse_iterator rbegin() const noexcept {return v_.rbegin ();}
+    const_reverse_iterator rend() const noexcept {return v_.rend ();}
 
     // Return standard vector iterators. The begin() functions mark all
     // the elements as modified.
     //
-    base_iterator_type         mbegin ();
-    base_iterator_type         mend () {return v_.end ();}
-    base_reverse_iterator_type mrbegin ();
-    base_reverse_iterator_type mrend () {return v_.rend ();}
+    base_iterator_type         mbegin () noexcept;
+    base_iterator_type         mend () noexcept {return v_.end ();}
+    base_reverse_iterator_type mrbegin () noexcept;
+    base_reverse_iterator_type mrend () noexcept {return v_.rend ();}
 
-    const_iterator         cbegin() const {return v_.cbegin ();}
-    const_iterator         cend() const {return v_.cend ();}
-    const_reverse_iterator crbegin() const {return v_.crbegin ();}
-    const_reverse_iterator crend() const {return v_.crend ();}
+    const_iterator         cbegin() const noexcept {return v_.cbegin ();}
+    const_iterator         cend() const noexcept {return v_.cend ();}
+    const_reverse_iterator crbegin() const noexcept {return v_.crbegin ();}
+    const_reverse_iterator crend() const noexcept {return v_.crend ();}
 
     // capacity:
     //
-    size_type size() const /*noexcept*/ {return v_.size ();}
-    size_type max_size() const /*noexcept*/ {return v_.max_size ();}
+    size_type size() const noexcept {return v_.size ();}
+    size_type max_size() const noexcept {return v_.max_size ();}
     void      resize(size_type); // C++11
     void      resize(size_type, const T&);
-    size_type capacity() const /*noexcept*/ {return v_.capacity ();}
-    bool      empty() const /*noexcept*/ {return v_.empty ();}
+    size_type capacity() const noexcept {return v_.capacity ();}
+    bool      empty() const noexcept {return v_.empty ();}
     void      reserve(size_type);
 
     void shrink_to_fit();
@@ -133,8 +133,8 @@ namespace odb
     // data access:
     //
     //T*        data() noexcept;
-    T*        modify_data() /*noexcept*/;
-    const T*  data() const /*noexcept*/ {return v_.data ();}
+    T*        modify_data() noexcept;
+    const T*  data() const noexcept {return v_.data ();}
 
     // modifiers:
     //
@@ -147,7 +147,7 @@ namespace odb
     iterator erase(iterator position);
     iterator erase(iterator first, iterator last);
     void     swap(vector&);
-    void     clear() /*noexcept*/;
+    void     clear() noexcept;
 
     // In C++11 all modifiers use const_iterator instead of iterator
     // to represent position. However, some standard libraries (notably
@@ -288,7 +288,7 @@ namespace odb
     typedef typename vector_type::const_pointer const_pointer;
 
     vector_iterator (): v_ (0), i_ () {}
-    vector_iterator (vector_type* v, const base_iterator_type& i)
+    vector_iterator (vector_type* v, const base_iterator_type& i) noexcept
         : v_ (v), i_ (i) {}
     operator const_iterator_type () const {return i_;}
     base_iterator_type base () const {return i_;}
@@ -363,7 +363,7 @@ namespace odb
     vector_iterator (): v_ (0), i_ () {}
     explicit vector_iterator (const iterator_type& i)
         : v_ (i.vector ()), i_ (i.base ()) {}
-    vector_iterator (vector_type* v, const base_iterator_type& i)
+    vector_iterator (vector_type* v, const base_iterator_type& i) noexcept
         : v_ (v), i_ (i) {}
     operator const_iterator_type () const {return i_;}
     iterator_type base () const {return iterator_type (v_, i_.base ());}

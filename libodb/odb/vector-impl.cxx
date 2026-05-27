@@ -155,7 +155,7 @@ namespace odb
   }
 
   void vector_impl::
-  clear ()
+  clear () noexcept
   {
     // The idea is to drop any inserted elements from the back and
     // set everything else to erased.
