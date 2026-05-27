@@ -6,6 +6,7 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>  // std::unique_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>
@@ -113,7 +114,7 @@ namespace odb
       {
         if (select_ == 0)
           select_.reset (
-            new (details::shared) select_statement_type (
+            new select_statement_type (
               conn_,
               traits::select_name,
               traits::select_statement,
@@ -134,7 +135,7 @@ namespace odb
       {
         if (update_ == 0)
           update_.reset (
-            new (details::shared) update_statement_type (
+            new update_statement_type (
               conn_,
               traits::update_name,
               traits::update_statement,
@@ -207,8 +208,8 @@ namespace odb
       int update_image_lengths_[update_bind_count];
       int update_image_formats_[update_bind_count];
 
-      details::shared_ptr<select_statement_type> select_;
-      details::shared_ptr<update_statement_type> update_;
+      std::unique_ptr<select_statement_type> select_;
+      std::unique_ptr<update_statement_type> update_;
     };
   }
 }

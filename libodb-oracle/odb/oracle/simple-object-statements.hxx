@@ -7,6 +7,7 @@
 #include <odb/pre.hxx>
 
 #include <vector>
+#include <memory>  // std::unique_ptr
 #include <cassert>
 #include <cstddef> // std::size_t
 
@@ -170,7 +171,7 @@ namespace odb
       //
       binding id_image_binding_;
 
-      details::shared_ptr<delete_statement> erase_;
+      std::unique_ptr<delete_statement> erase_;
     };
 
     template <typename T>
@@ -352,7 +353,7 @@ namespace odb
       {
         if (persist_ == 0)
           persist_.reset (
-            new (details::shared) insert_statement_type (
+            new insert_statement_type (
               conn_,
               object_traits::persist_statement,
               object_traits::versioned, // Process if versioned.
@@ -367,7 +368,7 @@ namespace odb
       {
         if (find_ == 0)
           find_.reset (
-            new (details::shared) select_statement_type (
+            new select_statement_type (
               conn_,
               object_traits::find_statement,
               object_traits::versioned, // Process if versioned.
@@ -384,7 +385,7 @@ namespace odb
       {
         if (update_ == 0)
           update_.reset (
-            new (details::shared) update_statement_type (
+            new update_statement_type (
               conn_,
               object_traits::update_statement,
               true,                            // Unique (0 or 1).
@@ -399,7 +400,7 @@ namespace odb
       {
         if (erase_ == 0)
           erase_.reset (
-            new (details::shared) delete_statement_type (
+            new delete_statement_type (
               conn_,
               object_traits::erase_statement,
               true, // Unique (0 or 1 affected rows).
@@ -414,7 +415,7 @@ namespace odb
         if (od_.erase_ == 0)
         {
           od_.erase_.reset (
-            new (details::shared) delete_statement_type (
+            new delete_statement_type (
               conn_,
               object_traits::optimistic_erase_statement,
               true, // Unique (0 or 1 affected rows).
@@ -533,10 +534,10 @@ namespace odb
       //
       optimistic_data<T, managed_optimistic_column_count != 0> od_;
 
-      details::shared_ptr<insert_statement_type> persist_;
-      details::shared_ptr<select_statement_type> find_;
-      details::shared_ptr<update_statement_type> update_;
-      details::shared_ptr<delete_statement_type> erase_;
+      std::unique_ptr<insert_statement_type> persist_;
+      std::unique_ptr<select_statement_type> find_;
+      std::unique_ptr<update_statement_type> update_;
+      std::unique_ptr<delete_statement_type> erase_;
 
       // Delayed loading.
       //

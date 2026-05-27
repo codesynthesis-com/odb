@@ -6,6 +6,7 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>  // std::unique_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>
@@ -100,7 +101,7 @@ namespace odb
       {
         if (find_discriminator_ == 0)
           find_discriminator_.reset (
-            new (details::shared) select_statement_type (
+            new select_statement_type (
               this->conn_,
               object_traits::find_discriminator_statement,
               false, // Doesn't need to be processed.
@@ -158,7 +159,7 @@ namespace odb
       binding discriminator_id_image_binding_;
       MYSQL_BIND discriminator_id_image_bind_[id_column_count];
 
-      details::shared_ptr<select_statement_type> find_discriminator_;
+      std::unique_ptr<select_statement_type> find_discriminator_;
     };
 
     template <typename T>
@@ -308,7 +309,7 @@ namespace odb
       {
         if (persist_ == 0)
           persist_.reset (
-            new (details::shared) insert_statement_type (
+            new insert_statement_type (
               conn_,
               object_traits::persist_statement,
               object_traits::versioned, // Process if versioned.
@@ -323,11 +324,11 @@ namespace odb
       find_statement (std::size_t d)
       {
         std::size_t i (object_traits::depth - d);
-        details::shared_ptr<select_statement_type>& p (find_[i]);
+        std::unique_ptr<select_statement_type>& p (find_[i]);
 
         if (p == 0)
           p.reset (
-            new (details::shared) select_statement_type (
+            new select_statement_type (
               conn_,
               object_traits::find_statements[i],
               object_traits::versioned, // Process if versioned.
@@ -344,7 +345,7 @@ namespace odb
       {
         if (update_ == 0)
           update_.reset (
-            new (details::shared) update_statement_type (
+            new update_statement_type (
               conn_,
               object_traits::update_statement,
               object_traits::versioned, // Process if versioned.
@@ -359,7 +360,7 @@ namespace odb
       {
         if (erase_ == 0)
           erase_.reset (
-            new (details::shared) delete_statement_type (
+            new delete_statement_type (
               conn_,
               object_traits::erase_statement,
               root_statements_.id_image_binding (),
@@ -458,11 +459,11 @@ namespace odb
       binding update_image_binding_;
       MYSQL_BIND update_image_bind_[update_column_count + id_column_count];
 
-      details::shared_ptr<insert_statement_type> persist_;
-      details::shared_ptr<select_statement_type> find_[
+      std::unique_ptr<insert_statement_type> persist_;
+      std::unique_ptr<select_statement_type> find_[
         object_traits::abstract ? 1 : object_traits::depth];
-      details::shared_ptr<update_statement_type> update_;
-      details::shared_ptr<delete_statement_type> erase_;
+      std::unique_ptr<update_statement_type> update_;
+      std::unique_ptr<delete_statement_type> erase_;
     };
   }
 }

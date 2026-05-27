@@ -35,7 +35,7 @@ namespace odb
     bool cached;
     connection& conn;
     const char* name;
-    details::shared_ptr<statement> stmt;
+    std::shared_ptr<statement> stmt;
     std::shared_ptr<result_impl> (*execute) (prepared_query_impl&);
 
   private:

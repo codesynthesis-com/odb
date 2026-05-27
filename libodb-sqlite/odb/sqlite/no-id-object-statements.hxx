@@ -6,6 +6,7 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>  // std::unique_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>
@@ -83,7 +84,7 @@ namespace odb
         if (persist_ == 0)
         {
           persist_.reset (
-            new (details::shared) insert_statement_type (
+            new insert_statement_type (
               conn_,
               object_traits::persist_statement,
               object_traits::versioned, // Process if versioned.
@@ -124,7 +125,7 @@ namespace odb
       binding insert_image_binding_;
       bind insert_image_bind_[insert_column_count];
 
-      details::shared_ptr<insert_statement_type> persist_;
+      std::unique_ptr<insert_statement_type> persist_;
     };
   }
 }

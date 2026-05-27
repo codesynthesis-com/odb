@@ -1,6 +1,8 @@
 // file      : odb/sqlite/no-id-object-result.txx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move()
+
 #include <odb/callback.hxx>
 #include <odb/exceptions.hxx> // result_not_cached
 
@@ -35,12 +37,12 @@ namespace odb
     template <typename T>
     no_id_object_result_impl<T>::
     no_id_object_result_impl (const query_base& q,
-                              const details::shared_ptr<select_statement>& s,
+                              std::shared_ptr<select_statement> s,
                               statements_type& sts,
                               const schema_version_migration* svm)
         : base_type (sts.connection ()),
           params_ (q.parameters ()),
-          statement_ (s),
+          statement_ (std::move (s)),
           statements_ (sts),
           tc_ (svm)
     {

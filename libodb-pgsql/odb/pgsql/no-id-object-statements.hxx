@@ -6,12 +6,11 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>  // std::unique_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>
 #include <odb/traits.hxx>
-
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
@@ -85,7 +84,7 @@ namespace odb
       {
         if (persist_ == 0)
           persist_.reset (
-            new (details::shared) insert_statement_type (
+            new insert_statement_type (
               conn_,
               object_traits::persist_statement_name,
               object_traits::persist_statement,
@@ -135,7 +134,7 @@ namespace odb
       int insert_image_lengths_[insert_column_count];
       int insert_image_formats_[insert_column_count];
 
-      details::shared_ptr<insert_statement_type> persist_;
+      std::unique_ptr<insert_statement_type> persist_;
     };
   }
 }

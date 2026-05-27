@@ -1,6 +1,7 @@
 // file      : odb/sqlite/polymorphic-object-result.txx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move()
 #include <cassert>
 
 #include <odb/callback.hxx>
@@ -36,14 +37,13 @@ namespace odb
 
     template <typename T>
     polymorphic_object_result_impl<T>::
-    polymorphic_object_result_impl (
-      const query_base& q,
-      const details::shared_ptr<select_statement>& s,
-      statements_type& sts,
-      const schema_version_migration* svm)
+    polymorphic_object_result_impl (const query_base& q,
+                                    std::shared_ptr<select_statement> s,
+                                    statements_type& sts,
+                                    const schema_version_migration* svm)
         : base_type (sts.connection ()),
           params_ (q.parameters ()),
-          statement_ (s),
+          statement_ (std::move (s)),
           statements_ (sts),
           tc_ (svm)
     {

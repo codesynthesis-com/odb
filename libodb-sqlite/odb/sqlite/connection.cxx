@@ -115,9 +115,9 @@ namespace odb
 
       // String lengths include '\0', as per the SQLite manual suggestion.
       //
-      begin_.reset (new (shared) generic_statement (*this, "BEGIN", 6));
-      commit_.reset (new (shared) generic_statement (*this, "COMMIT", 7));
-      rollback_.reset (new (shared) generic_statement (*this, "ROLLBACK", 9));
+      begin_.reset (new generic_statement (*this, "BEGIN", 6));
+      commit_.reset (new generic_statement (*this, "COMMIT", 7));
+      rollback_.reset (new generic_statement (*this, "ROLLBACK", 9));
 
       // Create statement cache.
       //
@@ -163,7 +163,7 @@ namespace odb
     {
       if (!begin_immediate_)
         begin_immediate_.reset (
-          new (shared) generic_statement (*this, "BEGIN IMMEDIATE", 16));
+          new generic_statement (*this, "BEGIN IMMEDIATE", 16));
 
       return static_cast<generic_statement&> (*begin_immediate_);
     }
@@ -173,7 +173,7 @@ namespace odb
     {
       if (!begin_exclusive_)
         begin_exclusive_.reset (
-          new (shared) generic_statement (*this, "BEGIN EXCLUSIVE", 16));
+          new generic_statement (*this, "BEGIN EXCLUSIVE", 16));
 
       return static_cast<generic_statement&> (*begin_exclusive_);
     }

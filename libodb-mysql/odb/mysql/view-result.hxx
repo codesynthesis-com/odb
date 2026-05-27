@@ -6,12 +6,11 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>  // std::shared_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/schema-version.hxx>
 #include <odb/view-result.hxx>
-
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/mysql/version.hxx>
 #include <odb/mysql/forward.hxx> // query_base, view_statements
@@ -40,7 +39,7 @@ namespace odb
       ~view_result_impl ();
 
       view_result_impl (const query_base&,
-                        details::shared_ptr<select_statement>,
+                        std::shared_ptr<select_statement>,
                         statements_type&,
                         const schema_version_migration*);
 
@@ -66,7 +65,7 @@ namespace odb
       fetch ();
 
     private:
-      details::shared_ptr<select_statement> statement_;
+      std::shared_ptr<select_statement> statement_;
       statements_type& statements_;
       view_traits_calls<view_type> tc_;
       std::size_t count_;

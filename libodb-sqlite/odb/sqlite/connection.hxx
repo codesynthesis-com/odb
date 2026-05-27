@@ -240,11 +240,11 @@ namespace odb
       // Note: using odb::statement in order to break the connection-statement
       // dependency cycle.
       //
-      details::shared_ptr<odb::statement> begin_;
-      details::shared_ptr<odb::statement> begin_immediate_;
-      details::shared_ptr<odb::statement> begin_exclusive_;
-      details::shared_ptr<odb::statement> commit_;
-      details::shared_ptr<odb::statement> rollback_;
+      std::unique_ptr<odb::statement> begin_;
+      std::unique_ptr<odb::statement> begin_immediate_;
+      std::unique_ptr<odb::statement> begin_exclusive_;
+      std::unique_ptr<odb::statement> commit_;
+      std::unique_ptr<odb::statement> rollback_;
 
       // Unlock notification machinery.
       //

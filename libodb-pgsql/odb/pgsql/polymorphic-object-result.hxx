@@ -6,12 +6,11 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>  // std::shared_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/schema-version.hxx>
 #include <odb/polymorphic-object-result.hxx>
-
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx> // query_base
@@ -47,7 +46,7 @@ namespace odb
       ~polymorphic_object_result_impl ();
 
       polymorphic_object_result_impl (const query_base&,
-                                      details::shared_ptr<select_statement>,
+                                      std::shared_ptr<select_statement>,
                                       statements_type&,
                                       const schema_version_migration*);
 
@@ -79,7 +78,7 @@ namespace odb
       load_image ();
 
     private:
-      details::shared_ptr<select_statement> statement_;
+      std::shared_ptr<select_statement> statement_;
       statements_type& statements_;
       object_traits_calls<object_type> tc_;
       std::size_t count_;

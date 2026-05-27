@@ -1,6 +1,8 @@
 // file      : odb/pgsql/no-id-object-result.txx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move()
+
 #include <odb/callback.hxx>
 
 #include <odb/pgsql/no-id-object-statements.hxx>
@@ -33,11 +35,11 @@ namespace odb
     template <typename T>
     no_id_object_result_impl<T>::
     no_id_object_result_impl (const query_base&,
-                              details::shared_ptr<select_statement> statement,
+                              std::shared_ptr<select_statement> statement,
                               statements_type& statements,
                               const schema_version_migration* svm)
         : base_type (statements.connection ()),
-          statement_ (statement),
+          statement_ (std::move (statement)),
           statements_ (statements),
           tc_ (svm),
           count_ (0)

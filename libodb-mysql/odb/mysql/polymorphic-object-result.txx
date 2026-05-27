@@ -1,6 +1,7 @@
 // file      : odb/mysql/polymorphic-object-result.txx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move()
 #include <cassert>
 
 #include <odb/callback.hxx>
@@ -36,11 +37,11 @@ namespace odb
     template <typename T>
     polymorphic_object_result_impl<T>::
     polymorphic_object_result_impl (const query_base&,
-                                    details::shared_ptr<select_statement> st,
+                                    std::shared_ptr<select_statement> st,
                                     statements_type& sts,
                                     const schema_version_migration* svm)
         : base_type (sts.connection ()),
-          statement_ (st),
+          statement_ (std::move (st)),
           statements_ (sts),
           tc_ (svm),
           count_ (0)

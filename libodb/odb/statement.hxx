@@ -12,11 +12,10 @@
 #include <odb/forward.hxx> // connection
 
 #include <odb/details/export.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 namespace odb
 {
-  class LIBODB_EXPORT statement: public details::shared_base
+  class LIBODB_EXPORT statement
   {
   private:
     statement (const statement&);

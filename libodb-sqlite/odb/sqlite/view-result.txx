@@ -1,6 +1,8 @@
 // file      : odb/sqlite/view-result.txx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move()
+
 #include <odb/callback.hxx>
 #include <odb/exceptions.hxx>
 
@@ -35,12 +37,12 @@ namespace odb
     template <typename T>
     view_result_impl<T>::
     view_result_impl (const query_base& q,
-                      const details::shared_ptr<select_statement>& s,
+                      std::shared_ptr<select_statement> s,
                       statements_type& sts,
                       const schema_version_migration* svm)
         : base_type (sts.connection ()),
           params_ (q.parameters ()),
-          statement_ (s),
+          statement_ (std::move (s)),
           statements_ (sts),
           tc_ (svm)
     {

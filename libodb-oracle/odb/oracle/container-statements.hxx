@@ -6,6 +6,7 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>  // std::unique_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>
@@ -134,7 +135,7 @@ namespace odb
       {
         if (insert_ == 0)
           insert_.reset (
-            new (details::shared) insert_statement_type (
+            new insert_statement_type (
               conn_,
               insert_text_,
               versioned_,   // Process if versioned.
@@ -149,7 +150,7 @@ namespace odb
       {
         if (select_ == 0)
           select_.reset (
-            new (details::shared) select_statement_type (
+            new select_statement_type (
               conn_,
               select_text_,
               versioned_,   // Process if versioned.
@@ -166,7 +167,7 @@ namespace odb
       {
         if (delete_ == 0)
           delete_.reset (
-            new (details::shared) delete_statement_type (
+            new delete_statement_type (
               conn_, delete_text_, id_binding_));
 
         return *delete_;
@@ -196,9 +197,9 @@ namespace odb
       bool versioned_;
       const schema_version_migration* svm_;
 
-      details::shared_ptr<insert_statement_type> insert_;
-      details::shared_ptr<select_statement_type> select_;
-      details::shared_ptr<delete_statement_type> delete_;
+      std::unique_ptr<insert_statement_type> insert_;
+      std::unique_ptr<select_statement_type> select_;
+      std::unique_ptr<delete_statement_type> delete_;
     };
 
     // Similar to container_statements (indirect) but here we cannot share the
@@ -313,7 +314,7 @@ namespace odb
       {
         if (insert_ == 0)
           insert_.reset (
-            new (details::shared) insert_statement_type (
+            new insert_statement_type (
               conn_,
               insert_text_,
               versioned_,   // Process if versioned.
@@ -328,7 +329,7 @@ namespace odb
       {
         if (select_ == 0)
           select_.reset (
-            new (details::shared) select_statement_type (
+            new select_statement_type (
               conn_,
               select_text_,
               versioned_,   // Process if versioned.
@@ -345,7 +346,7 @@ namespace odb
       {
         if (delete_ == 0)
           delete_.reset (
-            new (details::shared) delete_statement_type (
+            new delete_statement_type (
               conn_, delete_text_, id_binding_));
 
         return *delete_;
@@ -377,9 +378,9 @@ namespace odb
       bool versioned_;
       const schema_version_migration* svm_;
 
-      details::shared_ptr<insert_statement_type> insert_;
-      details::shared_ptr<select_statement_type> select_;
-      details::shared_ptr<delete_statement_type> delete_;
+      std::unique_ptr<insert_statement_type> insert_;
+      std::unique_ptr<select_statement_type> select_;
+      std::unique_ptr<delete_statement_type> delete_;
     };
 
     // B should be either container_statements or direct_container_statements
@@ -468,7 +469,7 @@ namespace odb
       {
         if (this->delete_ == 0)
           this->delete_.reset (
-            new (details::shared) delete_statement_type (
+            new delete_statement_type (
               this->conn_, this->delete_text_, this->cond_image_binding_));
 
         return *this->delete_;
@@ -479,7 +480,7 @@ namespace odb
       {
         if (update_ == 0)
           update_.reset (
-            new (details::shared) update_statement_type (
+            new update_statement_type (
               this->conn_,
               update_text_,
               this->versioned_, // Process if versioned.
@@ -501,7 +502,7 @@ namespace odb
 
       const char* update_text_;
 
-      details::shared_ptr<update_statement_type> update_;
+      std::unique_ptr<update_statement_type> update_;
     };
 
     // Template argument is the generated concrete container traits type

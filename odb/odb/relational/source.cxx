@@ -4156,8 +4156,6 @@ traverse_object (type& c)
          << "query (database& db, const query_base_type& q)"
          << "{"
          << "using namespace " << db << ";"
-         << "using odb::details::shared;"
-         << "using odb::details::shared_ptr;"
          << endl;
 
       os << db << "::connection& conn (" << endl
@@ -4211,8 +4209,8 @@ traverse_object (type& c)
          << "}";
 
       os << "q.init_parameters ();"
-         << "shared_ptr<select_statement> st (" << endl
-         << "new (shared) select_statement (" << endl;
+         << "std::shared_ptr<select_statement> st (" << endl
+         << "std::make_shared<select_statement> (" << endl;
       object_query_statement_ctor_args (
         c, "q", versioned || query_optimize, false);
       os << "));" << endl
@@ -4223,7 +4221,7 @@ traverse_object (type& c)
       os << endl
          << "std::shared_ptr<odb::" << result_type << "> r (" << endl
          << "std::make_shared<" << db << "::" << result_type << "> (" << endl
-         << "q, st, sts, " << (versioned ? "&svm" : "nullptr") << "));"
+         << "q, std::move (st), sts, " << (versioned ? "&svm" : "nullptr") << "));"
          << endl
          << "return result<object_type> (std::move (r));"
          << "}";
@@ -4285,7 +4283,6 @@ traverse_object (type& c)
         "const query_base_type& q)"
          << "{"
          << "using namespace " << db << ";"
-         << "using odb::details::shared;"
          << endl;
 
       os << db << "::connection& conn (" << endl
@@ -4343,11 +4340,10 @@ traverse_object (type& c)
          << "r->name = n;"
          << "r->execute = &execute_query;"
          << "r->query = q;"
-         << "r->stmt.reset (" << endl
-         << "new (shared) select_statement (" << endl;
+         << "r->stmt = std::make_shared<select_statement> (" << endl;
       object_query_statement_ctor_args (
         c, "r->query", versioned || query_optimize, true);
-      os << "));"
+      os << ");"
          << endl
          << "return r;"
          << "}";
@@ -4373,9 +4369,8 @@ traverse_object (type& c)
          << endl
          << db << "::prepared_query_impl& pq (" << endl
          << "static_cast<" << db << "::prepared_query_impl&> (q));"
-         << "odb::details::shared_ptr<select_statement> st (" << endl
-         << "odb::details::inc_ref (" << endl
-         << "static_cast<select_statement*> (pq.stmt.get ())));"
+         << "std::shared_ptr<select_statement> st (" << endl
+         << "std::static_pointer_cast<select_statement> (pq.stmt));"
          << endl;
 
       os << db << "::transaction& tr (" << db << "::transaction::current ());"
@@ -4432,7 +4427,8 @@ traverse_object (type& c)
 
       os << endl
          << "return std::make_shared<" << db << "::" << result_type << "> (" << endl
-         << "pq.query, st, sts, " << (versioned ? "&svm" : "nullptr") << ");"
+         << "pq.query, std::move (st), sts, " <<
+        (versioned ? "&svm" : "nullptr") << ");"
          << "}";
     }
   }
@@ -5533,8 +5529,6 @@ traverse_view (type& c)
        << "query (database& db, const query_base_type& q)"
        << "{"
        << "using namespace " << db << ";"
-       << "using odb::details::shared;"
-       << "using odb::details::shared_ptr;"
        << endl;
 
     os << db << "::connection& conn (" << endl
@@ -5563,8 +5557,8 @@ traverse_view (type& c)
       os << "const query_base_type& qs (query_statement (q));";
 
     os << "qs.init_parameters ();"
-       << "shared_ptr<select_statement> st (" << endl
-       << "new (shared) select_statement (" << endl;
+       << "std::shared_ptr<select_statement> st (" << endl
+       << "std::make_shared<select_statement> (" << endl;
     view_query_statement_ctor_args (
       c, "qs", versioned || query_optimize, false);
     os << "));" << endl
@@ -5575,7 +5569,7 @@ traverse_view (type& c)
     os << endl
        << "std::shared_ptr<odb::view_result_impl<view_type>> r (" << endl
        << "std::make_shared<" << db << "::view_result_impl<view_type>> (" << endl
-       << "qs, st, sts, " << (versioned ? "&svm" : "nullptr") << "));"
+       << "qs, std::move (st), sts, " << (versioned ? "&svm" : "nullptr") << "));"
        << endl
        << "return result<view_type> (std::move (r));"
        << "}";
@@ -5604,7 +5598,6 @@ traverse_view (type& c)
       "const query_base_type& q)"
        << "{"
        << "using namespace " << db << ";"
-       << "using odb::details::shared;"
        << endl;
 
     os << db << "::connection& conn (" << endl
@@ -5640,11 +5633,10 @@ traverse_view (type& c)
     else
       os << "r->query = query_statement (q);";
 
-    os << "r->stmt.reset (" << endl
-       << "new (shared) select_statement (" << endl;
+    os << "r->stmt = std::make_shared<select_statement> (" << endl;
     view_query_statement_ctor_args (
       c, "r->query", versioned || query_optimize, true);
-    os << "));"
+    os << ");"
        << endl
        << "return r;"
        << "}";
@@ -5670,9 +5662,8 @@ traverse_view (type& c)
        << endl
        << db << "::prepared_query_impl& pq (" << endl
        << "static_cast<" << db << "::prepared_query_impl&> (q));"
-       << "odb::details::shared_ptr<select_statement> st (" << endl
-       << "odb::details::inc_ref (" << endl
-       << "static_cast<select_statement*> (pq.stmt.get ())));"
+       << "std::shared_ptr<select_statement> st (" << endl
+       << "std::static_pointer_cast<select_statement> (pq.stmt));"
        << endl;
 
     os << db << "::transaction& tr (" << db << "::transaction::current ());"
@@ -5711,7 +5702,8 @@ traverse_view (type& c)
 
     os << endl
        << "return std::make_shared<" << db << "::view_result_impl<view_type>> (" << endl
-       << "pq.query, st, sts, " << (versioned ? "&svm" : "nullptr") << ");"
+       << "pq.query, std::move (st), sts, " <<
+      (versioned ? "&svm" : "nullptr") << ");"
        << "}";
   }
 
