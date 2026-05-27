@@ -7,7 +7,6 @@
 #include <odb/pre.hxx>
 
 #include <odb/schema-version.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/connection.hxx>
@@ -19,7 +18,7 @@ namespace odb
 {
   namespace pgsql
   {
-    class LIBODB_PGSQL_EXPORT statements_base: public details::shared_base
+    class LIBODB_PGSQL_EXPORT statements_base
     {
     public:
       typedef pgsql::connection connection_type;

@@ -7,7 +7,6 @@
 #include <odb/pre.hxx>
 
 #include <odb/schema-version.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/connection.hxx>
@@ -19,7 +18,7 @@ namespace odb
 {
   namespace oracle
   {
-    class LIBODB_ORACLE_EXPORT statements_base: public details::shared_base
+    class LIBODB_ORACLE_EXPORT statements_base
     {
     public:
       typedef oracle::connection connection_type;

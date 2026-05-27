@@ -28,14 +28,16 @@ namespace odb
 
       map::iterator i (map_.find (&typeid (T)));
 
-      if (i != map_.end ())
-        return static_cast<statements_type&> (*i->second);
+      if (i == map_.end ())
+      {
+        i = map_.insert (
+          map::value_type (
+            &typeid (T),
+            std::unique_ptr<statements_type> (
+              new statements_type (conn_)))).first;
+      }
 
-      details::shared_ptr<statements_type> p (
-        new (details::shared) statements_type (conn_));
-
-      map_.insert (map::value_type (&typeid (T), p));
-      return *p;
+      return static_cast<statements_type&> (*i->second);
     }
 
     template <typename T>
@@ -47,14 +49,16 @@ namespace odb
 
       map::iterator i (map_.find (&typeid (T)));
 
-      if (i != map_.end ())
-        return static_cast<view_statements<T>&> (*i->second);
+      if (i == map_.end ())
+      {
+        i = map_.insert (
+          map::value_type (
+            &typeid (T),
+            std::unique_ptr<view_statements<T>> (
+              new view_statements<T> (conn_)))).first;
+      }
 
-      details::shared_ptr<view_statements<T> > p (
-        new (details::shared) view_statements<T> (conn_));
-
-      map_.insert (map::value_type (&typeid (T), p));
-      return *p;
+      return static_cast<view_statements<T>&> (*i->second);
     }
   }
 }

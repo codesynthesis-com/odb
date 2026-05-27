@@ -7,7 +7,6 @@
 #include <odb/pre.hxx>
 
 #include <odb/schema-version.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/mysql/version.hxx>
 #include <odb/mysql/connection.hxx>
@@ -19,7 +18,7 @@ namespace odb
 {
   namespace mysql
   {
-    class LIBODB_MYSQL_EXPORT statements_base: public details::shared_base
+    class LIBODB_MYSQL_EXPORT statements_base
     {
     public:
       typedef mysql::connection connection_type;

@@ -7,7 +7,6 @@
 #include <odb/pre.hxx>
 
 #include <odb/schema-version.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/connection.hxx>
@@ -19,7 +18,7 @@ namespace odb
 {
   namespace sqlite
   {
-    class LIBODB_SQLITE_EXPORT statements_base: public details::shared_base
+    class LIBODB_SQLITE_EXPORT statements_base
     {
     public:
       typedef sqlite::connection connection_type;

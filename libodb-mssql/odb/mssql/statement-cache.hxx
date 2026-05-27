@@ -7,6 +7,7 @@
 #include <odb/pre.hxx>
 
 #include <map>
+#include <memory>  // std::unique_ptr
 #include <typeinfo>
 
 #include <odb/forward.hxx>
@@ -16,7 +17,6 @@
 #include <odb/mssql/forward.hxx>
 #include <odb/mssql/statements-base.hxx>
 
-#include <odb/details/shared-ptr.hxx>
 #include <odb/details/type-info.hxx>
 
 #include <odb/mssql/details/export.hxx>
@@ -42,7 +42,7 @@ namespace odb
 
     private:
       typedef std::map<const std::type_info*,
-                       details::shared_ptr<statements_base>,
+                       std::unique_ptr<statements_base>,
                        details::type_info_comparator> map;
 
       connection& conn_;

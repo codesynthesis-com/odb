@@ -7,7 +7,6 @@
 #include <odb/pre.hxx>
 
 #include <odb/schema-version.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/connection.hxx>
@@ -19,7 +18,7 @@ namespace odb
 {
   namespace mssql
   {
-    class LIBODB_MSSQL_EXPORT statements_base: public details::shared_base
+    class LIBODB_MSSQL_EXPORT statements_base
     {
     public:
       typedef mssql::connection connection_type;
