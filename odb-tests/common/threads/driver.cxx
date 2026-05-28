@@ -6,13 +6,13 @@
 
 #include <vector>
 #include <memory>   // std::unique_ptr
+#include <utility>  // std::move()
 #include <cstddef>  // std::size_t
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <odb/details/shared-ptr.hxx>
 #include <odb/details/thread.hxx>
 
 #include <libcommon/config.hxx> // DATABASE_*
@@ -183,17 +183,18 @@ test (int argc, char* argv[], size_t max_connections)
 {
   unique_ptr<database> db (create_database (argc, argv, true, max_connections));
 
-  vector<details::shared_ptr<details::thread> > threads;
-  vector<details::shared_ptr<task> > tasks;
+  vector<unique_ptr<details::thread>> threads;
+  vector<unique_ptr<task>> tasks;
 
   for (unsigned long i (0); i < thread_count; ++i)
   {
-    details::shared_ptr<task> t (new (details::shared) task (*db, i));
-    tasks.push_back (t);
+    unique_ptr<task> t (new task (*db, i));
 
     threads.push_back (
-      details::shared_ptr<details::thread> (
-        new (details::shared) details::thread (&task::execute, t.get ())));
+      unique_ptr<details::thread> (
+        new details::thread (&task::execute, t.get ())));
+
+    tasks.push_back (std::move (t));
   }
 
   bool r (true);
