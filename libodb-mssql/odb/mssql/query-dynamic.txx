@@ -6,7 +6,7 @@ namespace odb
   namespace mssql
   {
     template <typename T, database_type_id ID>
-    details::shared_ptr<query_param>
+    std::shared_ptr<query_param>
     query_param_factory_impl (const void* val,
                               const query_column_base& qc,
                               bool by_ref)
@@ -16,10 +16,10 @@ namespace odb
       unsigned short p (qc.prec ());
       unsigned short s (qc.scale ());
 
-      return details::shared_ptr<query_param> (
+      return std::shared_ptr<query_param> (
         by_ref
-        ? new (details::shared) query_param_impl<T, ID> (ref_bind<T> (v, p, s))
-        : new (details::shared) query_param_impl<T, ID> (val_bind<T> (v, p, s)));
+        ? std::make_shared<query_param_impl<T, ID>> (ref_bind<T> (v, p, s))
+        : std::make_shared<query_param_impl<T, ID>> (val_bind<T> (v, p, s)));
     }
   }
 }

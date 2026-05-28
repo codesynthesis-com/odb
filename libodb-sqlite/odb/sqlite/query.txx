@@ -12,7 +12,7 @@ namespace odb
     template <database_type_id ID>
     query_base::
     query_base (const query_column<bool, ID>& c)
-        : parameters_ (new (details::shared) query_params)
+        : query_base ()
     {
       // Cannot use IS TRUE here since database type can be a non-
       // integral type.

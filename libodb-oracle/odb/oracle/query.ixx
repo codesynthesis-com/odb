@@ -16,8 +16,8 @@ namespace odb
     append (val_bind<T> v, const char* conv)
     {
       append (
-        details::shared_ptr<query_param> (
-          new (details::shared) query_param_impl<T, ID> (v)),
+        std::shared_ptr<query_param> (
+          std::make_shared<query_param_impl<T, ID>> (v)),
         conv);
     }
 
@@ -26,8 +26,8 @@ namespace odb
     append (ref_bind<T> r, const char* conv)
     {
       append (
-        details::shared_ptr<query_param> (
-          new (details::shared) query_param_impl<T, ID> (r)),
+        std::shared_ptr<query_param> (
+          std::make_shared<query_param_impl<T, ID>> (r)),
         conv);
     }
   }

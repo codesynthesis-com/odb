@@ -148,7 +148,7 @@ namespace odb
 
     query_base::
     query_base (const odb::query_base& q)
-        : parameters_ (new (details::shared) query_params)
+        : query_base ()
     {
       if (!q.empty ())
         translate (*this, q, q.clause ().size () - 1);

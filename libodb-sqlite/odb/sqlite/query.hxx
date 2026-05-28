@@ -8,12 +8,12 @@
 
 #include <string>
 #include <vector>
+#include <memory>  // std::shared_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx>            // odb::query_column
 #include <odb/query.hxx>
 #include <odb/details/buffer.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
@@ -97,7 +97,7 @@ namespace odb
       ref_bind_typed (typename ref_bind<T>::type r): ref_bind<T> (r) {}
     };
 
-    struct LIBODB_SQLITE_EXPORT query_param: details::shared_base
+    struct LIBODB_SQLITE_EXPORT query_param
     {
       virtual
       ~query_param ();
@@ -126,7 +126,7 @@ namespace odb
 
     class query_base;
 
-    class LIBODB_SQLITE_EXPORT query_params: public details::shared_base
+    class LIBODB_SQLITE_EXPORT query_params
     {
     public:
       typedef sqlite::binding binding_type;
@@ -137,11 +137,14 @@ namespace odb
       binding_type&
       binding () {return binding_;}
 
-    private:
-      friend class query_base;
-
+      // Implementation details.
+      //
+    public:
       query_params (): binding_ (0, 0) {}
       query_params (const query_params&);
+
+    private:
+      friend class query_base;
 
       query_params&
       operator= (const query_params&);
@@ -150,10 +153,10 @@ namespace odb
       operator+= (const query_params&);
 
       void
-      add (details::shared_ptr<query_param>);
+      add (std::shared_ptr<query_param>);
 
     private:
-      typedef std::vector<details::shared_ptr<query_param> > params;
+      typedef std::vector<std::shared_ptr<query_param>> params;
 
       params params_;
       std::vector<sqlite::bind> bind_;
@@ -189,7 +192,7 @@ namespace odb
       };
 
       query_base ()
-        : parameters_ (new (details::shared) query_params)
+          : parameters_ (std::make_shared<query_params> ())
       {
       }
 
@@ -197,27 +200,27 @@ namespace odb
       //
       explicit
       query_base (bool v)
-        : parameters_ (new (details::shared) query_params)
+          : query_base ()
       {
         append (v);
       }
 
       explicit
       query_base (const char* native)
-        : parameters_ (new (details::shared) query_params)
+          : query_base ()
       {
         clause_.push_back (clause_part (clause_part::kind_native, native));
       }
 
       explicit
       query_base (const std::string& native)
-        : parameters_ (new (details::shared) query_params)
+        : query_base ()
       {
         clause_.push_back (clause_part (clause_part::kind_native, native));
       }
 
       query_base (const char* table, const char* column)
-        : parameters_ (new (details::shared) query_params)
+        : query_base ()
       {
         append (table, column);
       }
@@ -225,7 +228,7 @@ namespace odb
       template <typename T>
       explicit
       query_base (val_bind<T> v)
-        : parameters_ (new (details::shared) query_params)
+        : query_base ()
       {
         *this += v;
       }
@@ -233,7 +236,7 @@ namespace odb
       template <typename T, database_type_id ID>
       explicit
       query_base (val_bind_typed<T, ID> v)
-        : parameters_ (new (details::shared) query_params)
+        : query_base ()
       {
         *this += v;
       }
@@ -241,7 +244,7 @@ namespace odb
       template <typename T>
       explicit
       query_base (ref_bind<T> r)
-        : parameters_ (new (details::shared) query_params)
+        : query_base ()
       {
         *this += r;
       }
@@ -249,7 +252,7 @@ namespace odb
       template <typename T, database_type_id ID>
       explicit
       query_base (ref_bind_typed<T, ID> r)
-        : parameters_ (new (details::shared) query_params)
+        : query_base ()
       {
         *this += r;
       }
@@ -284,7 +287,7 @@ namespace odb
       binding&
       parameters_binding () const;
 
-      const details::shared_ptr<query_params>&
+      const std::shared_ptr<query_params>&
       parameters () const;
 
     public:
@@ -434,7 +437,7 @@ namespace odb
       append (ref_bind<T>, const char* conv);
 
       void
-      append (details::shared_ptr<query_param>, const char* conv);
+      append (std::shared_ptr<query_param>, const char* conv);
 
       void
       append (bool v)
@@ -458,7 +461,7 @@ namespace odb
       typedef std::vector<clause_part> clause_type;
 
       clause_type clause_;
-      details::shared_ptr<query_params> parameters_;
+      std::shared_ptr<query_params> parameters_;
     };
 
     inline query_base

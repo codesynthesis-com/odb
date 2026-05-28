@@ -101,12 +101,6 @@ namespace odb
     {
       typedef shared_base counter;
     };
-
-    template <>
-    struct counter_type<sqlite::query_params>
-    {
-      typedef shared_base counter;
-    };
   }
 }
 

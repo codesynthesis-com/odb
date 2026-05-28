@@ -12,8 +12,6 @@
 #include <odb/schema-version.hxx>
 #include <odb/simple-object-result.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx> // query_base, query_params
 #include <odb/sqlite/statement.hxx>
@@ -74,7 +72,7 @@ namespace odb
       // We need to hold on to the query parameters because SQLite uses
       // the parameter buffers to find each next row.
       //
-      details::shared_ptr<query_params> params_;
+      std::shared_ptr<query_params> params_;
       std::shared_ptr<select_statement> statement_;
       statements_type& statements_;
       object_traits_calls<object_type> tc_;

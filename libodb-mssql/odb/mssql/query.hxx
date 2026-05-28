@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>  // std::shared_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx> // odb::query_column
@@ -21,7 +22,6 @@
 #include <odb/mssql/mssql-types.hxx>
 
 #include <odb/details/buffer.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/mssql/details/export.hxx>
 #include <odb/mssql/details/conversion.hxx>
@@ -127,7 +127,7 @@ namespace odb
                       unsigned short s = 0xFFFF): ref_bind<T> (r, p, s) {}
     };
 
-    struct LIBODB_MSSQL_EXPORT query_param: details::shared_base
+    struct LIBODB_MSSQL_EXPORT query_param
     {
       typedef mssql::bind bind_type;
 
@@ -430,7 +430,7 @@ namespace odb
       append (ref_bind<T>, const char* conv);
 
       void
-      append (details::shared_ptr<query_param>, const char* conv);
+      append (std::shared_ptr<query_param>, const char* conv);
 
       void
       append (bool v)
@@ -452,7 +452,7 @@ namespace odb
 
     private:
       typedef std::vector<clause_part> clause_type;
-      typedef std::vector<details::shared_ptr<query_param> > parameters_type;
+      typedef std::vector<std::shared_ptr<query_param>> parameters_type;
 
       clause_type clause_;
       parameters_type parameters_;

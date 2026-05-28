@@ -3,6 +3,7 @@
 
 #include <cstddef> // std::size_t
 #include <cstring> // std::memset
+#include <utility> // std::move()
 
 #include <odb/sqlite/query.hxx>
 
@@ -25,8 +26,7 @@ namespace odb
 
     query_params::
     query_params (const query_params& x)
-        : details::shared_base (x),
-          params_ (x.params_), bind_ (x.bind_), binding_ (0, 0)
+        : params_ (x.params_), bind_ (x.bind_), binding_ (0, 0)
     {
       // Here and below we want to maintain up to date binding info so
       // that the call to binding() below is an immutable operation,
@@ -78,9 +78,8 @@ namespace odb
     }
 
     void query_params::
-    add (details::shared_ptr<query_param> p)
+    add (std::shared_ptr<query_param> p)
     {
-      params_.push_back (p);
       bind_.push_back (sqlite::bind ());
       binding_.bind = &bind_[0];
       binding_.count = bind_.size ();
@@ -89,6 +88,8 @@ namespace odb
       sqlite::bind* b (&bind_.back ());
       memset (b, 0, sizeof (sqlite::bind));
       p->bind (b);
+
+      params_.push_back (std::move (p));
     }
 
     void query_params::
@@ -122,7 +123,7 @@ namespace odb
     query_base::
     query_base (const query_base& q)
         : clause_ (q.clause_),
-          parameters_ (new (details::shared) query_params (*q.parameters_))
+          parameters_ (std::make_shared<query_params> (*q.parameters_))
     {
     }
 
@@ -181,14 +182,14 @@ namespace odb
     }
 
     void query_base::
-    append (details::shared_ptr<query_param> p, const char* conv)
+    append (std::shared_ptr<query_param> p, const char* conv)
     {
       clause_.push_back (clause_part (clause_part::kind_param));
 
       if (conv != 0)
         clause_.back ().part = conv;
 
-      parameters_->add (p);
+      parameters_->add (std::move (p));
     }
 
     static bool

@@ -15,11 +15,11 @@ namespace odb
 {
   namespace oracle
   {
-    typedef details::shared_ptr<query_param> (*query_param_factory) (
+    typedef std::shared_ptr<query_param> (*query_param_factory) (
       const void* val, const query_column_base&, bool by_ref);
 
     template <typename T, database_type_id ID>
-    details::shared_ptr<query_param>
+    std::shared_ptr<query_param>
     query_param_factory_impl (const void*, const query_column_base&, bool);
   }
 }

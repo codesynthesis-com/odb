@@ -8,6 +8,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>  // std::shared_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/forward.hxx> // odb::query_column
@@ -20,7 +21,6 @@
 #include <odb/pgsql/pgsql-oid.hxx>
 
 #include <odb/details/buffer.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/details/export.hxx>
 #include <odb/pgsql/details/conversion.hxx>
@@ -98,7 +98,7 @@ namespace odb
       ref_bind_typed (typename ref_bind<T>::type r): ref_bind<T> (r) {}
     };
 
-    struct LIBODB_PGSQL_EXPORT query_param: details::shared_base
+    struct LIBODB_PGSQL_EXPORT query_param
     {
       typedef pgsql::bind bind_type;
 
@@ -412,7 +412,7 @@ namespace odb
       append (ref_bind<T>, const char* conv);
 
       void
-      append (details::shared_ptr<query_param>, const char* conv);
+      append (std::shared_ptr<query_param>, const char* conv);
 
       void
       append (bool v)
@@ -434,7 +434,7 @@ namespace odb
 
     private:
       typedef std::vector<clause_part> clause_type;
-      typedef std::vector<details::shared_ptr<query_param> > parameters_type;
+      typedef std::vector<std::shared_ptr<query_param>> parameters_type;
 
       clause_type clause_;
       parameters_type parameters_;

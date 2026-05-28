@@ -1,6 +1,7 @@
 // file      : odb/mssql/query.cxx
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <utility> // std::move()
 #include <cstddef> // std::size_t
 #include <cstring> // std::memset, std::memcpy
 
@@ -120,14 +121,13 @@ namespace odb
     }
 
     void query_base::
-    append (details::shared_ptr<query_param> p, const char* conv)
+    append (std::shared_ptr<query_param> p, const char* conv)
     {
       clause_.push_back (clause_part (clause_part::kind_param));
 
       if (conv != 0)
         clause_.back ().part = conv;
 
-      parameters_.push_back (p);
       bind_.push_back (bind ());
       binding_.bind = &bind_[0];
       binding_.count = bind_.size ();
@@ -136,6 +136,8 @@ namespace odb
       bind* b (&bind_.back ());
       memset (b, 0, sizeof (bind));
       p->bind (b);
+
+      parameters_.push_back (std::move (p));
     }
 
     void query_base::
