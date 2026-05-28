@@ -120,35 +120,35 @@ namespace odb
     typedef T element_type;
     typedef D deleter_type;
 
-    /*constexpr*/ lazy_unique_ptr () /*noexcept*/;
-    /*constexpr*/ lazy_unique_ptr (std::nullptr_t) /*noexcept*/;
-    explicit lazy_unique_ptr (pointer) /*noexcept*/;
+    /*constexpr*/ lazy_unique_ptr () noexcept;
+    /*constexpr*/ lazy_unique_ptr (std::nullptr_t) noexcept;
+    explicit lazy_unique_ptr (pointer) noexcept;
 
     // For now assume D is non-reference.
     //
-    lazy_unique_ptr (pointer, const deleter_type&) /*noexcept*/;
-    lazy_unique_ptr (pointer, deleter_type&&) /*noexcept*/;
+    lazy_unique_ptr (pointer, const deleter_type&) noexcept;
+    lazy_unique_ptr (pointer, deleter_type&&) noexcept;
 
     lazy_unique_ptr (lazy_unique_ptr&&) noexcept;
-    template <class T1, class D1> lazy_unique_ptr (lazy_unique_ptr<T1, D1>&&) /*noexcept*/;
-    //template <class T1> lazy_unique_ptr (std::auto_ptr<T1>&&) /*noexcept*/;
+    template <class T1, class D1> lazy_unique_ptr (lazy_unique_ptr<T1, D1>&&) noexcept;
+    //template <class T1> lazy_unique_ptr (std::auto_ptr<T1>&&) noexcept;
 
 
-    lazy_unique_ptr& operator= (std::nullptr_t) /*noexcept*/;
+    lazy_unique_ptr& operator= (std::nullptr_t) noexcept;
     lazy_unique_ptr& operator= (lazy_unique_ptr&&) noexcept;
-    template <class T1, class D1> lazy_unique_ptr& operator= (lazy_unique_ptr<T1, D1>&&) /*noexcept*/;
+    template <class T1, class D1> lazy_unique_ptr& operator= (lazy_unique_ptr<T1, D1>&&) noexcept;
 
     T& operator* () const;
-    pointer operator-> () const /*noexcept*/;
-    pointer get () const /*noexcept*/;
-    explicit operator bool() const /*noexcept*/;
+    pointer operator-> () const noexcept;
+    pointer get () const noexcept;
+    explicit operator bool() const noexcept;
 
-    pointer release () /*noexcept*/;
-    void reset (pointer = pointer ()) /*noexcept*/;
-    void swap (lazy_unique_ptr&) /*noexcept*/;
+    pointer release () noexcept;
+    void reset (pointer = pointer ()) noexcept;
+    void swap (lazy_unique_ptr&) noexcept;
 
-    deleter_type& get_deleter () /*noexcept*/;
-    const deleter_type& get_deleter () const /*noexcept*/;
+    deleter_type& get_deleter () noexcept;
+    const deleter_type& get_deleter () const noexcept;
 
     lazy_unique_ptr (const lazy_unique_ptr&) = delete;
     lazy_unique_ptr& operator= (const lazy_unique_ptr&) = delete;
@@ -156,8 +156,8 @@ namespace odb
     // Initialization/assignment from unique_ptr.
     //
   public:
-    template <class T1, class D1> lazy_unique_ptr (std::unique_ptr<T1, D1>&&) /*noexcept*/;
-    template <class T1, class D1> lazy_unique_ptr& operator= (std::unique_ptr<T1, D1>&&) /*noexcept*/;
+    template <class T1, class D1> lazy_unique_ptr (std::unique_ptr<T1, D1>&&) noexcept;
+    template <class T1, class D1> lazy_unique_ptr& operator= (std::unique_ptr<T1, D1>&&) noexcept;
 
     // Lazy loading interface.
     //
@@ -219,7 +219,7 @@ namespace odb
     mutable lazy_ptr_impl<T> i_;
   };
 
-  template <class T> void swap (lazy_unique_ptr<T>&, lazy_unique_ptr<T>&) /*noexcept*/;
+  template <class T> void swap (lazy_unique_ptr<T>&, lazy_unique_ptr<T>&) noexcept;
 
   // operator< and operator<< are not provided.
   //
@@ -230,16 +230,16 @@ namespace odb
   bool operator!= (const lazy_unique_ptr<T1, D1>&, const lazy_unique_ptr<T2, D2>&);
 
   template <class T, class D>
-  bool operator== (const lazy_unique_ptr<T, D>&, std::nullptr_t) /*noexcept*/;
+  bool operator== (const lazy_unique_ptr<T, D>&, std::nullptr_t) noexcept;
 
   template <class T, class D>
-  bool operator== (std::nullptr_t, const lazy_unique_ptr<T, D>&) /*noexcept*/;
+  bool operator== (std::nullptr_t, const lazy_unique_ptr<T, D>&) noexcept;
 
   template <class T, class D>
-  bool operator!= (const lazy_unique_ptr<T, D>&, std::nullptr_t) /*noexcept*/;
+  bool operator!= (const lazy_unique_ptr<T, D>&, std::nullptr_t) noexcept;
 
   template <class T, class D>
-  bool operator!= (std::nullptr_t, const lazy_unique_ptr<T, D>&) /*noexcept*/;
+  bool operator!= (std::nullptr_t, const lazy_unique_ptr<T, D>&) noexcept;
 
   // C++11 std::shared_ptr lazy version.
   //
@@ -254,44 +254,52 @@ namespace odb
   public:
     typedef T element_type;
 
-    /*constexpr*/ lazy_shared_ptr () /*noexcept*/;
-    /*constexpr*/ lazy_shared_ptr (std::nullptr_t) /*noexcept*/;
+    /*constexpr*/ lazy_shared_ptr () noexcept;
+    /*constexpr*/ lazy_shared_ptr (std::nullptr_t) noexcept;
     template <class Y> explicit lazy_shared_ptr (Y*);
     template <class Y, class D> lazy_shared_ptr (Y*, D);
     template <class Y, class D, class A> lazy_shared_ptr (Y*, D, A);
     template <class D> lazy_shared_ptr (std::nullptr_t, D);
     template <class D, class A> lazy_shared_ptr (std::nullptr_t, D, A);
-    template <class Y> lazy_shared_ptr (const lazy_shared_ptr<Y>&, T*) /*noexcept*/;
+    template <class Y> lazy_shared_ptr (const lazy_shared_ptr<Y>&, T*) noexcept;
 
-    lazy_shared_ptr (const lazy_shared_ptr&) /*noexcept*/;
-    template <class Y> lazy_shared_ptr (const lazy_shared_ptr<Y>&) /*noexcept*/;
+    // Note: noexcept is not specified since they can throw while
+    // copy-constructing i_ (see lazy_ptr_impl for details).
+    //
+    lazy_shared_ptr (const lazy_shared_ptr&);
+    template <class Y> lazy_shared_ptr (const lazy_shared_ptr<Y>&);
+
     lazy_shared_ptr (lazy_shared_ptr&&) noexcept;
-    template <class Y> lazy_shared_ptr (lazy_shared_ptr<Y>&&) /*noexcept*/;
+    template <class Y> lazy_shared_ptr (lazy_shared_ptr<Y>&&) noexcept;
     template <class Y> explicit lazy_shared_ptr (const lazy_weak_ptr<Y>&);
     //template <class Y> explicit lazy_shared_ptr (std::auto_ptr<Y>&&);
     template <class Y, class D> lazy_shared_ptr (std::unique_ptr<Y, D>&&);
 
     ~lazy_shared_ptr ();
 
-    lazy_shared_ptr& operator= (const lazy_shared_ptr&) /*noexcept*/;
-    template <class Y> lazy_shared_ptr& operator= (const lazy_shared_ptr<Y>&) /*noexcept*/;
+    // Note: noexcept is not specified since they can throw while copying i_
+    // (see lazy_ptr_impl for details).
+    //
+    lazy_shared_ptr& operator= (const lazy_shared_ptr&);
+    template <class Y> lazy_shared_ptr& operator= (const lazy_shared_ptr<Y>&);
+
     lazy_shared_ptr& operator= (lazy_shared_ptr&&) noexcept;
-    template <class Y> lazy_shared_ptr& operator= (lazy_shared_ptr<Y>&&) /*noexcept*/;
+    template <class Y> lazy_shared_ptr& operator= (lazy_shared_ptr<Y>&&) noexcept;
     //template <class Y> lazy_shared_ptr& operator= (std::auto_ptr<Y>&&);
     template <class Y, class D> lazy_shared_ptr& operator= (std::unique_ptr<Y, D>&&);
 
-    void swap (lazy_shared_ptr&) /*noexcept*/;
-    void reset () /*noexcept*/;
+    void swap (lazy_shared_ptr&) noexcept;
+    void reset () noexcept;
     template <class Y> void reset (Y*);
     template <class Y, class D> void reset (Y*, D);
     template <class Y, class D, class A> void reset (Y*, D, A);
 
-    T* get () const /*noexcept*/;
-    T& operator* () const /*noexcept*/;
-    T* operator-> () const /*noexcept*/;
-    long use_count () const /*noexcept*/;
-    bool unique () const /*noexcept*/;
-    explicit operator bool () const /*noexcept*/;
+    T* get () const noexcept;
+    T& operator* () const noexcept;
+    T* operator-> () const noexcept;
+    long use_count () const noexcept;
+    bool unique () const noexcept;
+    explicit operator bool () const noexcept;
 
     // owner_before () is not provded.
 
@@ -356,6 +364,10 @@ namespace odb
     // Helpers.
     //
   public:
+
+    // Note: noexcept is not specified since it can throw while creating
+    // object ids for comparison (see object_id() for details).
+    //
     template <class Y> bool equal (const lazy_shared_ptr<Y>&) const;
 
   private:
@@ -372,30 +384,33 @@ namespace odb
     mutable lazy_ptr_impl<T> i_;
   };
 
-  template <class T> void swap (lazy_shared_ptr<T>&, lazy_shared_ptr<T>&) /*noexcept*/;
+  template <class T> void swap (lazy_shared_ptr<T>&, lazy_shared_ptr<T>&) noexcept;
 
   template <class D, class T>
-  D* get_deleter (const lazy_shared_ptr<T>&) /*noexcept*/;
+  D* get_deleter (const lazy_shared_ptr<T>&) noexcept;
 
   // operator< and operator<< are not provided.
   //
+  // Note: noexcept is not specified since they can throw (see
+  // lazy_shared_ptr::equal() for details).
+  //
   template <class T, class Y>
-  bool operator== (const lazy_shared_ptr<T>&, const lazy_shared_ptr<Y>&) /*noexcept*/;
+  bool operator== (const lazy_shared_ptr<T>&, const lazy_shared_ptr<Y>&);
 
   template <class T, class Y>
-  bool operator!= (const lazy_shared_ptr<T>&, const lazy_shared_ptr<Y>&) /*noexcept*/;
+  bool operator!= (const lazy_shared_ptr<T>&, const lazy_shared_ptr<Y>&);
 
   template <class T>
-  bool operator== (const lazy_shared_ptr<T>&, std::nullptr_t) /*noexcept*/;
+  bool operator== (const lazy_shared_ptr<T>&, std::nullptr_t) noexcept;
 
   template <class T>
-  bool operator== (std::nullptr_t, const lazy_shared_ptr<T>&) /*noexcept*/;
+  bool operator== (std::nullptr_t, const lazy_shared_ptr<T>&) noexcept;
 
   template <class T>
-  bool operator!= (const lazy_shared_ptr<T>&, std::nullptr_t) /*noexcept*/;
+  bool operator!= (const lazy_shared_ptr<T>&, std::nullptr_t) noexcept;
 
   template <class T>
-  bool operator!= (std::nullptr_t, const lazy_shared_ptr<T>&) /*noexcept*/;
+  bool operator!= (std::nullptr_t, const lazy_shared_ptr<T>&) noexcept;
 
   // C++11 std::weak_ptr lazy version.
   //
@@ -407,24 +422,34 @@ namespace odb
   public:
     typedef T element_type;
 
-    /*constexpr*/ lazy_weak_ptr () /*noexcept*/;
-    template <class Y> lazy_weak_ptr (const lazy_shared_ptr<Y>&) /*noexcept*/;
-    lazy_weak_ptr (const lazy_weak_ptr&) /*noexcept*/;
-    template <class Y> lazy_weak_ptr (const lazy_weak_ptr<Y>&) /*noexcept*/;
+    /*constexpr*/ lazy_weak_ptr () noexcept;
+
+    // Note: noexcept is not specified since they can throw while
+    // copy-constructing i_ (see lazy_ptr_impl for details).
+    //
+    template <class Y> lazy_weak_ptr (const lazy_shared_ptr<Y>&);
+    lazy_weak_ptr (const lazy_weak_ptr&);
+    template <class Y> lazy_weak_ptr (const lazy_weak_ptr<Y>&);
 
     ~lazy_weak_ptr ();
 
-    lazy_weak_ptr& operator= (const lazy_weak_ptr&) /*noexcept*/;
-    template <class Y> lazy_weak_ptr& operator= (const lazy_weak_ptr<Y>&) /*noexcept*/;
-    template <class Y> lazy_weak_ptr& operator= (const lazy_shared_ptr<Y>&) /*noexcept*/;
+    // Note: noexcept is not specified since they can throw while copying i_
+    // (see lazy_ptr_impl for details).
+    //
+    lazy_weak_ptr& operator= (const lazy_weak_ptr&);
+    template <class Y> lazy_weak_ptr& operator= (const lazy_weak_ptr<Y>&);
+    template <class Y> lazy_weak_ptr& operator= (const lazy_shared_ptr<Y>&);
 
-    void swap (lazy_weak_ptr<T>&) /*noexcept*/;
-    void reset () /*noexcept*/;
+    void swap (lazy_weak_ptr<T>&) noexcept;
+    void reset () noexcept;
 
-    long use_count () const /*noexcept*/;
-    bool expired () const /*noexcept*/;
+    long use_count () const noexcept;
+    bool expired () const noexcept;
 
-    lazy_shared_ptr<T> lock () const /*noexcept*/;
+    // Note: noexcept is not specified since it can throw while
+    // copy-constructing i_ (see lazy_ptr_impl for details).
+    //
+    lazy_shared_ptr<T> lock () const;
 
     // owner_before () is not provded.
 

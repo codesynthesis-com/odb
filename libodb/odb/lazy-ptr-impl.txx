@@ -9,7 +9,7 @@ namespace odb
 
   template <typename T>
   void lazy_ptr_base::
-  free (void* p)
+  free (void* p) noexcept
   {
     delete static_cast<T*> (p);
   }
