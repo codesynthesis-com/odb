@@ -225,23 +225,24 @@ namespace odb
 
   template <class T, class D>
   lazy_unique_ptr<T, D>::
-  lazy_unique_ptr () {}
+  lazy_unique_ptr () noexcept {}
 
   template <class T, class D>
   lazy_unique_ptr<T, D>::
-  lazy_unique_ptr (std::nullptr_t) {}
+  lazy_unique_ptr (std::nullptr_t) noexcept {}
 
   template <class T, class D>
   lazy_unique_ptr<T, D>::
-  lazy_unique_ptr (pointer p): p_ (p) {}
+  lazy_unique_ptr (pointer p) noexcept: p_ (p) {}
 
   template <class T, class D>
   lazy_unique_ptr<T, D>::
-  lazy_unique_ptr (pointer p, const deleter_type& d): p_ (p, d) {}
+  lazy_unique_ptr (pointer p, const deleter_type& d) noexcept: p_ (p, d) {}
 
   template <class T, class D>
   lazy_unique_ptr<T, D>::
-  lazy_unique_ptr (pointer p, deleter_type&& d): p_ (p, std::move (d)) {}
+  lazy_unique_ptr (pointer p, deleter_type&& d) noexcept
+    : p_ (p, std::move (d)) {}
 
   template <class T, class D>
   lazy_unique_ptr<T, D>::
@@ -251,17 +252,17 @@ namespace odb
   template <class T, class D>
   template <class T1, class D1>
   lazy_unique_ptr<T, D>::
-  lazy_unique_ptr (lazy_unique_ptr<T1, D1>&& r)
+  lazy_unique_ptr (lazy_unique_ptr<T1, D1>&& r) noexcept
       : p_ (std::move (r.p_)), i_ (std::move (r.i_)) {}
 
   // template <class T, class D>
   // template <class T1>
   // lazy_unique_ptr<T, D>::
-  // lazy_unique_ptr (std::auto_ptr<T1>&& r): p_ (std::move (r)) {}
+  // lazy_unique_ptr (std::auto_ptr<T1>&& r) noexcept: p_ (std::move (r)) {}
 
   template <class T, class D>
   lazy_unique_ptr<T, D>& lazy_unique_ptr<T, D>::
-  operator= (std::nullptr_t)
+  operator= (std::nullptr_t) noexcept
   {
     reset ();
     return *this;
@@ -279,7 +280,7 @@ namespace odb
   template <class T, class D>
   template <class T1, class D1>
   lazy_unique_ptr<T, D>& lazy_unique_ptr<T, D>::
-  operator= (lazy_unique_ptr<T1, D1>&& r)
+  operator= (lazy_unique_ptr<T1, D1>&& r) noexcept
   {
     p_ = std::move (r.p_);
     i_ = std::move (r.i_);
@@ -295,28 +296,28 @@ namespace odb
 
   template <class T, class D>
   typename lazy_unique_ptr<T, D>::pointer lazy_unique_ptr<T, D>::
-  operator-> () const
+  operator-> () const noexcept
   {
     return p_.operator-> ();
   }
 
   template <class T, class D>
   typename lazy_unique_ptr<T, D>::pointer lazy_unique_ptr<T, D>::
-  get () const
+  get () const noexcept
   {
     return p_.get ();
   }
 
   template <class T, class D>
   lazy_unique_ptr<T, D>::
-  operator bool() const
+  operator bool() const noexcept
   {
     return p_ || i_;
   }
 
   template <class T, class D>
   typename lazy_unique_ptr<T, D>::pointer lazy_unique_ptr<T, D>::
-  release ()
+  release () noexcept
   {
     i_.reset ();
     return p_.release ();
@@ -324,7 +325,7 @@ namespace odb
 
   template <class T, class D>
   void lazy_unique_ptr<T, D>::
-  reset (pointer p)
+  reset (pointer p) noexcept
   {
     p_.reset (p);
     i_.reset ();
@@ -332,7 +333,7 @@ namespace odb
 
   template <class T, class D>
   void lazy_unique_ptr<T, D>::
-  swap (lazy_unique_ptr& b)
+  swap (lazy_unique_ptr& b) noexcept
   {
     p_.swap (b.p_);
     i_.swap (b.i_);
@@ -340,14 +341,14 @@ namespace odb
 
   template <class T, class D>
   typename lazy_unique_ptr<T, D>::deleter_type& lazy_unique_ptr<T, D>::
-  get_deleter ()
+  get_deleter () noexcept
   {
     return p_.get_deleter ();
   }
 
   template <class T, class D>
   const typename lazy_unique_ptr<T, D>::deleter_type& lazy_unique_ptr<T, D>::
-  get_deleter () const
+  get_deleter () const noexcept
   {
     return p_.get_deleter ();
   }
@@ -355,7 +356,7 @@ namespace odb
   template <class T, class D>
   template <class T1, class D1>
   inline lazy_unique_ptr<T, D>::
-  lazy_unique_ptr (std::unique_ptr<T1, D1>&& p)
+  lazy_unique_ptr (std::unique_ptr<T1, D1>&& p) noexcept
       : p_ (std::move (p))
   {
   }
@@ -363,7 +364,7 @@ namespace odb
   template <class T, class D>
   template <class T1, class D1>
   inline lazy_unique_ptr<T, D>& lazy_unique_ptr<T, D>::
-  operator= (std::unique_ptr<T1, D1>&& p)
+  operator= (std::unique_ptr<T1, D1>&& p) noexcept
   {
     p_ = std::move (p);
     i_.reset ();
@@ -534,7 +535,7 @@ namespace odb
 
   template <class T>
   inline void
-  swap (lazy_unique_ptr<T>& a, lazy_unique_ptr<T>& b)
+  swap (lazy_unique_ptr<T>& a, lazy_unique_ptr<T>& b) noexcept
   {
     a.swap (b);
   }
@@ -557,28 +558,28 @@ namespace odb
 
   template <class T, class D>
   inline bool
-  operator== (const lazy_unique_ptr<T, D>& a, std::nullptr_t)
+  operator== (const lazy_unique_ptr<T, D>& a, std::nullptr_t) noexcept
   {
     return !a;
   }
 
   template <class T, class D>
   inline bool
-  operator== (std::nullptr_t, const lazy_unique_ptr<T, D>& b)
+  operator== (std::nullptr_t, const lazy_unique_ptr<T, D>& b) noexcept
   {
     return !b;
   }
 
   template <class T, class D>
   inline bool
-  operator!= (const lazy_unique_ptr<T, D>& a, std::nullptr_t)
+  operator!= (const lazy_unique_ptr<T, D>& a, std::nullptr_t) noexcept
   {
     return bool (a); // Explicit to-bool conversion.
   }
 
   template <class T, class D>
   inline bool
-  operator!= (std::nullptr_t, const lazy_unique_ptr<T, D>& b)
+  operator!= (std::nullptr_t, const lazy_unique_ptr<T, D>& b) noexcept
   {
     return bool (b); // Explicit to-bool conversion.
   }
@@ -589,11 +590,11 @@ namespace odb
 
   template <class T>
   inline lazy_shared_ptr<T>::
-  lazy_shared_ptr () {}
+  lazy_shared_ptr () noexcept {}
 
   template <class T>
   inline lazy_shared_ptr<T>::
-  lazy_shared_ptr (std::nullptr_t) {}
+  lazy_shared_ptr (std::nullptr_t) noexcept {}
 
   template <class T>
   template <class Y>
@@ -623,7 +624,7 @@ namespace odb
   template <class T>
   template <class Y>
   inline lazy_shared_ptr<T>::
-  lazy_shared_ptr (const lazy_shared_ptr<Y>& r, T* p)
+  lazy_shared_ptr (const lazy_shared_ptr<Y>& r, T* p) noexcept
       // r.p_ has to be loaded
       : p_ (r.p_, p) {}
 
@@ -644,7 +645,7 @@ namespace odb
   template <class T>
   template <class Y>
   inline lazy_shared_ptr<T>::
-  lazy_shared_ptr (lazy_shared_ptr<Y>&& r)
+  lazy_shared_ptr (lazy_shared_ptr<Y>&& r) noexcept
       : p_ (std::move (r.p_)), i_ (std::move (r.i_)) {}
 
   template <class T>
@@ -705,7 +706,7 @@ namespace odb
   template <class T>
   template <class Y>
   inline lazy_shared_ptr<T>& lazy_shared_ptr<T>::
-  operator= (lazy_shared_ptr<Y>&& r)
+  operator= (lazy_shared_ptr<Y>&& r) noexcept
   {
     p_ = std::move (r.p_);
     i_ = std::move (r.i_);
@@ -734,7 +735,7 @@ namespace odb
 
   template <class T>
   inline void lazy_shared_ptr<T>::
-  swap (lazy_shared_ptr& b)
+  swap (lazy_shared_ptr& b) noexcept
   {
     p_.swap (b.p_);
     i_.swap (b.i_);
@@ -742,7 +743,7 @@ namespace odb
 
   template <class T>
   inline void lazy_shared_ptr<T>::
-  reset ()
+  reset () noexcept
   {
     p_.reset ();
     i_.reset ();
@@ -777,42 +778,42 @@ namespace odb
 
   template <class T>
   inline T& lazy_shared_ptr<T>::
-  operator* () const
+  operator* () const noexcept
   {
     return *p_;
   }
 
   template <class T>
   inline T* lazy_shared_ptr<T>::
-  operator-> () const
+  operator-> () const noexcept
   {
     return p_.operator-> ();
   }
 
   template <class T>
   inline T* lazy_shared_ptr<T>::
-  get () const
+  get () const noexcept
   {
     return p_.get ();
   }
 
   template <class T>
   inline bool lazy_shared_ptr<T>::
-  unique () const
+  unique () const noexcept
   {
     return p_.unique ();
   }
 
   template <class T>
   inline long lazy_shared_ptr<T>::
-  use_count () const
+  use_count () const noexcept
   {
     return p_.use_count ();
   }
 
   template <class T>
   inline lazy_shared_ptr<T>::
-  operator bool () const
+  operator bool () const noexcept
   {
     return p_ || i_;
   }
@@ -1089,42 +1090,42 @@ namespace odb
 
   template <class T>
   inline bool
-  operator== (const lazy_shared_ptr<T>& p, std::nullptr_t)
+  operator== (const lazy_shared_ptr<T>& p, std::nullptr_t) noexcept
   {
     return !p;
   }
 
   template <class T>
   inline bool
-  operator== (std::nullptr_t, const lazy_shared_ptr<T>& p)
+  operator== (std::nullptr_t, const lazy_shared_ptr<T>& p) noexcept
   {
     return !p;
   }
 
   template <class T>
   inline bool
-  operator!= (const lazy_shared_ptr<T>& p, std::nullptr_t)
+  operator!= (const lazy_shared_ptr<T>& p, std::nullptr_t) noexcept
   {
     return bool (p); // Explicit to-bool conversion.
   }
 
   template <class T>
   inline bool
-  operator!= (std::nullptr_t, const lazy_shared_ptr<T>& p)
+  operator!= (std::nullptr_t, const lazy_shared_ptr<T>& p) noexcept
   {
     return bool (p); // Explicit to-bool conversion.
   }
 
   template <class T>
   inline void
-  swap (lazy_shared_ptr<T>& a, lazy_shared_ptr<T>& b)
+  swap (lazy_shared_ptr<T>& a, lazy_shared_ptr<T>& b) noexcept
   {
     a.swap (b);
   }
 
   template <class D, class T>
   inline D*
-  get_deleter (const lazy_shared_ptr<T>& p)
+  get_deleter (const lazy_shared_ptr<T>& p) noexcept
   {
     return std::get_deleter<D> (p.p_);
   }
@@ -1135,7 +1136,7 @@ namespace odb
 
   template <class T>
   inline lazy_weak_ptr<T>::
-  lazy_weak_ptr () {}
+  lazy_weak_ptr () noexcept {}
 
   template <class T>
   template <class Y>
@@ -1186,7 +1187,7 @@ namespace odb
 
   template <class T>
   inline void lazy_weak_ptr<T>::
-  swap (lazy_weak_ptr<T>& r)
+  swap (lazy_weak_ptr<T>& r) noexcept
   {
     p_.swap (r.p_);
     i_.swap (r.i_);
@@ -1194,7 +1195,7 @@ namespace odb
 
   template <class T>
   inline void lazy_weak_ptr<T>::
-  reset ()
+  reset () noexcept
   {
     p_.reset ();
     i_.reset ();
@@ -1202,14 +1203,14 @@ namespace odb
 
   template <class T>
   inline long lazy_weak_ptr<T>::
-  use_count () const
+  use_count () const noexcept
   {
     return p_.use_count ();
   }
 
   template <class T>
   inline bool lazy_weak_ptr<T>::
-  expired () const
+  expired () const noexcept
   {
     return p_.expired ();
   }

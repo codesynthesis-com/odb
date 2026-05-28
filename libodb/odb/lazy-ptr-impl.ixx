@@ -8,7 +8,7 @@ namespace odb
   //
 
   inline lazy_ptr_base::
-  lazy_ptr_base ()
+  lazy_ptr_base () noexcept
       : id_ (0), db_ (0), loader_ (0), free_ (0), copy_ (0)
   {
   }
@@ -38,7 +38,7 @@ namespace odb
   }
 
   inline void lazy_ptr_base::
-  reset_id ()
+  reset_id () noexcept
   {
     if (id_)
       free_ (id_);
@@ -67,7 +67,7 @@ namespace odb
   }
 
   inline void lazy_ptr_base::
-  reset ()
+  reset () noexcept
   {
     reset_id ();
     db_ = 0;
@@ -130,7 +130,7 @@ namespace odb
   }
 
   inline void lazy_ptr_base::
-  swap (lazy_ptr_base& r)
+  swap (lazy_ptr_base& r) noexcept
   {
     void* id (id_);
     database_type* db (db_);
@@ -178,7 +178,7 @@ namespace odb
 
   template <typename T>
   inline lazy_ptr_impl<T>::
-  lazy_ptr_impl ()
+  lazy_ptr_impl () noexcept
   {
   }
 
@@ -275,7 +275,7 @@ namespace odb
   template <typename T>
   template <typename Y>
   inline lazy_ptr_impl<T>::
-  lazy_ptr_impl (lazy_ptr_impl<Y>&& r)
+  lazy_ptr_impl (lazy_ptr_impl<Y>&& r) noexcept
       : lazy_ptr_base (std::move (r))
   {
   }
@@ -292,7 +292,7 @@ namespace odb
   template <typename T>
   template <typename Y>
   inline lazy_ptr_impl<T>& lazy_ptr_impl<T>::
-  operator= (lazy_ptr_impl<Y>&& r)
+  operator= (lazy_ptr_impl<Y>&& r) noexcept
   {
     lazy_ptr_base& b (*this);
     b = std::move (r);
