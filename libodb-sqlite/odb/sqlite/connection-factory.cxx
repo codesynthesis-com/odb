@@ -96,11 +96,24 @@ namespace odb
         connection_ = create ();
     }
 
+    bool single_connection_factory::
+    recycle (connection& c) noexcept
+    {
+      c.recycle ();
+      return true;
+    }
+
     void single_connection_factory::
     release (unique_ptr<connection> c) noexcept
     {
-      c->recycle ();
-      connection_ = std::move (c);
+      if (recycle (*c))
+        connection_ = std::move (c);
+      else
+      {
+        c.reset ();
+        connection_ = create ();
+      }
+
       mutex_.unlock ();
     }
 
@@ -232,6 +245,13 @@ namespace odb
       }
     }
 
+    bool connection_pool_factory::
+    recycle (connection& c) noexcept
+    {
+      c.recycle ();
+      return true;
+    }
+
     void connection_pool_factory::
     release (unique_ptr<connection> c) noexcept
     {
@@ -247,8 +267,8 @@ namespace odb
 
       if (keep)
       {
-        c->recycle ();
-        connections_.push_back (std::move (c)); // Note: should not allocate.
+        if (recycle (*c))
+          connections_.push_back (std::move (c)); // Note: should not allocate.
       }
 
       if (waiters_ != 0)

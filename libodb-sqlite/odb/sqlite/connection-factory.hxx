@@ -87,6 +87,14 @@ namespace odb
       virtual std::unique_ptr<connection>
       create ();
 
+      // This function is called whenever a connection is about to be returned
+      // to the pool. If this function returns false, then the connection is
+      // dropped instead. Note that if returning true, then you should also
+      // call the base implementation.
+      //
+      virtual bool
+      recycle (connection&) noexcept;
+
     protected:
       // Return the connection to the factory.
       //
@@ -175,6 +183,14 @@ namespace odb
       //
       virtual std::unique_ptr<connection>
       create ();
+
+      // This function is called whenever a connection is about to be returned
+      // to the pool. If this function returns false, then the connection is
+      // dropped instead. Note that if returning true, then you should also
+      // call the base implementation.
+      //
+      virtual bool
+      recycle (connection&) noexcept;
 
     protected:
       // Release the connection to the pool or free it.
