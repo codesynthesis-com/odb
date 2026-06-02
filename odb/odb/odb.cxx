@@ -880,6 +880,16 @@ main (int argc, char* argv[])
         exec_args.push_back (i->c_str ());
       }
 
+      // Disable assembly output.
+      //
+      exec_args.push_back ("-o");
+
+#ifndef _WIN32
+      exec_args.push_back ("/dev/null");
+#else
+      exec_args.push_back ("nul");
+#endif
+
       exec_args.push_back ("-"); // Compile stdin.
       exec_args.push_back (0);
 

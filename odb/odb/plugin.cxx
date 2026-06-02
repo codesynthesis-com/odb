@@ -423,16 +423,6 @@ plugin_init (plugin_name_args* plugin_info, plugin_gcc_version*)
     if (options_->trace ())
       cerr << "starting plugin " << plugin_info->base_name << endl;
 
-    // Disable assembly output. GCC doesn't define HOST_BIT_BUCKET
-    // correctly for MinGW (it still used /dev/null which fails to
-    // open).
-    //
-#ifdef _WIN32
-    asm_file_name = "nul";
-#else
-    asm_file_name = HOST_BIT_BUCKET;
-#endif
-
     // Register callbacks.
     //
     register_callback (plugin_info->base_name,
