@@ -38,6 +38,9 @@ namespace odb
       view_statements<T>&
       find_view ();
 
+      statement_cache (const statement_cache&) = delete;
+      statement_cache& operator= (const statement_cache&) = delete;
+
     private:
       typedef std::map<const std::type_info*,
                        std::unique_ptr<statements_base>,
