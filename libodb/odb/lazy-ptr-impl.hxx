@@ -13,24 +13,6 @@
 
 namespace odb
 {
-  // @@ Note that this type is only referred to in lazy-ptr-impl.?xx and
-  //    doesn't seem to appear in the generated code. Should we drop it?
-  //
-  struct lazy_ptr_impl_ref
-  {
-    void* id_;
-    database* db_;
-    void* loader_;
-
-#ifdef __cpp_noexcept_function_type
-    void (*free_) (void*) noexcept;
-#else
-    void (*free_) (void*);
-#endif
-
-    void* (*copy_) (const void*);
-  };
-
   class lazy_ptr_base
   {
   public:
@@ -43,17 +25,7 @@ namespace odb
     // id_.
     //
     lazy_ptr_base (const lazy_ptr_base&);
-
-    lazy_ptr_base (const lazy_ptr_impl_ref&);
-
-    // Note: noexcept is not specified since it can throw while allocating
-    // id_.
-    //
-    lazy_ptr_base&
-    operator= (const lazy_ptr_base&);
-
-    lazy_ptr_base&
-    operator= (const lazy_ptr_impl_ref&);
+    lazy_ptr_base& operator= (const lazy_ptr_base&);
 
     // C++11 support.
     //
@@ -85,8 +57,6 @@ namespace odb
     {
       return db_ != 0 ? &lazy_ptr_base::id_ : 0;
     }
-
-    operator lazy_ptr_impl_ref ();
 
   protected:
 
@@ -143,16 +113,11 @@ namespace odb
     lazy_ptr_impl (const lazy_ptr_impl&);
     template <typename Y> lazy_ptr_impl (const lazy_ptr_impl<Y>&);
 
-    lazy_ptr_impl (const lazy_ptr_impl_ref&);
-
     // Note: noexcept is not specified since it can throw while calling the
     // base type copy assignment operator (see lazy_ptr_base for details).
     //
     lazy_ptr_impl& operator= (const lazy_ptr_impl&);
     template <typename Y> lazy_ptr_impl& operator= (const lazy_ptr_impl<Y>&);
-
-    lazy_ptr_impl&
-    operator= (const lazy_ptr_impl_ref&);
 
     // C++11 support.
     //

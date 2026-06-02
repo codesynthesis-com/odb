@@ -23,13 +23,6 @@ namespace odb
   }
 
   inline lazy_ptr_base::
-  lazy_ptr_base (const lazy_ptr_impl_ref& r)
-      : id_ (r.id_), db_ (r.db_), loader_ (r.loader_),
-        free_ (r.free_), copy_ (r.copy_)
-  {
-  }
-
-  inline lazy_ptr_base::
   lazy_ptr_base (lazy_ptr_base&& r) noexcept
       : id_ (r.id_), db_ (r.db_), loader_ (r.loader_),
         free_ (r.free_), copy_ (r.copy_)
@@ -106,22 +99,6 @@ namespace odb
     return *this;
   }
 
-  inline lazy_ptr_base& lazy_ptr_base::
-  operator= (const lazy_ptr_impl_ref& r)
-  {
-    if (id_ != r.id_)
-    {
-      reset_id ();
-      id_ = r.id_;
-      free_ = r.free_;
-      copy_ = r.copy_;
-    }
-
-    db_ = r.db_;
-    loader_ = r.loader_;
-    return *this;
-  }
-
   inline lazy_ptr_base::
   ~lazy_ptr_base ()
   {
@@ -155,21 +132,6 @@ namespace odb
   database () const
   {
     return db_;
-  }
-
-  inline lazy_ptr_base::
-  operator lazy_ptr_impl_ref ()
-  {
-    lazy_ptr_impl_ref r;
-    r.id_ = id_;
-    r.db_ = db_;
-    r.loader_ = loader_;
-    r.free_ = free_;
-    r.copy_ = copy_;
-    id_ = 0;
-    db_ = 0;
-    loader_ = 0;
-    return r;
   }
 
   //
@@ -231,13 +193,6 @@ namespace odb
   }
 
   template <typename T>
-  inline lazy_ptr_impl<T>::
-  lazy_ptr_impl (const lazy_ptr_impl_ref& r)
-      : lazy_ptr_base (r)
-  {
-  }
-
-  template <typename T>
   inline lazy_ptr_impl<T>& lazy_ptr_impl<T>::
   operator= (const lazy_ptr_impl& r)
   {
@@ -250,15 +205,6 @@ namespace odb
   template <typename Y>
   inline lazy_ptr_impl<T>& lazy_ptr_impl<T>::
   operator= (const lazy_ptr_impl<Y>& r)
-  {
-    lazy_ptr_base& b (*this);
-    b = r;
-    return *this;
-  }
-
-  template <typename T>
-  inline lazy_ptr_impl<T>& lazy_ptr_impl<T>::
-  operator= (const lazy_ptr_impl_ref& r)
   {
     lazy_ptr_base& b (*this);
     b = r;
