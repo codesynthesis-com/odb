@@ -403,7 +403,7 @@ if! $skeleton
     depdb dyndep --dyn-target --target-what 'generated schema' --format lines \
     -- echo "$ts"
 
-    $odb (!$std ? --std c++11 : )               \
+    $odb (!$std ? --std c++17 : )               \
          ($multi ? --multi-database dynamic : ) \
          --database $db                         \
          --output-dir $out_base                 \
