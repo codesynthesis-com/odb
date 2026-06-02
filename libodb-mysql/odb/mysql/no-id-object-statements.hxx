@@ -12,8 +12,6 @@
 #include <odb/forward.hxx>
 #include <odb/traits.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/mysql/version.hxx>
 #include <odb/mysql/forward.hxx>
 #include <odb/mysql/mysql.hxx>

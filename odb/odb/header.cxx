@@ -823,12 +823,8 @@ namespace header
     }
 
     os << endl
-       << "#include <odb/details/unused.hxx>" << endl;
-
-    if (ctx.options.generate_query ())
-      os << "#include <odb/details/shared-ptr.hxx>" << endl;
-
-    os << endl;
+       << "#include <odb/details/unused.hxx>" << endl
+       << endl;
 
     os << "namespace odb"
        << "{";

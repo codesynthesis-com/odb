@@ -98,6 +98,9 @@ namespace odb
           // continue holding a reference to the control block, preventing it
           // form being freed.
           //
+          // A problem in both libstdc++ (as of GCC 16, bug #125565) and
+          // libc++ (as of Clang 23).
+          //
 #if 0
 //#ifndef NDEBUG
           weak_ptr<odb::connection> w (c->weak_from_this ()), e;

@@ -14,8 +14,6 @@
 #include <odb/forward.hxx>
 #include <odb/traits.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
 #include <odb/mssql/mssql-types.hxx>

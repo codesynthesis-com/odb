@@ -12,8 +12,6 @@
 #include <odb/schema-version.hxx>
 #include <odb/view-result.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/oracle/version.hxx>
 #include <odb/oracle/forward.hxx> // query_base, view_statements
 #include <odb/oracle/statement.hxx>

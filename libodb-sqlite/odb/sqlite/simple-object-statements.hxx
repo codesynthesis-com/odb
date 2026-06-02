@@ -14,8 +14,6 @@
 #include <odb/forward.hxx>
 #include <odb/traits.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
 #include <odb/sqlite/sqlite-types.hxx>
