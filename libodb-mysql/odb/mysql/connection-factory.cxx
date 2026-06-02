@@ -1,6 +1,8 @@
 // file      : odb/mysql/connection-factory.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <odb/mysql/connection-factory.hxx>
+
 #include <odb/details/config.hxx>       // ODB_THREADS_*
 #include <odb/mysql/details/config.hxx> // LIBODB_MYSQL_THR_KEY_VISIBLE
 
@@ -8,13 +10,13 @@
 #  include <pthread.h>
 #endif
 
+#include <utility> // std::move()
 #include <cstdlib> // abort
 
 #include <odb/details/tls.hxx>
 #include <odb/details/lock.hxx>
 
 #include <odb/mysql/mysql.hxx>
-#include <odb/mysql/connection-factory.hxx>
 #include <odb/mysql/exceptions.hxx>
 
 // This key is in the mysql client library. We use it to resolve the
@@ -136,15 +138,15 @@ namespace odb
     {
       tls_get (mysql_thread_init_);
 
-      return connection_ptr (new (shared) connection (*this));
+      return make_shared<connection> (*this);
     }
 
     // connection_pool_factory
     //
-    connection_pool_factory::pooled_connection_ptr connection_pool_factory::
+    unique_ptr<connection> connection_pool_factory::
     create ()
     {
-      return pooled_connection_ptr (new (shared) pooled_connection (*this));
+      return unique_ptr<connection> (new connection (*this));
     }
 
     connection_pool_factory::
@@ -167,42 +169,42 @@ namespace odb
     {
       tls_get (mysql_thread_init_);
 
-      // The outer loop checks whether the connection we were
-      // given is still valid.
+      lock l (mutex_);
+
+      // The outer loop checks whether the connection we were given is still
+      // valid.
       //
       while (true)
       {
-        pooled_connection_ptr c;
-
-        lock l (mutex_);
-
         // The inner loop tries to find a free connection.
         //
+        bool ping (false);;
+        unique_ptr<connection> c;
         while (true)
         {
           // See if we have a spare connection.
           //
           if (connections_.size () != 0)
           {
-            c = connections_.back ();
+            c = std::move (connections_.back ());
             connections_.pop_back ();
-
-            c->callback_ = &c->cb_;
-            in_use_++;
+            ping = ping_;
             break;
           }
 
           // See if we can create a new one.
           //
-          if(max_ == 0 || in_use_ < max_)
+          if (max_ == 0 || in_use_ < max_)
           {
-            // For new connections we don't need to ping so we
-            // can return immediately.
+            // Make sure we will be able to return it to the pool without
+            // allocations (which may throw). See release() for details.
             //
+            size_t n (connections_.size () + in_use_ + 1);
+            if (min_ == 0 || n <= min_)
+              connections_.reserve (n);
+
             c = create ();
-            c->callback_ = &c->cb_;
-            in_use_++;
-            return c;
+            break;
           }
 
           // Wait until someone releases a connection.
@@ -212,13 +214,27 @@ namespace odb
           waiters_--;
         }
 
+        in_use_++;
+
         l.unlock ();
 
-        if (!ping_ || c->ping ())
-          return c;
+        if (ping && !c->ping ())
+        {
+          l.lock ();
+          in_use_--;
+          continue; // Drop this connection and try again.
+        }
+
+        return shared_ptr<connection> (
+          c.release (),
+          [] (connection* c)
+          {
+            static_cast<connection_pool_factory&> (c->factory_).release (
+              unique_ptr<connection> (c));
+          });
       }
 
-      return pooled_connection_ptr (); // Never reached.
+      return nullptr; // Never reached.
     }
 
     void connection_pool_factory::
@@ -233,7 +249,7 @@ namespace odb
       if (!first)
         return;
 
-      if (min_ > 0)
+      if (min_ != 0)
       {
         connections_.reserve (min_);
 
@@ -242,11 +258,10 @@ namespace odb
       }
     }
 
-    bool connection_pool_factory::
-    release (pooled_connection* c)
+    void connection_pool_factory::
+    release (unique_ptr<connection> c) noexcept
     {
       c->clear ();
-      c->callback_ = 0;
 
       lock l (mutex_);
 
@@ -261,41 +276,12 @@ namespace odb
 
       if (keep)
       {
-        connections_.push_back (pooled_connection_ptr (inc_ref (c)));
-        connections_.back ()->recycle ();
+        c->recycle ();
+        connections_.push_back (std::move (c)); // Note: should not allocate.
       }
 
       if (waiters_ != 0)
         cond_.signal ();
-
-      return !keep;
-    }
-
-    //
-    // connection_pool_factory::pooled_connection
-    //
-
-    connection_pool_factory::pooled_connection::
-    pooled_connection (connection_pool_factory& f)
-        : connection (f)
-    {
-      cb_.arg = this;
-      cb_.zero_counter = &zero_counter;
-    }
-
-    connection_pool_factory::pooled_connection::
-    pooled_connection (connection_pool_factory& f, MYSQL* handle)
-        : connection (f, handle)
-    {
-      cb_.arg = this;
-      cb_.zero_counter = &zero_counter;
-    }
-
-    bool connection_pool_factory::pooled_connection::
-    zero_counter (void* arg)
-    {
-      pooled_connection* c (static_cast<pooled_connection*> (arg));
-      return static_cast<connection_pool_factory&> (c->factory_).release (c);
     }
   }
 }

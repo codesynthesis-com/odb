@@ -6,6 +6,8 @@
 
 #include <odb/pre.hxx>
 
+#include <memory> // std::shared_ptr
+
 #include <odb/forward.hxx>
 
 namespace odb
@@ -21,7 +23,7 @@ namespace odb
     //
     class database;
     class connection;
-    typedef details::shared_ptr<connection> connection_ptr;
+    typedef std::shared_ptr<connection> connection_ptr;
     class connection_factory;
     class statement;
     class transaction;
@@ -77,15 +79,6 @@ namespace odb
     class section_statements;
 
     class query_base;
-  }
-
-  namespace details
-  {
-    template <>
-    struct counter_type<mysql::connection>
-    {
-      typedef shared_base counter;
-    };
   }
 }
 

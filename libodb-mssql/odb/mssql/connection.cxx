@@ -1,12 +1,14 @@
 // file      : odb/mssql/connection.cxx
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <odb/mssql/mssql.hxx> // Must be included first.
+
+#include <odb/mssql/connection.hxx>
+
 #include <string>
 #include <cstdint> //intptr_t
 
-#include <odb/mssql/mssql.hxx>
 #include <odb/mssql/database.hxx>
-#include <odb/mssql/connection.hxx>
 #include <odb/mssql/transaction.hxx>
 #include <odb/mssql/statement.hxx>
 #include <odb/mssql/statement-cache.hxx>
@@ -159,7 +161,8 @@ namespace odb
     transaction_impl* connection::
     begin ()
     {
-      return new transaction_impl (connection_ptr (inc_ref (this)));
+      return new transaction_impl (
+        static_pointer_cast<connection> (this->shared_from_this ()));
     }
 
     unsigned long long connection::

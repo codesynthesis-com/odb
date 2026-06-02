@@ -3,6 +3,8 @@
 
 #include <sqlite3.h>
 
+#include <utility> // std::move()
+
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/connection.hxx>
 #include <odb/sqlite/statement.hxx>
@@ -21,7 +23,7 @@ namespace odb
     transaction_impl::
     transaction_impl (connection_ptr c, lock l)
         : odb::transaction_impl (c->database (), *c),
-          connection_ (c),
+          connection_ (std::move (c)),
           lock_ (l)
     {
     }

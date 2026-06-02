@@ -480,11 +480,10 @@ namespace odb
       return new transaction_impl (*this);
     }
 
-    odb::connection* database::
+    odb::connection_ptr database::
     connection_ ()
     {
-      connection_ptr c (factory_->connect ());
-      return c.release ();
+      return factory_->connect ();
     }
 
     const database::schema_version_info& database::

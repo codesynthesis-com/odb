@@ -14,7 +14,6 @@
 #include <odb/statement.hxx>
 
 #include <odb/details/export.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 namespace odb
 {

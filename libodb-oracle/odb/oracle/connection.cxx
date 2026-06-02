@@ -1,12 +1,13 @@
 // file      : odb/oracle/connection.cxx
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <odb/oracle/connection.hxx>
+
 #include <oci.h>
 
 #include <string>
 
 #include <odb/oracle/database.hxx>
-#include <odb/oracle/connection.hxx>
 #include <odb/oracle/transaction.hxx>
 #include <odb/oracle/statement.hxx>
 #include <odb/oracle/error.hxx>
@@ -148,7 +149,8 @@ namespace odb
     transaction_impl* connection::
     begin ()
     {
-      return new transaction_impl (connection_ptr (inc_ref (this)));
+      return new transaction_impl (
+        static_pointer_cast<connection> (this->shared_from_this ()));
     }
 
     unsigned long long connection::

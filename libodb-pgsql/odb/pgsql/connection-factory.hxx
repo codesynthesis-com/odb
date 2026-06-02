@@ -7,12 +7,12 @@
 #include <odb/pre.hxx>
 
 #include <vector>
+#include <memory>  // std::unique_ptr, std::shared_ptr
 #include <cstddef> // std::size_t
 #include <cassert>
 
 #include <odb/details/mutex.hxx>
 #include <odb/details/condition.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/pgsql/version.hxx>
 #include <odb/pgsql/forward.hxx>
@@ -81,38 +81,17 @@ namespace odb
       connection_pool_factory& operator= (const connection_pool_factory&);
 
     protected:
-      class LIBODB_PGSQL_EXPORT pooled_connection: public connection
-      {
-      public:
-        pooled_connection (connection_pool_factory&);
-        pooled_connection (connection_pool_factory&, PGconn*);
-
-      private:
-        static bool
-        zero_counter (void*);
-
-      private:
-        friend class connection_pool_factory;
-
-        shared_base::refcount_callback cb_;
-      };
-
-      friend class pooled_connection;
-
-      typedef details::shared_ptr<pooled_connection> pooled_connection_ptr;
-      typedef std::vector<pooled_connection_ptr> connections;
-
       // This function is called whenever the pool needs to create a new
       // connection.
       //
-      virtual pooled_connection_ptr
+      virtual std::unique_ptr<connection>
       create ();
 
     protected:
-      // Return true if the connection should be deleted, false otherwise.
+      // Release the connection to the pool or free it.
       //
-      bool
-      release (pooled_connection*);
+      void
+      release (std::unique_ptr<connection>) noexcept;
 
     protected:
       const std::size_t max_;
@@ -121,7 +100,7 @@ namespace odb
       std::size_t in_use_;  // Number of connections currently in use.
       std::size_t waiters_; // Number of threads waiting for a connection.
 
-      connections connections_;
+      std::vector<std::unique_ptr<connection>> connections_;
 
       details::mutex mutex_;
       details::condition cond_;

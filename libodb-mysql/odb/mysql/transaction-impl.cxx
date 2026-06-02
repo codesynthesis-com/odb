@@ -1,6 +1,8 @@
 // file      : odb/mysql/transaction-impl.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move()
+
 #include <odb/tracer.hxx>
 
 #include <odb/mysql/mysql.hxx>
@@ -21,7 +23,8 @@ namespace odb
 
     transaction_impl::
     transaction_impl (connection_ptr c)
-        : odb::transaction_impl (c->database (), *c), connection_ (c)
+        : odb::transaction_impl (c->database (), *c),
+          connection_ (std::move (c))
     {
     }
 

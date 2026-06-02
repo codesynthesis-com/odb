@@ -6,12 +6,11 @@
 
 #include <odb/pre.hxx>
 
-#include <memory> // std::unique_ptr
+#include <memory> // std::unique_ptr, std::shared_ptr
 
 #include <odb/connection.hxx>
 
 #include <odb/details/buffer.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/mssql/version.hxx>
 #include <odb/mssql/forward.hxx>
@@ -31,7 +30,7 @@ namespace odb
     class connection_factory;
 
     class connection;
-    typedef details::shared_ptr<connection> connection_ptr;
+    typedef std::shared_ptr<connection> connection_ptr;
 
     class LIBODB_MSSQL_EXPORT connection: public odb::connection
     {

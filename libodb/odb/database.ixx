@@ -126,7 +126,7 @@ namespace odb
   inline connection_ptr database::
   connection ()
   {
-    return connection_ptr (connection_ ());
+    return connection_ ();
   }
 
   inline void database::

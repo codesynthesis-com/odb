@@ -33,8 +33,7 @@ namespace odb
       // Go through the virtual connection_() function instead of
       // directly to allow overriding.
       //
-      return connection_ptr (
-        static_cast<oracle::connection*> (connection_ ()));
+      return std::static_pointer_cast<oracle::connection> (connection_ ());
     }
 
     template <typename T>

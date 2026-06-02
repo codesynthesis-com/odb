@@ -1,12 +1,14 @@
 // file      : odb/sqlite/connection-factory.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <odb/sqlite/connection-factory.hxx>
+
+#include <utility> // std::move()
 #include <cassert>
 
 #include <odb/details/lock.hxx>
 
 #include <odb/sqlite/database.hxx>
-#include <odb/sqlite/connection-factory.hxx>
 
 #include <odb/sqlite/details/config.hxx> // LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
 
@@ -14,7 +16,7 @@ using namespace std;
 
 namespace odb
 {
-  using namespace details;
+  using details::lock;
 
   namespace sqlite
   {
@@ -27,14 +29,14 @@ namespace odb
     {
       // We should hold the last reference to the connection.
       //
-      if (connection_ != 0)
-        assert (connection_.count () == 1);
+      if (connection_ != nullptr)
+        assert (connection_.use_count () == 1);
     }
 
     connection_ptr serial_connection_factory::
     create ()
     {
-      return connection_ptr (new (shared) connection (*this));
+      return make_shared<connection> (*this);
     }
 
     connection_ptr serial_connection_factory::
@@ -65,21 +67,24 @@ namespace odb
       lock l (mutex_);
     }
 
-    single_connection_factory::single_connection_ptr
-    single_connection_factory::
+    unique_ptr<connection> single_connection_factory::
     create ()
     {
-      return single_connection_ptr (new (shared) single_connection (*this));
+      return unique_ptr<connection> (new connection (*this));
     }
 
     connection_ptr single_connection_factory::
     connect ()
     {
       mutex_.lock ();
-      connection_->callback_ = &connection_->cb_;
-      connection_ptr r (connection_);
-      connection_.reset ();
-      return r;
+
+      return shared_ptr<connection> (
+        connection_.release (),
+        [] (connection* c)
+        {
+          static_cast<single_connection_factory&> (c->factory_).release (
+            unique_ptr<connection> (c));
+        });
     }
 
     void single_connection_factory::
@@ -91,41 +96,12 @@ namespace odb
         connection_ = create ();
     }
 
-    bool single_connection_factory::
-    release (single_connection* c)
+    void single_connection_factory::
+    release (unique_ptr<connection> c) noexcept
     {
-      c->callback_ = 0;
-      connection_.reset (inc_ref (c));
-      connection_->recycle ();
+      c->recycle ();
+      connection_ = std::move (c);
       mutex_.unlock ();
-      return false;
-    }
-
-    //
-    // single_connection_factory::single_connection
-    //
-
-    single_connection_factory::single_connection::
-    single_connection (single_connection_factory& f, int extra_flags)
-        : connection (f, extra_flags)
-    {
-      cb_.arg = this;
-      cb_.zero_counter = &zero_counter;
-    }
-
-    single_connection_factory::single_connection::
-    single_connection (single_connection_factory& f, sqlite3* handle)
-        : connection (f, handle)
-    {
-      cb_.arg = this;
-      cb_.zero_counter = &zero_counter;
-    }
-
-    bool single_connection_factory::single_connection::
-    zero_counter (void* arg)
-    {
-      single_connection* c (static_cast<single_connection*> (arg));
-      return static_cast<single_connection_factory&> (c->factory_).release (c);
     }
 
     //
@@ -135,7 +111,7 @@ namespace odb
     connection_ptr new_connection_factory::
     connect ()
     {
-      return connection_ptr (new (shared) connection (*this, extra_flags_));
+      return make_shared<connection> (*this, extra_flags_);
     }
 
     void new_connection_factory::
@@ -160,11 +136,10 @@ namespace odb
     // connection_pool_factory
     //
 
-    connection_pool_factory::pooled_connection_ptr connection_pool_factory::
+    unique_ptr<connection> connection_pool_factory::
     create ()
     {
-      return pooled_connection_ptr (
-        new (shared) pooled_connection (*this, extra_flags_));
+      return unique_ptr<connection> (new connection (*this, extra_flags_));
     }
 
     connection_pool_factory::
@@ -186,28 +161,31 @@ namespace odb
     {
       lock l (mutex_);
 
+      unique_ptr<connection> c;
       while (true)
       {
         // See if we have a spare connection.
         //
         if (connections_.size () != 0)
         {
-          shared_ptr<pooled_connection> c (connections_.back ());
+          c = std::move (connections_.back ());
           connections_.pop_back ();
-
-          c->callback_ = &c->cb_;
-          in_use_++;
-          return c;
+          break;
         }
 
         // See if we can create a new one.
         //
-        if(max_ == 0 || in_use_ < max_)
+        if (max_ == 0 || in_use_ < max_)
         {
-          shared_ptr<pooled_connection> c (create ());
-          c->callback_ = &c->cb_;
-          in_use_++;
-          return c;
+          // Make sure we will be able to return it to the pool without
+          // allocations (which may throw). See release() for details.
+          //
+          size_t n (connections_.size () + in_use_ + 1);
+          if (min_ == 0 || n <= min_)
+            connections_.reserve (n);
+
+          c = create ();
+          break;
         }
 
         // Wait until someone releases a connection.
@@ -216,6 +194,16 @@ namespace odb
         cond_.wait (l);
         waiters_--;
       }
+
+      in_use_++;
+
+      return shared_ptr<connection> (
+        c.release (),
+        [] (connection* c)
+        {
+          static_cast<connection_pool_factory&> (c->factory_).release (
+            unique_ptr<connection> (c));
+        });
     }
 
     void connection_pool_factory::
@@ -235,7 +223,7 @@ namespace odb
         extra_flags_ |= SQLITE_OPEN_SHAREDCACHE;
 #endif
 
-      if (min_ > 0)
+      if (min_ != 0)
       {
         connections_.reserve (min_);
 
@@ -244,11 +232,9 @@ namespace odb
       }
     }
 
-    bool connection_pool_factory::
-    release (pooled_connection* c)
+    void connection_pool_factory::
+    release (unique_ptr<connection> c) noexcept
     {
-      c->callback_ = 0;
-
       lock l (mutex_);
 
       // Determine if we need to keep or free this connection.
@@ -261,41 +247,12 @@ namespace odb
 
       if (keep)
       {
-        connections_.push_back (pooled_connection_ptr (inc_ref (c)));
-        connections_.back ()->recycle ();
+        c->recycle ();
+        connections_.push_back (std::move (c)); // Note: should not allocate.
       }
 
       if (waiters_ != 0)
         cond_.signal ();
-
-      return !keep;
-    }
-
-    //
-    // connection_pool_factory::pooled_connection
-    //
-
-    connection_pool_factory::pooled_connection::
-    pooled_connection (connection_pool_factory& f, int extra_flags)
-        : connection (f, extra_flags)
-    {
-      cb_.arg = this;
-      cb_.zero_counter = &zero_counter;
-    }
-
-    connection_pool_factory::pooled_connection::
-    pooled_connection (connection_pool_factory& f, sqlite3* handle)
-        : connection (f, handle)
-    {
-      cb_.arg = this;
-      cb_.zero_counter = &zero_counter;
-    }
-
-    bool connection_pool_factory::pooled_connection::
-    zero_counter (void* arg)
-    {
-      pooled_connection* c (static_cast<pooled_connection*> (arg));
-      return static_cast<connection_pool_factory&> (c->factory_).release (c);
     }
 
     //
@@ -308,11 +265,11 @@ namespace odb
       // Note that this function may be called several times, for example, in
       // case of detach_database() failure.
       //
-      if (attached_connection_ != 0)
+      if (attached_connection_ != nullptr)
       {
         // We should hold the last reference to the attached connection.
         //
-        assert (attached_connection_.count () == 1);
+        assert (attached_connection_.use_count () == 1);
 
         // While it may seem like a good idea to also invalidate query results
         // and reset active statements, if any such result/statement is still
@@ -341,7 +298,7 @@ namespace odb
     default_attached_connection_factory::
     ~default_attached_connection_factory ()
     {
-      if (attached_connection_ != 0)
+      if (attached_connection_ != nullptr)
       {
         // This can throw. Ignoring the failure to detach seems like the most
         // sensible thing to do here.
@@ -368,9 +325,9 @@ namespace odb
         if (s != "main" && s != "temp")
           main_factory ().attach_database (main_connection_, db.name (), s);
 
-        attached_connection_.reset (
-          new (shared) connection (*this,
-                                   s != "main" ? &translate_statement : 0));
+        attached_connection_ = make_shared<connection> (
+          *this,
+          s != "main" ? &translate_statement : 0);
 
         // Add ourselves to the active object list of the main connection.
         //

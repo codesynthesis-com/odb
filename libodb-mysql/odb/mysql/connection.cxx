@@ -1,11 +1,12 @@
 // file      : odb/mysql/connection.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <odb/mysql/connection.hxx>
+
 #include <new>    // std::bad_alloc
 #include <string>
 
 #include <odb/mysql/database.hxx>
-#include <odb/mysql/connection.hxx>
 #include <odb/mysql/transaction.hxx>
 #include <odb/mysql/statement.hxx>
 #include <odb/mysql/error.hxx>
@@ -92,7 +93,8 @@ namespace odb
     transaction_impl* connection::
     begin ()
     {
-      return new transaction_impl (connection_ptr (inc_ref (this)));
+      return new transaction_impl (
+        static_pointer_cast<connection> (this->shared_from_this ()));
     }
 
     unsigned long long connection::

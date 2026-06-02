@@ -1,6 +1,7 @@
 // file      : odb/pgsql/transaction-impl.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move()
 #include <cassert>
 
 #include <libpq-fe.h>
@@ -26,7 +27,8 @@ namespace odb
 
     transaction_impl::
     transaction_impl (connection_ptr c)
-        : odb::transaction_impl (c->database (), *c), connection_ (c)
+        : odb::transaction_impl (c->database (), *c),
+          connection_ (std::move (c))
     {
     }
 

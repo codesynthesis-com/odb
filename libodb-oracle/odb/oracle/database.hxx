@@ -502,7 +502,7 @@ namespace odb
       ~database ();
 
     protected:
-      virtual odb::connection*
+      virtual odb::connection_ptr
       connection_ ();
 
     private:

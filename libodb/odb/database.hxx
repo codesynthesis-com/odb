@@ -8,7 +8,7 @@
 
 #include <map>
 #include <string>
-#include <memory>      // std::unique_ptr
+#include <memory>      // std::unique_ptr, std::shared_ptr
 #include <cstddef>     // std::size_t
 #include <utility>     // std::move
 #include <functional>  // std::function
@@ -503,7 +503,7 @@ namespace odb
     database (database_id);
 
   protected:
-    virtual connection_type*
+    virtual connection_ptr
     connection_ () = 0;
 
   protected:

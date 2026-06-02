@@ -8,14 +8,14 @@
 
 #include <sqlite3.h>
 
-#include <memory> // std::unique_ptr
+#include <memory>  // std::unique_ptr, std::shared_ptr
+#include <utility> // std::move()
 
 #include <odb/statement.hxx>
 #include <odb/connection.hxx>
 
 #include <odb/details/mutex.hxx>
 #include <odb/details/condition.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
@@ -36,7 +36,7 @@ namespace odb
     class attached_connection_factory;
 
     class connection;
-    typedef details::shared_ptr<connection> connection_ptr;
+    typedef std::shared_ptr<connection> connection_ptr;
 
     // SQLite "active object", i.e., an object that needs to be
     // "cleared" before the transaction can be committed and the
@@ -325,8 +325,8 @@ namespace odb
     {
     public:
       explicit
-      attached_connection_factory (const connection_ptr& main)
-          : active_object (*main), main_connection_ (main) {}
+      attached_connection_factory (connection_ptr main)
+          : active_object (*main), main_connection_ (std::move (main)) {}
 
       virtual void
       detach () = 0;

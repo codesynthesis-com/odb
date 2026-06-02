@@ -6,7 +6,7 @@
 
 #include <odb/pre.hxx>
 
-#include <memory> // std::unique_ptr
+#include <memory> // std::unique_ptr, std::shared_ptr
 #include <vector>
 
 #include <odb/connection.hxx>
@@ -19,8 +19,6 @@
 #include <odb/mysql/transaction-impl.hxx>
 #include <odb/mysql/auto-handle.hxx>
 
-#include <odb/details/shared-ptr.hxx>
-
 #include <odb/mysql/details/export.hxx>
 
 namespace odb
@@ -31,7 +29,7 @@ namespace odb
     class connection_factory;
 
     class connection;
-    typedef details::shared_ptr<connection> connection_ptr;
+    typedef std::shared_ptr<connection> connection_ptr;
 
     class LIBODB_MYSQL_EXPORT connection: public odb::connection
     {

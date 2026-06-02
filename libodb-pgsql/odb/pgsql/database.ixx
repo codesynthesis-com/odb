@@ -31,8 +31,7 @@ namespace odb
       // Go through the virtual connection_() function instead of
       // directly to allow overriding.
       //
-      return connection_ptr (
-        static_cast<pgsql::connection*> (connection_ ()));
+      return std::static_pointer_cast<pgsql::connection> (connection_ ());
     }
 
     template <typename T>

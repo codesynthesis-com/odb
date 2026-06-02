@@ -3,6 +3,7 @@
 
 #include <oci.h>
 
+#include <utility> // std::move()
 #include <cassert>
 
 #include <odb/tracer.hxx>
@@ -25,7 +26,8 @@ namespace odb
 
     transaction_impl::
     transaction_impl (connection_ptr c)
-        : odb::transaction_impl (c->database (), *c), connection_ (c)
+        : odb::transaction_impl (c->database (), *c),
+          connection_ (std::move (c))
     {
     }
 

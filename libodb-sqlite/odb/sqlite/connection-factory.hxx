@@ -7,12 +7,13 @@
 #include <odb/pre.hxx>
 
 #include <vector>
+#include <memory>  // std::unique_ptr, std::shared_ptr
+#include <utility> // std::move()
 #include <cstddef> // std::size_t
 #include <cassert>
 
 #include <odb/details/mutex.hxx>
 #include <odb/details/condition.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
@@ -80,40 +81,21 @@ namespace odb
       single_connection_factory& operator= (const single_connection_factory&);
 
     protected:
-      class LIBODB_SQLITE_EXPORT single_connection: public connection
-      {
-      public:
-        single_connection (single_connection_factory&, int extra_flags = 0);
-        single_connection (single_connection_factory&, sqlite3*);
-
-      private:
-        static bool
-        zero_counter (void*);
-
-      private:
-        friend class single_connection_factory;
-        shared_base::refcount_callback cb_;
-      };
-
-      friend class single_connection;
-
-      typedef details::shared_ptr<single_connection> single_connection_ptr;
-
       // This function is called when the factory needs to create the
       // connection.
       //
-      virtual single_connection_ptr
+      virtual std::unique_ptr<connection>
       create ();
 
     protected:
-      // Return true if the connection should be deleted, false otherwise.
+      // Return the connection to the factory.
       //
-      bool
-      release (single_connection*);
+      void
+      release (std::unique_ptr<connection>) noexcept;
 
     protected:
       details::mutex mutex_;
-      single_connection_ptr connection_;
+      std::unique_ptr<connection> connection_;
     };
 
     // Create a new connection every time one is requested.
@@ -188,37 +170,17 @@ namespace odb
       connection_pool_factory& operator= (const connection_pool_factory&);
 
     protected:
-      class LIBODB_SQLITE_EXPORT pooled_connection: public connection
-      {
-      public:
-        pooled_connection (connection_pool_factory&, int extra_flags = 0);
-        pooled_connection (connection_pool_factory&, sqlite3*);
-
-      private:
-        static bool
-        zero_counter (void*);
-
-      private:
-        friend class connection_pool_factory;
-        shared_base::refcount_callback cb_;
-      };
-
-      friend class pooled_connection;
-
-      typedef details::shared_ptr<pooled_connection> pooled_connection_ptr;
-      typedef std::vector<pooled_connection_ptr> connections;
-
       // This function is called whenever the pool needs to create a new
       // connection.
       //
-      virtual pooled_connection_ptr
+      virtual std::unique_ptr<connection>
       create ();
 
     protected:
-      // Return true if the connection should be deleted, false otherwise.
+      // Release the connection to the pool or free it.
       //
-      bool
-      release (pooled_connection*);
+      void
+      release (std::unique_ptr<connection>) noexcept;
 
     protected:
       const std::size_t max_;
@@ -228,7 +190,7 @@ namespace odb
       std::size_t in_use_;  // Number of connections currently in use.
       std::size_t waiters_; // Number of threads waiting for a connection.
 
-      connections connections_;
+      std::vector<std::unique_ptr<connection>> connections_;
 
       details::mutex mutex_;
       details::condition cond_;
@@ -239,8 +201,8 @@ namespace odb
     {
     public:
       explicit
-      default_attached_connection_factory (const connection_ptr& main)
-          : attached_connection_factory (main) {}
+      default_attached_connection_factory (connection_ptr main)
+          : attached_connection_factory (std::move (main)) {}
 
       using attached_connection_factory::database; // Accessor.
 

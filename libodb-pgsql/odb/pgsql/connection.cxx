@@ -1,6 +1,8 @@
 // file      : odb/pgsql/connection.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <odb/pgsql/connection.hxx>
+
 #include <new>     // std::bad_alloc
 #include <string>
 #include <cstring> // std::strcmp
@@ -9,7 +11,6 @@
 #include <libpq-fe.h>
 
 #include <odb/pgsql/database.hxx>
-#include <odb/pgsql/connection.hxx>
 #include <odb/pgsql/transaction.hxx>
 #include <odb/pgsql/error.hxx>
 #include <odb/pgsql/exceptions.hxx>
@@ -85,7 +86,8 @@ namespace odb
     transaction_impl* connection::
     begin ()
     {
-      return new transaction_impl (connection_ptr (inc_ref (this)));
+      return new transaction_impl (
+        static_pointer_cast<connection> (this->shared_from_this ()));
     }
 
     unsigned long long connection::

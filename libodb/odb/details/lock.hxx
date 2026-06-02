@@ -23,34 +23,42 @@ namespace odb
 {
   namespace details
   {
-    class lock
+    class unique_lock
     {
     public:
-      lock (mutex& m)
-          : mutex_ (&m)
+      explicit
+      unique_lock (mutex& m)
+          : mutex_ (m), locked_ (true)
       {
-        mutex_->lock ();
+        mutex_.lock ();
       }
 
       ~lock ()
       {
-        if (mutex_ != 0)
-          mutex_->unlock ();
+        if (locked_)
+          mutex_.unlock ();
       }
 
       void
       unlock ()
       {
-        if (mutex_ != 0)
-        {
-          mutex_->unlock ();
-          mutex_ = 0;
-        }
+        mutex_.unlock ();
+        locked_ = false;
+      }
+
+      void
+      lock ()
+      {
+        mutex_.lock ();
+        locked_ = true;
       }
 
     private:
-      mutex* mutex_;
+      mutex& mutex_;
+      bool locked_;
     };
+
+    using lock = unique_lock;
   }
 }
 #endif

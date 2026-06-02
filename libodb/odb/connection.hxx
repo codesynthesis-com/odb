@@ -8,7 +8,7 @@
 
 #include <map>
 #include <string>
-#include <memory>   // std::unique_ptr
+#include <memory>   // std::unique_ptr, std::shared_ptr
 #include <cstddef>  // std::size_t
 #include <typeinfo>
 
@@ -19,7 +19,6 @@
 
 #include <odb/details/export.hxx>
 #include <odb/details/c-string.hxx>
-#include <odb/details/shared-ptr.hxx>
 
 namespace odb
 {
@@ -27,9 +26,9 @@ namespace odb
   class connection_factory;
 
   class connection;
-  typedef details::shared_ptr<connection> connection_ptr;
+  typedef std::shared_ptr<connection> connection_ptr;
 
-  class LIBODB_EXPORT connection: public details::shared_base
+  class LIBODB_EXPORT connection: public std::enable_shared_from_this<connection>
   {
   public:
     typedef odb::database database_type;
@@ -172,8 +171,12 @@ namespace odb
     void
     clear_prepared_map ();
 
-  protected:
+    // Implementation details.
+    //
+  public:
     connection_factory& factory_;
+
+  protected:
     tracer_type* tracer_;
 
     // Active query result list.

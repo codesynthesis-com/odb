@@ -3490,7 +3490,7 @@ namespace odb
     database ();
   };
 
-  using connection_ptr = details::shared_ptr&lt;connection>;
+  using connection_ptr = std::shared_ptr&lt;connection>;
 }
   </pre>
 
@@ -3505,12 +3505,12 @@ namespace odb
      to which this connection corresponds.</p>
 
   <p>To obtain a connection we call the <code>database::connection()</code>
-     function. The connection is returned as <code>odb::connection_ptr</code>,
-     which is an implementation-specific smart pointer with the shared
-     pointer semantics. This, in particular, means that the connection
-     pointer can be copied and returned from functions. Once the last
-     instance of <code>connection_ptr</code> pointing to the same
-     connection is destroyed, the connection is returned to the
+     function. The connection is returned
+     as <code>std::shared_ptr&lt;odb::connection></code>, which is also
+     aliased as <code>odb::connection_ptr</code>. This, in particular, means
+     that the connection pointer can be copied and returned from
+     functions. Once the last instance of <code>connection_ptr</code> pointing
+     to the same connection is destroyed, the connection is returned to the
      <code>database</code> instance. The following code fragment
      shows how we can obtain, use, and release a connection:</p>
 
@@ -20831,17 +20831,19 @@ namespace odb
 {
   namespace mysql
   {
+    class connection_factory;
+
     class connection: public odb::connection
     {
     public:
-      connection (database&amp;);
-      connection (database&amp;, MYSQL*);
+      connection (connection_factory&amp;);
+      connection (connection_factory&amp;, MYSQL*);
 
       MYSQL*
       handle ();
     };
 
-    using connection_ptr = details::shared_ptr&lt;connection>;
+    using connection_ptr = std::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -20925,16 +20927,7 @@ namespace odb
                                bool ping = true);
 
     protected:
-      class pooled_connection: public connection
-      {
-      public:
-        pooled_connection (database_type&amp;);
-        pooled_connection (database_type&amp;, MYSQL*);
-      };
-
-      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
-
-      virtual pooled_connection_ptr
+      virtual std::unique_ptr&lt;connection>
       create ();
     };
 };
@@ -22063,11 +22056,13 @@ namespace odb
 {
   namespace sqlite
   {
+    class connection_factory;
+
     class connection: public odb::connection
     {
     public:
-      connection (database&amp;, int extra_flags = 0);
-      connection (database&amp;, sqlite3*);
+      connection (connection_factory&amp;, int extra_flags = 0);
+      connection (connection_factory&amp;, sqlite3*);
 
       transaction
       begin_immediate ();
@@ -22079,7 +22074,7 @@ namespace odb
       handle ();
     };
 
-    using connection_ptr = details::shared_ptr&lt;connection>;
+    using connection_ptr = std::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -22190,16 +22185,7 @@ namespace odb
       single_connection_factory ();
 
     protected:
-      class single_connection: public connection
-      {
-      public:
-        single_connection (database&amp;, int extra_flags = 0);
-        single_connection (database&amp;, sqlite3*);
-      };
-
-      using single_connection_ptr = details::shared_ptr&lt;single_connection>;
-
-      virtual single_connection_ptr
+      virtual std::unique_ptr&lt;connection>
       create ();
     };
 };
@@ -22245,16 +22231,7 @@ namespace odb
                                std::size_t min_connections = 0);
 
     protected:
-      class pooled_connection: public connection
-      {
-      public:
-        pooled_connection (database_type&amp;, int extra_flags = 0);
-        pooled_connection (database_type&amp;, sqlite3*);
-      };
-
-      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
-
-      virtual pooled_connection_ptr
+      virtual std::unique_ptr&lt;connection>
       create ();
     };
 };
@@ -23194,17 +23171,19 @@ namespace odb
 {
   namespace pgsql
   {
+    class connection_factory;
+
     class connection: public odb::connection
     {
     public:
-      connection (database&amp;);
-      connection (database&amp;, PGconn*);
+      connection (connection_factory&amp;);
+      connection (connection_factory&amp;, PGconn*);
 
       PGconn*
       handle ();
     };
 
-    using connection_ptr = details::shared_ptr&lt;connection>;
+    using connection_ptr = std::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -23287,16 +23266,7 @@ namespace odb
                                std::size_t min_connections = 0);
 
     protected:
-      class pooled_connection: public connection
-      {
-      public:
-        pooled_connection (database_type&amp;);
-        pooled_connection (database_type&amp;, PGconn*);
-      };
-
-      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
-
-      virtual pooled_connection_ptr
+      virtual std::unique_ptr&lt;connection>
       create ();
     };
 };
@@ -24242,11 +24212,13 @@ namespace odb
 {
   namespace oracle
   {
+    class connection_factory;
+
     class connection: public odb::connection
     {
     public:
-      connection (database&amp;);
-      connection (database&amp;, OCISvcCtx*);
+      connection (connection_factory&amp;);
+      connection (connection_factory&amp;, OCISvcCtx*);
 
       OCISvcCtx*
       handle ();
@@ -24258,7 +24230,7 @@ namespace odb
       lob_buffer ();
     };
 
-    using connection_ptr = details::shared_ptr&lt;connection>;
+    using connection_ptr = std::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -24356,16 +24328,7 @@ namespace odb
                                std::size_t min_connections = 0);
 
     protected:
-      class pooled_connection: public connection
-      {
-      public:
-        pooled_connection (database_type&amp;);
-        pooled_connection (database_type&amp;, OCISvcCtx*);
-      };
-
-      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
-
-      virtual pooled_connection_ptr
+      virtual std::unique_ptr&lt;connection>
       create ();
     };
 };
@@ -25470,11 +25433,13 @@ namespace odb
 {
   namespace mssql
   {
+    class connection_factory;
+
     class connection: public odb::connection
     {
     public:
-      connection (database&amp;);
-      connection (database&amp;, SQLHDBC handle);
+      connection (connection_factory&amp;);
+      connection (connection_factory&amp;, SQLHDBC handle);
 
       SQLHDBC
       handle ();
@@ -25483,7 +25448,7 @@ namespace odb
       long_data_buffer ();
     };
 
-    using connection_ptr = details::shared_ptr&lt;connection>;
+    using connection_ptr = std::shared_ptr&lt;connection>;
   }
 }
   </pre>
@@ -25577,16 +25542,7 @@ namespace odb
                                std::size_t min_connections = 0);
 
     protected:
-      class pooled_connection: public connection
-      {
-      public:
-        pooled_connection (database_type&amp;);
-        pooled_connection (database_type&amp;, SQLHDBC handle);
-      };
-
-      using pooled_connection_ptr = details::shared_ptr&lt;pooled_connection>;
-
-      virtual pooled_connection_ptr
+      virtual std::unique_ptr&lt;connection>
       create ();
     };
 };

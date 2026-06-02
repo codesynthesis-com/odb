@@ -1,6 +1,8 @@
 // file      : odb/sqlite/connection.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <odb/sqlite/connection.hxx>
+
 #include <new>    // std::bad_alloc
 #include <string>
 #include <cassert>
@@ -8,7 +10,6 @@
 #include <odb/details/lock.hxx>
 
 #include <odb/sqlite/database.hxx>
-#include <odb/sqlite/connection.hxx>
 #include <odb/sqlite/transaction.hxx>
 #include <odb/sqlite/statement.hxx>
 #include <odb/sqlite/statement-cache.hxx>
@@ -194,21 +195,24 @@ namespace odb
     begin ()
     {
       return new transaction_impl (
-        connection_ptr (inc_ref (this)), transaction_impl::deferred);
+        static_pointer_cast<connection> (this->shared_from_this ()),
+        transaction_impl::deferred);
     }
 
     transaction_impl* connection::
     begin_immediate ()
     {
       return new transaction_impl (
-        connection_ptr (inc_ref (this)), transaction_impl::immediate);
+        static_pointer_cast<connection> (this->shared_from_this ()),
+        transaction_impl::immediate);
     }
 
     transaction_impl* connection::
     begin_exclusive ()
     {
       return new transaction_impl (
-        connection_ptr (inc_ref (this)), transaction_impl::exclusive);
+        static_pointer_cast<connection> (this->shared_from_this ()),
+        transaction_impl::exclusive);
     }
 
     unsigned long long connection::

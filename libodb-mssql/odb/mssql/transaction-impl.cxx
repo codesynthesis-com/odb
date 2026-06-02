@@ -1,6 +1,8 @@
 // file      : odb/mssql/transaction-impl.cxx
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <utility> // std::move()
+
 #include <odb/tracer.hxx>
 
 #include <odb/mssql/mssql.hxx>
@@ -21,7 +23,8 @@ namespace odb
 
     transaction_impl::
     transaction_impl (connection_ptr c)
-        : odb::transaction_impl (c->database (), *c), connection_ (c)
+        : odb::transaction_impl (c->database (), *c),
+          connection_ (std::move (c))
     {
     }
 

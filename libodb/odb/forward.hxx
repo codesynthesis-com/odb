@@ -6,10 +6,10 @@
 
 #include <odb/pre.hxx>
 
+#include <memory>  // std::shared_ptr
 #include <cstddef> // std::size_t
 
 #include <odb/details/export.hxx>
-#include <odb/details/shared-ptr-fwd.hxx>
 
 namespace odb
 {
@@ -31,7 +31,7 @@ namespace odb
 
   class database;
   class connection;
-  typedef details::shared_ptr<connection> connection_ptr;
+  typedef std::shared_ptr<connection> connection_ptr;
   class transaction;
   class statement;
   class session;
@@ -162,15 +162,6 @@ namespace odb
   //
   template <typename R>
   struct polymorphic_map;
-
-  namespace details
-  {
-    template <>
-    struct counter_type<connection>
-    {
-      typedef shared_base counter;
-    };
-  }
 }
 
 #include <odb/post.hxx>
