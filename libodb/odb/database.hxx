@@ -38,10 +38,12 @@ namespace odb
     virtual
     ~database ();
 
-    //database (database&&) = default; // VC 2013 @@ TMP retest
-
+    // The database is move-constructible but not move-assignable nor copy-
+    // constructible/assignable.
+    //
     // Note: noexcept is not specified since *_map_ (std::map) can throw.
     //
+    //database (database&&) = default; // VC 2013 @@ TMP retest
     database (database&& d)
         : id_ (d.id_),
           tracer_ (d.tracer_),
@@ -54,8 +56,8 @@ namespace odb
     }
 
     database (const database&) = delete;
+    database& operator= (database&&) = delete;
     database& operator= (const database&) = delete;
-    database& operator= (const database&&) = delete;
 
     // Object persistence API.
     //

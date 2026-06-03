@@ -35,6 +35,22 @@ namespace odb
     //
     transaction ();
 
+    // The transaction is neither move-constructible/assignable nor copy-
+    // constructible/assignable.
+    //
+    // Note that we could probably support move-construction with some effort
+    // (and thus allow returning transactions from functions). The tricky
+    // aspect here is the current transaction semantics: if the moved-from
+    // transaction is current, then it feels correct to make the new instance
+    // current instead. (BTW, an alternative approach would be to provide a
+    // detach() or release() function which transfers the underlying _impl
+    // pointer. But then we will have the issue with callbacks).
+    //
+    transaction (transaction&&) = delete;
+    transaction (const transaction&) = delete;
+    transaction& operator= (transaction&&) = delete;
+    transaction& operator= (const transaction&) = delete;
+
     // Unless the transaction has already been finalized (explicitly
     // committed or rolled back), the destructor will roll it back.
     //
@@ -163,12 +179,6 @@ namespace odb
   public:
     transaction_impl&
     implementation ();
-
-    // Copying or assignment of transactions is not supported.
-    //
-  private:
-    transaction (const transaction&);
-    transaction& operator= (const transaction&);
 
   protected:
     friend struct rollback_guard;

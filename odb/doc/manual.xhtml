@@ -3229,10 +3229,16 @@ namespace odb
     using database_type = odb::database;
     using connection_type = odb::connection;
 
+    transaction ();
+
     explicit
     transaction (transaction_impl*, bool make_current = true);
 
-    transaction ();
+    transaction (transaction&amp;&amp;) = delete;
+    transaction&amp; operator= (transaction&amp;&amp;) = delete;
+
+    transaction (const transaction&amp;) = delete;
+    transaction&amp; operator= (const transaction&amp;) = delete;
 
     void
     reset (transaction_impl*, bool make_current = true);
@@ -20710,6 +20716,15 @@ namespace odb
                 unsigned long client_flags = 0,
                 std::unique_ptr&lt;connection_factory> = nullptr);
 
+      // The database is move-constructible but not move-assignable
+      // nor copy-constructible/assignable.
+      //
+      database (database&amp;&amp;);
+      database&amp; operator= (database&amp;&amp;) = delete;
+
+      database (const database&amp;) = delete;
+      database&amp; operator= (const database&amp;) = delete;
+
       static void
       print_usage (std::ostream&amp;);
 
@@ -21921,6 +21936,15 @@ namespace odb
                 const std::string&amp; vfs = "",
                 std::unique_ptr&lt;connection_factory> = nullptr);
 
+      // The database is move-constructible but not move-assignable
+      // nor copy-constructible/assignable.
+      //
+      database (database&amp;&amp;);
+      database&amp; operator= (database&amp;&amp;) = delete;
+
+      database (const database&amp;) = delete;
+      database&amp; operator= (const database&amp;) = delete;
+
       static void
       print_usage (std::ostream&amp;);
 
@@ -23051,6 +23075,15 @@ namespace odb
                 const std::string&amp; extra_conninfo = "",
                 std::unique_ptr&lt;connection_factory> = nullptr);
 
+      // The database is move-constructible but not move-assignable
+      // nor copy-constructible/assignable.
+      //
+      database (database&amp;&amp;);
+      database&amp; operator= (database&amp;&amp;) = delete;
+
+      database (const database&amp;) = delete;
+      database&amp; operator= (const database&amp;) = delete;
+
       static void
       print_usage (std::ostream&amp;);
 
@@ -24065,6 +24098,15 @@ namespace odb
                 ub2 ncharset = 0,
                 OCIEnv* environment = 0,
                 std::unique_ptr&lt;connection_factory> = nullptr);
+
+      // The database is move-constructible but not move-assignable
+      // nor copy-constructible/assignable.
+      //
+      database (database&amp;&amp;);
+      database&amp; operator= (database&amp;&amp;) = delete;
+
+      database (const database&amp;) = delete;
+      database&amp; operator= (const database&amp;) = delete;
 
       static void
       print_usage (std::ostream&amp;);
@@ -25173,6 +25215,15 @@ namespace odb
                 transaction_isolation_type = isolation_read_committed,
                 SQLHENV environment = 0,
                 std::unique_ptr&lt;connection_factory> = nullptr);
+
+      // The database is move-constructible but not move-assignable
+      // nor copy-constructible/assignable.
+      //
+      database (database&amp;&amp;);
+      database&amp; operator= (database&amp;&amp;) = delete;
+
+      database (const database&amp;) = delete;
+      database&amp; operator= (const database&amp;) = delete;
 
       static void
       print_usage (std::ostream&amp;);
