@@ -922,13 +922,19 @@ main (int argc, char* argv[])
 
         // Deal with Windows command line length limit.
         //
+        // Apply the command line fix-up on Windows to a copy of exec_args, so
+        // that we can reuse exec_args for the remaining input files, if any.
+        //
 #ifdef _WIN32
+        cstrings eas (exec_args);
         string ops_file_arg;
         auto_remove opt_file_rm (
-          fixup_cmd_line (exec_args, 1, argv[0], ops_file_arg));
+          fixup_cmd_line (eas, 1, argv[0], ops_file_arg));
+#else
+        cstrings& eas (exec_args);
 #endif
 
-        process_info pi (start_process (&exec_args[0], argv[0], false, true));
+        process_info pi (start_process (&eas[0], argv[0], false, true));
 
         {
           __gnu_cxx::stdio_filebuf<char> fb (
