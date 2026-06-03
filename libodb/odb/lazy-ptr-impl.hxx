@@ -52,8 +52,7 @@ namespace odb
     database_type*
     database () const;
 
-    typedef void* lazy_ptr_base::*unspecified_bool_type;
-    operator unspecified_bool_type () const noexcept
+    explicit operator bool () const noexcept
     {
       return db_ != 0 ? &lazy_ptr_base::id_ : 0;
     }

@@ -43,8 +43,7 @@ namespace odb
     T* operator-> () const;
     T* get () const;
 
-    typedef T* lazy_ptr::*unspecified_bool_type;
-    operator unspecified_bool_type () const
+    explicit operator bool () const noexcept
     {
       return (p_ || i_) ? &lazy_ptr::p_ : 0;
     }
