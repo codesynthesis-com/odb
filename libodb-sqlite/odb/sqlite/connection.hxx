@@ -116,13 +116,13 @@ namespace odb
       main_connection (const connection_ptr&);
 
     public:
-      virtual transaction_impl*
+      std::unique_ptr<transaction_impl>
       begin ();
 
-      transaction_impl*
+      std::unique_ptr<transaction_impl>
       begin_immediate ();
 
-      transaction_impl*
+      std::unique_ptr<transaction_impl>
       begin_exclusive ();
 
     public:
@@ -216,6 +216,10 @@ namespace odb
       connection_factory&
       factory ();
 
+    protected:
+      virtual std::unique_ptr<odb::transaction_impl>
+      begin_ () override;
+
     private:
       connection (const connection&);
       connection& operator= (const connection&);
@@ -240,11 +244,11 @@ namespace odb
       // Note: using odb::statement in order to break the connection-statement
       // dependency cycle.
       //
-      std::unique_ptr<odb::statement> begin_;
-      std::unique_ptr<odb::statement> begin_immediate_;
-      std::unique_ptr<odb::statement> begin_exclusive_;
-      std::unique_ptr<odb::statement> commit_;
-      std::unique_ptr<odb::statement> rollback_;
+      std::unique_ptr<odb::statement> begin_statement_;
+      std::unique_ptr<odb::statement> begin_immediate_statement_;
+      std::unique_ptr<odb::statement> begin_exclusive_statement_;
+      std::unique_ptr<odb::statement> commit_statement_;
+      std::unique_ptr<odb::statement> rollback_statement_;
 
       // Unlock notification machinery.
       //

@@ -1,6 +1,8 @@
 // file      : odb/mssql/transaction.ixx
 // license   : ODB NCUEL; see accompanying LICENSE file
 
+#include <utility> // std::move
+
 #include <odb/mssql/database.hxx>
 #include <odb/mssql/transaction-impl.hxx>
 
@@ -9,8 +11,8 @@ namespace odb
   namespace mssql
   {
     inline transaction::
-    transaction (transaction_impl* impl, bool make_current)
-        : odb::transaction (impl, make_current)
+    transaction (std::unique_ptr<transaction_impl> impl, bool make_current)
+        : odb::transaction (std::move (impl), make_current)
     {
     }
 

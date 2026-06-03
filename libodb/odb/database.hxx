@@ -406,8 +406,8 @@ namespace odb
     // Transactions.
     //
   public:
-    virtual transaction_impl*
-    begin () = 0;
+    std::unique_ptr<transaction_impl>
+    begin ();
 
     // Connections.
     //
@@ -505,6 +505,9 @@ namespace odb
     database (database_id);
 
   protected:
+    virtual std::unique_ptr<transaction_impl>
+    begin_ () = 0;
+
     virtual connection_ptr
     connection_ () = 0;
 

@@ -158,11 +158,12 @@ namespace odb
         SQLDisconnect (handle_); // Ignore any errors.
     }
 
-    transaction_impl* connection::
-    begin ()
+    unique_ptr<odb::transaction_impl> connection::
+    begin_ ()
     {
-      return new transaction_impl (
-        static_pointer_cast<connection> (this->shared_from_this ()));
+      return unique_ptr<odb::transaction_impl> (
+        new transaction_impl (
+          static_pointer_cast<connection> (this->shared_from_this ())));
     }
 
     unsigned long long connection::

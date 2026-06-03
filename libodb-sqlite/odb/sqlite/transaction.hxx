@@ -6,6 +6,8 @@
 
 #include <odb/pre.hxx>
 
+#include <memory> // std::unique_ptr
+
 #include <odb/transaction.hxx>
 
 #include <odb/sqlite/version.hxx>
@@ -26,7 +28,7 @@ namespace odb
       typedef sqlite::connection connection_type;
 
       explicit
-      transaction (transaction_impl*, bool make_current = true);
+      transaction (std::unique_ptr<transaction_impl>, bool make_current = true);
 
       transaction ();
 

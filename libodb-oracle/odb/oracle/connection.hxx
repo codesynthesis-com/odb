@@ -48,7 +48,7 @@ namespace odb
       database ();
 
     public:
-      virtual transaction_impl*
+      std::unique_ptr<transaction_impl>
       begin ();
 
     public:
@@ -132,6 +132,10 @@ namespace odb
       {
         return lob_buffer_;
       }
+
+    protected:
+      virtual std::unique_ptr<odb::transaction_impl>
+      begin_ () override;
 
     private:
       connection (const connection&);

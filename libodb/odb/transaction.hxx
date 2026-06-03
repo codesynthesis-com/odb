@@ -28,7 +28,7 @@ namespace odb
     // the current transaction of the thread.
     //
     explicit
-    transaction (transaction_impl*, bool make_current = true);
+    transaction (std::unique_ptr<transaction_impl>, bool make_current = true);
 
     // Create a finalized transaction instance which can later be initialized
     // with reset().
@@ -62,7 +62,7 @@ namespace odb
     // transaction of the thread.
     //
     void
-    reset (transaction_impl*, bool make_current = true);
+    reset (std::unique_ptr<transaction_impl>, bool make_current = true);
 
     void
     commit ();

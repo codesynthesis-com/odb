@@ -215,10 +215,10 @@ namespace odb
     {
     }
 
-    transaction_impl* database::
-    begin ()
+    unique_ptr<odb::transaction_impl> database::
+    begin_ ()
     {
-      return new transaction_impl (*this);
+      return unique_ptr<odb::transaction_impl> (new transaction_impl (*this));
     }
 
     odb::connection_ptr database::

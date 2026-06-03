@@ -1,6 +1,8 @@
 // file      : odb/sqlite/transaction.ixx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <utility> // std::move
+
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction-impl.hxx>
 
@@ -9,8 +11,8 @@ namespace odb
   namespace sqlite
   {
     inline transaction::
-    transaction (transaction_impl* impl, bool make_current)
-        : odb::transaction (impl, make_current)
+    transaction (std::unique_ptr<transaction_impl> impl, bool make_current)
+        : odb::transaction (std::move (impl), make_current)
     {
     }
 

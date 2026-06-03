@@ -2,6 +2,9 @@
 // license   : GNU GPL v2; see accompanying LICENSE file
 
 #include <odb/transaction.hxx>
+
+#include <utility> // std::move
+
 #include <odb/exceptions.hxx>
 
 #include <odb/details/tls.hxx>
@@ -27,14 +30,12 @@ namespace odb
   }
 
   void transaction::
-  reset (transaction_impl* impl, bool make_current)
+  reset (unique_ptr<transaction_impl> impl, bool make_current)
   {
-    std::unique_ptr<transaction_impl> i (impl);
-
     if (!finalized_)
       rollback ();
 
-    impl_ = std::move (i);
+    impl_ = std::move (impl);
 
     if (make_current && tls_get (current_transaction) != 0)
       throw already_in_transaction ();

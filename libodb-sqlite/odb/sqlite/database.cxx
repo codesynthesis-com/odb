@@ -183,22 +183,25 @@ namespace odb
       details::options::print_usage (os);
     }
 
-    transaction_impl* database::
-    begin ()
+    unique_ptr<odb::transaction_impl> database::
+    begin_ ()
     {
-      return new transaction_impl (*this, transaction_impl::deferred);
+      return unique_ptr<odb::transaction_impl> (
+        new transaction_impl (*this, transaction_impl::deferred));
     }
 
-    transaction_impl* database::
+    unique_ptr<transaction_impl> database::
     begin_immediate ()
     {
-      return new transaction_impl (*this, transaction_impl::immediate);
+      return unique_ptr<transaction_impl> (
+        new transaction_impl (*this, transaction_impl::immediate));
     }
 
-    transaction_impl* database::
+    unique_ptr<transaction_impl> database::
     begin_exclusive ()
     {
-      return new transaction_impl (*this, transaction_impl::exclusive);
+      return unique_ptr<transaction_impl> (
+        new transaction_impl (*this, transaction_impl::exclusive));
     }
 
     odb::connection_ptr database::

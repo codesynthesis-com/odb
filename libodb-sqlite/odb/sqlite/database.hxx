@@ -482,15 +482,17 @@ namespace odb
       // Transactions.
       //
     public:
-      virtual transaction_impl*
+      std::unique_ptr<transaction_impl>
       begin ();
 
-      transaction_impl*
+      std::unique_ptr<transaction_impl>
       begin_immediate ();
 
-      transaction_impl*
+      std::unique_ptr<transaction_impl>
       begin_exclusive ();
 
+      // Connections.
+      //
     public:
       connection_ptr
       connection ();
@@ -530,8 +532,11 @@ namespace odb
       ~database ();
 
     protected:
+      virtual std::unique_ptr<odb::transaction_impl>
+      begin_ () override;
+
       virtual odb::connection_ptr
-      connection_ ();
+      connection_ () override;
 
     private:
       friend class transaction_impl; // factory_

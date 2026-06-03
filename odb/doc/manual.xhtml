@@ -3223,6 +3223,8 @@ t.commit ();
   <pre class="cxx">
 namespace odb
 {
+  class transaction_impl;
+
   class transaction
   {
   public:
@@ -3232,7 +3234,8 @@ namespace odb
     transaction ();
 
     explicit
-    transaction (transaction_impl*, bool make_current = true);
+    transaction (std::unique_ptr&lt;transaction_impl>,
+                 bool make_current = true);
 
     transaction (transaction&amp;&amp;) = delete;
     transaction&amp; operator= (transaction&amp;&amp;) = delete;
@@ -3241,7 +3244,8 @@ namespace odb
     transaction&amp; operator= (const transaction&amp;) = delete;
 
     void
-    reset (transaction_impl*, bool make_current = true);
+    reset (std::unique_ptr&lt;transaction_impl>,
+           bool make_current = true);
 
     void
     commit ();

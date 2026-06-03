@@ -116,9 +116,9 @@ namespace odb
 
       // String lengths include '\0', as per the SQLite manual suggestion.
       //
-      begin_.reset (new generic_statement (*this, "BEGIN", 6));
-      commit_.reset (new generic_statement (*this, "COMMIT", 7));
-      rollback_.reset (new generic_statement (*this, "ROLLBACK", 9));
+      begin_statement_.reset (new generic_statement (*this, "BEGIN", 6));
+      commit_statement_.reset (new generic_statement (*this, "COMMIT", 7));
+      rollback_statement_.reset (new generic_statement (*this, "ROLLBACK", 9));
 
       // Create statement cache.
       //
@@ -156,63 +156,66 @@ namespace odb
     generic_statement& connection::
     begin_statement ()
     {
-      return static_cast<generic_statement&> (*begin_);
+      return static_cast<generic_statement&> (*begin_statement_);
     }
 
     generic_statement& connection::
     begin_immediate_statement ()
     {
-      if (!begin_immediate_)
-        begin_immediate_.reset (
+      if (!begin_immediate_statement_)
+        begin_immediate_statement_.reset (
           new generic_statement (*this, "BEGIN IMMEDIATE", 16));
 
-      return static_cast<generic_statement&> (*begin_immediate_);
+      return static_cast<generic_statement&> (*begin_immediate_statement_);
     }
 
     generic_statement& connection::
     begin_exclusive_statement ()
     {
-      if (!begin_exclusive_)
-        begin_exclusive_.reset (
+      if (!begin_exclusive_statement_)
+        begin_exclusive_statement_.reset (
           new generic_statement (*this, "BEGIN EXCLUSIVE", 16));
 
-      return static_cast<generic_statement&> (*begin_exclusive_);
+      return static_cast<generic_statement&> (*begin_exclusive_statement_);
     }
 
     generic_statement& connection::
     commit_statement ()
     {
-      return static_cast<generic_statement&> (*commit_);
+      return static_cast<generic_statement&> (*commit_statement_);
     }
 
     generic_statement& connection::
     rollback_statement ()
     {
-      return static_cast<generic_statement&> (*rollback_);
+      return static_cast<generic_statement&> (*rollback_statement_);
     }
 
-    transaction_impl* connection::
-    begin ()
+    unique_ptr<odb::transaction_impl> connection::
+    begin_ ()
     {
-      return new transaction_impl (
-        static_pointer_cast<connection> (this->shared_from_this ()),
-        transaction_impl::deferred);
+      return unique_ptr<odb::transaction_impl> (
+        new transaction_impl (
+          static_pointer_cast<connection> (this->shared_from_this ()),
+          transaction_impl::deferred));
     }
 
-    transaction_impl* connection::
+    unique_ptr<transaction_impl> connection::
     begin_immediate ()
     {
-      return new transaction_impl (
-        static_pointer_cast<connection> (this->shared_from_this ()),
-        transaction_impl::immediate);
+      return unique_ptr<transaction_impl> (
+        new transaction_impl (
+          static_pointer_cast<connection> (this->shared_from_this ()),
+          transaction_impl::immediate));
     }
 
-    transaction_impl* connection::
+    unique_ptr<transaction_impl> connection::
     begin_exclusive ()
     {
-      return new transaction_impl (
-        static_pointer_cast<connection> (this->shared_from_this ()),
-        transaction_impl::exclusive);
+      return unique_ptr<transaction_impl> (
+        new transaction_impl (
+          static_pointer_cast<connection> (this->shared_from_this ()),
+          transaction_impl::exclusive));
     }
 
     unsigned long long connection::

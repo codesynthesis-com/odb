@@ -405,9 +405,11 @@ namespace odb
       // Transactions.
       //
     public:
-      virtual transaction_impl*
+      std::unique_ptr<transaction_impl>
       begin ();
 
+      // Connections.
+      //
     public:
       connection_ptr
       connection ();
@@ -502,8 +504,11 @@ namespace odb
       ~database ();
 
     protected:
+      virtual std::unique_ptr<odb::transaction_impl>
+      begin_ () override;
+
       virtual odb::connection_ptr
-      connection_ ();
+      connection_ () override;
 
     private:
       // Note: remember to update move ctor if adding any new members.

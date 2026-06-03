@@ -123,6 +123,12 @@ namespace odb
     return schema_version_seq_;
   }
 
+  inline std::unique_ptr<transaction_impl> database::
+  begin ()
+  {
+    return begin_ ();
+  }
+
   inline connection_ptr database::
   connection ()
   {

@@ -4,6 +4,8 @@
 #include <cstring> // std::string
 #include <cassert>
 
+#include <odb/transaction.hxx> // transaction_impl
+
 namespace odb
 {
   inline connection::
@@ -20,6 +22,12 @@ namespace odb
   database ()
   {
     return factory_.database ();
+  }
+
+  inline std::unique_ptr<transaction_impl> connection::
+  begin ()
+  {
+    return begin_ ();
   }
 
   inline unsigned long long connection::

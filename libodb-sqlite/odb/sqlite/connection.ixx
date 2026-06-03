@@ -37,6 +37,16 @@ namespace odb
       return static_cast<connection_factory&> (factory_).database ();
     }
 
+    inline std::unique_ptr<transaction_impl> connection::
+    begin ()
+    {
+      // Go through the virtual begin_() function instead of directly to allow
+      // overriding.
+      //
+      return std::unique_ptr<transaction_impl> (
+        static_cast<sqlite::transaction_impl*> (begin_ ().release ()));
+    }
+
     inline connection& connection::
     main_connection ()
     {

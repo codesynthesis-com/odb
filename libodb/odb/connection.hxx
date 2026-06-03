@@ -39,8 +39,8 @@ namespace odb
     // Transactions.
     //
   public:
-    virtual transaction_impl*
-    begin () = 0;
+    std::unique_ptr<transaction_impl>
+    begin ();
 
     // Native database statement execution. Note that unlike the
     // versions in the database class, these can be executed
@@ -120,6 +120,10 @@ namespace odb
     //
     void
     recycle ();
+
+  protected:
+    virtual std::unique_ptr<transaction_impl>
+    begin_ () = 0;
 
   protected:
     connection (connection_factory&);

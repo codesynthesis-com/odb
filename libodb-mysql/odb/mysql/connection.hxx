@@ -47,7 +47,7 @@ namespace odb
       database ();
 
     public:
-      virtual transaction_impl*
+      std::unique_ptr<transaction_impl>
       begin ();
 
     public:
@@ -158,6 +158,10 @@ namespace odb
 
       void
       free_stmt_handle (auto_handle<MYSQL_STMT>&);
+
+    protected:
+      virtual std::unique_ptr<odb::transaction_impl>
+      begin_ () override;
 
     private:
       connection (const connection&);

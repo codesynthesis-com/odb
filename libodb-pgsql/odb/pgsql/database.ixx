@@ -4,6 +4,7 @@
 #include <utility> // std::move()
 
 #include <odb/pgsql/transaction.hxx>
+#include <odb/pgsql/transaction-impl.hxx>
 
 namespace odb
 {
@@ -23,6 +24,16 @@ namespace odb
           factory_ (std::move (db.factory_))
     {
       factory_->database (*this); // New database instance.
+    }
+
+    inline std::unique_ptr<transaction_impl> database::
+    begin ()
+    {
+      // Go through the virtual begin_() function instead of directly to allow
+      // overriding.
+      //
+      return std::unique_ptr<transaction_impl> (
+        static_cast<pgsql::transaction_impl*> (begin_ ().release ()));
     }
 
     inline connection_ptr database::
