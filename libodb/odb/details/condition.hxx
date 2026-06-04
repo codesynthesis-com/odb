@@ -56,10 +56,6 @@ namespace odb
   }
 }
 
-#elif defined(ODB_THREADS_POSIX)
-#include <odb/details/posix/condition.hxx>
-#elif defined(ODB_THREADS_WIN32)
-#include <odb/details/win32/condition.hxx>
 #else
 # error unknown threading model
 #endif

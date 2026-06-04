@@ -18,14 +18,8 @@
 #  endif
 #endif
 
-#ifdef LIBODB_MYSQL_INCLUDE_SHORT
-#  include <mysql.h>
-#  include <errmsg.h>
-#  include <mysqld_error.h>
-#else
-#  include <mysql/mysql.h>
-#  include <mysql/errmsg.h>
-#  include <mysql/mysqld_error.h>
-#endif
+#include <mysql/mysql.h>
+#include <mysql/errmsg.h>
+#include <mysql/mysqld_error.h>
 
 #endif // ODB_MYSQL_MYSQL_HXX

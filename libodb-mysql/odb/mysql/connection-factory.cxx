@@ -4,11 +4,6 @@
 #include <odb/mysql/connection-factory.hxx>
 
 #include <odb/details/config.hxx>       // ODB_THREADS_*
-#include <odb/mysql/details/config.hxx> // LIBODB_MYSQL_THR_KEY_VISIBLE
-
-#if defined(ODB_THREADS_POSIX) && defined(LIBODB_MYSQL_THR_KEY_VISIBLE)
-#  include <pthread.h>
-#endif
 
 #include <utility> // std::move()
 #include <cstdlib> // abort
@@ -18,27 +13,6 @@
 
 #include <odb/mysql/mysql.hxx>
 #include <odb/mysql/exceptions.hxx>
-
-// This key is in the mysql client library. We use it to resolve the
-// following problem: Some pthread implementations zero-out slots that
-// don't have destructors during thread termination. As a result, when
-// our destructor gets called and we call mysql_thread_end(), the thread-
-// specific slot used by MySQL may have been reset to 0 and as a result
-// MySQL thinks the data has been freed.
-//
-// To work around this problem we are going to cache the MySQL's slot
-// value and if, during destruction, we see that it is 0, we will restore
-// the original value before calling mysql_thread_end(). This will work
-// fine for as long as the following conditions are met:
-//
-// 1. MySQL doesn't use the destructor itself.
-// 2. Nobody else tried to call mysql_thread_end() before us.
-//
-// Note: in 5.7 the key has been made static and is no longer accessible.
-//
-#if defined(ODB_THREADS_POSIX) && defined(LIBODB_MYSQL_THR_KEY_VISIBLE)
-extern pthread_key_t THR_KEY_mysys;
-#endif
 
 using namespace std;
 
@@ -67,30 +41,17 @@ namespace odb
             }
 
             init_ = true;
-
-#if defined(ODB_THREADS_POSIX) && defined(LIBODB_MYSQL_THR_KEY_VISIBLE)
-            value_ = pthread_getspecific (THR_KEY_mysys);
-#endif
           }
         }
 
         ~mysql_thread_init ()
         {
           if (init_)
-          {
-#if defined(ODB_THREADS_POSIX) && defined(LIBODB_MYSQL_THR_KEY_VISIBLE)
-            if (pthread_getspecific (THR_KEY_mysys) == 0)
-              pthread_setspecific (THR_KEY_mysys, value_);
-#endif
             mysql_thread_end ();
-          }
         }
 
       private:
         bool init_;
-#if defined(ODB_THREADS_POSIX) && defined(LIBODB_MYSQL_THR_KEY_VISIBLE)
-        void* value_;
-#endif
 #endif // ODB_THREADS_NONE
       };
 

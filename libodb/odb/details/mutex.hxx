@@ -41,10 +41,6 @@ namespace odb
     using std::mutex;
   }
 }
-#elif defined(ODB_THREADS_POSIX)
-#include <odb/details/posix/mutex.hxx>
-#elif defined(ODB_THREADS_WIN32)
-#include <odb/details/win32/mutex.hxx>
 #else
 # error unknown threading model
 #endif
