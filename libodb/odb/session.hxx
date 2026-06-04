@@ -9,6 +9,8 @@
 #include <map>
 #include <memory> // std::unique_ptr
 #include <typeinfo>
+#include <type_traits> // std::enable_if, etc
+#include <unordered_map>
 
 #include <odb/traits.hxx>
 #include <odb/forward.hxx>
@@ -81,10 +83,28 @@ namespace odb
       ~object_map_base ();
     };
 
+    template <typename T, typename = void>
+    struct object_map_type:
+      std::map<typename object_traits<T>::id_type,
+               typename object_traits<T>::pointer_type>
+    {
+    };
+
     template <typename T>
-    struct object_map: object_map_base,
-                       std::map<typename object_traits<T>::id_type,
-                                typename object_traits<T>::pointer_type>
+    struct object_map_type<
+      T,
+      typename std::enable_if<
+        std::is_convertible<
+          decltype (std::hash<typename object_traits<T>::id_type> () (
+                      std::declval<typename object_traits<T>::id_type> ())),
+          std::size_t>::value>::type>:
+      std::unordered_map<typename object_traits<T>::id_type,
+                         typename object_traits<T>::pointer_type>
+    {
+    };
+
+    template <typename T>
+    struct object_map: object_map_base, object_map_type<T>
     {
     };
 
