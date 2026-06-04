@@ -6,14 +6,13 @@
 
 #include <vector>
 #include <memory>   // std::unique_ptr
+#include <thread>
 #include <utility>  // std::move()
 #include <cstddef>  // std::size_t
 #include <iostream>
 
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
-
-#include <odb/details/thread.hxx>
 
 #include <libcommon/config.hxx> // DATABASE_*
 #include <libcommon/common.hxx>
@@ -38,12 +37,14 @@ const unsigned long sub_iteration_count = 40;
 
 struct task
 {
+  bool result;
+
   task (database& db, unsigned long n)
-      : db_ (db), n_ (n)
+      : result (false), db_ (db), n_ (n)
   {
   }
 
-  void*
+  void
   execute ()
   {
     try
@@ -162,16 +163,10 @@ struct task
     catch (const odb::exception& e)
     {
       cerr << e.what () << endl;
-      return reinterpret_cast<void*> (1);
+      result = false;
     }
 
-    return 0;
-  }
-
-  static void*
-  execute (void* arg)
-  {
-    return static_cast<task*> (arg)->execute ();
+    result = true;
   }
 
   database& db_;
@@ -183,25 +178,28 @@ test (int argc, char* argv[], size_t max_connections)
 {
   unique_ptr<database> db (create_database (argc, argv, true, max_connections));
 
-  vector<unique_ptr<details::thread>> threads;
+  vector<unique_ptr<thread>> threads;
   vector<unique_ptr<task>> tasks;
 
-  for (unsigned long i (0); i < thread_count; ++i)
+  for (unsigned long i (0); i != thread_count; ++i)
   {
     unique_ptr<task> t (new task (*db, i));
 
     threads.push_back (
-      unique_ptr<details::thread> (
-        new details::thread (&task::execute, t.get ())));
+      unique_ptr<thread> (
+        new thread (&task::execute, t.get ())));
 
     tasks.push_back (std::move (t));
   }
 
   bool r (true);
+  for (unsigned long i (0); i != thread_count; ++i)
+  {
+    threads[i]->join ();
 
-  for (unsigned long i (0); i < thread_count; ++i)
-    if (threads[i]->join () != 0)
+    if (!tasks[i]->result)
       r = false;
+  }
 
   {
     typedef odb::result<object> result;
