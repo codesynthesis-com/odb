@@ -203,9 +203,8 @@ namespace odb
         e_ = e;
       }
 
-    private:
-      auto_handle (const auto_handle&);
-      auto_handle& operator= (const auto_handle&);
+      auto_handle (const auto_handle&) = delete;
+      auto_handle& operator= (const auto_handle&) = delete;
 
     private:
       OCISvcCtx* h_;
@@ -268,9 +267,8 @@ namespace odb
         e_ = e;
       }
 
-    private:
-      auto_handle (const auto_handle&);
-      auto_handle& operator= (const auto_handle&);
+      auto_handle (const auto_handle&) = delete;
+      auto_handle& operator= (const auto_handle&) = delete;
 
     private:
       OCIStmt* h_;

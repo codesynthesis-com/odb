@@ -32,9 +32,8 @@ namespace odb
       std::size_t count;
       std::size_t version;
 
-    private:
-      binding (const binding&);
-      binding& operator= (const binding&);
+      binding (const binding&) = delete;
+      binding& operator= (const binding&) = delete;
     };
   }
 }

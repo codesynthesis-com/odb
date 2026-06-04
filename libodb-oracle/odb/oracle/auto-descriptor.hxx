@@ -112,9 +112,8 @@ namespace odb
         d_ = d;
       }
 
-    private:
-      auto_descriptor (const auto_descriptor&);
-      auto_descriptor& operator= (const auto_descriptor&);
+      auto_descriptor (const auto_descriptor&) = delete;
+      auto_descriptor& operator= (const auto_descriptor&) = delete;
 
     protected:
       D* d_;

@@ -45,6 +45,9 @@ namespace odb
 
       container_statements (connection_type&, binding& id_binding);
 
+      container_statements (const container_statements&) = delete;
+      container_statements& operator= (const container_statements&) = delete;
+
       connection_type&
       connection ()
       {
@@ -176,10 +179,6 @@ namespace odb
         return *delete_;
       }
 
-    private:
-      container_statements (const container_statements&);
-      container_statements& operator= (const container_statements&);
-
     protected:
       connection_type& conn_;
       binding& id_binding_;
@@ -224,6 +223,9 @@ namespace odb
       typedef mssql::connection connection_type;
 
       direct_container_statements (connection_type&, binding& id_binding);
+
+      direct_container_statements (const direct_container_statements&) = delete;
+      direct_container_statements& operator= (const direct_container_statements&) = delete;
 
       connection_type&
       connection ()
@@ -357,10 +359,6 @@ namespace odb
 
         return *delete_;
       }
-
-    private:
-      direct_container_statements (const direct_container_statements&);
-      direct_container_statements& operator= (const direct_container_statements&);
 
     protected:
       connection_type& conn_;
@@ -529,9 +527,8 @@ namespace odb
 
       container_statements_impl (connection_type&, binding&);
 
-    private:
-      container_statements_impl (const container_statements_impl&);
-      container_statements_impl& operator= (const container_statements_impl&);
+      container_statements_impl (const container_statements_impl&) = delete;
+      container_statements_impl& operator= (const container_statements_impl&) = delete;
 
     private:
       bind data_image_bind_[traits::data_column_count];
@@ -547,9 +544,8 @@ namespace odb
 
       direct_container_statements_impl (connection_type&, binding&);
 
-    private:
-      direct_container_statements_impl (const direct_container_statements_impl&);
-      direct_container_statements_impl& operator= (const direct_container_statements_impl&);
+      direct_container_statements_impl (const direct_container_statements_impl&) = delete;
+      direct_container_statements_impl& operator= (const direct_container_statements_impl&) = delete;
 
     private:
       bind data_image_bind_[traits::data_column_count];

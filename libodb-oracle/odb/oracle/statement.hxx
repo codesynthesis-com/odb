@@ -188,10 +188,6 @@ namespace odb
       execute ();
 
     private:
-      generic_statement (const generic_statement&);
-      generic_statement& operator= (const generic_statement&);
-
-    private:
       void
       init ();
 
@@ -261,10 +257,6 @@ namespace odb
       free_result ();
 
     private:
-      select_statement (const select_statement&);
-      select_statement& operator= (const select_statement&);
-
-    private:
       binding& result_;
       ub4 result_count_; // Actual number of bound columns.
       bool done_;
@@ -275,9 +267,8 @@ namespace odb
       explicit auto_result (select_statement& s): s_ (s) {}
       ~auto_result () {s_.free_result ();}
 
-    private:
-      auto_result (const auto_result&);
-      auto_result& operator= (const auto_result&);
+      auto_result (const auto_result&) = delete;
+      auto_result& operator= (const auto_result&) = delete;
 
     private:
       select_statement& s_;
@@ -333,10 +324,6 @@ namespace odb
         execute (1, 0);
         return result (0);
       }
-
-    private:
-      insert_statement (const insert_statement&);
-      insert_statement& operator= (const insert_statement&);
 
     private:
       void
@@ -433,10 +420,6 @@ namespace odb
       }
 
     private:
-      update_statement (const update_statement&);
-      update_statement& operator= (const update_statement&);
-
-    private:
       std::size_t
       execute (std::size_t, multiple_exceptions*);
 
@@ -515,10 +498,6 @@ namespace odb
         execute (1, 0);
         return result (0);
       }
-
-    private:
-      delete_statement (const delete_statement&);
-      delete_statement& operator= (const delete_statement&);
 
     private:
       std::size_t

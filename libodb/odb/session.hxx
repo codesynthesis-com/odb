@@ -34,6 +34,14 @@ namespace odb
     //
     ~session ();
 
+    // The session is neither move-constructible/assignable nor copy-
+    // constructible/assignable.
+    //
+    session (session&&) = delete;
+    session (const session&) = delete;
+    session& operator= (session&&) = delete;
+    session& operator= (const session&) = delete;
+
     // Current session.
     //
   public:
@@ -65,12 +73,6 @@ namespace odb
 
     static void
     current_pointer (session*);
-
-    // Copying or assignment of sessions is not supported.
-    //
-  private:
-    session (const session&);
-    session& operator= (const session&);
 
   public:
     struct LIBODB_EXPORT object_map_base

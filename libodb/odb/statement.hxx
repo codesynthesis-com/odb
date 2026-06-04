@@ -17,9 +17,14 @@ namespace odb
 {
   class LIBODB_EXPORT statement
   {
-  private:
-    statement (const statement&);
-    statement& operator= (const statement&);
+  public:
+    // The statement is neither move-constructible/assignable nor copy-
+    // constructible/assignable.
+    //
+    statement (statement&&) = delete;
+    statement (const statement&) = delete;
+    statement& operator= (statement&&) = delete;
+    statement& operator= (const statement&) = delete;
 
   public:
     typedef odb::connection connection_type;

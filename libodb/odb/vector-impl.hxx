@@ -44,6 +44,11 @@ namespace odb
     vector_impl (const vector_impl&);
     vector_impl (vector_impl&&) noexcept;
 
+    // Assignment does not make sense (it is changing of the content).
+    //
+    vector_impl& operator= (vector_impl&&) = delete;
+    vector_impl& operator= (const vector_impl&) = delete;
+
     void
     swap (vector_impl& x);
 
@@ -130,11 +135,6 @@ namespace odb
 
     void
     resize (std::size_t n);
-
-  private:
-    // Assignment does not make sense (it is changing of the content).
-    //
-    vector_impl& operator= (const vector_impl&);
 
   private:
     void

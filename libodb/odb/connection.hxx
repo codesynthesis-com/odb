@@ -31,6 +31,14 @@ namespace odb
   class LIBODB_EXPORT connection: public std::enable_shared_from_this<connection>
   {
   public:
+    // The connection is neither move-constructible/assignable nor copy-
+    // constructible/assignable.
+    //
+    connection (connection&&) = delete;
+    connection (const connection&) = delete;
+    connection& operator= (connection&&) = delete;
+    connection& operator= (const connection&) = delete;
+
     typedef odb::database database_type;
 
     database_type&
@@ -150,10 +158,6 @@ namespace odb
     static void
     params_deleter (void*);
 
-  private:
-    connection (const connection&);
-    connection& operator= (const connection&);
-
     // Prepared query cache.
     //
   protected:
@@ -211,6 +215,11 @@ namespace odb
     typedef odb::database database_type;
 
     connection_factory (): db_ (0) {}
+
+    connection_factory (connection_factory&&) = delete;
+    connection_factory (const connection_factory&) = delete;
+    connection_factory& operator= (connection_factory&&) = delete;
+    connection_factory& operator= (const connection_factory&) = delete;
 
     database_type&
     database () {return *db_;}

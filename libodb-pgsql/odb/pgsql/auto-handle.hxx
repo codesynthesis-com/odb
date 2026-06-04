@@ -75,9 +75,8 @@ namespace odb
         return h_;
       }
 
-    private:
-      auto_handle (const auto_handle&);
-      auto_handle& operator= (const auto_handle&);
+      auto_handle (const auto_handle&) = delete;
+      auto_handle& operator= (const auto_handle&) = delete;
 
     private:
       H* h_;

@@ -194,10 +194,6 @@ namespace odb
       cancel ();
 
     private:
-      select_statement (const select_statement&);
-      select_statement& operator= (const select_statement&);
-
-    private:
       bool end_;
       bool cached_;
       bool freed_;
@@ -220,9 +216,8 @@ namespace odb
       explicit auto_result (select_statement& s): s_ (s) {}
       ~auto_result () {s_.free_result ();}
 
-    private:
-      auto_result (const auto_result&);
-      auto_result& operator= (const auto_result&);
+      auto_result (const auto_result&) = delete;
+      auto_result& operator= (const auto_result&) = delete;
 
     private:
       select_statement& s_;
@@ -254,10 +249,6 @@ namespace odb
       execute ();
 
     private:
-      insert_statement (const insert_statement&);
-      insert_statement& operator= (const insert_statement&);
-
-    private:
       binding& param_;
       std::size_t param_version_;
 
@@ -285,10 +276,6 @@ namespace odb
       execute ();
 
     private:
-      update_statement (const update_statement&);
-      update_statement& operator= (const update_statement&);
-
-    private:
       binding& param_;
       std::size_t param_version_;
     };
@@ -310,10 +297,6 @@ namespace odb
 
       unsigned long long
       execute ();
-
-    private:
-      delete_statement (const delete_statement&);
-      delete_statement& operator= (const delete_statement&);
 
     private:
       binding& param_;

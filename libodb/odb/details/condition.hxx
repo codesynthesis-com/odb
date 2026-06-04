@@ -28,9 +28,10 @@ namespace odb
       void
       wait (lock&) {}
 
-    private:
-      condition (const condition&);
-      condition& operator= (const condition&);
+      condition (condition&&) = delete;
+      condition (const condition&) = delete;
+      condition& operator= (condition&&) = delete;
+      condition& operator= (const condition&)  = delete;
     };
   }
 }

@@ -129,9 +129,8 @@ namespace odb
         auto_unlock (object_statements_base&);
         ~auto_unlock ();
 
-      private:
-        auto_unlock (const auto_unlock&);
-        auto_unlock& operator= (const auto_unlock&);
+        auto_unlock (const auto_unlock&) = delete;
+        auto_unlock& operator= (const auto_unlock&) = delete;
 
       private:
         object_statements_base& s_;
@@ -231,9 +230,8 @@ namespace odb
         void
         unlock ();
 
-      private:
-        auto_lock (const auto_lock&);
-        auto_lock& operator= (const auto_lock&);
+        auto_lock (const auto_lock&) = delete;
+        auto_lock& operator= (const auto_lock&) = delete;
 
       private:
         object_statements& s_;
@@ -464,10 +462,6 @@ namespace odb
         id_column_count -
         object_traits::readonly_column_count -
         object_traits::separate_update_column_count;
-
-    private:
-      object_statements (const object_statements&);
-      object_statements& operator= (const object_statements&);
 
     protected:
       template <typename STS>

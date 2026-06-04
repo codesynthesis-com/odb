@@ -47,6 +47,9 @@ namespace odb
                           image_type&, id_image_type&,
                           binding& id, binding& idv);
 
+      section_statements (const section_statements&) = delete;
+      section_statements& operator= (const section_statements&) = delete;
+
       connection_type&
       connection () {return conn_;}
 
@@ -142,10 +145,6 @@ namespace odb
       static const std::size_t select_column_count = traits::load_column_count;
       static const std::size_t update_column_count =
         traits::update_column_count;
-
-    private:
-      section_statements (const section_statements&);
-      section_statements& operator= (const section_statements&);
 
     protected:
       connection_type& conn_;

@@ -138,10 +138,6 @@ namespace odb
       begin_ () override;
 
     private:
-      connection (const connection&);
-      connection& operator= (const connection&);
-
-    private:
       friend class transaction_impl; // invalidate_results()
 
     private:

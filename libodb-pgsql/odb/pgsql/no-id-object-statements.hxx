@@ -110,10 +110,6 @@ namespace odb
         object_traits::column_count;
 
     private:
-      no_id_object_statements (const no_id_object_statements&);
-      no_id_object_statements& operator= (const no_id_object_statements&);
-
-    private:
       image_type image_[object_traits::batch];
       unsigned long long status_[object_traits::batch];
 

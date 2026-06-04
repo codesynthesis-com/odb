@@ -50,6 +50,9 @@ namespace odb
     protected:
       statements_base (connection_type& conn): conn_ (conn), svm_ (0) {}
 
+      statements_base (const statements_base&) = delete;
+      statements_base& operator= (const statements_base&) = delete;
+
     protected:
       connection_type& conn_;
       mutable const schema_version_migration* svm_;

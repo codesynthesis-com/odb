@@ -31,10 +31,6 @@ namespace odb
 
       virtual connection_ptr
       connect ();
-
-    private:
-      new_connection_factory (const new_connection_factory&);
-      new_connection_factory& operator= (const new_connection_factory&);
     };
 
     class LIBODB_MSSQL_EXPORT connection_pool_factory:
@@ -75,10 +71,6 @@ namespace odb
 
       virtual
       ~connection_pool_factory ();
-
-    private:
-      connection_pool_factory (const connection_pool_factory&);
-      connection_pool_factory& operator= (const connection_pool_factory&);
 
     protected:
       // This function is called whenever the pool needs to create a new

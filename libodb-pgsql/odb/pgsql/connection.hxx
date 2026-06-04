@@ -130,10 +130,6 @@ namespace odb
       begin_ () override;
 
     private:
-      connection (const connection&);
-      connection& operator= (const connection&);
-
-    private:
       void
       init ();
 

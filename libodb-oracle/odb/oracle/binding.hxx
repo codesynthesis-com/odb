@@ -54,9 +54,8 @@ namespace odb
 
       change_callback_type* change_callback;
 
-    private:
-      binding (const binding&);
-      binding& operator= (const binding&);
+      binding (const binding&) = delete;
+      binding& operator= (const binding&) = delete;
     };
   }
 }

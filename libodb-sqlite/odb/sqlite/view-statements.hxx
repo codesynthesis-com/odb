@@ -68,10 +68,6 @@ namespace odb
       }
 
     private:
-      view_statements (const view_statements&);
-      view_statements& operator= (const view_statements&);
-
-    private:
       image_type image_;
       std::size_t image_version_;
       binding image_binding_;

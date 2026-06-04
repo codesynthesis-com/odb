@@ -148,9 +148,8 @@ namespace odb
       static const std::size_t update_column_count =
         traits::update_column_count;
 
-    private:
-      section_statements (const section_statements&);
-      section_statements& operator= (const section_statements&);
+      section_statements (const section_statements&) = delete;
+      section_statements& operator= (const section_statements&) = delete;
 
     protected:
       connection_type& conn_;

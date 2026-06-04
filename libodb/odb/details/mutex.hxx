@@ -25,9 +25,10 @@ namespace odb
       void
       unlock () {}
 
-    private:
-      mutex (const mutex&);
-      mutex& operator= (const mutex&);
+      mutex (mutex&&) = delete;
+      mutex (const mutex&) = delete;
+      mutex& operator= (mutex&&) = delete;
+      mutex& operator= (const mutex&)  = delete;
     };
   }
 }

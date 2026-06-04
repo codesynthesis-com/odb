@@ -45,10 +45,6 @@ namespace odb
       virtual
       ~serial_connection_factory ();
 
-    private:
-      serial_connection_factory (const serial_connection_factory&);
-      serial_connection_factory& operator= (const serial_connection_factory&);
-
     protected:
       // This function is called when the factory needs to create the
       // connection.
@@ -75,10 +71,6 @@ namespace odb
 
       virtual
       ~single_connection_factory ();
-
-    private:
-      single_connection_factory (const single_connection_factory&);
-      single_connection_factory& operator= (const single_connection_factory&);
 
     protected:
       // This function is called when the factory needs to create the
@@ -119,10 +111,6 @@ namespace odb
 
       virtual void
       database (database_type&);
-
-    private:
-      new_connection_factory (const new_connection_factory&);
-      new_connection_factory& operator= (const new_connection_factory&);
 
     private:
       int extra_flags_;
@@ -172,10 +160,6 @@ namespace odb
 
       virtual
       ~connection_pool_factory ();
-
-    private:
-      connection_pool_factory (const connection_pool_factory&);
-      connection_pool_factory& operator= (const connection_pool_factory&);
 
     protected:
       // This function is called whenever the pool needs to create a new

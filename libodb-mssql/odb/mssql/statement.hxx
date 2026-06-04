@@ -250,10 +250,6 @@ namespace odb
       free_result ();
 
     private:
-      select_statement (const select_statement&);
-      select_statement& operator= (const select_statement&);
-
-    private:
       binding& result_;
       SQLUSMALLINT result_count_; // Actual number of columns bound.
       SQLUSMALLINT long_count_;   // Number of long data columns.
@@ -285,9 +281,8 @@ namespace odb
       void
       release () {s_ = 0;}
 
-    private:
-      auto_result (const auto_result&);
-      auto_result& operator= (const auto_result&);
+      auto_result (const auto_result&) = delete;
+      auto_result& operator= (const auto_result&) = delete;
 
     private:
       select_statement* s_;
@@ -336,10 +331,6 @@ namespace odb
         execute (1, 0);
         return result (0);
       }
-
-    private:
-      insert_statement (const insert_statement&);
-      insert_statement& operator= (const insert_statement&);
 
     private:
       void
@@ -444,10 +435,6 @@ namespace odb
       }
 
     private:
-      update_statement (const update_statement&);
-      update_statement& operator= (const update_statement&);
-
-    private:
       void
       init (binding& param, binding* ret);
 
@@ -535,10 +522,6 @@ namespace odb
         execute (1, 0);
         return result (0);
       }
-
-    private:
-      delete_statement (const delete_statement&);
-      delete_statement& operator= (const delete_statement&);
 
     private:
       std::size_t

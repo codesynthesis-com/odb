@@ -25,6 +25,11 @@ namespace odb
 
     prepared_query_impl (connection&);
 
+    prepared_query_impl (prepared_query_impl&&) = delete;
+    prepared_query_impl (const prepared_query_impl&) = delete;
+    prepared_query_impl& operator= (prepared_query_impl&&) = delete;
+    prepared_query_impl& operator= (const prepared_query_impl&) = delete;
+
     // Verify this prepared query and the specified transaction use the
     // same connection.
     //
@@ -36,10 +41,6 @@ namespace odb
     const char* name;
     std::shared_ptr<statement> stmt;
     std::shared_ptr<result_impl> (*execute) (prepared_query_impl&);
-
-  private:
-    prepared_query_impl (const prepared_query_impl&);
-    prepared_query_impl& operator= (const prepared_query_impl&);
 
     // Doubly-linked list of results.
     //

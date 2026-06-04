@@ -31,9 +31,8 @@ namespace odb
       int* formats;
       std::size_t count;
 
-    private:
-      native_binding (const native_binding&);
-      native_binding& operator= (const native_binding&);
+      native_binding (const native_binding&) = delete;
+      native_binding& operator= (const native_binding&) = delete;
     };
 
     class binding
@@ -62,9 +61,8 @@ namespace odb
       std::size_t skip;
       unsigned long long* status; // Batch status array.
 
-    private:
-      binding (const binding&);
-      binding& operator= (const binding&);
+      binding (const binding&) = delete;
+      binding& operator= (const binding&) = delete;
     };
   }
 }
