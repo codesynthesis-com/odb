@@ -76,7 +76,7 @@ namespace odb
 
   template <typename I, typename T, database_id DB>
   void database::
-  persist_ (I b, I e, bool cont, details::meta::no /*ptr*/)
+  persist_ (I b, I e, bool cont, std::false_type /*ptr*/)
   {
     // T can be const T while object_type will always be T.
     //
@@ -164,7 +164,7 @@ namespace odb
 
   template <typename I, typename T, database_id DB>
   void database::
-  persist_ (I b, I e, bool cont, details::meta::yes /*ptr*/)
+  persist_ (I b, I e, bool cont, std::true_type /*ptr*/)
   {
     // T can be const T while object_type will always be T.
     //

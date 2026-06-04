@@ -12,7 +12,8 @@
 #include <cstddef>     // std::size_t
 #include <utility>     // std::move
 #include <functional>  // std::function
-#include <type_traits> // std::enable_if, std::is_convertible
+#include <type_traits> // std::enable_if, std::is_convertible,
+                       // std::true/false_type
 
 #include <odb/traits.hxx>
 #include <odb/forward.hxx>
@@ -26,7 +27,6 @@
 #include <odb/details/export.hxx>
 #include <odb/details/mutex.hxx>
 #include <odb/details/c-string.hxx>
-#include <odb/details/meta/answer.hxx>
 
 namespace odb
 {
@@ -526,11 +526,11 @@ namespace odb
 
     template <typename I, typename T, database_id DB>
     void
-    persist_ (I, I, bool, details::meta::no ptr);
+    persist_ (I, I, bool, std::false_type ptr);
 
     template <typename I, typename T, database_id DB>
     void
-    persist_ (I, I, bool, details::meta::yes ptr);
+    persist_ (I, I, bool, std::true_type ptr);
 
     template <typename T, database_id DB>
     typename object_traits<T>::pointer_type

@@ -6,7 +6,6 @@ lib{odb}:          {hxx ixx txx cxx}{* -version}    \
            details/{hxx ixx txx}{*}                 \
            details/{cxx}{* -condition -lock -mutex} \
            details/{h}{*}                           \
-      details/meta/{hxx}{*}                         \
      details/win32/{hxx}{windows}
 
 # Include the generated version header into the distribution (so that we don't

@@ -13,7 +13,7 @@ namespace odb
   template <typename T>
   struct object_pointer_traits
   {
-    typedef details::meta::no result_type;
+    typedef std::false_type result_type;
     typedef T object_type;
     static const T& get_ref (const T& x) {return x;}
   };
@@ -21,7 +21,7 @@ namespace odb
   template <typename T>
   struct object_pointer_traits<T*>
   {
-    typedef details::meta::yes result_type;
+    typedef std::true_type result_type;
     typedef T object_type;
     static const T& get_ref (const T* p) {return *p;}
   };
@@ -29,7 +29,7 @@ namespace odb
   template <typename T>
   struct object_pointer_traits<T* const>
   {
-    typedef details::meta::yes result_type;
+    typedef std::true_type result_type;
     typedef T object_type;
     static const T& get_ref (const T* p) {return *p;}
   };
@@ -37,7 +37,7 @@ namespace odb
   template <typename T, template <typename> class P>
   struct object_pointer_traits<P<T> >
   {
-    typedef details::meta::yes result_type;
+    typedef std::true_type result_type;
     typedef T object_type;
     static const T& get_ref (const P<T>& p) {
       return pointer_traits<P<T> >::get_ref (p);}
@@ -46,7 +46,7 @@ namespace odb
   template <typename T, typename A1, template <typename, typename> class P>
   struct object_pointer_traits<P<T, A1> >
   {
-    typedef details::meta::yes result_type;
+    typedef std::true_type result_type;
     typedef T object_type;
     static const T& get_ref (const P<T, A1>& p) {
       return pointer_traits<P<T, A1> >::get_ref (p);}
@@ -55,7 +55,7 @@ namespace odb
   template <typename T, template <typename> class P>
   struct object_pointer_traits<const P<T> >
   {
-    typedef details::meta::yes result_type;
+    typedef std::true_type result_type;
     typedef T object_type;
     static const T& get_ref (const P<T>& p) {
       return pointer_traits<P<T> >::get_ref (p);}
@@ -64,7 +64,7 @@ namespace odb
   template <typename T, typename A1, template <typename, typename> class P>
   struct object_pointer_traits<const P<T, A1> >
   {
-    typedef details::meta::yes result_type;
+    typedef std::true_type result_type;
     typedef T object_type;
     static const T& get_ref (const P<T, A1>& p) {
       return pointer_traits<P<T, A1> >::get_ref (p);}

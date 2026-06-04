@@ -6,7 +6,7 @@
 
 #include <odb/mysql/traits.hxx>
 
-#include <odb/details/meta/answer.hxx>
+#include <type_traits> // std::false/true_type
 
 namespace odb
 {
@@ -23,18 +23,15 @@ namespace odb
       // Detect whether conversion is specified in type_traits.
       //
       template <typename T>
-      meta::yes
-      conversion_p_test (typename type_traits<T>::conversion*);
-
-      template <typename T>
-      meta::no
-      conversion_p_test (...);
-
-      template <typename T>
       struct conversion_p
       {
-        static const bool value =
-          sizeof (conversion_p_test<T> (0)) == sizeof (meta::yes);
+        template <typename M>
+        static std::true_type test (typename type_traits<M>::conversion*);
+
+        template <typename M>
+        static std::false_type test (...);
+
+        static constexpr bool value = decltype (test<T> (nullptr))::value;
       };
 
       template <typename T, bool = conversion_p<T>::value>

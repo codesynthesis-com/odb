@@ -139,7 +139,7 @@ namespace odb
     template <typename T, database_type_id>
     struct default_value_traits;
 
-    template <typename T, database_type_id, bool w = details::wrapper_p<T>::r>
+    template <typename T, database_type_id, bool w = details::wrapper_p<T>::value>
     struct select_traits;
 
     template <typename T, database_type_id ID>

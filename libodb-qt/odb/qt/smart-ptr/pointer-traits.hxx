@@ -6,6 +6,8 @@
 
 #include <odb/pre.hxx>
 
+#include <type_traits> // std::remove_const
+
 #include <QtCore/QSharedPointer>
 #include <QtCore/QWeakPointer>
 
@@ -26,7 +28,7 @@ namespace odb
     typedef T element_type;
     typedef QSharedPointer<element_type> pointer_type;
     typedef QSharedPointer<const element_type> const_pointer_type;
-    typedef typename odb::details::meta::remove_const<element_type>::result
+    typedef typename std::remove_const<element_type>::type
     unrestricted_element_type;
     typedef QSharedPointer<unrestricted_element_type>
     unrestricted_pointer_type;

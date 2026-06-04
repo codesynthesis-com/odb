@@ -12,8 +12,6 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
-#include <odb/details/meta/remove-pointer.hxx>
-
 #include <libcommon/config.hxx> // DATABASE_*
 #include <libcommon/common.hxx>
 

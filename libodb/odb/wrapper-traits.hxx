@@ -6,11 +6,10 @@
 
 #include <odb/pre.hxx>
 
-#include <memory> // std::unique_ptr, std::shared_ptr/weak_ptr
+#include <memory>      // std::unique_ptr, std::shared_ptr/weak_ptr
+#include <type_traits> // std::remove_const
 
 #include <odb/nullable.hxx>
-
-#include <odb/details/meta/remove-const.hxx>
 
 namespace odb
 {
@@ -36,9 +35,7 @@ namespace odb
 
     // T can be const.
     //
-    typedef
-    typename details::meta::remove_const<T>::result
-    unrestricted_wrapped_type;
+    typedef typename std::remove_const<T>::type unrestricted_wrapped_type;
 
     static const bool null_handler = true;
     static const bool null_default = false;
@@ -86,9 +83,7 @@ namespace odb
 
     // T can be const.
     //
-    typedef
-    typename odb::details::meta::remove_const<T>::result
-    unrestricted_wrapped_type;
+    typedef typename std::remove_const<T>::type unrestricted_wrapped_type;
 
     static const bool null_handler = true;
     static const bool null_default = false;
@@ -132,9 +127,7 @@ namespace odb
 
     // T can be const.
     //
-    typedef
-    typename odb::details::meta::remove_const<T>::result
-    unrestricted_wrapped_type;
+    typedef typename std::remove_const<T>::type unrestricted_wrapped_type;
 
     static const bool null_handler = true;
     static const bool null_default = false;
@@ -180,9 +173,7 @@ namespace odb
 
     // T can be const.
     //
-    typedef
-    typename odb::details::meta::remove_const<T>::result
-    unrestricted_wrapped_type;
+    typedef typename std::remove_const<T>::type unrestricted_wrapped_type;
 
     static const bool null_handler = true;
     static const bool null_default = true;

@@ -6,6 +6,8 @@
 
 #include <odb/pre.hxx>
 
+#include <type_traits> // std::remove_const
+
 #include <boost/none.hpp>
 #include <boost/optional.hpp>
 
@@ -22,9 +24,7 @@ namespace odb
 
     // T can be const.
     //
-    typedef
-    typename odb::details::meta::remove_const<T>::result
-    unrestricted_wrapped_type;
+    typedef typename std::remove_const<T>::type unrestricted_wrapped_type;
 
     static const bool null_handler = true;
     static const bool null_default = true;

@@ -6,11 +6,10 @@
 
 #include <odb/pre.hxx>
 
-#include <new>     // operators new/delete
-#include <memory>  // std::unique_ptr, std::shared_ptr/weak_ptr
-#include <cstddef> // std::size_t
-
-#include <odb/details/meta/remove-const.hxx>
+#include <new>         // operators new/delete
+#include <memory>      // std::unique_ptr, std::shared_ptr/weak_ptr
+#include <cstddef>     // std::size_t
+#include <type_traits> // std::remove_const
 
 namespace odb
 {
@@ -84,8 +83,7 @@ namespace odb
     typedef T element_type;
     typedef T* pointer_type;
     typedef const T* const_pointer_type;
-    typedef typename odb::details::meta::remove_const<T>::result*
-    unrestricted_pointer_type;
+    typedef typename std::remove_const<T>::type* unrestricted_pointer_type;
     typedef raw_ptr_guard<pointer_type> guard;
 
     // Return raw pointer to the pointed-to element, including NULL.
@@ -241,8 +239,7 @@ namespace odb
     typedef T element_type;
     typedef std::shared_ptr<element_type> pointer_type;
     typedef std::shared_ptr<const element_type> const_pointer_type;
-    typedef typename odb::details::meta::remove_const<element_type>::result
-    unrestricted_element_type;
+    typedef typename std::remove_const<T>::type unrestricted_element_type;
     typedef std::shared_ptr<unrestricted_element_type>
     unrestricted_pointer_type;
     typedef smart_ptr_guard<pointer_type> guard;

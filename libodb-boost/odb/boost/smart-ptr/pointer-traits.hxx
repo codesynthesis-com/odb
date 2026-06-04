@@ -6,6 +6,8 @@
 
 #include <odb/pre.hxx>
 
+#include <type_traits> // std::remove_const
+
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
@@ -26,7 +28,7 @@ namespace odb
     typedef T element_type;
     typedef ::boost::shared_ptr<element_type> pointer_type;
     typedef ::boost::shared_ptr<const element_type> const_pointer_type;
-    typedef typename odb::details::meta::remove_const<element_type>::result
+    typedef typename std::remove_const<element_type>::type
     unrestricted_element_type;
     typedef ::boost::shared_ptr<unrestricted_element_type>
     unrestricted_pointer_type;
