@@ -9,8 +9,11 @@
 #include <map>
 #include <memory> // std::unique_ptr
 #include <typeinfo>
+
+#if 0
 #include <type_traits> // std::enable_if, etc
 #include <unordered_map>
+#endif
 
 #include <odb/traits.hxx>
 #include <odb/forward.hxx>
@@ -83,6 +86,14 @@ namespace odb
       ~object_map_base ();
     };
 
+#if 1
+    template <typename T>
+    struct object_map: object_map_base,
+      std::map<typename object_traits<T>::id_type,
+               typename object_traits<T>::pointer_type>
+    {
+    };
+#else
     template <typename T, typename = void>
     struct object_map_type:
       std::map<typename object_traits<T>::id_type,
@@ -107,6 +118,7 @@ namespace odb
     struct object_map: object_map_base, object_map_type<T>
     {
     };
+#endif
 
     // Object cache.
     //
