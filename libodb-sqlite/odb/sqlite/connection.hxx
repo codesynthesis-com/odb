@@ -129,7 +129,7 @@ namespace odb
       using odb::connection::execute;
 
       virtual unsigned long long
-      execute (const char* statement, std::size_t length);
+      execute (const char* statement, std::size_t length) override;
 
       // Query preparation.
       //

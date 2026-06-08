@@ -30,7 +30,7 @@ create_mysql_database (int& argc, char* argv[], bool, size_t max_connections)
     f.reset (new mysql::connection_pool_factory (max_connections));
 
   return unique_ptr<database> (
-    new mysql::database (argc, argv, false, "", 0, move (f)));
+    new mysql::database (argc, argv, false, "", 0, std::move (f)));
 }
 #endif // MySQL
 
@@ -71,7 +71,7 @@ create_sqlite_database (int& argc,
       ,
       true,
       "",
-      move (f)));
+      std::move (f)));
 
   // Create the database schema. Due to bugs in SQLite foreign key
   // support for DDL statements, we need to temporarily disable
@@ -115,7 +115,7 @@ create_pgsql_database (int& argc, char* argv[], bool, size_t max_connections)
     f.reset (new pgsql::connection_pool_factory (max_connections));
 
   return unique_ptr<database> (
-    new pgsql::database (argc, argv, false, "", move (f)));
+    new pgsql::database (argc, argv, false, "", std::move (f)));
 }
 #endif // PostgreSQL
 
@@ -143,7 +143,7 @@ create_oracle_database (int& argc, char* argv[], bool, size_t max_connections)
   // to UTF-8.
   //
   return unique_ptr<database> (
-    new oracle::database (argc, argv, false, 873, 873, 0, move (f)));
+    new oracle::database (argc, argv, false, 873, 873, 0, std::move (f)));
 }
 #endif // Oracle
 
@@ -168,7 +168,7 @@ create_mssql_database (int& argc, char* argv[], bool, size_t max_connections)
 
   return unique_ptr<database> (
     new mssql::database (argc, argv, false, "TrustServerCertificate=yes",
-                         mssql::isolation_read_committed, 0, move (f)));
+                         mssql::isolation_read_committed, 0, std::move (f)));
 }
 #endif // SQL Server
 

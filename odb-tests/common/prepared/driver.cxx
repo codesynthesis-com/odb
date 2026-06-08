@@ -39,7 +39,7 @@ query_factory (const char* name, connection& c)
       name,
       query::age > query::_ref (p->age) &&
       query::name != query::_ref (p->name)));
-  c.cache_query (pq, move (p));
+  c.cache_query (pq, std::move (p));
 }
 
 int
@@ -183,7 +183,7 @@ main (int argc, char* argv[])
             "person-ref-age-query",
             query::age > query::_ref (*age));
 
-          db->cache_query (pq, move (p));
+          db->cache_query (pq, std::move (p));
         }
         else if (i == 2)
         {
@@ -282,7 +282,7 @@ main (int argc, char* argv[])
               name,
               query::age > query::_ref (p->age) &&
               query::name != query::_ref (p->name)));
-          c.cache_query (pq, move (p));
+          c.cache_query (pq, std::move (p));
         });
 
       for (unsigned int i (1); i < 6; ++i)

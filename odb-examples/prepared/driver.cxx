@@ -33,7 +33,7 @@ query_factory (const char* name, connection& c)
   query q (query::age > query::_ref (p->age) &&
            query::first == query::_ref (p->first));
   prepared_query<person> pq (c.prepare_query<person> (name, q));
-  c.cache_query (pq, move (p));
+  c.cache_query (pq, std::move (p));
 }
 
 static void
@@ -155,7 +155,7 @@ main (int argc, char* argv[])
         age_param = p.get ();
         query q (query::age > query::_ref (*age_param));
         pq = db->prepare_query<person> ("person-ref-age-query", q);
-        db->cache_query (pq, move (p));
+        db->cache_query (pq, std::move (p));
       }
 
       *age_param = age; // Initialize the parameter.

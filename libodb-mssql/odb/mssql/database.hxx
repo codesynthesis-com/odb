@@ -572,7 +572,7 @@ namespace odb
       //
     protected:
       virtual const schema_version_info&
-      load_schema_version (const std::string& schema_name) const;
+      load_schema_version (const std::string& schema_name) const override;
 
     public:
       // Database id constant (useful for meta-programming).

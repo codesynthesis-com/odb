@@ -7,6 +7,7 @@
 #include <odb/pre.hxx>
 
 #include <cstddef> // size_t
+#include <utility> // std::move
 
 #include <odb/forward.hxx>
 
@@ -164,7 +165,7 @@ namespace odb
 
       assert (p.first.inner == oc[o].size ());
 
-      oc[o].push_back (move (v));
+      oc[o].push_back (std::move (v));
     }
   }
 
@@ -219,7 +220,7 @@ namespace odb
 
       assert (p.first.inner == ic.size ());
 
-      ic.push_back (move (v));
+      ic.push_back (std::move (v));
     }
   }
 
@@ -271,7 +272,7 @@ namespace odb
 
       assert (p.first.inner == oc[o].size ());
 
-      oc[o].push_back (move (v));
+      oc[o].push_back (std::move (v));
     }
   }
 
@@ -330,7 +331,7 @@ namespace odb
 
       assert (p.first.inner == mc[m].size ());
 
-      mc[m].push_back (move (v));
+      mc[m].push_back (std::move (v));
     }
   }
 }
