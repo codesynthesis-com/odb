@@ -28,8 +28,8 @@ namespace odb
 
   // in
   //
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   in (const T& v1, const T& v2) const
   {
     query_base q (native_info);
@@ -39,8 +39,8 @@ namespace odb
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   in (const T& v1, const T& v2, const T& v3) const
   {
     query_base q (native_info);
@@ -51,8 +51,8 @@ namespace odb
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   in (const T& v1, const T& v2, const T& v3, const T& v4) const
   {
     query_base q (native_info);
@@ -64,8 +64,8 @@ namespace odb
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   in (const T& v1, const T& v2, const T& v3, const T& v4, const T& v5) const
   {
     query_base q (native_info);
@@ -78,9 +78,9 @@ namespace odb
     return q;
   }
 
-  template <typename T>
+  template <typename T, typename B>
   template <typename I>
-  query_base query_column<T>::
+  query_base query_column<T, B>::
   in_range (I i, I end) const
   {
     query_base q (native_info);
@@ -95,8 +95,8 @@ namespace odb
 
   // like
   //
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   like (val_bind<T> p) const
   {
     query_base q (native_info);
@@ -105,8 +105,8 @@ namespace odb
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   like (ref_bind<T> p) const
   {
     query_base q (native_info);
@@ -115,8 +115,8 @@ namespace odb
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   like (val_bind<T> p, const T& e) const
   {
     query_base q (native_info);
@@ -126,8 +126,8 @@ namespace odb
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   like (ref_bind<T> p, const T& e) const
   {
     query_base q (native_info);

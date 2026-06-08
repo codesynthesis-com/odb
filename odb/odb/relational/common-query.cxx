@@ -1,6 +1,8 @@
 // file      : odb/relational/common-query.cxx
 // license   : GNU GPL v3; see accompanying LICENSE file
 
+#include <odb/diagnostics.hxx>
+
 #include <odb/relational/common-query.hxx>
 
 using namespace std;
@@ -94,7 +96,8 @@ namespace relational
     os << name << " (";
 
     if (multi_dynamic)
-      os << "odb::query_column< " << type << " >& qc," << endl;
+      os << "odb::query_column< " << type
+         << ", odb::default_query_column_base< " << type << " > >& qc," << endl;
 
     os << "const char* t, const char* c, const char* conv)" << endl
        << "  : " << base << " (" << (multi_dynamic ? "qc, " : "") <<
@@ -112,6 +115,7 @@ namespace relational
   column_common (semantics::data_member& m,
                  string const& type,
                  string const& column,
+                 const custom_cxx_type* ct,
                  string const& suffix)
   {
     string name (public_name (m));
@@ -123,14 +127,94 @@ namespace relational
       os << "// " << name << endl
          << "//" << endl;
 
-      os << "typedef" << endl
-         << db << "::query_column<" << endl
-         << "  " << db << "::value_traits<" << endl
-         << "    " << type << "," << endl
-         << "    " << type_id << " >::query_type," << endl
-         << "  " << type_id << " >" << endl
-         << name << suffix << ";"
-         << endl;
+      if (ct == 0)
+      {
+        os << "typedef" << endl
+           << db << "::query_column<" << endl
+           << "  " << db << "::value_traits<" << endl
+           << "    " << type << "," << endl
+           << "    " << type_id << " >::query_type," << endl
+           << "  " << type_id << "," << endl
+           << "  " << db << "::default_query_column_base<" << endl
+           << "    " << type << "," << endl
+           << "    " << type_id << " > >" << endl
+           << name << suffix << ";"
+           << endl;
+      }
+      else
+      {
+        string mapped_type (ct->type->fq_name (ct->type_hint));
+        string base_type (name + "_base" + suffix); // query_column<> base type.
+
+        // Base type for query_column<>.
+        //
+        os << "struct " << base_type << ": " << db << "::query_column_base"
+           << "{"
+           << "using query_column_base::query_column_base;" << endl
+           << "static void" << endl
+           << "append (" << db << "::query_base& q," << endl
+           << db << "::val_bind<" << mapped_type << "> v," << endl
+           << "const char* conv)"
+           << "{"
+           << "// From " << location_string (ct->loc, true) << endl
+           << type_ref_type (*ct->as, ct->as_hint, true, "vt") << " =" << endl
+           << "  " << ct->translate_to ("v.val") << ";" << endl
+           << "q.append<" << endl
+           << "  " << type << "," << endl
+           << "  " << type_id << "> (" << endl
+           << "  " << db << "::val_bind<" << type << "> (vt)," << endl
+           << "  conv);"
+           << "}";
+
+
+        // @@ TODO Check if the 'to' clause expression is of a reference type
+        //         and, if that's the case, generate a proper function instead.
+        //
+        // @@ Can we fix ODB to add '\n' automatically after this function
+        //    declaration, as we do for the above function definition?
+        //
+        os << "// If a compiler error points to the line below, then it most likely" << endl
+           << "// means that the 'to' clause expression of the respective map pragma is" << endl
+           << "// not of a reference type and thus binding by reference is not" << endl
+           << "// supported for this query member." << endl
+           << "//" << endl
+           << "static void" << endl
+           << "append (" << db << "::query_base&," << endl
+           << db << "::ref_bind<" << mapped_type << ">," << endl
+           << "const char*) = delete;" << endl;
+
+        if (multi_dynamic)
+        {
+          os << "static void*" << endl
+             << "param_factory ()"
+             << "{"
+             << db << "::query_param_factory f (" << endl
+             << "&" << db << "::query_param_factory_impl<" << endl
+             << "  " << type << "," << endl
+             << "  " << type_id << ">);" << endl
+             << "return reinterpret_cast<void*> (f);"
+             << "}";
+        }
+        else
+        {
+          // @@ TODO: Write comment.
+          //
+          os << "static void*" << endl
+             << "param_factory () = delete;";
+        }
+
+        os << "};";
+
+        // Type for query_columns<> member.
+        //
+        os << "typedef" << endl
+           << db << "::query_column<" << endl
+           << "  " << mapped_type << "," << endl
+           << "  " << type_id << "," << endl
+           << "  " << base_type << " >" << endl
+           << name << suffix << ";"
+           << endl;
+      }
     }
     else
     {

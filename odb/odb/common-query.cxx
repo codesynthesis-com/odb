@@ -3,6 +3,8 @@
 
 #include <sstream>
 
+#include <odb/diagnostics.hxx>
+
 #include <odb/common-query.hxx>
 
 using namespace std;
@@ -619,6 +621,7 @@ void query_columns::
 column_common (semantics::data_member& m,
                string const& type,
                string const&,
+               const custom_cxx_type* ct,
                string const& suffix)
 {
   string name (public_name (m));
@@ -628,9 +631,41 @@ column_common (semantics::data_member& m,
     os << "// " << name << endl
        << "//" << endl;
 
-    os << "typedef odb::query_column< " << type << " > " << name <<
-      suffix << ";"
-       << endl;
+    if (ct == 0)
+    {
+      os << "typedef odb::query_column< " << endl
+         << "  " << type << "," << endl
+         << "  default_query_column_base<" << endl
+         << "    " << type << " > > "
+         << name << suffix << ";" << endl;
+    }
+    else
+    {
+      string mapped_type (ct->type->fq_name (ct->type_hint));
+      string base_type (name + "_base" + suffix); // query_column<> base type.
+
+      // Base type for query_column<>.
+      //
+      os << "struct " << base_type
+         << "{"
+         << "static void" << endl
+         << "append_val (" << "query_base& q," << endl
+         << type_ref_type (*ct->type, ct->type_hint, true, "v") << "," << endl
+         << "const native_column_info* c)"
+         << "{"
+         << "// From " << location_string (ct->loc, true) << endl
+         << type_ref_type (*ct->as, ct->as_hint, true, "vt") << " =" << endl
+         << "  " << ct->translate_to ("v") << ";" << endl
+         << "q.append_val (vt, c);"
+         << "}";
+
+      os << "};";
+
+      os << "typedef odb::query_column< " << endl
+         << "  " << mapped_type << "," << endl
+         << "  " << base_type << " > "
+         << name << suffix << ";" << endl;
+    }
   }
   else
   {
@@ -650,7 +685,8 @@ bool query_columns::
 traverse_column (semantics::data_member& m, string const& column, bool)
 {
   semantics::names* hint;
-  semantics::type& t (utype (m, hint));
+  const custom_cxx_type* translation;
+  semantics::type& t (utype (m, hint, string (), &translation));
 
   // Unwrap it if it is a wrapper.
   //
@@ -662,7 +698,17 @@ traverse_column (semantics::data_member& m, string const& column, bool)
   else
     tn = t.fq_name (hint);
 
-  column_common (m, tn, column);
+  os << "// COL_COM: 1";
+
+  if (translation != 0)
+  {
+    os << "; " << translation->type->fq_name (translation->type_hint) << "; "
+       << translation->translate_to ("v.val");
+  }
+
+  os << endl;
+
+  column_common (m, tn, column, translation);
 
   if (decl_)
   {
@@ -698,7 +744,8 @@ traverse_pointer (semantics::data_member& m, semantics::class_& c)
 
   data_member_path& id (*id_member (c));
   semantics::names* hint;
-  semantics::type& t (utype (id, hint));
+  const custom_cxx_type* translation;
+  semantics::type& t (utype (id, hint, string (), &translation));
 
   if (composite_wrapper (t))
   {
@@ -760,7 +807,10 @@ traverse_pointer (semantics::data_member& m, semantics::class_& c)
     // For pointer_query_columns and poly refs generate normal column mapping.
     //
     if (ptr_ || poly_ref_)
-      column_common (m, type, col);
+    {
+      os << "// COL_COM: 2" << endl;
+      column_common (m, type, col, translation);
+    }
     else
     {
       // If this is a non-inverse relationship, then make the column have
@@ -769,7 +819,8 @@ traverse_pointer (semantics::data_member& m, semantics::class_& c)
       // test in a natural way. For inverse relationships there is no
       // column and so the column interface is not available.
       //
-      column_common (m, type, col, "_column_type_");
+      os << "// COL_COM: 3" << endl;
+      column_common (m, type, col, translation, "_column_type_");
 
       if (decl_)
       {

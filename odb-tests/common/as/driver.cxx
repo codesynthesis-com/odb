@@ -29,6 +29,8 @@ main (int argc, char* argv[])
   {
     unique_ptr<database> db (create_database (argc, argv));
 
+#if OLD_TESTS
+
     // Test basic type mapping functionality.
     //
     {
@@ -340,6 +342,10 @@ main (int argc, char* argv[])
       }
     }
 
+#endif
+
+#if NEW_TESTS
+
     // Test id type mapping, where the mapped and interface types are not
     // implicitly convertible to each other.
     //
@@ -373,14 +379,31 @@ main (int argc, char* argv[])
 
           using query = query<object>;
 
-          string id (o1.id.string ());
+//          string id (o1.id.string ());
 
           {
-            object o (db->query_value<object> (query::id == id));
+//          object o (db->query_value<object> (query::id == id));
+            object o (db->query_value<object> (query::id == o1.id));
             assert (o == o1);
           }
 
-          for (const object& o: db->query<object> (query::ref == id))
+          {
+            object o (db->query_value<object> (query::id <= query::_val (o1.id)));
+            assert (o == o1);
+          }
+
+          {
+//            object o (db->query_value<object> (query::id == query::_ref (o1.id)));
+//            assert (o == o1);
+          }
+
+          {
+            object o (db->query_value<object> (query::id == query::ref));
+            assert (o == o1);
+          }
+
+//          for (const object& o: db->query<object> (query::ref == id))
+          for (const object& o: db->query<object> (query::ref == o1.id))
             assert (o == o1 || o == o2);
 
           t.commit ();
@@ -434,6 +457,9 @@ main (int argc, char* argv[])
         }
       }
     }
+
+#endif
+
   }
   catch (const odb::exception& e)
   {

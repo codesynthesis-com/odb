@@ -182,7 +182,8 @@ namespace odb
       append (native);
     }
 
-    query_base (const query_column<bool>&);
+    template <typename B>
+    query_base (const query_column<bool, B>&);
 
     query_base (const query_base& x)
     {
@@ -365,12 +366,28 @@ namespace odb
     void* param_factory;
   };
 
+  template <typename T>
+  struct default_query_column_base
+  {
+    static void
+    append_val (query_base& q, const T& val, const native_column_info* c)
+    {
+      q.append_val (val, c);
+    }
+
+    static void
+    append_ref (query_base& q, const void* ref, const native_column_info* c)
+    {
+      q.append_ref (ref, c);
+    }
+  };
+
   // This class template has to remain POD since we rely on it being
   // 0-initialized before any dynamic initialization takes place in
   // any other translation unit.
   //
-  template <typename T>
-  struct query_column
+  template <typename T, typename B>
+  struct query_column: B
   {
     // Array of pointers to database-specific columns. It will be
     // automatically zero-initialized since query_column instances
@@ -464,7 +481,7 @@ namespace odb
     equal (val_bind<T> v) const
     {
       query_base q (native_info);
-      q.append_val (v.val, native_info);
+      this->append_val (q, v.val, native_info);
       q.append (query_base::clause_part::op_eq, 0);
       return q;
     }
@@ -473,7 +490,7 @@ namespace odb
     equal (ref_bind<T> r) const
     {
       query_base q (native_info);
-      q.append_ref (r.ptr (), native_info);
+      this->append_ref (q, r.ptr (), native_info);
       q.append (query_base::clause_part::op_eq, 0);
       return q;
     }
@@ -748,7 +765,7 @@ namespace odb
     less_equal (val_bind<T> v) const
     {
       query_base q (native_info);
-      q.append_val (v.val, native_info);
+      this->append_val (q, v.val, native_info);
       q.append (query_base::clause_part::op_le, 0);
       return q;
     }
@@ -886,9 +903,9 @@ namespace odb
     // Column comparison.
     //
   public:
-    template <typename T2>
+    template <typename T2, typename B2>
     query_base
-    operator== (const query_column<T2>& c) const
+    operator== (const query_column<T2, B2>& c) const
     {
       // We can compare columns only if we can compare their C++ types.
       //
@@ -901,9 +918,9 @@ namespace odb
       return q;
     }
 
-    template <typename T2>
+    template <typename T2, typename B2>
     query_base
-    operator!= (const query_column<T2>& c) const
+    operator!= (const query_column<T2, B2>& c) const
     {
       // We can compare columns only if we can compare their C++ types.
       //
@@ -916,9 +933,9 @@ namespace odb
       return q;
     }
 
-    template <typename T2>
+    template <typename T2, typename B2>
     query_base
-    operator< (const query_column<T2>& c) const
+    operator< (const query_column<T2, B2>& c) const
     {
       // We can compare columns only if we can compare their C++ types.
       //
@@ -931,9 +948,9 @@ namespace odb
       return q;
     }
 
-    template <typename T2>
+    template <typename T2, typename B2>
     query_base
-    operator> (const query_column<T2>& c) const
+    operator> (const query_column<T2, B2>& c) const
     {
       // We can compare columns only if we can compare their C++ types.
       //
@@ -946,9 +963,9 @@ namespace odb
       return q;
     }
 
-    template <typename T2>
+    template <typename T2, typename B2>
     query_base
-    operator<= (const query_column<T2>& c) const
+    operator<= (const query_column<T2, B2>& c) const
     {
       // We can compare columns only if we can compare their C++ types.
       //
@@ -961,9 +978,9 @@ namespace odb
       return q;
     }
 
-    template <typename T2>
+    template <typename T2, typename B2>
     query_base
-    operator>= (const query_column<T2>& c) const
+    operator>= (const query_column<T2, B2>& c) const
     {
       // We can compare columns only if we can compare their C++ types.
       //
@@ -980,9 +997,9 @@ namespace odb
   // Provide operator+() for using columns to construct native
   // query fragments (e.g., ORDER BY).
   //
-  template <typename T>
+  template <typename T, typename B>
   inline query_base
-  operator+ (const query_column<T>& c, const std::string& s)
+  operator+ (const query_column<T, B>& c, const std::string& s)
   {
     query_base q (c.native_info);
     q.append (s);
@@ -990,9 +1007,9 @@ namespace odb
     return q;
   }
 
-  template <typename T>
+  template <typename T, typename B>
   inline query_base
-  operator+ (const std::string& s, const query_column<T>& c)
+  operator+ (const std::string& s, const query_column<T, B>& c)
   {
     query_base q (s);
     q.append (c.native_info);
@@ -1000,9 +1017,9 @@ namespace odb
     return q;
   }
 
-  template <typename T>
+  template <typename T, typename B>
   inline query_base
-  operator+ (const query_column<T>& c, const query_base& q)
+  operator+ (const query_column<T, B>& c, const query_base& q)
   {
     query_base r (c.native_info);
     r.append (q);
@@ -1010,9 +1027,9 @@ namespace odb
     return r;
   }
 
-  template <typename T>
+  template <typename T, typename B>
   inline query_base
-  operator+ (const query_base& q, const query_column<T>& c)
+  operator+ (const query_base& q, const query_column<T, B>& c)
   {
     query_base r (q);
     r.append (c.native_info);
@@ -1058,7 +1075,8 @@ namespace odb
     {
     }
 
-    query (const query_column<bool>& qc)
+    template <typename B>
+    query (const query_column<bool, B>& qc)
         : query_base (qc)
     {
     }

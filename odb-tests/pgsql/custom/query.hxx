@@ -15,7 +15,9 @@ namespace odb
   namespace pgsql
   {
     template <>
-    struct query_column<point, id_string>
+    struct query_column<point,
+                        id_string,
+                        default_query_column_base<point, id_string>>
     {
     private:
       const char* table_;
@@ -28,7 +30,9 @@ namespace odb
       // Sub-columns for individual members.
       //
     public:
-      query_column<double, id_double> x, y;
+      query_column<double,
+                   id_double,
+                   default_query_column_base<double, id_double>> x, y;
 
       // is_null, is_not_null
       //
@@ -116,7 +120,11 @@ namespace odb
       //
     public:
       query_base
-      operator== (const query_column<point, id_string>& c) const
+      operator== (
+        const query_column<point,
+                           id_string,
+                           default_query_column_base<point,
+                                                     id_string>>& c) const
       {
         query_base q (table_, column_);
         q += "~=";

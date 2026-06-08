@@ -4,6 +4,7 @@
 #ifndef ODB_RELATIONAL_COMMON_QUERY_HXX
 #define ODB_RELATIONAL_COMMON_QUERY_HXX
 
+#include <odb/context.hxx>
 #include <odb/relational/common.hxx>
 
 namespace relational
@@ -56,6 +57,7 @@ namespace relational
     column_common (semantics::data_member&,
                    string const& type,
                    string const& column,
+                   const custom_cxx_type* translation,
                    string const& suffix);
   };
 }

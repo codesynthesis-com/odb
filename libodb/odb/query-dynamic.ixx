@@ -5,8 +5,9 @@ namespace odb
 {
   // query_base
   //
+  template <typename B>
   inline query_base::
-  query_base (const query_column<bool>& c)
+  query_base (const query_column<bool, B>& c)
   {
     // Some databases provide the IS TRUE operator. However, we cannot
     // use it since the column type might now be SQL boolean type.

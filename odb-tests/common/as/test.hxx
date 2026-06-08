@@ -15,6 +15,11 @@
 #include <odb/vector.hxx>
 #include <odb/nullable.hxx>
 
+#define OLD_TESTS 1
+#define NEW_TESTS 1
+
+#if OLD_TESTS
+
 // Test basic type mapping functionality.
 //
 #pragma db namespace table("t1_")
@@ -268,6 +273,9 @@ namespace test5
     return x.id == y.id && x.v == y.v && x.i == y.i;
   }
 }
+#endif
+
+#if NEW_TESTS
 
 // Test id type mapping, where the mapped and interface types are not
 // implicitly convertible to each other (regression for GH issue #16).
@@ -410,5 +418,7 @@ namespace test6
     }
   }
 }
+
+#endif
 
 #endif // TEST_HXX

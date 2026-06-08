@@ -146,7 +146,7 @@ namespace odb
   //
   class query_base;
 
-  template <typename T>
+  template <typename T, typename B>
   struct query_column;
 
   //
