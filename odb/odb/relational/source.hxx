@@ -2379,53 +2379,6 @@ namespace relational
           }
         }
 
-        // Translate.
-        //
-        if (mi.ct != 0)
-        {
-          os << "// From " << location_string (mi.ct->loc, true) << endl
-             << type_ref_type (*mi.ct->as, mi.ct->as_hint, true, "vt") <<
-            " =" << endl
-             << "  " << mi.ct->translate_to (member) << ";"
-             << endl;
-
-          member = "vt";
-        }
-
-        // If this is a wrapped composite value, then we need to "unwrap"
-        // it. If this is a NULL wrapper, then we also need to handle that.
-        // For simple values this is taken care of by the value_traits
-        // specializations.
-        //
-        if (mi.wt != 0 && comp != 0)
-        {
-          // The wrapper type, not the wrapped type.
-          //
-          string const& wt (mi.fq_type (false));
-
-          // If this is a NULL wrapper and the member can be NULL, then
-          // we need to handle the NULL value.
-          //
-          if (null (mi.m, key_prefix_) &&
-              mi.wt->template get<bool> ("wrapper-null-handler"))
-          {
-            os << "if (wrapper_traits< " << wt << " >::get_null (" <<
-              member << "))" << endl
-               << "composite_value_traits< " << mi.fq_type () << ", id_" <<
-              db << " >::set_null (" << endl
-               << "i." << mi.var << "value, sk" <<
-              (versioned (*comp) ? ", svm" : "") << ");"
-               << "else"
-               << "{";
-          }
-
-          os << "const" << mi.fq_type () << "& vw = " << endl
-             << "  wrapper_traits< " + wt + " >::get_ref (" + member + ");"
-             << endl;
-
-          member = "vw";
-        }
-
         if (discriminator (mi.m))
           os << "const info_type& di (map->find (typeid (o)));"
              << endl;
@@ -2494,7 +2447,55 @@ namespace relational
 
           // Indicate to the value_traits whether this column can be NULL.
           //
-          os << "bool is_null (" << null (mi.m, key_prefix_) << ");";
+          os << "bool is_null (" << null (mi.m, key_prefix_) << ");" << endl;
+        }
+
+        // Translate.
+        //
+        if (mi.ct != 0)
+        {
+          os << "// From " << location_string (mi.ct->loc, true) << endl
+             << type_ref_type (*mi.ct->as, mi.ct->as_hint, true, "vt") <<
+            " =" << endl
+             << "  " << mi.ct->translate_to (member) << ";"
+             << endl;
+
+          member = "vt";
+          type = mi.fq_type ();
+        }
+
+        // If this is a wrapped composite value, then we need to "unwrap"
+        // it. If this is a NULL wrapper, then we also need to handle that.
+        // For simple values this is taken care of by the value_traits
+        // specializations.
+        //
+        if (mi.wt != 0 && comp != 0)
+        {
+          // The wrapper type, not the wrapped type.
+          //
+          string const& wt (mi.fq_type (false));
+
+          // If this is a NULL wrapper and the member can be NULL, then
+          // we need to handle the NULL value.
+          //
+          if (null (mi.m, key_prefix_) &&
+              mi.wt->template get<bool> ("wrapper-null-handler"))
+          {
+            os << "if (wrapper_traits< " << wt << " >::get_null (" <<
+              member << "))" << endl
+               << "composite_value_traits< " << mi.fq_type () << ", id_" <<
+              db << " >::set_null (" << endl
+               << "i." << mi.var << "value, sk" <<
+              (versioned (*comp) ? ", svm" : "") << ");"
+               << "else"
+               << "{";
+          }
+
+          os << "const" << mi.fq_type () << "& vw = " << endl
+             << "  wrapper_traits< " + wt + " >::get_ref (" + member + ");"
+             << endl;
+
+          member = "vw";
         }
 
         if (comp != 0)
@@ -2866,6 +2867,45 @@ namespace relational
           member = "v";
         }
 
+        type = mi.fq_type ();
+
+        if (mi.ptr != 0)
+        {
+          // Handle NULL pointers and extract the id.
+          //
+          os << "typedef object_traits< " << class_fq_name (*mi.ptr) <<
+            " > obj_traits;"
+             << "typedef odb::pointer_traits< " << mi.ptr_fq_type () <<
+            " > ptr_traits;"
+             << endl;
+
+          os << "if (";
+
+          if (comp != 0)
+            os << "composite_value_traits< " << type << ", id_" << db <<
+              " >::get_null (" << endl
+               << "i." << mi.var << "value" <<
+              (versioned (*comp) ? ", svm" : "") << ")";
+          else
+            get_null (mi.var);
+
+          os << ")" << endl;
+
+          // Don't throw null_pointer if we can't have NULLs and the pointer
+          // is NULL since this can be useful during migration. Instead, we
+          // rely on the database enforcing this.
+          //
+          os << member << " = ptr_traits::pointer_type ();";
+
+          os << "else"
+             << "{";
+
+          type = "obj_traits::id_type";
+          os << type << " ptr_id;";
+
+          member = "ptr_id";
+        }
+
         // Translate.
         //
         if (mi.ct != 0)
@@ -2875,6 +2915,7 @@ namespace relational
 
           translate_member = member;
           member = "vt";
+          type = mi.fq_type ();
         }
 
         // If this is a wrapped composite value, then we need to "unwrap" it.
@@ -2911,46 +2952,6 @@ namespace relational
           member = "vw";
         }
 
-        if (mi.ptr != 0)
-        {
-          type = "obj_traits::id_type";
-
-          // Handle NULL pointers and extract the id.
-          //
-          os << "typedef object_traits< " << class_fq_name (*mi.ptr) <<
-            " > obj_traits;"
-             << "typedef odb::pointer_traits< " << mi.ptr_fq_type () <<
-            " > ptr_traits;"
-             << endl;
-
-          os << "if (";
-
-          if (comp != 0)
-            os << "composite_value_traits< " << type << ", id_" << db <<
-              " >::get_null (" << endl
-               << "i." << mi.var << "value" <<
-              (versioned (*comp) ? ", svm" : "") << ")";
-          else
-            get_null (mi.var);
-
-          os << ")" << endl;
-
-          // Don't throw null_pointer if we can't have NULLs and the pointer
-          // is NULL since this can be useful during migration. Instead, we
-          // rely on the database enforcing this.
-          //
-          os << member << " = ptr_traits::pointer_type ();";
-
-          os << "else"
-             << "{";
-
-          os << type << " ptr_id;";
-
-          member = "ptr_id";
-        }
-        else
-          type = mi.fq_type ();
-
         if (comp != 0)
           traits = "composite_value_traits< " + type + ", id_" +
             db.string () + " >";
@@ -2968,6 +2969,30 @@ namespace relational
       virtual void
       post (member_info& mi)
       {
+        // Wrap back (so to speak).
+        //
+        if (mi.wt != 0 && composite (mi.t) != 0)
+        {
+          if (null (mi.m, key_prefix_) &&
+              mi.wt->template get<bool> ("wrapper-null-handler"))
+            os << "}";
+
+          member = wrap_member;
+        }
+
+        // Untranslate.
+        //
+        if (mi.ct != 0)
+        {
+          //@@ Use move() in C++11? Or not.
+          //
+          os << "// From " << location_string (mi.ct->loc, true) << endl
+             << translate_member << " = " <<
+            mi.ct->translate_from (member) << ";" << endl;
+
+          member = translate_member;
+        }
+
         if (mi.ptr != 0)
         {
           if (direct_load_pointer (mi.m, key_prefix_))
@@ -3024,30 +3049,6 @@ namespace relational
           }
 
           os << "}";
-        }
-
-        // Wrap back (so to speak).
-        //
-        if (mi.wt != 0 && composite (mi.t) != 0)
-        {
-          if (null (mi.m, key_prefix_) &&
-              mi.wt->template get<bool> ("wrapper-null-handler"))
-            os << "}";
-
-          member = wrap_member;
-        }
-
-        // Untranslate.
-        //
-        if (mi.ct != 0)
-        {
-          //@@ Use move() in C++11? Or not.
-          //
-          os << "// From " << location_string (mi.ct->loc, true) << endl
-             << translate_member << " = " <<
-            mi.ct->translate_from (member) << ";";
-
-          member = translate_member;
         }
 
         // Call the modifier if we are using a proper one.

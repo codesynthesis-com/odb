@@ -7,13 +7,17 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <utility> // pair
+#include <memory>  // shared_ptr
+#include <utility> // pair, move()
 #include <cstddef> // size
 #include <cassert>
 
 #include <odb/core.hxx>
 #include <odb/vector.hxx>
 #include <odb/nullable.hxx>
+
+// @@ Before pushing to master, add '#' to issue number in commit message.
+//
 
 // Test basic type mapping functionality.
 //
@@ -270,11 +274,47 @@ namespace test5
 }
 
 // Test id type mapping, where the mapped and interface types are not
-// implicitly convertible to each other (regression for GH issue #16).
+// implicitly convertible to each other (regression for GH issue #16). Also
+// test query column expressions for various type mappings (regression for GH
+// issue #31).
 //
 #pragma db namespace table("t6_")
 namespace test6
 {
+  #pragma db object pointer(std::shared_ptr)
+  struct obj1
+  {
+    obj1 () {}
+    obj1 (int i): id (i) {}
+
+    #pragma db id
+    int id;
+  };
+
+  inline bool
+  operator== (const obj1& x, const obj1& y)
+  {
+    return x.id == y.id;
+  }
+
+  #pragma db value
+  struct dependency
+  {
+    dependency () {}
+
+    explicit
+    dependency (std::shared_ptr<obj1> o): obj (std::move (o)) {}
+
+    std::shared_ptr<obj1> obj;
+  };
+
+  inline bool
+  operator== (const dependency& x, const dependency& y)
+  {
+    return (x.obj == nullptr) == (y.obj == nullptr) &&
+           (x.obj == nullptr || *x.obj == *y.obj);
+  }
+
   // Simple interface value type.
   //
   #pragma db namespace table("s_")
@@ -282,60 +322,264 @@ namespace test6
   {
     struct object_id
     {
-      object_id () {}
-      object_id (int v): value (v) {}
+      object_id (): value_ (0) {}
+      object_id (const object_id& o): value_ (o.value_), cache_ (o.cache_) {}
+
+      explicit
+      object_id (int v): value_ (v) {}
 
       explicit
       object_id (const std::string& s)
       {
         std::size_t n;
-        value = std::stoi (s, &n);
+        value_ = std::stoi (s, &n);
 
         assert (n == s.size ());
       }
 
-      std::string
-      string () const
+      // If the stringified representation is cached for the current or the
+      // being assigned from object, then cache the representation for the new
+      // value.
+      //
+      object_id&
+      operator= (const object_id& o)
       {
-        return std::to_string (value);
+        value_ = o.value_;
+
+        cache_ = !o.cache_.empty () ? o.cache_                :
+                 !cache_.empty ()   ? std::to_string (value_) :
+                                      "";
+        return *this;
       }
 
-      int value;
+      // Cache the stringified representation of the value, if not yet, and
+      // return the reference to the cache.
+      //
+      const std::string&
+      string () const
+      {
+        if (cache_.empty ())
+          cache_ = std::to_string (value_);
+
+        return cache_;
+      }
+
+      bool operator== (const object_id& v) const {return value_ == v.value_;}
+      bool operator!= (const object_id& v) const {return value_ != v.value_;}
+      bool operator < (const object_id& v) const {return value_ < v.value_;}
+
+    private:
+      int value_;
+      mutable std::string cache_;
     };
-
-    inline bool
-    operator== (const object_id& x, const object_id& y)
-    {
-      return x.value == y.value;
-    }
-
-    inline bool
-    operator< (const object_id& x, const object_id& y)
-    {
-      return x.value < y.value;
-    }
 
     #pragma db map type(object_id) as(std::string)  \
       to((?).string ())                             \
       from(test6::simple_intf::object_id (?))
 
+    // @@ TMP Enable when GH issue #32 is fixed and do the same for composite
+    //        interface type tests. Also, let's use array of length 2 for
+    //        testing.
+    //
+#if 0
+    typedef object_id object_ids[1];
+
+    #pragma db map type(object_ids) as(std::string) \
+      to((?)[0].string ())                          \
+      from(test6::simple_intf::object_id (?))
+#endif
+
+    struct object;
+
+    #pragma db value
+    struct next_object
+    {
+      next_object () {};
+
+      explicit
+      next_object (int i): id (i) {}
+
+      #pragma db points_to(object)
+      object_id id;
+    };
+
+    inline bool
+    operator== (const next_object& x, const next_object& y)
+    {
+      return x.id == y.id;
+    }
+
+    #pragma db object pointer(std::shared_ptr)
+    struct obj2
+    {
+      obj2 () {}
+      obj2 (const object_id& i): id (i) {}
+
+      #pragma db id
+      object_id id;
+    };
+
+    inline bool
+    operator== (const obj2& x, const obj2& y)
+    {
+      return x.id == y.id;
+    }
+
+    #pragma db value
+    struct requirement
+    {
+      requirement () {}
+      requirement (std::shared_ptr<obj2> o): obj (std::move (o)) {}
+
+      std::shared_ptr<obj2> obj;
+    };
+
+    inline bool
+    operator== (const requirement& x, const requirement& y)
+    {
+      return (x.obj == nullptr) == (y.obj == nullptr) &&
+             (x.obj == nullptr || *x.obj == *y.obj);
+    }
+
+    enum class state
+    {
+      disabled,
+      enabled
+    };
+
+    inline std::string
+    to_string (state s)
+    {
+      return s == state::disabled ? "disabled" : "enabled";
+    }
+
+    inline state
+    to_state (const std::string& s)
+    {
+      assert (s == "disabled" || s == "enabled");
+      return s == "disabled" ? state::disabled : state::enabled;
+    }
+
+    #pragma db map type(state) as(std::string) \
+      to(test6::simple_intf::to_string (?))    \
+      from(test6::simple_intf::to_state (?))
+
+    using null_string = odb::nullable<std::string>;
+    using null_state  = odb::nullable<state>;
+
+    #pragma db map type(null_state) as(null_string) \
+      to((?)                                        \
+         ? test6::simple_intf::to_string (*(?))     \
+         : test6::simple_intf::null_string ())      \
+      from((?)                                      \
+           ? test6::simple_intf::to_state (*(?))    \
+           : test6::simple_intf::null_state ())
+
+    // Note that the reason for defining null_object_id as a struct rather
+    // than just the odb::nullable<object_id> typedef, is that we want to make
+    // sure that the to() expression for the null_object_id type mapping is of
+    // a reference type. This way we will be able to test binding of the query
+    // params by reference for object members of the null_object_id type.
+    //
+    struct null_object_id
+    {
+      null_object_id () {}
+      null_object_id (const null_object_id& o)
+          : value_ (o.value_), cache_ (o.cache_) {}
+
+      null_object_id (const object_id& v): value_ (v) {}
+
+      explicit
+      null_object_id (const null_string& s)
+          : value_ (s
+                    ? odb::nullable<object_id> (object_id (*s))
+                    : odb::nullable<object_id> ()) {}
+
+      // Always cache the representation for the new value.
+      //
+      null_object_id&
+      operator= (const null_object_id& o)
+      {
+        value_ = o.value_;
+        opt_string ();     // Cache stringified value representation.
+        return *this;
+      }
+
+      // Cache the stringified representation of the value and return the
+      // reference to the cache.
+      //
+      const null_string&
+      opt_string () const
+      {
+        cache_ = value_
+                 ? null_string (value_->string ())
+                 : null_string ();
+
+        return cache_;
+      }
+
+      bool
+      operator== (const null_object_id& v) const
+      {
+        return value_ == v.value_;
+      }
+
+    private:
+      odb::nullable<object_id> value_;
+      mutable null_string cache_;
+    };
+
+    #pragma db map type(null_object_id) as(null_string) \
+      to((?).opt_string ())                             \
+      from(test6::simple_intf::null_object_id (?))
+
     #pragma db object
     struct object
     {
       object () {}
-      object (int i, int r): id (i), ref (r) {}
+      object (int i, int r, int n)
+          : id (i),
+            ref (r),
+            //refs{r}, // @@ TMP Enable when GH issue #32 is fixed.
+            next (n)
+      {
+      }
 
       #pragma db id
       object_id id;
 
       #pragma db points_to(object)
       object_id ref;
+
+      //object_ids refs; // @@ TMP Enable when GH issue #32 is fixed.
+
+      next_object next;
+
+      dependency  dep;
+      requirement req;
+
+      null_string note;
+      state usage = state::disabled;
+
+      #pragma db points_to(object)
+      null_object_id source;
+
+      null_state source_usage;
     };
 
     inline bool
     operator== (const object& x, const object& y)
     {
-      return x.id == y.id && x.ref == y.ref;
+      return x.id           == y.id     &&
+             x.ref          == y.ref    &&
+             //x.refs[0] == y.refs[0] && // @@ TMP Enable when GH issue #32 is fixed.
+             x.next         == y.next   &&
+             x.dep          == y.dep    &&
+             x.req          == y.req    &&
+             x.note         == y.note   &&
+             x.usage        == y.usage  &&
+             x.source       == y.source &&
+             x.source_usage == y.source_usage;
     }
   }
 
@@ -349,7 +593,9 @@ namespace test6
 
     struct object_id
     {
-      object_id () {}
+      object_id (): value1 (0), value2 (0) {}
+      object_id (const object_id& o): value1 (o.value1), value2 (o.value2) {}
+
       object_id (int v1, int v2): value1 (v1), value2 (v2) {}
 
       explicit
@@ -362,6 +608,14 @@ namespace test6
 
         value2 = std::stoi (sp.second, &n);
         assert (n == sp.second.size ());
+      }
+
+      object_id&
+      operator= (const object_id& o)
+      {
+        value1 = o.value1;
+        value2 = o.value2;
+        return *this;
       }
 
       int value1;
@@ -381,6 +635,12 @@ namespace test6
     }
 
     inline bool
+    operator!= (const object_id& x, const object_id& y)
+    {
+      return x.value1 != y.value1 || x.value2 != y.value2;
+    }
+
+    inline bool
     operator< (const object_id& x, const object_id& y)
     {
       return x.value1 != y.value1 ? x.value1 < y.value1 : x.value2 < y.value2;
@@ -390,23 +650,100 @@ namespace test6
       to(test6::composite_intf::to_str_pair (?)) \
       from(test6::composite_intf::object_id (?))
 
+    using null_str_pair = odb::nullable<str_pair>;
+    using null_object_id = odb::nullable<object_id>;
+
+    #pragma db map type(null_object_id) as(null_str_pair) \
+      to((?)                                              \
+         ? test6::composite_intf::to_str_pair (*(?))      \
+         : test6::composite_intf::null_str_pair ())       \
+      from((?)                                            \
+           ? test6::composite_intf::object_id (*(?))      \
+           : test6::composite_intf::null_object_id ())
+
+    struct object;
+
+    #pragma db value
+    struct next_object
+    {
+      next_object () {};
+      next_object (int i1, int i2): id (i1, i2) {}
+
+      #pragma db points_to(object)
+      object_id id;
+    };
+
+    inline bool
+    operator== (const next_object& x, const next_object& y)
+    {
+      return x.id == y.id;
+    }
+
+    #pragma db object pointer(std::shared_ptr)
+    struct obj2
+    {
+      obj2 () {}
+      obj2 (const object_id& i): id (i) {}
+
+      #pragma db id
+      object_id id;
+    };
+
+    inline bool
+    operator== (const obj2& x, const obj2& y)
+    {
+      return x.id == y.id;
+    }
+
+    #pragma db value
+    struct requirement
+    {
+      requirement () {}
+      requirement (std::shared_ptr<obj2> o): obj (std::move (o)) {}
+
+      std::shared_ptr<obj2> obj;
+    };
+
+    inline bool
+    operator== (const requirement& x, const requirement& y)
+    {
+      return (x.obj == nullptr) == (y.obj == nullptr) &&
+             (x.obj == nullptr || *x.obj == *y.obj);
+    }
+
     #pragma db object
     struct object
     {
       object () {}
-      object (int i1, int i2, int r1, int r2): id (i1, i2), ref (r1, r2) {}
+      object (int i1, int i2,
+              int r1, int r2,
+              int n1, int n2)
+          : id (i1, i2), ref (r1, r2), next (n1, n2) {}
 
       #pragma db id
       object_id id;
 
       #pragma db points_to(object)
       object_id ref;
+
+      next_object next;
+
+      dependency dep;
+      requirement req;
+
+      #pragma db points_to(object)
+      null_object_id source;
     };
 
     inline bool
     operator== (const object& x, const object& y)
     {
-      return x.id == y.id && x.ref == y.ref;
+      return x.id     == y.id   &&
+             x.ref    == y.ref  &&
+             x.next   == y.next &&
+             x.dep    == y.dep  &&
+             x.req    == y.req  &&
+             x.source == y.source;
     }
   }
 }

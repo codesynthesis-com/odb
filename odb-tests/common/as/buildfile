@@ -40,9 +40,10 @@ cxx.poptions =+ "-I$out_base" "-I$src_base"
 # @@ BUILD@ Temporarily suppress the following warning:
 #
 #    test-odb.cxx(6234): warning C4244: 'argument': conversion from 'id_type::value_type' to 'test5::version_type::value_type', possible loss of data
+#    test-odb.hxx(2086): warning C4506: no definition for inline function 'void odb::query_columns<test6::simple_intf::object,odb::id_common,odb::access::object_traits_impl<test6::simple_intf::object,odb::id_common>>::next_class_::id_base_type_::append_val(odb::query_base &,const test6::simple_intf::object_id &,const odb::native_column_info *)'
 #
 if ($cxx.class == 'msvc')
-  cxx.coptions += /wd4244
+  cxx.coptions += /wd4244 /wd4506
 
 # Testscript's run-time prerequisites.
 #

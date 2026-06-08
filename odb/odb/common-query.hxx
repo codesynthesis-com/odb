@@ -140,6 +140,7 @@ struct query_columns: object_columns_base, virtual context
   column_common (semantics::data_member&,
                  string const& type,
                  string const& column,
+                 const custom_cxx_type* translation,
                  string const& suffix = "_type_");
 
   virtual bool
