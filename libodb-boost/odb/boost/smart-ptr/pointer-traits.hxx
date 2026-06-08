@@ -12,7 +12,6 @@
 #include <boost/weak_ptr.hpp>
 
 #include <odb/pointer-traits.hxx>
-#include <odb/details/meta/remove-const.hxx>
 
 namespace odb
 {

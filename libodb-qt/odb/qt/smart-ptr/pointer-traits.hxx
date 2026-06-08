@@ -12,7 +12,6 @@
 #include <QtCore/QWeakPointer>
 
 #include <odb/pointer-traits.hxx>
-#include <odb/details/meta/remove-const.hxx>
 
 namespace odb
 {
