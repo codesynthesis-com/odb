@@ -28,66 +28,66 @@ namespace odb
 
   // in
   //
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   in (const T& v1, const T& v2) const
   {
     query_base q (native_info);
-    q.append_val (v1, native_info);
-    q.append_val (v2, native_info);
+    B::append_val (q, v1, native_info);
+    B::append_val (q, v2, native_info);
     q.append (query_base::clause_part::op_in, 2);
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   in (const T& v1, const T& v2, const T& v3) const
   {
     query_base q (native_info);
-    q.append_val (v1, native_info);
-    q.append_val (v2, native_info);
-    q.append_val (v3, native_info);
+    B::append_val (q, v1, native_info);
+    B::append_val (q, v2, native_info);
+    B::append_val (q, v3, native_info);
     q.append (query_base::clause_part::op_in, 3);
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   in (const T& v1, const T& v2, const T& v3, const T& v4) const
   {
     query_base q (native_info);
-    q.append_val (v1, native_info);
-    q.append_val (v2, native_info);
-    q.append_val (v3, native_info);
-    q.append_val (v4, native_info);
+    B::append_val (q, v1, native_info);
+    B::append_val (q, v2, native_info);
+    B::append_val (q, v3, native_info);
+    B::append_val (q, v4, native_info);
     q.append (query_base::clause_part::op_in, 4);
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   in (const T& v1, const T& v2, const T& v3, const T& v4, const T& v5) const
   {
     query_base q (native_info);
-    q.append_val (v1, native_info);
-    q.append_val (v2, native_info);
-    q.append_val (v3, native_info);
-    q.append_val (v4, native_info);
-    q.append_val (v5, native_info);
+    B::append_val (q, v1, native_info);
+    B::append_val (q, v2, native_info);
+    B::append_val (q, v3, native_info);
+    B::append_val (q, v4, native_info);
+    B::append_val (q, v5, native_info);
     q.append (query_base::clause_part::op_in, 5);
     return q;
   }
 
-  template <typename T>
+  template <typename T, typename B>
   template <typename I>
-  query_base query_column<T>::
+  query_base query_column<T, B>::
   in_range (I i, I end) const
   {
     query_base q (native_info);
 
     std::size_t n (0);
     for (; i != end; ++i, ++n)
-      q.append_val<T> (*i, native_info); // Force implicit conversion.
+      B::append_val (q, *i, native_info);
 
     q.append (query_base::clause_part::op_in, n);
     return q;
@@ -95,44 +95,44 @@ namespace odb
 
   // like
   //
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   like (val_bind<T> p) const
   {
     query_base q (native_info);
-    q.append_val (p.val, native_info);
+    B::append_val (q, p.val, native_info);
     q.append (query_base::clause_part::op_like, 0);
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   like (ref_bind<T> p) const
   {
     query_base q (native_info);
-    q.append_ref (p.ptr (), native_info);
+    B::append_ref (q, p.ptr (), native_info);
     q.append (query_base::clause_part::op_like, 0);
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   like (val_bind<T> p, const T& e) const
   {
     query_base q (native_info);
-    q.append_val (p.val, native_info);
-    q.append_val (e, native_info);
+    B::append_val (q, p.val, native_info);
+    B::append_val (q, e, native_info);
     q.append (query_base::clause_part::op_like_escape, 0);
     return q;
   }
 
-  template <typename T>
-  query_base query_column<T>::
+  template <typename T, typename B>
+  query_base query_column<T, B>::
   like (ref_bind<T> p, const T& e) const
   {
     query_base q (native_info);
-    q.append_ref (p.ptr (), native_info);
-    q.append_val (e, native_info);
+    B::append_ref (q, p.ptr (), native_info);
+    B::append_val (q, e, native_info);
     q.append (query_base::clause_part::op_like_escape, 0);
     return q;
   }

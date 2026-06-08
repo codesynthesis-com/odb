@@ -158,7 +158,7 @@ namespace odb
 
     //
     //
-    template <typename T, database_type_id ID>
+    template <typename T, database_type_id ID, typename B>
     struct query_column;
 
     class LIBODB_ORACLE_EXPORT query_base
@@ -250,8 +250,8 @@ namespace odb
         *this += r;
       }
 
-      template <database_type_id ID>
-      query_base (const query_column<bool, ID>&);
+      template <database_type_id ID, typename B>
+      query_base (const query_column<bool, ID, B>&);
 
       // Translate common query representation to Oracle native. Defined
       // in query-dynamic.cxx
@@ -399,6 +399,12 @@ namespace odb
         return *this;
       }
 
+      // Note that for C++ types mapped to C++ types, the interface type needs
+      // to be used for the query's '+=' operator. For example:
+      //
+      // query q (query::id + "=");
+      // q += query::_val (to_string (id));
+      //
       template <typename T>
       query_base&
       operator+= (val_bind<T> v)
@@ -489,6 +495,11 @@ namespace odb
       return r;
     }
 
+    // Note that for C++ types mapped to C++ types, the interface type needs
+    // to be used for the query's '+' operator. For example:
+    //
+    // db.query_value<object> (q::id + "=" + q::_val (to_string (id)));
+    //
     template <typename T>
     inline query_base
     operator+ (const query_base& q, val_bind<T> b)
@@ -724,8 +735,46 @@ namespace odb
       short scale_;
     };
 
+    // This class is used as a base for query_column<> instantiation in the
+    // generated code, unless the type T is mapped to a simple value type
+    // using the map pragma and the interface type is not mapped to an Oracle
+    // LOB native type (see lob_query_column below for the reasoning). In the
+    // latter case, a custom base class is generated. Such a class provides
+    // the append() overloads, which convert the passed value/reference of the
+    // mapped type to the value/reference of the interface type and append
+    // them to the query.
+    //
     template <typename T, database_type_id ID>
-    struct query_column: query_column_base
+    struct default_query_column_base: query_column_base
+    {
+      using query_column_base::query_column_base;
+
+      static void
+      append (query_base& q, val_bind<T> v, const char* conv)
+      {
+        q.append<T, ID> (v, conv);
+      }
+
+      static void
+      append (query_base& q, ref_bind<T> r, const char* conv)
+      {
+        q.append<T, ID> (r, conv);
+      }
+
+      // Implementation is in query-dynamic.ixx.
+      //
+      // Note that it may only be used by the generated code produced in the
+      // dynamic multi-database mode. Thus, we declare this function with the
+      // 'delete' specifier in the generated custom class in the static mode.
+      //
+      static void*
+      param_factory ();
+    };
+
+    template <typename T,
+              database_type_id ID,
+              typename B = default_query_column_base<T, ID>>
+    struct query_column: B
     {
       typedef typename decay_traits<T>::type decayed_type;
 
@@ -737,11 +786,12 @@ namespace odb
                     const char* conv,
                     unsigned short prec = 0xFFF,
                     short scale = 0xFFF)
-          : query_column_base (table, column, conv, prec, scale) {}
+          : B (table, column, conv, prec, scale) {}
 
       // Implementation is in query-dynamic.ixx.
       //
-      query_column (odb::query_column<T>&,
+      template <typename B2>
+      query_column (odb::query_column<T, B2>&,
                     const char* table,
                     const char* column,
                     const char* conv,
@@ -754,7 +804,7 @@ namespace odb
       query_base
       is_null () const
       {
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "IS NULL";
         return q;
       }
@@ -762,7 +812,7 @@ namespace odb
       query_base
       is_not_null () const
       {
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "IS NOT NULL";
         return q;
       }
@@ -840,12 +890,21 @@ namespace odb
       query_base
       equal (val_bind<T> v) const
       {
-        v.prec = prec_;
-        v.scale = scale_;
+        // @@ Shouldn't we only overwrite unspecified v.{prec,scale} here (and
+        //    in similar places)?
+        //
+        //if (v.prec == 0xFFF)
+        //  v.prec = this->prec_;
+        //
+        //if (v.scale == 0xFFF)
+        //  v.scale = this->scale_;
+        //
+        v.prec = this->prec_;
+        v.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "=";
-        q.append<T, ID> (v, conversion_);
+        B::append (q, v, this->conversion_);
         return q;
       }
 
@@ -853,18 +912,23 @@ namespace odb
       query_base
       equal (val_bind<T2> v) const
       {
+        // @@ Shouldn't we propagate v.{prec,scale} here (and in similar
+        //    places)?
+        //
+        //return equal (val_bind<T> (decayed_type (v.val), v.prec, v.scale));
+        //
         return equal (val_bind<T> (decayed_type (v.val)));
       }
 
       query_base
       equal (ref_bind<T> r) const
       {
-        r.prec = prec_;
-        r.scale = scale_;
+        r.prec = this->prec_;
+        r.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "=";
-        q.append<T, ID> (r, conversion_);
+        B::append (q, r, this->conversion_);
         return q;
       }
 
@@ -930,12 +994,12 @@ namespace odb
       query_base
       unequal (val_bind<T> v) const
       {
-        v.prec = prec_;
-        v.scale = scale_;
+        v.prec = this->prec_;
+        v.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "!=";
-        q.append<T, ID> (v, conversion_);
+        B::append (q, v, this->conversion_);
         return q;
       }
 
@@ -949,12 +1013,12 @@ namespace odb
       query_base
       unequal (ref_bind<T> r) const
       {
-        r.prec = prec_;
-        r.scale = scale_;
+        r.prec = this->prec_;
+        r.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "!=";
-        q.append<T, ID> (r, conversion_);
+        B::append (q, r, this->conversion_);
         return q;
       }
 
@@ -1020,12 +1084,12 @@ namespace odb
       query_base
       less (val_bind<T> v) const
       {
-        v.prec = prec_;
-        v.scale = scale_;
+        v.prec = this->prec_;
+        v.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "<";
-        q.append<T, ID> (v, conversion_);
+        B::append (q, v, this->conversion_);
         return q;
       }
 
@@ -1039,12 +1103,12 @@ namespace odb
       query_base
       less (ref_bind<T> r) const
       {
-        r.prec = prec_;
-        r.scale = scale_;
+        r.prec = this->prec_;
+        r.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "<";
-        q.append<T, ID> (r, conversion_);
+        B::append (q, r, this->conversion_);
         return q;
       }
 
@@ -1110,12 +1174,12 @@ namespace odb
       query_base
       greater (val_bind<T> v) const
       {
-        v.prec = prec_;
-        v.scale = scale_;
+        v.prec = this->prec_;
+        v.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += ">";
-        q.append<T, ID> (v, conversion_);
+        B::append (q, v, this->conversion_);
         return q;
       }
 
@@ -1129,12 +1193,12 @@ namespace odb
       query_base
       greater (ref_bind<T> r) const
       {
-        r.prec = prec_;
-        r.scale = scale_;
+        r.prec = this->prec_;
+        r.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += ">";
-        q.append<T, ID> (r, conversion_);
+        B::append (q, r, this->conversion_);
         return q;
       }
 
@@ -1200,12 +1264,12 @@ namespace odb
       query_base
       less_equal (val_bind<T> v) const
       {
-        v.prec = prec_;
-        v.scale = scale_;
+        v.prec = this->prec_;
+        v.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "<=";
-        q.append<T, ID> (v, conversion_);
+        B::append (q, v, this->conversion_);
         return q;
       }
 
@@ -1219,12 +1283,12 @@ namespace odb
       query_base
       less_equal (ref_bind<T> r) const
       {
-        r.prec = prec_;
-        r.scale = scale_;
+        r.prec = this->prec_;
+        r.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "<=";
-        q.append<T, ID> (r, conversion_);
+        B::append (q, r, this->conversion_);
         return q;
       }
 
@@ -1290,12 +1354,12 @@ namespace odb
       query_base
       greater_equal (val_bind<T> v) const
       {
-        v.prec = prec_;
-        v.scale = scale_;
+        v.prec = this->prec_;
+        v.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += ">=";
-        q.append<T, ID> (v, conversion_);
+        B::append (q, v, this->conversion_);
         return q;
       }
 
@@ -1309,12 +1373,12 @@ namespace odb
       query_base
       greater_equal (ref_bind<T> r) const
       {
-        r.prec = prec_;
-        r.scale = scale_;
+        r.prec = this->prec_;
+        r.scale = this->scale_;
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += ">=";
-        q.append<T, ID> (r, conversion_);
+        B::append (q, r, this->conversion_);
         return q;
       }
 
@@ -1371,91 +1435,91 @@ namespace odb
       // Column comparison.
       //
     public:
-      template <typename T2, database_type_id ID2>
+      template <typename T2, database_type_id ID2, typename B2>
       query_base
-      operator== (const query_column<T2, ID2>& c) const
+      operator== (const query_column<T2, ID2, B2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (decay_traits<T>::instance () ==
                         decay_traits<T2>::instance ()));
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "=";
         q.append (c.table (), c.column ());
         return q;
       }
 
-      template <typename T2, database_type_id ID2>
+      template <typename T2, database_type_id ID2, typename B2>
       query_base
-      operator!= (const query_column<T2, ID2>& c) const
+      operator!= (const query_column<T2, ID2, B2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (decay_traits<T>::instance () !=
                         decay_traits<T2>::instance ()));
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "!=";
         q.append (c.table (), c.column ());
         return q;
       }
 
-      template <typename T2, database_type_id ID2>
+      template <typename T2, database_type_id ID2, typename B2>
       query_base
-      operator< (const query_column<T2, ID2>& c) const
+      operator< (const query_column<T2, ID2, B2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (decay_traits<T>::instance () <
                         decay_traits<T2>::instance ()));
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "<";
         q.append (c.table (), c.column ());
         return q;
       }
 
-      template <typename T2, database_type_id ID2>
+      template <typename T2, database_type_id ID2, typename B2>
       query_base
-      operator> (const query_column<T2, ID2>& c) const
+      operator> (const query_column<T2, ID2, B2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (decay_traits<T>::instance () >
                         decay_traits<T2>::instance ()));
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += ">";
         q.append (c.table (), c.column ());
         return q;
       }
 
-      template <typename T2, database_type_id ID2>
+      template <typename T2, database_type_id ID2, typename B2>
       query_base
-      operator<= (const query_column<T2, ID2>& c) const
+      operator<= (const query_column<T2, ID2, B2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (decay_traits<T>::instance () <=
                         decay_traits<T2>::instance ()));
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "<=";
         q.append (c.table (), c.column ());
         return q;
       }
 
-      template <typename T2, database_type_id ID2>
+      template <typename T2, database_type_id ID2, typename B2>
       query_base
-      operator>= (const query_column<T2, ID2>& c) const
+      operator>= (const query_column<T2, ID2, B2>& c) const
       {
         // We can compare columns only if we can compare their C++ types.
         //
         (void) (sizeof (decay_traits<T>::instance () >=
                         decay_traits<T2>::instance ()));
 
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += ">=";
         q.append (c.table (), c.column ());
         return q;
@@ -1509,7 +1573,8 @@ namespace odb
 
       // Implementation is in query-dynamic.ixx.
       //
-      query_column (odb::query_column<T>&,
+      template <typename B2>
+      query_column (odb::query_column<T, B2>&,
                     const char* table, const char* column, const char*);
     };
 
@@ -1523,7 +1588,8 @@ namespace odb
 
       // Implementation is in query-dynamic.ixx.
       //
-      query_column (odb::query_column<T>&,
+      template <typename B2>
+      query_column (odb::query_column<T, B2>&,
                     const char* table, const char* column, const char*);
     };
 
@@ -1537,43 +1603,44 @@ namespace odb
 
       // Implementation is in query-dynamic.ixx.
       //
-      query_column (odb::query_column<T>&,
+      template <typename B2>
+      query_column (odb::query_column<T, B2>&,
                     const char* table, const char* column, const char*);
     };
 
     // Provide operator+() for using columns to construct native
     // query fragments (e.g., ORDER BY).
     //
-    template <typename T, database_type_id ID>
+    template <typename T, database_type_id ID, typename B>
     inline query_base
-    operator+ (const query_column<T, ID>& c, const std::string& s)
+    operator+ (const query_column<T, ID, B>& c, const std::string& s)
     {
       query_base q (c.table (), c.column ());
       q += s;
       return q;
     }
 
-    template <typename T, database_type_id ID>
+    template <typename T, database_type_id ID, typename B>
     inline query_base
-    operator+ (const std::string& s, const query_column<T, ID>& c)
+    operator+ (const std::string& s, const query_column<T, ID, B>& c)
     {
       query_base q (s);
       q.append (c.table (), c.column ());
       return q;
     }
 
-    template <typename T, database_type_id ID>
+    template <typename T, database_type_id ID, typename B>
     inline query_base
-    operator+ (const query_column<T, ID>& c, const query_base& q)
+    operator+ (const query_column<T, ID, B>& c, const query_base& q)
     {
       query_base r (c.table (), c.column ());
       r += q;
       return r;
     }
 
-    template <typename T, database_type_id ID>
+    template <typename T, database_type_id ID, typename B>
     inline query_base
-    operator+ (const query_base& q, const query_column<T, ID>& c)
+    operator+ (const query_base& q, const query_column<T, ID, B>& c)
     {
       query_base r (q);
       r.append (c.table (), c.column ());
@@ -2199,8 +2266,8 @@ namespace odb
       {
       }
 
-      template <database_type_id ID>
-      query (const query_column<bool, ID>& qc)
+      template <database_type_id ID, typename B>
+      query (const query_column<bool, ID, B>& qc)
           : query_base (qc)
       {
       }
@@ -2269,8 +2336,8 @@ namespace odb
     {
     }
 
-    template <oracle::database_type_id ID>
-    query (const oracle::query_column<bool, ID>& qc)
+    template <oracle::database_type_id ID, typename B>
+    query (const oracle::query_column<bool, ID, B>& qc)
         : oracle::query<T> (qc)
     {
     }

@@ -1435,10 +1435,24 @@ utype (semantics::data_member& m,
   //
   // @@ Need to cache the result on the member.
   //
-  if (translation != 0)
-    *translation = 0;
+  const custom_cxx_type* ct (mapped (*t, m.scope ()));
 
-  for (semantics::scope* s (&m.scope ());; s = &s->scope_ ())
+  if (ct != nullptr)
+  {
+    hint = ct->as_hint;
+    t = ct->as;
+  }
+
+  if (translation != 0)
+    *translation = ct;
+
+  return *t;
+}
+
+const custom_cxx_type* context::
+mapped (semantics::type& t, semantics::scope& sc)
+{
+  for (semantics::scope* s (&sc);; s = &s->scope_ ())
   {
     using semantics::namespace_;
 
@@ -1453,28 +1467,20 @@ utype (semantics::data_member& m,
       typedef custom_cxx_type_map map;
 
       map& m (s->get<map> ("custom-cxx-type-map"));
-      map::const_iterator i (m.find (t));
+      map::const_iterator i (m.find (&t));
 
+      // Currently we only support one level of mapping, but I am sure someone
+      // will want multiple levels.
+      //
       if (i != m.end ())
-      {
-        hint = i->second->as_hint;
-        t = i->second->as;
-
-        if (translation != 0)
-          *translation = i->second;
-
-        // Currently we only support one level of mapping, but I am
-        // sure someone will want multiple levels.
-        //
-        break;
-      }
+        return i->second;
     }
 
     if (!s->named_p () || s->global_scope ())
       break;
   }
 
-  return *t;
+  return nullptr;
 }
 
 bool context::

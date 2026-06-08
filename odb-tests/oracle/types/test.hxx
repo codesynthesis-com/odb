@@ -99,6 +99,26 @@ typedef std::unique_ptr<std::string> string_ptr;
 
 typedef std::vector<std::string> strings;
 
+typedef std::vector<char> chars;
+
+#pragma db value(chars) type("BLOB") null
+
+struct buffer
+{
+  buffer () {}
+  buffer (const chars& d): data (d) {}
+
+  chars data;
+};
+
+#pragma db map type(buffer) as(chars) to((?).data) from(buffer (?))
+
+inline bool
+operator== (const buffer& x, const buffer& y)
+{
+  return x.data == y.data;
+}
+
 #pragma db object
 struct object
 {
@@ -200,6 +220,42 @@ struct object
   #pragma db type ("VARCHAR2(32)") null
   string_ptr null_;
 
+  // Test mapping to C++ types mapped to LOBs.
+  //
+  chars chars_;
+
+  // @@ Note that loading of this member crashes.
+  //
+  //    Specifically, we generate the following code as a part of the
+  //    access::object_traits_impl<::object, id_oracle>::init(
+  //      object_type&, const image_type&, database*) function:
+  //
+  //  {
+  //    ::buffer& v =
+  //      o.buffer_;
+  //
+  //    ::chars vt;
+  //
+  //    oracle::value_traits<
+  //      ::chars,
+  //      oracle::id_blob >::set_value (
+  //        vt,
+  //        i.buffer_callback.callback.result,
+  //        i.buffer_callback.context.result,
+  //        i.buffer_indicator == -1);
+  //
+  //    v = buffer (vt);
+  //  }
+  //
+  //  The above set_value() call does not set the vt variable to the loaded
+  //  value. Instead, &vt is stored in i.buffer_callback.context.result and is
+  //  dereferenced later, by the select_statement::stream_result() call, when
+  //  the variable is gone.
+  //
+  // @@ TMP Uncomment when GH issue #36 is fixed.
+  //
+  //buffer buffer_;
+
   bool
   operator== (const object& y) const
   {
@@ -230,7 +286,13 @@ struct object
       clob_ == y.clob_ &&
       nclob_ == y.nclob_ &&
       strs_ == y.strs_ &&
-      ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_);
+      ((null_.get () == 0 && y.null_.get () == 0) || *null_ == *y.null_) &&
+      //
+      // @@ TMP Uncomment when GH issue #36 is fixed.
+      //
+      //buffer_ == y.buffer_ &&
+      //
+      chars_ == y.chars_;
   }
 };
 

@@ -823,6 +823,13 @@ public:
     return view (dynamic_cast<semantics::class_&> (m.scope ()));
   }
 
+  // Check whether the type is mapped to a C++ type. Return the translation
+  // information if the mapping is defined for the specified scope and NULL
+  // otherwise.
+  //
+  static const custom_cxx_type*
+  mapped (semantics::type&, semantics::scope&);
+
   // Check whether the type is a wrapper. Return the wrapped type if
   // it is a wrapper and NULL otherwise. Note that the returned type
   // may be cvr-qualified.

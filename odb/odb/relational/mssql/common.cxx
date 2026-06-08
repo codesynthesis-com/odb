@@ -501,10 +501,13 @@ namespace relational
       virtual void
       column_ctor (string const& type, string const& name, string const& base)
       {
+        if (multi_dynamic)
+          os << "template <typename B>" << endl;
+
         os << name << " (";
 
         if (multi_dynamic)
-          os << "odb::query_column< " << type << " >& qc," << endl;
+          os << "odb::query_column< " << type << ", B >& qc," << endl;
 
         os << "const char* t," << endl
            << "const char* c," << endl
@@ -593,6 +596,12 @@ namespace relational
             break;
           }
         }
+      }
+
+      virtual void
+      bind_ctor_args_extra (string const& mbn)
+      {
+        os << ", " << mbn << ".prec, " << mbn << ".scale";
       }
 
     private:

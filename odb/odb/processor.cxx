@@ -60,7 +60,8 @@ namespace
       using semantics::class_;
 
       semantics::names* hint;
-      semantics::type& t (utype (m, hint));
+      const custom_cxx_type* translation;
+      semantics::type& t (utype (m, hint, string (), &translation));
 
       // See if this member is a section.
       //
@@ -133,6 +134,16 @@ namespace
         whint = t.get<semantics::names*> ("wrapper-hint");
         wt = &utype (*qwt, whint);
       }
+
+      // If the member's type is translated from some other C++ type, then
+      // also determine if the mapped type is a wrapper.
+      //
+      // Note that this, in particular, is required to properly unwrap both
+      // mapped and interface types while generating the query column
+      // comparison code (see ::query_columns::traverse_column() for details).
+      //
+      if (translation != nullptr)
+        process_wrapper (*translation->type);
 
       // If the type is const and the member is not id, version, or
       // inverse, then mark it as readonly. In case of a wrapper,
@@ -1617,19 +1628,23 @@ namespace
       semantics::names* ih (0);
       semantics::names* kh (0);
 
+      const custom_cxx_type* vct (0);
+      const custom_cxx_type* ict (0);
+      const custom_cxx_type* kct (0);
+
       bool process_type (!t.count ("container-kind"));
       if (!process_type)
       {
         ck = t.get<container_kind_type> ("container-kind");
         smart = t.get<bool> ("container-smart");
 
-        vt = &utype (m, vh, "value");
+        vt = &utype (m, vh, "value", &vct);
 
         if (ck == ck_ordered)
-          it = &utype (m, ih, "index");
+          it = &utype (m, ih, "index", &ict);
 
         if (ck == ck_map || ck == ck_multimap)
-          kt = &utype (m, kh, "key");
+          kt = &utype (m, kh, "key", &kct);
       }
       else
       {
@@ -1763,7 +1778,7 @@ namespace
 
         t.set ("value-tree-type", vt);
         t.set ("value-tree-hint", vh);
-        vt = &utype (m, vh, "value"); // Map.
+        vt = &utype (m, vh, "value", &vct); // Map.
 
         // Issue a warning if we are relaxing null-ness in the container
         // type.
@@ -1809,7 +1824,7 @@ namespace
           t.set ("index-not-null", true);
           t.set ("index-tree-type", it);
           t.set ("index-tree-hint", ih);
-          it = &utype (m, ih, "index"); // Map.
+          it = &utype (m, ih, "index", &ict); // Map.
         }
 
         // Get the key type for maps.
@@ -1845,7 +1860,7 @@ namespace
 
           t.set ("key-tree-type", kt);
           t.set ("key-tree-hint", kh);
-          kt = &utype (m, kh, "key"); // Map.
+          kt = &utype (m, kh, "key", &kct); // Map.
 
           // Issue a warning if we are relaxing null-ness in the container
           // type.
@@ -1868,6 +1883,18 @@ namespace
         if (kt != 0)
           process_wrapper (*kt);
       }
+
+      // If the value/index/key types are translated from some other C++
+      // types, then also determine if the mapped types are wrappers.
+      //
+      if (vct != nullptr)
+        process_wrapper (*vct->type);
+
+      if (ict != nullptr)
+        process_wrapper (*ict->type);
+
+      if (kct != nullptr)
+        process_wrapper (*kct->type);
 
       // Process member data.
       //

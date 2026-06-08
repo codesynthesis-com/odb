@@ -1,6 +1,8 @@
 // file      : odb/relational/common-query.cxx
 // license   : GNU GPL v3; see accompanying LICENSE file
 
+#include <odb/diagnostics.hxx>
+
 #include <odb/relational/common-query.hxx>
 
 using namespace std;
@@ -91,10 +93,13 @@ namespace relational
   void query_columns::
   column_ctor (string const& type, string const& name, string const& base)
   {
+    if (multi_dynamic)
+      os << "template <typename B>" << endl;
+
     os << name << " (";
 
     if (multi_dynamic)
-      os << "odb::query_column< " << type << " >& qc," << endl;
+      os << "odb::query_column< " << type << ", B >& qc," << endl;
 
     os << "const char* t, const char* c, const char* conv)" << endl
        << "  : " << base << " (" << (multi_dynamic ? "qc, " : "") <<
@@ -112,6 +117,7 @@ namespace relational
   column_common (semantics::data_member& m,
                  string const& type,
                  string const& column,
+                 const custom_cxx_type* ct,
                  string const& suffix)
   {
     string name (public_name (m));
@@ -123,14 +129,147 @@ namespace relational
       os << "// " << name << endl
          << "//" << endl;
 
-      os << "typedef" << endl
-         << db << "::query_column<" << endl
-         << "  " << db << "::value_traits<" << endl
-         << "    " << type << "," << endl
-         << "    " << type_id << " >::query_type," << endl
-         << "  " << type_id << " >" << endl
-         << name << suffix << ";"
-         << endl;
+      // If the type is mapped to a C++ type (ct != nullptr), then generate a
+      // custom base class for <db>::query_column<> instantiation and use it
+      // instead of <db>::default_query_column_base<> (see, for example,
+      // pgsql::default_query_column_base<> for the reasoning).
+      //
+      // Note that if the type is mapped, then this function can only be
+      // called for a simple interface value type.
+      //
+      if (ct == nullptr)
+      {
+        os << "typedef" << endl
+           << db << "::query_column<" << endl
+           << "  " << db << "::value_traits<" << endl
+           << "    " << type << "," << endl
+           << "    " << type_id << " >::query_type," << endl
+           << "  " << type_id << " >" << endl
+           << name << suffix << ";"
+           << endl;
+      }
+      else
+      {
+        string mapped_type (ct->type->fq_name (ct->type_hint));
+
+        // Base type for query_column<>.
+        //
+        string base_type (name + "_base" + suffix);
+
+        os << "struct " << base_type << ": " << db << "::query_column_base"
+           << "{"
+           << "using query_column_base::query_column_base;" << endl;
+
+        // append(val_bind<T>){...}
+        //
+        os << "static void" << endl
+           << "append (" << db << "::query_base& q," << endl
+           << db << "::val_bind< " << mapped_type << " > v," << endl
+           << "const char* conv)"
+           << "{"
+           << "// From " << location_string (ct->loc, true) << endl
+           << type_ref_type (*ct->as, ct->as_hint, true, "vt") << " =" << endl
+           << "  " << ct->translate_to ("v.val") << ";" << endl
+           << "q.append<" << endl
+           << "  " << type << "," << endl
+           << "  " << type_id << " > (" << endl
+           << "  " << db << "::val_bind< " << type << " > (vt";
+
+        bind_ctor_args_extra ("v");
+
+        os << ")," << endl
+           << "  conv);"
+           << "}";
+
+        // Only generate append(ref_bind<T>) implementation if the type of the
+        // to() expression is a reference type. Otherwise, generate the
+        // function declaration with the 'delete' specifier.
+        //
+        // Note that we cannot make this choice when we generate the code.
+        // Thus, we use SFINAE to choose at compile-time.
+        //
+
+        // append(ref_bind<T>){...} for the to() expression of a reference
+        // type.
+        //
+        os << "template <typename T>" << endl
+           << "static auto" << endl
+           << "append (" << db << "::query_base& q," << endl
+           << db << "::ref_bind<T> r," << endl
+           << "const char* conv)" << endl
+           << "  -> typename std::enable_if<" << endl
+           << "       std::is_reference< decltype (" << endl
+           << "         // From " << location_string (ct->loc, true) << endl
+           << "         " << ct->translate_to ("r.ref") << ") >::value>::type"
+           << "{"
+           << "// From " << location_string (ct->loc, true) << endl
+           << type_ref_type (*ct->as, ct->as_hint, true, "rt") << " =" << endl
+           << "  " << ct->translate_to ("r.ref") << ";" << endl
+           << "q.append<" << endl
+           << "  " << type << "," << endl
+           << "  " << type_id << " > (" << endl
+           << "  " << db << "::ref_bind< " << type << " > (rt";
+
+        bind_ctor_args_extra ("r");
+
+        os << ")," << endl
+           << "  conv);"
+           << "}";
+
+        // append(ref_bind<T>)=delete; for the to() expression not of a
+        // reference type.
+        //
+        os << "// If a compiler error points to the line below, then it most likely" << endl
+           << "// means that the 'to' clause expression of the respective map pragma is" << endl
+           << "// not of a reference type and thus binding by reference is not" << endl
+           << "// supported for this query member." << endl
+           << "//" << endl
+           << "template <typename T>" << endl
+           << "static auto" << endl
+           << "append (" << db << "::query_base& q," << endl
+           << db << "::ref_bind<T> r," << endl
+           << "const char* conv)" << endl
+           << "  -> typename std::enable_if<" << endl
+           << "       !std::is_reference< decltype (" << endl
+           << "         // From " << location_string (ct->loc, true) << endl
+           << "         " << ct->translate_to ("r.ref")
+           << ") >::value>::type" << endl
+           << "  = delete;" << endl;
+
+        // Only generate param_factory() implementation in the dynamic
+        // multi-database mode (see, for example,
+        // pgsql::default_query_column_base<> for the reasoning).
+        //
+        if (multi_dynamic)
+        {
+          os << "static void*" << endl
+             << "param_factory ()"
+             << "{"
+             << db << "::query_param_factory f (" << endl
+             << "&" << db << "::query_param_factory_impl<" << endl
+             << "  " << type << "," << endl
+             << "  " << type_id << " >);" << endl
+             << "return reinterpret_cast< void* > (f);"
+             << "}";
+        }
+        else
+        {
+          os << "static void*" << endl
+             << "param_factory () = delete;";
+        }
+
+        os << "};";
+
+        // Type for query_columns<> member.
+        //
+        os << "typedef" << endl
+           << db << "::query_column<" << endl
+           << "  " << mapped_type << "," << endl
+           << "  " << type_id << "," << endl
+           << "  " << base_type << " >" << endl
+           << name << suffix << ";"
+           << endl;
+      }
     }
     else
     {
@@ -165,5 +304,10 @@ namespace relational
       os << ");"
          << endl;
     }
+  }
+
+  void query_columns::
+  bind_ctor_args_extra (string const&)
+  {
   }
 }

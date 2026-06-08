@@ -9,9 +9,9 @@ namespace odb
     // query_base
     //
 
-    template <database_type_id ID>
+    template <database_type_id ID, typename B>
     query_base::
-    query_base (const query_column<bool, ID>& c)
+    query_base (const query_column<bool, ID, B>& c)
         : binding_ (0, 0)
     {
       // Cannot use IS TRUE here since database type can be a non-
@@ -19,7 +19,7 @@ namespace odb
       //
       append (c.table (), c.column ());
       append ("=");
-      append<bool, ID> (val_bind<bool> (true), c.conversion ());
+      B::append (*this, val_bind<bool> (true), c.conversion ());
     }
 
     //
@@ -28,80 +28,80 @@ namespace odb
 
     // in
     //
-    template <typename T, database_type_id ID>
-    query_base query_column<T, ID>::
+    template <typename T, database_type_id ID, typename B>
+    query_base query_column<T, ID, B>::
     in (decayed_type v1, decayed_type v2) const
     {
-      query_base q (table_, column_);
+      query_base q (this->table_, this->column_);
       q += "IN (";
-      q.append<T, ID> (val_bind<T> (v1), conversion_);
+      B::append (q, val_bind<T> (v1), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v2), conversion_);
+      B::append (q, val_bind<T> (v2), this->conversion_);
       q += ")";
       return q;
     }
 
-    template <typename T, database_type_id ID>
-    query_base query_column<T, ID>::
+    template <typename T, database_type_id ID, typename B>
+    query_base query_column<T, ID, B>::
     in (decayed_type v1, decayed_type v2, decayed_type v3) const
     {
-      query_base q (table_, column_);
+      query_base q (this->table_, this->column_);
       q += "IN (";
-      q.append<T, ID> (val_bind<T> (v1), conversion_);
+      B::append (q, val_bind<T> (v1), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v2), conversion_);
+      B::append (q, val_bind<T> (v2), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v3), conversion_);
+      B::append (q, val_bind<T> (v3), this->conversion_);
       q += ")";
       return q;
     }
 
-    template <typename T, database_type_id ID>
-    query_base query_column<T, ID>::
+    template <typename T, database_type_id ID, typename B>
+    query_base query_column<T, ID, B>::
     in (decayed_type v1, decayed_type v2, decayed_type v3,
         decayed_type v4) const
     {
-      query_base q (table_, column_);
+      query_base q (this->table_, this->column_);
       q += "IN (";
-      q.append<T, ID> (val_bind<T> (v1), conversion_);
+      B::append (q, val_bind<T> (v1), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v2), conversion_);
+      B::append (q, val_bind<T> (v2), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v3), conversion_);
+      B::append (q, val_bind<T> (v3), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v4), conversion_);
+      B::append (q, val_bind<T> (v4), this->conversion_);
       q += ")";
       return q;
     }
 
-    template <typename T, database_type_id ID>
-    query_base query_column<T, ID>::
+    template <typename T, database_type_id ID, typename B>
+    query_base query_column<T, ID, B>::
     in (decayed_type v1, decayed_type v2, decayed_type v3, decayed_type v4,
         decayed_type v5) const
     {
-      query_base q (table_, column_);
+      query_base q (this->table_, this->column_);
       q += "IN (";
-      q.append<T, ID> (val_bind<T> (v1), conversion_);
+      B::append (q, val_bind<T> (v1), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v2), conversion_);
+      B::append (q, val_bind<T> (v2), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v3), conversion_);
+      B::append (q, val_bind<T> (v3), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v4), conversion_);
+      B::append (q, val_bind<T> (v4), this->conversion_);
       q += ",";
-      q.append<T, ID> (val_bind<T> (v5), conversion_);
+      B::append (q, val_bind<T> (v5), this->conversion_);
       q += ")";
       return q;
     }
 
-    template <typename T, database_type_id ID>
+    template <typename T, database_type_id ID, typename B>
     template <typename I>
-    query_base query_column<T, ID>::
+    query_base query_column<T, ID, B>::
     in_range (I begin, I end) const
     {
       if (begin != end)
       {
-        query_base q (table_, column_);
+        query_base q (this->table_, this->column_);
         q += "IN (";
 
         for (I i (begin); i != end; ++i)
@@ -109,7 +109,7 @@ namespace odb
           if (i != begin)
             q += ",";
 
-          q.append<T, ID> (val_bind<T> (*i), conversion_);
+          B::append (q, val_bind<T> (*i), this->conversion_);
         }
 
         q += ")";
@@ -121,47 +121,47 @@ namespace odb
 
     // like
     //
-    template <typename T, database_type_id ID>
-    query_base query_column<T, ID>::
+    template <typename T, database_type_id ID, typename B>
+    query_base query_column<T, ID, B>::
     like (val_bind<T> p) const
     {
-      query_base q (table_, column_);
+      query_base q (this->table_, this->column_);
       q += "LIKE";
-      q.append<T, ID> (p, conversion_);
+      B::append (q, p, this->conversion_);
       return q;
     }
 
-    template <typename T, database_type_id ID>
-    query_base query_column<T, ID>::
+    template <typename T, database_type_id ID, typename B>
+    query_base query_column<T, ID, B>::
     like (ref_bind<T> p) const
     {
-      query_base q (table_, column_);
+      query_base q (this->table_, this->column_);
       q += "LIKE";
-      q.append<T, ID> (p, conversion_);
+      B::append (q, p, this->conversion_);
       return q;
     }
 
-    template <typename T, database_type_id ID>
-    query_base query_column<T, ID>::
+    template <typename T, database_type_id ID, typename B>
+    query_base query_column<T, ID, B>::
     like (val_bind<T> p, decayed_type e) const
     {
-      query_base q (table_, column_);
+      query_base q (this->table_, this->column_);
       q += "LIKE";
-      q.append<T, ID> (p, conversion_);
+      B::append (q, p, this->conversion_);
       q += "ESCAPE";
-      q.append<T, ID> (val_bind<T> (e), conversion_);
+      B::append (q, val_bind<T> (e), this->conversion_);
       return q;
     }
 
-    template <typename T, database_type_id ID>
-    query_base query_column<T, ID>::
+    template <typename T, database_type_id ID, typename B>
+    query_base query_column<T, ID, B>::
     like (ref_bind<T> p, decayed_type e) const
     {
-      query_base q (table_, column_);
+      query_base q (this->table_, this->column_);
       q += "LIKE";
-      q.append<T, ID> (p, conversion_);
+      B::append (q, p, this->conversion_);
       q += "ESCAPE";
-      q.append<T, ID> (val_bind<T> (e), conversion_);
+      B::append (q, val_bind<T> (e), this->conversion_);
       return q;
     }
   }

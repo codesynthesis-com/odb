@@ -4,6 +4,7 @@
 #ifndef ODB_RELATIONAL_COMMON_QUERY_HXX
 #define ODB_RELATIONAL_COMMON_QUERY_HXX
 
+#include <odb/context.hxx>
 #include <odb/relational/common.hxx>
 
 namespace relational
@@ -56,7 +57,24 @@ namespace relational
     column_common (semantics::data_member&,
                    string const& type,
                    string const& column,
+                   const custom_cxx_type* translation,
                    string const& suffix);
+
+    // When the query column declaration for a mapped type is generated, the
+    // values/references of the mapped type need to be converted to the
+    // values/references of the interface type (see, for example,
+    // mssql::default_query_column_base<> for details). During this
+    // conversion, it may be necessary to propagate some extra information
+    // from the mapped {val,ref}_bind<> objects to the interface
+    // {val,ref}_bind<> objects (such, for example, as precision and scale for
+    // mssql).
+    //
+    // Serialize additional arguments for the constructor of an interface
+    // {val,ref}_bind<> object, provided the name of the mapped
+    // {val,ref}_bind<> object.
+    //
+    virtual void
+    bind_ctor_args_extra (string const& mapped_binding_name);
   };
 }
 

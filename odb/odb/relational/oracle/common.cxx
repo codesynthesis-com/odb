@@ -421,10 +421,13 @@ namespace relational
       void
       column_ctor (string const& type, string const& name, string const& base)
       {
+        if (multi_dynamic)
+          os << "template <typename B>" << endl;
+
         os << name << " (";
 
         if (multi_dynamic)
-          os << "odb::query_column< " << type << " >& qc," << endl;
+          os << "odb::query_column< " << type << ", B >& qc," << endl;
 
         os << "const char* t," << endl
            << "const char* c," << endl
@@ -506,6 +509,61 @@ namespace relational
             break;
           }
         }
+      }
+
+      virtual void
+      column_common (semantics::data_member& m,
+                     string const& type,
+                     string const& column,
+                     const custom_cxx_type* ct,
+                     string const& suffix)
+      {
+        // If we are generating the query column type for the member of a type
+        // mapped to an interface type, which is mapped to an Oracle LOB
+        // native type, then don't generate any support for the comparison
+        // operations. The reason for that is that the only valid tests for
+        // such columns are IS NULL/IS NOT NULL (see lob_query_column for the
+        // details).
+        //
+        // Specifically, for such a mapped type just instantiate the partial
+        // specialization of query_column<> for id_blob, id_clob, or id_nclob
+        // (see libodb-oracle/odb/oracle/query.hxx for details).
+        //
+        if (decl_ && ct != nullptr)
+        {
+          sql_type::core_type st (parse_sql_type (column_type (), m).type);
+
+          if (st == sql_type::BLOB ||
+              st == sql_type::CLOB ||
+              st == sql_type::NCLOB)
+          {
+            string name (public_name (m));
+            string type_id (database_type_id (m));
+            string mapped_type (ct->type->fq_name (ct->type_hint));
+
+            os << "// " << name << endl
+               << "//" << endl;
+
+            // Type for query_columns<> member.
+            //
+            os << "typedef" << endl
+               << db << "::query_column<" << endl
+               << "  " << mapped_type << "," << endl
+               << "  " << type_id << " >" << endl
+               << name << suffix << ";"
+               << endl;
+
+            return;
+          }
+        }
+
+        relational::query_columns::column_common (m, type, column, ct, suffix);
+      }
+
+      virtual void
+      bind_ctor_args_extra (string const& mbn)
+      {
+        os << ", " << mbn << ".prec, " << mbn << ".scale";
       }
 
       virtual string

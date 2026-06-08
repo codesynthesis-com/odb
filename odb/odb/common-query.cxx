@@ -3,6 +3,8 @@
 
 #include <sstream>
 
+#include <odb/diagnostics.hxx>
+
 #include <odb/common-query.hxx>
 
 using namespace std;
@@ -619,6 +621,7 @@ void query_columns::
 column_common (semantics::data_member& m,
                string const& type,
                string const&,
+               const custom_cxx_type* ct,
                string const& suffix)
 {
   string name (public_name (m));
@@ -628,9 +631,105 @@ column_common (semantics::data_member& m,
     os << "// " << name << endl
        << "//" << endl;
 
-    os << "typedef odb::query_column< " << type << " > " << name <<
-      suffix << ";"
-       << endl;
+    // If the type is mapped to a C++ type (ct != nullptr), then generate a
+    // custom base class for query_column<> instantiation and use it instead
+    // of default_query_column_base<> (see default_query_column_base<> for the
+    // reasoning).
+    //
+    // Note that if the type is mapped, then this function can only be called
+    // for a simple interface value type.
+    //
+    if (ct == nullptr)
+    {
+      os << "typedef odb::query_column< " << type << " > " << name <<
+        suffix << ";"
+         << endl;
+    }
+    else
+    {
+      string mapped_type (ct->type->fq_name (ct->type_hint));
+      string mapped_ref_type (type_ref_type (*ct->type, ct->type_hint, true));
+
+      // Base type for query_column<> instantiation.
+      //
+      string base_type (name + "_base" + suffix);
+
+      os << "struct " << base_type
+         << "{";
+
+      // append_val(){...}
+      //
+      os << "static void" << endl
+         << "append_val (query_base& q," << endl
+         << mapped_ref_type << " v," << endl
+         << "const native_column_info* c)"
+         << "{"
+         << "// From " << location_string (ct->loc, true) << endl
+         << type_ref_type (*ct->as, ct->as_hint, true, "vt") << " =" << endl
+         << "  " << ct->translate_to ("v") << ";" << endl
+         << "q.append_val (vt, c);"
+         << "}";
+
+      // Only generate append_ref() implementation if the type of the to()
+      // expression is a reference type. Otherwise, generate the function
+      // declaration with the 'delete' specifier.
+      //
+      // Note that we cannot make this choice when we generate the code. Thus,
+      // we use SFINAE to choose at compile-time.
+      //
+
+      // append_ref(){...} for the to() expression of a reference type.
+      //
+      // Convert the ref argument of the void* type to the "reference" to the
+      // original object of the mapped type. Note that such a "reference" is a
+      // pointer for arrays and a reference otherwise.
+      //
+      string mapped_obj_ref (
+        mapped_ref_type.back () == '&' // Note: the trailing char is '&' or '*'.
+        ? "*static_cast< const " + mapped_type + "* > (ref)"
+        : "static_cast< " + mapped_ref_type + " > (ref)");
+
+      os << "template <typename T>" << endl
+         << "static auto" << endl
+         << "append_ref (query_base& q, const T* ref, const native_column_info* c)" << endl
+         << "  -> typename std::enable_if<" << endl
+         << "       std::is_reference< decltype (" << endl
+         << "       // From " << location_string (ct->loc, true) << endl
+         << "       " << ct->translate_to (mapped_obj_ref)
+         << ") >::value>::type"
+         << "{"
+         << mapped_ref_type << " r =" << endl
+         << "  " << mapped_obj_ref << ";" << endl
+         << "// From " << location_string (ct->loc, true) << endl
+         << type_ref_type (*ct->as, ct->as_hint, true, "vt") << " =" << endl
+         << "  " << ct->translate_to ("r") << ";" << endl
+         << "q.append_ref (&vt, c);"
+         << "}";
+
+      // append_ref()=delete; for the to() expression not of a reference type.
+      //
+      os << "// If a compiler error points to the line below, then it most likely" << endl
+         << "// means that the 'to' clause expression of the respective map pragma is" << endl
+         << "// not of a reference type and thus binding by reference is not" << endl
+         << "// supported for this query member." << endl
+         << "//" << endl
+         << "template <typename T>" << endl
+         << "static auto" << endl
+         << "append_ref (query_base& q, const T* ref, const native_column_info* c)" << endl
+         << "  -> typename std::enable_if<" << endl
+         << "       !std::is_reference< decltype (" << endl
+         << "       // From " << location_string (ct->loc, true) << endl
+         << "       " << ct->translate_to (mapped_obj_ref)
+         << ") >::value>::type" << endl
+         << "  = delete;" << endl;
+
+      os << "};";
+
+      os << "typedef odb::query_column< " << endl
+         << "  " << mapped_type << "," << endl
+         << "  " << base_type << " > "
+         << name << suffix << ";" << endl;
+    }
   }
   else
   {
@@ -650,19 +749,108 @@ bool query_columns::
 traverse_column (semantics::data_member& m, string const& column, bool)
 {
   semantics::names* hint;
-  semantics::type& t (utype (m, hint));
+  const custom_cxx_type* translation;
+  semantics::type& t (utype (m, hint, string (), &translation));
 
-  // Unwrap it if it is a wrapper.
+  // Unwrap the member's type if it is a wrapper and it is not translated from
+  // some other C++ type. Also unwrap it if it is an interface type for a
+  // mapped wrapper type, whose wrapped type is mapped to the wrapped type of
+  // the interface type. Unwrap the mapped wrapper type as well in this case.
+  //
+  // If a wrapped mapped type is mapped to a non-wrapped interface type, then
+  // use the wrapped mapped type in the query. As an example, consider mapping
+  // of optional<int> to string where the NULL int is represented as an empty
+  // string. In this case it makes sense to compare, say, equal, to NULL int
+  // since underneath it will be translated to comparison to empty string, not
+  // SQL NULL.
   //
   string tn;
 
   semantics::names* whint;
-  if (semantics::type* wt = wrapper (t, whint))
-    tn = wrapped_fq_name (*wt, whint, t, hint);
-  else
+  if (semantics::type* wt = wrapper (t, whint)) // Wrapped type.
+  {
+    if (translation == nullptr)
+    {
+      tn = wrapped_fq_name (*wt, whint, t, hint); // Unwrap not-mapped type.
+    }
+    else
+    {
+      semantics::type& mt (*translation->type); // Mapped type.
+      semantics::names* mt_hint (translation->type_hint);
+
+      semantics::names* mwt_hint;
+      if (semantics::type* mwt = wrapper (mt, mwt_hint)) // Unwrapped mapped type.
+      {
+        // Get the mapping between the unwrapped types.
+        //
+        const custom_cxx_type* ct (mapped (*mwt, m.scope ()));
+
+        if (ct == nullptr ||  // No mapping.
+            ct->as != wt)     // Unwrapped interface type doesn't match.
+        {
+          string mwt_name (mwt->fq_name (mwt_hint));
+
+          if (ct == nullptr)
+          {
+            error (translation->loc)
+              << "no mapping for unwrapped type " << mwt_name << endl;
+          }
+          else
+          {
+            error (ct->loc)
+              << "unwrapped type mapping " << mwt_name << " does not match "
+              << "wrapped mapping for " << mt.fq_name (mt_hint) << endl;
+
+            info (translation->loc)
+              << "wrapped mapping is defined here" << endl;
+          }
+
+          info (m.location ())
+            << "unwrapped mapping is required by query column for data member "
+            << m.name () << endl;
+
+          throw operation_failed ();
+        }
+
+        tn = wrapped_fq_name (*wt, whint, t, hint); // Unwrap interface.
+        translation = ct;                           // Unwrap mapped type.
+      }
+      else // Mapped type is not a wrapper.
+      {
+        // Interface type is a wrapper but the mapped type is not. For
+        // example, we map a enum to optional<string> with one of its
+        // enumerators represented as NULL. Which means that the user will
+        // have to use is_null()/is_not_null() in the queries and comparing to
+        // the NULL value of the enum will gave no effect. Failing feels
+        // drastic so let's issue a warning. Potentially we could handle the
+        // translation in the generated code one day.
+        //
+        // Suppress warning duplicates by only issuing them for query column
+        // declarations. Note that there can still be duplicates due to
+        // generating declarations for both query_columns<> and
+        // pointer_query_columns<> instantiations. Let's, however, keep it
+        // simple for now, given that such mappings are not too common.
+        //
+        if (decl_)
+        {
+          string mt_name (mt.fq_name (mt_hint));
+
+          warn (m.location ())
+            << "use is_null()/is_not_null() in queries for value of type "
+            << mt_name << " that is mapped to NULL" << endl;
+
+          info (translation->loc)
+            << "because " << mt_name << " is mapped to wrapper "
+            << t.fq_name (hint) << endl;
+        }
+      }
+    }
+  }
+
+  if (tn.empty ())
     tn = t.fq_name (hint);
 
-  column_common (m, tn, column);
+  column_common (m, tn, column, translation);
 
   if (decl_)
   {
@@ -698,7 +886,8 @@ traverse_pointer (semantics::data_member& m, semantics::class_& c)
 
   data_member_path& id (*id_member (c));
   semantics::names* hint;
-  semantics::type& t (utype (id, hint));
+  const custom_cxx_type* translation;
+  semantics::type& t (utype (id, hint, string (), &translation));
 
   if (composite_wrapper (t))
   {
@@ -760,7 +949,9 @@ traverse_pointer (semantics::data_member& m, semantics::class_& c)
     // For pointer_query_columns and poly refs generate normal column mapping.
     //
     if (ptr_ || poly_ref_)
-      column_common (m, type, col);
+    {
+      column_common (m, type, col, translation);
+    }
     else
     {
       // If this is a non-inverse relationship, then make the column have
@@ -769,7 +960,7 @@ traverse_pointer (semantics::data_member& m, semantics::class_& c)
       // test in a natural way. For inverse relationships there is no
       // column and so the column interface is not available.
       //
-      column_common (m, type, col, "_column_type_");
+      column_common (m, type, col, translation, "_column_type_");
 
       if (decl_)
       {
@@ -786,7 +977,11 @@ traverse_pointer (semantics::data_member& m, semantics::class_& c)
           name << "_pointer_type_, " << name << "_column_type_"
            << "{";
 
-        column_ctor (type, name + "_type_", name + "_column_type_");
+        column_ctor ((translation == nullptr
+                      ? type
+                      : translation->type->fq_name (translation->type_hint)),
+                     name + "_type_",
+                     name + "_column_type_");
 
         os << "};";
       }

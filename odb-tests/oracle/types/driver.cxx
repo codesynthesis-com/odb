@@ -323,6 +323,52 @@ main (int argc, char* argv[])
       t.commit ();
     }
 
+    // Test mapping to C++ types mapped to LOBs.
+    //
+    {
+      typedef oracle::query<object> query;
+
+      {
+        transaction t (db->begin ());
+
+        object v1 (db->query_value<object> (query::chars.is_null ()));
+        assert (v1 == o);
+
+        // @@ TMP Uncomment when GH issue #36 is fixed.
+        //
+        //object v2 (db->query_value<object> (query::buffer.is_null ()));
+        //assert (v2 == o);
+
+        t.commit ();
+      }
+
+      {
+        o.chars_.push_back ('x');
+
+        // @@ TMP Uncomment when GH issue #36 is fixed.
+        //
+        //o.buffer_.data.push_back ('y');
+
+        transaction t (db->begin ());
+        db->update (o);
+        t.commit ();
+      }
+
+      {
+        transaction t (db->begin ());
+
+        object v1 (db->query_value<object> (query::chars.is_not_null ()));
+        assert (v1 == o);
+
+        // @@ TMP Uncomment when GH issue #36 is fixed.
+        //
+        //object v2 (db->query_value<object> (query::buffer.is_not_null ()));
+        //assert (v2 == o);
+
+        t.commit ();
+      }
+    }
+
     // Test char array.
     //
     {

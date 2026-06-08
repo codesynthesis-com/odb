@@ -776,6 +776,9 @@ namespace header
     if (ctx.options.std () >= cxx_version::cxx11)
       os << "#include <utility>" << endl; // move()
 
+    if (ctx.options.generate_query ())
+      os << "#include <type_traits>" << endl; // enable_if, is_reference
+
     os << endl;
 
     os << "#include <odb/core.hxx>" << endl
