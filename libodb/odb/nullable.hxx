@@ -50,11 +50,7 @@ namespace odb
     T&       operator* ();
     const T& operator* () const;
 
-    typedef void (nullable::*bool_convertible) ();
-    operator bool_convertible () const
-    {
-      return null_ ? 0 : &nullable<T>::true_value;
-    }
+    explicit operator bool () const {return !null_;}
 
     void reset ();
 

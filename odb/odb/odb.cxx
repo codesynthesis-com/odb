@@ -1190,6 +1190,9 @@ main (int argc, char* argv[])
             //
             os << "#include <odb/wrapper-traits.hxx>" << endl;
 
+            if (ops.std () >= cxx_version::cxx17)
+              os << "#include <odb/std-optional-traits.hxx>" << endl;
+
             // Standard pointer traits.
             //
             os << "#include <odb/pointer-traits.hxx>" << endl;

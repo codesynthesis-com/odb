@@ -1,6 +1,8 @@
 # file      : build/root.build
 # license   : GNU GPL v2; see accompanying LICENSE file
 
+skeleton = ($build.mode == 'skeleton')
+
 cxx.std = latest
 
 using cxx
@@ -10,13 +12,48 @@ ixx{*}: extension = ixx
 txx{*}: extension = txx
 cxx{*}: extension = cxx
 
+# Extract certain predefined compiler macros, such as __cplusplus, which are
+# used to decide test configurations (e.g., the --std option to pass to the
+# ODB compiler).
+#
+if! $skeleton
+{
+  using cxx.predefs
+
+  # Note: buildfile{predefs} cleaned in root buildfile.
+
+  [rule_hint=cxx.predefs] buildfile{predefs}:
+  {
+    cxx.predefs.macros = __cplusplus@cplusplus
+  }
+  % update
+  if ($cxx.id == 'msvc' && \
+      ($cxx.version.major < 19 || \
+       ($cxx.version.major == 19 && $cxx.version.minor < 20)))
+  {{
+    diag c++-predefs $>
+
+    cat <<EOF >$path($>)
+      cplusplus = [int64] 201103
+      EOF
+  }}
+
+  if ($build.meta_operation == 'perform')
+  {
+    update buildfile{predefs}
+    source $path(buildfile{predefs})
+  }
+  else
+  {
+    cplusplus = [int64] 0
+  }
+}
+
 define sql: file
 sql{*}: extension = sql
 
 define xml: file
 xml{*}: extension = xml
-
-skeleton = ($build.mode == 'skeleton')
 
 # List of the identifiers of the databases to compile and run the tests
 # against. The valid identifiers are mysql, sqlite, pgsql, oracle, and mssql.

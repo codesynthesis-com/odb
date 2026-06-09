@@ -59,9 +59,9 @@ main (int argc, char* argv[])
 
         assert (*o1->num == 123);
         assert (o1->str.get () == 0);
-        assert (o1->nstr.null ());
-        assert (o1->nstrs[0].null ());
-        assert (o1->nstrs[1].get () == "123");
+        assert (!o1->nstr);
+        assert (!o1->nstrs[0]);
+        assert (*o1->nstrs[1] == "123");
 
         assert (!o2->sstr);
         assert (!o2->sstrs[0]);
@@ -143,7 +143,11 @@ main (int argc, char* argv[])
 
       object o1, o2;
 
-      o1.v.push_back (nullable<comp> ());
+#if __cplusplus >= 201703L
+      o1.v.push_back (std::optional<comp> ());
+#else
+      o1.v.push_back (odb::nullable<comp> ());
+#endif
 
       o2.p.reset (new comp (1, "a"));
       o2.n = comp (2, "b");

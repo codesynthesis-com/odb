@@ -781,8 +781,12 @@ namespace header
     os << "#include <odb/core.hxx>" << endl
        << "#include <odb/traits.hxx>" << endl
        << "#include <odb/callback.hxx>" << endl
-       << "#include <odb/wrapper-traits.hxx>" << endl
-       << "#include <odb/pointer-traits.hxx>" << endl
+       << "#include <odb/wrapper-traits.hxx>" << endl;
+
+    if (ctx.options.std () >= cxx_version::cxx17)
+      os << "#include <odb/std-optional-traits.hxx>" << endl;
+
+    os << "#include <odb/pointer-traits.hxx>" << endl
        << "#include <odb/container-traits.hxx>" << endl;
 
     if (ctx.features.session_object)

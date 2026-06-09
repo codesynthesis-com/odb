@@ -31,7 +31,8 @@ exe{driver}: libue{test-meta} $libs
 # (see build/root.build for details).
 #
 odb_options = --table-prefix wrapper_ \
-              --generate-schema
+              --generate-schema \
+              --std ($cplusplus >= 201703 ? c++17 : c++11)
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 

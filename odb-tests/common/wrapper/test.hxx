@@ -9,16 +9,23 @@
 #include <vector>
 
 #include <odb/core.hxx>
-#include <odb/nullable.hxx>
 
-using odb::nullable;
+#if __cplusplus >= 201703L
+#  include <optional>
+#else
+# include <odb/nullable.hxx>
+#endif
 
 // Test 1: simple values.
 //
 #pragma db namespace table("t1_")
 namespace test1
 {
-  typedef nullable<std::string> nullable_string;
+#if __cplusplus >= 201703L
+  typedef std::optional<std::string> nullable_string;
+#else
+  typedef std::nullable<std::string> nullable_string;
+#endif
 
   typedef std::unique_ptr<int> num_uptr;
   typedef std::unique_ptr<std::string> str_uptr;
@@ -104,9 +111,13 @@ struct comp_object
   #pragma db id auto
   unsigned long id_;
 
-  comp1_uptr                    c1;  // Wrapped comp value.
-  std::vector<nullable<comp1> > vc1; // Container of wrapped comp values.
-  comp2_uptr                    c2;  // Container inside wrapped comp value.
+  comp1_uptr c1;  // Wrapped comp value.
+#if __cplusplus >= 201703L
+  std::vector<std::optional<comp1>> vc1; // Container of wrapped comp values.
+#else
+  std::vector<odb::nullable<comp1>> vc1;
+#endif
+  comp2_uptr c2;  // Container inside wrapped comp value.
 };
 
 // This one is just a compilation test to cover more convolute cases.
@@ -115,7 +126,12 @@ struct comp_object
 struct comp3: comp2
 {
   comp1_uptr c1;
-  std::vector<nullable<comp1> > vc1;
+#if __cplusplus >= 201703L
+  std::vector<std::optional<comp1>> vc1;
+#else
+  std::vector<odb::nullable<comp1>> vc1;
+#endif
+
 };
 
 #pragma db object
@@ -186,7 +202,11 @@ namespace test5
     std::string str;
     base extra;
 
+#if __cplusplus >= 201703L
+    std::optional<int> always_null;
+#else
     odb::nullable<int> always_null;
+#endif
   };
 
   inline bool
@@ -205,9 +225,13 @@ namespace test5
     #pragma db null
     std::unique_ptr<comp> p;
 
+#if __cplusplus >= 201703L
+    std::optional<comp> n;
+    std::vector<std::optional<comp>> v;
+#else
     odb::nullable<comp> n;
-
-    std::vector< odb::nullable<comp> > v;
+    std::vector<odb::nullable<comp>> v;
+#endif
   };
 }
 

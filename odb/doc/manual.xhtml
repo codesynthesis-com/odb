@@ -8477,14 +8477,32 @@ CREATE TABLE person_nickname (
      <code>NULL</code> value being loaded from the database,
      such data members will be default-initialized).</p>
 
-  <p>To allow the easy conversion of value types that do not support
-     the <code>NULL</code> semantics into the ones that do, ODB
-     provides the <code>odb::nullable</code> class template. It
-     allows us to wrap an existing C++ type into a container-like
-     class that can either be <code>NULL</code> or contain a
-     value of the wrapped type. ODB also automatically enables
-     the <code>NULL</code> values for data members of the
-     <code>odb::nullable</code> type. For example:</p>
+  <p>To convert a value type that does not support the <code>NULL</code>
+     semantics into the one that does, we can use the
+     C++17 <code>std::optional</code> class template. ODB also provides
+     the <code>odb::nullable</code> class template that can be used to achieve
+     the same objective for the earlier versions of C++. Both templates allow
+     us to wrap an existing C++ type into a container-like class that can
+     either be <code>NULL</code> or contain a value of the wrapped type. ODB
+     also automatically enables the <code>NULL</code> values for data members
+     of <code>std::optional</code> and <code>odb::nullable</code> types. For
+     example:</p>
+
+  <pre class="cxx">
+#include &lt;optional>
+
+#pragma db object
+class person
+{
+  ...
+
+  std::string first_;                    // TEXT NOT NULL
+  std::optional&lt;std::string> middle_;    // TEXT NULL
+  std::string last_;                     // TEXT NOT NULL
+};
+  </pre>
+
+  <p>Or using <code>odb::nullable</code>:</p>
 
   <pre class="cxx">
 #include &lt;odb/nullable.hxx>
@@ -8533,7 +8551,7 @@ namespace odb
 
     // Pointer interface.
     //
-    operator bool_convertible () const;
+    explicit operator bool () const;
 
     T*       operator-> ();
     const T* operator-> () const;
@@ -8551,7 +8569,7 @@ namespace odb
   <p>The following example shows how we can use this interface:</p>
 
   <pre class="cxx">
-  nullable&lt;string> ns;
+  odb::nullable&lt;string> ns;
 
   // Using the accessor interface.
   //
@@ -8586,17 +8604,14 @@ namespace odb
      a fully constructed value of the wrapped type. This is normally
      not a concern for simple types such as the C++ fundamental
      types or <code>std::string</code>. However, it may become
-     an issue for more complex types. In such cases you may want to
-     consider using a more efficient implementation of the
-     <em>optional value</em> concept such as the
-     <code>optional</code> class template from Boost
-     (<a href="#23.4">Section 23.4, "Optional Library"</a>).</p>
+     an issue for more complex types.</p>
 
   <p>Another common C++ representation of a value that can be
      <code>NULL</code> is a pointer. ODB will automatically
      handle data members that are pointers to values, however,
      it will not automatically enable <code>NULL</code> values
-     for such data members, as is the case for <code>odb::nullable</code>.
+     for such data members, as is the case for
+     <code>std::optional</code> and <code>odb::nullable</code>.
      Instead, if the <code>NULL</code> value is desired, we will
      need to enable it explicitly using the <code>db&nbsp;null</code>
      pragma. For example:</p>
@@ -8634,7 +8649,7 @@ class person
 struct name
 {
   std::string first_;
-  odb::nullable&lt;std::string> middle_;
+  std::optional&lt;std::string> middle_;
   std::string last_;
 };
 
@@ -8642,7 +8657,7 @@ struct name
 class person
 {
   ...
-  odb::nullable&lt;name> name_;
+  std::optional&lt;name> name_;
 };
   </pre>
 
@@ -11018,13 +11033,13 @@ class object
   std::string s;
 };
 
-#include &lt;odb/nullable.hxx>
+#include &lt;optional>
 
 #pragma db view object(object)
 struct view
 {
 
-  odb::nullable&lt;int> n; // If 'n' is NULL, then, logically, so is 'o'.
+  std::optional&lt;int> n; // If 'n' is NULL, then, logically, so is 'o'.
   unique_ptr&lt;object> o;
 };
   </pre>
@@ -11247,10 +11262,10 @@ struct employee_prev_employer
   std::string last;
 
   // If previous_employer_id is NULL, then the name will be NULL as well.
-  // We use the odb::nullable wrapper to handle this.
+  // We use std::optional to handle this.
   //
   #pragma db column(employer::name_)
-  odb::nullable&lt;std::string> prev_employer_name;
+  std::optional&lt;std::string> prev_employer_name;
 };
   </pre>
 
@@ -13770,7 +13785,7 @@ migrate_gender (odb::database&amp; db)
      however, is to use <code>NULL</code> as a special value. We
      can add support for the <code>NULL</code> value semantics
      to any existing type by wrapping it with
-     <code>odb::nullable</code>, <code>boost::optional</code>
+     <code>std::optional</code>, <code>odb::nullable</code>,
      or similar (<a href="#7.3">Section 7.3, "Pointers and <code>NULL</code>
      Value Semantics"</a>). We also don't need to specify the default value
      explicitly since <code>NULL</code> is used automatically. Here
@@ -13778,14 +13793,14 @@ migrate_gender (odb::database&amp; db)
      example:</p>
 
   <pre class="cxx">
-#include &lt;odb/nullable.hxx>
+#include &lt;optional>
 
 #pragma db object
 class person
 {
   ...
 
-  odb::nullable&lt;gender> gender_;
+  std::optional&lt;gender> gender_;
 };
   </pre>
 
@@ -13812,9 +13827,10 @@ class person
      if it is <code>NULL</code>:</p>
 
   <pre class="cxx">
+#include &lt;optional>
+
 #include &lt;odb/core.hxx>     // odb::database
 #include &lt;odb/callback.hxx> // odb::callback_event
-#include &lt;odb/nullable.hxx>
 
 #pragma db object callback(migrate)
 class person
@@ -13828,12 +13844,12 @@ class person
     {
       // Guess gender if not assigned.
       //
-      if (gender_.null ())
+      if (!gender_.has_value ())
         gender_ = guess_gender (first_);
     }
   }
 
-  odb::nullable&lt;gender> gender_;
+  std::optional&lt;gender> gender_;
 };
   </pre>
 
@@ -13884,7 +13900,7 @@ migrate_gender_entry (&amp;migrate_gender);
   <p>A couple of points to note about this code. Firstly, we
      removed all the gradual migration logic (the callback)
      from the class and replaced it with the immediate migration
-     function. We also removed the <code>odb::nullable</code>
+     function. We also removed the <code>std::optional</code>
      wrapper (and therefore disallowed the <code>NULL</code> values)
      since after this migration all the objects will have been
      converted. Finally, in the migration function, we only query
@@ -16796,7 +16812,7 @@ class person
   ...
 
   #pragma db default(null)
-  odb::nullable&lt;std::string> middle_; // DEFAULT NULL
+  std::optional&lt;std::string> middle_; // DEFAULT NULL
 
   #pragma db default(false)
   bool married_;                      // DEFAULT 0/FALSE
@@ -20641,7 +20657,7 @@ db.query&lt;object> (query::uuid == query::_ref (u));
 
   <pre class="cxx">
   #pragma db id auto
-  odb::nullable&lt;int64_t> id;
+  std::optional&lt;int64_t> id;
   </pre>
 
   <p>Then, when used with the <code>NO_AUTO_VALUE_ON_ZERO</code> mode, set the
@@ -21896,7 +21912,7 @@ tx.commit ();
 
   <pre class="cxx">
   #pragma db id auto
-  odb::nullable&lt;int64_t> id;
+  std::optional&lt;int64_t> id;
   </pre>
 
   <p>Then set the id member to <code>NULL</code> to get auto-assignment or to
@@ -26323,7 +26339,8 @@ class person
 
   <p>In a relational database <code>boost::optional</code> is mapped to
      a column that can have a <code>NULL</code> value. Similar to
-     <code>odb::nullable</code> (<a href="#7.3">Section 7.3, "Pointers and
+     <code>std::optional</code> and <code>odb::nullable</code>
+     (<a href="#7.3">Section 7.3, "Pointers and
      <code>NULL</code> Value Semantics"</a>), it can be used to add the
      <code>NULL</code> semantics to existing C++ types. For example:</p>
 
@@ -26341,9 +26358,9 @@ class person
 };
   </pre>
 
-  <p>Note also that similar to <code>odb::nullable</code>, when
+  <p>Note also that similar to <code>std::optional</code>, when
      this profile is used, the <code>NULL</code> values are automatically
-     enabled for data members of the  <code>boost::optional</code> type.</p>
+     enabled for data members of the <code>boost::optional</code> type.</p>
 
   <h2><a name="23.5">23.5 Date Time Library</a></h2>
 
