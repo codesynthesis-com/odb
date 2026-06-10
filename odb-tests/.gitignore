@@ -24,6 +24,10 @@
 *.exe.manifest
 *.pc
 
+# Extracted predefined compiler macros.
+#
+predefs.build
+
 # Test executables.
 #
 driver
