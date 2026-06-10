@@ -1665,63 +1665,12 @@ plugin_path (path const& drv,
   path pp;
 
 #ifdef ODB_GCC_PLUGIN_DIR
-  // Plugin should be installed into the GCC default plugin directory.
-  // Ideally, in this situation, we would simply pass the plugin name and
-  // let GCC append the correct directory. Unfortunately, this mechanism
-  // was only added in GCC 4.6 so in order to support 4.5 we will have to
-  // emulate it ourselves.
+  // Plugin could be installed into the GCC default plugin directory, in which
+  // case we can simply pass the plugin name and let GCC append the correct
+  // directory.
   //
-  //@@ TMP: drop this after 2.5.0 since we no longer support GCC < 5.
-  //
-  {
-#if 1
-    // First get the default GCC plugin directory.
-    //
-    path d;
-    vector<char const*> exec_args;
-    exec_args.push_back (gxx.c_str ());
-    exec_args.push_back ("-print-file-name=plugin");
-    exec_args.push_back (0);
+  return path (b);
 
-    process_info pi (
-      start_process (
-        &exec_args[0], drv.string ().c_str (), false, true));
-    close (pi.out_fd);
-
-    // Read the path from stdout.
-    //
-    {
-      __gnu_cxx::stdio_filebuf<char> fb (pi.in_ofd, ios_base::in);
-      istream is (&fb);
-      string line;
-      getline (is, line);
-      d = path (line);
-    }
-
-    if (!wait_process (pi, drv.string ().c_str ()))
-      return path (); // Assume GCC issued some diagnostics.
-
-    if (d.string () == "plugin")
-    {
-      cerr << drv << ": error: unable to obtain GCC plugin directory" << endl;
-      return path ();
-    }
-
-    // See if the plugin is there.
-    //
-    pp = d / path (b + plugin_ext);
-    if (stat (pp.string ().c_str (), &info) != 0)
-    {
-      cerr << drv << ": error: no ODB plugin in GCC plugin directory '" <<
-        d << "'" << endl;
-      return path ();
-    }
-
-    return pp;
-#else
-    return path (b);
-#endif
-  }
 #elif defined (ODB_PLUGIN_PATH)
   // If we were given a plugin path, use that.
   //

@@ -43,7 +43,6 @@ namespace odb
     //
     // Note: noexcept is not specified since *_map_ (std::map) can throw.
     //
-    //database (database&&) = default; // VC 2013 @@ TMP retest
     database (database&& d)
         : id_ (d.id_),
           tracer_ (d.tracer_),
