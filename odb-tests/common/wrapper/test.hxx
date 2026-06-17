@@ -24,7 +24,7 @@ namespace test1
 #if __cplusplus >= 201703L
   typedef std::optional<std::string> nullable_string;
 #else
-  typedef std::nullable<std::string> nullable_string;
+  typedef odb::nullable<std::string> nullable_string;
 #endif
 
   typedef std::unique_ptr<int> num_uptr;
