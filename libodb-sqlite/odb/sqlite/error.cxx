@@ -22,13 +22,9 @@ namespace odb
     {
       sqlite3* h (c.handle ());
 
-      // Extended error codes are only available in 3.6.5 and later.
+      // Note: extended error codes are only available since SQLite 3.6.5.
       //
-#if SQLITE_VERSION_NUMBER >= 3006005
       int ee (sqlite3_extended_errcode (h));
-#else
-      int ee (0);
-#endif
       string m;
 
       switch (e)
@@ -69,10 +65,9 @@ namespace odb
       case SQLITE_BUSY:
       case SQLITE_IOERR:
         {
-#if SQLITE_VERSION_NUMBER >= 3006005
           if (e != SQLITE_IOERR || ee == SQLITE_IOERR_BLOCKED)
             throw timeout ();
-#endif
+
           break;
         }
       default:

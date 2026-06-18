@@ -14,6 +14,8 @@ Version 2.6.0
    The development of this functionality was sponsored by Qube Research &
    Technologies Limited.
 
+ * The lowest supported SQLite version has been raised to 3.7.4.
+
 Version 2.5.0
 
  * Database classes are now move-constructible. This means they can be

@@ -5,7 +5,6 @@
 
 #include <new>    // std::bad_alloc
 #include <string>
-#include <cassert>
 
 #include <odb/details/lock.hxx>
 
@@ -57,21 +56,13 @@ namespace odb
         f |= SQLITE_OPEN_NOMUTEX;
 #endif
 
-      sqlite3* h (0);
-
-      // sqlite3_open_v2() was only addedin SQLite 3.5.0.
+      // sqlite3_open_v2() was only added in SQLite 3.5.0.
       //
-#if SQLITE_VERSION_NUMBER >= 3005000
+      sqlite3* h (0);
       const string& vfs (db.vfs ());
       int e (
         sqlite3_open_v2 (
           n.c_str (), &h, f, (vfs.empty () ? 0 : vfs.c_str ())));
-#else
-      // Readonly opening not supported in SQLite earlier than 3.5.0.
-      //
-      assert ((f & SQLITE_OPEN_READONLY) == 0);
-      int e (sqlite3_open (n.c_str (), &h));
-#endif
 
       handle_.reset (h);
 

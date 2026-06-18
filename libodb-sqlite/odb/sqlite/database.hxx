@@ -6,7 +6,7 @@
 
 #include <odb/pre.hxx>
 
-#include <sqlite3.h>
+#include <sqlite3.h> // SQLITE_OPEN_*
 
 #include <memory> // std::unique_ptr
 #include <string>
@@ -23,15 +23,6 @@
 #include <odb/sqlite/transaction-impl.hxx>
 
 #include <odb/sqlite/details/export.hxx>
-
-// We use the sqlite3_open_v2() flags in our interface. Define them
-// for SQLite earlier that 3.5.0.
-//
-#if SQLITE_VERSION_NUMBER < 3005000
-#  define SQLITE_OPEN_READONLY         0x00000001
-#  define SQLITE_OPEN_READWRITE        0x00000002
-#  define SQLITE_OPEN_CREATE           0x00000004
-#endif
 
 namespace odb
 {

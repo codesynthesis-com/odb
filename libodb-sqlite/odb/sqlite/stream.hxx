@@ -61,12 +61,9 @@ namespace odb
       // Open the same BLOB but in a different row. Can be faster
       // than creating a new stream instance. Note that the stream
       // must be in the open state prior to calling this function.
-      // Only available since SQLite 3.7.4.
       //
-#if SQLITE_VERSION_NUMBER >= 3007004
       void
       reopen (long long rowid);
-#endif
 
     protected:
       // The active_object interface.

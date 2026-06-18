@@ -14,7 +14,13 @@
 
 #include <sqlite3.h>
 
-#if SQLITE_VERSION_NUMBER >= 3006012 && !defined(ODB_THREADS_NONE)
+// sqlite3_blob_reopen() only available since 3007004
+//
+#if SQLITE_VERSION_NUMBER < 3007004
+#  error SQLite version 3.7.4 or later required
+#endif
+
+#ifndef ODB_THREADS_NONE
 #  define LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY 1
 #endif
 

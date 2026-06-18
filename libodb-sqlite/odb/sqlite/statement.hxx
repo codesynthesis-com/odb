@@ -172,11 +172,6 @@ namespace odb
 
     protected:
       auto_handle<sqlite3_stmt> stmt_;
-
-#if SQLITE_VERSION_NUMBER < 3005003
-      std::string text_;
-#endif
-
       bool active_;
 
     private:

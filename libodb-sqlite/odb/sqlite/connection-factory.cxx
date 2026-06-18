@@ -139,7 +139,7 @@ namespace odb
 
       // Unless explicitly disabled, enable shared cache.
       //
-#if SQLITE_VERSION_NUMBER >= 3006018 && defined(LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY)
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
       if ((db_->flags () & SQLITE_OPEN_PRIVATECACHE) == 0)
         extra_flags_ |= SQLITE_OPEN_SHAREDCACHE;
 #endif
@@ -231,7 +231,7 @@ namespace odb
 
       // Unless explicitly disabled, enable shared cache.
       //
-#if SQLITE_VERSION_NUMBER >= 3006018 && defined(LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY)
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
       if ((db_->flags () & SQLITE_OPEN_PRIVATECACHE) == 0)
         extra_flags_ |= SQLITE_OPEN_SHAREDCACHE;
 #endif

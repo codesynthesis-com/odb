@@ -3,8 +3,6 @@
 
 #include <sqlite3.h>
 
-#if SQLITE_VERSION_NUMBER >= 3004000
-
 #include <odb/sqlite/stream.hxx>
 
 #include <stdexcept> // invalid_argument
@@ -12,6 +10,8 @@
 #include <odb/sqlite/error.hxx>
 #include <odb/sqlite/database.hxx>
 #include <odb/sqlite/transaction.hxx>
+
+#include <odb/sqlite/details/config.hxx> // SQLite version check.
 
 using namespace std;
 
@@ -92,7 +92,6 @@ namespace odb
       }
     }
 
-#if SQLITE_VERSION_NUMBER >= 3007004
     void stream::
     reopen (long long rowid)
     {
@@ -104,7 +103,6 @@ namespace odb
         //
         translate_error (e, conn_);
     }
-#endif
 
     void stream::
     clear ()
@@ -116,5 +114,3 @@ namespace odb
     }
   }
 }
-
-#endif // SQLITE_VERSION_NUMBER >= 3004000
