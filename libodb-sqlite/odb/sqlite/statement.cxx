@@ -703,6 +703,10 @@ namespace odb
       e = sqlite3_step (stmt_);
 #endif
 
+      int cee (0);
+      if (e == SQLITE_CONSTRAINT)
+        cee = sqlite3_extended_errcode (h); // SQLITE_CONSTRAINT_*
+
       if (stream)
         sqlite3_update_hook (h, 0, 0); // Clear the hook.
 
@@ -710,14 +714,16 @@ namespace odb
 
       if (e != SQLITE_DONE)
       {
-        // SQLITE_CONSTRAINT error code covers more than just a duplicate
-        // primary key. Unfortunately, there is nothing more precise that
-        // we can use (even sqlite3_errmsg() returns generic "constraint
-        // failed"). But an auto-assigned object id should never cause a
-        // duplicate primary key.
-        //
-        if (returning_ == 0 && e == SQLITE_CONSTRAINT)
+        if (e == SQLITE_CONSTRAINT && cee == SQLITE_CONSTRAINT_PRIMARYKEY)
+        {
+          // An auto-assigned object id should never cause a duplicate primary
+          // key. Or maybe it can since we support mixed manual/automatic
+          // object id assignment.
+          //
+          //assert (returning_ == nullptr);
+
           return false;
+        }
         else
           translate_error (e, conn_);
       }

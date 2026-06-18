@@ -16,6 +16,10 @@ Version 2.6.0
 
  * The lowest supported SQLite version has been raised to 3.7.4.
 
+ * The SQLite runtime is now able to distinguish the primary key constraint
+   violations from other constraint violations and only map the former to the
+   object_already_persistent exception.
+
 Version 2.5.0
 
  * Database classes are now move-constructible. This means they can be
