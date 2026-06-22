@@ -75,19 +75,19 @@ create_sqlite_database (int& argc,
 
   // Create the database schema. Due to bugs in SQLite foreign key
   // support for DDL statements, we need to temporarily disable
-  // foreign keys.
+  // foreign keys. @@ TMP seems like not anymore?
   //
   if (schema)
   {
     connection_ptr c (db->connection ());
 
-    c->execute ("PRAGMA foreign_keys=OFF");
+    //c->execute ("PRAGMA foreign_keys=OFF");
 
     transaction t (c->begin ());
     schema_catalog::create_schema (*db);
     t.commit ();
 
-    c->execute ("PRAGMA foreign_keys=ON");
+    //c->execute ("PRAGMA foreign_keys=ON");
   }
 
   return db;

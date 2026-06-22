@@ -22585,13 +22585,13 @@ class person
      to delete persistent objects that contain containers will not work
      correctly. Container data for such objects will not be deleted.</p>
 
-  <p>When foreign key constraints checking is enabled, then you may
-     get the "foreign key constraint failed" error while re-creating the
-     database schema. This error is due to bugs in the SQLite DDL foreign
-     keys support. The recommended work-around for this problem is to
-     temporarily disable foreign key constraints checking while
-     re-creating the schema. The following code fragment shows how
-     this can be done:</p>
+  <p>When foreign key constraints checking is enabled in older SQLite
+     versions, then you may get the "foreign key constraint failed" error
+     while re-creating the database schema. This error is due to bugs in the
+     SQLite DDL foreign keys support. The recommended work-around for this
+     problem is to temporarily disable foreign key constraints checking while
+     re-creating the schema. The following code fragment shows how this can be
+     done:</p>
 
   <pre class="cxx">
 #include &lt;odb/connection.hxx>
