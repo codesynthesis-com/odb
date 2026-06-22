@@ -95,15 +95,10 @@ namespace odb
     {
       database_type& db (database ());
 
-      // Enable/disable foreign key constraints.
+      // Configure the connection.
       //
-      generic_statement st (
-        *this,
-        db.foreign_keys ()
-        ? "PRAGMA foreign_keys=ON"
-        : "PRAGMA foreign_keys=OFF",
-        db.foreign_keys () ? 22 : 23);
-      st.execute ();
+      if (const auto& cc = db.connection_configurator ())
+        cc (*this);
 
       // String lengths include '\0', as per the SQLite manual suggestion.
       //
@@ -124,7 +119,7 @@ namespace odb
           unlock_cond_ (unlock_mutex_),
           active_objects_ (0)
     {
-      // Copy some things over from the main connection.
+      // Copy relevant things over from the main connection.
       //
       connection& main (*cf.main_connection_);
 

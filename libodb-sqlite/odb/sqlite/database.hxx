@@ -8,9 +8,10 @@
 
 #include <sqlite3.h> // SQLITE_OPEN_*
 
-#include <memory> // std::unique_ptr
+#include <memory>     // std::unique_ptr
 #include <string>
-#include <iosfwd> // std::ostream
+#include <iosfwd>     // std::ostream
+#include <functional> // std::function
 
 #include <odb/database.hxx>
 
@@ -33,17 +34,41 @@ namespace odb
     class LIBODB_SQLITE_EXPORT database: public odb::database
     {
     public:
-      database (const std::string& name,
+      using connection_type = sqlite::connection;
+
+      explicit
+      database (std::string name,
                 int flags = SQLITE_OPEN_READWRITE,
                 bool foreign_keys = true,
-                const std::string& vfs = "",
+                std::string vfs = "",
+                std::unique_ptr<connection_factory> = nullptr);
+
+      // Note that the connection configurator is called during the connection
+      // construction and the only valid operations it can perform on the
+      // connection is call the connection::execute() to execute generic
+      // statements (typically PRAGMA) or to call SQLite API functions on the
+      // underlying connection handle. In particular, it may not start a
+      // transaction via the connection::begin() API (but may start one
+      // manually via execute("BEGIN")).
+      //
+      database (std::string name,
+                int flags,
+                std::function<void (connection_type&)> connection_configurator,
+                std::string vfs = "",
                 std::unique_ptr<connection_factory> = nullptr);
 
 #ifdef _WIN32
+      explicit
       database (const std::wstring& name,
                 int flags = SQLITE_OPEN_READWRITE,
                 bool foreign_keys = true,
-                const std::string& vfs = "",
+                std::string vfs = "",
+                std::unique_ptr<connection_factory> = nullptr);
+
+      database (const std::wstring& name,
+                int flags,
+                std::function<void (connection_type&)> connection_configurator,
+                std::string vfs = "",
                 std::unique_ptr<connection_factory> = nullptr);
 #endif
 
@@ -61,12 +86,16 @@ namespace odb
       // options override the flags passed as an argument. This constructor
       // may throw the cli_exception exception.
       //
-      database (int& argc,
-                char* argv[],
-                bool erase = false,
+      database (int& argc, char* argv[], bool erase = false,
                 int flags = SQLITE_OPEN_READWRITE,
                 bool foreign_keys = true,
-                const std::string& vfs = "",
+                std::string vfs = "",
+                std::unique_ptr<connection_factory> = nullptr);
+
+      database (int& argc, char* argv[], bool erase,
+                int flags,
+                std::function<void (connection_type&)> connection_configurator,
+                std::string vfs = "",
                 std::unique_ptr<connection_factory> = nullptr);
 
       // Attach to the specified connection a database with the specified name
@@ -167,16 +196,16 @@ namespace odb
         return flags_;
       }
 
-      bool
-      foreign_keys () const
-      {
-        return foreign_keys_;
-      }
-
       const std::string&
       vfs () const
       {
         return vfs_;
+      }
+
+      const std::function<void (connection_type&)>&
+      connection_configurator () const
+      {
+        return connection_configurator_;
       }
 
       // Object persistence API.
@@ -537,8 +566,9 @@ namespace odb
       std::string name_;
       std::string schema_;
       int flags_;
-      bool foreign_keys_;
       std::string vfs_;
+
+      std::function<void (connection_type&)> connection_configurator_;
 
       // Note: keep last so that all other database members are still valid
       // during factory's destruction.

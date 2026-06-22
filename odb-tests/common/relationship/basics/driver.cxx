@@ -10,6 +10,7 @@
 #include <odb/database.hxx>
 #include <odb/transaction.hxx>
 
+#include <libcommon/config.hxx> // DATABASE_*
 #include <libcommon/common.hxx>
 
 #include "test.hxx"
@@ -141,6 +142,25 @@ main (int argc, char* argv[])
 
       assert (*a1 == a);
     }
+
+    // Test foreign key constraint enforcement.
+    //
+    // Note: in MySQL FKs are disabled (see limitations for details).
+    //
+#if !defined(DATABASE_MYSQL) && !defined(MULTI_DATABASE)
+    a.o1 = new obj1 ("o1.1", "obj1.1");
+
+    try
+    {
+      transaction t (db->begin ());
+      db->update (a);
+      t.commit ();
+      assert (false);
+    }
+    catch (const odb::exception&)
+    {
+    }
+#endif
   }
   catch (const odb::exception& e)
   {

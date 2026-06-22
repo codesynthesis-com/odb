@@ -16,8 +16,8 @@ namespace odb
           name_ (std::move (db.name_)),
           schema_ (std::move (db.schema_)),
           flags_ (db.flags_),
-          foreign_keys_ (db.foreign_keys_),
           vfs_ (std::move (db.vfs_)),
+          connection_configurator_ (std::move (db.connection_configurator_)),
           factory_ (std::move (db.factory_))
     {
       factory_->database (*this); // New database instance.

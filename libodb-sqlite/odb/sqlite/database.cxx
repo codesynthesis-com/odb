@@ -32,18 +32,50 @@ namespace odb
     {
     }
 
+    struct default_connection_configurator
+    {
+      bool foreign_keys;
+
+      explicit
+      default_connection_configurator (bool fk): foreign_keys (fk) {}
+
+      void
+      operator() (connection& c)
+      {
+        generic_statement st (
+          c,
+          foreign_keys ? "PRAGMA foreign_keys=ON" : "PRAGMA foreign_keys=OFF",
+          foreign_keys ? 22                       : 23);
+        st.execute ();
+      }
+    };
+
     database::
-    database (const string& name,
+    database (string name,
               int flags,
               bool foreign_keys,
-              const string& vfs,
+              string vfs,
               unique_ptr<connection_factory> factory)
-        : odb::database (id_sqlite),
-          name_ (name),
-          flags_ (flags),
-          foreign_keys_ (foreign_keys),
-          vfs_ (vfs),
-          factory_ (std::move (factory))
+        : database (std::move (name),
+                    flags,
+                    default_connection_configurator (foreign_keys),
+                    std::move (vfs),
+                    std::move (factory))
+    {
+    }
+
+    database::
+    database (string name,
+              int flags,
+              function<void (connection_type&)> conn_cfg,
+              string vfs,
+              unique_ptr<connection_factory> factory)
+      : odb::database (id_sqlite),
+        name_ (std::move (name)),
+        flags_ (flags),
+        vfs_ (std::move (vfs)),
+        connection_configurator_ (std::move (conn_cfg)),
+        factory_ (std::move (factory))
     {
       if (!factory_)
         factory_.reset (new connection_pool_factory ());
@@ -56,12 +88,26 @@ namespace odb
     database (const wstring& name,
               int flags,
               bool foreign_keys,
-              const string& vfs,
+              string vfs,
+              unique_ptr<connection_factory> factory)
+        : database (name,
+                    flags,
+                    default_connection_configurator (foreign_keys),
+                    std::move (vfs),
+                    std::move (factory))
+    {
+    }
+
+    database::
+    database (const wstring& name,
+              int flags,
+              function<void (connection_type&)> conn_cfg,
+              string vfs,
               unique_ptr<connection_factory> factory)
         : odb::database (id_sqlite),
           flags_ (flags),
-          foreign_keys_ (foreign_keys),
-          vfs_ (vfs),
+          vfs_ (std::move (vfs)),
+          connection_configurator_ (std::move (conn_cfg)),
           factory_ (std::move (factory))
     {
       // Convert UTF-16 name to UTF-8 using the WideCharToMultiByte() Win32
@@ -109,17 +155,29 @@ namespace odb
 #endif
 
     database::
-    database (int& argc,
-              char* argv[],
-              bool erase,
+    database (int& argc, char* argv[], bool erase,
               int flags,
               bool foreign_keys,
-              const string& vfs,
+              string vfs,
+              unique_ptr<connection_factory> factory)
+        : database (argc, argv, erase,
+                    flags,
+                    default_connection_configurator (foreign_keys),
+                    std::move (vfs),
+                    std::move (factory))
+    {
+    }
+
+    database::
+    database (int& argc, char* argv[], bool erase,
+              int flags,
+              function<void (connection_type&)> conn_cfg,
+              string vfs,
               unique_ptr<connection_factory> factory)
         : odb::database (id_sqlite),
           flags_ (flags),
-          foreign_keys_ (foreign_keys),
-          vfs_ (vfs),
+          vfs_ (std::move (vfs)),
+          connection_configurator_ (std::move (conn_cfg)),
           factory_ (std::move (factory))
     {
       using namespace details;
@@ -163,12 +221,15 @@ namespace odb
     {
       assert (!schema_.empty ());
 
-      // Copy some things over from the connection's database.
+      // Copy relevant things over from the connection's database.
+      //
+      // Note that we will not be copying the connection configurator since it
+      // cannot be possibly used (because we create no physical SQLite
+      // connections).
       //
       database& db (conn->database ());
 
       tracer_ = db.tracer_;
-      foreign_keys_ = db.foreign_keys_;
 
       if (!factory_)
         factory_.reset (new default_attached_connection_factory (
