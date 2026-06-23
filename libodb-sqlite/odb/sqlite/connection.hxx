@@ -24,6 +24,7 @@
 #include <odb/sqlite/transaction-impl.hxx>
 #include <odb/sqlite/auto-handle.hxx>
 
+#include <odb/sqlite/details/config.hxx> // LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
 #include <odb/sqlite/details/export.hxx>
 
 namespace odb
@@ -182,8 +183,10 @@ namespace odb
       // Wait for the locks to be released via unlock notification. Can
       // be called after getting SQLITE_LOCKED_SHAREDCACHE.
       //
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
       void
       wait ();
+#endif
 
     public:
       // Reset active statements. Also invalidates query results by first
@@ -248,6 +251,7 @@ namespace odb
 
       // Unlock notification machinery.
       //
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
     private:
       bool unlocked_;
       details::mutex unlock_mutex_;
@@ -255,6 +259,7 @@ namespace odb
 
       friend void
       connection_unlock_callback (void**, int);
+#endif
 
     private:
       friend class statement;        // statement_translator_

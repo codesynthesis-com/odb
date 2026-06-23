@@ -129,6 +129,7 @@ namespace odb
       // Note: sqlite3_prepare_v2() is only available since SQLite 3.3.9,
       // but is buggy until 3.3.11.
       //
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
       while ((e = sqlite3_prepare_v2 (conn_.handle (),
                                       text,
                                       static_cast<int> (text_size),
@@ -137,6 +138,13 @@ namespace odb
       {
         conn_.wait ();
       }
+#else
+      e = sqlite3_prepare_v2 (conn_.handle (),
+                              text,
+                              static_cast<int> (text_size),
+                              &stmt,
+                              0);
+#endif
 
       if (e != SQLITE_OK)
         translate_error (e, conn_);

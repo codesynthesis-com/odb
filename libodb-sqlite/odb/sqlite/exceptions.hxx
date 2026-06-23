@@ -24,6 +24,10 @@ namespace odb
     // See the SQLITE_ABORT_ROLLBACK extended error code for detail on this
     // behavior.
     //
+    // Note: shared cache is primarily useful with unlock notify
+    // (LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY) so we can probably drop this
+    // exception if we drop support for unlock notify.
+    //
     struct LIBODB_SQLITE_EXPORT forced_rollback: recoverable
     {
       virtual const char*

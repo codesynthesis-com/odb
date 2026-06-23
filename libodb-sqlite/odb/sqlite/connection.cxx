@@ -16,12 +16,12 @@
 #include <odb/sqlite/error.hxx>
 #include <odb/sqlite/exceptions.hxx> // deadlock
 
-#include <odb/sqlite/details/config.hxx> // LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
-
 using namespace std;
 
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
 extern "C" void
 odb_sqlite_connection_unlock_callback (void**, int);
+#endif
 
 namespace odb
 {
@@ -35,7 +35,9 @@ namespace odb
                 statement_translator* st)
         : odb::connection (cf),
           statement_translator_ (st),
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
           unlock_cond_ (unlock_mutex_),
+#endif
           active_objects_ (0)
     {
       database_type& db (database ());
@@ -84,7 +86,9 @@ namespace odb
         : odb::connection (cf),
           handle_ (handle),
           statement_translator_ (st),
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
           unlock_cond_ (unlock_mutex_),
+#endif
           active_objects_ (0)
     {
       init ();
@@ -116,7 +120,9 @@ namespace odb
         : odb::connection (cf),
           handle_ (0),
           statement_translator_ (st),
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
           unlock_cond_ (unlock_mutex_),
+#endif
           active_objects_ (0)
     {
       // Copy relevant things over from the main connection.
@@ -211,6 +217,7 @@ namespace odb
       return st.execute ();
     }
 
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
     inline void
     connection_unlock_callback (void** args, int n)
     {
@@ -226,7 +233,6 @@ namespace odb
     void connection::
     wait ()
     {
-#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
       unlocked_ = false;
 
       // unlock_notify() returns SQLITE_OK or SQLITE_LOCKED (deadlock).
@@ -241,10 +247,8 @@ namespace odb
 
       while (!unlocked_)
         unlock_cond_.wait (l);
-#else
-      translate_error (SQLITE_LOCKED, *this);
-#endif
     }
+#endif // LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
 
     void connection::
     clear ()
@@ -296,8 +300,10 @@ namespace odb
   }
 }
 
+#ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
 extern "C" void
 odb_sqlite_connection_unlock_callback (void** args, int n)
 {
   odb::sqlite::connection_unlock_callback (args, n);
 }
+#endif
