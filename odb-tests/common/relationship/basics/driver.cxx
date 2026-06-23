@@ -145,9 +145,11 @@ main (int argc, char* argv[])
 
     // Test foreign key constraint enforcement.
     //
-    // Note: in MySQL FKs are disabled (see limitations for details).
+    // Note: in MySQL MSSQL FKs are disabled (see limitations for details).
     //
-#if !defined(DATABASE_MYSQL) && !defined(MULTI_DATABASE)
+#if !defined(DATABASE_MYSQL) && \
+    !defined(DATABASE_MSSQL) && \
+    !defined(MULTI_DATABASE)
     a.o1 = new obj1 ("o1.1", "obj1.1");
 
     try
