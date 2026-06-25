@@ -12,6 +12,16 @@ ixx{*}: extension = ixx
 txx{*}: extension = txx
 cxx{*}: extension = cxx
 
+# Suppress bogus warnings in older versions of GCC.
+#
+if ($cxx.id == 'gcc')
+{
+  # std::optional causes bogus -Wmaybe-uninitialized in GCC 10, 11.
+  #
+  if ($cxx.version.major < 12)
+    cxx.coptions += -Wno-maybe-uninitialized
+}
+
 # Extract certain predefined compiler macros, such as __cplusplus, which are
 # used to decide test configurations (e.g., the --std option to pass to the
 # ODB compiler).
