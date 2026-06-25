@@ -68,9 +68,25 @@ namespace odb
           throw timeout ();
         }
       case SQLITE_BUSY:
+        {
+          // SQLITE_BUSY_SNAPSHOT is returned when a read transaction tries to
+          // upgrade to a write transaction while there is another write
+          // transaction in progress. Only possible in the WAL mode. To avoid,
+          // start all (potentially) write transactions with BEGIN IMMEDIATE.
+          //
+          // But there appears to be a bug, see: https://sqlite.org/forum/forumpost/a2049876cc
+          //
+          // See also GH issue #33.
+          //
+#ifdef SQLITE_BUSY_SNAPSHOT // Since SQLite 3.8.0.
+          if (ee == SQLITE_BUSY_SNAPSHOT)
+            throw deadlock ();
+#endif
+          throw timeout ();
+        }
       case SQLITE_IOERR:
         {
-          if (e != SQLITE_IOERR || ee == SQLITE_IOERR_BLOCKED)
+          if (ee == SQLITE_IOERR_BLOCKED)
             throw timeout ();
 
           break;

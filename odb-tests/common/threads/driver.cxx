@@ -68,6 +68,7 @@ struct task
             db_.persist (o1);
             db_.persist (o2);
             db_.persist (o3);
+
             t.commit ();
             break;
           }
@@ -81,11 +82,16 @@ struct task
 #if !defined(DATABASE_SQLITE)
             transaction t (db_.begin ());
 #else
-            // SQLite has a peculiar table locking mode (shared cache)
-            // which can lead to any of the transactions in this test
-            // deadlocking even though they shouldn't from the user's
-            // perspective. One way to work around this problem is to
-            // start a "write" transaction as such right away.
+            // SQLite has coarse locking semantics (both in shared cache and
+            // WAL mode) which can lead to any of the transactions in this
+            // test deadlocking even though they shouldn't from the user's
+            // perspective. One way to work around this problem is to start a
+            // "write" transaction as such right away with BEGIN IMMEDIATE.
+            //
+            // In the WAL mode this test is actually slightly faster without
+            // IMMEDIATE. But this requires a patches version of SQLite to
+            // distinguish deadlock from timeout, at least for now:
+            // https://sqlite.org/forum/forumpost/2cc132d53c
             //
             transaction t;
 

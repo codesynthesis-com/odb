@@ -60,7 +60,7 @@ namespace odb
 
       // sqlite3_open_v2() was only added in SQLite 3.5.0.
       //
-      sqlite3* h (0);
+      sqlite3* h (nullptr);
       const string& vfs (db.vfs ());
       int e (
         sqlite3_open_v2 (
@@ -70,7 +70,7 @@ namespace odb
 
       if (e != SQLITE_OK)
       {
-        if (handle_ == 0)
+        if (h == nullptr)
           throw bad_alloc ();
 
         translate_error (e, *this);

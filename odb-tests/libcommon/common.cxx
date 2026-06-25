@@ -60,7 +60,34 @@ create_sqlite_database (int& argc,
   if (max_connections != 0)
     f.reset (new sqlite::connection_pool_factory (max_connections));
 
+#if 1
+  // WAL concurrency version.
+  //
   unique_ptr<database> db (
+    new sqlite::database (
+      argc, argv, false,
+      SQLITE_OPEN_READWRITE
+      | SQLITE_OPEN_CREATE
+      | SQLITE_OPEN_PRIVATECACHE // Disable unlock notification support.
+#ifdef SQLITE_OPEN_URI
+      | SQLITE_OPEN_URI
+#endif
+      ,
+      std::function<void (sqlite::connection&)> (
+        [] (sqlite::connection& c)
+        {
+          sqlite3_busy_timeout (c.handle (), 3600000 /* 1 hour */);
+
+          c.execute ("PRAGMA journal_mode=WAL");
+          c.execute ("PRAGMA synchronous=NORMAL");
+          c.execute ("PRAGMA foreign_keys=ON");
+        }),
+      "" /* vfs */,
+      std::move (f)));
+#else
+    // Unlock notify concurrency version.
+    //
+    unique_ptr<database> db (
     new sqlite::database (
       argc, argv, false,
       SQLITE_OPEN_READWRITE
@@ -69,9 +96,10 @@ create_sqlite_database (int& argc,
       | SQLITE_OPEN_URI
 #endif
       ,
-      true,
-      "",
+      true /* foreign_keys */,
+      "" /* vfs */,
       std::move (f)));
+#endif
 
   // Create the database schema. Due to bugs in SQLite foreign key
   // support for DDL statements, we need to temporarily disable

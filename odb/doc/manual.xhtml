@@ -22368,7 +22368,10 @@ namespace odb
      disable the shared cache mode you can pass the
      <code>SQLITE_OPEN_PRIVATECACHE</code> flag when creating the database
      instance. For more information on the shared cache mode refer to the
-     SQLite documentation.</p>
+     SQLite documentation. Instead of the unlock notify functionality, it is
+     possible to use the WAL mode concurrency that may result in better
+     performance. Refer to <a href="#18.4">Section 18.4, "SQLite Connection
+     Configuration"</a> for detail on how to set this up.</p>
 
   <p>If you pass <code>NULL</code> as the connection factory to one of the
      <code>database</code> constructors, then the <code>connection_pool_factory</code>
@@ -22415,7 +22418,7 @@ main (int argc, char* argv[])
   <pre class="cxx">
 sqlite::database db (name,
                      SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-                     [] (connection&amp; c)
+                     [] (sqlite::connection&amp; c)
                      {
                        c.execute ("PRAGMA foreign_keys=ON");
                      });
@@ -22426,16 +22429,40 @@ sqlite::database db (name,
     which provides the best balance between performance and safety (according
     to the SQLite documentation) in the WAL mode.</p>
 
-    <pre class="cxx">
+   <pre class="cxx">
 sqlite::database db (name,
                      SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-                     [] (connection&amp; c)
+                     [] (sqlite::connection&amp; c)
                      {
                        c.execute ("PRAGMA journal_mode=WAL");
                        c.execute ("PRAGMA synchronous=NORMAL");
                        c.execute ("PRAGMA foreign_keys=ON");
                      });
   </pre>
+
+  <p>The WAL mode allows readers to proceed concurrently with (one) writer,
+     which often results in better performance compared to the unlock notify
+     functionality used by default. The following example shows how to enable
+     this. Here we use the default <code>connection_pool_factory</code>.</p>
+
+  <pre class="cxx">
+sqlite::database db (name,
+                     SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE |
+                     SQLITE_OPEN_PRIVATECACHE // Disable unlock notify.
+                     [] (sqlite::connection&amp; c)
+                      {
+                       sqlite3_busy_timeout (c.handle (),
+                                             3600000 /* 1 hour */);
+
+                       c.execute ("PRAGMA journal_mode=WAL");
+                       c.execute ("PRAGMA synchronous=NORMAL");
+                       c.execute ("PRAGMA foreign_keys=ON");
+                     });
+  </pre>
+
+  <p>Note that in this mode you will either need to start (potentially)
+     write transactions with <code>begin_immediate()</code> or prepare
+     to handle the <code>deadlock</code> exception.</p>
 
   <p>Often an applications needs to lock the database for exclusive access to
      make sure another instance of the same application does not make any
@@ -22452,7 +22479,7 @@ sqlite::database db (name,
   <pre class="cxx">
 sqlite::database db (name,
                      SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE,
-                     [] (connection&amp; c)
+                     [] (sqlite::connection&amp; c)
                      {
                        c.execute ("PRAGMA locking_mode=EXCLUSIVE");
                        c.execute ("PRAGMA foreign_keys=ON");
