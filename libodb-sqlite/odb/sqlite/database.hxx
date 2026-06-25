@@ -39,7 +39,7 @@ namespace odb
       explicit
       database (std::string name,
                 int flags = SQLITE_OPEN_READWRITE,
-                bool foreign_keys = true,
+                /*bool*/ int foreign_keys = true,
                 std::string vfs = "",
                 std::unique_ptr<connection_factory> = nullptr);
 
@@ -61,7 +61,7 @@ namespace odb
       explicit
       database (const std::wstring& name,
                 int flags = SQLITE_OPEN_READWRITE,
-                bool foreign_keys = true,
+                /*bool*/ int foreign_keys = true,
                 std::string vfs = "",
                 std::unique_ptr<connection_factory> = nullptr);
 
@@ -88,7 +88,7 @@ namespace odb
       //
       database (int& argc, char* argv[], bool erase = false,
                 int flags = SQLITE_OPEN_READWRITE,
-                bool foreign_keys = true,
+                /*bool*/ int foreign_keys = true,
                 std::string vfs = "",
                 std::unique_ptr<connection_factory> = nullptr);
 

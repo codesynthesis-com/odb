@@ -73,15 +73,14 @@ create_sqlite_database (int& argc,
       | SQLITE_OPEN_URI
 #endif
       ,
-      std::function<void (sqlite::connection&)> (
-        [] (sqlite::connection& c)
-        {
-          sqlite3_busy_timeout (c.handle (), 3600000 /* 1 hour */);
+      [] (sqlite::connection& c)
+      {
+        sqlite3_busy_timeout (c.handle (), 3600000 /* 1 hour */);
 
-          c.execute ("PRAGMA journal_mode=WAL");
-          c.execute ("PRAGMA synchronous=NORMAL");
-          c.execute ("PRAGMA foreign_keys=ON");
-        }),
+        c.execute ("PRAGMA journal_mode=WAL");
+        c.execute ("PRAGMA synchronous=NORMAL");
+        c.execute ("PRAGMA foreign_keys=ON");
+      },
       "" /* vfs */,
       std::move (f)));
 #else

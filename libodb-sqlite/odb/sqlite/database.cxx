@@ -37,7 +37,10 @@ namespace odb
       bool foreign_keys;
 
       explicit
-      default_connection_configurator (bool fk): foreign_keys (fk) {}
+      default_connection_configurator (/*bool*/ int fk)
+          : foreign_keys (fk != 0)
+      {
+      }
 
       void
       operator() (connection& c)
@@ -53,7 +56,7 @@ namespace odb
     database::
     database (string name,
               int flags,
-              bool foreign_keys,
+              /*bool*/ int foreign_keys,
               string vfs,
               unique_ptr<connection_factory> factory)
         : database (std::move (name),
@@ -87,7 +90,7 @@ namespace odb
     database::
     database (const wstring& name,
               int flags,
-              bool foreign_keys,
+              /*bool*/ int foreign_keys,
               string vfs,
               unique_ptr<connection_factory> factory)
         : database (name,
@@ -157,7 +160,7 @@ namespace odb
     database::
     database (int& argc, char* argv[], bool erase,
               int flags,
-              bool foreign_keys,
+              /*bool*/ int foreign_keys,
               string vfs,
               unique_ptr<connection_factory> factory)
         : database (argc, argv, erase,
