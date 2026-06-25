@@ -17,8 +17,15 @@ namespace odb
 
     // Translate SQLite error and throw an appropriate exception.
     //
+    // Note that there should be no SQLite API calls between the failing
+    // call and the first version since it queries the pending extended
+    // error code.
+    //
     LIBODB_SQLITE_EXPORT void
     translate_error (int error, connection&);
+
+    LIBODB_SQLITE_EXPORT void
+    translate_error (int error, int extended_error, connection&);
   }
 }
 

@@ -1,6 +1,8 @@
 // file      : odb/sqlite/error.cxx
 // license   : GNU GPL v2; see accompanying LICENSE file
 
+#include <odb/sqlite/error.hxx>
+
 #include <sqlite3.h>
 
 #include <new>    // std::bad_alloc
@@ -20,11 +22,14 @@ namespace odb
     void
     translate_error (int e, connection& c)
     {
-      sqlite3* h (c.handle ());
-
       // Note: extended error codes are only available since SQLite 3.6.5.
       //
-      int ee (sqlite3_extended_errcode (h));
+      translate_error (e, sqlite3_extended_errcode (c.handle ()), c);
+    }
+
+    void
+    translate_error (int e, int ee, connection& c)
+    {
       string m;
 
       switch (e)
@@ -75,7 +80,21 @@ namespace odb
       }
 
       if (m.empty ())
-        m = sqlite3_errmsg (h);
+      {
+        sqlite3* h (c.handle ());
+
+        // Note that sqlite3_errmsg() returns more precise description
+        // compared to sqlite3_errstr() but there is a chance it has been
+        // overwritten. So do the best we can.
+        //
+        const char* s;
+        if (sqlite3_errcode (h) == e)
+          s = sqlite3_errmsg (h);
+        else
+          s = sqlite3_errstr (e);
+
+        m = s != nullptr ? s : "unknown error";
+      }
 
       // Get rid of a trailing newline if there is one.
       //

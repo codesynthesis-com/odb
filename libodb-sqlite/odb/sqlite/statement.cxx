@@ -472,7 +472,7 @@ namespace odb
 
       unsigned long long r (0);
 
-      int e;
+      int e, ee;
       sqlite3* h (conn_.handle ());
 
 #ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
@@ -493,10 +493,13 @@ namespace odb
       for (; e == SQLITE_ROW; e = sqlite3_step (stmt_))
         r++;
 
+      if (e != SQLITE_DONE)
+        ee = sqlite3_extended_errcode (h);
+
       sqlite3_reset (stmt_);
 
       if (e != SQLITE_DONE)
-        translate_error (e, conn_);
+        translate_error (e, ee, conn_);
 
       if (!result_set_)
         r = static_cast<unsigned long long> (sqlite3_changes (h));
@@ -599,10 +602,10 @@ namespace odb
     {
       if (!done_)
       {
-        int e;
+        int e, ee (0);
+        sqlite3* h (conn_.handle ());
 
 #ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
-        sqlite3* h (conn_.handle ());
         while ((e = sqlite3_step (stmt_)) == SQLITE_LOCKED)
         {
           if (sqlite3_extended_errcode (h) != SQLITE_LOCKED_SHAREDCACHE)
@@ -619,10 +622,13 @@ namespace odb
         {
           done_ = true;
 
+          if (e != SQLITE_DONE)
+            ee = sqlite3_extended_errcode (h);
+
           reset ();
 
           if (e != SQLITE_DONE)
-            translate_error (e, conn_);
+            translate_error (e, ee, conn_);
         }
       }
 
@@ -696,7 +702,7 @@ namespace odb
       if (stream)
         sqlite3_update_hook (h, &odb_sqlite_update_hook, &sd);
 
-      int e;
+      int e, ee;
 
 #ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
       while ((e = sqlite3_step (stmt_)) == SQLITE_LOCKED)
@@ -711,9 +717,8 @@ namespace odb
       e = sqlite3_step (stmt_);
 #endif
 
-      int cee (0);
-      if (e == SQLITE_CONSTRAINT)
-        cee = sqlite3_extended_errcode (h); // SQLITE_CONSTRAINT_*
+      if (e != SQLITE_DONE)
+        ee = sqlite3_extended_errcode (h);
 
       if (stream)
         sqlite3_update_hook (h, 0, 0); // Clear the hook.
@@ -722,7 +727,7 @@ namespace odb
 
       if (e != SQLITE_DONE)
       {
-        if (e == SQLITE_CONSTRAINT && cee == SQLITE_CONSTRAINT_PRIMARYKEY)
+        if (e == SQLITE_CONSTRAINT && ee == SQLITE_CONSTRAINT_PRIMARYKEY)
         {
           // An auto-assigned object id should never cause a duplicate primary
           // key. Or maybe it can since we support mixed manual/automatic
@@ -733,7 +738,7 @@ namespace odb
           return false;
         }
         else
-          translate_error (e, conn_);
+          translate_error (e, ee, conn_);
       }
 
       // Stream parameters, if any.
@@ -799,7 +804,7 @@ namespace odb
       if (stream)
         sqlite3_update_hook (h, &odb_sqlite_update_hook, &sd);
 
-      int e;
+      int e, ee;
 
 #ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
       while ((e = sqlite3_step (stmt_)) == SQLITE_LOCKED)
@@ -814,13 +819,16 @@ namespace odb
       e = sqlite3_step (stmt_);
 #endif
 
+      if (e != SQLITE_DONE)
+        ee = sqlite3_extended_errcode (h);
+
       if (stream)
         sqlite3_update_hook (h, 0, 0); // Clear the hook.
 
       sqlite3_reset (stmt_);
 
       if (e != SQLITE_DONE)
-        translate_error (e, conn_);
+        translate_error (e, ee, conn_);
 
       int r (sqlite3_changes (h));
 
@@ -870,7 +878,7 @@ namespace odb
 
       bind_param (param_.bind, param_.count);
 
-      int e;
+      int e, ee;
       sqlite3* h (conn_.handle ());
 
 #ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY
@@ -886,10 +894,13 @@ namespace odb
       e = sqlite3_step (stmt_);
 #endif
 
+      if (e != SQLITE_DONE)
+        ee = sqlite3_extended_errcode (h);
+
       sqlite3_reset (stmt_);
 
       if (e != SQLITE_DONE)
-        translate_error (e, conn_);
+        translate_error (e, ee, conn_);
 
       return static_cast<unsigned long long> (sqlite3_changes (h));
     }
