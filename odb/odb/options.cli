@@ -1019,15 +1019,15 @@ class options
   // PostgreSQL-specific options.
   //
 
-  ::pgsql_version --pgsql-server-version (7, 4)
+  ::pgsql_version --pgsql-server-version (9, 1)
   {
     "<ver>",
     "Specify the minimum PostgreSQL server version with which the generated
      C++ code and schema will be used. This information is used to enable
      version-specific optimizations and workarounds in the generated C++
      code and schema. The version must be in the \c{\i{major}\b{.}\i{minor}}
-     form, for example, \cb{9.1}. If this option is not specified, then
-     \cb{7.4} or later is assumed."
+     form, for example, \cb{17.0}. If this option is not specified, then
+     \cb{9.1} is assumed by this version of ODB."
   };
 
   //
@@ -1042,7 +1042,7 @@ class options
      version-specific optimizations and workarounds in the generated C++
      code. The version must be in the \c{\i{major}\b{.}\i{minor}} form,
      for example, \cb{11.2}. If this option is not specified, then
-     \cb{10.1} or later is assumed."
+     \cb{10.1} is assumed by this version of ODB."
   };
 
   bool --oracle-warn-truncation
@@ -1067,7 +1067,7 @@ class options
      code and schema. The version must be in the \c{\i{major}\b{.}\i{minor}}
      form, for example, \cb{9.0} (SQL Server 2005), \cb{10.5} (2008R2), or
      \cb{11.0} (2012). If this option is not specified, then \cb{10.0} (SQL
-     Server 2008) or later is assumed."
+     Server 2008) is assumed by this version of ODB."
   };
 
   unsigned int --mssql-short-limit = 1024
