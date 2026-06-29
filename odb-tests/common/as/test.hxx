@@ -315,6 +315,15 @@ namespace test6
            (x.obj == nullptr || *x.obj == *y.obj);
   }
 
+  inline int
+  to_int (const std::string& s)
+  {
+    std::size_t n;
+    int r (std::stoi (s, &n));
+    assert (n == s.size ());
+    return r;
+  }
+
   // Simple interface value type.
   //
   #pragma db namespace table("s_")
@@ -329,13 +338,8 @@ namespace test6
       object_id (int v): value_ (v) {}
 
       explicit
-      object_id (const std::string& s)
-      {
-        std::size_t n;
-        value_ = std::stoi (s, &n);
+      object_id (const std::string& s): value_ (to_int (s)) {}
 
-        assert (n == s.size ());
-      }
 
       // If the stringified representation is cached for the current or the
       // being assigned from object, then cache the representation for the new
@@ -466,6 +470,7 @@ namespace test6
 
     using null_string = odb::nullable<std::string>;
     using null_state  = odb::nullable<state>;
+    using null_int    = odb::nullable<int>;
 
     #pragma db map type(null_state) as(null_string) \
       to((?)                                        \
@@ -474,6 +479,14 @@ namespace test6
       from((?)                                      \
            ? test6::simple_intf::to_state (*(?))    \
            : test6::simple_intf::null_state ())
+
+    #pragma db map type(null_int) as(null_string) \
+      to((?)                                      \
+         ? std::to_string (*(?))                  \
+         : test6::simple_intf::null_string ())    \
+      from((?)                                    \
+           ? test6::to_int (*(?))                 \
+           : test6::simple_intf::null_int ())
 
     // Note that the reason for defining null_object_id as a struct rather
     // than just the odb::nullable<object_id> typedef, is that we want to make
@@ -565,21 +578,23 @@ namespace test6
       null_object_id source;
 
       null_state source_usage;
+      null_int source_distance;
     };
 
     inline bool
     operator== (const object& x, const object& y)
     {
-      return x.id           == y.id     &&
-             x.ref          == y.ref    &&
+      return x.id              == y.id           &&
+             x.ref             == y.ref          &&
              //x.refs[0] == y.refs[0] && // @@ TMP Enable when GH issue #32 is fixed.
-             x.next         == y.next   &&
-             x.dep          == y.dep    &&
-             x.req          == y.req    &&
-             x.note         == y.note   &&
-             x.usage        == y.usage  &&
-             x.source       == y.source &&
-             x.source_usage == y.source_usage;
+             x.next            == y.next         &&
+             x.dep             == y.dep          &&
+             x.req             == y.req          &&
+             x.note            == y.note         &&
+             x.usage           == y.usage        &&
+             x.source          == y.source       &&
+             x.source_usage    == y.source_usage &&
+             x.source_distance == y.source_distance;
     }
   }
 
@@ -601,13 +616,8 @@ namespace test6
       explicit
       object_id (const str_pair& sp)
       {
-        std::size_t n;
-
-        value1 = std::stoi (sp.first, &n);
-        assert (n == sp.first.size ());
-
-        value2 = std::stoi (sp.second, &n);
-        assert (n == sp.second.size ());
+        value1 = to_int (sp.first);
+        value2 = to_int (sp.second);
       }
 
       object_id&

@@ -752,16 +752,34 @@ traverse_column (semantics::data_member& m, string const& column, bool)
   const custom_cxx_type* translation;
   semantics::type& t (utype (m, hint, string (), &translation));
 
-  // Unwrap it if it is a wrapper.
+  // Unwrap the member's type if it is a wrapper and it is not translated from
+  // some other C++ type. Also unwrap it if it is an interface type for a
+  // mapped wrapper type, whose wrapped type is mapped to the wrapped type of
+  // the interface type. Unwrap the mapped wrapper type as well in this case.
   //
   string tn;
 
   semantics::names* whint;
-  semantics::type* wt;
+  if (semantics::type* wt = wrapper (t, whint)) // Wrapped type.
+  {
+    if (translation == nullptr)
+    {
+      tn = wrapped_fq_name (*wt, whint, t, hint); // Unwrap not-mapped type.
+    }
+    else if (semantics::type* mwt = wrapper (*translation->type))
+    {
+      if (const custom_cxx_type* ct = mapped (*mwt, m.scope ()))
+      {
+        if (ct->as == wt)
+        {
+          tn = wrapped_fq_name (*wt, whint, t, hint); // Unwrap interface type.
+          translation = ct;                           // Unwrap mapped type.
+        }
+      }
+    }
+  }
 
-  if (translation == nullptr && (wt = wrapper (t, whint)) != nullptr)
-    tn = wrapped_fq_name (*wt, whint, t, hint);
-  else
+  if (tn.empty ())
     tn = t.fq_name (hint);
 
   column_common (m, tn, column, translation);

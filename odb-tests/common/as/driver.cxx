@@ -388,6 +388,7 @@ main (int argc, char* argv[])
 
         o2.source = o1.id;
         o2.source_usage = state::enabled;
+        o2.source_distance = 3;
 
         {
           transaction t (db->begin ());
@@ -718,26 +719,25 @@ main (int argc, char* argv[])
             assert (
               db->query<object> (q::source_usage != state::enabled).empty ());
 
-            object v2 (
-              db->query_value<object> (
-                q::source_usage != null_state (state::enabled) ||
-                q::source_usage.is_null ()));
-
+            object v2 (db->query_value<object> (q::source_usage.is_null ()));
             assert (v2 == o1);
+          }
+
+          // source_distance == _val()
+          //
+          {
+            object v1 (
+              db->query_value<object> (
+                q::source_distance == o2.source_distance));
+
+            assert (v1 == o2);
 
             assert (
               db->query<object> (
-                q::source_usage == null_state ()).empty ());
+                q::source_distance != o2.source_distance).empty ());
 
-            object v3 (
-              db->query_value<object> (
-                q::source_usage == null_state () ||
-                q::source_usage.is_null ()));
-
-            assert (v3 == o1);
-
-            object v4 (db->query_value<object> (q::source_usage.is_null ()));
-            assert (v4 == o1);
+            object v2 (db->query_value<object> (q::source_distance.is_null ()));
+            assert (v2 == o1);
           }
 
           t.commit ();
