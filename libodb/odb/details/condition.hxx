@@ -15,7 +15,9 @@ namespace odb
   namespace details
   {
     class mutex;
-    class lock;
+    class unique_lock;
+
+    using lock = unique_lock;
 
     class condition
     {

@@ -33,7 +33,7 @@ namespace odb
         mutex_.lock ();
       }
 
-      ~lock ()
+      ~unique_lock ()
       {
         if (locked_)
           mutex_.unlock ();
