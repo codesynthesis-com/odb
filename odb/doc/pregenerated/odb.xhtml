@@ -789,13 +789,23 @@
     you would like to use the database-default engine, pass
     <code><b>default</b></code> as the value for this option.</dd>
 
+    <dt><code><b>--sqlite-version</b></code> <code><i>ver</i></code></dt>
+    <dd>Specify the minimum SQLite version with which the generated C++ code
+    will be linked. This information is used to enable version-specific
+    features and workarounds in the generated C++ code and schema. The version
+    must be in the
+    <code><i>major</i><b>.</b><i>minor</i><b>.</b><i>patch</i></code> form,
+    for example, <code><b>3.53.2</b></code>. If this option is not specified,
+    then <code><b>3.7.4</b></code> is assumed by this version of ODB.</dd>
+
     <dt><code><b>--sqlite-override-null</b></code></dt>
     <dd>Make all columns in the generated database schema allow
     <code><b>NULL</b></code> values. This is primarily useful in schema
-    migration since SQLite does not support dropping of columns. By making all
-    columns <code><b>NULL</b></code> we can later "delete" them by setting
-    their values to <code><b>NULL</b></code>. Note that this option overrides
-    even the <code><b>not_null</b></code> pragma.</dd>
+    migration since SQLite versions prior to <code><b>3.35.0</b></code> do not
+    support dropping of columns. By making all columns
+    <code><b>NULL</b></code> we can later "delete" them by setting their
+    values to <code><b>NULL</b></code>. Note that this option overrides even
+    the <code><b>not_null</b></code> pragma.</dd>
 
     <dt><code><b>--sqlite-lax-auto-id</b></code></dt>
     <dd>Do not force monotonically increasing automatically-assigned object
@@ -811,8 +821,8 @@
     version-specific optimizations and workarounds in the generated C++ code
     and schema. The version must be in the
     <code><i>major</i><b>.</b><i>minor</i></code> form, for example,
-    <code><b>9.1</b></code>. If this option is not specified, then
-    <code><b>7.4</b></code> or later is assumed.</dd>
+    <code><b>17.0</b></code>. If this option is not specified, then
+    <code><b>9.1</b></code> is assumed by this version of ODB.</dd>
 
     <dt><code><b>--oracle-client-version</b></code> <code><i>ver</i></code></dt>
     <dd>Specify the minimum Oracle client library (OCI) version with which the
@@ -820,7 +830,8 @@
     version-specific optimizations and workarounds in the generated C++ code.
     The version must be in the <code><i>major</i><b>.</b><i>minor</i></code>
     form, for example, <code><b>11.2</b></code>. If this option is not
-    specified, then <code><b>10.1</b></code> or later is assumed.</dd>
+    specified, then <code><b>10.1</b></code> is assumed by this version of
+    ODB.</dd>
 
     <dt><code><b>--oracle-warn-truncation</b></code></dt>
     <dd>Warn about SQL names that are longer than 30 characters and are
@@ -837,8 +848,8 @@
     <code><i>major</i><b>.</b><i>minor</i></code> form, for example,
     <code><b>9.0</b></code> (SQL Server 2005), <code><b>10.5</b></code>
     (2008R2), or <code><b>11.0</b></code> (2012). If this option is not
-    specified, then <code><b>10.0</b></code> (SQL Server 2008) or later is
-    assumed.</dd>
+    specified, then <code><b>10.0</b></code> (SQL Server 2008) is assumed by
+    this version of ODB.</dd>
 
     <dt><code><b>--mssql-short-limit</b></code> <code><i>size</i></code></dt>
     <dd>Specify the short data size limit. If a character, national character,

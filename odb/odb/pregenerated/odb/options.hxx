@@ -2017,6 +2017,21 @@ class options
   void
   mysql_engine_specified (bool);
 
+  const ::sqlite_version&
+  sqlite_version () const;
+
+  ::sqlite_version&
+  sqlite_version ();
+
+  void
+  sqlite_version (const ::sqlite_version&);
+
+  bool
+  sqlite_version_specified () const;
+
+  void
+  sqlite_version_specified (bool);
+
   const bool&
   sqlite_override_null () const;
 
@@ -2327,6 +2342,8 @@ class options
   bool trace_;
   std::string mysql_engine_;
   bool mysql_engine_specified_;
+  ::sqlite_version sqlite_version_;
+  bool sqlite_version_specified_;
   bool sqlite_override_null_;
   bool sqlite_lax_auto_id_;
   ::pgsql_version pgsql_server_version_;

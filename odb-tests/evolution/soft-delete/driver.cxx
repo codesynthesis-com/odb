@@ -52,8 +52,10 @@ main (int argc, char* argv[])
         {
           // SQLite has broken foreign keys when it comes to DDL.
           //
+          // @@ TMP Looks like not anymore?
+          //
 #ifdef DATABASE_SQLITE
-          db->connection ()->execute ("PRAGMA foreign_keys=OFF");
+          // db->connection ()->execute ("PRAGMA foreign_keys=OFF");
 #endif
           transaction t (db->begin ());
           schema_catalog::drop_schema (*db);
@@ -62,7 +64,7 @@ main (int argc, char* argv[])
           t.commit ();
 
 #ifdef DATABASE_SQLITE
-          db->connection ()->execute ("PRAGMA foreign_keys=ON");
+          // db->connection ()->execute ("PRAGMA foreign_keys=ON");
 #endif
         }
 
@@ -1428,9 +1430,9 @@ main (int argc, char* argv[])
                     i->str == "" && i->num == 123 &&
                     i->vec.empty () && i->ptr == 0);
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
@@ -1594,9 +1596,9 @@ main (int argc, char* argv[])
             result::iterator i (r.begin ());
             assert (i != r.end () && i->str == "" && i->num == 123);
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
@@ -1622,9 +1624,9 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             unique_ptr<object> p (db->load<object> (1));
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->load (*p, p->s); // No such column.
@@ -1691,9 +1693,9 @@ main (int argc, char* argv[])
             db->load (*i, i->s);
             assert (i->str == "" && i->num == 123 && i->vec.empty ());
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
@@ -1777,9 +1779,9 @@ main (int argc, char* argv[])
             object& o (static_cast<object&> (*i));
             assert (o.bstr == "" && o.dstr == "" && o.num == 123);
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<base> (query::bstr == "ab"); // No such column.
@@ -1802,9 +1804,9 @@ main (int argc, char* argv[])
             assert (i != r.end () &&
                     i->bstr == "" && i->dstr == "" && i->num);
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<object> (query::dstr == "abc"); // No such column.
@@ -1861,9 +1863,9 @@ main (int argc, char* argv[])
             transaction t (db->begin ());
             unique_ptr<base> p (db->load<base> (1));
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->load (*p, p->s); // No such column.
@@ -1932,9 +1934,9 @@ main (int argc, char* argv[])
             object& o (static_cast<object&> (*i));
             assert (o.bstr == "" && o.dstr == "" && o.num == 123);
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<base> (query::bstr == "ab"); // No such column.
@@ -1958,9 +1960,9 @@ main (int argc, char* argv[])
             assert (i != r.end () &&
                     i->bstr == "" && i->dstr == "" && i->num);
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<object> (query::dstr == "abc"); // No such column.
@@ -2058,9 +2060,9 @@ main (int argc, char* argv[])
             result::iterator i (r.begin ());
             assert (i != r.end () && i->str == "" && i->num == 123);
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
@@ -2122,9 +2124,9 @@ main (int argc, char* argv[])
             result::iterator i (r.begin ());
             assert (i != r.end () && i->str == "" && i->num == 123);
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
@@ -2178,9 +2180,9 @@ main (int argc, char* argv[])
             assert (i != r.end () && i->str == "" && i->num == 123);
             id = i->id;
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<object> (query::str == "abc"); // No such column.
@@ -2254,9 +2256,9 @@ main (int argc, char* argv[])
             result::iterator i (r.begin ());
             assert (i != r.end () && i->v.get () == 0 && i->num == 123);
 
-            // Logical delete in SQLite.
+            // Logical delete in SQLite prior to 3.35.0.
             //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3035000
             try
             {
               db->query<object> (query::v.str == "abc"); // No such column.

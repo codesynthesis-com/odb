@@ -997,13 +997,24 @@ class options
   // SQLite-specific options.
   //
 
+  ::sqlite_version --sqlite-version (3, 7, 4)
+  {
+    "<ver>",
+    "Specify the minimum SQLite version with which the generated C++ code will
+     be linked. This information is used to enable version-specific features
+     and workarounds in the generated C++ code and schema. The version must be
+     in the \c{\i{major}\b{.}\i{minor}\b{.}\i{patch}} form, for example,
+     \cb{3.53.2}. If this option is not specified, then \cb{3.7.4} is
+     assumed by this version of ODB."
+  };
+
   bool --sqlite-override-null
   {
-    "Make all columns in the generated database schema allow \cb{NULL}
-     values. This is primarily useful in schema migration since SQLite
-     does not support dropping of columns. By making all columns \cb{NULL}
-     we can later \"delete\" them by setting their values to \cb{NULL}.
-     Note that this option overrides even the \cb{not_null} pragma."
+    "Make all columns in the generated database schema allow \cb{NULL} values.
+     This is primarily useful in schema migration since SQLite versions prior
+     to \cb{3.35.0} do not support dropping of columns. By making all columns
+     \cb{NULL} we can later \"delete\" them by setting their values to
+     \cb{NULL}. Note that this option overrides even the \cb{not_null} pragma."
   };
 
   bool --sqlite-lax-auto-id

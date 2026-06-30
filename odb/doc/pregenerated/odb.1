@@ -596,12 +596,19 @@ Use \fIengine\fR instead of the default \fBInnoDB\fR in the generated database
 schema file\. For more information on the storage engine options see the MySQL
 documentation\. If you would like to use the database-default engine, pass
 \fBdefault\fR as the value for this option\.
+.IP "\fB--sqlite-version\fR \fIver\fR"
+Specify the minimum SQLite version with which the generated C++ code will be
+linked\. This information is used to enable version-specific features and
+workarounds in the generated C++ code and schema\. The version must be in the
+\fImajor\fR\fB\.\fR\fIminor\fR\fB\.\fR\fIpatch\fR\fR form, for example,
+\fB3\.53\.2\fR\. If this option is not specified, then \fB3\.7\.4\fR is
+assumed by this version of ODB\.
 .IP "\fB--sqlite-override-null\fR"
 Make all columns in the generated database schema allow \fBNULL\fR values\.
-This is primarily useful in schema migration since SQLite does not support
-dropping of columns\. By making all columns \fBNULL\fR we can later "delete"
-them by setting their values to \fBNULL\fR\. Note that this option overrides
-even the \fBnot_null\fR pragma\.
+This is primarily useful in schema migration since SQLite versions prior to
+\fB3\.35\.0\fR do not support dropping of columns\. By making all columns
+\fBNULL\fR we can later "delete" them by setting their values to \fBNULL\fR\.
+Note that this option overrides even the \fBnot_null\fR pragma\.
 .IP "\fB--sqlite-lax-auto-id\fR"
 Do not force monotonically increasing automatically-assigned object ids\. In
 this mode the generated database schema omits the \fBAUTOINCREMENT\fR keyword
@@ -613,15 +620,15 @@ Specify the minimum PostgreSQL server version with which the generated C++
 code and schema will be used\. This information is used to enable
 version-specific optimizations and workarounds in the generated C++ code and
 schema\. The version must be in the \fImajor\fR\fB\.\fR\fIminor\fR\fR form,
-for example, \fB9\.1\fR\. If this option is not specified, then \fB7\.4\fR or
-later is assumed\.
+for example, \fB17\.0\fR\. If this option is not specified, then \fB9\.1\fR is
+assumed by this version of ODB\.
 .IP "\fB--oracle-client-version\fR \fIver\fR"
 Specify the minimum Oracle client library (OCI) version with which the
 generated C++ code will be linked\. This information is used to enable
 version-specific optimizations and workarounds in the generated C++ code\. The
 version must be in the \fImajor\fR\fB\.\fR\fIminor\fR\fR form, for example,
-\fB11\.2\fR\. If this option is not specified, then \fB10\.1\fR or later is
-assumed\.
+\fB11\.2\fR\. If this option is not specified, then \fB10\.1\fR is assumed by
+this version of ODB\.
 .IP "\fB--oracle-warn-truncation\fR"
 Warn about SQL names that are longer than 30 characters and are therefore
 truncated\. Note that during database schema generation
@@ -634,7 +641,7 @@ version-specific optimizations and workarounds in the generated C++ code and
 schema\. The version must be in the \fImajor\fR\fB\.\fR\fIminor\fR\fR form,
 for example, \fB9\.0\fR (SQL Server 2005), \fB10\.5\fR (2008R2), or
 \fB11\.0\fR (2012)\. If this option is not specified, then \fB10\.0\fR (SQL
-Server 2008) or later is assumed\.
+Server 2008) is assumed by this version of ODB\.
 .IP "\fB--mssql-short-limit\fR \fIsize\fR"
 Specify the short data size limit\. If a character, national character, or
 binary data type has a maximum length (in bytes) less than or equal to this

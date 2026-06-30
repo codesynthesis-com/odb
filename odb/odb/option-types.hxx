@@ -176,6 +176,92 @@ operator>> (std::istream&, name_case&);
 
 //
 //
+struct sqlite_version
+{
+  sqlite_version (unsigned short major,
+                  unsigned short minor,
+                  unsigned short patch)
+      : major_ (major), minor_ (minor), patch_ (patch)
+  {
+  }
+
+  unsigned short
+  ver_major () const
+  {
+    return major_;
+  }
+
+  unsigned short
+  ver_minor () const
+  {
+    return minor_;
+  }
+
+  unsigned short
+  ver_patch () const
+  {
+    return patch_;
+  }
+
+  // Return SQLITE_VERSION_NUMBER for this version.
+  //
+  unsigned int
+  ver_number () const
+  {
+    return (static_cast<unsigned int> (major_) * 1000000U +
+            static_cast<unsigned int> (minor_) * 1000U    +
+            static_cast<unsigned int> (patch_));
+  }
+
+private:
+  unsigned short major_;
+  unsigned short minor_;
+  unsigned short patch_;
+};
+
+inline bool
+operator< (const sqlite_version& x, const sqlite_version& y)
+{
+  return x.ver_major () < y.ver_major () ||
+    (x.ver_major () == y.ver_major () &&
+     x.ver_minor () <  y.ver_minor ()) ||
+    (x.ver_major () == y.ver_major () &&
+     x.ver_minor () == y.ver_minor () &&
+     x.ver_patch () <  y.ver_patch ());
+}
+
+inline bool
+operator> (const sqlite_version& x, const sqlite_version& y)
+{
+  return x.ver_major () > y.ver_major () ||
+    (x.ver_major () == y.ver_major () &&
+     x.ver_minor () >  y.ver_minor ()) ||
+    (x.ver_major () == y.ver_major () &&
+     x.ver_minor () == y.ver_minor () &&
+     x.ver_patch () >  y.ver_patch ());
+}
+
+inline bool
+operator<= (const sqlite_version& x, const sqlite_version& y)
+{
+  return !(x > y);
+}
+
+inline bool
+operator>= (const sqlite_version& x, const sqlite_version& y)
+{
+  return !(x < y);
+}
+
+std::istream&
+operator>> (std::istream&, sqlite_version&);
+
+std::ostream&
+operator<< (std::ostream&, sqlite_version);
+
+
+//
+//
 struct pgsql_version
 {
   pgsql_version (unsigned short major, unsigned short minor)
@@ -199,18 +285,6 @@ private:
   unsigned short major_;
   unsigned short minor_;
 };
-
-inline bool
-operator== (const pgsql_version& x, const pgsql_version& y)
-{
-  return x.ver_major () == y.ver_major ();
-}
-
-inline bool
-operator!= (const pgsql_version& x, const pgsql_version& y)
-{
-  return !(x == y);
-}
 
 inline bool
 operator< (const pgsql_version& x, const pgsql_version& y)
@@ -273,18 +347,6 @@ private:
 };
 
 inline bool
-operator== (const oracle_version& x, const oracle_version& y)
-{
-  return x.ver_major () == y.ver_major ();
-}
-
-inline bool
-operator!= (const oracle_version& x, const oracle_version& y)
-{
-  return !(x == y);
-}
-
-inline bool
 operator< (const oracle_version& x, const oracle_version& y)
 {
   return x.ver_major () < y.ver_major () ||
@@ -343,18 +405,6 @@ private:
   unsigned short major_;
   unsigned short minor_;
 };
-
-inline bool
-operator== (const mssql_version& x, const mssql_version& y)
-{
-  return x.ver_major () == y.ver_major ();
-}
-
-inline bool
-operator!= (const mssql_version& x, const mssql_version& y)
-{
-  return !(x == y);
-}
 
 inline bool
 operator< (const mssql_version& x, const mssql_version& y)

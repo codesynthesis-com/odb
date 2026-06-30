@@ -20,6 +20,8 @@ hxx{config}: in{config}
   DATABASE_ORACLE = $oracle
   DATABASE_MSSQL  = $mssql
   MULTI_DATABASE  = $multi
+
+  DATABASE_SQLITE_VERSION  = ($null($sqlite_version) ? false : $sqlite_version)
 }
 
 # Build options.

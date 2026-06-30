@@ -963,6 +963,8 @@ options ()
   trace_ (),
   mysql_engine_ ("InnoDB"),
   mysql_engine_specified_ (false),
+  sqlite_version_ (3, 7, 4),
+  sqlite_version_specified_ (false),
   sqlite_override_null_ (),
   sqlite_lax_auto_id_ (),
   pgsql_server_version_ (9, 1),
@@ -1177,6 +1179,8 @@ options (int& argc,
   trace_ (),
   mysql_engine_ ("InnoDB"),
   mysql_engine_specified_ (false),
+  sqlite_version_ (3, 7, 4),
+  sqlite_version_specified_ (false),
   sqlite_override_null_ (),
   sqlite_lax_auto_id_ (),
   pgsql_server_version_ (9, 1),
@@ -1394,6 +1398,8 @@ options (int start,
   trace_ (),
   mysql_engine_ ("InnoDB"),
   mysql_engine_specified_ (false),
+  sqlite_version_ (3, 7, 4),
+  sqlite_version_specified_ (false),
   sqlite_override_null_ (),
   sqlite_lax_auto_id_ (),
   pgsql_server_version_ (9, 1),
@@ -1611,6 +1617,8 @@ options (int& argc,
   trace_ (),
   mysql_engine_ ("InnoDB"),
   mysql_engine_specified_ (false),
+  sqlite_version_ (3, 7, 4),
+  sqlite_version_specified_ (false),
   sqlite_override_null_ (),
   sqlite_lax_auto_id_ (),
   pgsql_server_version_ (9, 1),
@@ -1830,6 +1838,8 @@ options (int start,
   trace_ (),
   mysql_engine_ ("InnoDB"),
   mysql_engine_specified_ (false),
+  sqlite_version_ (3, 7, 4),
+  sqlite_version_specified_ (false),
   sqlite_override_null_ (),
   sqlite_lax_auto_id_ (),
   pgsql_server_version_ (9, 1),
@@ -2045,6 +2055,8 @@ options (::cli::scanner& s,
   trace_ (),
   mysql_engine_ ("InnoDB"),
   mysql_engine_specified_ (false),
+  sqlite_version_ (3, 7, 4),
+  sqlite_version_specified_ (false),
   sqlite_override_null_ (),
   sqlite_lax_auto_id_ (),
   pgsql_server_version_ (9, 1),
@@ -2404,6 +2416,9 @@ print_usage (::std::ostream& os, ::cli::usage_para p)
 
   os << "--mysql-engine <engine>       Use <engine> instead of the default InnoDB in the" << ::std::endl
      << "                              generated database schema file." << ::std::endl;
+
+  os << "--sqlite-version <ver>        Specify the minimum SQLite version with which the" << ::std::endl
+     << "                              generated C++ code will be linked." << ::std::endl;
 
   os << "--sqlite-override-null        Make all columns in the generated database schema" << ::std::endl
      << "                              allow NULL values." << ::std::endl;
@@ -3443,6 +3458,15 @@ fill (::cli::options& os)
     os.push_back (o);
   }
 
+  // --sqlite-version
+  //
+  {
+    ::cli::option_names a;
+    std::string dv;
+    ::cli::option o ("--sqlite-version", a, false, dv);
+    os.push_back (o);
+  }
+
   // --sqlite-override-null
   //
   {
@@ -3845,6 +3869,9 @@ struct _cli_options_map_init
     _cli_options_map_["--mysql-engine"] =
     &::cli::thunk< options, std::string, &options::mysql_engine_,
       &options::mysql_engine_specified_ >;
+    _cli_options_map_["--sqlite-version"] =
+    &::cli::thunk< options, ::sqlite_version, &options::sqlite_version_,
+      &options::sqlite_version_specified_ >;
     _cli_options_map_["--sqlite-override-null"] =
     &::cli::thunk< options, &options::sqlite_override_null_ >;
     _cli_options_map_["--sqlite-lax-auto-id"] =

@@ -34,6 +34,10 @@ depends: libboost-date-time   ? ($boost)
 
 depends: libQt6Core ? ($qt && $qt_ver == 6)
 
+# Get hold of SQLite to extract SQLITE_VERSION_NUMBER.
+#
+depends: libsqlite3 ? ($sqlite)
+
 # Reflect whether libodb-pgsql is likely to support bulk operations. This is
 # normally the case if libodb-pgsql is linked against libpq of the version 14
 # or above.

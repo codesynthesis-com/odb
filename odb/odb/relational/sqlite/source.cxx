@@ -466,6 +466,28 @@ namespace relational
         }
       };
       entry<class_> class_entry_;
+
+      struct include: relational::include, context
+      {
+        include (base const& x): base (x) {}
+
+        virtual void
+        extra_post ()
+        {
+          sqlite_version v (options.sqlite_version ());
+
+          os << endl
+             << "#include <odb/sqlite/details/config.hxx>" << endl // version
+             << endl
+             << "#if SQLITE_VERSION_NUMBER < " << v.ver_number () << endl
+             << "#error SQLite version " << v << " or later expected, " <<
+            "override with --sqlite-version ODB compiler option"
+             << endl
+             << "#endif" << endl
+             << endl;
+        }
+      };
+      entry<include> include_;
     }
   }
 }

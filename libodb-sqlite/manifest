@@ -18,8 +18,12 @@ requires: c++11
 depends: * build2 >= 0.18.0-
 depends: * bpkg >= 0.18.0-
 
+# Note: if updating the version here, also search for other places including
+# using numeric (3007004) and constructor (3, 7, 4) representations.
+#
 depends: libsqlite3 ^3.7.4
 depends: sqlite3 ^3.7.4 ? ($config.libodb_sqlite.sqlite3)
+
 depends: libodb == $
 depends: * cli ^1.2.0 ? ($config.libodb_sqlite.develop)
 

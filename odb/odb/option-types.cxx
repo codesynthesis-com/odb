@@ -232,6 +232,66 @@ operator>> (istream& is, name_case& v)
 }
 
 //
+// sqlite_version
+//
+
+istream&
+operator>> (istream& is, sqlite_version& v)
+{
+  unsigned short major, minor, patch;
+
+  // Extract the major version.
+  //
+  is >> major;
+
+  if (!is.fail ())
+  {
+    // Extract the first decimal point.
+    //
+    char p;
+    is >> p;
+
+    if (!is.fail () && p == '.')
+    {
+      // Extract the minor version.
+      //
+      is >> minor;
+
+      if (!is.fail ())
+      {
+        // Extract the second decimal point.
+        //
+        is >> p;
+
+        if (!is.fail () && p == '.')
+        {
+          // Extract the patch version.
+          //
+          is >> patch;
+
+          if (!is.fail ())
+            v = sqlite_version (major, minor, patch);
+        }
+        else
+          is.setstate (istream::failbit);
+      }
+    }
+    else
+      is.setstate (istream::failbit);
+  }
+
+  return is;
+}
+
+ostream&
+operator<< (ostream& os, sqlite_version v)
+{
+  return os << v.ver_major () << '.'
+            << v.ver_minor () << '.'
+            << v.ver_patch ();
+}
+
+//
 // pgsql_version
 //
 

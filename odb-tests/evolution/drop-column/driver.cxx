@@ -59,11 +59,13 @@ main (int argc, char* argv[])
         object o (1);
         o.str = "abc";
         o.num = 123;
-        o.ptr = new object1 (1, 2);
+        o.ptr1 = new object1 (1);
+        o.ptr2 = new object2 (1, 2);
 
         {
           transaction t (db->begin ());
-          db->persist (*o.ptr);
+          db->persist (*o.ptr1);
+          db->persist (*o.ptr2);
           db->persist (o);
           t.commit ();
         }
@@ -88,7 +90,8 @@ main (int argc, char* argv[])
 
           assert (p->str == "abc");
           assert (p->num == 123);
-          assert (p->ptr->id.x == 1 && p->ptr->id.y == 2);
+          assert (p->ptr1->id == 1);
+          assert (p->ptr2->id.x == 1 && p->ptr2->id.y == 2);
 
           t.commit ();
         }
@@ -110,8 +113,9 @@ main (int argc, char* argv[])
         {
           transaction t (db->begin ());
           unique_ptr<object> p (db->load<object> (1));
-          assert (p->str == "" && p->ptr == 0);
-          db->erase<object1> (value (1, 2)); // SQLite logical delete test.
+          assert (p->str == "" && p->ptr1 == nullptr && p->ptr2 == nullptr);
+          db->erase<object1> (1);            // SQLite logical delete test.
+          db->erase<object2> (value (1, 2)); // SQLite logical delete test.
           t.commit ();
         }
         break;

@@ -3309,6 +3309,36 @@ mysql_engine_specified (bool x)
   this->mysql_engine_specified_ = x;
 }
 
+inline const ::sqlite_version& options::
+sqlite_version () const
+{
+  return this->sqlite_version_;
+}
+
+inline ::sqlite_version& options::
+sqlite_version ()
+{
+  return this->sqlite_version_;
+}
+
+inline void options::
+sqlite_version (const ::sqlite_version& x)
+{
+  this->sqlite_version_ = x;
+}
+
+inline bool options::
+sqlite_version_specified () const
+{
+  return this->sqlite_version_specified_;
+}
+
+inline void options::
+sqlite_version_specified (bool x)
+{
+  this->sqlite_version_specified_ = x;
+}
+
 inline const bool& options::
 sqlite_override_null () const
 {

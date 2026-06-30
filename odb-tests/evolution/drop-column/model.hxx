@@ -28,7 +28,16 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
   #pragma db object
   struct object1
   {
-    object1 (int x = 0, int y = 0): id (x, y) {}
+    object1 (int i = 0): id (i) {}
+
+    #pragma db id
+    int id;
+  };
+
+  #pragma db object
+  struct object2
+  {
+    object2 (int x = 0, int y = 0): id (x, y) {}
 
     #pragma db id
     value id;
@@ -37,21 +46,23 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
   #pragma db object
   struct object
   {
-    object (unsigned long id = 0): id_ (id), ptr (0) {}
-    ~object () {delete ptr;}
+    object (unsigned long id = 0): id_ (id), ptr1 (nullptr), ptr2 (nullptr) {}
+    ~object () {delete ptr1; delete ptr2;}
 
     #pragma db id
     unsigned long id_;
 
     std::string str;
     unsigned long num;
-    object1* ptr;
+    object1* ptr1;
+    object2* ptr2; // Separate FK constraint.
   };
 
 #if MODEL_VERSION == 3
   #pragma db member(object::str) deleted(3)
   #pragma db member(object::num) deleted(3)
-  #pragma db member(object::ptr) deleted(3)
+  #pragma db member(object::ptr1) deleted(3)
+  #pragma db member(object::ptr2) deleted(3)
 #endif
 }
 

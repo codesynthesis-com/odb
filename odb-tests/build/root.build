@@ -12,53 +12,6 @@ ixx{*}: extension = ixx
 txx{*}: extension = txx
 cxx{*}: extension = cxx
 
-# Suppress bogus warnings in older versions of GCC.
-#
-if ($cxx.id == 'gcc')
-{
-  # std::optional causes bogus -Wmaybe-uninitialized in GCC 10, 11.
-  #
-  if ($cxx.version.major < 12)
-    cxx.coptions += -Wno-maybe-uninitialized
-}
-
-# Extract certain predefined compiler macros, such as __cplusplus, which are
-# used to decide test configurations (e.g., the --std option to pass to the
-# ODB compiler).
-#
-if! $skeleton
-{
-  using cxx.predefs
-
-  # Note: buildfile{predefs} cleaned in root buildfile.
-
-  [rule_hint=cxx.predefs] buildfile{predefs}:
-  {
-    cxx.predefs.macros = __cplusplus@cplusplus
-  }
-  % update
-  if ($cxx.id == 'msvc' && \
-      ($cxx.version.major < 19 || \
-       ($cxx.version.major == 19 && $cxx.version.minor < 20)))
-  {{
-    diag c++-predefs $>
-
-    cat <<EOF >$path($>)
-      cplusplus = [int64] 201103
-      EOF
-  }}
-
-  if ($build.meta_operation == 'perform')
-  {
-    update buildfile{predefs}
-    source $path(buildfile{predefs})
-  }
-  else
-  {
-    cplusplus = [int64] 0
-  }
-}
-
 define sql: file
 sql{*}: extension = sql
 
@@ -285,6 +238,82 @@ assert (!$defined(config.odb_tests.mssql.server) || \
 #
 config [string, null] config.odb_tests.mssql.driver
 
+# Extract certain compiler macros, such as __cplusplus, which are used to
+# decide test configurations (e.g., the --std option to pass to the ODB
+# compiler).
+#
+if! $skeleton
+{
+  using cxx.predefs
+
+  # Note: buildfile{predefs} cleaned in root buildfile.
+
+  [rule_hint=cxx.predefs] buildfile{predefs}:
+  {
+    cxx.predefs.macros = __cplusplus@cplusplus
+  }
+
+  # Extract SQLITE_VERSION_NUMBER if SQLite use is configured.
+  #
+  buildfile{predefs}: hxx{sqlite-predefs}: include = $sqlite
+
+  if $sqlite
+  {
+    import! [rule_hint=cxx.link] libsqlite3 = libsqlite3%lib{sqlite3}
+
+    buildfile{predefs}:
+    {
+      cxx.predefs.macros += SQLITE_VERSION_NUMBER@sqlite_version
+
+      # Preprocessor options might be needed to find sqlite3.h.
+      #
+      cxx.predefs.poptions = true
+
+      # @@ TMP ugly hack until the predefs rule handles libraries. See
+      # build2 GH issue #544.
+      #
+      cxx.poptions += $($libsqlite3: cc.export.poptions)
+    }
+  }
+  else
+    sqlite_version = [null]
+
+  buildfile{predefs}:
+  % update
+  if ($cxx.id == 'msvc'                  ? ($cxx.version.major <  19 ||   \
+                                           ($cxx.version.major == 19 &&   \
+                                            $cxx.version.minor <  20))  : \
+      $sqlite && $cxx.id.type == 'clang' ? $cxx.version.major < 12      : \
+      false)
+  {{
+    diag c++-predefs $>
+
+    f = $path($>)
+
+    cat <<EOF >$f
+      cplusplus = [int64] 201103
+      EOF
+
+    if $sqlite
+      echo 'sqlite_version = [uint64] 3007004' >>$f # Earliest we support.
+  }}
+
+  if ($build.meta_operation == 'perform')
+  {
+    update buildfile{predefs}
+    source $path(buildfile{predefs})
+  }
+  else
+  {
+    cplusplus = [int64] 0
+
+    if $sqlite
+      sqlite_version = [uint64] 0
+  }
+}
+
+# Project-wide options, imports, and rules.
+#
 if! $skeleton
 {
   if ($cxx.target.system == 'win32-msvc')
@@ -295,6 +324,16 @@ if! $skeleton
     case 'gcc'
     {
       cxx.coptions += -Wno-unknown-pragmas
+
+      # Suppress bogus warnings in older versions of GCC.
+      #
+      if ($cxx.id == 'gcc')
+      {
+        # std::optional causes bogus -Wmaybe-uninitialized in GCC 10, 11.
+        #
+        if ($cxx.version.major < 12)
+          cxx.coptions += -Wno-maybe-uninitialized
+      }
     }
     case 'msvc'
     {
@@ -373,6 +412,17 @@ if! $skeleton
 
     if ($db == '') # *-odb.?xx target group?
       db = ($multi ? 'common' : $databases[0])
+
+    extra_odb_options = [strings]
+
+    if $sqlite
+    {
+      extra_odb_options += --sqlite-version \
+        $regex.replace( \
+          $regex.replace($sqlite_version, \
+                         '^([3-9])([0-9][0-9][0-9])([0-9][0-9][0-9])$', \
+                         '\1.\2.\3'), '\.0{1,2}', '.')
+    }
 
     # If the external SQL schema file will be generated, then add it as a
     # dynamic target group member.
@@ -455,6 +505,7 @@ if! $skeleton
          --database $db                         \
          --output-dir $out_base                 \
          $odb_options                           \
+         $extra_odb_options                     \
          "-I$src_base"                          \
          $pops                                  \
          $path($<[0])
