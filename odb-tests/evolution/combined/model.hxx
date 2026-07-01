@@ -71,17 +71,21 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 
     odb::nullable<unsigned long> ac2;
 
-    // Initially added as NULL, converted to NOT NULL. Not supported by SQLite.
+    // Initially added as NULL, converted to NOT NULL.
     //
-#ifndef DATABASE_SQLITE
+    // Only supported by SQLite version 3.53.0 and later.
+    //
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
     #pragma db not_null
     odb::nullable<unsigned long> ac3;
 #endif
 #endif
 
-    // Alter column NULL. Not supported by SQLite.
+    // Alter column NULL.
     //
-#ifndef DATABASE_SQLITE
+    // Only supported by SQLite version 3.53.0 and later.
+    //
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
 #if MODEL_VERSION == 2
     unsigned long acn;
 #else
@@ -121,15 +125,17 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     std::vector<unsigned long> dt;
 #endif
 
-    // Drop column. Logical drop (set NULL) in SQLite.
+    // Drop column. Logical drop (set NULL) in SQLite prior to 3.35.0.
     //
 #if MODEL_VERSION == 2
     unsigned long dc;
 #endif
 
-    // Alter column NOT NULL. Not supported by SQLite.
+    // Alter column NOT NULL.
     //
-#ifndef DATABASE_SQLITE
+    // Only supported by SQLite version 3.53.0 and later.
+    //
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
 #if MODEL_VERSION == 3
     #pragma db not_null
 #endif

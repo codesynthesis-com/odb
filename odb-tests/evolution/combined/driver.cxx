@@ -66,9 +66,12 @@ main (int argc, char* argv[])
 
 #ifndef DATABASE_SQLITE
         o.dfk = new object1 (1);
+        o.afk = 1;
+#endif
+
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
         o.acn = 1;
         o.acnn.reset ();
-        o.afk = 1;
 #endif
 
         {
@@ -99,7 +102,7 @@ main (int argc, char* argv[])
           assert (p->ac1 == 999);
           assert (!p->ac2);
 
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
           assert (!p->ac3);
 #endif
           // Migrate.
@@ -108,6 +111,9 @@ main (int argc, char* argv[])
 
 #ifndef DATABASE_SQLITE
           p->dfk = 999;
+#endif
+
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
           p->ac3 = 1;
           p->acn.reset ();
           p->acnn = 1;
@@ -139,6 +145,9 @@ main (int argc, char* argv[])
 
 #ifndef DATABASE_SQLITE
           assert (p->dfk == 999);
+#endif
+
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
           assert (*p->ac3 == 1);
           assert (!p->acn);
           assert (*p->acnn == 1);

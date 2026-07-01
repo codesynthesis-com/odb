@@ -50,8 +50,16 @@ if! $sqlite
 }
 else
 {
-  # Note that SQLite doesn't support altering of columns and so the driver is
-  # trivial. We, however, still run it once for good measure.
+  # Note that SQLite prio to version 3.53.0 doesn't support altering of
+  # columns and so the driver is trivial. We, however, still run it once for
+  # good measure.
   #
-  $* 1
+  if ($sqlite_version >= 3053000)
+  {
+    $* 1 &odb-test.db
+    $* 2
+    $* 3
+  }
+  else
+    $* 1
 }

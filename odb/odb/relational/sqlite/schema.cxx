@@ -185,10 +185,11 @@ namespace relational
           os << "ALTER TABLE " << quote_id (at.name ()) << endl
              << "  ADD COLUMN ";
 
-          // In SQLite it is impossible to alter a column later, so unless
-          // it has a default value, we add it as NULL. Without this, it
-          // will be impossible to add a column to a table that contains
-          // some rows.
+          // In SQLite prior to 3.53.0 it is impossible to alter a column
+          // later, so unless it has a default value, we add it as NULL (the
+          // standard behavior) but never change it to NOT NULL later. Without
+          // this, it will be impossible to add a column to a table that
+          // contains some rows.
           //
           create (ac);
 
@@ -324,6 +325,35 @@ namespace relational
       // Alter.
       //
 
+      struct alter_column: relational::alter_column
+      {
+        alter_column (relational::common const& c, bool pre)
+            : relational::alter_column (c, pre) {}
+
+        virtual void
+        traverse (sema_rel::column& c)
+        {
+          // Relax (NULL) in pre and tighten (NOT NULL) in post.
+          //
+          if (pre_ != c.null ())
+            return;
+
+          // SQLite can only alter a single column per ALTER TABLE statement.
+          //
+          sema_rel::table& t (static_cast<sema_rel::table&> (c.scope ()));
+
+          pre_statement ();
+
+          os << "ALTER TABLE " << quote_id (t.name ()) << endl
+             << "  ALTER COLUMN " << quote_id (c.name ()) << " " <<
+            (c.null () ? "DROP" : "SET") << " NOT NULL";
+
+          os << endl;
+          post_statement ();
+        }
+      };
+      // Not registered as an override.
+
       struct alter_table_pre: relational::alter_table_pre, context
       {
         alter_table_pre (base const& x): base (x) {}
@@ -331,29 +361,41 @@ namespace relational
         virtual void
         alter (sema_rel::alter_table& at)
         {
+          sqlite_version v (options.sqlite_version ());
+
           // SQLite can only add a single column per ALTER TABLE statement.
           //
-          instance<create_column> cc (*this);
-          trav_rel::unames n (*cc);
-          names (at, n);
-
-          // SQLite does not support altering columns.
-          //
-          if (sema_rel::alter_column* ac = check<sema_rel::alter_column> (at))
           {
-            cerr << "error: SQLite does not support altering of columns"
-                 << endl;
+            instance<create_column> cc (*this);
+            trav_rel::unames n (*cc);
+            names (at, n);
+          }
+
+          // SQLite supports altering columns from version 3.53.0.
+          //
+          if (v >= sqlite_version (3, 53, 0))
+          {
+            alter_column ac (*this, true /* pre */);
+            trav_rel::unames n (ac);
+            names (at, n);
+          }
+          else if (auto* ac = check<sema_rel::alter_column> (at))
+          {
+            cerr << "error: SQLite prior to version 3.53.0 does not " <<
+              "support altering of columns" << endl;
+            cerr << "info: assumed minimum SQLite version is " << v <<
+              ", override with --sqlite-version ODB compiler option";
             cerr << "info: first altered column is '" << ac->name () <<
               "' in table '" << at.name () << "'" << endl;
             throw operation_failed ();
           }
 
-          // SQLite does not support dropping constraints. We are going to
-          // ignore this if the column is NULL'able since in most cases
-          // the constraint is going to be dropped as a result of the
-          // column drop (e.g., an object pointer member got deleted).
-          // If we were not to allow this, then it would be impossible
-          // to do logical drop for pointer columns.
+          // SQLite does not support dropping foreign key constraints. We are
+          // going to ignore this if the column is NULL'able since in most
+          // cases the constraint is going to be dropped as a result of the
+          // column drop (e.g., an object pointer member got deleted).  If we
+          // were not to allow this, then it would be impossible to do logical
+          // drop for pointer columns.
           //
           for (sema_rel::alter_table::names_iterator i (at.names_begin ());
                i != at.names_end (); ++i)
@@ -419,14 +461,23 @@ namespace relational
         {
           sqlite_version v (options.sqlite_version ());
 
-          // SQLite does not support altering columns (we have to do this
-          // in both alter_table_pre/post because of the
-          // check_alter_column_null() test in the common code).
+          // SQLite supports altering columns from version 3.53.0.
           //
-          if (sema_rel::alter_column* ac = check<sema_rel::alter_column> (at))
+          if (v >= sqlite_version (3, 53, 0))
           {
-            cerr << "error: SQLite does not support altering of columns"
-                 << endl;
+            alter_column ac (*this, false /* pre */);
+            trav_rel::unames n (ac);
+            names (at, n);
+          }
+          // Note: we have to do this in both alter_table_pre/post because of
+          // the check_alter_column_null() test in the common code.
+          //
+          else if (auto* ac = check<sema_rel::alter_column> (at))
+          {
+            cerr << "error: SQLite prior to version 3.53.0 does not " <<
+              "support altering of columns" << endl;
+            cerr << "info: assumed minimum SQLite version is " << v <<
+              ", override with --sqlite-version ODB compiler option";
             cerr << "info: first altered column is '" << ac->name () <<
               "' in table '" << at.name () << "'" << endl;
             throw operation_failed ();

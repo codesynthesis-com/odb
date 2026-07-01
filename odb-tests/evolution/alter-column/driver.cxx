@@ -33,9 +33,7 @@ main (int argc, char* argv[])
 
     db->schema_version_table (quote_name ("evo_alter_c_sv"));
 
-    // SQLite doesn't support altering of columns.
-    //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
     bool embedded (schema_catalog::exists (*db));
 
     // 1 - base version

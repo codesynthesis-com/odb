@@ -27,9 +27,9 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
     #pragma db id
     unsigned long id_;
 
-    // SQLite doesn't support altering of columns.
+    // Only supported by SQLite version 3.53.0 and later.
     //
-#ifndef DATABASE_SQLITE
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
 #if MODEL_VERSION == 2
     odb::nullable<std::string> str;
 
