@@ -757,6 +757,13 @@ traverse_column (semantics::data_member& m, string const& column, bool)
   // mapped wrapper type, whose wrapped type is mapped to the wrapped type of
   // the interface type. Unwrap the mapped wrapper type as well in this case.
   //
+  // If a wrapped mapped type is mapped to a non-wrapped interface type, then
+  // use the wrapped mapped type in the query. As an example, consider mapping
+  // of optional<int> to string where the NULL int is represented as an empty
+  // string. In this case it makes sense to compare, say, equal, to NULL int
+  // since underneath it will be translated to comparison to empty string, not
+  // SQL NULL.
+  //
   string tn;
 
   semantics::names* whint;
@@ -766,15 +773,58 @@ traverse_column (semantics::data_member& m, string const& column, bool)
     {
       tn = wrapped_fq_name (*wt, whint, t, hint); // Unwrap not-mapped type.
     }
-    else if (semantics::type* mwt = wrapper (*translation->type))
+    else
     {
-      if (const custom_cxx_type* ct = mapped (*mwt, m.scope ()))
+      semantics::type& mt (*translation->type); // Mapped type.
+
+      if (semantics::type* mwt = wrapper (mt)) // Unrapped mapped type.
       {
-        if (ct->as == wt)
+        // Get the mapping between the unwrapped types.
+        //
+        const custom_cxx_type* ct (mapped (*mwt, m.scope ()));
+
+        if (ct == nullptr ||  // No mapping.
+            ct->as != wt)     // Unwrapped interface type doesn't match.
         {
-          tn = wrapped_fq_name (*wt, whint, t, hint); // Unwrap interface type.
-          translation = ct;                           // Unwrap mapped type.
+          if (ct == nullptr)
+          {
+            cerr << translation.loc << " error: no mapping for unwrapped type "
+                 << mwt << endl;
+          }
+          else
+          {
+            cerr << ct->loc << " error: unwrapped type mapping " << mwt
+                 << "does not match wrapped mapping for " << mt << endl;
+
+            cerr << translation.loc << " info: wrapped mapping is defined here"
+                 << endl;
+          }
+
+          cerr << m.loc << " info: unwrapped mapping is required by " <<
+            "query column for data member " << m.name () << endl;
+
+          throw failed;
         }
+
+        tn = wrapped_fq_name (*wt, whint, t, hint); // Unwrap interface.
+        translation = ct;                           // Unwrap mapped type.
+      }
+      else
+      {
+        // Interface type is a wrapper but the mapped type is not. For
+        // example, we map a enum to optional<string> with one of its
+        // enumerators represented as NULL. Which means that the user will
+        // have to use is_null()/is_not_null() in the queries and comparing to
+        // the NULL value of the enum will gave no effect. Failing feels
+        // drastic so let's issue a warning. Potentially we could handle the
+        // translation in the generated code one day.
+        //
+        cerr << m.loc  << " warning: use is_null()/is_not_null() in " <<
+          " queries for value of type " << mt << " that is mapped to NULL"
+             << endl;
+
+        cerr << translation.loc << " info: because " << mt << " is mapped to "
+             << " wrapper " << t << endl;
       }
     }
   }
