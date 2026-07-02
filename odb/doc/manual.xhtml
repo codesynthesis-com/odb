@@ -21268,10 +21268,15 @@ t.commit ();
   <hr class="page-break"/>
   <h1><a name="18">18 SQLite Database</a></h1>
 
-  <p>To generate support code for the SQLite database you will need
-     to pass the "<code>--database&nbsp;sqlite</code>"
-     (or "<code>-d&nbsp;sqlite</code>") option to the ODB compiler.
-     Your application will also need to link to the SQLite ODB runtime
+  <p>To generate support code for the SQLite database you will need to pass
+     the "<code>--database&nbsp;sqlite</code>" (or
+     "<code>-d&nbsp;sqlite</code>") option to the ODB compiler. Additionally,
+     it is recommended to specify the minimum supported (by your application)
+     SQLite version with the <code>--sqlite-version</code> ODB compiler option
+     in order to enable version-specific features and omit unnecessary
+     workarounds in the generated C++ code and database schema.</p>
+
+  <p>Your application will also need to link to the SQLite ODB runtime
      library (<code>libodb-sqlite</code>). All SQLite-specific ODB
      classes are defined in the <code>odb::sqlite</code> namespace.</p>
 
@@ -22815,18 +22820,27 @@ CREATE TABLE Employee (
 
   <p>From the list of schema migration changes supported by ODB
      (<a href="#13.2">Section 13.2, "Schema Migration"</a>), the
-     following are not supported by SQLite:</p>
+     following are not supported by SQLite or supported only in
+     more recent version:</p>
 
   <ul class="list">
-    <li>drop column</li>
-    <li>alter column, set <code>NULL</code>/<code>NOT NULL</code></li>
+    <li>drop column &mdash; from SQLite <code>3.35.0</code></li>
+    <li>alter column, set <code>NULL</code>/<code>NOT NULL</code> &mdash; from SQLite <code>3.53.0</code></li>
     <li>add foreign key</li>
     <li>drop foreign key</li>
   </ul>
 
-  <p>The biggest problem is the lack of support for dropping columns.
-     This means that it would be impossible to delete a data member
-     in a persistent class. To work around this limitation ODB
+  <p>As a result, if you plan to use database schema evolution, it is
+     recommended that you use more recent versions of SQLite and specify
+     the minimum support (by your application) version with the
+     <code>--sqlite-version</code> ODB compiler option. Note also that
+     we still have to resort to logical delete described below for dropping
+     columns that belong to foreign key constraints because SQLite does not
+     yet support dropping of foreign keys.</p>
+
+  <p>For older vesions of SQLite the biggest problem is the lack of support
+     for dropping columns. This means that it would be impossible to delete a
+     data member in a persistent class. To work around this limitation ODB
      implements <em>logical delete</em> for columns that allow
      <code>NULL</code> values. In this case, instead of dropping
      the column (in the post-migration stage), the schema migration
@@ -22836,20 +22850,18 @@ CREATE TABLE Employee (
      to <code>NULL</code> (unless the column specifies a default
      value).</p>
 
-  <p>Since it is also impossible to change the column's
-     <code>NULL</code>/<code>NOT NULL</code> attribute after it
-     has been added, to make schema evolution support usable in
-     SQLite, all the columns should be added as <code>NULL</code>
-     even if semantically they should not allow <code>NULL</code>
-     values. We should also normally refrain from assigning
-     default values to columns (<a href="#14.4.7">Section 14.4.7,
-     <code>default</code></a>), unless the space overhead of
-     a default value is not a concern. Explicitly making all
-     the data members <code>NULL</code> would be burdensome
-     and ODB provides the <code>--sqlite-override-null</code>
-     command line option that forces all the columns, even those
-     that were explicitly marked <code>NOT NULL</code>, to be
-     <code>NULL</code> in SQLite.</p>
+  <p>Since until SQLite <code>3.53.0</code> it is also impossible to change
+     the column's <code>NULL</code>/<code>NOT NULL</code> attribute after it
+     has been added, to make schema evolution support usable in earlier SQLite
+     versions, all the columns should be added as <code>NULL</code> even if
+     semantically they should not allow <code>NULL</code> values. We should
+     also normally refrain from assigning default values to columns
+     (<a href="#14.4.7">Section 14.4.7, <code>default</code></a>), unless the
+     space overhead of a default value is not a concern. Explicitly making all
+     the data members <code>NULL</code> would be burdensome and ODB provides
+     the <code>--sqlite-override-null</code> command line option that forces
+     all the columns, even those that were explicitly marked <code>NOT
+     NULL</code>, to be <code>NULL</code> in SQLite.</p>
 
   <p>SQLite only supports adding foreign keys as part of the
      column addition. As a result, we can only add a new
@@ -22870,18 +22882,18 @@ CREATE TABLE Employee (
      problem is to disable foreign keys checking altogether
      (see the <code>foreign_keys</code> SQLite pragma).</p>
 
-  <p>To summarize, to make schema evolution support usable
-     in SQLite we should pass the <code>--sqlite-override-null</code>
-     option when compiling our persistent classes and also refrain
-     from assigning default values to data members. Note also that
-     this has to be done from the start so that every column is added
-     as <code>NULL</code> and therefore can be logically deleted later.
-     In particular, you cannot add the <code>--sqlite-override-null</code>
-     option when you realize you need to delete a data member. At this
-     point it is too late since the column has already been added
-     as <code>NOT NULL</code> in existing databases. We should also
-     avoid composite object ids if we are planning to use object
-     relationships.</p>
+  <p>To summarize, to make schema evolution support usable in earlier versions
+     of SQLite we should (until version <code>3.53.0</code>) pass
+     the <code>--sqlite-override-null</code> option when compiling our
+     persistent classes and (until version <code>3.35.0</code>) also refrain
+     from assigning default values to data members. Note also that this has to
+     be done from the start so that every column is added as <code>NULL</code>
+     and therefore can be logically deleted later. In particular, you cannot
+     add the <code>--sqlite-override-null</code> option when you realize you
+     need to delete a data member. At this point it is too late since the
+     column has already been added as <code>NOT NULL</code> in existing
+     databases. We should also avoid composite object ids if we are planning
+     to use object relationships.</p>
 
   <h2><a name="18.7">18.7 SQLite Index Definitions</a></h2>
 
