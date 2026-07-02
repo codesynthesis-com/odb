@@ -1,6 +1,8 @@
 // file      : odb/relational/sqlite/schema.cxx
 // license   : GNU GPL v3; see accompanying LICENSE file
 
+#include <vector>
+
 #include <odb/relational/schema.hxx>
 
 #include <odb/relational/sqlite/common.hxx>
@@ -23,7 +25,7 @@ namespace relational
         drop_column (relational::common const& c)
             : relational::common (c) {}
 
-        strings set_null; // Columns to set NULL.
+        std::vector<sema_rel::column*> set_null; // Columns to set NULL.
 
         virtual void
         traverse (sema_rel::drop_column& dc)
@@ -55,13 +57,16 @@ namespace relational
           }
           else
           {
-            // If this column is not NULLable, then there is nothing we can
-            // do. Otherwise, do a logical DROP by setting all the values to
-            // NULL.
+            // Otherwise, do a logical DROP by setting all the values to NULL.
+            // If this column is not NULLable, then there is nothing we can do
+            // until SQLite 3.53.0, which allows us to drop the NOT NULL
+            // constraint.
             //
             sema_rel::column& c (find<sema_rel::column> (dc));
 
-            if (!c.null ())
+            if (c.null () || v >= sqlite_version (3, 53, 0))
+              set_null.push_back (&c);
+            else
             {
               if (drop)
               {
@@ -80,10 +85,9 @@ namespace relational
                 "' in table '" << dc.table ().name () << "'" << endl;
               cerr << "info: could have performed logical drop if the column " <<
                 "allowed NULL values" << endl;
+
               throw operation_failed ();
             }
-
-            set_null.push_back (quote_id (dc.name ()));
           }
         }
       };
@@ -346,9 +350,8 @@ namespace relational
 
           os << "ALTER TABLE " << quote_id (t.name ()) << endl
              << "  ALTER COLUMN " << quote_id (c.name ()) << " " <<
-            (c.null () ? "DROP" : "SET") << " NOT NULL";
+            (c.null () ? "DROP" : "SET") << " NOT NULL" << endl;
 
-          os << endl;
           post_statement ();
         }
       };
@@ -391,9 +394,10 @@ namespace relational
           }
 
           // SQLite does not support dropping foreign key constraints. We are
-          // going to ignore this if the column is NULL'able since in most
+          // going to ignore this if the column is NULL'able or we can drop
+          // the NULL constraint (starting from SQLite 3.53.0) since in most
           // cases the constraint is going to be dropped as a result of the
-          // column drop (e.g., an object pointer member got deleted).  If we
+          // column drop (e.g., an object pointer member got deleted). If we
           // were not to allow this, then it would be impossible to do logical
           // drop for pointer columns.
           //
@@ -416,7 +420,7 @@ namespace relational
             {
               sema_rel::column& col (j->column ());
 
-              if (col.null ())
+              if (col.null () || v >= sqlite_version (3, 53, 0))
               {
                 // If this column is being dropped, mark it as belonging to a
                 // foreign key that we cannot drop.
@@ -492,9 +496,34 @@ namespace relational
             trav_rel::unames n (dc);
             names (at, n);
 
+            // Logical column drop (set to NULL).
+            //
             if (!dc.set_null.empty ())
             {
-              // Logical column drop (set to NULL).
+              // First see if any of these columns need to be altered to allow
+              // NULL, which we can do from SQLite 3.53.0.
+              //
+              if (v >= sqlite_version (3, 53, 0))
+              {
+                for (sema_rel::column* c: dc.set_null)
+                {
+                  if (!c->null ())
+                  {
+                    // SQLite can only alter a single column per ALTER TABLE
+                    // statement.
+                    //
+                    pre_statement ();
+
+                    os << "ALTER TABLE " << quote_id (at.name ()) << endl
+                       << "  ALTER COLUMN " << quote_id (c->name ()) <<
+                      " DROP NOT NULL" << endl;
+
+                    post_statement ();
+                  }
+                }
+              }
+
+              // Now set them to NULL.
               //
               pre_statement ();
 
@@ -505,11 +534,13 @@ namespace relational
                    i != dc.set_null.end ();
                    ++i)
               {
+                sema_rel::column* c (*i);
+
                 if (i != b)
                   os << "," << endl
                      << "    ";
 
-                os << *i << " = NULL";
+                os << quote_id (c->name ()) << " = NULL";
               }
 
               os << endl;

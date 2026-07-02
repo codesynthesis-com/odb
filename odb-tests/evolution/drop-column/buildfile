@@ -6,19 +6,19 @@ if ($build.meta_operation != 'dist')
 
 db = ($databases[0])
 
-import libodb = libodb%lib{odb}
-
-import libs  = libodb-$db%lib{odb-$db}
-import libs += lib{common}
+import libodb    = libodb%lib{odb}
+import libodb_db = libodb-$db%lib{odb-$db}
+import libcommon = lib{common}
 
 hdrs = test1 test2 test3
 
 exe{driver}: {hxx cxx}{* -*-odb} testscript
 
-# Introduce the metadata library target to make sure the libodb library is
-# resolved for the odb_compile ad hoc rule (see build/root.build for details).
+# Introduce the metadata library target to make sure the libodb and libcommon
+# libraries are resolved for the odb_compile ad hoc rule (see build/root.build
+# for details).
 #
-libue{test-meta}: $libodb
+libue{test-meta}: $libodb $libcommon
 
 for h: $hdrs
   exe{driver}: {hxx ixx cxx}{$h-odb}: hxx{$h} libue{test-meta} hxx{model}
@@ -29,7 +29,7 @@ for h: $hdrs
 #
 {hxx ixx cxx}{test3-odb}: {hxx ixx cxx}{test2-odb}: {hxx ixx cxx}{test1-odb}
 
-exe{driver}: libue{test-meta} $libs
+exe{driver}: libue{test-meta} $libodb_db
 
 # Specify the ODB custom options to be used by the odb_compile ad hoc rule
 # (see build/root.build for details).

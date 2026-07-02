@@ -10,6 +10,8 @@
 #include <odb/core.hxx>
 #include <odb/nullable.hxx>
 
+#include <libcommon/config.hxx> // DATABASE_XXX
+
 #pragma db model version(1, MODEL_VERSION)
 
 #define MODEL_NAMESPACE_IMPL(V) v##V
@@ -54,8 +56,16 @@ namespace MODEL_NAMESPACE(MODEL_VERSION)
 
     std::string str;
     unsigned long num;
+
+    // Test logical drop in SQLite 3.53.0 and later that can drop the NOT NULL
+    // constraint.
+    //
+#if !defined(DATABASE_SQLITE) || DATABASE_SQLITE_VERSION >= 3053000
+    #pragma db not_null
+#endif
     object1* ptr1;
-    object2* ptr2; // Separate FK constraint.
+
+    object2* ptr2;
   };
 
 #if MODEL_VERSION == 3
