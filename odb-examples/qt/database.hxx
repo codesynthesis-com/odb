@@ -65,20 +65,11 @@ createDatabase (int& argc, char* argv[])
     new odb::sqlite::database (
       argc, argv, false, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE));
 
-  // Create the database schema. Due to bugs in SQLite foreign key
-  // support for DDL statements, we need to temporarily disable
-  // foreign keys.
-  //
+  // Create the database schema.
   {
-    connection_ptr c (db->connection ());
-
-    c->execute ("PRAGMA foreign_keys=OFF");
-
-    transaction t (c->begin ());
+    transaction t (db>begin ());
     schema_catalog::create_schema (*db);
     t.commit ();
-
-    c->execute ("PRAGMA foreign_keys=ON");
   }
 #elif defined(DATABASE_PGSQL)
   unique_ptr<database> db (new odb::pgsql::database (argc, argv));

@@ -42,13 +42,9 @@ main (int argc, char* argv[])
       // Create schema similar to create_database().
       //
       {
-        c->execute ("PRAGMA foreign_keys=OFF");
-
         transaction t (c->begin ());
         odb::schema_catalog::create_schema (adb);
         t.commit ();
-
-        c->execute ("PRAGMA foreign_keys=ON");
       }
 
       {

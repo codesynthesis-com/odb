@@ -32,23 +32,13 @@ main (int argc, char* argv[])
     // Create the database schema.
     //
     {
-      connection_ptr c (db->connection ());
-
-      // Temporarily disable foreign key constraints for SQLite.
-      //
-      if (db->id () == odb::id_sqlite)
-        c->execute ("PRAGMA foreign_keys=OFF");
-
       assert (schema_catalog::exists (*db, "test"));
       assert (!schema_catalog::exists (*db, "test1"));
       assert (!schema_catalog::exists (*db, ""));
 
-      transaction t (c->begin ());
+      transaction t (db->begin ());
       schema_catalog::create_schema (*db, "test");
       t.commit ();
-
-      if (db->id () == odb::id_sqlite)
-        c->execute ("PRAGMA foreign_keys=ON");
     }
   }
   catch (const odb::exception& e)

@@ -39,14 +39,11 @@ main (int argc, char* argv[])
     {
       connection_ptr c (db->connection ());
 
-      // Temporarily disable foreign key constraints for MySQL and SQLite.
-      // For these databases this is the only way to drop circularly-
-      // dependant tables.
+      // Temporarily disable foreign key constraints for MySQL where
+      // this is the only way to drop circularly-dependant tables.
       //
       if (db->id () == odb::id_mysql)
         c->execute ("SET FOREIGN_KEY_CHECKS=0");
-      else if (db->id () == odb::id_sqlite)
-        c->execute ("PRAGMA foreign_keys=OFF");
 
       transaction t (c->begin ());
       schema_catalog::create_schema (*db);
@@ -54,8 +51,6 @@ main (int argc, char* argv[])
 
       if (db->id () == odb::id_mysql)
         c->execute ("SET FOREIGN_KEY_CHECKS=1");
-      else if (db->id () == odb::id_sqlite)
-        c->execute ("PRAGMA foreign_keys=ON");
     }
 
     query<base> bq (query<base>::d->id != 0);

@@ -50,22 +50,11 @@ main (int argc, char* argv[])
 
         if (embedded)
         {
-          // SQLite has broken foreign keys when it comes to DDL.
-          //
-          // @@ TMP Looks like not anymore?
-          //
-#ifdef DATABASE_SQLITE
-          // db->connection ()->execute ("PRAGMA foreign_keys=OFF");
-#endif
           transaction t (db->begin ());
           schema_catalog::drop_schema (*db);
           schema_catalog::create_schema (*db, "", false);
           schema_catalog::migrate_schema (*db, 2);
           t.commit ();
-
-#ifdef DATABASE_SQLITE
-          // db->connection ()->execute ("PRAGMA foreign_keys=ON");
-#endif
         }
 
         // Test soft-deleted objects.

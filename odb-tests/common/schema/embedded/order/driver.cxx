@@ -38,14 +38,12 @@ main (int argc, char* argv[])
     {
       connection_ptr c (db->connection ());
 
-      // Temporarily disable foreign key constraints for MySQL and SQLite.
-      // For MySQL we can actually create the tables in any order. It is
-      // dropping them that's the problem (there is no IF EXISTS).
+      // Temporarily disable foreign key constraints for MySQL which
+      // can actually create the tables in any order, it is dropping
+      // them that's the problem (there is no IF EXISTS).
       //
       if (db_id == odb::id_mysql)
         c->execute ("SET FOREIGN_KEY_CHECKS=0");
-      else if (db_id == odb::id_sqlite)
-        c->execute ("PRAGMA foreign_keys=OFF");
 
       transaction t (c->begin ());
       schema_catalog::create_schema (*db);
@@ -53,8 +51,6 @@ main (int argc, char* argv[])
 
       if (db_id == odb::id_mysql)
         c->execute ("SET FOREIGN_KEY_CHECKS=1");
-      else if (db_id == odb::id_sqlite)
-        c->execute ("PRAGMA foreign_keys=ON");
     }
   }
   catch (const odb::exception& e)

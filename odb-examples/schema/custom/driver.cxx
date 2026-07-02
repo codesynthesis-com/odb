@@ -30,17 +30,7 @@ main (int argc, char* argv[])
     defined(DATABASE_SQLITE) || \
     defined(DATABASE_MSSQL)
     {
-
-      // Due to bugs in SQLite foreign key support for DDL statements,
-      // we need to temporarily disable foreign keys.
-      //
-      connection_ptr c (db->connection ());
-
-#ifdef DATABASE_SQLITE
-      c->execute ("PRAGMA foreign_keys=OFF");
-#endif
-
-      transaction t (c->begin ());
+      transaction t (db->begin ());
 
       // Try to drop the tables if they exist and ignore the error
       // if they don't.
@@ -72,10 +62,6 @@ main (int argc, char* argv[])
         "degree VARCHAR (255) NOT NULL)");
 
       t.commit ();
-
-#ifdef DATABASE_SQLITE
-      c->execute ("PRAGMA foreign_keys=ON");
-#endif
     }
 #elif defined(DATABASE_PGSQL)
     {
