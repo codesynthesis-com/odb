@@ -242,20 +242,19 @@ config [string, null] config.odb_tests.mssql.driver
 # decide test configurations (e.g., the --std option to pass to the ODB
 # compiler).
 #
+# Note: buildfile{predefs} cleaned in root buildfile.
+
+[rule_hint=cxx.predefs] buildfile{predefs}:
+
+# Extract SQLITE_VERSION_NUMBER if SQLite use is configured.
+#
+buildfile{predefs}: hxx{sqlite-predefs}: include = $sqlite
+
 if! $skeleton
 {
   using cxx.predefs
 
-  # Note: buildfile{predefs} cleaned in root buildfile.
-
-  [rule_hint=cxx.predefs] buildfile{predefs}:
-  {
-    cxx.predefs.macros = __cplusplus@cplusplus
-  }
-
-  # Extract SQLITE_VERSION_NUMBER if SQLite use is configured.
-  #
-  buildfile{predefs}: hxx{sqlite-predefs}: include = $sqlite
+  buildfile{predefs}: cxx.predefs.macros = __cplusplus@cplusplus
 
   if $sqlite
   {
@@ -270,7 +269,8 @@ if! $skeleton
       cxx.predefs.poptions = true
 
       # @@ TMP ugly hack until the predefs rule handles libraries. See
-      # build2 GH issue #544.
+      # build2 GH issue #544. Note: will have to move dependency out of
+      # the `if! $skeleton` to avoid conditional dependencies.
       #
       cxx.poptions += $($libsqlite3: cc.export.poptions)
     }
