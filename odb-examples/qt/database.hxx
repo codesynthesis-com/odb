@@ -67,7 +67,7 @@ createDatabase (int& argc, char* argv[])
 
   // Create the database schema.
   {
-    transaction t (db>begin ());
+    transaction t (db->begin ());
     schema_catalog::create_schema (*db);
     t.commit ();
   }
