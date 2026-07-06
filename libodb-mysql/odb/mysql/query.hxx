@@ -283,9 +283,27 @@ namespace odb
 
       template <typename T>
       static ref_bind<T>
+      _ref (T& x)
+      {
+        return ref_bind<T> (x);
+      }
+
+      template <typename T>
+      static ref_bind<T>
       _ref (const T& x)
       {
         return ref_bind<T> (x);
+      }
+
+      template <typename T>
+      static ref_bind<T>
+      _ref (T&&) = delete;
+
+      template <database_type_id ID, typename T>
+      static ref_bind_typed<T, ID>
+      _ref (T& x)
+      {
+        return ref_bind_typed<T, ID> (x);
       }
 
       template <database_type_id ID, typename T>
@@ -295,12 +313,18 @@ namespace odb
         return ref_bind_typed<T, ID> (x);
       }
 
+      template <database_type_id ID, typename T>
+      static ref_bind_typed<T, ID>
+      _ref (T&&) = delete;
+
       // Some compilers (notably VC++), when deducing const T& from const
       // array do not strip const from the array type. As a result, in the
       // above signatures we get, for example, T = const char[4] instead
       // of T = char[4], which is what we want. So to "fix" such compilers,
       // we will have to provide the following specializations of the above
       // functions.
+      //
+      // @@ TMP Wonder if still necessary?
       //
       template <typename T, std::size_t N>
       static val_bind<T[N]>
