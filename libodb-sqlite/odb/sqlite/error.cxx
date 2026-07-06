@@ -69,20 +69,32 @@ namespace odb
         }
       case SQLITE_BUSY:
         {
-          // SQLITE_BUSY_SNAPSHOT is returned when a read transaction tries to
-          // upgrade to a write transaction while there is another write
-          // transaction in progress. Only possible in the WAL mode. To avoid,
-          // start all (potentially) write transactions with BEGIN IMMEDIATE.
+          // Note that while it may seem the SQLITE_BUSY_SNAPSHOT exteded
+          // error code is exactly what we need here to distinguish between
+          // timeout and deadlock, turns out it only covers a subset of
+          // conditions that we are interested; for details see:
           //
-          // But there appears to be a bug, see: https://sqlite.org/forum/forumpost/a2049876cc
+          // https://sqlite.org/forum/forumpost/a2049876cc
           //
-          // See also GH issue #33.
+          // Also see our GH issue #33 for background.
           //
-#ifdef SQLITE_BUSY_SNAPSHOT // Since SQLite 3.8.0.
-          if (ee == SQLITE_BUSY_SNAPSHOT)
-            throw deadlock ();
-#endif
-          throw timeout ();
+          using busy_state = connection::busy_state;
+
+          connection& mc (c.main_connection ());
+
+          if (mc.busy_state_ == busy_state::inactive ||
+              mc.busy_state_ == busy_state::timedout)
+          {
+            if (mc.busy_state_ == busy_state::timedout)
+              mc.busy_state_ = busy_state::active; // Reset.
+
+            throw timeout ();
+          }
+
+          // If we got SQLITE_TIMEOUT without the busy handler being called,
+          // then we assume this is one of several deadlock conditions.
+          //
+          throw deadlock ();
         }
       case SQLITE_IOERR:
         {

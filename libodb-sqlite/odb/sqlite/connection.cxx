@@ -3,6 +3,12 @@
 
 #include <odb/sqlite/connection.hxx>
 
+#ifdef _WIN32
+#  include <odb/details/win32/windows.hxx> // Sleep()
+#else
+#  include <unistd.h> // usleep()
+#endif
+
 #include <new>    // std::bad_alloc
 #include <string>
 
@@ -215,6 +221,93 @@ namespace odb
     {
       generic_statement st (*this, s, n);
       return st.execute ();
+    }
+
+    static const unsigned char
+    delays[] = { 1, 2, 5, 10, 15, 20, 25, 25,  25,  50,  50, 100 };
+
+    static const unsigned char
+    totals[] = { 0, 1, 3,  8, 18, 33, 53, 78, 103, 128, 178, 228 };
+
+    int
+    connection_busy_handler (void* arg, int scount)
+    {
+      // The protocol is as follows: Count is the number of times we have
+      // already been called for this "locking event". If we return non-0,
+      // then SQLite tries to grab the lock and calls us again if
+      // unsuccessful. If we return 0, then SQLite immediately returns
+      // SQLITE_BUSY to the application.
+      //
+      using busy_state = connection::busy_state;
+
+      connection& c (*static_cast<connection*> (arg));
+
+      assert (c.busy_state_ == busy_state::active && scount >= 0);
+
+      // This waiting semantics was adopted from SQLite's default busy timeout
+      // handler. Presumably it is adequate. Though one wonders if sleeping a
+      // fraction of a millisecond the first few times would be better...
+      //
+      unsigned int count (static_cast<unsigned int> (scount));
+
+      const unsigned int ndelay = sizeof (delays) / sizeof (delays[1]);
+      unsigned int delay (count < ndelay ? delays[count] : delays[ndelay - 1]);
+
+      if (c.busy_timeout_ >= 0) // If negative, wait indefinitely.
+      {
+        unsigned int timeout (static_cast<unsigned int> (c.busy_timeout_));
+
+        unsigned int prior (
+          count < ndelay
+          ? totals[count]
+          : totals[ndelay - 1] + delay * (count - (ndelay - 1)));
+
+        if (prior + delay > timeout)
+        {
+          if (timeout > prior)
+            delay = timeout - prior;
+          else
+          {
+            c.busy_state_ = busy_state::timedout;
+            return 0;
+          }
+        }
+      }
+
+      // Note that sqlite3_sleep() has to jump through some VFS hoops to get
+      // to the sleep implementation which has an observable performance
+      // impact.
+      //
+#if 0
+      sqlite3_sleep (static_cast<int> (delay));
+#else
+#  ifdef _WIN32
+      Sleep (delay);
+#  else
+      usleep (delay * 1000);
+#  endif
+#endif
+      return 1;
+    }
+
+    void connection::
+    busy_timeout (int ms)
+    {
+      if (handle_ == nullptr)
+        main_connection ().busy_timeout (ms);
+      else
+      {
+        assert (busy_state_ != busy_state::timedout);
+        busy_state_ = busy_state::inactive;
+
+        int e (sqlite3_busy_handler (handle (), &connection_busy_handler, this));
+
+        if (e != SQLITE_OK)
+          translate_error (e, *this);
+
+        busy_timeout_ = ms;
+        busy_state_ = busy_state::active;
+      }
     }
 
 #ifdef LIBODB_SQLITE_HAVE_UNLOCK_NOTIFY

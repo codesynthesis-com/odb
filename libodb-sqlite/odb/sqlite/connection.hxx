@@ -132,6 +132,22 @@ namespace odb
       virtual unsigned long long
       execute (const char* statement, std::size_t length) override;
 
+    public:
+      // Set the busy timeout similar to SQLite's native PRAGMA busy_timeout
+      // and sqlite3_busy_handler(). If the specified timeout value is 0, then
+      // do not wait and throw the timeout exception immediately. If it is
+      // negative, then wait indefinitely.
+      //
+      // Note that you should use this function instead of the native
+      // mechanisms since it performs additional housekeeping necessary to
+      // correctly translate the SQLITE_BUSY error code to either the deadlock
+      // or timeout exception. Also, if you call SQLite API using the
+      // underlying handle and receive SQLITE_TIMEOUT, you must call
+      // translate_error() to handle it.
+      //
+      void
+      busy_timeout (int ms);
+
       // Query preparation.
       //
     public:
@@ -232,6 +248,19 @@ namespace odb
       // connection.
       //
       auto_handle<sqlite3> handle_;
+
+      // Note: set on main connection for an attached connection.
+      //
+      enum class busy_state {inactive, active, timedout};
+
+      busy_state busy_state_ = busy_state::inactive;
+      int busy_timeout_;
+
+      friend int
+      connection_busy_handler (void*, int);
+
+      friend void
+      translate_error (int, int, connection&);
 
       statement_translator* statement_translator_;
 

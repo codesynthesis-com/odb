@@ -22160,6 +22160,9 @@ namespace odb
       transaction
       begin_exclusive ();
 
+      void
+      busy_timeout (int ms);
+
       sqlite3*
       handle ();
     };
@@ -22187,6 +22190,21 @@ namespace odb
      <code>sqlite::database</code> class (<a href="#18.2">Section 18.2,
      "SQLite Database Class"</a>). The <code>handle()</code> accessor
      returns the SQLite handle corresponding to the connection.</p>
+
+  <p>The <code>busy_timeout()</code> function sets the busy timeout similar to
+     SQLite's native <code>PRAGMA busy_timeout</code>
+     and <code>sqlite3_busy_handler()</code>. If the specified timeout value
+     is <code>0</code>, then do not wait and throw the <code>timeout</code>
+     exception immediately. If it is negative, then wait indefinitely.</p>
+
+  <p>Note that you should use this function instead of the native mechanisms
+     since it performs additional housekeeping necessary to correctly
+     translate the <code>SQLITE_BUSY</code> error code to either
+     the <code>deadlock</code> or <code>timeout</code> exception. Also, if you
+     call SQLite API using the underlying handle and
+     receive <code>SQLITE_TIMEOUT</code>, you must call
+     <code>translate_error()</code> (declared
+     in <code>&lt;odb/sqlite/error.hxx></code>) to handle it.</p>
 
   <p>The <code>sqlite::connection_factory</code> abstract class has the
      following interface:</p>
@@ -22455,9 +22473,8 @@ sqlite::database db (name,
                      SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE |
                      SQLITE_OPEN_PRIVATECACHE // Disable unlock notify.
                      [] (sqlite::connection&amp; c)
-                      {
-                       sqlite3_busy_timeout (c.handle (),
-                                             3600000 /* 1 hour */);
+                     {
+                       c.busy_timeout (-1 /* infinity */);
 
                        c.execute ("PRAGMA journal_mode=WAL");
                        c.execute ("PRAGMA synchronous=NORMAL");
@@ -22465,9 +22482,11 @@ sqlite::database db (name,
                      });
   </pre>
 
-  <p>Note that in this mode you will either need to start (potentially)
-     write transactions with <code>begin_immediate()</code> or prepare
-     to handle the <code>deadlock</code> exception.</p>
+  <p>See <a href="#18.3">Section 18.3, "SQLite Connection and Connection
+     Factory"</a> for details on the <code>busy_timeout()</code>
+     function. Note that in this mode you will either need to start
+     (potentially) write transactions with <code>begin_immediate()</code> or
+     be prepared to handle the <code>deadlock</code> exception.</p>
 
   <p>Often an applications needs to lock the database for exclusive access to
      make sure another instance of the same application does not make any

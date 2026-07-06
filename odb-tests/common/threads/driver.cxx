@@ -6,9 +6,11 @@
 
 #include <vector>
 #include <memory>   // std::unique_ptr
+#include <atomic>
 #include <thread>
 #include <utility>  // std::move()
 #include <cstddef>  // std::size_t
+#include <cstdint>  // std::uint64_t
 #include <iostream>
 
 #include <odb/database.hxx>
@@ -19,6 +21,7 @@
 
 #if defined(DATABASE_SQLITE)
 #  include <odb/sqlite/database.hxx>
+//#  define DATABASE_SQLITE_BEGIN_IMMEDIATE
 #endif
 
 #include "test.hxx"
@@ -34,6 +37,8 @@ namespace details = odb::details;
 const unsigned long thread_count = 24;
 const unsigned long iteration_count = 30;
 const unsigned long sub_iteration_count = 40;
+
+static atomic<uint64_t> deadlocks = 0;
 
 struct task
 {
@@ -72,27 +77,28 @@ struct task
             t.commit ();
             break;
           }
-          catch (const deadlock&) {}
+          catch (const deadlock&)
+          {
+            deadlocks.fetch_add (1, memory_order_relaxed);
+          }
         }
 
         while (true)
         {
           try
           {
-#if !defined(DATABASE_SQLITE)
-            transaction t (db_.begin ());
-#else
             // SQLite has coarse locking semantics (both in shared cache and
             // WAL mode) which can lead to any of the transactions in this
             // test deadlocking even though they shouldn't from the user's
             // perspective. One way to work around this problem is to start a
             // "write" transaction as such right away with BEGIN IMMEDIATE.
             //
-            // In the WAL mode this test is actually slightly faster without
-            // IMMEDIATE. But this requires a patches version of SQLite to
-            // distinguish deadlock from timeout, at least for now:
-            // https://sqlite.org/forum/forumpost/2cc132d53c
+            // Note that in the WAL mode this test is actually slightly faster
+            // without IMMEDIATE. Though the variance between runs is greater.
             //
+#ifndef DATABASE_SQLITE_BEGIN_IMMEDIATE
+            transaction t (db_.begin ());
+#else
             transaction t;
 
             if (db_.id () != odb::id_sqlite)
@@ -110,7 +116,10 @@ struct task
             t.commit ();
             break;
           }
-          catch (const deadlock&) {}
+          catch (const deadlock&)
+          {
+            deadlocks.fetch_add (1, memory_order_relaxed);
+          }
         }
 
         for (unsigned long j (0); j < sub_iteration_count; ++j)
@@ -149,7 +158,10 @@ struct task
               t.commit ();
               break;
             }
-            catch (const deadlock&) {}
+            catch (const deadlock&)
+            {
+              deadlocks.fetch_add (1, memory_order_relaxed);
+            }
           }
         }
 
@@ -162,7 +174,10 @@ struct task
             t.commit ();
             break;
           }
-          catch (const deadlock&) {}
+          catch (const deadlock&)
+          {
+            deadlocks.fetch_add (1, memory_order_relaxed);
+          }
         }
       }
     }
@@ -232,6 +247,12 @@ main (int argc, char* argv[])
           test (argc, argv, thread_count / 2) &&
           test (argc, argv, thread_count / 4)))
       return 1;
+
+#ifdef DATABASE_SQLITE_BEGIN_IMMEDIATE
+    assert (deadlocks.load (memory_order_relaxed) == 0);
+#endif
+
+    cout << "deadlocks: " << deadlocks.load (memory_order_relaxed) << endl;
   }
   catch (const odb::exception& e)
   {

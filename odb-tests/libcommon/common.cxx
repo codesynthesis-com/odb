@@ -75,7 +75,7 @@ create_sqlite_database (int& argc,
       ,
       [] (sqlite::connection& c)
       {
-        sqlite3_busy_timeout (c.handle (), 3600000 /* 1 hour */);
+        c.busy_timeout (-1 /* infinity */);
 
         c.execute ("PRAGMA journal_mode=WAL");
         c.execute ("PRAGMA synchronous=NORMAL");

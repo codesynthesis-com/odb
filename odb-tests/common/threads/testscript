@@ -10,7 +10,7 @@ if $mysql
   .include ../../mysql.testscript
 
   $create_schema
-  $*
+  $* >-
 }
 
 : sqlite
@@ -18,25 +18,7 @@ if $mysql
 if $sqlite
 {
   .include ../../sqlite.testscript
-
-  # Note: this is quite slow:
-  #
-  # $ time ./driver --database ~/odb-test.db
-  # real 3m5.593s
-  # user 1m1.244s
-  # sys	 0m26.793s
-  #
-  # $ time ./driver --database /tmp/odb-test.db
-  # real 0m13.909s
-  # user 0m16.724s
-  # sys  0m4.874s
-  #
-  # $ time ./driver --database "file::memory:"
-  # real	0m12.406s
-  # user	0m15.694s
-  # sys	0m4.207s
-  #
-  $*
+  $* >-
 }
 
 : pgsql
@@ -46,7 +28,7 @@ if $pgsql
   .include ../../pgsql.testscript
 
   $create_schema
-  $*
+  $* >-
 }
 
 : oracle
@@ -56,7 +38,7 @@ if $oracle
   .include ../../oracle.testscript
 
   $create_schema
-  $*
+  $* >-
 }
 
 : mssql
@@ -66,5 +48,5 @@ if $mssql
   .include ../../mssql.testscript
 
   $create_schema
-  $*
+  $* >-
 }
