@@ -2915,18 +2915,17 @@ class name
      or object relationships. In particular, a dynamically allocated object
      or view that is returned as a raw pointer from a database operation
      can be assigned to a smart pointer of our choice, for example
-     <code>std::auto_ptr</code> (C++98/03 only), <code>std::unique_ptr</code>
-     from C++11, or <code>shared_ptr</code> from C++11 or Boost.</p>
+     <code>std::unique_ptr</code> from C++11, or <code>shared_ptr</code> from
+     C++11 or Boost.</p>
 
-  <p>However, to avoid any possibility of a mistake, such as forgetting
-     to use a smart pointer for a returned object or view, as well as to
-     simplify the use of more advanced ODB functionality, such as sessions
-     and bidirectional object relationships, it is recommended that you use
-     smart pointers with the sharing semantics as object pointers.
-     The <code>shared_ptr</code> smart pointer from C++11 or Boost
-     is a good default choice. However, if sharing is not required and
-     sessions are not used, then <code>std::unique_ptr</code> or
-     <code>std::auto_ptr</code> can be used just as well.</p>
+  <p>However, to avoid any possibility of a mistake, such as forgetting to use
+     a smart pointer for a returned object or view, as well as to simplify the
+     use of more advanced ODB functionality, such as sessions and
+     bidirectional object relationships, it is recommended that you use smart
+     pointers with the sharing semantics as object pointers.
+     The <code>shared_ptr</code> smart pointer from C++11 or Boost is a good
+     default choice. However, if sharing is not required and sessions are not
+     used, then <code>std::unique_ptr</code> can be used just as well.</p>
 
   <p>ODB provides several mechanisms for changing the object or view pointer
      type. To specify the pointer type on the per object or per view basis
@@ -3006,14 +3005,13 @@ namespace accounting
      (view)"</a>, and <a href="#14.5.1">Section 14.5.1, "<code>pointer</code>
      (namespace)"</a> for more information on these mechanisms.</p>
 
-  <p>Built-in support that is provided by the ODB runtime library allows us
-     to use <code>std::shared_ptr</code> (C++11),
-     <code>std::unique_ptr</code> (C++11), or <code>std::auto_ptr</code>
-     (C++98/03 only) as pointer types. Plus, ODB profile libraries, that are
-     available for commonly used frameworks and libraries (such as Boost and
-     Qt), provide support for smart pointers found in these frameworks and
-     libraries (<a href="#III">Part III, "Profiles"</a>). It is also easy to
-     add support for our own smart pointers, as described in
+  <p>Built-in support that is provided by the ODB runtime library allows us to
+     use C++11 <code>std::shared_ptr</code> or <code>std::unique_ptr</code> as
+     pointer types. Plus, ODB profile libraries, that are available for
+     commonly used frameworks and libraries (such as Boost and Qt), provide
+     support for smart pointers found in these frameworks and libraries
+     (<a href="#III">Part III, "Profiles"</a>). It is also easy to add support
+     for our own smart pointers, as described in
      <a href="#6.6"> Section 6.6, "Using Custom Smart Pointers"</a>.</p>
 
   <h2><a name="3.4">3.4 Database</a></h2>
@@ -5632,15 +5630,12 @@ for (age = 90; age > 40; age -= 10)
 
   <p>The <code>cache_query()</code> function caches the passed prepared
      query on the connection. The second overloaded version of
-     <code>cache_query()</code> also takes a pointer to the
-     by-reference query parameters. In C++98/03 it should be
-     <code>std::auto_ptr</code> while in C++11
-     &mdash; <code>std::unique_ptr</code>. The
+     <code>cache_query()</code> also takes a <code>std::unique_ptr</code>
+     pointer to the by-reference query parameters. The
      <code>cache_query()</code> function assumes ownership of the
-     passed <code>params</code> argument. If a prepared query
-     with the same name is already cached on this connection,
-     then the <code>odb::prepared_already_cached</code> exception
-     is thrown.</p>
+     passed <code>params</code> argument. If a prepared query with the same
+     name is already cached on this connection, then
+     the <code>odb::prepared_already_cached</code> exception is thrown.</p>
 
   <p>The <code>lookup_query()</code> function looks up a previously
      cached prepared query given its name. The second overloaded
@@ -6490,9 +6485,8 @@ std::sort (v.mbegin (), v.mend ());
 
   <p>Relationships between persistent objects are expressed with pointers or
      containers of pointers. The ODB runtime library provides built-in support
-     for <code>std::shared_ptr</code>/<code>std::weak_ptr</code> (C++11),
-     <code>std::unique_ptr</code> (C++11),
-     <code>std::auto_ptr</code> (C++98/03 only), and raw pointers. Plus, ODB
+     for <code>std::shared_ptr</code>/<code>std::weak_ptr</code>,
+     <code>std::unique_ptr</code>, and raw pointers. Plus, ODB
      profile libraries, that are available for commonly used frameworks and
      libraries (such as Boost and Qt), provide support for smart pointers
      found in these frameworks and libraries (<a href="#III">Part III,
@@ -7447,9 +7441,8 @@ t.commit ();
   <p>The ODB runtime library provides lazy counterparts for all the
      supported pointers, namely:
      <code>odb::lazy_shared_ptr</code>/<code>lazy_weak_ptr</code>
-     for C++11 <code>std::shared_ptr</code>/<code>weak_ptr</code>,
-     <code>odb::lazy_unique_ptr</code> for C++11 <code>std::unique_ptr</code>,
-     <code>odb::lazy_auto_ptr</code> for C++98/03 <code>std::auto_ptr</code>,
+     for <code>std::shared_ptr</code>/<code>weak_ptr</code>,
+     <code>odb::lazy_unique_ptr</code> for <code>std::unique_ptr</code>,
      and <code>odb::lazy_ptr</code> for raw pointers. All these lazy pointers
      are defined in the <code>&lt;odb/lazy-ptr.hxx></code> header. The ODB
      profile libraries also provide lazy pointer implementations for smart
@@ -8632,11 +8625,10 @@ class person
   </pre>
 
   <p>The ODB compiler includes built-in support for using
-     <code>std::auto_ptr</code> (C++98/03 only), <code>std::unique_ptr</code>
-     (C++11), and <code>std::shared_ptr</code> (C++11) as pointers to values.
-     Plus, ODB profile libraries, that are available for commonly used
-     frameworks and libraries (such as Boost and Qt), provide support for
-     smart pointers found in these frameworks and libraries
+     C++11 <code>std::unique_ptr</code> and <code>std::shared_ptr</code> as
+     pointers to values.  Plus, ODB profile libraries, that are available for
+     commonly used frameworks and libraries (such as Boost and Qt), provide
+     support for smart pointers found in these frameworks and libraries
      (<a href="#III">Part III, "Profiles"</a>).</p>
 
   <p>ODB also supports the <code>NULL</code> semantics for composite
@@ -11839,15 +11831,14 @@ t.commit ();
 
 
   <p>The per-object caching policies depend on the object pointer kind
-     (<a href="#6.6">Section 6.6, "Using Custom Smart Pointers"</a>).
-     Objects with a unique pointer, such as <code>std::auto_ptr</code>
-     or <code>std::unique_ptr</code>, as an object pointer are never
-     cached since it is not possible to have two such pointers pointing
-     to the same object. When an object is persisted via a pointer or
-     loaded as a dynamically allocated instance, objects with both raw
-     and shared pointers as object pointers are cached. If an object is
-     persisted as a reference or loaded into a pre-allocated instance,
-     the object is only cached if its object pointer is a raw pointer.</p>
+     (<a href="#6.6">Section 6.6, "Using Custom Smart Pointers"</a>). Objects
+     with a unique pointer, such as <code>std::unique_ptr</code>, as an object
+     pointer are never cached since it is not possible to have two such
+     pointers pointing to the same object. When an object is persisted via a
+     pointer or loaded as a dynamically allocated instance, objects with both
+     raw and shared pointers as object pointers are cached. If an object is
+     persisted as a reference or loaded into a pre-allocated instance, the
+     object is only cached if its object pointer is a raw pointer.</p>
 
   <p>Also note that when we persist an object as a constant reference
      or constant pointer, the session caches such an object as
@@ -20841,12 +20832,12 @@ namespace odb
   <p>The static <code>print_usage()</code> function prints the list of options
      with short descriptions that are recognized by this constructor.</p>
 
-  <p>The last argument to all of the constructors is a pointer to the
-     connection factory. In C++98/03, it is <code>std::auto_ptr</code> while
-     in C++11 <code>std::unique_ptr</code> is used instead. If we pass a
-     non-<code>NULL</code> value, the database instance assumes ownership
-     of the factory instance. The connection factory interface as well as
-     the available implementations are described in the next section.</p>
+  <p>The last argument to all of the constructors is
+     a <code>std::unique_ptr</code> pointer to the connection factory. If we
+     pass a non-<code>NULL</code> value, the database instance assumes
+     ownership of the factory instance. The connection factory interface as
+     well as the available implementations are described in the next
+     section.</p>
 
   <p>The set of accessor functions following the constructors allows us
      to query the parameters of the <code>database</code> instance.</p>
@@ -23363,12 +23354,12 @@ namespace odb
   <p>The static <code>print_usage()</code> function prints the list of options
      with short descriptions that are recognized by this constructor.</p>
 
-  <p>The last argument to all of the constructors is a pointer to the
-     connection factory. In C++98/03, it is <code>std::auto_ptr</code> while
-     in C++11 <code>std::unique_ptr</code> is used instead. If we pass a
-     non-<code>NULL</code> value, the database instance assumes ownership
-     of the factory instance. The connection factory interface as well as
-     the available implementations are described in the next section.</p>
+  <p>The last argument to all of the constructors is
+     a <code>std::unique_ptr</code> pointer to the connection factory. If we
+     pass a non-<code>NULL</code> value, the database instance assumes
+     ownership of the factory instance. The connection factory interface as
+     well as the available implementations are described in the next
+     section.</p>
 
   <p>The set of accessor functions following the constructors allows us
      to query the parameters of the <code>database</code> instance. Note that
@@ -24424,12 +24415,12 @@ namespace odb
      environment handle is used, then the <code>charset</code> and
      <code>ncharset</code> arguments have no effect.</p>
 
-  <p>The last argument to all of the constructors is a pointer to the
-     connection factory. In C++98/03, it is <code>std::auto_ptr</code> while
-     in C++11 <code>std::unique_ptr</code> is used instead. If we pass a
-     non-<code>NULL</code> value, the database instance assumes ownership
-     of the factory instance. The connection factory interface as well as
-     the available implementations are described in the next section.</p>
+  <p>The last argument to all of the constructors is
+     a <code>std::unique_ptr</code> pointer to the connection factory. If we
+     pass a non-<code>NULL</code> value, the database instance assumes
+     ownership of the factory instance. The connection factory interface as
+     well as the available implementations are described in the next
+     section.</p>
 
   <p>The set of accessor functions following the constructors allows us
      to query the parameters of the <code>database</code> instance.</p>
@@ -25660,12 +25651,12 @@ odb::mssql::database dbA ("test",
      this handle should be valid for the lifetime of the <code>database</code>
      instance.</p>
 
-  <p>The last argument to all of the constructors is a pointer to the
-     connection factory. In C++98/03, it is <code>std::auto_ptr</code> while
-     in C++11 <code>std::unique_ptr</code> is used instead. If we pass a
-     non-<code>NULL</code> value, the database instance assumes ownership
-     of the factory instance. The connection factory interface as well as
-     the available implementations are described in the next section.</p>
+  <p>The last argument to all of the constructors is
+     a <code>std::unique_ptr</code> pointer to the connection factory. If we
+     pass a non-<code>NULL</code> value, the database instance assumes
+     ownership of the factory instance. The connection factory interface as
+     well as the available implementations are described in the next
+     section.</p>
 
   <p>The set of accessor functions following the constructors allows us
      to query the parameters of the <code>database</code> instance.</p>

@@ -255,11 +255,6 @@ namespace odb
   lazy_unique_ptr (lazy_unique_ptr<T1, D1>&& r) noexcept
       : p_ (std::move (r.p_)), i_ (std::move (r.i_)) {}
 
-  // template <class T, class D>
-  // template <class T1>
-  // lazy_unique_ptr<T, D>::
-  // lazy_unique_ptr (std::auto_ptr<T1>&& r) noexcept: p_ (std::move (r)) {}
-
   template <class T, class D>
   lazy_unique_ptr<T, D>& lazy_unique_ptr<T, D>::
   operator= (std::nullptr_t) noexcept
@@ -456,16 +451,6 @@ namespace odb
       i_.reset_db (db);
   }
 
-  // template <class T, class D>
-  // template <class DB, class T1>
-  // inline lazy_unique_ptr<T, D>::
-  // lazy_unique_ptr (DB& db, std::auto_ptr<T1>&& p)
-  //     : p_ (std::move (p))
-  // {
-  //   if (p_)
-  //     i_.reset_db (db);
-  // }
-
   template <class T, class D>
   template <class DB, class ID>
   inline void lazy_unique_ptr<T, D>::
@@ -500,19 +485,6 @@ namespace odb
     else
       i_.reset ();
   }
-
-  // template <class T, class D>
-  // template <class DB, class T1>
-  // inline void lazy_unique_ptr<T, D>::
-  // reset (DB& db, std::auto_ptr<T1>&& p)
-  // {
-  //   p_ = std::unique_ptr<T, D> (std::move (p));
-  //
-  //   if (p_)
-  //     i_.reset_db (db);
-  //   else
-  //     i_.reset ();
-  // }
 
   template <class T, class D>
   template <class O>
@@ -661,11 +633,6 @@ namespace odb
       throw std::bad_weak_ptr ();
   }
 
-  // template <class T>
-  // template <class Y>
-  // inline lazy_shared_ptr<T>::
-  // lazy_shared_ptr (std::auto_ptr<Y>&& r): p_ (std::move (r)) {}
-
   template <class T>
   template <class Y, class D>
   inline lazy_shared_ptr<T>::
@@ -712,16 +679,6 @@ namespace odb
     i_ = std::move (r.i_);
     return *this;
   }
-
-  // template <class T>
-  // template <class Y>
-  // inline lazy_shared_ptr<T>& lazy_shared_ptr<T>::
-  // operator= (std::auto_ptr<Y>&& r)
-  // {
-  //   p_ = std::move (r);
-  //   i_.reset ();
-  //   return *this;
-  // }
 
   template <class T>
   template <class Y, class D>
@@ -928,16 +885,6 @@ namespace odb
       i_.reset_db (db);
   }
 
-  // template <class T>
-  // template <class DB, class Y>
-  // inline lazy_shared_ptr<T>::
-  // lazy_shared_ptr (DB& db, std::auto_ptr<Y>&& r)
-  //     : p_ (std::move (r))
-  // {
-  //   if (p_)
-  //     i_.reset_db (db);
-  // }
-
   template <class T>
   template <class DB, class Y>
   inline lazy_shared_ptr<T>::
@@ -1015,19 +962,6 @@ namespace odb
     else
       i_.reset ();
   }
-
-  // template <class T>
-  // template <class DB, class Y>
-  // inline void lazy_shared_ptr<T>::
-  // reset (DB& db, std::auto_ptr<Y>&& r)
-  // {
-  //   p_ = std::move (r);
-  //
-  //   if (p_)
-  //     i_.reset_db (db);
-  //   else
-  //     i_.reset ();
-  // }
 
   template <class T>
   template <class DB, class Y>
