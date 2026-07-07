@@ -157,6 +157,12 @@ namespace odb
     query_base query_column<T, ID, B>::
     like (val_bind<T> p) const
     {
+      if (p.prec == 0)
+        p.prec = this->prec_;
+
+      if (p.scale == 0xFFFF)
+        p.scale = this->scale_;
+
       query_base q (this->table_, this->column_);
       q += "LIKE";
       B::append (q, p, this->conversion_);
@@ -167,6 +173,12 @@ namespace odb
     query_base query_column<T, ID, B>::
     like (ref_bind<T> p) const
     {
+      if (p.prec == 0)
+        p.prec = this->prec_;
+
+      if (p.scale == 0xFFFF)
+        p.scale = this->scale_;
+
       query_base q (this->table_, this->column_);
       q += "LIKE";
       B::append (q, p, this->conversion_);
@@ -177,6 +189,12 @@ namespace odb
     query_base query_column<T, ID, B>::
     like (val_bind<T> p, decayed_type e) const
     {
+      if (p.prec == 0)
+        p.prec = this->prec_;
+
+      if (p.scale == 0xFFFF)
+        p.scale = this->scale_;
+
       query_base q (this->table_, this->column_);
       q += "LIKE";
       B::append (q, p, this->conversion_);
@@ -189,6 +207,12 @@ namespace odb
     query_base query_column<T, ID, B>::
     like (ref_bind<T> p, decayed_type e) const
     {
+      if (p.prec == 0)
+        p.prec = this->prec_;
+
+      if (p.scale == 0xFFFF)
+        p.scale = this->scale_;
+
       query_base q (this->table_, this->column_);
       q += "LIKE";
       B::append (q, p, this->conversion_);
