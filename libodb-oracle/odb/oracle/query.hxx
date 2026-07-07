@@ -849,11 +849,17 @@ namespace odb
       query_base
       like (val_bind<T> pattern) const;
 
+      // Note that for this and similar functions, which implicitly convert
+      // val_bind<T2> to val_bind<T>, we do propagate precision and scale
+      // assuming that they have the same semantics for T2 and T.
+      //
       template <typename T2>
       query_base
       like (val_bind<T2> pattern) const
       {
-        return like (val_bind<T> (decayed_type (pattern.val)));
+        return like (val_bind<T> (decayed_type (pattern.val),
+                                  pattern.prec,
+                                  pattern.scale));
       }
 
       query_base
@@ -872,7 +878,10 @@ namespace odb
       query_base
       like (val_bind<T2> pattern, decayed_type escape) const
       {
-        return like (val_bind<T> (decayed_type (pattern.val)), escape);
+        return like (val_bind<T> (decayed_type (pattern.val),
+                                  pattern.prec,
+                                  pattern.scale),
+                     escape);
       }
 
       query_base
@@ -890,17 +899,11 @@ namespace odb
       query_base
       equal (val_bind<T> v) const
       {
-        // @@ Shouldn't we only overwrite unspecified v.{prec,scale} here (and
-        //    in similar places)?
-        //
-        //if (v.prec == 0xFFF)
-        //  v.prec = this->prec_;
-        //
-        //if (v.scale == 0xFFF)
-        //  v.scale = this->scale_;
-        //
-        v.prec = this->prec_;
-        v.scale = this->scale_;
+        if (v.prec == 0xFFF)
+          v.prec = this->prec_;
+
+        if (v.scale == 0xFFF)
+          v.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += "=";
@@ -912,19 +915,17 @@ namespace odb
       query_base
       equal (val_bind<T2> v) const
       {
-        // @@ Shouldn't we propagate v.{prec,scale} here (and in similar
-        //    places)?
-        //
-        //return equal (val_bind<T> (decayed_type (v.val), v.prec, v.scale));
-        //
-        return equal (val_bind<T> (decayed_type (v.val)));
+        return equal (val_bind<T> (decayed_type (v.val), v.prec, v.scale));
       }
 
       query_base
       equal (ref_bind<T> r) const
       {
-        r.prec = this->prec_;
-        r.scale = this->scale_;
+        if (r.prec == 0xFFF)
+          r.prec = this->prec_;
+
+        if (r.scale == 0xFFF)
+          r.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += "=";
@@ -994,8 +995,11 @@ namespace odb
       query_base
       unequal (val_bind<T> v) const
       {
-        v.prec = this->prec_;
-        v.scale = this->scale_;
+        if (v.prec == 0xFFF)
+          v.prec = this->prec_;
+
+        if (v.scale == 0xFFF)
+          v.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += "!=";
@@ -1007,14 +1011,17 @@ namespace odb
       query_base
       unequal (val_bind<T2> v) const
       {
-        return unequal (val_bind<T> (decayed_type (v.val)));
+        return unequal (val_bind<T> (decayed_type (v.val), v.prec, v.scale));
       }
 
       query_base
       unequal (ref_bind<T> r) const
       {
-        r.prec = this->prec_;
-        r.scale = this->scale_;
+        if (r.prec == 0xFFF)
+          r.prec = this->prec_;
+
+        if (r.scale == 0xFFF)
+          r.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += "!=";
@@ -1084,8 +1091,11 @@ namespace odb
       query_base
       less (val_bind<T> v) const
       {
-        v.prec = this->prec_;
-        v.scale = this->scale_;
+        if (v.prec == 0xFFF)
+          v.prec = this->prec_;
+
+        if (v.scale == 0xFFF)
+          v.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += "<";
@@ -1097,14 +1107,17 @@ namespace odb
       query_base
       less (val_bind<T2> v) const
       {
-        return less (val_bind<T> (decayed_type (v.val)));
+        return less (val_bind<T> (decayed_type (v.val), v.prec, v.scale));
       }
 
       query_base
       less (ref_bind<T> r) const
       {
-        r.prec = this->prec_;
-        r.scale = this->scale_;
+        if (r.prec == 0xFFF)
+          r.prec = this->prec_;
+
+        if (r.scale == 0xFFF)
+          r.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += "<";
@@ -1174,8 +1187,11 @@ namespace odb
       query_base
       greater (val_bind<T> v) const
       {
-        v.prec = this->prec_;
-        v.scale = this->scale_;
+        if (v.prec == 0xFFF)
+          v.prec = this->prec_;
+
+        if (v.scale == 0xFFF)
+          v.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += ">";
@@ -1187,14 +1203,17 @@ namespace odb
       query_base
       greater (val_bind<T2> v) const
       {
-        return greater (val_bind<T> (decayed_type (v.val)));
+        return greater (val_bind<T> (decayed_type (v.val), v.prec, v.scale));
       }
 
       query_base
       greater (ref_bind<T> r) const
       {
-        r.prec = this->prec_;
-        r.scale = this->scale_;
+        if (r.prec == 0xFFF)
+          r.prec = this->prec_;
+
+        if (r.scale == 0xFFF)
+          r.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += ">";
@@ -1264,8 +1283,11 @@ namespace odb
       query_base
       less_equal (val_bind<T> v) const
       {
-        v.prec = this->prec_;
-        v.scale = this->scale_;
+        if (v.prec == 0xFFF)
+          v.prec = this->prec_;
+
+        if (v.scale == 0xFFF)
+          v.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += "<=";
@@ -1277,14 +1299,17 @@ namespace odb
       query_base
       less_equal (val_bind<T2> v) const
       {
-        return less_equal (val_bind<T> (decayed_type (v.val)));
+        return less_equal (val_bind<T> (decayed_type (v.val), v.prec, v.scale));
       }
 
       query_base
       less_equal (ref_bind<T> r) const
       {
-        r.prec = this->prec_;
-        r.scale = this->scale_;
+        if (r.prec == 0xFFF)
+          r.prec = this->prec_;
+
+        if (r.scale == 0xFFF)
+          r.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += "<=";
@@ -1354,8 +1379,11 @@ namespace odb
       query_base
       greater_equal (val_bind<T> v) const
       {
-        v.prec = this->prec_;
-        v.scale = this->scale_;
+        if (v.prec == 0xFFF)
+          v.prec = this->prec_;
+
+        if (v.scale == 0xFFF)
+          v.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += ">=";
@@ -1367,14 +1395,19 @@ namespace odb
       query_base
       greater_equal (val_bind<T2> v) const
       {
-        return greater_equal (val_bind<T> (decayed_type (v.val)));
+        return greater_equal (val_bind<T> (decayed_type (v.val),
+                                           v.prec,
+                                           v.scale));
       }
 
       query_base
       greater_equal (ref_bind<T> r) const
       {
-        r.prec = this->prec_;
-        r.scale = this->scale_;
+        if (r.prec == 0xFFF)
+          r.prec = this->prec_;
+
+        if (r.scale == 0xFFF)
+          r.scale = this->scale_;
 
         query_base q (this->table_, this->column_);
         q += ">=";
