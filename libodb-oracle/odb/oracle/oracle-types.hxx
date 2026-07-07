@@ -142,7 +142,10 @@ namespace odb
       ~lob ();
       lob (): locator (0), buffer (0), position (0) {}
 
+      lob (lob&&);
       lob (const lob&);
+
+      lob& operator= (lob&&);
       lob& operator= (const lob&);
 
     private:
@@ -199,7 +202,10 @@ namespace odb
       datetime (unsigned short f = descriptor_cache | descriptor_free)
           : descriptor (0), flags (f) {}
 
+      datetime (datetime&&);
       datetime (const datetime&);
+
+      datetime& operator= (datetime&&);
       datetime& operator= (const datetime&);
 
       // Use the get() and set() functions above unless you know what you
@@ -234,7 +240,10 @@ namespace odb
       interval_ym (unsigned short f = descriptor_cache | descriptor_free)
           : descriptor (0), flags (f) {}
 
+      interval_ym (interval_ym&&);
       interval_ym (const interval_ym&);
+
+      interval_ym& operator= (interval_ym&&);
       interval_ym& operator= (const interval_ym&);
 
       // Use the get() and set() functions above unless you know what you
@@ -272,7 +281,10 @@ namespace odb
       interval_ds (unsigned short f = descriptor_cache | descriptor_free)
           : descriptor (0), flags (f) {}
 
+      interval_ds (interval_ds&&);
       interval_ds (const interval_ds&);
+
+      interval_ds& operator= (interval_ds&&);
       interval_ds& operator= (const interval_ds&);
 
       // Use the get() and set() functions above unless you know what you

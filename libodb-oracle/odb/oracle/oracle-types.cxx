@@ -23,6 +23,17 @@ namespace odb
     }
 
     lob::
+    lob (lob&& x)
+        : environment (x.environment),
+          error (x.error),
+          locator (x.locator),
+          buffer (x.buffer),
+          position (x.position)
+    {
+      x.locator = 0;
+    }
+
+    lob::
     lob (const lob& x)
         : environment (x.environment),
           error (x.error),
@@ -34,6 +45,26 @@ namespace odb
       //
       if (x.locator != 0)
         clone (x);
+    }
+
+    lob& lob::
+    operator= (lob&& x)
+    {
+      if (this != &x)
+      {
+        if (locator != 0)
+          OCIDescriptorFree (locator, OCI_DTYPE_LOB);
+
+        locator = x.locator;
+        x.locator = 0;
+
+        environment = x.environment;
+        error = x.error;
+        buffer = x.buffer;
+        position = x.position;
+      }
+
+      return *this;
     }
 
     lob& lob::
@@ -108,10 +139,51 @@ namespace odb
     }
 
     datetime::
+    datetime (datetime&& x)
+        : descriptor (x.descriptor), flags (x.flags)
+    {
+      if (descriptor != 0)
+      {
+        x.descriptor = 0;
+
+        environment = x.environment;
+        error = x.error;
+      }
+      else
+        x.get (year_, month_, day_, hour_, minute_, second_, nanosecond_);
+    }
+
+    datetime::
     datetime (const datetime& x)
         : descriptor (0), flags (x.flags)
     {
       x.get (year_, month_, day_, hour_, minute_, second_, nanosecond_);
+    }
+
+    datetime& datetime::
+    operator= (datetime&& x)
+    {
+      if (this != &x)
+      {
+        if (descriptor != 0 && (flags & descriptor_free))
+          OCIDescriptorFree (descriptor, OCI_DTYPE_TIMESTAMP);
+
+        descriptor = x.descriptor;
+
+        if (descriptor != 0)
+        {
+          x.descriptor = 0;
+
+          environment = x.environment;
+          error = x.error;
+        }
+        else
+          x.get (year_, month_, day_, hour_, minute_, second_, nanosecond_);
+
+        flags = x.flags;
+      }
+
+      return *this;
     }
 
     datetime& datetime::
@@ -215,10 +287,51 @@ namespace odb
     }
 
     interval_ym::
+    interval_ym (interval_ym&& x)
+        : descriptor (x.descriptor), flags (x.flags)
+    {
+      if (descriptor != 0)
+      {
+        x.descriptor = 0;
+
+        environment = x.environment;
+        error = x.error;
+      }
+      else
+        x.get (year_, month_);
+    }
+
+    interval_ym::
     interval_ym (const interval_ym& x)
         : descriptor (0), flags (x.flags)
     {
       x.get (year_, month_);
+    }
+
+    interval_ym& interval_ym::
+    operator= (interval_ym&& x)
+    {
+      if (this != &x)
+      {
+        if (descriptor != 0 && (flags & descriptor_free))
+          OCIDescriptorFree (descriptor, OCI_DTYPE_INTERVAL_YM);
+
+        descriptor = x.descriptor;
+
+        if (descriptor != 0)
+        {
+          x.descriptor = 0;
+
+          environment = x.environment;
+          error = x.error;
+        }
+        else
+          x.get (year_, month_);
+
+        flags = x.flags;
+      }
+
+      return *this;
     }
 
     interval_ym& interval_ym::
@@ -293,10 +406,51 @@ namespace odb
     }
 
     interval_ds::
+    interval_ds (interval_ds&& x)
+        : descriptor (x.descriptor), flags (x.flags)
+    {
+      if (descriptor != 0)
+      {
+        x.descriptor = 0;
+
+        environment = x.environment;
+        error = x.error;
+      }
+      else
+        x.get (day_, hour_, minute_, second_, nanosecond_);
+    }
+
+    interval_ds::
     interval_ds (const interval_ds& x)
         : descriptor (0), flags (x.flags)
     {
       x.get (day_, hour_, minute_, second_, nanosecond_);
+    }
+
+    interval_ds& interval_ds::
+    operator= (interval_ds&& x)
+    {
+      if (this != &x)
+      {
+        if (descriptor != 0 && (flags & descriptor_free))
+          OCIDescriptorFree (descriptor, OCI_DTYPE_TIMESTAMP);
+
+        descriptor = x.descriptor;
+
+        if (descriptor != 0)
+        {
+          x.descriptor = 0;
+
+          environment = x.environment;
+          error = x.error;
+        }
+        else
+          x.get (day_, hour_, minute_, second_, nanosecond_);
+
+        flags = x.flags;
+      }
+
+      return *this;
     }
 
     interval_ds& interval_ds::
