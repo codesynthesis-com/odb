@@ -38,7 +38,7 @@ const unsigned long thread_count = 24;
 const unsigned long iteration_count = 30;
 const unsigned long sub_iteration_count = 40;
 
-static atomic<uint64_t> deadlocks = 0;
+static atomic<uint64_t> deadlocks {0};
 
 struct task
 {

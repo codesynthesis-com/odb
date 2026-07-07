@@ -19,6 +19,7 @@
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
+#include <odb/sqlite/error.hxx> // For exported translate_error() decl.
 #include <odb/sqlite/query.hxx>
 #include <odb/sqlite/tracer.hxx>
 #include <odb/sqlite/transaction-impl.hxx>
