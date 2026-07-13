@@ -584,7 +584,7 @@ for consistency.
 		<tr><th>14.3.10</th><td><a href="#14.3.10"><code>index_type</code></a></td></tr>
 		<tr><th>14.3.11</th><td><a href="#14.3.11"><code>key_type</code></a></td></tr>
 		<tr><th>14.3.12</th><td><a href="#14.3.12"><code>value_type</code></a></td></tr>
-		<tr><th>14.3.13</th><td><a href="#14.3.13"><code>value_null</code>/<code>value_not_null</code></a></td></tr>
+		<tr><th>14.3.13</th><td><a href="#14.3.13"><code>key_null</code>/<code>key_not_null</code>, <code>value_null</code>/<code>value_not_null</code></a></td></tr>
 		<tr><th>14.3.14</th><td><a href="#14.3.14"><code>id_options</code></a></td></tr>
 		<tr><th>14.3.15</th><td><a href="#14.3.15"><code>index_options</code></a></td></tr>
 		<tr><th>14.3.16</th><td><a href="#14.3.16"><code>key_options</code></a></td></tr>
@@ -626,7 +626,7 @@ for consistency.
 		<tr><th>14.4.25</th><td><a href="#14.4.25"><code>index_type</code></a></td></tr>
 		<tr><th>14.4.26</th><td><a href="#14.4.26"><code>key_type</code></a></td></tr>
 		<tr><th>14.4.27</th><td><a href="#14.4.27"><code>value_type</code></a></td></tr>
-		<tr><th>14.4.28</th><td><a href="#14.4.28"><code>value_null</code>/<code>value_not_null</code></a></td></tr>
+		<tr><th>14.4.28</th><td><a href="#14.4.28"><code>key_null</code>/<code>key_not_null</code>, <code>value_null</code>/<code>value_not_null</code></a></td></tr>
 		<tr><th>14.4.29</th><td><a href="#14.4.29"><code>id_options</code></a></td></tr>
 		<tr><th>14.4.30</th><td><a href="#14.4.30"><code>index_options</code></a></td></tr>
 		<tr><th>14.4.31</th><td><a href="#14.4.31"><code>key_options</code></a></td></tr>
@@ -6549,13 +6549,14 @@ class employee
 };
   </pre>
 
-  <p>By default, an object pointer can be <code>NULL</code>. To
-     specify that a pointer always points to a valid object we can
-     use the <code>not_null</code> pragma (<a href="#14.4.6">Section
-     14.4.6, "<code>null</code>/<code>not_null</code>"</a>) for
-     single object pointers and the <code>value_not_null</code> pragma
-     (<a href="#14.4.28">Section
-     14.4.28, "<code>value_null</code>/<code>value_not_null</code>"</a>)
+  <p>By default, an object pointer can be <code>NULL</code>. To specify that a
+     pointer always points to a valid object we can use
+     the <code>not_null</code> pragma (<a href="#14.4.6">Section 14.4.6,
+     "<code>null</code>/<code>not_null</code>"</a>) for single object pointers
+     and the <code>value_not_null</code> pragma (<a href="#14.4.28">Section
+     14.4.28,
+     "<code>key_null</code>/<code>key_not_null</code>,
+     <code>value_null</code>/<code>value_not_null</code>"</a>)
      for containers of object pointers. For example:</p>
 
   <pre class="cxx">
@@ -15526,8 +15527,8 @@ class person
     </tr>
 
     <tr>
-      <td><code>value_null</code>/<code>value_not_null</code></td>
-      <td>container's value can/cannot be <code>NULL</code></td>
+      <td><code>key_null</code>/<code>key_not_null</code>, <code>value_null</code>/<code>value_not_null</code></td>
+      <td>container's key/value can/cannot be <code>NULL</code></td>
       <td><a href="#14.3.13">14.3.13</a></td>
     </tr>
 
@@ -15938,6 +15939,13 @@ using age_weight_map = std::map&lt;unsigned short, float>;
 #pragma db value(age_weight_map) key_type("INT UNSIGNED")
   </pre>
 
+  <p>The <code>key_null</code> and <code>key_not_null</code>
+     (<a href="#14.3.13">Section 14.3.13,
+     "<code>key_null</code>/<code>key_not_null</code>,
+     <code>value_null</code>/<code>value_not_null</code>"</a>)
+     specifiers can be used to control the <code>NULL</code> semantics of a
+     key column.</p>
+
   <h3><a name="14.3.12">14.3.12 <code>value_type</code></a></h3>
 
   <p>The <code>value_type</code> specifier specifies the native
@@ -15954,16 +15962,20 @@ using names = std::vector&lt;std::string>;
 
   <p>The <code>value_null</code> and <code>value_not_null</code>
      (<a href="#14.3.13">Section 14.3.13,
-     "<code>value_null</code>/<code>value_not_null</code>"</a>) specifiers
-     can be used to control the <code>NULL</code> semantics of a value
-     column.</p>
+     "<code>key_null</code>/<code>key_not_null</code>,
+     <code>value_null</code>/<code>value_not_null</code>"</a>)
+     specifiers can be used to control the <code>NULL</code> semantics of a
+     value column.</p>
 
-  <h3><a name="14.3.13">14.3.13 <code>value_null</code>/<code>value_not_null</code></a></h3>
+  <h3><a name="14.3.13">14.3.13 <code>key_null</code>/<code>key_not_null</code>, <code>value_null</code>/<code>value_not_null</code></a></h3>
 
-  <p>The <code>value_null</code> and <code>value_not_null</code> specifiers
-     specify that the container type's element value can or cannot be
-     <code>NULL</code>, respectively. The semantics of <code>value_null</code>
-     and <code>value_not_null</code> are similar to those of the
+  <p>The <code>key_null</code>/<code>key_not_null</code>
+     and <code>value_null</code>/<code>value_not_null</code> specifiers specify
+     that the container type's element key or value can or cannot be
+     <code>NULL</code>, respectively. The semantics
+     of <code>key_null</code>/<code>value_null</code>
+     and <code>key_not_null</code>/<code>value_not_null</code> are similar to
+     those of the
      <code>null</code> and <code>not_null</code> specifiers
      (<a href="#14.3.3">Section 14.3.3, "<code>null</code>/<code>not_null</code>"</a>).
      For example:</p>
@@ -15978,10 +15990,6 @@ class account
 using accounts = std::vector&lt;std::shared_ptr&lt;account>>;
 #pragma db value(accounts) value_not_null
   </pre>
-
-  <p>For set and multiset containers (<a href="#5.2">Section 5.2, "Set and
-     Multiset Containers"</a>) the element value is automatically treated
-     as not allowing a <code>NULL</code> value.</p>
 
 
   <h3><a name="14.3.14">14.3.14 <code>id_options</code></a></h3>
@@ -16289,7 +16297,7 @@ using age_weight_map = std::map&lt;unsigned short, float>;
     </tr>
 
     <tr>
-      <td><code>value_null</code>/<code>value_not_null</code></td>
+      <td><code>key_null</code>/<code>key_not_null</code>, <code>value_null</code>/<code>value_not_null</code></td>
       <td>container's value can/cannot be <code>NULL</code></td>
       <td><a href="#14.4.28">14.4.28</a></td>
     </tr>
@@ -17743,6 +17751,13 @@ class person
 };
   </pre>
 
+  <p>The <code>key_null</code> and <code>key_not_null</code>
+     (<a href="#14.4.28">Section 14.4.28,
+     "<code>key_null</code>/<code>key_not_null</code>,
+     <code>value_null</code>/<code>value_not_null</code>"</a>)
+     specifiers can be used to control the <code>NULL</code> semantics of a
+     value key.</p>
+
   <h3><a name="14.4.27">14.4.27 <code>value_type</code></a></h3>
 
   <p>The <code>value_type</code> specifier specifies the native
@@ -17765,19 +17780,22 @@ class person
 
   <p>The <code>value_null</code> and <code>value_not_null</code>
      (<a href="#14.4.28">Section 14.4.28,
-     "<code>value_null</code>/<code>value_not_null</code>"</a>) specifiers
-     can be used to control the <code>NULL</code> semantics of a value
-     column.</p>
+     "<code>key_null</code>/<code>key_not_null</code>,
+     <code>value_null</code>/<code>value_not_null</code>"</a>)
+     specifiers can be used to control the <code>NULL</code> semantics of a
+     value column.</p>
 
-  <h3><a name="14.4.28">14.4.28 <code>value_null</code>/<code>value_not_null</code></a></h3>
+  <h3><a name="14.4.28">14.4.28 <code>key_null</code>/<code>key_not_null</code>, <code>value_null</code>/<code>value_not_null</code></a></h3>
 
-  <p>The <code>value_null</code> and <code>value_not_null</code> specifiers
-     specify that a container's element value for the data member can or
-     cannot be <code>NULL</code>, respectively. The semantics of
-     <code>value_null</code> and <code>value_not_null</code> are similar
-     to those of the <code>null</code> and <code>not_null</code> specifiers
-     (<a href="#14.4.6">Section 14.4.6, "<code>null</code>/<code>not_null</code>"</a>).
-     For example:</p>
+  <p>The <code>key_null</code>/<code>key_not_null</code>
+     and <code>value_null</code>/<code>value_not_null</code> specifiers
+     specify that a container's element key or value for the data member can
+     or cannot be <code>NULL</code>, respectively. The semantics of
+     <code>key_null</code>/<code>value_null</code>
+     and <code>key_not_null</code>/<code>value_not_null</code> are similar to
+     those of the <code>null</code> and <code>not_null</code> specifiers
+     (<a href="#14.4.6">Section 14.4.6,
+     "<code>null</code>/<code>not_null</code>"</a>).  For example:</p>
 
   <pre class="cxx">
 #pragma db object
@@ -17795,10 +17813,6 @@ class account
   std::vector&lt;std::shared_ptr&lt;person>> holders_;
 };
   </pre>
-
-  <p>For set and multiset containers (<a href="#5.2">Section 5.2, "Set and
-     Multiset Containers"</a>) the element value is automatically treated
-     as not allowing a <code>NULL</code> value.</p>
 
   <h3><a name="14.4.29">14.4.29 <code>id_options</code></a></h3>
 
@@ -18521,10 +18535,13 @@ class object
      interface type to the mapped type and <code>from</code> converts
      in the other direction. If no explicit conversion is required for
      either direction, then the corresponding clause can be omitted.
-
      If the conversion expressions are specified, then they must contain the
      special <code>(?)</code> placeholder which will be replaced with the
      actual value to be converted.</p>
+
+  <p>Note also that the <code>map</code> pragma must be specified before the
+     first use of the mapped type in a persistent context (that is, in a
+     persistent object, view, or composite value type).</p>
 
   <p>As an example, suppose we have the <code>path</code> type which
      represents a filesystem path and which we wish to store in the
