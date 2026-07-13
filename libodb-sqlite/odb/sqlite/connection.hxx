@@ -19,7 +19,6 @@
 
 #include <odb/sqlite/version.hxx>
 #include <odb/sqlite/forward.hxx>
-#include <odb/sqlite/error.hxx> // For exported translate_error() decl.
 #include <odb/sqlite/query.hxx>
 #include <odb/sqlite/tracer.hxx>
 #include <odb/sqlite/transaction-impl.hxx>
@@ -260,7 +259,7 @@ namespace odb
       friend int
       connection_busy_handler (void*, int);
 
-      friend void
+      friend LIBODB_SQLITE_EXPORT void
       translate_error (int, int, connection&);
 
       statement_translator* statement_translator_;
