@@ -118,6 +118,8 @@ namespace
       if (m.count ("section-member") != 0)
         process_section_member (m);
 
+      process_points_to (m);
+
       // We don't need to do any further processing for common if we
       // are generating static multi-database code.
       //
@@ -158,8 +160,6 @@ namespace
         if (qwt == 0 || const_type (*qwt))
           m.set ("readonly", true);
       }
-
-      process_points_to (m);
 
       if (class_* cc = composite_wrapper (t))
       {
