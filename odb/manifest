@@ -1,6 +1,6 @@
 : 1
 name: odb
-version: 2.6.0-b.2
+version: 2.6.0-b.3.z
 summary: ODB compiler
 license: GPL-3.0-only
 topics: C++, ORM, source code generation, object persistence, \

@@ -1,6 +1,6 @@
 : 1
 name: libodb-boost
-version: 2.6.0-b.2
+version: 2.6.0-b.3.z
 project: odb
 summary: Boost ODB profile library
 license: GPL-2.0-only
