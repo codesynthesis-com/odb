@@ -345,7 +345,6 @@ namespace odb
       //
       // @@ TMP Wonder if still necessary?
       //
-      //
       template <typename T, std::size_t N>
       static val_bind<T[N]>
       _val (const T (&x) [N])

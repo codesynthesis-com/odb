@@ -44,11 +44,6 @@ exe{driver}: libue{employee-meta} $libs
 
 cxx.poptions =+ "-I$out_base" "-I$src_base" -DDATABASE_$ucase($database)
 
-# @@ TMP Until https://github.com/build2-packaging/boost/issues/2 is fixed.
-#
-if ($cxx.target.class == 'windows')
-  cxx.libs += ($cxx.target.system == 'mingw32' ? -lbcrypt : bcrypt.lib)
-
 # Testscript's run-time prerequisites.
 #
 # @@ BUILD2: Eventually we should be able to mark it as test.input once

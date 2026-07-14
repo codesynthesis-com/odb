@@ -39,11 +39,6 @@ odb_options = --table-prefix boost_uuid_ \
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
 
-# @@ TMP Until https://github.com/build2-packaging/boost/issues/2 is fixed.
-#
-if ($cxx.target.class == 'windows')
-  cxx.libs += ($cxx.target.system == 'mingw32' ? -lbcrypt : bcrypt.lib)
-
 # Testscript's run-time prerequisites.
 #
 exe{driver}: ../../../alias{database-client}: include = adhoc

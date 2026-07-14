@@ -89,7 +89,7 @@ namespace test1
   struct root_view
   {
     //#pragma db column(root::typeid_)
-    std::string typeid_; // @@ tmp
+    std::string typeid_;
 
     unsigned long num;
   };
