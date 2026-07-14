@@ -191,6 +191,10 @@ operator== (const object& x, const object& y)
     x.ncm == y.ncm &&
     x.csm == y.csm &&
 
+    // Note that we cannot compare multimaps for the persisted and loaded
+    // objects since we don't preserve the insertion order for items with the
+    // same keys. Thus, let's just compare the sorted unique key sets.
+    //
     x.nsmm.uniqueKeys () == y.nsmm.uniqueKeys () &&
     x.snmm.uniqueKeys () == y.snmm.uniqueKeys () &&
     x.ncmm.uniqueKeys () == y.ncmm.uniqueKeys () &&
@@ -199,9 +203,9 @@ operator== (const object& x, const object& y)
     x.snh == y.snh &&
     x.sch == y.sch &&
 
-    x.nsmh.uniqueKeys () == y.nsmh.uniqueKeys () &&
-    x.snmh.uniqueKeys () == y.snmh.uniqueKeys () &&
-    x.ncmh.uniqueKeys () == y.ncmh.uniqueKeys () &&
+    x.nsmh == y.nsmh &&
+    x.snmh == y.snmh &&
+    x.ncmh == y.ncmh &&
 
     x.str == y.str;
 }
