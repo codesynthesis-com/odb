@@ -1,24 +1,112 @@
 Version 2.6.0
 
+ * Drop support for C++98 with C++11 being the minimum supported version.
+   Specifically:
+
+   - The ODB compiler now defaults to C++11 (overridable with --std option).
+   - The use of odb::details::unique_ptr was replaced with std::unique_ptr.
+   - The use of odb::details::shared_ptr was replaced with std::shared_ptr.
+   - The use of odb::details::function_wrapper was replaced with std::function.
+
+   In particular, odb::connection_ptr is now std::shared_ptr<odb::connection>.
+
+ * Support for std::optional mapping when ODB is invoked with --std c++17 or
+   later. In the database the absent value is represented as NULL, similar to
+   odb::nullable.
+
  * Support for direct loading of containers of object pointers.
 
-   By default, object pointers are loaded indirectly, that is, we first
-   fetch their object ids and then we load each object with a separate
-   SELECT statement (unless said object is already in the session's object
-   cache). In certain situations this can lead to unacceptable performance
-   due to the so-called "N+1 Problem". With the direct load we fetch the
-   entire pointed-to objects as part of the initial SELECT statement, which
-   may result in improved performance.
+   By default, object pointers are loaded indirectly, that is, we first fetch
+   their object ids and then we load each object with a separate SELECT
+   statement (unless said object is already in the session's object cache).
+   In certain situations this can lead to unacceptable performance due to
+   the so-called "N+1 Problem". With the direct load we fetch the entire
+   pointed-to objects as part of the initial SELECT statement, which may
+   result in improved performance.
 
    For background and details, see Section 15.3, "Dealing with N+1 Problem".
    The development of this functionality was sponsored by Qube Research &
    Technologies Limited.
 
- * The lowest supported SQLite version has been raised to 3.7.4.
+ * Query columns of mapped C++ types are now comparable to mapped types rather
+   than interface types. For example:
+
+   enum class state {disabled, enabled};
+
+   #pragma db map(state) as(std::string) to(...) from(...)
+
+   #pragma db object
+   class o
+   {
+     state s;
+   };
+
+   query<o> q (query<o>::s == std::string (...)); // Ok in 2.5.0, error now.
+   query<o> q (query<o>::s == state::enabled);    // Error in 2.5.0, ok now.
+
+   Further, if a wrapper type is mapped to another wrapper type, then the
+   query comparison is now to the unwrapped mapped type. Continuing with
+   the above examples:
+
+   using optional_string = std::optional<std::string>;
+   using optional_state  = std::optional<state>;
+
+   #pragma db map(optional_state) as(optional_string) to(...) from(...)
+
+   #pragma db object
+   class o
+   {
+     optional_state s;
+   };
+
+   query<o> q (query<o>::s == state::enabled);
+   query<o> q (query<o>::s.is_null ());
+
+ * The connection_pool_factory implementation for all databases now provides
+   the recycle() hook which is called when the connection is returned to the
+   pool.
+
+ * Support for SQLite WAL mode concurrency. For details, refer to Section
+   18.4, "SQLite Connection Configuration" in the ODB manual.
+
+ * Ability to provide a connection configurator for SQLite database.
+
+   The configurator is a callable object (function, lambda, etc) that is
+   called to configure newly created connections, for instance, by executing
+   one or more SQLite PRAGMAs. For details and examples of common
+   configurations, see Section 18.4, "SQLite Connection Configuration" in
+   the ODB manual.
 
  * The SQLite runtime is now able to distinguish the primary key constraint
    violations from other constraint violations and only map the former to the
    object_already_persistent exception.
+
+ * Ability to specify minimum SQLite version with the --sqlite-version ODB
+   compiler options.
+
+   This information is used to enable SQLite version-specific features and
+   workarounds in the generated C++ code and schema. For example:
+
+   --sqlite-version 3.53.3
+
+   Specifically, SQLite 3.35.0 added support for DROP COLUMN which can be
+   used instead of the "logical" drop (set to NULL) during database schema
+   migration.  Note also that we still cannot drop columns belonging to
+   foreign keys (typically object pointers) since there is currently (as of
+   3.53.0) still no way to drop foreign keys. So we unfortunately have to
+   continue using the logical drop for such columns.
+
+   And SQLite 3.53.0 added support for ALTER COLUMN SET|DROP NOT NULL, which
+   makes the use of the --sqlite-override-null option unnecessary.
+
+   The default for --sqlite-version in this version of ODB is 3.7.4.
+
+ * Assumed minimum PostgreSQL server version has been increased to 9.1. This
+   can be overridden with the --pgsql-server-version ODB compiler option.
+
+ * The lowest supported SQLite version has been raised to 3.7.4.
+
+ * The Qt profile (libodb-qt) no longer supports Qt5, only Qt6.
 
 Version 2.5.0
 
