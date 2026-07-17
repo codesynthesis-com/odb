@@ -93,6 +93,13 @@ namespace odb
                typename object_traits<T>::pointer_type>
     {
     };
+    // @@ SESSION_MAP
+    //
+#elif 0
+    template <typename T>
+    struct object_map: object_map_base, object_traits<T>::session_map_type
+    {
+    };
 #else
     template <typename T, typename = void>
     struct object_map_type:

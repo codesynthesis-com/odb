@@ -200,6 +200,15 @@ traverse_object (type& c)
          << "static const bool auto_id = " << auto_id << ";";
     }
 
+    // @@ SESSION_MAP If the map type is specified explicitly by the session
+    //                pragma, then use that instead of std::map.
+    //
+#if 0
+    if (session (c))
+      os << endl
+         << "typedef std::map<id_type, pointer_type> session_map_type;";
+#endif
+
     os << endl;
   }
   else if (!reuse_abst)
@@ -778,6 +787,16 @@ namespace header
 
     if (ctx.options.generate_query ())
       os << "#include <type_traits>" << endl; // enable_if, is_reference
+
+    // @@ SESSION_MAP We should probably turn session_object from bool into
+    //                flags (map, unordered_map, other, etc), to include
+    //                headers selectively?
+    //
+#if 0
+    if (ctx.features.session_object)
+      os << "#include <map>" << endl
+         << "#include <unordered_map>" << endl;
+#endif
 
     os << endl;
 
