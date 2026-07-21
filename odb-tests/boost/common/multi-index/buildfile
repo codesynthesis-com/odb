@@ -35,8 +35,10 @@ exe{driver}: libue{test-meta} $libs
 odb_options = --table-prefix boost_multi_index_ \
               --profile boost/multi-index       \
               --generate-schema
+#-I/home/karen/boost-0.91.0/include
 
 cxx.poptions =+ "-I$out_base" "-I$src_base"
+#-I/home/karen/boost-0.91.0/include
 
 # Testscript's run-time prerequisites.
 #

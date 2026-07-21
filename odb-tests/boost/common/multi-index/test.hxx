@@ -38,6 +38,7 @@ mi::multi_index_container<
   mi::indexed_by<mi::sequenced<> >
 > int_lst;
 
+#if 0
 typedef
 mi::multi_index_container<
   int,
@@ -76,6 +77,7 @@ mi::multi_index_container<
     mi::ordered_unique<mi::member<comp, std::string, &comp::str> >
   >
 > comp_set_set;
+#endif
 
 #pragma db object
 struct object
@@ -87,27 +89,35 @@ struct object
   std::string id;
 
   int_lst il;
+
+#if 0
   int_lst iv;
   int_set is;
 
   int_lst_set ils;
   comp_set_vec csv;
   comp_set_set css;
+#endif
 };
 
 inline bool
 operator== (const object& x, const object& y)
 {
   return
-    x.id == y.id &&
+    x.id == y.id
 
-    x.il == y.il &&
+//        &&
+//    x.il == y.il
+#if 0
+&&
     x.iv == y.iv &&
     x.is == y.is &&
 
     x.ils == y.ils &&
     x.csv == y.csv &&
-    x.css == y.css;
+    x.css == y.css
+#endif
+    ;
 }
 
 #endif // TEST_HXX

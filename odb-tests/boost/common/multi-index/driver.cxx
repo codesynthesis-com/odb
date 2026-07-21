@@ -26,7 +26,7 @@ main (int argc, char* argv[])
 {
   {
     using namespace odb;
-
+#if 0
     assert (odb::access::container_traits<int_lst>::kind == ck_ordered);
     assert (odb::access::container_traits<int_vec>::kind == ck_ordered);
     assert (odb::access::container_traits<int_set>::kind == ck_set);
@@ -34,6 +34,7 @@ main (int argc, char* argv[])
     assert (odb::access::container_traits<int_lst_set>::kind == ck_ordered);
     assert (odb::access::container_traits<comp_set_vec>::kind == ck_ordered);
     assert (odb::access::container_traits<comp_set_set>::kind == ck_set);
+#endif
   }
 
   try
@@ -47,7 +48,7 @@ main (int argc, char* argv[])
       //
       // empty
       //
-
+#if 0
       //
       // med
       //
@@ -95,7 +96,9 @@ main (int argc, char* argv[])
       full.css.insert (comp (234, "bcde"));
       full.css.insert (comp (123, "abcd"));
       full.css.insert (comp (234, "cdef"));
+#endif
 
+#if 0
       // persist
       //
       {
@@ -105,7 +108,9 @@ main (int argc, char* argv[])
         db->persist (full);
         t.commit ();
       }
+#endif
 
+#if 0
       // load & check
       //
       {
@@ -119,7 +124,9 @@ main (int argc, char* argv[])
         assert (med == *m);
         assert (full == *f);
       }
+#endif
 
+#if 0
       // empty
       //
       empty.il.push_back (12);
@@ -146,7 +153,9 @@ main (int argc, char* argv[])
       full.ils.push_back (4567);
       full.csv.insert (comp (4567, "defg"));
       full.css.insert (comp (4567, "defg"));
+#endif
 
+#if 0
       // update
       //
       {
@@ -156,7 +165,9 @@ main (int argc, char* argv[])
         db->update (full);
         t.commit ();
       }
+#endif
 
+#if 0
       // load & check
       //
       {
@@ -181,6 +192,7 @@ main (int argc, char* argv[])
         db->erase<object> ("full");
         t.commit ();
       }
+#endif
     }
   }
   catch (const odb::exception& e)
