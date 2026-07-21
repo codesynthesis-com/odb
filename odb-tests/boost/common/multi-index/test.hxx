@@ -110,4 +110,25 @@ operator== (const object& x, const object& y)
     x.css == y.css;
 }
 
+// Workaround for a problem, which is probably another instance of the one
+// descibed in GH issue #34.
+//
+// Specifically, the problem is that ODB compiler fails with the following GCC
+// error:
+//
+// boost/mp11/algorithm.hpp:816:42:   in ‘constexpr’ expansion of ‘boost::mp11::detail::cx_find_index(...)’
+// boost/mp11/algorithm.hpp:816:11: internal compiler error: in cxx_eval_call_expression, at cp/constexpr.cc:3056
+//  816 |     using type = mp_size_t< cx_find_index( _v, _v + sizeof...(T) ) >;
+//      |           ^~~~
+//
+#ifdef ODB_COMPILER
+#include <odb/boost/multi-index/container-traits.hxx>
+
+template class odb::access::container_traits<int_lst>;
+template class odb::access::container_traits<int_set>;
+template class odb::access::container_traits<int_lst_set>;
+template class odb::access::container_traits<comp_set_vec>;
+template class odb::access::container_traits<comp_set_set>;
+#endif
+
 #endif // TEST_HXX

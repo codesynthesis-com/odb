@@ -14,9 +14,19 @@
 
 #include <utility> // std::move
 
-#include <boost/mpl/find_if.hpp>
-#include <boost/mpl/distance.hpp>
-#include <boost/mpl/begin_end.hpp>
+// Note that staring with boost version 1.91.0, boost::mpl cannot be used with
+// boost::multi_index anymore. Thus, we switch to using boost::mp11.
+//
+#if BOOST_VERSION >= 109100
+#  include <cstddef> // std::size_t
+
+#  include <boost/mp11/list.hpp>      // ::boost::mp11::mp_size<>
+#  include <boost/mp11/algorithm.hpp> // ::boost::mp11::mp_find_if<>
+#else
+#  include <boost/mpl/find_if.hpp>
+#  include <boost/mpl/distance.hpp>
+#  include <boost/mpl/begin_end.hpp>
+#endif
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
@@ -57,6 +67,23 @@ namespace odb
     static const bool value = true;
   };
 
+#if BOOST_VERSION >= 109100
+  template <typename ISP>
+  struct multi_index_ordered_index
+  {
+    using size = ::boost::mp11::mp_size<ISP>;
+    using find = ::boost::mp11::mp_find_if<ISP, multi_index_ordered>;
+
+    static const int value = (find::value < size::value
+                              ? static_cast<int> (find::value)
+                              : -1);
+  };
+
+  template <typename V,
+            typename ISP,
+            typename A,
+            int N = multi_index_ordered_index<ISP>::value>
+#else
   // Get the index of the first ordered sub-index or -1 if none exists.
   //
   template <typename B, typename I, typename E>
@@ -80,6 +107,7 @@ namespace odb
               typename ::boost::mpl::find_if<
                 ISP, multi_index_ordered< ::boost::mpl::_1 > >::type,
               typename ::boost::mpl::end<ISP>::type>::value>
+#endif
   class multi_index_traits
   {
   public:
