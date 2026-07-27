@@ -1,6 +1,6 @@
 : 1
 name: libodb-pgsql
-version: 2.6.0-b.3.z
+version: 2.6.0
 project: odb
 summary: PostgreSQL ODB runtime library
 license: GPL-2.0-only
